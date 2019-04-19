@@ -1,0 +1,33 @@
+<div class="modal animated" id="item_image" role="dialog" aria-labelledby="tax_process" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900">Add Image</h4>
+                <button type="button" class="close" aria-label="Close" (click)="closeImageModal()" ><span aria-hidden="true">&times;</span> </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <div>
+                        <file-upload (uploadedImages)="onUploadImages($event)" ></file-upload>
+                        <div class="row" *ngIf="images.images" >
+                            <div class="col-md-4" *ngFor="let image of images.images; let i = index;" >
+                                <div class="highlight_image">
+                                    <img [src]="image" class="mx-auto center-image img-fluid d-block">
+                                    <div class="edit2">
+                                        <a (click)="removeImage(i)" >
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn_close waves-effect" (click)="closeImageModal()" >Close</button>
+                <button type="button" class="btn btn-primary waves-effect" (click)="addToQueue()" >Add to Queue</button>
+            </div>
+        </div>
+    </div>
+</div>

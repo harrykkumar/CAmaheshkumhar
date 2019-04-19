@@ -1,0 +1,47 @@
+<div class="modal fade right" id="category_master" data-backdrop="static" data-keyboard="false"  role="dialog"
+    aria-labelledby="category_master" aria-hidden="true">
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+        <div class="modal-content">
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900">Add Category</h4>
+                <button type="button" class="close" (click)="clearCategoryvalidation()" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div *ngIf="loading" class="modal-content" >
+                <div class="modal-body" style="height:inherit;" >
+                  <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+                </div>
+            </div>
+            <div class="modal-body" *ngIf="!loading" >
+                <div class="card-body">
+                    <div>
+                        <form [formGroup]="categoryForm">
+                            <div class="form-row">
+                                <div class="form-group col-md-12">
+                                    <label for="org_code">Category Name</label>
+                                    <input id="cateName" type="text" class="form-control" placeholder="Enter Category Name"
+                                    formControlName="CategoryName" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.CategoryName.errors }" >
+                                </div>
+                                <div class="form-group col-md-12" *ngIf="catLevel > 1" >
+                                    <label for="bill_no">Under Category </label>
+                                    <div class="input-group adw_select">
+                                        <select2 [data]="selectCategory" #cat_select2 class="control_select" (valueChanged)="selectedCategory($event)"
+                                        autocomplete="true" [options]="catagoriesPlaceHolder" [value]="categoryValue"
+                                        [disabled]="disabledValue"></select2>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label>Short Name</label>
+                                    <input formControlName="ShortName" type="text" class="form-control" placeholder="Enter Short Name" >
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary waves-effect" (click)="saveAndUpdateCategory()">Save
+                 </button>
+            </div>
+        </div>
+    </div>
+</div>

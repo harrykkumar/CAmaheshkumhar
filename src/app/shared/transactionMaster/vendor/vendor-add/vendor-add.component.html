@@ -1,0 +1,500 @@
+<div class="modal fade" id="vendor_form"  role="dialog" aria-labelledby="vendor_form" aria-hidden="true">
+
+    <form [formGroup]="vendorForm" class="modal-dialog large_form modal-full-height modal-top" role="document">
+        <!-- <div class="modal-dialog large_form modal-full-height modal-top" role="document"> -->
+        <div class="modal-content bgcH-grey-100">
+            <!--Header-->
+            <div class="modal-header primary-bg">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-3 left_side_head">
+                            <p class="heading_lead"><i class="fa fa-industry" aria-hidden="true"></i>Vendor
+                                Registration Form</p>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="btn_header">
+                                <a href="javascript:void(0);" class="btn btn_close waves-effect" (click)="addVendor('reset')">Reset</a>
+                                <a href="javascript:void(0);" class="btn btn-default waves-effect" (click)=" addVendor('save') "> Save
+                                </a> 
+                              
+                                <a href="javascript:void(0);" class="btn btn-info waves-effect" (click)="addVendor('addnew')">Save
+                                    With add New</a>
+
+                                <button type="button" (click)="crossButton()" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true" class="white-text">×</span> </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--Body-->
+            <div class="modal-body">
+                <div class="classic-tabs myDIV">
+                    <ul class="nav tabs-cyan tabs list_group " role="tablist">
+                        <li  class="nav-item"><a class="nav-link waves-light " id="tab" (click)="vendorTab()">Vendor
+                                Detail</a> </li>
+                        <li class="nav-item"><a class="nav-link waves-light " id="tab" (click)="adressTab()">Address</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link waves-light " id="tab" role="tab" (click)="bankeDetailTab()">Bank
+                                Detail</a> </li>
+                    </ul>
+                    <div>
+                        <!--Panel 1-->
+                        <div  [hidden]="!vendorDiv">
+                            <!-- *ngIf="vendorDiv" -->
+                            <div>
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <div class="form-row">
+                                            <div class="form-group col-md-3">
+                                                <label>Vendor Name</label>
+                                                <input autofocus  (input)="reapeatName($event.target.value)"  type="text" id="vendorName" class="form-control " placeholder="Enter Vendor Name"
+                                                    formControlName="vendorName" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.vendorName.errors }" >
+                                              
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <label>Contact Person</label>
+                                                <input type="text" class="form-control" placeholder="Enter Contact Person" formControlName="contactPerson" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.contactPerson.errors }" >
+                                            
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <label for="bill_no">Vendor Registration Type</label>
+                                                <div class="input-group adw_select">
+                                                    <div id="vendrRegType" class="input-group adw_select">
+                                                        <select2  [data]="selectVendor" class="control_select "
+                                                            (valueChanged)="selectedVendorId($event)" autocomplete="true"
+                                                            [options]="selectVendorPlaceHolder" [value]="vendorValue" 
+                                                             [ngClass]="{ 'errorSelecto is-invalid': submitClick && vendorRegiError  }"></select2>
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                            <!-- <div class="form-group col-md-3">
+                                            <label>Registration Number (Optional)</label>
+                                            <input type="text" class="form-control" placeholder="Enter Registration Number" formControlName="registrationNo">
+                                        </div> -->
+                                            <!-- <div class="form-group col-md-3">
+                                            <label>Vendor Code</label>
+                                            <input type="text" class="form-control" placeholder="Enter Vendor Code" formControlName="vendorCode">
+                                        </div> -->
+
+                                            <div class="form-group col-md-3">
+                                                <label class="fw-500">DOA</label>
+                                                <div class="timepicker-input input-icon ">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
+                                                        <input id="flatpickr" class="form-control start-date vendor-add"
+                                                            placeholder="Enter Reg. Date" formControlName="daoDate">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <label class="fw-500">DOB</label>
+                                                <div class="timepicker-input input-icon">
+                                                    <div class="input-group">
+                                                        <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
+                                                        <input id="flatpickr" class="form-control start-date vendor-add"
+                                                            placeholder="Enter Reg. Date" formControlName="dobDate">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-md-3">
+                                                <label>GSTIN No</label>
+                                                <input  style="text-transform:uppercase" type="text"  class="form-control" placeholder="Enter GSTIN No
+                                                "
+                                                    formControlName="gstNo" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.gstNo.errors }" >
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <label>PAN No</label>
+                                                <input  style="text-transform:uppercase" id="panno" type="text" class="form-control" placeholder=" PAN No."
+                                                    formControlName="panNo" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.panNo.errors }" >
+                                            </div>
+
+
+                                            <div class="form-group col-md-3">
+                                                <label>Opening Balance</label>
+                                                <input type="text" class="form-control" placeholder="Enter Opening Balance"
+                                                    formControlName="openingBlance">
+                                            </div>
+
+
+                                            <div class="form-group col-md-3">
+                                                <label for="bill_no">CR/DR</label>
+                                                <div class="input-group adw_select">
+                                                    <div class="input-group adw_select">
+                                                        <select2 [data]="selectCrDr" class="control_select"
+                                                            (valueChanged)="selectCRDRId($event)" autocomplete="true"
+                                                            [options]="select2CrDrPlaceHolder" [value]="valueCRDR"></select2>
+                                                    </div>
+                                                    <!-- <div *ngIf="catagoryError">{{this.errormassage}}</div> -->
+                                                </div>
+                                            </div>
+                                            <!-- <div class="form-group col-md-3">
+                                            <label>Due On</label>
+                                            <input type="text" class="form-control" placeholder="Enter Opening Balance" formControlName="dueOn">
+                                        </div> -->
+
+
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="custom-control custom-checkbox my-1 mr-sm-2">
+                                                <input type="checkbox" class="custom-control-input" id="rcma" (change)="rcmApplicable($event.target.checked)">
+                                                <label class="custom-control-label" for="rcma">RCM Applicable Or
+                                                    Not</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox my-1 mr-sm-2">
+                                                <input type="checkbox" class="custom-control-input" id="msmed" (change)="msmedActComplication($event.target.checked)">
+                                                <label class="custom-control-label" for="msmed">MSMED Act
+                                                    Compliance
+                                                    2000</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+
+                                            <div class="col-lg-6">
+                                                <div class="card">
+                                                    <table class="table" style="width: 100%">
+                                                        <thead>
+                                                            <tr>
+                                                                    <th width="5%">#</th>
+                                                                    <th width="10%">Mobile Type</th>
+                                                                    <th width="20%">Mobile Number</th>
+                                                                    <th width="10%"></th>
+                                                                    <th width="10%"></th>   
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr *ngFor="let item of adressArray let i=index">
+                                                                <td width="5%">
+                                                                    <button type="submit" id="btn_add" class="btn btn-primary btn_add_more"
+                                                                        (click)="addingPulsContact(1)">+</button></td>
+
+                                                                <td width="20%">
+
+                                                                    <select class="form-control" id="sel1{{i}}" value="{{item.ContactType}}">
+                                                                        <option value="">Select </option>
+                                                                        <option value="1">Work</option>
+                                                                        <option value="2">Home</option>
+                                                                        <option value="3">Mobile</option>
+                                                                        <option value="4">Fax</option>
+                                                                        <option value="5">Skype</option>
+                                                                        <option value="6">YMessenger</option>
+                                                                        <option value="7">Sip</option>
+                                                                        <option value="8">Other</option>
+                                                                    </select>
+                                                                </td>
+                                                                    <td  width="20%">
+                                                                            <div class="input-group adw_select">
+                                                                                    <input disabled='true' type="text" class="form-control" id=ctryPhoneCode{{i}}
+                                                                                    value="+ {{item.CountryCode}}" value="+ {{code}}"    value="+ {{CountryCode}}">
+                                                                                <!-- <label id="ctryPhoneCode{{i}}"    class="form-control" for="me">+ {{CountryCode}}</label> -->
+                                                                                <div class="input-group-btn">
+                                                                                    <div class="btn-group" role="group">
+                                                                                        <div class="dropdown dropdown-lg">
+                                                                                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+                                                                                            <ul class="dropdown-menu select_dropdown" style="left: 163px;">
+                                                                                                <li class="pX-20 pY-5 ta-c bdT bgc-grey">
+                                                                                                    <div id="custom-search-input-dd" class="col-md-12">
+                                                                                                        <div class="input-group ">
+                                                                                                            <input (input)="searchCountryCodeForMobile($event.target.value)"  type="text" class="form-control input-lg" placeholder="Search Country">
+                                                                                                            <span class="input-group-btn">
+                                                                                                                <a>
+                                                                                                                    <i class="fas fa-search"></i>
+                                                                                                                </a>
+                                                                                                            </span>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </li>
+                                                                                                <li   *ngFor ="let name of countryListWithCode; let a = index" (click)="onSelectCountry(a,i)" class="pX-20 pY-5 ta-c bdT"> <span style="width:20%;" class="pr-2">+{{name.Phonecode}} </span> <span style="width:80%;">{{name.Name}}</span></li>
+                                                                                            </ul>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                      
+                                                                  
+                                                           
+
+                                                                </td>
+                                                                <td width="50%">
+                                                                    <!-- {{item.contactNo}} -->
+
+                                                                    <input type="number" (keyup)="checkNumberByCountry($event)"  type="text" class="form-control mobilefocu" id="contactno{{i}}"
+                                                                        value="{{item.ContactNo}}"  >
+
+                                                                </td>
+
+                                                                <td width="5%" class="align-middle"><a (click)="deleteArrayMobileType(i)"><i
+                                                                            class="fa fa-trash delete_icon" aria-hidden="true"></i></a></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="card">
+                                                    <table class="table" style="width: 100%">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="5%">#</th>
+                                                                <th>Email Type</th>
+                                                                <th>Email Id</th>
+                                                                <th width="5%"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr *ngFor="let item of emailAdressArray let i= index">
+                                                                <td width="5%">
+                                                                    <button type="submit" id="btn_add" class="btn btn-primary btn_add_more"
+                                                                        (click)="emailPlusAddingArray(1)">+</button></td>
+                                                                <td>
+                                                                    <select (ngChange)="emailTypeChange()" class="form-control" id="sel1parmantent{{i}}"
+                                                                        value={{item.EmailType}}
+                                                                        >
+                                                                        <option value="">Select Emails</option>
+                                                                        <option value="1">Personal</option>
+                                                                        <option value="2">Work</option>
+                                                                        <option value="3">Home</option>
+                                                                        <option value="4">Other</option>
+                                                                    </select>
+                                                                </td>
+                                                                 <td>
+                                                                    <input type="text" class="form-control emailfocu " id="email{{i}}"
+                                                                        value={{item.EmailAddress}} 
+                                                                        >
+                                                                    </td>
+                                                                <td width="5%" class="align-middle"><a><i class="fa fa-trash delete_icon"
+                                                                            aria-hidden="true" (click)="delteEmailArray(i)"></i></a>
+                                                               </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--/.Panel 1-->
+                        <!--Panel 2-->
+                        <div  [hidden]="!bankDiv">
+                            <form [formGroup]="bankForm">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="form row">
+                                            <div class="form-group col-md-3">
+                                                <label>Bank Name</label>
+                                                <input type="text" class="form-control" placeholder="Enter Bank Name"
+                                                    formControlName="bankName" [ngClass]="{ 'errorTextBoxBorder is-invalid': bankClick && bank.bankName.errors  }" >
+                                            </div>
+                                            <div class="form-group col-md-2">
+                                                <label>Account Number)</label>
+                                                <input type="text" class="form-control" placeholder="Enter Account Number"
+                                                    formControlName="accountNo" [ngClass]="{ 'errorTextBoxBorder is-invalid': bankClick && bank.accountNo.errors  }" >
+                                            </div>
+                                            <div class="form-group col-md-2">
+                                                <label>IFSC Code</label>
+                                                <input type="text" class="form-control" placeholder="Enter IFSC Code"
+                                                    formControlName="ifscCode"  [ngClass]="{ 'errorTextBoxBorder is-invalid': bankClick && bank.ifscCode.errors }">
+                                            </div>
+                                            <div class="form-group col-md-2">
+                                                <label>Branch</label>
+                                                <input type="text" class="form-control" placeholder="Enter Branch"
+                                                    formControlName="branch" [ngClass]="{ 'errorTextBoxBorder is-invalid': bankClick && bank.branch.errors }" >
+                                            </div>
+                                            <div class="form-group col-md-2">
+                                                <label>MICR No</label>
+                                                <input type="text" class="form-control" placeholder="Enter MICR Number"
+                                                    formControlName="micrNo"  >
+                                            </div>
+                                        </div>
+                                        <div class="row align-items-center mt-3">
+                                            <div  class="profile-pic col-md-3" *ngFor="let item of bankArray let i = index" >
+                                                <div class="card addredd_book p-3" >
+
+                                                    <h5>{{item.Name}}</h5>
+                                                    <p><span>Account Number </span><span><strong>{{item.AcNo}}</strong></span></p>
+                                                    <p><span>Branch : </span><span><strong>{{item.Branch}}</strong></span></p>
+                                                    <p><span>IFSC Code : </span><span><strong>{{item.IfscCode }}</strong></span></p>
+                                                    <p><span>MICR No : </span><span><strong>{{item.MicrNo}}</strong></span></p>
+                                               <div class="edit"> 
+                                                          <a ><i  (click)="getEditBankData(item ,i)" class="far fa-edit"></i>
+                                                             </a> 
+                                                   
+                                                             <a  >
+                                                            <i (click)="removeIndexOfBank(i)" class="fas fa-times"></i>
+
+                                                             </a>
+                                                        </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3" (click)="addNewbankDetail()">
+                                                <div class="card addredd_book p-3">
+                                                    <a class="add_btn pt-4">
+                                                        <i class="fas fa-plus-circle"></i></a>
+                                                    <h6>Add  Bank</h6>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div  [hidden]="!addressDiv">
+                            <form [formGroup]="adressForm">
+                                <div>
+                                    <div class="card">
+                                        <div class="card-body">
+
+                                            <div class="form row">
+                                                <div class="form-group col-md-3">
+                                                    <label for="bill_no">Country</label>
+                                                    <div class="input-group adw_select">
+                                                        <div class="input-group adw_select">
+                                                            <select2 [data]="countryList" class="control_select"
+                                                                (valueChanged)="selectCountryListId($event)"
+                                                                autocomplete="true" [options]="countryListPlaceHolder"
+                                                                [value]="countryValue"
+                                                                 [ngClass]="{ 'errorSelecto is-invalid': addressClick && countryError  }"></select2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-md-3">
+                                                    <label for="bill_no">State</label>
+                                                    <div class="input-group adw_select">
+                                                        <div class="input-group adw_select">
+                                                            <select2 [data]="stateList" class="control_select"
+                                                                (valueChanged)="selectStatelist($event)" autocomplete="true"
+                                                                [options]="stateListplaceHolder" [value]="stateValue"
+                                                                [ngClass]="{ 'errorSelecto is-invalid':  addressClick && stateError  }" ></select2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-md-3">
+                                                    <label for="bill_no">City</label>
+                                                    <div class="input-group adw_select">
+                                                        <select2 [data]="cityList" class="control_select" autocomplete="true"
+                                                            (valueChanged)="selectedCityId($event)" [value]="cityValue"
+                                                             [ngClass]="{ 'errorSelecto is-invalid': addressClick &&  cityError  }" ></select2>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-md-3">
+                                                    <label for="bill_no">Area</label>
+                                                    <div class="input-group adw_select">
+                                                        <select2 #area_selecto2 [data]="areaList" class="control_select" autocomplete="true"
+                                                            (valueChanged)="selectedArea($event)" [value]="areNameId" [options]="areaListPlaceHolder" ></select2>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label >Address Type</label>  
+                                                    <div class="input-group ">
+                                                        <select2 [data]="addressType" class="control_select"
+                                                            autocomplete="true" (valueChanged)="selectedAddressTypeId($event)"  [value]="addrssValueType"
+                                                            [options]="addressTypePlaceHolder"  [ngClass]="{ 'errorSelecto is-invalid':  addressError  }"></select2>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-md-2">
+                                                <label>Post Code</label>
+                                                <input   class="form-control" placeholder="Post Code"
+                                                    formControlName="postcode" >
+  
+                                              </div>
+                                                <div class="form-group col-md-7">
+                                                    <label>Address</label>
+                                                    <textarea style="width: 100%" class="form-control" placeholder="Enter Address" formControlName="adressvalue"  [ngClass]="{ 'errorTextBoxBorder is-invalid': addressClick && address.adressvalue.errors }" ></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="row align-items-center mt-3">
+                                                   <div class="profile-pic col-md-3"  *ngFor="let item of collectionOfAddress let i = index">
+                                                     <div class="card addredd_book p-3">
+                                                        <h5>{{item.AddressTypeName}}</h5>
+                                                    <p><span>Post Code : </span><span> {{item.PostCode}}</span></p>
+                                                    <p><span>Address : </span><span> {{item.AddressValue}}</span></p>
+                                                    <p ><span>Area : </span><span> {{item.AreaName}}</span></p>
+                                                    <p><span>City : </span><span>{{item.CityName}}</span></p>
+                                                    <p><span>State: </span><span>{{item.Statename}} </span></p>
+                                                    <p><span>Country : </span><span>{{item.CountryName}}</span></p>
+                                                       <div class="edit"> 
+                                                          <a ><i (click)="getEditAddress(item ,i)" class="far fa-edit"></i>
+                                                             </a> 
+                                                   
+                                                             <a  >
+                                                            <i (click)="removeAdressIndexArray(i)"  class="fas fa-times"></i>
+
+                                                             </a>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                               <!--  <div class="profile-pic col-md-3"  *ngFor="let item of collectionOfAddress let i = index">
+                                                    <div class="card addredd_book p-3">
+                                                        <a class="text-right" (click)="removeAdressIndexArray(i)">
+                                                            <i class="fas fa-times"></i></a>
+                                                             <h5>{{item.addressType}}</h5>
+                                                    <p><span>Address : </span><span> {{item.addressValue}}</span></p>
+                                                    <p><span>City : </span><span>{{item.cityName}}</span></p>
+                                                    <p><span>State: </span><span>{{item.statename}} </span></p>
+                                                    <p><span>Country : </span><span>{{item.countryName}}</span></p>
+                                                        
+                                                    </div>
+                                                </div> -->
+
+                                                <div class="col-md-3" (click)="addNewAdress()">
+                                                    <div class="card addredd_book p-3">
+                                                        <a class="add_btn pt-4">
+                                                            <i class="fas fa-plus-circle"></i></a>
+                                                        <h6>Add New Address</h6>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>    
+
+<div class="modal fade" id="add_area_Popup1"  role="dialog" aria-labelledby="country_master" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900" id="myModalLabel">Area</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" (click)="close()">&times;</span> </button>
+            </div>
+              <form  [formGroup]="areaForm" >
+            <div class="modal-body">
+                <div class="card-body">
+                    <div>
+                      
+                            <div class="form-row">
+                              
+                                <div class="form-group col-md-12">
+                                    <label for="org_code">Area Name</label>
+                                    <input   class="form-control" placeholder="Area Name"
+                                                      formControlName="areaName" [ngClass]="{ 'errorTextBoxBorder is-invalid': addAreaClick && adAre.areaName.errors }">
+                                   
+                                </div>
+                            </div>
+                       
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" (click)="areaAdd()" class="btn btn-primary waves-effect" >Save changes</button>
+            </div>
+             </form>
+        </div>
+    </div>
+  </div>

@@ -1,0 +1,12 @@
+.drop-zone{
+  min-height: 60px;
+  max-width: 209px;
+  border: 1px dashed grey;
+  color: grey;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+#drop-container {
+  margin: 10px 40% 55px;
+}

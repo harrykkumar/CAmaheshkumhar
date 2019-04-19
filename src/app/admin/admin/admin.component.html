@@ -1,0 +1,122 @@
+<!-- <div class="app is-collapsed"> -->
+<!-- <static-navigation-dashbord></static-navigation-dashbord> -->
+<!-- <div class="page-container"> -->
+<!-- <static-header-dashbord></static-header-dashbord> -->
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+          <div class="modal-header page-header p-0">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-md-4 left_side_head">
+                  <p class="heading_lead c-grey-900"><i class="fas fa-flag" aria-hidden="true"></i>Country</p>
+                </div>
+  
+                  <div class="col-md-8">
+                    <div id="custom-search-input" class="btn_header1">
+                      <div class="input-group col-md-12">
+                        <input type="text" class="form-control input-lg" placeholder="Search Country" />
+                        <span class="input-group-btn">
+                          <a (click)="searchCountry()">
+                              <i class="fas fa-search"></i>
+                          </a>
+                      </span>
+                      </div>
+                    </div>
+                  <div class="btn_header">
+  
+                    <a><img src="assets/img/printer.png"> </a>
+                    <a ><img src="assets/img/pdf.png"></a>
+                    <a ><img src="assets/img/excel.png"></a>
+                    <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#country_master">Add Country</button>
+                    
+                     </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-12">
+              <div class="bgc-white bdrs-3 p-20 mB-20">
+                <div class="table-responsive">
+                  <table  class="table record_data table-striped table-bordered dt-responsive nowrap" style="width:100%">
+  
+                    <thead>
+                    <tr>
+                      <th width="10%">Sr No.</th>
+                      <th width="70%">Country Name</th>
+                      <th width="20%">Action</th>
+  
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>India</td>
+                      <td>
+                          <a  data-toggle="tooltip" data-placement="top" title="Edit"><i class="fa fa-edit fa-1x" style="color: darkgreen" aria-hidden="true"></i></a>
+                          <a  data-toggle="tooltip" data-placement="bottom" title="Delete"><i class="fa fa-trash fa-1x" style="color: red" aria-hidden="true"></i></a>
+                      </td>
+  
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>India</td>
+                        <td>
+                            <a  data-toggle="tooltip" data-placement="top" title="Edit"><i class="fa fa-edit fa-1x" style="color: darkgreen" aria-hidden="true"></i></a>
+                            <a  data-toggle="tooltip" data-placement="bottom" title="Delete"><i class="fa fa-trash fa-1x" style="color: red" aria-hidden="true"></i></a>
+                        </td>
+  
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+  
+                <!-- outerbox -->
+  
+              </div>
+  
+            </div>
+          </div>
+        </div>
+</main>
+<!-- <static-dashbord-footer></static-dashbord-footer> -->
+<!-- </div> -->
+<!-- </div> -->
+
+<div class="modal fade" id="country_master"  role="dialog" aria-labelledby="country_master" aria-hidden="true">
+
+  <!-- Change class .modal-sm to change the size of the modal -->
+  <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header close_popup">
+              <h4 class="modal-title w-100 c-grey-900" id="myModalLabel">Add Country</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" (click)="clearCountryValidation()">&times;</span> </button>
+          </div>
+          <div class="modal-body">
+              <div class="card-body">
+                  <div>
+                      <form  [formGroup]="countryForm">
+                          <div class="form-row">
+                              <div class="form-group col-md-6">
+                                  <label for="org_code">Country Name</label>
+                                  <input type="text" class="form-control" id="org_code" placeholder="Enter Country Name" formControlName="countryName">
+                                  <control-message [control]="countryForm.controls.countryName" [submitClick]="submitClick"></control-message>
+                              </div>
+                              <div class="form-group col-md-6">
+                                  <label for="org_code">Short Name</label>
+                                  <input type="text" class="form-control" id="org_code" placeholder="Enter Short Name" formControlName="shortName">
+                                  <control-message [control]="countryForm.controls.shortName" [submitClick]="submitClick"></control-message>
+                              </div>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <!-- <button type="button" class="btn btn_close waves-effect" data-dismiss="modal">Close</button> -->
+              <button type="button" class="btn btn-primary waves-effect" (click)="saveCountry()">Save changes</button>
+          </div>
+      </div>
+  </div>
+</div>

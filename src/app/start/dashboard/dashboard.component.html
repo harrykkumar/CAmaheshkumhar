@@ -1,0 +1,175 @@
+<div id="sidebar" class="sidebar-wrapper sidebar">
+    <div class="sidebar-inner">
+        <div class="sidebar-logo">
+            <div class="peers ai-c fxw-nw">
+                <div class="peer peer-greed">
+                    <a class="sidebar-link td-n" href="javascript:void(0);">
+                        <div class="peers ai-c fxw-nw">
+                            <div class="peer">
+                                <div class="logo">
+                                    <img src="assets/static/images/logo.png" alt="">
+                                </div>
+                            </div>
+                            <div class="peer peer-greed">
+                                <h5 class="lh-1 mB-0 logo-text"></h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="peer">
+                    <div class="mobile-toggle sidebar-toggle">
+                        <a class="td-n"><i class="ti-arrow-circle-left"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class=" sidebar-content">
+            <ul class="sidebar-menu pos-r side_background">
+                <li class="nav-item dropdown">
+                    <div class="profile clearfix">
+                        <div class="profile_pic">
+                            <img src="assets/static/images/img.jpg" alt="..." class="img-circle profile_img">
+                        </div>
+                        <div class="profile_info">
+                            <span>Welcome,</span>
+                            <h2>Lalit</h2>
+                        </div>
+                    </div>
+                </li>
+<!--                 <li class="nav-item sidebar-dropdown">
+                    <a href="javascript:void(0);">
+                        <span class="icon-holder"> <i class="fab fa-creative-commons-by"></i></span>
+                        <span class="title">Common Master </span>
+                    </a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" href="javascript:void(0);">Country</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">State</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">City</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Area</a></li>
+                    </ul>
+                </li> -->
+                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
+                                class="fas fa-exchange-alt"></i></span><span class="title">Transaction Master</span>
+                    </a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeCategory()">Category</a>
+                        </li>
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeUnit()">Unit</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeComposite()">Composite
+                                Unit</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeTax()">Tax</a></li>
+                       <!--  <li><a class="sidebar-link" href="javascript:void(0);">Tax Process</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Discount</a></li> -->
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="itemMaster()">Item Master</a>
+                        </li>
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeRouting()">Routing</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeCustomer()">Customer</a>
+                        </li>
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeVendor()">Supplier</a></li>
+                          <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeAttribute()">Attribute</a></li>
+                        <!--<li><a class="sidebar-link" href="javascript:void(0);" >Bank</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Coupon</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Loyalty</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Wallet</a></li> -->
+                    </ul>
+                </li>
+               <!--  <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
+                                class="far fa-money-bill-alt"></i></span><span class="title">Account</span>
+
+                    </a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeVouture()">Voucher</a></li>
+                    </ul>
+                </li> -->
+              <!--   <li class="nav-item"><a class="sidebar-link" href="javascript:void(0);"><span class="icon-holder"><i
+                                class="fas fa-shopping-cart" aria-hidden="true"
+                                (click)="routePurchases()"></i></span><span class="title">Purchase</span></a></li> --> 
+                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
+                    class="fas fa-chart-line"></i></span><span class="title">Sales Tourism</span>
+                    </a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" (click)="routeSaleTourism()">Sale</a></li>
+                        <li><a class="sidebar-link" (click)="routeSaleReturn()">Sale Return</a></li>
+                    </ul>
+                </li>
+      <!--           <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
+                    class="fas fa-chart-line"></i></span><span class="title">Sales Courier</span>
+                    </a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeSaleCourier()">Sale</a></li>
+                    </ul>
+                </li> -->
+                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
+                    class="fas fa-chart-line"></i></span><span class="title">Sales Courier Parcel</span>
+                    </a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" (click)="routeSalesCourierParcel()">Sale</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item sidebar-dropdown">
+                    <a>
+                        <span class="icon-holder"><i class="fas fa-chart-line"></i></span>
+                        <span class="title">Sales Challan</span>
+                    </a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" (click)="routeSalesChallan()">Sale</a></li>
+                         <!--  <li><a class="sidebar-link" (click)="routeSalesChallanBilling()">Sale-Billing</a></li> -->
+                    </ul>
+                    
+                </li>
+              <!--   <li class="nav-item"><a class="sidebar-link" href="javascript:void(0);"><span class="icon-holder"><i
+                                class="fab fa-delicious"></i></span><span class="title">Inventory</span></a></li>
+
+                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
+                                class="fas fa-file"></i></span><span class="title">Reports </span></a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" href="javascript:void(0);">Purchase Transaction Report</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Purchase Item</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">GST Report</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Item-Purchase Summery</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Item Sale</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Item-Sale Summery</a></li>
+
+                        <li><a class="sidebar-link" href="javascript:void(0);">Ledger Summery</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Ledger Transaction</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Monthly Sale Register</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Sale Report</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Sale Item</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Stock Summery</a></li>
+
+                    </ul>
+                </li>
+                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
+                                class="fas fa-cog"></i></span><span class="title">Settings </span></a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" href="javascript:void(0);">Branch</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Coupan Generate</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Customer Dashbord</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Customer Detail</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Customer History</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Customer Point Setting</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Discount</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Ledger</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">LMS-Customer</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Offer</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Type_wise Rate</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Vendor</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Voucher</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);">Wallet</a></li>
+
+
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="sidebar-link" href="javascript:void(0);"><span class="icon-holder"><i
+                                class="fas fa-file-alt"></i></span><span class="title">Gst Report</span></a></li>
+                <li class="nav-item"><a class="sidebar-link" href="javascript:void(0);"><span class="icon-holder"><i
+                                class="far fa-handshake"></i></span><span class="title">CRM</span></a></li>
+ -->
+
+            </ul>
+
+        </div>
+        <!-- sidebar-menu  -->
+    </div>
+    <div class="over-bar"></div>
+</div>

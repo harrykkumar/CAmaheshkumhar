@@ -1,0 +1,68 @@
+<main class="main-content bgc-grey">
+    <div id="mainContent">
+        <div class="modal-header page-header p-0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-5 left_side_head">
+                        <p class="heading_lead c-grey-900"><i class="fas fa-industry" aria-hidden="true"></i>Vendor
+                            Detail</p>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="btn_header">
+                            <a><img src="assets/img/printer.png"> </a>
+                            <a><img src="assets/img/pdf.png"></a>
+                            <a><img src="assets/img/excel.png"></a>
+                            <button type="button" class="btn btn-primary waves-effect waves-light" (click)="addNewVendor()">Add
+                                New Vendor</button>
+                            <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <app-vendor-search [toShow]="openSearch" ></app-vendor-search>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="bgc-white bdrs-3 p-20 mB-20">
+                    <div class="table-responsive" id="parent">
+                        <table class="table small_srcoll" id="fixTable">
+                            <thead>
+                                <tr>
+                                    <th>S.NO</th>
+                                    <th>Vendor Name</th>
+                                    <th>Contact Person</th>
+                                    <th>Tax Process</th>
+                                    <th>GSTIN-No</th>
+                                    <th>Contact Details</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of VendorDetailShow ; let i = index"
+                                    [attr.data-itemDetail]="i">
+
+                                    <td>{{i+1}}</td>
+                                    <td>{{item.Name}}</td>
+                                    <td>{{item.ContactPersonName}}</td>
+                                    <td>{{item.TaxType}}</td>
+                                    <!-- <td>Shirt</td> -->
+                                    <!-- <td class="text-right">12</td> -->
+                                    <td>{{item.GstinNo}}</td>
+                                    <td>{{item.ContactNo}} <br /> {{item.EmailAddress}}   </td>
+                                    <td class="text-center">
+                                        <a data-toggle="tooltip" data-placement="top" title=""
+                                            data-original-title="Edit" (click)="editVendor(item.Id)"><i class="fa fa-edit fa-1x"
+                                                style="color: darkgreen" aria-hidden="true"></i></a>
+                                        <a data-toggle="tooltip" data-placement="bottom" title=""
+                                            data-original-title="Delete" (click)="showDeletePopup(item.Id)"><i
+                                                class="fa fa-trash fa-1x" style="color: red" aria-hidden="true"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

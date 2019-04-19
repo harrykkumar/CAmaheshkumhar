@@ -1,0 +1,102 @@
+<div class="modal fade" id="add_tax" role="dialog" aria-labelledby="unit_master" aria-hidden="true">
+
+    <!-- Change class .modal-sm to change the size of the modal -->
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900" id="myModalLabel">Add Tax</h4>
+                <button type="button" class="close" (click)="clearValidation()" data-dismiss="modal"
+                    aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <div>
+                        <form [formGroup]="taxForm">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="bill_no">Tax Type</label>
+                                    <div class="input-group adw_select">
+                                        <select2 [data]="selectTaxTpye" class="control_select"
+                                            (valueChanged)="selectedTaxType($event)" autocomplete="true"
+                                            [options]="selectTaxTypePlaceHolde" [value]="deafaultValue"
+                                            >
+                                        </select2>
+                                        <!-- <div *ngIf="select2Error">{{this.errorMassage}}</div> -->
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="tax_slab">Tax Slab</label>
+                                    <input type="text" class="form-control" id="tax_slab" placeholder="Enter Slab-Name"
+                                        formControlName="slab"
+                                        [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.slab.errors }">
+
+                                </div>
+                                <div class="row">
+                                    <a class="m-2 text-primary bold pl-4" (click)="texboxDiv()"><strong>Add Tax Rates
+                                        </strong> </a>
+                                </div>
+                            </div>
+                            <div class="form-row " id="tax_rate" *ngIf="taxboxDivVisibale">
+                                <table class="table" style="width: 100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="5%">#</th>
+                                            <th>Tax Rate Name</th>
+                                            <th>Tax Rate</th>
+                                            <th width="15%">Type</th>
+                                            <th width="15%">Other State</th>
+                                            <th width="15%">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of addPulsSign let i = index">
+                                            <td width="5%">
+                                                <button type="submit" id="btn_add" class="btn btn-primary btn_add_more"
+                                                    (click)="addPulsFuctionality(1)">+</button></td>
+                                            <td>
+                                                <input type="text" class="form-control" id="taxrateName{{i}}"
+                                                    placeholder="Tax-Name" autocomplete="true"
+                                                    value="{{item.name}}"></td>
+                                            <td>
+                                                <input type="number" appIncludeDecimal class="form-control" id="taxRate{{i}}"
+                                                    placeholder="Taxrate" autocomplete="true" value="{{item.taxRate}}">
+                                            </td>
+                                            <td>
+
+                                                <select class="form-control" id="exampleFormControlSelect1{{i}}"
+                                                    value="{{item.valueType}}">
+                                                    <option value="0">%</option>
+
+                                                    <option *ngFor="let currency of currencies;" [value]="currency.cuyId" >{{currency.val}}</option>
+                                                    
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input"
+                                                        id="customCheck{{i}}" checked="{{item.isForOtherState}}">
+                                                    <label class="custom-control-label" for="customCheck{{i}}"></label>
+                                                </div>
+                                            </td>
+                                            <td width="5%" (click)="deleteTaxArray(i)"><a><i class="fa fa-trash fa-1x"
+                                                        aria-hidden="true"></i></a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="error_msg" id="taxErrMsg" style="text-align:center;"></div>
+                                <div class="error_msg" style="text-align:center;" *ngIf="taxErrorFlag">
+                                    {{this.taxErrormass}}</div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn_close waves-effect" data-dismiss="modal"
+                    (click)="clearValidation()">Close</button>
+                <button type="button" class="btn btn-primary waves-effect" (click)="addTax()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

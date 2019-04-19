@@ -1,0 +1,219 @@
+<div class="modal fade" id="salerout"  role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+      <div class="modal-content bgcH-grey-100">
+          <div class="modal-header primary-bg">
+              <div class="container-fluid">
+                  <div class="row">
+                      <div class="col-md-3 left_side_head">
+                          <p class="heading_lead"><i class="fas fa-chart-line" aria-hidden="true"></i>New Sales
+                          Invoice</p>
+                      </div>
+                      <div class="col-md-9">
+                          <div class="btn_header">
+                              <a class="btn btn-default waves-effect" (click)="keepOpen = false;manipulateData()" >Save </a>
+                              <a class="btn btn-info waves-effect" (click)="keepOpen = true;manipulateData()" >Save and New</a>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeInvoice()" ><span
+                                aria-hidden="true" class="white-text">×</span> </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- <div *ngIf="loading" class="modal-content" >
+              <div class="modal-body" style="height:inherit;" >
+                <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+              </div>
+            </div> -->
+            <!--*ngIf="isDataAvailable"-->
+        <div class="modal-body" *ngIf="isDataAvailable" >
+            <form #formItems="ngForm">
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                      <label>Sender</label>
+                      <div class="input-group adw_select">
+                        <div class="input-group adw_select">
+                          <select2 #client_select2 id="client" [data]="clientNameSelect2" class="control_select" (valueChanged)="onSelected2clientId($event)"
+                          autocomplete="true" [options]="clientnamePlaceHolder" [value]="clientNameId" [ngClass]="{'errorSelecto': submitSave && invalidObj?.PartyId }" ></select2>
+                        </div>
+                      </div>
+                  </div>
+                  <div class="form-group col-md-3">
+                      <label>Reciever</label>
+                      <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <select2 [data]="suplierNameSelect2" #supplier_select2 class="control_select" (valueChanged)="onSelectSupplier($event)"
+                              autocomplete="true" [options]="supplierPlaceHolder" [value]="supplierId" [ngClass]="{'errorSelecto': submitSave && invalidObj?.ReferId }" ></select2>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="form-group col-md-2">
+                      <label>Available Currency</label>
+                      <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <select2 id="curreny" #currency_select2 [data]="currencies" class="control_select" (valueChanged)="onSelectCurreny($event)"
+                              autocomplete="true" [options]="placeholderCurreny" [ngClass]="{'errorSelecto': submitSave && invalidObj?.CurrencyId }" [value]="currency"></select2>
+                          </div>
+                      </div>
+                    </div>
+                  <div class="form-group col-md-2">
+                      <label>Bill Number</label>
+                      <input type="text" placeholder="Bill Number" (input)="checkValidation()" [readonly]="setupModules.BillNo"  [ngClass]="{'errorSelecto': submitSave && invalidObj?.BillNo }" class="form-control" name="BillNo" [(ngModel)]="BillNo">
+                  </div>
+                  <div class="form-group col-md-2">
+                      <label class="fw-500">Bill Date</label>
+                      <div class="timepicker-input input-icon ">
+                          <div class="input-group">
+                            <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
+                            <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="bill-date"  placeholder="Bill Date"  [ngClass]="{'errorSelecto': submitSave && invalidObj?.BillDate }" data-provide="datepicker"
+                              [(ngModel)]="BillDate" name="billDate" >
+                          </div>
+                      </div>
+                  </div>
+                </div>
+                <div class="card p-3">
+                  <div class="table-responsive">
+                    <table class="table editable_tbl" id="table">
+                      <thead>
+                        <tr class="default_row">
+                          <th>#</th>
+                          <th>Description</th>
+                          <th>Quantity</th>
+                          <th>Weight</th>
+                          <th>Value</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="selected_row active" *ngFor="let item of items; let i = index;" >
+                          <td>
+                            <div class="action_btn">
+                                <a *ngIf="items.length > 0" (click)="deleteItem(i, 'items')" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                            </div>
+                          </td>
+                          <td>{{item.Remark}}</td>
+                          <td>{{item.Quantity}}</td>
+                          <td>{{item.Length}}</td>
+                          <td>{{item.SaleRate}}</td>
+                        </tr>
+                        <tr class="selected_row active" >
+                          <td>
+                            <div class="action_btn">
+                              <button type="submit" class="btn btn-primary btn_add_more" (click)="addItems()" >+</button>
+                            </div>
+                          </td>
+                          <td>
+                            <input type="text" (input)="checkValidation()" class="form-control"  [ngClass]="{'errorSelecto': submitSave && invalidObj?.Remark }" name="description" placeholder="Description" [(ngModel)]="Remark" >
+                          </td>
+                          <td>
+                            <input type="text" (input)="checkValidation()" appIncludeDecimal class="form-control" name="Quantity"  [ngClass]="{'errorSelecto': submitSave && invalidObj?.Quantity }" placeholder="Quantity" [(ngModel)]="Quantity" >
+                          </td>
+                          <td>
+                            <input type="text" (input)="checkValidation()" class="form-control" appIncludeDecimal name="length" placeholder="Weight"  [ngClass]="{'errorSelecto': submitSave && invalidObj?.Length }" [(ngModel)]="Length" >
+                          </td>
+                          <td>
+                            <input type="text" (input)="checkValidation();calculateTotalOfRow()" class="form-control" placeholder="Value" appIncludeDecimal name="SaleRate" (input)="calculateTotalOfRow()"  [ngClass]="{'errorSelecto': submitSave && invalidObj?.SaleRate }" [(ngModel)]="SaleRate" >
+                          </td>
+                        </tr>
+                    </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="form-row mt-4">
+            <div class="col-md-4 card p-3">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label>Net Amount</label>
+                  <input type="text" class="form-control" readonly=true name="BillAmount" [(ngModel)]="BillAmount" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Round Off</label>
+                  <input type="text" class="form-control" readonly=true name="RoundOff" [(ngModel)]="RoundOff" >
+                </div>
+              </div>
+            </div>
+            <div class="col-md-8 card p-3">
+              <div class="table-responsive" id="parent">
+                <table class="table editable_tbl" id="fixTable">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Payment Mode</th>
+                      <th>LedgerId</th>
+                      <th>Amount</th>
+                      <th>PayDate</th>
+                      <th>Reference No.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="selected_row active" *ngFor="let transaction of transactions; index as i; trackBy: identify; first as isFirst; last as isLast" >
+                      <td>
+                        <div class="action_btn">
+                          <a (click)="deleteItem(i, 'trans')" *ngIf="transactions.length > 0" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                        </div>
+                      </td>
+                      <td style="min-width:180px;">
+                        <div class="input-group adw_select">
+                          {{transaction.Paymode}}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          {{transaction.ledgerName}}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          {{transaction.Amount}}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          {{transaction.PayDate}}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          {{transaction.ChequeNo}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="selected_row active" >
+                      <td>
+                        <div class="action_btn">
+                          <button (click)="addTransactions()" type="submit" class="btn btn-primary btn_add_more">+</button>
+                        </div>
+                      </td>
+                      <td style="min-width:180px;">
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2 name="Paymode" [data]="paymentModeSelect2" #payment_select2 id="PayModeId" class="control_select" (valueChanged)="select2PyamentModeId($event)"
+                              autocomplete="true" [options]="paymentPlaceHolder" [value]="paymode"></select2>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2 name="LedgerId" #ledger_select2 [data]="paymentLedgerselect2" id="LedgerId" class="control_select" (valueChanged)="paymentLedgerId($event)"
+                              autocomplete="true" [options]="ledgerPlaceHolder" [value]="bankName"></select2>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><input type="text" name="Amount" appIncludeDecimal class="form-control" id="Amount" [(ngModel)]="Amount" placeholder="Enter Amount"></td>
+                      <td><input type="text" name="PayDate" id="pay-date" class="form-control flatpickr" [(ngModel)]="PayDate" placeholder="Select Date"></td>
+                      <td><input type="text" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo" placeholder="Enter Reference No."></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

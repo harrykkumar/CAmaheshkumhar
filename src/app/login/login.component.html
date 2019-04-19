@@ -1,0 +1,63 @@
+<div>
+  <form id="form1" runat="server">
+      <!-- <div id="loader">
+          <div class="spinner"></div>
+      </div> -->
+      <!-- <script>
+          window.addEventListener('load', () => {
+              const loader = document.getElementById('loader');
+              setTimeout(() => {
+                  loader.classList.add('fadeOut');
+              }, 300);
+          });
+      </script> -->
+      <div class="loginpage d-flex justify-content-center align-items-center">
+
+          <!-- Material form login -->
+          <div class="card col-md-3">
+              <div class="logincontent-area">
+                  <!--<h5 class="card-header info-color white-text text-center py-4">
+                              <strong>Sign in</strong>
+                          </h5>-->
+                  <div class="loginlogo pt-4 pb-3">
+                      <img src="assets/img/logo.png">
+                  </div>
+                  <!--Card content-->
+                  <div class="card-body px-lg-4 pt-0">
+
+                      <!-- Form -->
+                      <form style="color: #757575;" [formGroup]="loginForm" (ngSubmit)="login()">
+
+                          <!-- Email -->
+                          <div class="form-group">
+                                  <label for="materialLoginFormEmail">Customer Login Id</label>
+                              <input type="email" id="materialLoginFormEmail" class="form-control" formControlName="customerId">
+                            
+                              <!-- <control-message [control]="loginForm.controls.customerId" [submitClick]="submitClick"></control-message> -->
+                          </div>
+                          <div class="form-group">
+                                  <label for="materialLoginFormuser">User Name</label>
+                              <input type="email" id="materialLoginFormuser" class="form-control" formControlName="username">
+                             
+                              <!-- <control-message [control]="loginForm.controls.username" [submitClick]="submitClick"></control-message> -->
+                          </div>
+                          <div class="form-group">
+                                  <label for="materialLoginFormPassword">Password</label>
+                              <input type="password" id="materialLoginFormPassword" class="form-control"
+                                  formControlName="password" (keyup)="clearErrorValidation()">
+                          </div>
+                          <div class="d-flex justify-content-around">
+                              <div>
+                                  <a href="javascript:void(0)" (click)="forgotPassword()">Forgot Password?</a>
+                              </div>
+                          </div>
+                          <div *ngIf="invalidUser">{{this.errorMessage}}</div>
+                            <button class="btn btn-indigo btn-block  my-3 waves-effect z-depth-0" type="submit"> Sign in</button>
+                          
+                      </form>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </form>
+</div>

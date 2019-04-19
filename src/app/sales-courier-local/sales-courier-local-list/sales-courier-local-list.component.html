@@ -1,0 +1,363 @@
+<main class="main-content bgc-grey">
+    <div id="mainContent">
+        <div class="modal-header page-header p-0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6 left_side_head">
+                        <p class="heading_lead c-grey-900"><i class="fa fa-tag"></i>Sale-Summary</p>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="btn_header">
+                        <a>
+                          <img src="assets/img/printer.png">
+                        </a>
+                        <a>
+                          <img src="assets/img/pdf.png"></a>
+                        <a>
+                          <img src="assets/img/excel.png"></a>
+                        <button type="button" class="btn btn-primary waves-effect waves-light" (click)="onOpenInvoice('')" >New
+                        Invoice</button>
+                        <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        <app-sales-search [toShow]="toShowSearch" ></app-sales-search>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="bgc-white bdrs-3 p-20 mB-20">
+                    <div class="table-responsive" id="parent">
+                        <table class="table" id="fixTable">
+                            <thead>
+                              <tr>
+                                <th>Sr.No.</th>
+                                <th>Sender</th>
+                                <th>Bill No.</th>
+                                <th>Bill Date</th>
+                                <th>Reciever</th>
+                                <th class="text-right" >Bill Amount</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let item of saleTravelDetails; let i=index">
+                                <td>{{i+1}}</td>
+                                <td>{{item.CustomerName}} </td>
+                                <td>{{item.BillNo}}</td>
+                                <td>{{item.BillDate | dateFormat: clientDateFormat }}</td>
+                                <td>{{item.SupplierName}}</td>
+                                <td  class="text-right" >{{item.BillAmount}}</td>
+                                <td>
+                                  <div class="dropdown enquiry-tag">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                                      class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+                                    <ul class="dropdown-menu fsz-sm">
+                                      <li><a (click)="onPrintButtonCourier(item.Id,'printCourier_id')" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                                      <li><a (click)="onOpenInvoice(item.Id)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                                      <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                                      <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
+
+                                      <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-envelope mR-10 cH-blue"></i><span>Send
+                                        Mail</span></a></li>
+                                      <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-envelope mR-10 cH-blue"></i><span>Sale
+                                      Bill Return</span></a></li>
+                                    </ul>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                            <tfoot>
+                              <tr>
+                                <th colspan="5"></th>
+                                <th class="text-right font-weight-bold">{{this.totalBillAmount}}</th>
+                                <th></th>
+                              </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+          </div>
+    </div>
+</main>
+<app-sales-invoice></app-sales-invoice>
+
+ <!-- print courier  -->
+<div class="modal " id="printCourier_id" >
+  <div id="page-wrap">
+    <div style="width:100%; border: 1px solid #000; overflow: auto; display:flex; flex-direction:row;">
+        <div style="width:30%; text-align:center; padding:10px; border:1px solid #333">
+            <img src="https://www.saniiro.com/img/logo.png">
+        </div>
+        <div style="width:40%; padding:10px; border:1px solid #333;">
+          <h1 style="text-align: center;">{{ledgerinfos && ledgerinfos[0].OfficeName}} </h1>
+            <p align="center" style="font-size:14px; margin:0px;text-align:left;">
+               {{orgAddress &&  orgAddress[0]?.AddressValue}}
+                {{orgAddress &&  orgAddress[0]?.Statename}}<br>
+                {{orgAddress &&  orgAddress[0]?.CountryName}}<br>
+                {{orgAddress &&  orgAddress[0]?.CityName}}<br>
+                Email: {{orgEmailData && orgEmailData[0]?.org_email}}<br>
+                Website: {{orgWebData && orgEmailData[0]?.org_web}}<br>
+                Branch:  {{orgAddress &&  orgAddress[0]?.CityName}}
+
+            </p>
+        </div>
+        <div style="width:30%; text-align:center; padding:10px; border:1px solid #333">
+              <div fxLayout="column">
+                    <ngx-barcode *ngFor="let bcValue of values" [bc-element-type]="elementType" [bc-value]="bcValue" [bc-format]="format" [bc-line-color]="lineColor"
+                     [bc-width]="width" [bc-height]="height" [bc-display-value]="displayValue" [bc-font-options]="fontOptions" [bc-font]="font"
+                     [bc-text-align]="textAlign" [bc-text-position]="textPosition" [bc-text-margin]="textMargin" [bc-font-size]="fontSize" [bc-background]="background"
+                     [bc-margin]="margin" [bc-margin-top]="marginTop" [bc-margin-bottom]="marginBottom" [bc-margin-left]="marginLeft" [bc-margin-right]="marginRight"></ngx-barcode>
+                </div>
+
+        </div>
+    </div>
+    <div class="mainT" style="width:100%; border: 1px solid #000; overflow: auto;">
+
+        <table class="record" width="100%" cellspacing="0" cellpadding="3" style="border-bottom: 1px solid #000;">
+            <tbody>
+                <tr>
+                    <th>Date</th>
+
+                    <th>Bill No.</th>
+                    <th>Destination</th>
+                    <th>Pcs</th>
+                    <th style="text-align:right">Weight(Kg)</th>
+
+                    <th style="text-align:right">LxWxH</th>
+
+                    <th style="text-align:right">
+                        A/C No. Cash/Credit
+                    </th>
+
+                </tr>
+
+                <tr>
+        <td> {{inventoryTransactionSalesData &&  inventoryTransactionSalesData[0]?.BillDate | dateFormat: clientDateFormat}}</td>
+                    <td>
+            {{inventoryTransactionSalesData &&  inventoryTransactionSalesData[0]?.BillNo}}
+                    </td>
+                    <td>{{reciverAddress &&  reciverAddress[0]?.CountryName}}</td>
+                    <td>{{courierSummuryItemDatails && courierSummuryItemDatails[0].qty}}</td>
+                    <td style="text-align:right;">{{courierSummuryItemDatails && courierSummuryItemDatails[0].weight}}</td>
+
+
+                    <td style="text-align:right;">0x0x0</td>
+                    <td style="text-align:right; border-right:none;">
+                        <div>
+                            <strong>Total Amount</strong>
+                            <div>
+                                <strong>
+                                  {{inventoryTransactionSalesData &&  inventoryTransactionSalesData[0]?.BillAmount}}
+                                </strong>
+                            </div>
+                        </div>
+                    </td>
+
+                </tr>
+            </tbody>
+
+
+        </table>
+    </div>
+    <div style="clear:both"></div>
+    <div class="invoice" style="margin:0px;">
+
+
+
+        <table class="billT" width="100%">
+
+            <tbody>
+
+                <tr>
+                    <td>
+                        <table class="invoice_table" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td><strong>From</strong></td>
+                                    <td colspan="2">
+        {{inventoryTransactionSalesData &&  inventoryTransactionSalesData[0]?.CustomerName}}
+                                       
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Address</strong></td>
+                     <td colspan="2">
+
+              {{customerAddress &&  customerAddress[0]?.ddressValue}}  </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Country</strong></td>
+     <td colspan="2"> 
+              {{customerAddress &&  customerAddress[0]?.countryName}} 
+               </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td><strong>Tele No</strong></td>
+  <td colspan="2"> {{inventoryTransactionSalesData &&  inventoryTransactionSalesData[0]?.CustomerName}}</td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table class="invoice_table" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td><strong>To</strong></td>
+                                    <td colspan="2">
+
+                                       {{inventoryTransactionSalesData &&  inventoryTransactionSalesData[0]?.ReceiverName}}
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Address</strong></td>
+                                    <td colspan="2">
+                                        {{reciverAddress &&  reciverAddress[0]?.addressValue}}
+                                     </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Country</strong></td>
+                                    <td colspan="2"> 
+                                        {{reciverAddress &&  reciverAddress[0]?.countryName}}
+
+                                     </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tele No</strong></td>
+                                    <td colspan="2"></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <hr />
+        <table class="billT" width="100%">
+
+            <tbody>
+
+                <tr>
+                    <td>
+                        <table class="invoice_table" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Special Instruction:</strong></td>
+                                    <td colspan="2">
+                                      
+                                    </td>
+                                </tr>
+
+
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table class="invoice_table" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td><strong>ATTN</strong></td>
+                                    <td colspan="2">
+                                        Non-Dox
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td><strong>Order Type</strong></td>
+                                    <td colspan="2">Non-Commercial</td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="clear:both"></div>
+    <div class="invoice" style="margin:0px;">
+
+        <div class="mainT" style="max-height:350px;min-height: 350px">
+
+            <table class="record" width="100%" cellspacing="0" cellpadding="3" style="border-bottom: 1px solid #000;">
+                <tbody>
+                    <tr>
+
+                        <th>Description</th>
+                        <th>QTY</th>
+                        <th>Weight</th>
+                        <th style="text-align:right">Value</th>
+
+                    </tr>
+
+                    <tr *ngFor="let item of salesCourierDatails">
+
+                        <td> {{item.itemName}}</td>
+                        <td>{{item.qty}}</td>
+                        <td>{{item.weight}}</td>
+
+                        <td style="text-align:right; border-right:none;">{{item.totalAmount}}</td>
+
+                    </tr>
+           
+                </tbody>
+                <tfoot style="border: 1px solid #000;">
+                    <tr>
+                        <td colspan="3" style="text-align:center">Total</td>
+
+                        <td style="text-align:right; border-top:1px solid; border-right:none !important; ">
+                            {{amount}}
+                        </td>
+
+                    </tr>
+                </tfoot>
+
+            </table>
+        </div>
+
+    </div>
+    <div style="clear:both"></div>
+    <div class="invoice" style="margin:0px;">
+        <table>
+            <tr>
+                <td>
+                    <p style="text-align:center">
+                        I (the shipper) confirm that the goods being shipped on this consignment and non-hazardous and the description entered above are accurate. I also declare that the values are of the good listed is correct.
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p style="text-align:center">
+                        <strong>
+                            ITEMS SENT ARE FOR GIFT PURPOSE ONLY AND HAS NO COMMERCIAL VALUE.
+                        </strong>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p style="text-align:center; padding-top:10px;">
+                        ............................................(AUTHORISED SIGNATORY)
+                    </p>
+                </td>
+            </tr>
+        </table>
+       
+       
+        
+    </div>
+    <div style="float:left;text-align:right;overflow:auto;min-height:20px; margin-top:5px;">
+        <span>Pageno 1 of 1</span>
+    </div>
+
+
+</div>
+
+</div>

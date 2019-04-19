@@ -1,0 +1,45 @@
+<div class="modal fade right" id="composite_unit" role="dialog" aria-labelledby="composite_unit"
+    aria-hidden="true">
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+        <div class="modal-content">
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900">Composite Unit</h4>
+                <button type="button" class="close" (click)="crossButton()" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body" >
+                    <form [formGroup]="compositeForm" *ngIf="compositeForm" >
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label>Packing-In</label>
+                                <div class="input-group adw_select">
+                                    <select2 #packedIn_select2 [data]="selectPackedIn"  class="control_select select2" (valueChanged)="selectdPackedIn($event)"
+                                    autocomplete="true" [options]="packedInPlaceHolder" [value]="select2Secondary" [ngClass]="{'errorSelecto is-invalid': submitClick && secondaryUnitIdError  }" ></select2>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label>Unit-Qty</label>
+                                <input type="text" class="form-control" placeholder="Enter unit Qty" formControlName="UnitQty" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.UnitQty.errors }" >
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label>Main-Unit</label>
+                                <div class="input-group adw_select">
+                                    <select2 #mainUnit_select2 [data]="selectMainUnit" class="control_select select2" (valueChanged)="selectedMainUnit($event)"
+                                    autocomplete="true" [options]="mainUnitPlaceHolder" [value]="select2Primary" [ngClass]="{ 'errorSelecto is-invalid': submitClick && primearyIdError  }"></select2>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label>Unit-Name</label>
+                                <input type="text" class="form-control" placeholder="Enter Unit-Name" formControlName="UnitName" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.UnitName.errors }" >
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary waves-effect" (click)="onSaveComposite()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

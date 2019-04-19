@@ -1,0 +1,72 @@
+<main class="main-content bgc-grey">
+    <div class="modal-header page-header p-0">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3 left_side_head">
+                    <p class="heading_lead c-grey-900"><i class="fas fa-flag" aria-hidden="true"></i>Composite
+                    Unit</p>
+                </div>
+                <div class="col-md-9">
+                    <div id="custom-search-input" class="btn_header1">
+                        <div class="input-group col-md-12">
+                            <input type="text" class="form-control input-lg" placeholder="Search" [(ngModel)]="searchSubUnit"[ngModelOptions]="{standalone: true}" />
+                            <span class="input-group-btn">
+                                <a>
+                                    <i class="fas fa-search"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="btn_header">
+                        <a><img src="assets/img/printer.png"> </a>
+                        <a><img src="assets/img/pdf.png"></a>
+                        <a><img src="assets/img/excel.png"></a>
+                        <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                            (click)="addCompositeUnit()">Add Composite Unit</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bgc-white bdrs-3 p-20 mB-20">
+                        <div class="table-responsive" id="parent">
+                            <table class="table" id="fixTable"
+                                style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th width="10%">Sr No.</th>
+                                        <th>Unit Name</th>
+                                        <th>Main Unit Name</th>
+                                        <th>Sub Unit Name</th>
+                                        <th>Composite Unit Qty</th>
+                                        <th>Unit Qty</th>
+                                        <th width="10%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of subUnitDetail ; let i = index " [attr.data-subUnitDetail]="i">
+                                        <td>{{i+1}}</td>
+                                        <td>{{item.Name}}</td>
+                                        <td>{{item.MainUnitName}}</td>
+                                        <td>{{item.SubUnitName}}</td>
+                                        <td>{{item.PrimaryUnitQty}}</td>
+                                        <td>{{item.SecondaryUnitQty}}</td>
+                                        <td>
+                                            <a data-toggle="tooltip" data-placement="top" title="Edit" (click)="editSubUnit(item.Id)">
+                                                <i class="fa fa-edit fa-1x" style="color: darkgreen"
+                                                aria-hidden="true"></i>
+                                            </a>
+                                            <a data-toggle="tooltip" data-placement="bottom" title="Delete"
+                                            (click)="deleteSubUnit(item.Id)"><i class="fa fa-trash fa-1x"
+                                            style="color: red" aria-hidden="true"></i></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

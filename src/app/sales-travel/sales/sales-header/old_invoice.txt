@@ -1,0 +1,1664 @@
+<div class="modal fade" id="salerout" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+      <div class="modal-content bgcH-grey-100">
+          <div class="modal-header primary-bg">
+              <div class="container-fluid">
+                  <div class="row">
+                      <div class="col-md-3 left_side_head">
+                          <p class="heading_lead"><i class="fas fa-chart-line" aria-hidden="true"></i>New Sales
+                          Invoice</p>
+                      </div>
+                      <div class="col-md-9">
+                          <div class="btn_header">
+                              <a class="btn btn-default waves-effect" (click)="manipulateData()" >Save </a>
+                              <a class="btn btn-info waves-effect">Save and New</a>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true" class="white-text">×</span> </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- <div *ngIf="loading" class="modal-content" >
+              <div class="modal-body" style="height:inherit;" >
+                <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+              </div>
+            </div> -->
+
+          <div class="modal-body" >
+              <form>
+                  <div class="form-row">
+                      <div class="form-group col-md-3">
+                          <label>Client Name (Party)</label>
+                          <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                  <select2 #client_select2 id="client" [data]="clientNameSelect2" class="control_select" (valueChanged)="onSelected2clientId($event)"
+                                      autocomplete="true" [options]="clientnamePlaceHolder" [value]="clientName"></select2>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label>Bill Number</label>
+                          <input type="text" placeholder="Bill Number" class="form-control" name="BillNo" [(ngModel)]="BillNo">
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label class="fw-500">Bill Date</label>
+                          <div class="timepicker-input input-icon ">
+                              <div class="input-group">
+                                <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
+                                <input type="text" class="form-control start-date flatpickr" placeholder="Bill Date" data-provide="datepicker"
+                                  [(ngModel)]="Date" name="Date" >
+                              </div>
+                          </div>
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label>Booking</label>
+                          <input type="text" class="form-control" placeholder="Booking No." name="BookingNo" [(ngModel)]="BookingNo" >
+                      </div>
+                  </div>
+                  <div class="card p-3">
+                    <div class="table-responsive">
+                      <table class="table fixTable editable_tbl" id="table">
+                        <thead>
+                          <tr class="default_row">
+                            <th>#</th>
+                            <!-- <th>SR NO</th> -->
+                            <th>Routing</th>
+                            <th>Supplier</th>
+                            <th>Passenger</th>
+                            <th>Date</th>
+                            <th>Ticket No.</th>
+                            <th>Fare</th>
+                            <th>Discount</th>
+                            <th>Tax</th>
+                            <th>Reissue Charges</th>
+                            <th>Refund Panelty</th>
+                            <th>Miscellanouse Charges</th>
+                            <th>Company</th>
+                            <th>langi Tax</th>
+                            <th>SVC Fee</th>
+                            <th>Commission</th>
+                            <th>Commission Authorized</th>
+                            <th>Total Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="selected_row active" id="items{{i}}" *ngFor="let item of items; trackBy:customTrackBy" >
+                            <td>
+                              <div class="action_btn">
+                                <button type="submit" class="btn btn-primary btn_add_more" (click)="addItems()" >+</button>
+                                <a (click)="deleteItem(i, 'items')" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                              </div>
+                            </td>
+                            <!-- <td><input type="text" class="form-control" placeholder="Sno." [(ngModel)]="item.value.Sno" name="Sno" ></td> -->
+                            <td>
+                              <select2 id="items.Routing{{i}}" [data]="select2Item" class="control_select" (valueChanged)="onSelectedRoutingId($event, i)"
+                              autocomplete="true" [options]="select2PlaceHlderItem" [value]="item.Routing"></select2>
+                            </td>
+                            <td>
+                              <select2 id="items.Supplier{{i}}" [data]="suplierNameSelect2" class="control_select" (valueChanged)="onSelectSupplier($event, i)"
+                              autocomplete="true" [options]="supplierPlaceHolder" [value]="item.Supplier"></select2>
+                            </td>
+                            <td><input id="" type="text" id="items.Remark{{i}}" name="Passenger" placeholder="Passenger Name" [(ngModel)]="item.Remark" class="form-control"></td>
+                            <td><input type="text" id="items.Date{{i}}" name="Date" placeholder="Date" [(ngModel)]="item.Date" class="form-control start-date flatpickr" ></td>
+                            <td><input type="text" id="items.TicketNo{{i}}" name="TicketNo" placeholder="TicketNo" [(ngModel)]="item.TicketNo" class="form-control" ></td>
+                            <td><input type="text" class="form-control" readonly=true id="items.Fare{{i}}" placeholder="Fare" name="Fare" (input)="calcAllAmount()" [(ngModel)]="item.Fare" ></td>
+                            <td>
+                                <div class="discount">
+                                  <input type="text" class="form-control Input_width" id="items.Discount{{i}}" name="Discount" (input)="calcAllAmount()" placeholder="Discount" [(ngModel)]="item.Discount">
+                                  <select class="form-control discount_type" id="items.DiscountType{{i}}" [(ngModel)]="item.DiscountType" (ngModelChange)="calcAllAmount()" name="currencies" >
+                                    <option value="1" >RS</option>
+                                    <option value="0" >%</option>
+                                  </select>
+                                </div>
+                            </td>
+                            <td>
+                              <select2 id="items.taxAmount{{i}}" [data]="taxTypes" class="control_select" (valueChanged)="onSelectTaxId($event, i)"
+                              autocomplete="true" [options]="select2PlaceHlderItem" [value]="item.taxAmount"></select2>
+                            </td>
+                            <td><input type="text" class="form-control" id="items.ReIssueCharges{{i}}" name="ReIssueCharges" placeholder="ReIssue Charges" (input)="calcAllAmount()" [(ngModel)]="item.ReIssueCharges" ></td>
+                            <td><input type="text" class="form-control" id="items.RefundPanelty{{i}}" name="RefundPanelty" placeholder="Refund Panelty" (input)="calcAllAmount()" [(ngModel)]="item.RefundPanelty" ></td>
+                            <td><input type="text" class="form-control" id="items.Miscellenouse{{i}}" name="Miscellenouse" placeholder="Miscellaneous Charges" (input)="calcAllAmount()" [(ngModel)]="item.Miscellenouse" ></td>
+                            <td><input type="text" class="form-control" id="items.Company{{i}}" name="Company" placeholder="Company" [(ngModel)]="item.Company" ></td>
+                            <td><input type="text" class="form-control" id="items.LangiTax{{i}}" name="LangiTax" placeholder="Langi Tax" (input)="calcAllAmount()" [(ngModel)]="item.LangiTax" ></td>
+                            <td><input type="text" class="form-control" id="items.SvcFee{{i}}" name="SvcFee" placeholder="SVC Fee" (input)="calcAllAmount()" [(ngModel)]="item.SvcFee" ></td>
+                            <td>
+                              <div class="discount" >
+                                <input type="text" class="form-control" id="items.Commission{{i}}" placeholder="Commission" name="Commission" (input)="calcAllAmount()" [(ngModel)]="item.Commission" >
+                                <select class="form-control discount_type" id="items.CommissionType{{i}}" [(ngModel)]="item.CommissionType" name="currencies" (ngModelChange)="calcAllAmount()" >
+                                  <option value="1" >RS</option>
+                                  <option value="0" >%</option>
+                                </select>
+                              </div>
+                            </td>
+                            <td><input type="text" class="form-control" id="items.Commtoauthorizor{{i}}" placeholder="Commission Authorized" id="items{{i}}" name="Commtoauthorizor" (input)="calcAllAmount()" [(ngModel)]="item.Commtoauthorizor" ></td>
+                            <td><input type="text" class="form-control" id="items.TotalAmount{{i}}" placeholder="Total Amount" name="TotalAmount" [(ngModel)]="item.TotalAmount" ></td>
+                        </tr>
+                    </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="form-row mt-4">
+
+            <div class="col-md-4 card p-3">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label>Total Fare</label>
+                  <input type="text" class="form-control" name="totalFare" [(ngModel)]="totalFare" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Total Discount</label>
+                  <input type="text" class="form-control" name="totalDiscount" [(ngModel)]="totalDiscount">
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Other Charge</label>
+                  <input type="text" class="form-control" name="OtherCharge" [(ngModel)]="OtherCharge" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Commission</label>
+                  <input type="text" class="form-control" name="totalCommission" [(ngModel)]="Commission" >
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Net Amount</label>
+                    <input type="text" class="form-control" name="CessAmount" [(ngModel)]="CessAmount" >
+                  </div>
+                <div class="form-group col-md-6">
+                  <label>Round Off</label>
+                  <input type="text" class="form-control" name="RoundOff" [(ngModel)]="RoundOff" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Bill Amount</label>
+                  <input type="text" class="form-control" name="totalBillAmount" [(ngModel)]="totalBillAmount" >
+                </div>
+              </div>
+            </div>
+            <div class="col-md-8 card p-3">
+              <div class="table-responsive" id="parent">
+                <form>
+                  <table class="table editable_tbl" id="fixTable">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <!-- <th>Sno</th> -->
+                        <th>Payment Mode</th>
+                        <th>LedgerId</th>
+                        <th>Amount</th>
+                        <th>PayDate</th>
+                        <th>Reference No.</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="selected_row active" *ngFor="let transaction of transactions;let i = index;" >
+                        <td>
+                          <div class="action_btn">
+                            <button (click)="addTransactions()" type="submit" class="btn btn-primary btn_add_more">+</button>
+                            <a (click)="deleteItem(i, 'trans')" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                          </div>
+                        </td>
+                        <!-- <td><input type="text" name="Sno" class="form-control" [(ngModel)]="transaction.value.Sno" /></td> -->
+                        <td style="min-width:180px;">
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                <select2 name="Paymode" id="transaction{{i}}" [data]="paymentModeSelect2" class="control_select" (valueChanged)="select2PyamentMdeId($event, i)"
+                                autocomplete="true" [options]="paymentPlaceHolder" [value]="transaction.Paymode"></select2>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                  <div class="input-group adw_select">
+                                      <select2 name="LedgerId" id="transaction{{i}}" [data]="transaction.paymentLedgerselect2" class="control_select" (valueChanged)="paymentLedgerId($event, i)"
+                                      autocomplete="true" [options]="ledgerPlaceHolder" [value]="transaction.LedgerId"></select2>
+                                  </div>
+                              </div>
+                          </div>
+                        </td>
+                        <td><input id="transaction{{i}}" type="text" name="Amount" class="form-control" [(ngModel)]="transaction.Amount" placeholder="Enter Amount"></td>
+                        <td><input id="transaction{{i}}" type="text" id="flatpickr" name="PayDate" class="form-control flatpickr" [(ngModel)]="transaction.PayDate" placeholder="Select Date"></td>
+                        <td><input id="transaction{{i}}" type="text" class="form-control" name="ChequeNo" [(ngModel)]="transaction.ChequeNo" placeholder="Enter Reference No."></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </form>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="modal fade" id="salerout" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+      <div class="modal-content bgcH-grey-100">
+          <div class="modal-header primary-bg">
+              <div class="container-fluid">
+                  <div class="row">
+                      <div class="col-md-3 left_side_head">
+                          <p class="heading_lead"><i class="fas fa-chart-line" aria-hidden="true"></i>New Sales
+                          Invoice</p>
+                      </div>
+                      <div class="col-md-9">
+                          <div class="btn_header">
+                              <a class="btn btn-default waves-effect" (click)="manipulateData()" >Save </a>
+                              <a class="btn btn-info waves-effect">Save and New</a>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true" class="white-text">×</span> </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- <div *ngIf="loading" class="modal-content" >
+              <div class="modal-body" style="height:inherit;" >
+                <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+              </div>
+            </div> -->
+
+          <div class="modal-body" >
+              <form #formItems="ngForm">
+                  <div class="form-row">
+                      <div class="form-group col-md-3">
+                          <label>Client Name (Party)</label>
+                          <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                  <select2 #client_select2 id="client" [data]="clientNameSelect2" class="control_select" (valueChanged)="onSelected2clientId($event)"
+                                      autocomplete="true" [options]="clientnamePlaceHolder" [value]="clientName"></select2>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label>Bill Number</label>
+                          <input type="text" placeholder="Bill Number" class="form-control" name="BillNo" [(ngModel)]="BillNo">
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label class="fw-500">Bill Date</label>
+                          <div class="timepicker-input input-icon ">
+                              <div class="input-group">
+                                <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
+                                <input type="text" class="form-control start-date flatpickr" placeholder="Bill Date" data-provide="datepicker"
+                                  [(ngModel)]="Date" name="Date" >
+                              </div>
+                          </div>
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label>Booking</label>
+                          <input type="text" class="form-control" placeholder="Booking No." name="BookingNo" [(ngModel)]="BookingNo" >
+                      </div>
+                  </div>
+                  <div class="card p-3">
+                    <div class="table-responsive">
+                      <table class="table fixTable editable_tbl" id="table">
+                        <thead>
+                          <tr class="default_row">
+                            <th>#</th>
+                            <!-- <th>SR NO</th> -->
+                            <th>Routing</th>
+                            <th>Supplier</th>
+                            <th>Passenger</th>
+                            <th>Date</th>
+                            <th>Ticket No.</th>
+                            <th>Fare</th>
+                            <th>Discount</th>
+                            <th>Tax</th>
+                            <th>Reissue Charges</th>
+                            <th>Refund Panelty</th>
+                            <th>Miscellanouse Charges</th>
+                            <th>Company</th>
+                            <th>langi Tax</th>
+                            <th>SVC Fee</th>
+                            <th>Commission</th>
+                            <th>Commission Authorized</th>
+                            <th>Total Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="selected_row active" id="items{{i}}" *ngFor="let item of items; let i = index;" >
+                            <td>
+                              <div class="action_btn">
+                                <button type="submit" class="btn btn-primary btn_add_more" (click)="addItems()" >+</button>
+                                <a *ngIf="i != 0" (click)="deleteItem(i, 'items')" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                              </div>
+                            </td>
+                            <!-- <td><input type="text" class="form-control" placeholder="Sno." [(ngModel)]="item.value.Sno" name="Sno" ></td> -->
+                            <td>
+                              <select2 [data]="select2Item" class="control_select" (valueChanged)="onSelectedRoutingId($event, i)"
+                              autocomplete="true" [options]="select2PlaceHlderItem" [value]="item.Routing"></select2>
+                            </td>
+                            <td>
+                              <select2 [data]="suplierNameSelect2" class="control_select" (valueChanged)="onSelectSupplier($event, i)"
+                              autocomplete="true" [options]="supplierPlaceHolder" [value]="item.Supplier"></select2>
+                            </td>
+                            <td><input type="text" name="Passenger" placeholder="Passenger Name" [(ngModel)]="item.Remark" class="form-control"></td>
+                            <td><input type="text" name="Date" placeholder="Date" [(ngModel)]="item.Date" class="form-control start-date flatpickr" ></td>
+                            <td><input type="text" name="TicketNo" placeholder="TicketNo" [(ngModel)]="item.TicketNo" class="form-control" ></td>
+                            <td><input type="text" class="form-control" readonly=true placeholder="Fare" name="Fare" (change)="calcAllAmount()" [(ngModel)]="item.Fare" ></td>
+                            <td>
+                                <div class="discount">
+                                  <input type="text" class="form-control Input_width" name="Discount" (change)="calcAllAmount()" placeholder="Discount" [(ngModel)]="item.Discount">
+                                  <select class="form-control discount_type" id="items.DiscountType{{i}}" [(ngModel)]="item.DiscountType" (ngModelChange)="calcAllAmount()" name="currencies" >
+                                    <option value="1" >RS</option>
+                                    <option value="0" >%</option>
+                                  </select>
+                                </div>
+                            </td>
+                            <td>
+                              <select2 [data]="taxTypes" class="control_select" (valueChanged)="onSelectTaxId($event, i)"
+                              autocomplete="true" [options]="taxPlaceHolder" [value]="item.taxAmount"></select2>
+                            </td>
+                            <td><input type="text" class="form-control" name="ReIssueCharges" placeholder="ReIssue Charges" (change)="calcAllAmount()" [(ngModel)]="item.ReIssueCharges" ></td>
+                            <td><input type="text" class="form-control" name="RefundPanelty" placeholder="Refund Panelty" (change)="calcAllAmount()" [(ngModel)]="item.RefundPanelty" ></td>
+                            <td><input type="text" class="form-control" name="Miscellenouse" placeholder="Miscellaneous Charges" (change)="calcAllAmount()" [(ngModel)]="item.Miscellenouse" ></td>
+                            <td><input type="text" class="form-control" name="Company" placeholder="Company" [(ngModel)]="item.Company" ></td>
+                            <td><input type="text" class="form-control" name="LangiTax" placeholder="Langi Tax" (change)="calcAllAmount()" [(ngModel)]="item.LangiTax" ></td>
+                            <td><input type="text" class="form-control" name="SvcFee" placeholder="SVC Fee" (change)="calcAllAmount()" [(ngModel)]="item.SvcFee" ></td>
+                            <td>
+                              <div class="discount" >
+                                <input type="text" class="form-control" placeholder="Commission" name="Commission" (change)="calcAllAmount()" [(ngModel)]="item.Commission" >
+                                <select class="form-control discount_type" [(ngModel)]="item.CommissionType" name="currencies" (ngModelChange)="calcAllAmount()" >
+                                  <option value="1" >RS</option>
+                                  <option value="0" >%</option>
+                                </select>
+                              </div>
+                            </td>
+                            <td><input type="text" class="form-control" placeholder="Commission Authorized" id="items{{i}}" name="Commtoauthorizor" (change)="calcAllAmount()" [(ngModel)]="item.Commtoauthorizor" ></td>
+                            <td><input type="text" class="form-control" placeholder="Total Amount" name="TotalAmount" [(ngModel)]="item.TotalAmount" ></td>
+                        </tr>
+                    </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="form-row mt-4">
+            <div class="col-md-4 card p-3">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label>Total Fare</label>
+                  <input type="text" class="form-control" name="totalFare" [(ngModel)]="totalFare" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Total Discount</label>
+                  <input type="text" class="form-control" name="totalDiscount" [(ngModel)]="totalDiscount">
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Other Charge</label>
+                  <input type="text" class="form-control" name="OtherCharge" [(ngModel)]="OtherCharge" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Commission</label>
+                  <input type="text" class="form-control" name="totalCommission" [(ngModel)]="Commission" >
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Net Amount</label>
+                    <input type="text" class="form-control" name="CessAmount" [(ngModel)]="CessAmount" >
+                  </div>
+                <div class="form-group col-md-6">
+                  <label>Round Off</label>
+                  <input type="text" class="form-control" name="RoundOff" [(ngModel)]="RoundOff" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Bill Amount</label>
+                  <input type="text" class="form-control" name="totalBillAmount" [(ngModel)]="totalBillAmount" >
+                </div>
+              </div>
+            </div>
+            <div class="col-md-8 card p-3">
+              <div class="table-responsive" id="parent">
+                <table class="table editable_tbl" id="fixTable">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Payment Mode</th>
+                      <th>LedgerId</th>
+                      <th>Amount</th>
+                      <th>PayDate</th>
+                      <th>Reference No.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="selected_row active" *ngFor="let transaction of transactions;let i = index;" >
+                      <td>
+                        <div class="action_btn">
+                          <button *ngIf="transactions.length - 1 == i" (click)="addTransactions()" type="submit" class="btn btn-primary btn_add_more">+</button>
+                          <a *ngIf="transactions.length > 1" (click)="deleteItem(i, 'trans')" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                        </div>
+                      </td>
+                      <td style="min-width:180px;">
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2 name="Paymode" [data]="paymentModeSelect2" id="transaction.PayModeId{{i}}" class="control_select" (valueChanged)="select2PyamentMdeId($event, i)"
+                              autocomplete="true" [options]="paymentPlaceHolder" [value]="PayModeId"></select2>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2 name="LedgerId" [data]="transaction.paymentLedgerselect2" id="transaction.LedgerId{{i}}" class="control_select" (valueChanged)="paymentLedgerId($event, i)"
+                              autocomplete="true" [options]="ledgerPlaceHolder" [value]="LedgerId"></select2>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><input type="text" name="Amount" class="form-control" id="transaction.Amount{{i}}" [(ngModel)]="transaction.Amount" placeholder="Enter Amount"></td>
+                      <td><input type="text" id="flatpickr{{i}}" name="PayDate" class="form-control flatpickr" [(ngModel)]="transaction.PayDate" placeholder="Select Date"></td>
+                      <td><input type="text" id="transaction.ChequeNo{{i}}" class="form-control" name="ChequeNo" [(ngModel)]="transaction.ChequeNo" placeholder="Enter Reference No."></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// last
+<div class="modal fade" id="salerout" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+      <div class="modal-content bgcH-grey-100">
+          <div class="modal-header primary-bg">
+              <div class="container-fluid">
+                  <div class="row">
+                      <div class="col-md-3 left_side_head">
+                          <p class="heading_lead"><i class="fas fa-chart-line" aria-hidden="true"></i>New Sales
+                          Invoice</p>
+                      </div>
+                      <div class="col-md-9">
+                          <div class="btn_header">
+                              <a class="btn btn-default waves-effect" (click)="manipulateData()" >Save </a>
+                              <a class="btn btn-info waves-effect">Save and New</a>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true" class="white-text">×</span> </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- <div *ngIf="loading" class="modal-content" >
+              <div class="modal-body" style="height:inherit;" >
+                <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+              </div>
+            </div> -->
+
+          <div class="modal-body" >
+              <form #formItems="ngForm">
+                  <div class="form-row">
+                      <div class="form-group col-md-3">
+                          <label>Client Name (Party)</label>
+                          <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                  <select2 #client_select2 id="client" [data]="clientNameSelect2" class="control_select" (valueChanged)="onSelected2clientId($event)"
+                                      autocomplete="true" [options]="clientnamePlaceHolder" [value]="clientName"></select2>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label>Bill Number</label>
+                          <input type="text" placeholder="Bill Number" class="form-control" name="BillNo" [(ngModel)]="BillNo">
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label class="fw-500">Bill Date</label>
+                          <div class="timepicker-input input-icon ">
+                              <div class="input-group">
+                                <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
+                                <input type="text" class="form-control start-date flatpickr" placeholder="Bill Date" data-provide="datepicker"
+                                  [(ngModel)]="Date" name="Date" >
+                              </div>
+                          </div>
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label>Booking</label>
+                          <input type="text" class="form-control" placeholder="Booking No." name="BookingNo" [(ngModel)]="BookingNo" >
+                      </div>
+                  </div>
+                  <div class="card p-3">
+                    <div class="table-responsive">
+                      <table class="table fixTable editable_tbl" id="table">
+                        <thead>
+                          <tr class="default_row">
+                            <th>#</th>
+                            <!-- <th>SR NO</th> -->
+                            <th>Routing</th>
+                            <th>Supplier</th>
+                            <th>Passenger</th>
+                            <th>Date</th>
+                            <th>Ticket No.</th>
+                            <th>Fare</th>
+                            <th>Discount</th>
+                            <th>Tax</th>
+                            <th>Reissue Charges</th>
+                            <th>Refund Panelty</th>
+                            <th>Miscellanouse Charges</th>
+                            <th>Company</th>
+                            <th>langi Tax</th>
+                            <th>SVC Fee</th>
+                            <th>Commission</th>
+                            <th>Commission Authorized</th>
+                            <th>Total Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="selected_row active" id="items{{i}}" *ngFor="let item of items; let i = index;" >
+                            <td>
+                              <div class="action_btn">
+                                <button type="submit" class="btn btn-primary btn_add_more" (click)="addItems()" >+</button>
+                                <a *ngIf="i != 0" (click)="deleteItem(i, 'items')" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                              </div>
+                            </td>
+                            <!-- <td><input type="text" class="form-control" placeholder="Sno." [(ngModel)]="item.value.Sno" name="Sno" ></td> -->
+                            <td>
+                              <select2 [data]="select2Item" class="control_select" (valueChanged)="onSelectedRoutingId($event, i)"
+                              autocomplete="true" [options]="select2PlaceHlderItem" [value]="item.Routing"></select2>
+                            </td>
+                            <td>
+                              <select2 [data]="suplierNameSelect2" class="control_select" (valueChanged)="onSelectSupplier($event, i)"
+                              autocomplete="true" [options]="supplierPlaceHolder" [value]="item.Supplier"></select2>
+                            </td>
+                            <td><input type="text" name="Passenger" placeholder="Passenger Name" [(ngModel)]="item.Remark" class="form-control"></td>
+                            <td><input type="text" name="Date" placeholder="Date" [(ngModel)]="item.Date" class="form-control start-date flatpickr" ></td>
+                            <td><input type="text" name="TicketNo" placeholder="TicketNo" [(ngModel)]="item.TicketNo" class="form-control" ></td>
+                            <td><input type="text" class="form-control" readonly=true placeholder="Fare" name="Fare" (change)="calcAllAmount()" [(ngModel)]="item.Fare" ></td>
+                            <td>
+                                <div class="discount">
+                                  <input type="text" class="form-control Input_width" name="Discount" (change)="calcAllAmount()" placeholder="Discount" [(ngModel)]="item.Discount">
+                                  <select class="form-control discount_type" id="items.DiscountType{{i}}" [(ngModel)]="item.DiscountType" (ngModelChange)="calcAllAmount()" name="currencies" >
+                                    <option value="1" >RS</option>
+                                    <option value="0" >%</option>
+                                  </select>
+                                </div>
+                            </td>
+                            <td>
+                              <select2 [data]="taxTypes" class="control_select" (valueChanged)="onSelectTaxId($event, i)"
+                              autocomplete="true" [options]="taxPlaceHolder" [value]="item.taxAmount"></select2>
+                            </td>
+                            <td><input type="text" class="form-control" name="ReIssueCharges" placeholder="ReIssue Charges" (change)="calcAllAmount()" [(ngModel)]="item.ReIssueCharges" ></td>
+                            <td><input type="text" class="form-control" name="RefundPanelty" placeholder="Refund Panelty" (change)="calcAllAmount()" [(ngModel)]="item.RefundPanelty" ></td>
+                            <td><input type="text" class="form-control" name="Miscellenouse" placeholder="Miscellaneous Charges" (change)="calcAllAmount()" [(ngModel)]="item.Miscellenouse" ></td>
+                            <td><input type="text" class="form-control" name="Company" placeholder="Company" [(ngModel)]="item.Company" ></td>
+                            <td><input type="text" class="form-control" name="LangiTax" placeholder="Langi Tax" (change)="calcAllAmount()" [(ngModel)]="item.LangiTax" ></td>
+                            <td><input type="text" class="form-control" name="SvcFee" placeholder="SVC Fee" (change)="calcAllAmount()" [(ngModel)]="item.SvcFee" ></td>
+                            <td>
+                              <div class="discount" >
+                                <input type="text" class="form-control" placeholder="Commission" name="Commission" (change)="calcAllAmount()" [(ngModel)]="item.Commission" >
+                                <select class="form-control discount_type" [(ngModel)]="item.CommissionType" name="currencies" (ngModelChange)="calcAllAmount()" >
+                                  <option value="1" >RS</option>
+                                  <option value="0" >%</option>
+                                </select>
+                              </div>
+                            </td>
+                            <td><input type="text" class="form-control" placeholder="Commission Authorized" id="items{{i}}" name="Commtoauthorizor" (change)="calcAllAmount()" [(ngModel)]="item.Commtoauthorizor" ></td>
+                            <td><input type="text" class="form-control" placeholder="Total Amount" name="TotalAmount" [(ngModel)]="item.TotalAmount" ></td>
+                        </tr>
+                    </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="form-row mt-4">
+            <div class="col-md-4 card p-3">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label>Total Fare</label>
+                  <input type="text" class="form-control" name="totalFare" [(ngModel)]="totalFare" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Total Discount</label>
+                  <input type="text" class="form-control" name="totalDiscount" [(ngModel)]="totalDiscount">
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Other Charge</label>
+                  <input type="text" class="form-control" name="OtherCharge" [(ngModel)]="OtherCharge" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Commission</label>
+                  <input type="text" class="form-control" name="totalCommission" [(ngModel)]="Commission" >
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Net Amount</label>
+                    <input type="text" class="form-control" name="CessAmount" [(ngModel)]="CessAmount" >
+                  </div>
+                <div class="form-group col-md-6">
+                  <label>Round Off</label>
+                  <input type="text" class="form-control" name="RoundOff" [(ngModel)]="RoundOff" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Bill Amount</label>
+                  <input type="text" class="form-control" name="totalBillAmount" [(ngModel)]="totalBillAmount" >
+                </div>
+              </div>
+            </div>
+            <div class="col-md-8 card p-3">
+              <div class="table-responsive" id="parent">
+                <table class="table editable_tbl" id="fixTable">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Payment Mode</th>
+                      <th>LedgerId</th>
+                      <th>Amount</th>
+                      <th>PayDate</th>
+                      <th>Reference No.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="selected_row active" *ngFor="let transaction of transactions; index as i; trackBy: identify; first as isFirst; last as isLast" >
+                      <td>
+                        <div class="action_btn">
+                          <button  (click)="addTransactions()" type="submit" class="btn btn-primary btn_add_more">+</button>
+                          <a (click)="deleteItem(i, 'trans')" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                        </div>
+                      </td>
+                      <td style="min-width:180px;">
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2 name="Paymode" [data]="paymentModeSelect2" id="transaction.PayModeId{{i}}" class="control_select" (valueChanged)="select2PyamentMdeId($event, i)"
+                              autocomplete="true" [options]="paymentPlaceHolder" [value]="PayModeId"></select2>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2 name="LedgerId" [data]="transaction.paymentLedgerselect2" id="transaction.LedgerId{{i}}" class="control_select" (valueChanged)="paymentLedgerId($event, i)"
+                              autocomplete="true" [options]="ledgerPlaceHolder" [value]="LedgerId"></select2>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><input type="text" name="Amount" class="form-control" id="transaction.Amount{{i}}" [(ngModel)]="transaction.Amount" placeholder="Enter Amount"></td>
+                      <td><input type="text" id="flatpickr{{i}}" name="PayDate" class="form-control flatpickr" [(ngModel)]="transaction.PayDate" placeholder="Select Date"></td>
+                      <td><input type="text" id="transaction.ChequeNo{{i}}" class="form-control" name="ChequeNo" [(ngModel)]="transaction.ChequeNo" placeholder="Enter Reference No."></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+import { Component, ViewChild, OnChanges, SimpleChanges } from '@angular/core'
+import { UIConstant } from '../../../../shared/constants/ui-constant'
+import { Subscription } from 'rxjs'
+import { SaleTravelServices } from '../../../sale-travel.services'
+import { AddCust } from '../../../../model/sales-tracker.model'
+import { Select2OptionData, Select2Component } from 'ng2-select2'
+import { VendorServices } from '../../../../commonServices/TransactionMaster/vendoer-master.services'
+import { SaniiroCommonService } from '../../../../commonServices/SaniiroCommonService'
+import { CommonSetGraterServices } from '../../../../commonServices/setgatter.services'
+import { ItemmasterServices } from '../../../../commonServices/TransactionMaster/item-master.services'
+declare var $: any
+declare var flatpickr: any
+@Component({
+  selector: 'app-sales-invoice',
+  templateUrl: './sales-invoice.component.html',
+  styleUrls: ['./sales-invoice.component.css']
+})
+export class SalesInvoiceComponent implements OnChanges {
+  ngOnChanges (changes: SimpleChanges): void {
+    // console.log('changes: ', changes)
+  }
+  BillNo: string
+  clientName: any
+  Date: string
+  BookingNo: string
+  modalOpen: Subscription
+
+  totalDiscount: any
+  totalFare: any
+  Commission: any
+  OtherCharge: any
+  RoundOff: any
+  CessAmount: any
+
+  subcribe: Subscription
+  clientNameSelect2: Array<Select2OptionData>
+  suplierNameSelect2: Array<Select2OptionData>
+  paymentModeSelect2: Array<Select2OptionData>
+  select2Item: Array<Select2OptionData>
+  clientnamePlaceHolder: Select2Options
+  paymentPlaceHolder: Select2Options
+  ledgerPlaceHolder: Select2Options
+  items = []
+  transactions = []
+
+  loading = true
+  customTrackBy (index: number, obj: any): any {
+    return index
+  }
+  addItems () {
+    if (this.items.length === 0) {
+      this.items.push({
+        Id: 0,
+        Sno: 1,
+        Supplier: '',
+        TicketNo: '',
+        Routing: '',
+        Remark: '',
+        Date: '',
+        Fare: '',
+        Discount: '',
+        discountAmount: 0,
+        Tax: 0,
+        taxAmount: 0,
+        ReIssueCharges: '',
+        RefundPanelty: '',
+        Miscellenouse: '',
+        Company: '',
+        LangiTax: '',
+        SvcFee: '',
+        Commission: '',
+        CommissionAmount: 0,
+        Commtoauthorizor: '',
+        CommissionType: '1',
+        DiscountType: '1',
+        currencyTax: '',
+        TotalAmount: 0
+      })
+    } else {
+      let index = +this.items[this.items.length - 1].Sno + 1
+      let currentItem = this.items[index - 2]
+      for (const key in currentItem) {
+        if (currentItem.hasOwnProperty(key)) {
+          if (document.getElementById('items.' + key + '' + (index - 2))) {
+            // console.log(currentItem[key])
+            let element = document.getElementById('items.' + key + '' + (index - 2)) as HTMLInputElement
+            element.value = currentItem[key]
+          }
+        }
+      }
+      this.items.push({
+        Id: 0,
+        Sno: index,
+        Supplier: '',
+        TicketNo: '',
+        Routing: '',
+        Remark: '',
+        Date: '',
+        Fare: '',
+        Discount: '',
+        discountAmount: 0,
+        Tax: 0,
+        taxAmount: 0,
+        ReIssueCharges: '',
+        RefundPanelty: '',
+        Miscellenouse: '',
+        Company: '',
+        LangiTax: '',
+        SvcFee: '',
+        Commission: '',
+        CommissionAmount: 0,
+        Commtoauthorizor: '',
+        CommissionType: '1',
+        DiscountType: '1',
+        currencyTax: '',
+        TotalAmount: 0
+      })
+    }
+    // console.log('items : ', this.items)
+    this.setStatus()
+  }
+
+  totalBillAmount: any
+  calcAllAmount () {
+    let totalDiscount = 0
+    let totalFare = 0
+    let Commission = 0
+    let OtherCharge = 0
+    for (let i = 0; i < this.items.length; i++) {
+      this.calculateDiscount(i)
+      this.calculateCommission(i)
+      this.calculateTax(i)
+      // this.items[i].TotalAmount = this.calculateTotal(i)
+      totalDiscount = totalDiscount + +this.items[i].discountAmount
+      totalFare = totalFare + +this.items[i].Fare
+      Commission = Commission + +this.items[i].CommissionAmount
+      OtherCharge = OtherCharge + +this.items[i].ReIssueCharges + +this.items[i].RefundPanelty + +this.items[i].Miscellenouse + +this.items[i].LangiTax + +this.items[i].SvcFee
+      // totalAmount = totalAmount + +this.items[i].TotalAmount
+    }
+
+    this.totalDiscount = totalDiscount
+    this.totalFare = totalFare
+    this.Commission = Commission
+    this.OtherCharge = OtherCharge
+  }
+
+  calculateTotalOfRow () {
+    let totalAmount = 0
+    for (let i = 0; i < this.items.length; i++) {
+      totalAmount = +totalAmount + +this.items[i].TotalAmount
+    }
+    if (!isNaN(totalAmount)) {
+      this.RoundOff = Math.round(totalAmount) - totalAmount
+      this.CessAmount = totalAmount
+      this.totalBillAmount = Math.round(totalAmount)
+      // console.log('items : ', this.items)
+    }
+  }
+
+  calculateTotal (i) {
+    const totalAmount = +this.items[i].Fare - this.items[i].discountAmount + +this.items[i].Tax + +this.items[i].ReIssueCharges + +this.items[i].RefundPanelty + +this.items[i].Miscellenouse + +this.items[i].LangiTax + +this.items[i].SvcFee + +this.items[i].Commtoauthorizor
+    // console.log('total amount : ', totalAmount)
+    return isNaN(totalAmount) ? 0 : totalAmount
+  }
+
+  calculateDiscount (itemIndex) {
+    // console.log('discount : ', this.items[itemIndex].currencyDiscount)
+    if (this.items[itemIndex].DiscountType === '0') {
+      if (this.items[itemIndex].Discount && this.items[itemIndex].Fare) {
+        this.items[itemIndex].discountAmount = (+this.items[itemIndex].Discount / 100) * (+this.items[itemIndex].Fare)
+      }
+    } else {
+      this.items[itemIndex].discountAmount = +this.items[itemIndex].Discount
+    }
+    // console.log('discount : ', this.items[itemIndex].discountAmount)
+  }
+
+  calculateCommission (itemIndex) {
+    // console.log('commission : ', this.items[itemIndex].currencyCommission)
+    if (this.items[itemIndex].CommissionType === '0') {
+      if (this.items[itemIndex].Commission && this.items[itemIndex].Fare) {
+        this.items[itemIndex].CommissionAmount = (+this.items[itemIndex].Commission / 100) * (+this.items[itemIndex].Fare)
+      }
+    } else {
+      this.items[itemIndex].CommissionAmount = +this.items[itemIndex].Commission
+    }
+    // console.log('commission : ', this.items[itemIndex].CommissionAmount)
+  }
+
+  calculateTax (itemIndex) {
+    // console.log('tax amount : ', this.items[itemIndex].Tax)
+    let taxAmount = 0
+    let _self = this
+    if (this.items[itemIndex].taxAmount > 0) {
+      this._saleTravelServices.getTaxRates(this.items[itemIndex].taxAmount).subscribe(
+        (tax: any) => {
+          // console.log('tax rate : ', tax)
+          let taxRates = tax.data.taxRates
+          taxRates.forEach(taxRate => {
+            if (taxRate.valueType === '0') {
+              if (_self.items[itemIndex].Fare && _self.items[itemIndex].discountAmount) {
+                taxAmount = taxAmount + +((+taxRate.taxRate / 100) * (+_self.items[itemIndex].Fare - _self.items[itemIndex].discountAmount))
+              } else {
+                taxAmount = taxAmount + +taxRate.taxRate
+              }
+            }
+          })
+          this.items[itemIndex].Tax = taxAmount
+          this.items[itemIndex].TotalAmount = +this.calculateTotal(itemIndex)
+          this.calculateTotalOfRow()
+          // console.log('tax amount : ', _self.items[itemIndex].Tax)
+        }
+      )
+    } else {
+      this.items[itemIndex].TotalAmount = +this.calculateTotal(itemIndex)
+      this.calculateTotalOfRow()
+    }
+  }
+  PayModeId: any
+  LedgerId: any
+  deleteItem (i, forArr) {
+    if (forArr === 'trans') {
+      this.transactions.splice(i,1)
+    }
+    if (forArr === 'items') {
+      this.items.splice(i,1)
+    }
+  }
+  // add more items
+  identify (index, item) {
+    item.Sno = index + 1
+    // console.log('transaction :  ', item)
+    return item.Sno - 1
+  }
+  // bank
+  addTransactions () {
+    if (this.transactions.length === 0) {
+      this.transactions.push({
+        Id: 0,
+        Sno: 1,
+        Paymode: '',
+        PayModeId: '',
+        LedgerId: '',
+        Amount: '',
+        PayDate: '',
+        ChequeNo: '',
+        paymentLedgerselect2: this.paymentLedgerselect2
+      })
+    } else {
+      let index = +this.transactions[this.transactions.length - 1].Sno + 1
+      let currentItem = this.transactions[index - 2]
+      this.transactions.push({
+        Id: 0,
+        Sno: index,
+        Paymode: '',
+        PayModeId: '',
+        Amount: '',
+        PayDate: '',
+        LedgerId: '',
+        ChequeNo: '',
+        paymentLedgerselect2: this.paymentLedgerselect2
+      })
+      // for (const key in currentItem) {
+      //   if (currentItem.hasOwnProperty(key)) {
+      //     if (document.getElementById('transaction.' + key + '' + (index - 2))) {
+      //       let element = document.getElementById('transaction.' + key + '' + (index - 2)) as HTMLInputElement
+      //       element.value = currentItem[key]
+      //       console.log(element.value)
+      //     }
+      //   }
+      // }
+    }
+    console.log('transactions : ', this.transactions)
+    this.addDate(this.transactions.length - 1)
+    // this.setStatus()
+  }
+  // bank
+
+  newCustAddSub: Subscription
+  newVendAddSub: Subscription
+  newRoutingAddSub: Subscription
+  newLedgerAddSub: Subscription
+  @ViewChild('client_select2')
+  clientSelect2: Select2Component
+  constructor (private _saleTravelServices: SaleTravelServices,
+    private _ledgerServices: VendorServices,
+    private _sanariioservices: SaniiroCommonService,
+    private _commonGaterSeterServices: CommonSetGraterServices,
+    private _itemServices: ItemmasterServices) {
+    this._sanariioservices.listen().subscribe((m: any) => {
+      if (this._commonGaterSeterServices.getClientId() > UIConstant.ZERO) {
+        this.getClientName(this._commonGaterSeterServices.getClientId())
+      } else if (this._commonGaterSeterServices.getVendorName() > 0) {
+        this.getSuplier(this._commonGaterSeterServices.getVendorName())
+      } else if (this._commonGaterSeterServices.getbank() > 0) {
+        this.setpaymentLedgerSelect2(this._commonGaterSeterServices.getbank(), 0)
+      }
+    })
+    this.newCustAddSub = this._saleTravelServices.getCustStatus().subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          this.clientNameSelect2.push({ id: data.id, text: data.name })
+          // if (this.clientSelect2) {
+          //   this.clientSelect2.data = this.clientNameSelect2
+          //   this.clientSelect2.ngOnInit()
+          // }
+          this.clientName = data.id
+        }
+      }
+    )
+    this.newVendAddSub = this._saleTravelServices.getVendStatus().subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          this.suplierNameSelect2.push({ id: data.id, text: data.name })
+        }
+      }
+    )
+    this.newRoutingAddSub = this._saleTravelServices.getRoutingStatus().subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          this.select2Item.push({ id: data.id, text: data.name })
+        }
+      }
+    )
+    this.newLedgerAddSub = this._saleTravelServices.getLedgerStatus().subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          this.paymentLedgerselect2.push({ id: data.id, text: data.name })
+        }
+      }
+    )
+    this.modalOpen = this._saleTravelServices.getInvoiceStatus().subscribe(
+      (status: any) => {
+        if (status.open) {
+          this.openModal()
+        } else {
+          this.closeModal()
+        }
+      }
+    )
+  }
+
+  ngOnInit () {
+    this.clientNameSelect2 = []
+    this.suplierNameSelect2 = []
+    this.paymentModeSelect2 = []
+    this.select2Item = []
+    this.addItems()
+    this.addTransactions()
+    this.getClientName(0)
+    this.getSuplier(0)
+    this.getItemDetail()
+    this.getPaymentModeDetail(0)
+    this.getTaxType()
+  }
+
+  // ngAfterViewInit () {
+  //   this.setStatus()
+  // }
+
+  select2PlaceHlderItem: Select2Options
+  itemValueSelect2: any
+  getItemDetail () {
+    this._itemServices.getItemMasterDetail().subscribe(data => {
+      // console.log('data in item master')
+      // console.log(data)
+      // this.select2Item = []
+      this.select2PlaceHlderItem = { placeholder: 'Select Routing' }
+      this.select2Item = [{ id: UIConstant.BLANK, text: 'Select Routing' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+
+      if (data.Code === UIConstant.THOUSAND) {
+        data.Data.forEach(element => {
+          this.select2Item.push({
+            id: element.id,
+            text: element.name
+          })
+        })
+        // this.itemValueSelect2 = value
+      }
+    })
+  }
+  routeFareSub: Subscription
+  onSelectedRoutingId (event, itemIndex) {
+    console.log('item index in routing : ', itemIndex)
+    // // console.log('selected route : ', event)
+    // // console.log('routing : ', this.items[itemIndex].Routing)
+    // // console.log('fare : ', this.items[itemIndex].Fare)
+    let _self = this
+    if (event.value === '-1' && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
+      this.items[itemIndex].Fare = 0
+      this._saleTravelServices.openRouting()
+      // console.log('value is always waiting')
+    } else {
+      if (event.value >= 0) {
+        // this.items[itemIndex].Routing = event.value
+        if (this.items[itemIndex].Routing) {
+          this.routeFareSub = this._saleTravelServices.getRouteFare(this.items[itemIndex].Routing).subscribe(
+            (routeFare: any) => {
+              _self.items[itemIndex].Fare = +routeFare.data[0].saleRate
+            }
+          )
+        }
+      }
+    }
+  }
+
+  addDate (i) {
+    jQuery(function ($) {
+      flatpickr('#flatpickr' + i, {
+        maxDate: 'today',
+        dateFormat: 'm/d/Y'
+      })
+    })
+  }
+
+  setStatus () {
+    // console.log(this.clientSelect2)
+    // this.clientSelect2.selector.nativeElement.focus()
+    // this.clientSelect2.select2('open')
+    jQuery(function ($) {
+      flatpickr('.flatpickr', {
+        maxDate: 'today',
+        dateFormat: 'm/d/Y'
+      })
+    })
+  }
+
+  onSelectSupplier (event, itemIndex) {
+    if (event.value === '-1' && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
+      this._saleTravelServices.openVend()
+      // console.log('value is always waiting')
+    } else {
+      // this.items[itemIndex].Supplier = event.value
+    }
+  }
+
+  onSelected2clientId (event) {
+    // console.log('on select of customer : ', event)
+    if (event.data.length > 0) {
+      if (event.value === '-1' && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
+        this._saleTravelServices.openCust()
+      } else {
+        // this.clientName = event.value
+      }
+    }
+    // console.log('value : ', this.clientSelect2.value)
+  }
+  bankName: any
+  paymentLedgerselect2: Array<Select2OptionData>
+  setpaymentLedgerSelect2 (value, transIndex) {
+    let _self = this
+    this._saleTravelServices.getPaymentLedgerDetal(9).subscribe(data => {
+      // console.log('PaymentModeData : ', data)
+      this.ledgerPlaceHolder = { placeholder: 'Select Ledger' }
+      this.transactions[transIndex].paymentLedgerselect2 = [{ id: UIConstant.BLANK, text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+      data.Data.forEach(element => {
+        _self.transactions[transIndex].paymentLedgerselect2.push({
+          id: element.Id,
+          text: element.Name
+        })
+      })
+      this.transactions[transIndex].LedgerId = value
+    })
+  }
+  getClientName (value) {
+    this._ledgerServices.getVendor(5).subscribe(data => {
+      // console.log('customers list : ', data.Data)
+      if (data.Data.length > 0) {
+        this.clientnamePlaceHolder = { placeholder: 'Select ClientName' }
+        // this.clientNameSelect2 = []
+        this.clientNameSelect2 = [{ id: UIConstant.BLANK, text: 'Select Client Name' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+        data.Data.forEach(element => {
+          this.clientNameSelect2.push({
+            id: element.Id,
+            text: element.Name
+          })
+        })
+        this.clientName = value
+      }
+      // console.log(' this.clientName : ', this.clientName)
+      // console.log('value in select2 customer : ', this.clientNameSelect2)
+    })
+  }
+  ngOnDestroy () {
+    this.modalOpen.unsubscribe()
+    this.newCustAddSub.unsubscribe()
+    this.newVendAddSub.unsubscribe()
+    this.newRoutingAddSub.unsubscribe()
+    this.newLedgerAddSub.unsubscribe()
+    this.taxTypeSub.unsubscribe()
+    this.routeFareSub.unsubscribe()
+    // this.subcribe.unsubscribe()
+    this.items = []
+    this.transactions = []
+  }
+
+  openModal () {
+    $('#salerout').modal(UIConstant.MODEL_SHOW)
+  }
+
+  closeModal () {
+    if ($('#salerout').length > 0) {
+      $('#salerout').model(UIConstant.MODEL_HIDE)
+    }
+  }
+
+  supplierPlaceHolder: Select2Options
+  supplierValue: any
+  getSuplier (value) {
+    this._ledgerServices.getVendor(4).subscribe(data => {
+      // this.suplierNameSelect2 = []
+      this.supplierPlaceHolder = { placeholder: 'Select Supplier' }
+      this.suplierNameSelect2 = [{ id: UIConstant.BLANK, text: 'Select Supplier' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+      if (data.Data.length > 0) {
+        data.Data.forEach(element => {
+          this.suplierNameSelect2.push({
+            id: element.Id,
+            text: element.Name
+          })
+        })
+        this.supplierValue = value
+      }
+      // console.log(this.suplierNameSelect2)
+    })
+  }
+
+  getPaymentModeDetail (index) {
+    // console.log('payemnt detail called')
+    this._saleTravelServices.getPaymrntModeDetail().subscribe(data => {
+      this.paymentPlaceHolder = { placeholder: 'Select Payment Mode' }
+      this.paymentModeSelect2 = [{ id: UIConstant.BLANK, text: 'Select Payment Mode' }]
+      data.Data.forEach(element => {
+        this.paymentModeSelect2.push({
+          id: element.id,
+          text: element.payModeName
+        })
+      })
+      // this.transactions[index].Paymode = index
+    })
+  }
+
+  // PayModeId: any
+  select2PyamentMdeId (event, i) {
+    console.log('payment method select: ', event)
+    this.transactions[i].Paymode = event.data[0].text
+    this.transactions[i].PayModeId = event.value
+    if (event.value === '3') {
+      this.setpaymentLedgerSelect2(0, i)
+    } else if (event.value === '1') {
+      this.transactions[i].paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
+    }
+  }
+  selectedTransIndex = 0
+  // LedgerId: any
+  paymentLedgerId (event, i) {
+    console.log('payment ledger id : ', event)
+    if (+event.value === -1) {
+      this.selectedTransIndex = i
+      this._saleTravelServices.openLedger()
+    } else {
+      this.transactions[i].LedgerId = event.value
+    }
+  }
+  taxTypes: Array<any>
+  taxTypeSub: Subscription
+  taxPlaceHolder: Select2Options
+  getTaxType () {
+    this.taxTypeSub = this._saleTravelServices.getAllTaxType().subscribe(
+      (taxTypes: any) => {
+        this.taxTypes = []
+        this.taxPlaceHolder = { placeholder: 'Select Tax' }
+        this.taxTypes = [{ id: UIConstant.BLANK, text: 'Select Tax' }]
+        taxTypes.data.taxSlabs.forEach(element => {
+          this.taxTypes.push({
+            id: element.id,
+            text: element.slab
+          })
+        })
+        // console.log('tax types : ', this.taxTypes)
+      }
+    )
+  }
+
+  onSelectTaxId (event, index) {
+    // console.log('on select of tax : ', event)
+    if (event.data[0].id) {
+      if (event.data.length > 0) {
+        // tslint:disable-next-line:no-empty
+        if (event.value === '-1' && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
+        } else {
+          this.items[index].taxAmount = event.value
+          this.calculateTax(index)
+        }
+      }
+    }
+  }
+
+  manipulateData () {
+    // console.log(this.transactions)
+    // console.log(this.items)
+    // console.log('BillNo : ', this.BillNo)
+    // console.log('clientName : ', this.clientName)
+    // console.log('Date : ', this.Date)
+    // console.log('BookingNo : ', this.BookingNo)
+    // console.log('Commission : ', this.Commission)
+    // console.log('OtherCharge : ', this.OtherCharge)
+    // console.log('RoundOff : ', this.RoundOff)
+    // console.log('CessAmount : ', this.CessAmount)
+    let obj = {}
+    obj['BillNo'] = this.BillNo
+    obj['clientName'] = this.clientName
+    obj['Date'] = this.Date
+    obj['BookingNo'] = this.BookingNo
+    obj['Commission'] = this.Commission
+    obj['OtherCharge'] = this.OtherCharge
+    obj['RoundOff'] = this.RoundOff
+    obj['CessAmount'] = this.CessAmount
+    obj['travelImports'] = this.items
+    obj['travelPayments'] = this.transactions
+    let _self = this
+    this._saleTravelServices.postTravelDetails(obj).subscribe(
+      (data: any) => {
+        // console.log('post : ', data)
+        if (data.id) {
+          _self._saleTravelServices.newInvoiceAdded()
+          this.closeModal()
+        }
+      }
+    )
+  }
+}
+
+
+// last
+
+
+
+  <div class="modal animated" id="sale-return" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+      <div class="modal-content bgcH-grey-100">
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-3 left_side_head">
+                <p class="heading_lead"><i class="fas fa-chart-line" aria-hidden="true"></i>Sales
+                Return</p>
+              </div>
+              <div class="col-md-9">
+                <div class="btn_header">
+                  <a class="btn btn-default waves-effect" (click)="keepOpen=false;manipulateData()" >Save </a>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeReturn()" ><span
+                    aria-hidden="true" class="white-text">×</span> </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!isDataAvailable" class="modal-content" >
+          <div class="modal-body" style="height:inherit;" >
+            <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+          </div>
+        </div>
+
+        <div class="modal-body" *ngIf="isDataAvailable" >
+          <form #formItems="ngForm">
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <label>Client Name (Party)</label>
+                <div class="input-group adw_select">
+                  <div class="input-group adw_select">
+                    <select2 [disabled]="id != 0" #client_select2 id="client" [ngClass]="{'errorSelecto': submitSave && invalidObj?.clientName }"  [data]="clientNameSelect2" class="control_select" (valueChanged)="onSelected2clientId($event)"
+                    autocomplete="true" [options]="clientnamePlaceHolder" [value]="clientNameId"></select2>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label>Bill Number</label>
+                <input type="text" [disabled]="id != 0" placeholder="Bill Number" (input)="checkForValidation()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.BillNo }"  [readonly]="setupModules.BillNo" class="form-control" name="BillNo" [(ngModel)]="BillNo">
+              </div>
+              <div class="form-group col-md-2">
+                <label class="fw-500">Bill Date</label>
+                <div class="timepicker-input input-icon">
+                  <div class="input-group">
+                    <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
+                    <input [disabled]="id != 0" tabindex="0" type="text" class="form-control start-date flatpickr" id="bill-date"  placeholder="Bill Date" data-provide="datepicker"
+                      [(ngModel)]="BillDate" (input)="checkForValidation()" name="billDate" [ngClass]="{'errorSelecto': submitSave && invalidObj?.BillDate }" >
+                  </div>
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label>Booking No.</label>
+                <input type="text" class="form-control" [disabled]="id != 0" placeholder="Booking No." (input)="checkForValidation()" name="BookingNo" [(ngModel)]="BookingNo" [ngClass]="{'errorSelecto': submitSave && invalidObj?.BookingNo }" >
+              </div>
+              <div class="form-group col-md-2">
+                <label>LPO</label>
+                <input type="text" disabled="true" class="form-control" disabled=true placeholder="LPO No." name="lpono" [(ngModel)]="LpoNo" >
+              </div>
+              <div class="form-group col-md-2">
+                <label>Available Currency</label>
+                <div class="input-group adw_select">
+                  <div class="input-group adw_select">
+                    <select2 id="currency" disabled="true" #currency_select2 [data]="currencies" class="control_select" (valueChanged)="onSelectCurrency($event)"
+                    autocomplete="true" [options]="placeholderCurreny" [value]="currency" [ngClass]="{'errorSelecto': submitSave && invalidObj?.CurrencyId }" ></select2>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card p-3">
+              <div class="table-responsive">
+                <table class="table fixTable editable_tbl" id="table">
+                  <thead>
+                    <tr class="default_row">
+                      <th>#</th>
+                      <th>Routing</th>
+                      <th>Supplier</th>
+                      <th>Passenger</th>
+                      <th>Date</th>
+                      <th>Return Date</th>
+                      <th>Ticket No.</th>
+                      <th>Fare</th>
+                      <th>Discount</th>
+                      <th>Tax Amount</th>
+                      <th>Reissue Charges</th>
+                      <th>Refund Panelty</th>
+                      <th>Miscellanouse</th>
+                      <th>Company</th>
+                      <th>langi Tax</th>
+                      <th>SVC Fee</th>
+                      <th>Commission</th>
+                      <th>Commission Authorized</th>
+                      <th>Total Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="selected_row active" *ngFor="let item of items; let i = index;" >
+                      <td class="profile-pic1" >
+                        <div class="edit1">
+                            <!-- <a *ngIf="items.length > 0" (click)="deleteItem(i, 'items')" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a> -->
+                            <!-- <a *ngIf="items.length > 0" (click)="editItem(i+1, item.Id, 'items')" ><i class="fas fa-pen fa-1x"></i></a> -->
+                        </div>
+                      </td>
+                      <td>
+                        {{item.routingName}}
+                      </td>
+                      <td>
+                        {{item.supplierName}}
+                      </td>
+                      <td>{{item.Remark}}</td>
+                      <td>{{item.Date}}</td>
+                      <td>{{item.ReturnDate}}</td>
+                      <td>{{item.TicketNo}}</td>
+                      <td>{{item.Fare}}</td>
+                      <td>
+                        {{item.Discount}}&nbsp;{{item.DiscountType === 0 && item.Discount != 0 ? '%' : defaultCurrency}}
+                      </td>
+                      <td>
+                        {{item.TaxAmount}}
+                      </td>
+                      <td>{{item.ReIssueCharges}}</td>
+                      <td>{{item.RefundPanelty}}</td>
+                      <td>{{item.Miscellaneouse}}</td>
+                      <td>{{item.Company}}</td>
+                      <td>{{item.LangiTax}}</td>
+                      <td>{{item.SvcFee}}</td>
+                      <td>
+                        {{item.Comm}}&nbsp;{{item.CommissionType === 0 && item.Comm != 0 ? '%': defaultCurrency}}
+                      </td>
+                      <td>{{item.Commtoauthorizor}}</td>
+                      <td>{{item.TotalAmount}}</td>
+                    </tr>
+                    <tr class="selected_row active" >
+                      <td>
+                        <div class="action_btn">
+                          <button type="submit" class="btn btn-primary btn_add_more" (click)="validateItem();addItems()" >+</button>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          <select2 [data]="select2Item" #routing_select2 class="control_select" (valueChanged)="onSelectedRoutingId($event)"
+                          autocomplete="true" [options]="select2PlaceHlderItem" [value]="routingId" [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Routing }" ></select2>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          <select2 [data]="suplierNameSelect2" #supplier_select2 class="control_select" (valueChanged)="onSelectSupplier($event)"
+                          autocomplete="true" [options]="supplierPlaceHolder" [value]="supplierId" [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Supplier }" ></select2>
+                        </div>
+                      </td>
+                      <td><input type="text" name="Passenger" placeholder="Passenger Name" [(ngModel)]="Remark" (input)="validateItem();checkForValidation()" class="form-control" [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Remark }" ></td>
+                      <td><input type="text" name="Date" placeholder="Date" id="travel-date" [(ngModel)]="Date" (input)="validateItem();checkForValidation()" class="form-control start-date flatpickr" [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Date }"  ></td>
+                      <td><input type="text" name="ReturnDate" placeholder="Return Date" id="return-travel-date" [(ngModel)]="returnDate" (input)="checkForValidReturnDate()" class="form-control start-date flatpickr" [ngClass]="{'errorSelecto': returnDateError}" ></td>
+                      <td><input type="text" name="TicketNo" placeholder="TicketNo" (input)="validateItem();checkForValidation()" [(ngModel)]="TicketNo" class="form-control" [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.TicketNo }" ></td>
+                      <td><input type="text" class="form-control" appIncludeDecimal placeholder="Fare" name="Fare" [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Fare }" (input)="validateItem();checkForValidation();calculate()" [(ngModel)]="Fare" ></td>
+                      <td>
+                          <div class="discount">
+                            <input type="text" class="form-control Input_width" appIncludeDecimal name="Discount" (input)="calculate()" placeholder="Discount" [(ngModel)]="Discount">
+                            <select class="form-control discount_type" id="DiscountType" [(ngModel)]="DiscountType" (ngModelChange)="calculate()" name="discountType" >
+                              <option *ngFor="let value of currenyValues;" [value]="value.id" >{{value.symbol}}</option>
+                            </select>
+                          </div>
+                      </td>
+                      <td>
+                        <input type="text" class="form-control" appIncludeDecimal name="taxAmount" placeholder="Tax Amount" (input)="calculate()" [(ngModel)]="taxAmount" >
+                      </td>
+                      <td><input type="text" appIncludeDecimal class="form-control" name="ReIssueCharges" placeholder="ReIssue Charges" (input)="calculate()" [(ngModel)]="ReIssueCharges" ></td>
+                      <td><input type="text" appIncludeDecimal class="form-control" name="RefundPanelty" placeholder="Refund Panelty" (input)="calculate()" [(ngModel)]="RefundPanelty" ></td>
+                      <td><input type="text" appIncludeDecimal class="form-control" name="Miscellaneouse" placeholder="Miscellaneous Charges" (input)="calculate()" [(ngModel)]="Miscellaneouse" ></td>
+                      <td><input type="text" class="form-control" name="Company" placeholder="Company" [(ngModel)]="Company" ></td>
+                      <td><input type="text" appIncludeDecimal class="form-control" name="LangiTax" placeholder="Langi Tax" (input)="calculate()" [(ngModel)]="LangiTax" ></td>
+                      <td><input type="text" appIncludeDecimal class="form-control" name="SvcFee" placeholder="SVC Fee" (input)="calculate()" [(ngModel)]="SvcFee" ></td>
+                      <td>
+                        <div class="discount" >
+                          <input type="text" appIncludeDecimal class="form-control" placeholder="Commission" name="Commission" (input)="calculate()" [(ngModel)]="Comm" >
+                          <select class="form-control discount_type" [(ngModel)]="CommissionType" name="currencies" (ngModelChange)="calculate()" >
+                            <option *ngFor="let value of currenyValues;" [value]="value.id" >{{value.symbol}}</option>
+                          </select>
+                        </div>
+                      </td>
+                      <td><input type="text" appIncludeDecimal class="form-control" placeholder="Commission Authorized" id="Commtoauthorizor" name="Commtoauthorizor" [(ngModel)]="Commtoauthorizor" ></td>
+                      <td><input type="text" appIncludeDecimal class="form-control" placeholder="Total Amount" readonly="true" name="TotalAmount" [(ngModel)]="TotalAmount" ></td>
+                    </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="form-row mt-4">
+            <div class="col-md-4 card p-3">
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label>Total Fare</label>
+                  <input type="text" class="form-control" readonly=true name="totalFare" [(ngModel)]="totalFare" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Total Discount</label>
+                  <input type="text" class="form-control" readonly=true name="totalDiscount" [(ngModel)]="totalDiscount">
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Other Charge</label>
+                  <input type="text" class="form-control" readonly=true name="OtherCharge" [(ngModel)]="OtherCharge" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Commission</label>
+                  <input type="text" class="form-control" readonly=true name="totalCommission" [(ngModel)]="Commission" >
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Net Amount</label>
+                    <input type="text" class="form-control" readonly=true name="CessAmount" [(ngModel)]="CessAmount" >
+                  </div>
+                <div class="form-group col-md-6">
+                  <label>Round Off</label>
+                  <input type="text" class="form-control" readonly=true name="RoundOff" [(ngModel)]="RoundOff" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Bill Amount</label>
+                  <input type="text" class="form-control" readonly=true name="totalBillAmount" [(ngModel)]="totalBillAmount" >
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Total Invoice Amount</label>
+                  <input type="text" class="form-control" readonly=true name="totalInvoiceAmount" [(ngModel)]="totalInvoiceAmount" >
+                </div>
+              </div>
+            </div>
+            <div class="col-md-8 card p-3">
+              <div class="table-responsive" id="parent">
+                <table class="table editable_tbl" id="fixTable">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Payment Mode</th>
+                      <th>LedgerId</th>
+                      <th>Amount</th>
+                      <th>PayDate</th>
+                      <th>Reference No.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="selected_row active" *ngFor="let transaction of transactions; index as i; trackBy: identify; first as isFirst; last as isLast" >
+                      <td class="profile-pic1" >
+                        <div class="edit1">
+                          <a (click)="deleteItem(i, 'trans')" *ngIf="transactions.length > 0" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                          <a (click)="editItem(i+1, transaction.Id, 'trans')" *ngIf="transactions.length > 0" ><i class="fas fa-pen fa-1x"></i></a>
+                        </div>
+                      </td>
+                      <td style="min-width:180px;">
+                        <div class="input-group adw_select">
+                          {{transaction.Paymode}}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          {{transaction.ledgerName}}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          {{transaction.Amount}}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          {{transaction.PayDate}}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          {{transaction.ChequeNo}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="selected_row active" >
+                      <td>
+                        <div class="action_btn">
+                          <button (click)="validateTransaction();addTransactions()" type="submit" class="btn btn-primary btn_add_more">+</button>
+                        </div>
+                      </td>
+                      <td style="min-width:180px;">
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2 name="Paymode" #paymode_select2 [data]="paymentModeSelect2" id="PayModeId" class="control_select" (valueChanged)="select2PaymentModeId($event)"
+                              autocomplete="true" [options]="paymentPlaceHolder" [value]="paymode" [ngClass]="{'errorSelecto': invalidObj?.PayModeId && (submitSave || !clickTrans)  }" ></select2>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2 name="LedgerId" #ledger_select2 [data]="paymentLedgerselect2" id="LedgerId" class="control_select" (valueChanged)="paymentLedgerId($event)"
+                              autocomplete="true" [options]="ledgerPlaceHolder" [value]="ledger" [ngClass]="{'errorSelecto': invalidObj?.LedgerId && (submitSave || !clickTrans) }" ></select2>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><input type="text" appIncludeDecimal name="Amount" class="form-control" id="Amount" [(ngModel)]="Amount" (input)="validateTransaction()" [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans) }" placeholder="Enter Amount"></td>
+                      <td><input type="text" name="PayDate" id="pay-date" class="form-control flatpickr" [(ngModel)]="PayDate" (input)="validateTransaction()" [ngClass]="{'errorSelecto': invalidObj?.PayDate && (submitSave || !clickTrans) }" placeholder="Select Date"></td>
+                      <td><input type="text" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo" (input)="validateTransaction()" [ngClass]="{'errorSelecto': invalidObj?.ChequeNo && (submitSave || !clickTrans) }" placeholder="Enter Reference No."></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

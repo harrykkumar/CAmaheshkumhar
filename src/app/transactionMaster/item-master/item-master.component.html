@@ -1,0 +1,66 @@
+<main class="main-content bgc-grey">
+    <div id="mainContent">
+        <div class="modal-header page-header p-0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-5 left_side_head">
+                        <p class="heading_lead c-grey-900"><i class="far fa-building"></i>Item Master</p>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="btn_header">
+                            <a><img src="assets/img/printer.png"> </a>
+                            <a><img src="assets/img/pdf.png"></a>
+                            <a><img src="assets/img/excel.png"></a>
+                            <button type="button" class="btn btn-primary waves-effect waves-light" (click)="addItemMaster()">Add Item Master</button>
+                            <button type="button" class="btn btn-primary waves-effect waves-light" (click)="onOpenItemMaster()" >Import Item Master</button>
+                            <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <app-item-search [toShow]="openSearch" ></app-item-search>
+        <div class="row ">
+            <div class="col-md-12 ">
+                <div class="table-responsive bgc-white" id="parent">
+                    <table class="table" id="fixTable" >
+                        <thead>
+                            <tr>
+                                <th>Sno</th>
+                                <th>Category</th>
+                                <th>Item</th>
+                                <th>HSN</th>
+                                <th>Unit</th>
+                                <th>MRP</th>
+                                <th>Sale Rate</th>
+                                <th>Tax </th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of itemDetail ; let i = index" [attr.data-itemDetail]="i">
+                                <td>{{i+1}}</td>
+                                <td>{{item.CategoryName}}</td>
+                                <td>{{item.Name}}</td>
+                                <td>{{item.HsnNo}}</td>
+                                <td>{{item.UnitName}}</td>
+                                <td>{{item.Mrprate}}</td>
+                                <td>{{item.SaleRate}}</td>
+                                <td>{{item.TaxSlab}} </td>
+                                <td>
+                                    <a data-toggle="tooltip" data-placement="top" title="Edit">
+                                        <i class="fa fa-edit fa-1x" style="color: darkgreen" aria-hidden="true"
+                                            (click)="editItem(item.Id)">
+                                        </i></a>
+                                    <a data-toggle="tooltip" data-placement="bottom" title="Delete" (click)="deleteItemMaster(item.Id)"><i
+                                        class="fa fa-trash fa-1x" style="color: red" aria-hidden="true"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<app-item-import></app-item-import>
