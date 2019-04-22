@@ -1,0 +1,600 @@
+<div
+  class="modal fade"
+  id="add_user"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="add_user"
+  aria-hidden="true"
+>
+  <div
+    class="modal-dialog large_form modal-full-height modal-top"
+    role="document"
+  >
+    <div class="modal-content bgcH-grey-100 bgc-grey">
+      <form
+        #userFormModel="ngForm"
+        (ngSubmit)="userFormModel.form.valid && validateForm() && saveUser()"
+        novalidate
+      >
+        <!--Header-->
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-3 left_side_head">
+                <p class="heading_lead">
+                  <i class="fa fa-user" aria-hidden="true"></i>New User
+                </p>
+              </div>
+              <div class="col-md-9">
+                <div class="btn_header">
+                  <button
+                    type="button"
+                    class="btn btn_close waves-effect"
+                    (click)="resetFormData()"
+                  >
+                    Reset
+                  </button>
+                  <button type="submit" class="btn btn-default waves-effect">
+                    Save
+                  </button>
+                  <button type="submit" (click)="setAddNew()" class="btn btn-default waves-effect">
+                    Save With Add New
+                  </button>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                    (click)="closeForm()"
+                  >
+                    <span aria-hidden="true" class="white-text">×</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--Body-->
+        <div class="modal-body">
+          <div class="classic-tabs">
+            <div class="card">
+              <div class="card-body">
+                <div>
+                  <div class="form-row">
+                    <div class="form-group col-md-4">
+                      <label>Client</label>
+                      <div class="input-group adw_select">
+                        <div class="input-group adw_select">
+                          <select2
+                            [data]="clientData"
+                            class="control_select"
+                            (valueChanged)="onClientChange($event)"
+                            autocomplete="true"
+                            [value]="model?.clientId"
+                            [ngClass]="{
+                              'isInvalid':
+                                userFormModel?.submitted &&
+                                user?.selectedClient?.id === '0'
+                            }"
+                          >
+                          </select2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>Branch</label>
+                      <div class="input-group adw_select">
+                        <div class="input-group adw_select">
+                          <select2
+                            [data]="branchData"
+                            class="control_select"
+                            (valueChanged)="onBranchChange($event)"
+                            autocomplete="true"
+                            [value]="model?.branchId"
+                            [ngClass]="{
+                              'isInvalid':
+                                userFormModel?.submitted &&
+                                user?.selectedBranch?.id === '0'
+                            }"
+                          >
+                          </select2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>Office</label>
+                      <div class="input-group adw_select">
+                        <div class="input-group adw_select">
+                          <select2
+                            [data]="officeData"
+                            class="control_select"
+                            (valueChanged)="onOfficeChange($event)"
+                            autocomplete="true"
+                            [value]="model?.officeId"
+                            [ngClass]="{
+                              'isInvalid':
+                                userFormModel?.submitted &&
+                                user?.selectedOffice?.id === '0'
+                            }"
+                          >
+                          </select2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>User Type</label>
+                      <div class="input-group adw_select">
+                        <div class="input-group adw_select">
+                          <select2
+                            [data]="userTypeData"
+                            class="control_select"
+                            (valueChanged)="onUserTypeChange($event)"
+                            autocomplete="true"
+                            [value]="model?.userTypeId"
+                            [ngClass]="{
+                              'isInvalid':
+                                userFormModel?.submitted &&
+                                user?.selectedUserType?.id === '0'
+                            }"
+                          >
+                          </select2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>Under Type</label>
+                      <div class="input-group adw_select">
+                        <div class="input-group adw_select">
+                          <select2
+                            [data]="underTypeData"
+                            class="control_select"
+                            (valueChanged)="onUnderTypeChange($event)"
+                            autocomplete="true"
+                            [value]="model?.underTypeId"
+                            [ngClass]="{
+                              'isInvalid':
+                                userFormModel?.submitted &&
+                                user?.selectedUnderType?.id === '0'
+                            }"
+                          >
+                          </select2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>Under User</label>
+                      <div class="input-group adw_select">
+                        <div class="input-group adw_select">
+                          <select2
+                            [data]="underUserData"
+                            class="control_select"
+                            (valueChanged)="onUnderUserChange($event)"
+                            autocomplete="true"
+                            [value]="model?.underUserId"
+                            [ngClass]="{
+                              'isInvalid':
+                                userFormModel?.submitted &&
+                                user?.selectedUnderUser?.id === '0'
+                            }"
+                          >
+                          </select2>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                      <label>Name</label>
+                      <input
+                        #nameModel="ngModel"
+                        name="nameInput"
+                        [(ngModel)]="user.name"
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Name"
+                        [ngClass]="{
+                          'is-invalid':
+                          userFormModel.submitted && nameModel.invalid
+                        }"
+                        required
+                      />
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>User Name</label>
+                      <input
+                        autocomplete="off"
+                        #userNameModel="ngModel"
+                        name="userName"
+                        [(ngModel)]="user.userName"
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter User Name"
+                        [ngClass]="{
+                          'is-invalid':
+                          userFormModel.submitted && userNameModel.invalid
+                        }"
+                        required
+                      />
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>Password</label>
+                      <input
+                        autocomplete="off"
+                        #passwordModel="ngModel"
+                        name="password"
+                        [(ngModel)]="user.password"
+                        type="password"
+                        class="form-control"
+                        placeholder="Enter Password"
+                        [ngClass]="{
+                          'is-invalid':
+                          userFormModel.submitted && passwordModel.invalid
+                        }"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group col-md-4">
+                      <label class="fw-500">InTime</label>
+                      <div class="timepicker-input input-icon ">
+                        <div class="input-group">
+                          <div
+                            class="input-group-addon bgc-white bd bdwR-0"
+                          >
+                            <i class="fas fa-clock"></i>
+                          </div>
+                          <input
+                            type="text"
+                            class="form-control dor"
+                            placeholder="Enter Time"
+                            name="inTimeInput"
+                            [(ngModel)]="user.inTime"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label class="fw-500">Out Time</label>
+                      <div class="timepicker-input input-icon">
+                        <div class="input-group">
+                          <div
+                            class="input-group-addon bgc-white bd bdwR-0">
+                            <i class="fas fa-clock"></i>
+                          </div>
+                          <input
+                            type="text"
+                            class="form-control dor"
+                            placeholder="Enter Time"
+                            name="outTimeInput"
+                            [(ngModel)]="user.outTime"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="form-group col-md-3 custom-control custom-checkbox mt-4 pt-1 mr-4"
+                    >
+                      <input
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="isuset"
+                        #isUseTimeModel="ngModel"
+                        name="isUseTimeCheckBox"
+                        [(ngModel)]="user.isUseTime"
+                      />
+                      <label class="custom-control-label  ml-4" for="isuset"
+                        >Is Use Time for User</label
+                      >
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group col-md-4">
+                      <label>Email Id (Send Mail)</label>
+                      <input
+                        #emailModel="ngModel"
+                        name="emailInput"
+                        [(ngModel)]="user.email"
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Email Id"
+                      />
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>Password (Send Mail)</label>
+                      <input
+                        #emailPasswordModel="ngModel"
+                        name="emailPasswordInput"
+                        [(ngModel)]="user.emailPassword"
+                        type="password"
+                        class="form-control"
+                        placeholder="Enter Password"
+                      />
+                    </div>
+                    <div
+                      class="form-group col-md-3 custom-control custom-checkbox mt-4 pt-1 mr-4"
+                    >
+                      <input
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="isuse"
+                        #isUseEmailModel="ngModel"
+                        name="isUseEmailCheckBox"
+                        [(ngModel)]="user.isUseEmail"
+                      />
+                      <label class="custom-control-label ml-4" for="isuse"
+                        >Is Use Email for User</label
+                      >
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-lg-6">
+                      <div class="card">
+                        <form
+                          #mobileDetailModel="ngForm"
+                          (ngSubmit)="
+                            mobileDetailModel.form.valid &&
+                              validateMobileDetail() &&
+                              addNewMobileDetail()
+                          "
+                          novalidate
+                        >
+                          <table class="table editable_tbl" style="width: 100%">
+                            <thead>
+                              <tr>
+                                <th style="width: 5%;">#</th>
+                                <th>Contact Type</th>
+                                <th>Contact Number</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr
+                                *ngFor="
+                                  let item of user?.mobileArray;
+                                  let i = index
+                                "
+                              >
+                                <td class="profile-pic1">
+                                  <div class="edit1">
+                                    <a>
+                                      <i
+                                        class="fas fa-pen fa-1x"
+                                        (click)="editMobileDetail(i)"
+                                      ></i>
+                                    </a>
+                                    <a>
+                                      <i
+                                        aria-hidden="true"
+                                        class="fa fa-trash fa-1x"
+                                        (click)="removeMobileDetail(i)"
+                                      ></i>
+                                    </a>
+                                  </div>
+                                </td>
+                                <td>
+                                  {{
+                                    mobileTypeList[(item?.selectedMobileType)]
+                                  }}
+                                </td>
+                                <td>
+                                  +{{ item?.selectedMobileCountryCode?.id }}-{{
+                                    item?.mobileNo
+                                  }}
+                                </td>
+                              </tr>
+                              <tr class="selected_row">
+                                <td>
+                                  <button
+                                    type="submit"
+                                    id="btn_add"
+                                    class="btn btn-primary btn_add_more"
+                                  >
+                                    +
+                                  </button>
+                                </td>
+                                <td>
+                                  <select
+                                    class="form-control"
+                                    name="mobileType"
+                                    [(ngModel)]="
+                                      mobileDetail.selectedMobileType
+                                    "
+                                    [ngClass]="{
+                                      'is-invalid':
+                                        mobileDetailModel?.submitted &&
+                                        !mobileDetail?.selectedMobileType
+                                    }"
+                                    required
+                                  >
+                                    <option
+                                      *ngFor="
+                                        let item of mobileTypeList;
+                                        let i = index
+                                      "
+                                      [value]="i + 1"
+                                    >
+                                      {{ item }}</option
+                                    >
+                                  </select>
+                                </td>
+                                <td>
+                                  <div class="mobile_code">
+                                    <select2
+                                      [data]="mobileCountryCodeList"
+                                      style="width:120px !important;"
+                                      class="control_select"
+                                      (valueChanged)="
+                                        onCountryCodeSelectionChange($event)
+                                      "
+                                      autocomplete="true"
+                                      [value]="
+                                        mobileDetail.selectedMobileCountryCode
+                                          ?.id
+                                      "
+                                      [ngClass]="{
+                                        isInvalid:
+                                          (mobileDetailModel?.submitted &&
+                                            mobileDetail
+                                              ?.selectedMobileCountryCode
+                                              ?.id === '0') ||
+                                          (userFormModel?.submitted &&
+                                            user?.mobileArray?.length === 0)
+                                      }"
+                                    >
+                                    </select2>
+                                    <input
+                                      [disabled]="
+                                        mobileDetail?.selectedMobileCountryCode
+                                          ?.id === '0'
+                                      "
+                                      type="text"
+                                      class="form-control code_text"
+                                      (keypress)="
+                                        _commonService.isNumber($event)
+                                      "
+                                      name="mobileInput"
+                                      [(ngModel)]="mobileDetail.mobileNo"
+                                      #mobileNoModel="ngModel"
+                                      [ngClass]="{
+                                        'is-invalid':
+                                          (mobileDetailModel?.submitted &&
+                                            mobileNoModel.invalid) ||
+                                          (userFormModel?.submitted &&
+                                            user?.mobileArray?.length === 0)
+                                      }"
+                                      required
+                                      [minlength]="
+                                        mobileDetail?.selectedMobileCountryCode
+                                          ?.contactLength
+                                      "
+                                      [maxlength]="
+                                        mobileDetail?.selectedMobileCountryCode
+                                          ?.contactLength
+                                      "
+                                    />
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </form>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="card">
+                        <form
+                          #emailDetailModel="ngForm"
+                          (ngSubmit)="
+                            emailDetailModel.form.valid && addNewEmailDetail()
+                          "
+                          novalidate
+                        >
+                          <table class="table editable_tbl" style="width: 100%">
+                            <thead>
+                              <tr>
+                                <th style="width: 5%;">#</th>
+                                <th>Email Type</th>
+                                <th>Email Address</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr
+                                *ngFor="
+                                  let item of user?.emailArray;
+                                  let i = index
+                                "
+                              >
+                                <td class="profile-pic1">
+                                  <div class="edit1">
+                                    <a>
+                                      <i
+                                        class="fas fa-pen fa-1x"
+                                        (click)="editEmailDetail(i)"
+                                      ></i>
+                                    </a>
+                                    <a>
+                                      <i
+                                        aria-hidden="true"
+                                        class="fa fa-trash fa-1x"
+                                        (click)="removeEmailDetail(i)"
+                                      ></i>
+                                    </a>
+                                  </div>
+                                </td>
+                                <td>
+                                  {{ emailTypeList[item.selectedEmailType] }}
+                                </td>
+                                <td>{{ item.selectedEmail }}</td>
+                              </tr>
+                              <tr class="selected_row ">
+                                <td>
+                                  <button
+                                    type="submit"
+                                    id="btn_add"
+                                    class="btn btn-primary btn_add_more"
+                                  >
+                                    +
+                                  </button>
+                                </td>
+                                <td>
+                                  <select
+                                    class="form-control"
+                                    name="emailType"
+                                    [(ngModel)]="emailDetail.selectedEmailType"
+                                    [ngClass]="{
+                                      'is-invalid':
+                                        emailDetailModel?.submitted &&
+                                        !emailDetail?.selectedEmailType
+                                    }"
+                                    required
+                                  >
+                                    <option
+                                      *ngFor="
+                                        let item of emailTypeList;
+                                        let i = index
+                                      "
+                                      [value]="i + 1"
+                                    >
+                                      {{ item }}</option
+                                    >
+                                  </select>
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    name="emailInput"
+                                    #emailModel="ngModel"
+                                    [(ngModel)]="emailDetail.selectedEmail"
+                                    [ngClass]="{
+                                      'is-invalid':
+                                        (emailDetailModel?.submitted &&
+                                          emailModel?.invalid) ||
+                                        (userFormModel?.submitted &&
+                                          user?.emailArray?.length === 0)
+                                    }"
+                                    required
+                                    
+                                  />
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </form>
+    </div>
+  </div>
+</div>

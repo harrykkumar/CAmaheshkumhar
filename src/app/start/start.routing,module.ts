@@ -78,6 +78,18 @@ const routes: Routes = [
       {
         path: 'owner/branch/office',
         loadChildren: './org-branch/org-branch-office-list/org-branch-office-list.module#OrgBranchOfficeModule'
+      },
+      {
+        path: 'users',
+        loadChildren: '../user/user-list/user-list.module#UserListModule'
+      },
+      {
+        path: 'usertypes',
+        loadChildren: '../user/user-type-list/user-type-list.module#UserTypeListModule'
+      },
+      {
+        path: 'user-rights',
+        loadChildren: '../user/user-rights/user-rights.module#UserRightsModule'
       }
       //  {
       //   path: 'ims/sale-billing/billing',

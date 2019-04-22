@@ -10,7 +10,7 @@
             <div class="col-md-9">
               <div class="btn_header">
                 <a class="btn btn-default waves-effect" (click)="keepOpen=false;saveSaleChallan()">Save </a><a class="btn btn-info waves-effect" (click)="keepOpen=true;saveSaleChallan()">Save and New</a>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">×</span> </button>
+                <button type="button" class="close" (click)="closebtn()" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">×</span> </button>
               </div>
             </div>
           </div>
@@ -27,15 +27,7 @@
                 </div>
               </div>
             </div>
-           <div class="form-group col-md-4 col-lg-2 col-xl-2">
-              <label>Organization Name</label>
-              <div class="input-group adw_select">
-                <div class="input-group adw_select">
-                  <select2 [disabled]="Id !== 0" #orgnization_select2  id="organization" [data]="organizationData" class="control_select" (valueChanged)="onChangeOrganizationId($event)" autocomplete="true" [options]="orgnazationPlaceHolder"  [value]="orgNameId"  [ngClass]="{'errorSelecto': submitSave && invalidObj?.orgNameId }"></select2>
-                </div>
-              </div>
-            </div>
-                   <div class="form-group col-md-4 col-lg-2 col-xl-2">
+             <div class="form-group col-md-4 col-lg-2 col-xl-2">
               <label class="fw-500">Challan Date</label>
               <div class="timepicker-input input-icon ">
                 <div class="input-group">
@@ -44,6 +36,15 @@
                 </div>
               </div>
             </div>
+           <div class="form-group col-md-4 col-lg-2 col-xl-2">
+              <label>Organization Name</label>
+              <div class="input-group adw_select">
+                <div class="input-group adw_select">
+                  <select2 [disabled]="Id !== 0" #orgnization_select2  id="organization" [data]="organizationData" class="control_select" (valueChanged)="onChangeOrganizationId($event)" autocomplete="true" [options]="orgnazationPlaceHolder"  [value]="orgNameId"  [ngClass]="{'errorSelecto': submitSave && invalidObj?.orgNameId }"></select2>
+                </div>
+              </div>
+            </div>
+      
              <div class="form-group col-md-4 col-lg-2 col-xl-2">
               <label>Challan Number</label> 
               <input  type="text" placeholder="Bill Number" (input)="checkValidation()" [disabled]="enableDisableflagOrgName" [ngClass]="{'errorSelecto': submitSave && invalidObj?.BillNo }" class="form-control" name="BillNo" [(ngModel)]="BillNo">
@@ -58,7 +59,7 @@
               <label for="E-way">Godown</label>
             <div class="input-group adw_select">
                 <div class="input-group adw_select">
-                  <select2 [disabled]="Id !== 0" #godown_select2  id="godown" [data]="godownDataType" class="control_select"  autocomplete="true" [options]="godownPlaceHolder"  [value]="godownId" ></select2>
+                  <select2 [disabled]="Id !== 0" #godown_select2  id="godown" [data]="godownDataType" class="control_select" (valueChanged)="onChangeGodown($event)"  autocomplete="true" [options]="godownPlaceHolder"  [value]="godownId" ></select2>
                 </div>
               </div>
             </div>
@@ -145,7 +146,7 @@
                       <input  type="text"   class="form-control"   placeholder="Remark"  name="Remark" [(ngModel)]="Remark">
                     </td>
                     <td>
-                      <input type="number"   class="form-control" (input)="checkValidation();calculate();"  placeholder="Quantity" appIncludeDecimal name="Quantity" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.Quantity }" [(ngModel)]="Quantity">
+                      <input type="number"   class="form-control" (input)=" validationForItemData();calculate();"  placeholder="Quantity" appIncludeDecimal name="Quantity" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.Quantity }" [(ngModel)]="Quantity">
                     </td>
                     <td >
                       <input type="number"  class="form-control"  (input)="calculate();" placeholder="Rate" appIncludeDecimal name="Rate" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.TotalAmount }" [(ngModel)]="Rate">
@@ -229,7 +230,7 @@
           
                 <div class="form-group col-md-6">
                   <label>Commission </label>
-                   <input type="number" class="form-control" id="Commission" placeholder="Commission" (input)="checkValidation()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.Commission }" class="form-control" name="Commission" [(ngModel)]="Commission">
+                   <input type="number" class="form-control" id="Commission" placeholder="Commission" (input)="checkValidation();calculate()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.Commission }" class="form-control" name="Commission" [(ngModel)]="Commission">
                 </div>
                 <div class="form-group col-md-6">
                   <label>Commission Type</label>

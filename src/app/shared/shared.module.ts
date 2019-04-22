@@ -7,7 +7,9 @@ import { DigitsOnlyDirective } from './directives/digits-only.directive'
 import { IncludeDecimalDirective } from './directives/include-decimal.directive'
 import { DateFormatPipe } from '../pipes/datepipe.pipe'
 import { OrganisationBranchComponent } from '../start/org-branch/org-branch-form/org-branch-form.component';
-import { Select2Module } from 'ng2-select2'
+import { Select2Module } from 'ng2-select2';
+import { UserFormComponent } from '../user/user-form/user-form.component'
+import { UserTypeFormComponent } from '../user/user-type-form/user-type-form.component';
 @NgModule({
   imports: [
     FormsModule,
@@ -24,14 +26,18 @@ import { Select2Module } from 'ng2-select2'
     IncludeDecimalDirective,
     DateFormatPipe,
     OrganisationBranchComponent,
-    Select2Module
+    Select2Module,
+    UserFormComponent,
+    UserTypeFormComponent
   ],
   declarations: [
     ControlMessageComponent,
     DigitsOnlyDirective,
     IncludeDecimalDirective,
     DateFormatPipe,
-    OrganisationBranchComponent
+    OrganisationBranchComponent,
+    UserFormComponent,
+    UserTypeFormComponent
   ]
 })
 export class SharedModule {

@@ -1,0 +1,72 @@
+<div
+  class="modal fade right"
+  id="user_type_form"
+  role="dialog"
+  aria-labelledby="user_type_form"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-full-height modal-right" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add User Role Type</h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closeForm()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form  #userTypeFormModel="ngForm"
+      (ngSubmit)="userTypeFormModel.form.valid && saveUserType()"
+      novalidate>
+
+        <div class="modal-body">
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label>Name</label>
+                <input
+                  name="nameInput"
+                  #nameModel="ngModel"
+                  type="text"
+                  class="form-control"
+                  placeholder="Enter Name"
+                  [(ngModel)]="userType.name"
+                  [ngClass]="{
+                    'is-invalid':
+                    userTypeFormModel.submitted && nameModel.invalid
+                  }"
+                />
+              </div>
+              <div class="form-group col-md-12">
+                  <label>Index</label>
+                  <input
+                    name="indexInput"
+                    [disabled]="showUserTypeForm.mode !== 'EDIT'"
+                    #indexModel="ngModel"
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter Index"
+                    [(ngModel)]="userType.index"
+                    [ngClass]="{
+                      'is-invalid':
+                      userTypeFormModel.submitted && indexModel.invalid
+                    }"
+                  />
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary waves-effect">
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

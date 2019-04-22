@@ -51,6 +51,8 @@ export class LoginComponent {
           console.log('login : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             this.settings.dateFormat = data.Data.DateFormat
+            this.settings.catLevel = data.Data.CategoryLevel
+            this.settings.industryId = data.Data.IndustryId
             this._toastrCustomService.showSuccess('Success', 'Login Success')
 
           }

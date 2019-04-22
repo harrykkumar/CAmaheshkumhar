@@ -52,7 +52,7 @@ allChallanNos:any
   validTransaction: boolean = true
   Paymode: string
   ledgerName: string
-  Amount: number
+  Amount: any
   PayDate: string
   ChequeNo: string
   paymode: any
@@ -85,7 +85,7 @@ allChallanNos:any
   public frightPlaceholder: Select2Options;
   public CommissionTypePlcaholder: Select2Options;
   public referalsType: Array<Select2OptionData>
-  public stateList: Array<Select2OptionData>
+  public stateList: any
   public stateListplaceHolder: Select2Options
 
   public referalsTypePlaceHolder: Select2Options
@@ -154,7 +154,7 @@ this.clientDateFormat = this._settings.dateFormat
     this.destinationSelect2 = []
      this.sendAttributeData =[]
     this.parcelBySelect2 = []
-    this.DiscountType = 0
+    this.DiscountType = '0'
     this.InterestRateType =0
     this.totalDiscount = 0
     this.DiscountPerItem = 0
@@ -287,6 +287,8 @@ this.clientDateFormat = this._settings.dateFormat
   @ViewChild('atrColour_id') atrColorSelect2: Select2Component
   @ViewChild('atrSize_id') atrSizeSelect2: Select2Component
   @ViewChild('atrArticle_id') atrArticleSelect2: Select2Component
+  @ViewChild('ledger_select2') ledgerSelect2: Select2Component
+
 
   initComp() {
     this.initialiseItem()
@@ -316,7 +318,7 @@ currencies:any
         this.subscribe = this._commonService.getSPUtilityData(UIConstant.SALE_TYPE).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
- if(data.Data.TransactionNoSetups >0){
+ if(data.Data.TransactionNoSetups.length >0){
    this.BillNo = data.Data.TransactionNoSetups[0].BillNo
  }
          this.allAttributeData =[]
@@ -642,7 +644,7 @@ else{
 
       })
 }
-//console.log(this.itemsAttribute ,'attribute')
+console.log(this.itemsAttribute ,'attribute')
   }
 
 // checkAttributeValidation(attributeIndex){
@@ -712,7 +714,7 @@ onChangeTaxSlabType(event){
           if (event.data[0] && event.data[0].text) {
             this.taxSlabId = event.value;
             this.taxSlabName = event.data[0].text;
-            console.log(this.taxSlabId ,'i-slab')
+           // console.log(this.taxSlabId ,'i-slab')
 
             this.onChangeSlabTax(this.taxSlabId)
             //this.validationForItemData()
@@ -756,7 +758,7 @@ this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(da
       
     }
        }
-    console.log(this.allTaxRateForItem, this.alltaxVATTax,'tax slab')
+   // console.log(this.allTaxRateForItem, this.alltaxVATTax,'tax slab')
     this.calculate()
 
   }
@@ -781,7 +783,7 @@ this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(da
         } else {
           this.clientNameId = event.value
           let parentTypeId = 5;
-          this.getAddressOfCustomerByID(this.clientNameId, parentTypeId)
+        //  this.getAddressOfCustomerByID(this.clientNameId, parentTypeId)
 
 
         }
@@ -794,6 +796,7 @@ this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(da
   stateError: boolean
   addressStateId: any;
   getAddressOfCustomerByID(customerId, parentTypeId) {
+    debugger;
     this.subscribe = this._commonService.getAddressByIdOfCustomer(customerId, parentTypeId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         this.stateList = []
@@ -801,17 +804,25 @@ this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(da
         this.stateList = [{ id: '0', text: 'select Address' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
         if (data.Data && data.Data.length > 0) {
          
-
+console.log(data.Data,"cus dadd")
           //text: element.AddressTypeName +'-'+   element.AddressValue ? element.AddressValue +  ' , ' : ""  +  element. AreaName ? element.AreaName +  ' , ' : " "  + element.CityName+ ' , ' + element.StateName + ' , ' + element.CountryName
 
           data.Data.forEach(element => {
             this.stateList.push({
               id: element.Id,
+              stateId : element.StateId,
               text: ((element.AddressTypeName ? (element.AddressTypeName + '-') : '') + (element.AddressValue ? (element.AddressValue + ' , ') : '') + (element.AreaName ? element.AreaName + ' , ' : '') + element.CityName + ' , ' + element.StateName + ' , ' + element.CountryName)
 
             })
-            return this.stateValue = this.stateAddressId;
+
+         
           })
+           let alredayStateId =  this.stateList.filter(d=> d.stateId ===this.ledgerStateId)
+         if(alredayStateId.length >0){
+           this.ledgerStateId
+             this.stateValue = alredayStateId[0].id
+            return this.stateValue 
+         }
           this.stateId = ''
           this.checkValidation()
         }
@@ -871,9 +882,11 @@ this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(da
   itemCategoryId: any
   ItemName: any;
   itemAddRequiredFlag:boolean 
+  disabledTaxFlag:any
   onSelectItemCategory(event) {
 
-   // if (event.data.length > 0) {
+
+   if (event.data.length > 0) {
       if (event.data[0].id !== "") {
         if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
           this.itemSelect2.selector.nativeElement.value = ''
@@ -890,8 +903,39 @@ this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(da
          //this.getAllSubCategory(this.categoryId)
           this.validationForItemData()
         }
-     // }
+        if(this.editItemId === 0){
+          this.getAddressOfCustomerByID(this.clientNameId ,5)
+            this.addressShowFlag = true
+        }
+      }
     }
+  }
+disabledAddressFlag:boolean = false
+  selectStatelist(event) {
+    if (event.data.length > 0) {
+      if (event.data[0].id !== "") {
+        if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
+          this.stateSelect2Id.selector.nativeElement.value = ''
+
+          this._commonService.openAddress(this.clientNameId)
+
+        }
+        else {
+          this.disabledAddressFlag = false
+          this.ledgerStateId =  event.data[0].stateId
+          this.checkOtherStateForNewItemAdd()
+          this.onChangeSlabTax(this.taxSlabId)
+          this.calculate()
+       //  console.log( this.ledgerStateId  ,"kk")
+          this.stateId = event.value
+          this.stateError = false
+          this.checkValidation()
+        }
+
+      }
+
+    }
+
   }
      // data.Data.ItemCategorys.forEach(element => {
           //   if (element.ParentId === UIConstant.ZERO) {
@@ -1056,7 +1100,7 @@ if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.subscribe = this._commonService.getsettingforOrgnizationData(this.orgNameId,UIConstant.SALE_TYPE,this.InvoiceDate).subscribe(data => {
           if (data.Code === 1000 && data.Data.length > 0) {
             this.OrgId = data.Data[0].Id
-            this.BillNo = data.Data[0].BillNo
+           this.BillNo = data.Data[0].BillNo
            // console.log(this.BillNo,data,"kkk")
           }
 
@@ -1120,7 +1164,7 @@ localLabelData:any
             this.localItemas.push({
                Id: element.Id,
               Sno:  element.Sno,
-              TransType:element,
+              TransType:element.TransType,
               TransId: element.TransId,
               ChallanId: element.ChallanId,
               Length: element.Length,
@@ -1171,7 +1215,7 @@ localLabelData:any
            this.localItemas.push({
              Id: element.Id,
              Sno:  element.Sno,
-              TransType:element,
+              TransType:element.TransType,
               TransId: element.TransId,
               ChallanId: element.ChallanId,
               Length: element.Length,
@@ -1204,7 +1248,15 @@ localLabelData:any
               })
           }     
             })
-         
+         this.editItemId = 0
+         this.ChallanId = 0
+         this.editAttributeData = undefined
+         this.disabledAddressFlag = true
+         // let newAddedItem = this.localItemas.filter(dt => dt.Id === 0)
+         // if(newAddedItem.length > 0){
+           
+         // }
+
           console.log(this.localItemas,this.showAttributeData,this.localLabelData ,"localitem----")
           }
           
@@ -1240,7 +1292,9 @@ isCheckLedgerOfficeFlag:any
   snoIndex:any
   TaxAmount:any
   DiscountType:any
+
   addItem() {
+    //this.TotalAmount = this.Rate *1
     if (this.items.length === 0) {
       this.snoIndex = 1
       this.items.push({
@@ -1248,7 +1302,7 @@ isCheckLedgerOfficeFlag:any
         Sno:  this.snoIndex,
         TransType:0,
         TransId: 0,
-        ChallanId: 0,
+        ChallanId: this.ChallanId,
         Length: this.Length,
         Height: this.Height,
         Width: this.Width,
@@ -1265,7 +1319,7 @@ isCheckLedgerOfficeFlag:any
         Remark: this.Remark,
         Quantity: +this.Quantity,
         SaleRate: +this.Rate,
-        DiscountAmt :this.discountAmount,
+        DiscountAmt :this.DiscountAmt,
         Discount :+this.Discount,
         DiscountType :this.DiscountType,
         TaxSlabId : this.taxSlabId,
@@ -1284,7 +1338,7 @@ isCheckLedgerOfficeFlag:any
         Sno: this.snoIndex,
         TransType:0,
         TransId: 0,
-        ChallanId: 0,
+        ChallanId: this.ChallanId,
         Length: this.Length,
         Height: this.Height,
         Width: this.Width,
@@ -1301,7 +1355,7 @@ isCheckLedgerOfficeFlag:any
         Remark: this.Remark,
         Quantity: +this.Quantity,
         SaleRate: +this.Rate,
-        DiscountAmt :this.discountAmount,
+        DiscountAmt :this.DiscountAmt,
         Discount :+this.Discount,
         DiscountType :this.DiscountType,
         TaxSlabId :this.taxSlabId,
@@ -1317,6 +1371,7 @@ isCheckLedgerOfficeFlag:any
        this.trsnItemId = this.items[this.items.length - 1].Sno + 1
        this.localAddAttribute()
        this.localItems()
+
 
   }
 
@@ -1340,10 +1395,11 @@ isCheckLedgerOfficeFlag:any
     this.getCategoryDetails(0)
     this.getItemByCategoryid(0)
     this.discountAmount = 0
-    this.Width  = 0
-    this.Length  = 0
-    this.Height  = 0
+    this.Width  = 1
+    this.Length  = 1
+    this.Height  = 1
     this.RoundOff = 0
+ //   this.ChallanIds = 0
 
    
   }
@@ -1366,9 +1422,9 @@ subTotalBillAmount:any
     this.items = []
     //this.currencyValues =[]
     this.TaxAmount =0
-      this.Width  = 0
-    this.Length  = 0
-    this.Height  = 0
+      this.Width  = 1
+    this.Length  = 1
+    this.Height  = 1
     this.RoundOff = 0
      this.totalRate = 0
      this.totalDiscount = 0
@@ -1382,6 +1438,7 @@ subTotalBillAmount:any
     this.clickTrans = false
     this.isValidAmount = true
     this.deleteEditflag =true
+    this.deleteEditPaymentFlag = true
     this.DiscountAmt = 0
     this.InvoiceDate = ''
     this.DueDate = ''
@@ -1448,11 +1505,13 @@ subTotalBillAmount:any
   // cat_select2
   // item_select2
      setDueDate() {
+       let _self = this
 //DueDate
     jQuery(function ($) {
       flatpickr('#due-date', {
        minDate: "today",
-       dateFormat: 'm/d/Y',
+      dateFormat: _self.clientDateFormat,
+      
 
        //maxDate : new Date().fp_incr(this.creditDays) 
        //maxDate: new Date().fp_incr( ) // 14 days from now
@@ -1463,31 +1522,38 @@ subTotalBillAmount:any
 
   }
   setTravelDate() {
+    let _self =this;
 
     jQuery(function ($) {
       flatpickr('#travel-date', {
         minDate: 'today',
-        dateFormat: 'm/d/Y',
+      dateFormat: _self.clientDateFormat,
+       
         enableTime: true
       })
     })
   }
 
   setPayDate() {
+    let _self =this;
+
     jQuery(function ($) {
       flatpickr('#pay-date', {
         minDate: 'today',
-        dateFormat: 'm/d/Y'
+      dateFormat: _self.clientDateFormat,
+       
       })
     })
   }
 
   setBillDate() {
+    let _self =this;
     if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
       jQuery(function ($) {
         flatpickr('#bill-date', {
           maxDate: 'today',
-          dateFormat: 'm/d/Y',
+      dateFormat: _self.clientDateFormat,
+        
          // defaultDate: 'today',
           //enableTime: true
 
@@ -1498,7 +1564,8 @@ subTotalBillAmount:any
         flatpickr('#bill-date', {
           
           minDate: 'today',
-          dateFormat: 'm/d/Y',
+      dateFormat: _self.clientDateFormat,
+         
          // defaultDate: 'today',
          // enableTime: true
 
@@ -1509,11 +1576,13 @@ subTotalBillAmount:any
 
 
   setSupplyDate() {
+    let _self =this;
 
     jQuery(function ($) {
       flatpickr('#supply-date', {
         minDate: 'today',
-        dateFormat: 'm/d/Y',
+      dateFormat: _self.clientDateFormat,
+      
       //  defaultDate: 'today',
         //enableTime: true
       })
@@ -1547,22 +1616,31 @@ subTotalBillAmount:any
     }
   }
 
-  // totalRowCalculation() {
-  //   if (this.items.length === 0) {
-  //     this.netBillAmount = (isNaN(+this.TotalAmount)) ? 0 : +this.TotalAmount
-  //     this.subTotalBillAmount = (isNaN(+this.TotalAmount)) ? 0 : +this.TotalAmount
-  //   }
-  //   else {
-  //     let totalAmt = 0
-  //     for (let i = 0; i < this.items.length; i++) {
-  //       totalAmt = +totalAmt + +this.items[i].TotalAmount
-  //     }
-  //     this.netBillAmount = (isNaN(+totalAmt)) ? 0 : +totalAmt
-  //     this.subTotalBillAmount = (isNaN(+totalAmt)) ? 0 : +totalAmt
+  calculate () {
 
 
-  //   }
-  // }
+    if ('' + this.DiscountType === '0') {
+      if (this.Discount && this.Rate) {
+        this.discountAmount = (+this.Discount / 100) * (+this.Rate) 
+      } else {
+        this.discountAmount = 0
+      }
+    } else {
+      this.discountAmount = isNaN(+this.Discount) ? 0 : +this.Discount
+
+    }
+  
+
+ 
+ 
+    this.TotalAmount = +this.calculateTotalOfRow()
+    this.calculateForTotalAmount()
+    this.calculateAllTotal()
+    this.calTotalBillAmount()
+ 
+
+
+  }
 
 DiscountAmt:any
 disShowAmt:any = 0
@@ -1575,7 +1653,8 @@ disShowAmt:any = 0
     let Width = (this.Width === 0 || this.Width === null )  ? 1 : +this.Width
 //this.discountAmount = 0
 if(this.DiscountType === '0'){
-    this.DiscountAmt = Discount * Quantity
+   // this.DiscountAmt = (isNaN(+Discount) ? 0 : +Discount) * (isNaN(+Quantity) ? 0 : +Quantity)
+   this.DiscountAmt = Discount * Quantity * Length * Width * Height
 }
 else{
   this.DiscountAmt = Discount 
@@ -1630,10 +1709,11 @@ calculateForTotalAmount() {
     }
 
     if (!isNaN(totalAmount)) {
-      this.RoundOff = +(Math.round(totalAmount) - totalAmount).toFixed(5)
+      this.RoundOff = +(Math.round(totalAmount) - totalAmount).toFixed(0)
       //this.RoundOff = +(Math.round(totalAmount) - totalAmount).toFixed(2)
 
     //  this.CessAmount = totalAmount
+      //this.RoundOff
       this.netBillAmount = Math.round(totalAmount)
       this.subTotalBillAmount = Math.round(totalAmount)
     //  this.TotalQuantity = totalQty
@@ -1723,31 +1803,7 @@ changeIntrate(e){
  //console.log(this.InterestRateType ,'intresr')
   // this.InterestRateType = 0
 }
-  calculate () {
 
-
-    if ('' + this.DiscountType === '0') {
-      if (this.Discount && this.Rate) {
-        this.discountAmount = (+this.Discount / 100) * (+this.Rate) 
-      } else {
-        this.discountAmount = 0
-      }
-    } else {
-      this.discountAmount = isNaN(+this.Discount) ? 0 : +this.Discount
-
-    }
-  
-
- 
- 
-    this.TotalAmount = +this.calculateTotalOfRow()
-    this.calculateForTotalAmount()
-    this.calculateAllTotal()
-    this.calTotalBillAmount()
- 
-
-
-  }
 
 
 
@@ -1770,15 +1826,18 @@ calTotalBillAmount(){
    let totalBillAmt = 0
     for (let i = 0; i < this.localItemas.length; i++) {
       totalBillAmt = totalBillAmt +  (isNaN(+this.localItemas[i].Rate) ? 0 : +this.localItemas[i].Rate) *
-      (isNaN(+this.localItemas[i].Quantity) ? 0 : +this.localItemas[i].Quantity)
+      (isNaN(+this.localItemas[i].Quantity) ? 0 : +this.localItemas[i].Quantity) * 
+       (isNaN(+this.localItemas[i].Height) ? 0 : +this.localItemas[i].Height) * 
+        (isNaN(+this.localItemas[i].Width) ? 0 : +this.localItemas[i].Width) *
+        (isNaN(+this.localItemas[i].Length) ? 0 : +this.localItemas[i].Length) 
       - (isNaN(+this.localItemas[i].DiscountAmt) ? 0 : +this.localItemas[i].DiscountAmt)
       + (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount)
     }
     if (!this.clickItem) {
 
       if (this.Rate !== "" ){
-        totalBillAmt += +this.Rate * this.Quantity
-        - (isNaN(+this.discountAmount) ? 0 : +this.discountAmount) 
+        totalBillAmt += +this.Rate * this.Quantity * this.Length  * this.Height  * this.Width
+        - (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt) 
        + (isNaN(+this.TaxAmount) ? 0 : +this.TaxAmount)
 
       }
@@ -1807,8 +1866,9 @@ calTotalBillAmount(){
     paymentTotal = (isNaN(+paymentTotal)) ? 0 : +paymentTotal
     this.netBillAmount = (isNaN(+this.netBillAmount)) ? 0 : +this.netBillAmount
     if (!this.clickTrans) {
-      if (this.Amount) {
-        paymentTotal += this.Amount
+      let amount = JSON.parse(this.Amount)
+      if (amount) {
+        paymentTotal += amount
       }
     }
     if (this.netBillAmount !== 0) {
@@ -1841,27 +1901,25 @@ calTotalBillAmount(){
   creditDays:any
   ledgerStateId:any
 getGSTByLedgerAddress(ledgerId){
-
    this.subscribe =  this._commonService.ledgerGetGSTByAddress(ledgerId).subscribe(data=>{
       if(data.Code === UIConstant.THOUSAND ){
         if(data.Data.LedgerDetails.length > 0){ 
             this.creditLimitAmount = data.Data.LedgerDetails[0].CreditLimit
             this.creditDays = JSON.parse(data.Data.LedgerDetails[0].CreditDays) 
-            console.log( data,"customer details")
-
         }
         if(data.Data.AddressDetails.length >0){
                    this.ledgerStateId =  data.Data.AddressDetails[0].StateId
-
+                   let a =  data.Data.AddressDetails[1].StateId 
+         console.log(data.Data.AddressDetails ,'state-id')
         }
-
-        console.log(data ,'ledgerdata')
-
       }
-})
+  })
 }
 
   openChallanModal() {
+     this.disabledTaxFlag = false
+    this.addressShowFlag = false
+    this.ChallanId =0
      this.allTaxRateForItem =[]
     this.isCheckLedgerOfficeFlag = false
      this.DiscountValueType ='%'
@@ -1899,26 +1957,6 @@ getGSTByLedgerAddress(ledgerId){
     this._commonService.closeChallanBill()
   }
 
-  selectStatelist(event) {
-    if (event.data.length > 0) {
-      if (event.data[0].id !== "") {
-        if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
-          this.stateSelect2Id.selector.nativeElement.value = ''
-
-          this._commonService.openAddress(this.clientNameId)
-
-        }
-        else {
-          this.stateId = event.value
-          this.stateError = false
-          this.checkValidation()
-        }
-
-      }
-
-    }
-
-  }
   invalidObj: Object = {}
 
   checkValidation(): boolean {
@@ -2026,11 +2064,8 @@ validationForItemData(){
   SizeCode: any
   ArticleCode: any
   editAlreadyItemDataFlag:boolean
-  
 
   getSaleChllanEditData(id) {
-
-    // this.getAddressOfCustomerByID(0,0)
     this._commonService.getChallanDataByIdForBilling(id).subscribe(data => {
      console.log(JSON.stringify(data), 'editData----------->>');
       if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -2038,27 +2073,19 @@ validationForItemData(){
             this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
           this.inventoryItemSales = []
           this.inventoryItemSales = data.Data.InventoryTransactionSales;
+          console.log(this.inventoryItemSales ,"sale inventry")
           this.itemsAttribute = []
           this.clientNameId = this.inventoryItemSales[0].LedgerId
           this.getGSTByLedgerAddress(this.clientNameId);
-          
           this.orgNameId = this.inventoryItemSales[0].OrgId
           this.stateId = this.inventoryItemSales[0].SupplyState
           this.orgnizationSelect2.setElementValue(this.inventoryItemSales[0].OrgId)
           this.clientSelect2.setElementValue(this.inventoryItemSales[0].LedgerId)
           this.freightBySelect2.setElementValue(this.inventoryItemSales[0].FreightMode)
           this.catSelect2.setElementValue(this.inventoryItemSales[0].CategoryId)
-         //this.BillNo = this.inventoryItemSales[0].BillNo;
           this.InvoiceDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].BillDate, this.clientDateFormat) ;
           this.EwayBillNo = this.inventoryItemSales[0].EwayBillNo;
-          // this.LocationTo = this.inventoryItemSales[0].LocationTo;
-          // this.SupplyDate = this.inventoryItemSales[0].SupplyDate;
-          //this.SupplyDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].SupplyDate, this.clientDateFormat)
 
-          
-          this.VehicleNo = this.inventoryItemSales[0].VehicleNo;
-          this.Drivername = this.inventoryItemSales[0].DriverName;
-          this.Transportation = this.inventoryItemSales[0].Transportation;
           this.Commission = this.inventoryItemSales[0].Commission;
           this.TotalQuantity =    this.inventoryItemSales.filter(item1 => item1.TotalQty)
                                 .map(item1 => parseFloat(item1.TotalQty))
@@ -2098,10 +2125,10 @@ validationForItemData(){
           this.ItemTransactionactions = []
           this.itemsAttribute = []
           this.ItemTransactionactions = data.Data.ItemTransactionactions
+       console.log( data.Data.ItemTransactionactions,"edit-item")
           data.Data.ItemTransactionactions.forEach(element=>{
             let value;
-        console.log( data.Data.ItemAttributesTransactions,"edit-attribut")
-        console.log( data.Data.ItemTransactionactions,"edit-item")
+      //  console.log( data.Data.ItemAttributesTransactions,"edit-attribut")
   
 
            this.localLabelData =[]
@@ -2130,28 +2157,35 @@ validationForItemData(){
               Remark: element.Remark,
               UnitName: element.UnitName,
               Quantity: element.Quantity,
+              MrpRate : element.MrpRate,
+              Length:element.Length,
+              Width: element.Width,
+              Height:element.Height,
+              ChallanId:element.ChallanId,
               Rate: element.SaleRate,
               UnitId: element.UnitId,
               ItemId: element.ItemId,
-              IsForOtherState:element.IsForOtherState,
+              IsForOtherState:element.IsForOtherStateForTrans,
               DiscountAmt : element.DiscountAmt,
               Discount : element.Discount,
               DiscountType : element.DiscountType,
               TaxSlabId : element.TaxSlabId,
               TaxSlabName : element.TaxSlabName,
               TaxAmount:  element.TaxAmount,
-              SubTotal: (element.SaleRate) * (element.Quantity),
+              SubTotal: (element.SaleRate) * (element.Quantity) * (element.Height) * (element.Width) * (element.Length),
               attributeData: editAttributeData,
               LableAttributeVale: this.localLabelData
 
             })
           // this.items = this.localItemas;
-            console.log(this.localItemas ,'item edit')
+           // console.log(this.localItemas ,'item edit')
 
           })
-        this.calculateAllTotal()
-        }
+        // this.taxRateForOtherStateFlag = this.localItemas[0].IsForOtherState === 0 ? false : true ;
+         console.log(this.taxRateForOtherStateFlag,"lah")
         this.checkOtherStateForNewItemAdd()
+          this.calculateAllTotal()
+        }
       }
 
 
@@ -2171,8 +2205,8 @@ DueDateChngae:any
     if(this.deleteEditflag){
 
     this.addItems()
-    this.calculateTotalOfRow()
-    this.calculateAllTotal()
+    //this.calculateTotalOfRow()
+   // this.calculateAllTotal()
     // if(this.creditLimitAmount === this.netBillAmount && this.creditLimitAmount >= this.netBillAmount){
 
     // }
@@ -2184,7 +2218,7 @@ DueDateChngae:any
      if(this.items.length !== 0){
      this.InvoiceDateChngae = this._globalService.clientToSqlDateFormat(this.InvoiceDate, this.clientDateFormat)
 
-  //   this.DueDateChngae = this._globalService.clientToSqlDateFormat(this.DueDate, this.clientDateFormat)
+    //this.DueDateChngae = this._globalService.clientToSqlDateFormat(this.DueDate, this.clientDateFormat)
      
       let obj = {}
       obj['Id'] = 0
@@ -2193,9 +2227,9 @@ DueDateChngae:any
       obj['ChallanIds'] = this.ChallanIds
       obj['BillNo'] = this.BillNo
       obj['BillDate'] = this.InvoiceDateChngae 
-      obj['DueDate'] = '4/12/2019'
+      obj['DueDate'] = this.DueDate
 
-      obj['BillAmount'] = this.BillAmount,
+      obj['BillAmount'] = this.netBillAmount,
      // obj['ConvertedAmount'] = this.BillAmount,
       obj['CurrencyRate'] = this.CurrencyRate,
       obj['TotalDiscount'] = this.totalDiscount,
@@ -2213,7 +2247,7 @@ DueDateChngae:any
       obj['SubTotalAmounts'] = this.subTotalBillAmount,
       obj['TotalTaxAmount'] = this.totalTaxAmount,
       obj['TotalChallan'] = this.totalChallan,
-      // obj['VehicleNo'] = this.BillAmount,
+      obj['stateId'] = this.stateId,
       // obj['Drivername'] = this.BillAmount,
       // obj['Transportation'] = this.BillAmount,
       obj['TotalQty'] = this.TotalQuantity,
@@ -2229,7 +2263,6 @@ DueDateChngae:any
       obj['NetAmount'] = this.netBillAmount
       obj['AddressId'] = 0
       obj['ConvertedCurrencyId'] = 0
-
       obj['PaymentDetail'] = this.transactions
       obj['Items'] = this.items
       obj['ItemAttributeTrans'] = this.sendAttributeData
@@ -2264,62 +2297,108 @@ DueDateChngae:any
     }
    }
   
-  deleteItem(a) {
+  deleteItem(type , a) {
+    if(type === 'items'){
+
       this.lastItemFlag = true;
-    this.items.splice(a, 1)
+          this.items.splice(a, 1)
     this.localItemas.splice(a, 1)
     if(this.items.length === 0 &&  this.localItemas.length === 0){
       this.lastItemFlag = false 
     }
      this.calculateAllTotal()
-      //this.calculateTotalOfRow()
-    console.log( this.localItemas,'delete items')
+    }
+    if(type === 'trans'){
+      this.transactions.splice(a, 1)
+    }
 
   }
+
   AttrColourEditId: any
   AttrSizeEditId: any
   AttrArticleEditId: any
   deleteEditflag: boolean = true
+  deleteEditPaymentFlag :boolean = true
   editAttributeData:any
   taxRateForOtherStateFlag:any
   DiscountRate:any
-  editRowItem(index, item, editId, attributeData,) {
+  editTransId:any
+  ChallanId:any
+  addressShowFlag:any
+  editRowItem(type,index, item, editId, attributeData,) {
+   this.addressShowFlag = false
    this.editAttributeData = attributeData
     debugger;
-    if(this.deleteEditflag){
+
+    if(type ==='items'){
+     if(this.deleteEditflag){
 
       this.isCheckLedgerOfficeFlag = true;
-      this.taxRateForOtherStateFlag = item.IsForOtherState;
+      this.taxRateForOtherStateFlag = item.IsForOtherState === 0 ? false : true;
       this.deleteEditflag = false;
       this.editItemId = editId
       this.DiscountAmt =item.DiscountAmt
       this.Discount =item.Discount
       this.DiscountRate =item.DiscountRate
       this.TaxAmount =item.TaxAmount
-      this.DiscountType =item.DiscountType
+      this.DiscountType = JSON.stringify(item.DiscountType) 
       this.Remark =item.Remark
+      this.ChallanId=item.ChallanId
       this.Quantity = item.Quantity
       this.Rate =   item.Rate
+      this.MrpRate =    item.MrpRate,
+      this.Length=   item.Length,
+      this.Width=    item.Width,
+      this.Height=   item.Height,
       this.unitId = item.UnitId
       this.UnitName = item.UnitName
       this.categoryId = item.CategoryId
       this.itemCategoryId = item.ItemId
-      this.TotalAmount = (this.Quantity * this.Rate ) -  this.DiscountAmt + this.TaxAmount
+      this.TotalAmount =  item.SubTotal
       this.taxSelect2.setElementValue(item.TaxSlabId)
       this.catSelect2.setElementValue(item.CategoryId)
       this.unitSelect2.setElementValue(item.UnitId)
       this.itemSelect2.setElementValue(item.ItemId)
-      this.deleteItem(index)
+      this.deleteItem('items',index)
     }
     else{
       this.toastrService.showWarning('Warning','First save item!')
     }
-   
-  
-  }
+    }
+        if (type === 'trans' && !this.editTransId) {
+           if(this.deleteEditPaymentFlag){
+      this.editTransId = editId
+      this.snoForPAymentId  = item 
 
+      //index = index - 1
+      if (+this.transactions[index].PayModeId === 3) {
+        this.paymodeSelect2.setElementValue('')
+        this.ledgerSelect2.setElementValue('')
+        this.setpaymentLedgerSelect2(index)
+      } else if (+this.transactions[index].PayModeId === 1) {
+        this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
+        this.Paymode = this.transactions[index].Paymode
+        this.PayModeId = this.transactions[index].PayModeId
+        this.LedgerId = this.transactions[index].LedgerId
+        this.ledgerName = this.transactions[index].ledgerName
+        this.Amount = this.transactions[index].Amount
+        this.PayDate = this.transactions[index].PayDate
+        this.ChequeNo = this.transactions[index].ChequeNo
+        this.paymodeSelect2.setElementValue(this.PayModeId)
+        this.ledgerSelect2.setElementValue(this.LedgerId)
+        this.deleteItem(type,index)
+      }
+    }
+    else{
+      this.toastrService.showWarning('Warning','First save Payment!')
+    }
+
+    }
+
+}
+snoForPAymentId:any
     validateTransaction () {
-    if (this.Paymode || +this.PayModeId || +this.LedgerId || this.ledgerName || +this.Amount || this.PayDate || this.ChequeNo) {
+    if (this.Paymode || +this.PayModeId || +this.LedgerId || this.ledgerName || +this.Amount || this.PayDate ) {
       let isValid = 1
       if (+this.PayModeId) {
         this.invalidObj['PayModeId'] = false
@@ -2351,12 +2430,7 @@ DueDateChngae:any
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-      if (this.ChequeNo) {
-        this.invalidObj['ChequeNo'] = false
-      } else {
-        isValid = 0
-        this.invalidObj['ChequeNo'] = true
-      }
+    
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
@@ -2378,6 +2452,7 @@ DueDateChngae:any
     this.ledger = 0
     this.ledgerName = ''
     this.editTransId = 0
+
     // if (this.ledgerSelect2) {
     //   this.ledgerSelect2.setElementValue('')
     // }
@@ -2388,7 +2463,8 @@ DueDateChngae:any
   }
 
     select2PaymentModeId (event) {
-    console.log('payment method select: ', event)
+      debugger;
+  //  console.log('payment method select: ', event)
     if (event.value && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = event.value
@@ -2402,7 +2478,7 @@ DueDateChngae:any
     this.validateTransaction()
   }
     paymentLedgerId (event) {
-    console.log('payment ledger id : ', event)
+ //   console.log('payment ledger id : ', event)
     if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
      // this.ledgerSelect2.selector.nativeElement.value = ''
       this._commonService.openLedger()
@@ -2415,10 +2491,11 @@ DueDateChngae:any
     this.validateTransaction()
   }
   setpaymentLedgerSelect2 (i) {
+    debugger;
     this.ledgerPlaceHolder = { placeholder: 'Select Ledger' }
     let newData = [{ id: UIConstant.BLANK, text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this._commonService.getPaymentLedgerDetail(9).subscribe(data => {
-      console.log('PaymentModeData : ', data)
+     // console.log('PaymentModeData : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
           newData.push({
@@ -2434,7 +2511,7 @@ DueDateChngae:any
       console.log(error)
     },
     () => {
-      if ('' + this.editTransId && this.transactions[i]) {
+      if (this.editTransId  && this.snoForPAymentId > 0 && this.transactions[i]) {
         this.Paymode = this.transactions[i].Paymode
         this.PayModeId = this.transactions[i].PayModeId
         this.LedgerId = this.transactions[i].LedgerId
@@ -2445,26 +2522,28 @@ DueDateChngae:any
         this.paymodeSelect2.setElementValue(this.PayModeId)
         this.ledger = this.LedgerId
        // this.ledgerSelect2.setElementValue(this.LedgerId)
-        this.deleteItem(i,)
+        this.deleteItem('trans',i)
       }
     })
   }
+
+
   addTransactions () {
+      this.deleteEditPaymentFlag = true
     if (this.Paymode && this.PayModeId && this.LedgerId && this.ledgerName && this.Amount && this.PayDate) {
       if (this.checkValidationForAmount()) {
         this.addTransaction()
         this.clickTrans = true
         this.initialiseTransaction()
-        console.log('transactions : ', this.transactions)
+       // console.log('transactions : ', this.transactions)
         this.setPayDate()
       }
     }
   }PayModeId:any
 LedgerId:any
-editTransId:any
 payDateVar:any
     addTransaction () {
-    // this.payDateVar = this._globalService.clientToSqlDateFormat(this.PayDate, this.clientDateFormat)
+    this.payDateVar = this._globalService.clientToSqlDateFormat(this.PayDate, this.clientDateFormat)
 
     if (this.transactions.length === 0) {
       this.transactions.push({
@@ -2475,7 +2554,7 @@ payDateVar:any
         LedgerId: this.LedgerId,
         ledgerName: this.ledgerName,
         Amount: this.Amount,
-        PayDate: this.PayDate,
+        PayDate: this.payDateVar,
         ChequeNo: this.ChequeNo
       })
     } else {
@@ -2488,7 +2567,7 @@ payDateVar:any
         LedgerId: this.LedgerId,
         ledgerName: this.ledgerName,
         Amount: this.Amount,
-        PayDate: this.PayDate,
+        PayDate: this.payDateVar,
         ChequeNo: this.ChequeNo
       })
     }
@@ -2499,25 +2578,28 @@ payDateVar:any
 applyCustomRateOnItemFlag:any
 localItemRate :any
 getModuleSettingData(){
+   let checkForCustomItemRate;
  this.applyCustomRateOnItemFlag = false
  this.localItemRate = true;
  this.subscribe = this._commonService.getModulesettingAPI('Sale').subscribe(data=>{
 if(data.Code === UIConstant.THOUSAND ){
   if(data.Data && data.Data.SetupMasters && data.Data.SetupMasters.length &&  data.Data.SetupClients.length >0){
     data.Data.SetupMasters.forEach(ele => {
+      debugger;
       // check for item custom rate and apply for this custom rate // SetupId = 12 for apply custom Rate
-      let checkForCustomItemRate = data.Data.SetupClients.filter(s=> (s.SetupId === ele.Id) && (ele.Id=== 12) )
+       checkForCustomItemRate = data.Data.SetupClients.filter(s=> (s.SetupId === ele.Id) && (ele.Id=== 12) )
+               // console.log(checkForCustomItemRate ,'flag')
+
                 if ( checkForCustomItemRate.length > 0) { 
-                 // let 
+                
                    this.applyCustomRateOnItemFlag = true;
                   
                 }
-                console.log(checkForCustomItemRate ,'flag')
     })
 
 
   }
- console.log(data ,'setupSetting-module')
+ //console.log(data ,'setupSetting-module')
  }
 })
 }
@@ -2531,24 +2613,26 @@ getItemRateByLedgerData (ItemId,CustomerId) {
   debugger;
   this.subscribe = this._commonService.getItemRateByLedgerAPI(ItemId,CustomerId).subscribe(Data=>{
     if(Data.Code === UIConstant.THOUSAND){
-     if( Data.Data && Data.Data.ItemCustomRates.length > 0){
-       if(this.applyCustomRateOnItemFlag){
-           this.Rate = Data.Data.ItemCustomRates[0].SaleRate
-           this.MrpRate =Data.Data.ItemCustomRates[0].Mrprate
-           this.unitId =Data.Data.ItemCustomRates[0].UnitId
-           this.taxSlabId =Data.Data.ItemCustomRates[0].TaxId
-           this.UnitName =Data.Data.ItemCustomRates[0].UnitName
-           this.taxSlabName =Data.Data.ItemCustomRates[0].TaxSlab
+     if(this.applyCustomRateOnItemFlag){
+       if( Data.Data && Data.Data.ItemCustomRateWithItemDetails.length > 0){
+         //  this.categoryName = Data.Data.ItemCustomRateWithItemDetails[0].CategoryName
+           this.Rate = Data.Data.ItemCustomRateWithItemDetails[0].SaleRate
+           this.MrpRate =Data.Data.ItemCustomRateWithItemDetails[0].Mrp
+           this.unitId =Data.Data.ItemCustomRateWithItemDetails[0].UnitId
+           this.taxSlabId =Data.Data.ItemCustomRateWithItemDetails[0].TaxId
+           this.UnitName =Data.Data.ItemCustomRateWithItemDetails[0].UnitName
+           this.taxSlabName =Data.Data.ItemCustomRateWithItemDetails[0].TaxSlab
+        //   this.itemCategoryId = Data.Data.ItemCustomRateWithItemDetails[0].ItemId
            this.taxSelect2.setElementValue(this.taxSlabId)
            this.unitSelect2.setElementValue(this.unitId)
 
-
-        //  this.Rate = (this.Rate  ===  this.itemCustomSaleRate )  ?  this.Rate :  this.itemCustomSaleRate
-       }
-
+  }
 }
-else{
-     if(Data.Data && Data.Data.ItemDetails.length > 0){
+ if(Data.Data && Data.Data.ItemDetails.length > 0){
+    // if(Data.Data && Data.Data.ItemDetails.length > 0){
+           //this.categoryName = Data.Data.ItemDetails[0].CategoryName
+        //   this.itemCategoryId = Data.Data.ItemDetails[0].ItemId
+
             this.unitId =Data.Data.ItemDetails[0].UnitId
            this.taxSlabId =Data.Data.ItemDetails[0].TaxId
             this.UnitName =Data.Data.ItemDetails[0].UnitName
@@ -2559,18 +2643,20 @@ else{
            this.unitSelect2.setElementValue(this.unitId)
 
 
-}
+
 }
 
   this.onChangeSlabTax(this.taxSlabId)
    this.calculate()
-      console.log(Data ,'item-rate')
+     // console.log(Data ,'item-rate')
     }
   })
 
 }
 
 checkOtherStateForNewItemAdd(){
+//  console.log(this.ledgerStateId ,"jjjjjjjjjjjjj")
+  debugger;
   if(this.officeAddressId === this.ledgerStateId){
     this.taxRateForOtherStateFlag = false;
   }

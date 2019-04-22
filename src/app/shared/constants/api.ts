@@ -180,6 +180,16 @@ export class ApiConstant {
   public static get SETTING_SETUP_BY_TYPE (): string { return this.BASE_URL + '/api/v1/SetupSetting?type=' }
 
   public static get SPUTILITY (): string { return this.BASE_URL + '/api/v1/ims/SPUtility?type=' }
+
+  public static get CREATE_USER (): string { return this.BASE_URL + '/api/v1/setting/User' }
+
+  public static get USER_CLIENT (): string { return this.BASE_URL + '/api/v1/Owner/client' }
+
+  public static get USER_OFFICE (): string { return this.BASE_URL + '/api/v1/Owner/Office' }
+
+  public static get USER_TYPE (): string { return this.BASE_URL + '/api/v1/setting/usertype' }
+
+  public static get USER_PERMISSION (): string { return this.BASE_URL + '/api/v1/setting/userpermission' }
  
 }
                     

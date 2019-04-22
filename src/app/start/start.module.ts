@@ -28,6 +28,7 @@ import { UnitAddModule } from '../shared/transactionMaster/unit/unit-add/unit-ad
 import { AddressAddModule } from '../shared/transactionMaster/address/address-add/address-add.module'
 import { AttributeAddModule } from '../shared/transactionMaster/attribute-add/attribute-add.module'
 import { OrganisationProfileComponent } from './header/organisation-profile/organisation-profile.component';
+import { SharedModule } from '../shared/shared.module';
 @NgModule({
   declarations: [
     HeaderComponent,
@@ -61,7 +62,8 @@ import { OrganisationProfileComponent } from './header/organisation-profile/orga
     UnitAddModule,
     TaxAddModule,
     AddressAddModule,
-    AttributeAddModule
+    AttributeAddModule,
+    SharedModule
   ],
   bootstrap: []
 })

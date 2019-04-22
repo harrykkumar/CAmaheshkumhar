@@ -203,6 +203,7 @@ this.clientDateFormat = this._settings.dateFormat
             this.editMode = true
             this.Id = status.editId
           }
+          this.setDefaultSelectovalue()
           this.openModal()
         } else {
           this.closeModal()
@@ -237,7 +238,7 @@ this.clientDateFormat = this._settings.dateFormat
     this.editItemId = 0
     this.getDataforItemSaleChallan();
     this.getFreightValueData()
-    this.getCommisionTypeValue()
+    
     this.initComp()
     //  this.getCurrency()
     this.setSupplyDate()
@@ -343,7 +344,7 @@ console.log(this.attributesLabels ,'attrilabel')
               })
             
           })
-          // this.godownDataType =  this.godownDataType[1].id
+          this.godownId =  this.godownDataType[1].id
         
         this.clientnamePlaceHolder = { placeholder: 'Select Client Name' }
         let newData = [{ id: UIConstant.BLANK, text: 'Select Client Name' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
@@ -440,16 +441,17 @@ console.log(this.attributesLabels ,'attrilabel')
   Commission: any
   CommissionTypeID: any
   onChangeCommissionType(event) {
-    if (event.data.length > 0) {
-      if (event.data[0].id !== '0') {
+      if (event.data[0].id === '1') {
         if (event.data[0].text) {
+     // this.commision_TypeSelect2.selector.nativeElement.value = ''
           this.CommissionTypeID = event.value
         }
       }
       else {
-        this.CommissionTypeID = '0'
+      //this.commision_TypeSelect2.selector.nativeElement.value = ''
+        this.CommissionTypeID = event.value
       }
-    }
+  
   }
 
   attributeColorId: any
@@ -465,6 +467,7 @@ console.log(this.attributesLabels ,'attrilabel')
   validAttribute:any
   AttrValueId:any
   onChangeAttribute(event ,indexAttribute ,attributeData) {
+    debugger;
 let editAttributValue;
     let attributeEdit = this.editAttributeData
 
@@ -568,12 +571,22 @@ console.log(this.itemsAttribute ,'attribute')
     this.freightById =this.freightByData[1].id
     //return this.freightByValue = value
   }
+setDefaultSelectovalue(){
+  this.commision_TypeSelect2.selector.nativeElement.value = ''
+  this.orgnizationSelect2.selector.nativeElement.value = ''
+
+  this.commision_TypeSelect2.setElementValue(this.CommissionTypeID)
+  this.orgnizationSelect2.setElementValue(this.orgNameId)
+}
+
 
   getCommisionTypeValue() {
+    debugger;
     this.CommissionType = []
-    this.CommissionTypePlcaholder = { placeholder: 'Select Commission ' }
-    this.CommissionType = [{ id: '0', text: 'Select Commission' }, { id: '1', text: '%' }, { id: '2', text: '$' }]
-     this.CommissionTypeID =   this.CommissionType[1].id
+    this.CommissionType = [ { id: '1', text: '%' }, { id: '2', text: '$' }]
+     this.CommissionTypeID =   this.CommissionType[0].id
+     
+    // this.onChangeCommissionType(this.CommissionTypeID)
   }
   onChangeFreight(event) {
     if (event.data.length > 0) {
@@ -587,6 +600,22 @@ console.log(this.itemsAttribute ,'attribute')
       }
     }
   }
+  godownId:any
+
+godownName:any
+onChangeGodown(event){
+  if(event.data.length > 0){
+         if (event.data && event.data[0].text) {
+      this.godownId = event.value
+      this.godownName = event.data[0].text
+    //  this.currencyValues[1] = { id: 1, symbol: event.data[0].text }
+
+
+    }
+  }
+
+}
+
   UnitName: any
   onSelectUnitId(event) {
     if (event.data.length > 0) {
@@ -832,7 +861,7 @@ if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         }
 
 
-        if (data.Data && data.Data.SetupOrganization && data.Data.SetupOrganization.length > 0) {
+        if (data.Data && data.Data.SetupOrganization && data.Data.SetupOrganization.length > 1) {
           this.organizationData = []
           this.orgnazationPlaceHolder = { placeholder: 'Select Organization' }
           this.organizationData = [{ id: UIConstant.BLANK, text: 'Select  Organization' }]
@@ -844,11 +873,24 @@ if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
               text: ele.Name
             })
           })
+          this.orgnizationSelect2.setElementValue('')
+            this.orgNameId = this.organizationData[1].id
+          console.log(this.orgNameId  ,"organizationData4")
+
           if (data.Data&& data.Data.SetupOrganization && data.Data.SetupOrganization.length === UIConstant.ONE) {
             _self.BillNo = _self.setupModules.BillNo
+          _self.setupOrganization = data.Data.SetupOrganization;
             this.enableDisableflagOrgName = true
-            this.organizationData = this.organizationData[0].id
-            this.OrgId = data.Data.SetupOrganization[0].id
+                  data.Data.SetupOrganization.forEach(ele => {
+            this.organizationData.push({
+              id: ele.Id,
+              text: ele.Name
+            })
+          })
+          this.orgnizationSelect2.setElementValue('')
+
+            this.organizationData = this.organizationData[1].id
+            this.OrgId = data.Data.SetupOrganization[1].id
          //   this.BillNo =  data.Data.SetupOrganization[0].BillNo
             console.log( this.organizationData ,"--->organizationData1")
           }
@@ -991,7 +1033,7 @@ localLabelData:any
               })
           }     
             })
-         
+         this.editAttributeData = undefined
           console.log(this.localItemas,this.showAttributeData,this.localLabelData ,"localitem----")
           }
           
@@ -1018,7 +1060,7 @@ this.itemSubmit =true;
     // this.showItemAttributeArray =  this.sendAttributeData
    //  this.itemsAttribute = []
    this.clickItem =true
-     this.totalQty()
+     //this.totalQty()
      //this.totalRowCalculation()
      this.calculateAllTotal()
      this.calculateTotalOfRow()
@@ -1184,42 +1226,47 @@ snoIndex:any
   // item_select2
   setTravelDate() {
 
+    let _self = this
     jQuery(function ($) {
       flatpickr('#travel-date', {
         minDate: 'today',
-        dateFormat: 'm/d/Y',
+        dateFormat:  _self.clientDateFormat,
         enableTime: true
       })
     })
   }
 
   setPayDate() {
+
+    let _self = this
     jQuery(function ($) {
       flatpickr('#pay-date', {
         minDate: 'today',
-        dateFormat: 'm/d/Y'
+        dateFormat:  _self.clientDateFormat,
       })
     })
   }
 
   setBillDate() {
+ 
+    let _self = this
     if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
       jQuery(function ($) {
         flatpickr('#bill-date', {
           maxDate: 'today',
-          dateFormat: 'm/d/Y',
-         // defaultDate: 'today',
+          dateFormat: _self.clientDateFormat,
+          // defaultDate: 'today',
           //enableTime: true
 
-        })
-      })
+        }
+)      })
     } else {
       jQuery(function ($) {
         flatpickr('#bill-date', {
           
           minDate: 'today',
-          dateFormat: 'm/d/Y',
-         // defaultDate: 'today',
+          dateFormat:_self.clientDateFormat,
+          defaultDate: 'today',
          // enableTime: true
 
         })
@@ -1230,10 +1277,11 @@ snoIndex:any
 
   setSupplyDate() {
 
+    let _self = this
     jQuery(function ($) {
       flatpickr('#supply-date', {
         minDate: 'today',
-        dateFormat: 'm/d/Y',
+        dateFormat: _self.clientDateFormat,
       //  defaultDate: 'today',
         //enableTime: true
       })
@@ -1251,8 +1299,12 @@ snoIndex:any
     this.clientNameSelect2 = []
     this.organizationData = []
     this.getDataforItemSaleChallan()
-  }
 
+  }
+closebtn(){
+     this.commision_TypeSelect2.setElementValue('')
+
+}
 
 
   // totalQty() {
@@ -1275,11 +1327,16 @@ snoIndex:any
 
 
   calculateTotalOfRow() {
+    let  totalQty = 0;
     let Rate = (isNaN(+this.Rate)) ? 0 : +this.Rate
     let Quantity = (isNaN(+this.Quantity)) ? 0 : +this.Quantity
 
 this.TotalAmount = Rate * Quantity
-
+    // if(totalQty){
+    //     totalQty = totalQty + +this.TotalQuantity 
+     
+    // }
+    // this.TotalQuantity  = totalQty
         let totalAmount = this.TotalAmount
         return isNaN(totalAmount) ? 0 : totalAmount
 
@@ -1288,29 +1345,32 @@ this.TotalAmount = Rate * Quantity
   netBillAmount: number
 
   calculate () {
+
     this.TotalAmount = +this.calculateTotalOfRow()
     this.calculateForTotalAmount()
     this.calculateAllTotal()
     this.calTotalBillAmount()
 
   }
-    totalQty() {
-    if (this.items.length === 0) {
-      this.TotalQuantity = (isNaN(+this.Quantity)) ? 0 : +this.Quantity
-    }
-    else {
-      let totalQty = 0
-      for (let i = 0; i < this.items.length; i++) {
-        totalQty = +totalQty + +this.items[i].Quantity
-      }
-      this.TotalQuantity = (isNaN(+totalQty)) ? 0 : +totalQty
-    }
-  }
+  //   totalQty() {
+  //   if (this.items.length === 0) {
+  //     this.TotalQuantity = (isNaN(+this.Quantity)) ? 0 : +this.Quantity
+  //   }
+  //   else {
+  //     let totalQty = 0
+  //     for (let i = 0; i < this.items.length; i++) {
+  //       totalQty = +totalQty + +this.items[i].Quantity
+  //     }
+  //     this.TotalQuantity = (isNaN(+totalQty)) ? 0 : +totalQty
+  //   }
+  // }
   calTotalBillAmount(){
    let totalBillAmt = 0
+   let totalQty = 0
     for (let i = 0; i < this.localItemas.length; i++) {
-      totalBillAmt = totalBillAmt +  (isNaN(+this.localItemas[i].Rate) ? 0 : +this.localItemas[i].Rate) *
+      totalBillAmt = totalBillAmt +  (isNaN(+this.localItemas[i].SaleRate) ? 0 : +this.localItemas[i].SaleRate) *
       (isNaN(+this.localItemas[i].Quantity) ? 0 : +this.localItemas[i].Quantity)
+        totalQty = totalQty +   (isNaN(+this.localItemas[i].Quantity) ? 0 : +this.localItemas[i].Quantity)
     }
     if (!this.clickItem) {
 
@@ -1318,21 +1378,27 @@ this.TotalAmount = Rate * Quantity
         totalBillAmt += +this.Rate * this.Quantity
       }
     }
+    if(totalQty){
+            totalQty = totalQty
+         }
+    this.TotalQuantity = totalQty
+
     // else{
 
     //     totalBillAmt += +this.Rate * this.Quantity
 
     // }
-    this.netBillAmount = totalBillAmt + +this.TotalAllFreight + +this.OtherAllCharge
+    this.netBillAmount = totalBillAmt + +this.TotalAllFreight + +this.OtherAllCharge + +this.totalCommsion 
 
 }
   TotalAllFreight :any
 OtherAllCharge:any
+totalCommsion:any
     calculateAllTotal () {
     debugger;
     let totalDiscount = 0
     let totalQty = 0
-    let totalTax = 0
+    let commsion = 0
     let totalAmt = 0
     let fright = 0
     let otherChange = 0
@@ -1353,6 +1419,10 @@ OtherAllCharge:any
     fright += +this.TotalFreight
 
     }
+         if( !isNaN(this.Commission)){
+    commsion += +this.Commission
+
+    }
       if( !isNaN(this.OtherCharge)){
     otherChange += +this.OtherCharge
 
@@ -1361,6 +1431,7 @@ OtherAllCharge:any
    
     this.TotalAllFreight = fright
     this.OtherAllCharge = otherChange
+    this.totalCommsion = commsion
     this.calTotalBillAmount()
   }
 
@@ -1373,7 +1444,9 @@ OtherAllCharge:any
     let totalOther=0
     let netAmt =0
     for (let i = 0; i < this.localItemas.length; i++) {
-      totalAmount = +totalAmount + +(this.localItemas[i].Quantity * this.localItemas[i].Rate)
+      totalAmount = +totalAmount + +(this.localItemas[i].Quantity * this.localItemas[i].SaleRate)
+     // totalQty = +totalQty + +this.localItemas[i].Quantity 
+
 
     }
 
@@ -1384,6 +1457,8 @@ OtherAllCharge:any
       }
     }
 
+
+
     if (!isNaN(totalAmount)) {
       this.RoundOff = +(Math.round(totalAmount) - totalAmount).toFixed(5)
       this.netBillAmount = Math.round(totalAmount)
@@ -1393,39 +1468,6 @@ OtherAllCharge:any
   }
 
 
-  // calculate() {
-
-
-  //   let totalAmount = 0
-
-  //   this.TotalFreight = (isNaN(+this.TotalFreight)) ? 0 : +this.TotalFreight
-  //   this.OtherCharge = (isNaN(+this.OtherCharge)) ? 0 : +this.OtherCharge
-  //   for (let i = 0; i < this.items.length; i++) {
-  //     totalAmount = +totalAmount + +this.items[i].TotalAmount
-  //   }
-
-  //   if (this.OtherCharge) {
-  //     totalAmount += +this.OtherCharge
-  //   }
-  //   if (this.TotalFreight) {
-  //     totalAmount += +this.TotalFreight
-  //   }
-
-  //   if (!isNaN(totalAmount)) {
-  //     totalAmount = (isNaN(+totalAmount)) ? 0 : +totalAmount
-
-  //     this.netBillAmount = Math.round(totalAmount)
-
-  //   }
-
-  //   this.checkValidation()
-  // }
-
-
-
-
-
-  // add more items
   identify(index, item) {
     item.Sno = index + 1
     return item.Sno - 1
@@ -1472,6 +1514,8 @@ OtherAllCharge:any
   }
 
   openModal() {
+    this.getCommisionTypeValue()
+    this.godownId = 0
     this.itemAddRequiredFlag = false
     this.editAlreadyItemDataFlag =false;
     this.showAttributeData=[]
@@ -1749,7 +1793,7 @@ SupplyDateChngae:any
     this.submitSave = true
     if(this.deleteEditflag){
 
-    this.addItems()
+   // this.addItems()
     this.calculateTotalOfRow()
     this.calculateAllTotal()
     if (this.checkValidation()) {
@@ -1764,6 +1808,7 @@ SupplyDateChngae:any
       obj['PartyId'] = this.clientNameId
       obj['OrgId'] = this.orgNameId
       obj['BillNo'] = this.BillNo
+      obj['GodownId'] =this.godownId
       obj['BillDate'] = this.InvoiceDateChngae
       obj['EwayBillNo'] = this.EwayBillNo
       obj['Supplydate'] = this.SupplyDateChngae
@@ -1851,6 +1896,12 @@ SupplyDateChngae:any
       this.editItemId = editId
       this.Remark =item.Remark
       this.Quantity = item.Quantity
+      this.unitId =item.UnitId
+      this.UnitName = item.UnitName
+      this.ItemName = item.ItemName
+      this.itemCategoryId =item.ItemId
+      this.categoryId =item.CategoryId
+
       this.Rate = item.SaleRate
       this.TotalAmount = this.Quantity * this.Rate
       this.catSelect2.setElementValue(item.CategoryId)
