@@ -14,11 +14,11 @@ import { Settings } from '../../../../shared/constants/settings.constant'
 declare var $: any    
 declare var flatpickr: any
 @Component({
-  selector: 'app-sales-billing',
-  templateUrl: './sales-billing.component.html',
-  styleUrls: ['./sales-billing.component.css']
+  selector: 'app-sales-direct',
+  templateUrl: './sales-direct.component.html',
+  styleUrls: ['./sales-direct.component.css']
 })
-export class SalesChallanBillingComponent {
+export class SalesDirectComponent {
   BillNo: string
   ChallanIds:any
   SenderId: any
@@ -61,7 +61,7 @@ allChallanNos:any
   ParcelHeight: number
   ParcelWidth: number
   items = []
-
+ ATTRIBUTE_PARENTTYPEID : any 
   VehicleNo: string
   Drivername: string
   Transportation: string
@@ -141,12 +141,14 @@ taxTypeSelectData:any
   godownId:any
   clientDateFormat: string = ''
 InterestRateType:any
+CommisionRateType :any
     transactions: TravelPayments[]
   constructor(public _globalService: GlobalService,private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
     private _ledgerServices: VendorServices,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService ,
     public _settings: Settings) {
+    this.ATTRIBUTE_PARENTTYPEID = 6
 this.clientDateFormat = this._settings.dateFormat
     this.clientNameSelect2 = []
     this.suplierNameSelect2 = []
@@ -156,6 +158,7 @@ this.clientDateFormat = this._settings.dateFormat
     this.parcelBySelect2 = []
     this.DiscountType = '0'
     this.InterestRateType =0
+    this.CommisionRateType =0
     this.totalDiscount = 0
     this.DiscountPerItem = 0
     this.totalBillAmount =0
@@ -221,7 +224,7 @@ this.clientDateFormat = this._settings.dateFormat
       }
     )
 
-    this.modalOpen = this._commonService.getChallanBillStatus().subscribe(
+    this.modalOpen = this._commonService.getSaleDirectStatus().subscribe(
       (status: any) => {
         if (status.open) {
           if (status.editId === UIConstant.BLANK) {
@@ -229,12 +232,11 @@ this.clientDateFormat = this._settings.dateFormat
              this.Id = 0
           } else {
             this.editMode = true
-            this.Id = status.data
-            this.ChallanIds = status.data
-            this.allChallanNos =status.challanNos
+            this.Id = status.editId
+           // this.ChallanIds = status.data
+           // this.allChallanNos =status.challanNos
           }
-            
-          this.openChallanModal()
+          this.openDirectModal()
          
         } else {
           this.closeModal()
@@ -270,7 +272,6 @@ this.clientDateFormat = this._settings.dateFormat
     this.getFreightValueData()
     this.getCommisionTypeValue()
     this.initComp()
-    //this.getSPUtilityDataBilling();
   //  this.setSupplyDate()
     // this.getItemMasterDetail()
     this.selectTax = []
@@ -314,7 +315,6 @@ prototype:any
 tempAttribute:any
 currencies:any
   getSPUtilityDataBilling() {
-   debugger;
     // SPUtility API; For get all data of API
         this.subscribe = this._commonService.getSPUtilityData(UIConstant.SALE_TYPE).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
@@ -357,7 +357,9 @@ currencies:any
 
   }
 }
+if(this.editMode){
  this.getSaleChllanEditData(this.Id)
+}
         this.CurrencyPlaceHolder = { placeholder: 'Currency' }
         let newDataCurrency = []
         if (data.Data && data.Data.Currencies.length > 0) {
@@ -452,29 +454,34 @@ currencies:any
         // add Referals  
         this.referals = []
         this.referalsPlaceHolder = { placeholder: 'Select  Referals' }
-        this.referals = [{ id: UIConstant.BLANK, text: 'Select Referals' }]
+let newRefdata =[]
+       this.referals = [{ id: UIConstant.BLANK, text: 'Select Referals' }]
         if (data.Data && data.Data.Referals.length > 0) {
           data.Data.Referals.forEach(element => {
-            this.referals.push({
+           newRefdata.push({
               id: element.Id,
               text: element.Name,
 
             })
 
           })
+          this.referals = newRefdata
         }
         // add Referals  type
         this.referalsType = []
         this.referalsTypePlaceHolder = { placeholder: 'Select  Type' }
-        this.referalsType = [{ id: UIConstant.BLANK, text: 'Select Type' }]
+       this.referalsType = [{ id: UIConstant.BLANK, text: 'Select Type' }]
+     let newRefTypeData =[]
         if (data.Data && data.Data.ReferalTypes.length > 0) {
           data.Data.ReferalTypes.forEach(element => {
-            this.referalsType.push({
+           newRefTypeData.push({
               id: element.Id,
               text: element.CommonDesc
             })
 
           })
+           this.referalsType  = newRefTypeData
+           console.log( this.referalsType ,'ffffffffff-----------')
         }
          if (data.Data && data.Data.ItemCategorys.length > 0) {      
              this.getCatagoryDetail(data.Data.ItemCategorys)
@@ -506,7 +513,6 @@ onChangeGodown(event){
      if (event.data && event.data[0].text) {
       this.godownId = event.value
       this.godownName = event.data[0].text
-    //  this.currencyValues[1] = { id: 1, symbol: event.data[0].text }
 
 
     }
@@ -618,7 +624,7 @@ if(data.length > 0){
         existId:existid,
         AttributeValueId:existid,
         AttributeId: this.AttrValueId,
-        ParentTypeId:6
+        ParentTypeId: this.ATTRIBUTE_PARENTTYPEID
 }
   this.itemsAttribute.splice(index, 1, newArray)
 }
@@ -632,7 +638,7 @@ else{
         existId:existid,
         AttributeValueId:existid,
         AttributeId: this.AttrValueId,
-        ParentTypeId:6
+        ParentTypeId:this.ATTRIBUTE_PARENTTYPEID
       })
 }
 }
@@ -646,22 +652,13 @@ else{
         existId:existid,
         AttributeValueId:existid,
         AttributeId: this.AttrValueId,
-        ParentTypeId:6
+        ParentTypeId:this.ATTRIBUTE_PARENTTYPEID
 
       })
 }
 console.log(this.itemsAttribute ,'attribute')
   }
 
-// checkAttributeValidation(attributeIndex){
-// if(attributeIndex){
-
-//   let attrIndex = this.itemsAttribute.filter(s=>s.Index === attributeIndex)
-
-// }
-// }
-
-  
   freightByData: any
   freightByValue: any
   freightById: any
@@ -778,8 +775,6 @@ this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(da
   @ViewChild('client_select2') clientSelect2: Select2Component
   @ViewChild('unit_select2') unitSelect2: Select2Component
   @ViewChild('tax_select2') taxSelect2: Select2Component
-  @ViewChild('atrColour_id') attributeSelect2: Select2Component
-
 
   onSelected2clientId(event) {
     if (event.data.length > 0) {
@@ -791,7 +786,7 @@ this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(da
         } else {
           this.clientNameId = event.value
           let parentTypeId = 5;
-        //  this.getAddressOfCustomerByID(this.clientNameId, parentTypeId)
+         this.getAddressOfCustomerByID(this.clientNameId, parentTypeId)
 
 
         }
@@ -919,10 +914,10 @@ console.log(data.Data,"cus dadd")
          this.updateCategories(this.categoryId)
           this.validationForItemData()
         }
-        if(this.editItemId === 0){
-          this.getAddressOfCustomerByID(this.clientNameId ,5)
-            this.addressShowFlag = true
-        }
+        // if(this.editItemId === 0){
+        //   this.getAddressOfCustomerByID(this.clientNameId ,5)
+        //     this.addressShowFlag = true
+        // }
       }
     }
   }
@@ -1060,7 +1055,7 @@ disabledAddressFlag:boolean = false
             if (+element.SetupId === 37 && +element.Type === 3) {
               if (+element.Id !== 0 && +element.Id === +element.defaultvalue) {
                 _self.defaultCurrency = element.Val
-               // _self.currencyValues[1] = { id: '1', symbol: _self.defaultCurrency }
+                _self.currencyValues[1] = { id: '1', symbol: _self.defaultCurrency }
               }
               newData.push({
                 id: element.Id,
@@ -1068,6 +1063,7 @@ disabledAddressFlag:boolean = false
               })
             }
           })
+               // console.log(data.Data.SetupSettings ,'fffffffffffffffffffff')
           _self.currenciesSelect2 = newData
           _self.isDataAvailable = true
         }
@@ -1158,7 +1154,7 @@ localLabelData:any
             AttributeValueId:this.itemsAttribute[i].AttributeValueId,
             ItemTransId: this.itemsAttribute[i].ItemTransId,
             existId: this.itemsAttribute[i].existId,
-              ParentTypeId :this.itemsAttribute[i].ParentTypeId
+            ParentTypeId :this.itemsAttribute[i].ParentTypeId
               })
             }
          
@@ -1191,7 +1187,7 @@ localLabelData:any
               Sno:  element.Sno,
               TransType:element.TransType,
               TransId: element.TransId,
-              ChallanId: element.ChallanId,
+              // ChallanId: element.ChallanId,
               Length: element.Length,
               Height: element.Height,
               Width: element.Width,
@@ -1244,7 +1240,7 @@ localLabelData:any
              Sno:  element.Sno,
               TransType:element.TransType,
               TransId: element.TransId,
-              ChallanId: element.ChallanId,
+              // ChallanId: element.ChallanId,
               Length: element.Length,
               Height: element.Height,
               Width: element.Width,
@@ -1302,8 +1298,6 @@ isCheckLedgerOfficeFlag:any
 
 
     if (this.categoryId > 0 && this.itemCategoryId > 0  && this.Quantity) {
-    //  if(this.checkCreditLimitAmount()){
-
      this.addItem()
 
      this.clickItem = true
@@ -1314,8 +1308,7 @@ isCheckLedgerOfficeFlag:any
      this.calTotalBillAmount()
      this.clickItem = true
      this.initialiseItem()
-   // }
-  }
+    }
 
   }
   lastItemFlag:boolean;
@@ -1349,7 +1342,7 @@ MFDateChngae:any
         Sno:  this.snoIndex,
         TransType:0,
         TransId: 0,
-        ChallanId: this.ChallanId,
+        // ChallanId: this.ChallanId,
         Length: this.Length,
         Height: this.Height,
         Width: this.Width,
@@ -1386,7 +1379,7 @@ MFDateChngae:any
         Sno: this.snoIndex,
         TransType:0,
         TransId: 0,
-        ChallanId: this.ChallanId,
+        // ChallanId: this.ChallanId,
         Length: this.Length,
         Height: this.Height,
         Width: this.Width,
@@ -1469,7 +1462,7 @@ BatchNo:any
   @ViewChild('freight_By') freightBySelect2: Select2Component
   @ViewChild('referal_type') referal_typeSelect2: Select2Component
   @ViewChild('referal_id') referal_idSelect2: Select2Component
-  @ViewChild('commision_Type') commision_TypeSelect2: Select2Component
+ // @ViewChild('commision_Type') commision_TypeSelect2: Select2Component
 currencyValues:any
 subTotalBillAmount:any
   initialiseParams() {
@@ -1548,9 +1541,7 @@ subTotalBillAmount:any
     } if (this.referal_idSelect2 && this.referal_idSelect2.selector.nativeElement.value) {
       this.referal_idSelect2.setElementValue('')
     }
-    if (this.commision_TypeSelect2 && this.commision_TypeSelect2.selector.nativeElement.value) {
-      this.commision_TypeSelect2.setElementValue('')
-    }
+
     if (this.stateSelect2Id && this.stateSelect2Id.selector.nativeElement.value) {
       this.stateSelect2Id.setElementValue('')
     }
@@ -1625,6 +1616,7 @@ subTotalBillAmount:any
       jQuery(function ($) {
         flatpickr('#bill-date', {
           dateFormat: _self.clientDateFormat,
+          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
 
         })
       })
@@ -1633,10 +1625,13 @@ subTotalBillAmount:any
         flatpickr('#bill-date', {   
           minDate: 'today',
          dateFormat: _self.clientDateFormat,
+          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
 
         })
       })
     }
+    this.InvoiceDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
+
   }
 
 
@@ -1849,10 +1844,10 @@ intrerestrateAmt:any
 DiscountValueType:any
 changeIntrate(e){
  this.InterestRateType = e === '0' ? 0 : 1
- //console.log(this.InterestRateType ,'intresr')
-  // this.InterestRateType = 0
 }
-
+changeCommisiontrate(e){
+ this.CommisionRateType = e === '0' ? 0 : 1
+}
 
 
 
@@ -1891,11 +1886,9 @@ calTotalBillAmount(){
 
       }
     }
-
     this.netBillAmount = totalBillAmt + +this.TotalAllFreight + +this.OtherAllCharge
-    this.subTotalBillAmount = totalBillAmt
 
-    //this.checkCreditLimitAmount()
+    this.subTotalBillAmount = totalBillAmt
 
 }
 
@@ -1936,25 +1929,7 @@ calTotalBillAmount(){
     }
   }
 
-  checkCreditLimitAmount(): boolean {
-    debugger;
-    let creditAmtTotal = 0
-    this.netBillAmount = (isNaN(+this.netBillAmount)) ? 0 : +this.netBillAmount
 
-   //  this.creditLimitAmount = 200000
-    if (this.netBillAmount !== 0) {
-      if ( this.netBillAmount > this.creditLimitAmount) {
-        this.toastrService.showError(UIConstant.ERROR, ' Credit Limit is  '+ this.creditLimitAmount)
-        this.isValidAmount = false
-        return false
-      } else {
-        this.isValidAmount = true
-        return true
-      }
-    } else {
-      return true
-    }
-  }
 
   ngOnDestroy() {
     this.modalOpen.unsubscribe()
@@ -1985,7 +1960,7 @@ getGSTByLedgerAddress(ledgerId){
   })
 }
 
-  openChallanModal() {
+  openDirectModal() {
     this.disabledTaxFlag = false
     this.addressShowFlag = false
     this.ChallanId =0
@@ -1999,28 +1974,22 @@ getGSTByLedgerAddress(ledgerId){
     this.trsnItemId = 1
     this.itemsAttribute = []
     this.transactions =[]
- 
-    
+    this.getModuleSettingData() 
     this.editItemId = 0
-
-    if (this.editMode) {
-      this.getModuleSettingData()
-     this.getSPUtilityDataBilling()
-    }
-
+    this.getSPUtilityDataBilling()
     this.getCurrency()
     this.initComp()
-    $('#sale_challan_billing_form').modal(UIConstant.MODEL_SHOW)
+    $('#sale_direct_form').modal(UIConstant.MODEL_SHOW)
   }
 
   closeModal() {
-    if ($('#sale_challan_billing_form').length > 0) {
-      $('#sale_challan_billing_form').modal(UIConstant.MODEL_HIDE)
+    if ($('#sale_direct_form').length > 0) {
+      $('#sale_direct_form').modal(UIConstant.MODEL_HIDE)
     }
   }
 
   closeInvoice() {
-    this._commonService.closeChallanBill()
+    this._commonService.closeSaleDirect()
   }
 
   invalidObj: Object = {}
@@ -2132,7 +2101,6 @@ validationForItemData(){
   editAlreadyItemDataFlag:boolean
 
   getSaleChllanEditData(id) {
-    debugger;
     this._commonService.getChallanDataByIdForBilling(id).subscribe(data => {
      console.log(JSON.stringify(data), 'editData----------->>');
       if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -2228,7 +2196,7 @@ validationForItemData(){
               Length:element.Length,
               Width: element.Width,
               Height:element.Height,
-              ChallanId:element.ChallanId,
+              // ChallanId:element.ChallanId,
               Rate: element.SaleRate,
               UnitId: element.UnitId,
               ItemId: element.ItemId,
@@ -2261,6 +2229,7 @@ validationForItemData(){
   CurrencyRate:any =0
 InterestRate:any
 sendAttributeData:any
+CommisionRate:any
 totalChallan:any
 InterestType:any
 InvoiceDateChngae:any
@@ -2300,13 +2269,11 @@ else{
      
       let obj = {}
       obj['Id'] = 0
-    //  obj['Commission'] = this.Commission
-    //  obj['CommissionType'] = this.CommissionTypeID
-      obj['ChallanIds'] = this.ChallanIds
+     obj['Commission'] = this.CommisionRate
+     obj['CommissionType'] = this.CommisionRateType
       obj['BillNo'] = this.BillNo
       obj['BillDate'] = this.InvoiceDateChngae 
       obj['DueDate'] = this.DueDateChngae
-
       obj['BillAmount'] = this.netBillAmount,
      // obj['ConvertedAmount'] = this.BillAmount,
       obj['CurrencyRate'] = this.CurrencyRate,
@@ -2314,10 +2281,10 @@ else{
       obj['Freight'] = this.TotalFreight
       obj['FreightMode'] = this.freightById
       obj['PartyId'] = this.clientNameId
-     // obj['ReferId'] = this.referalsID
-     // obj['ReferTypeId'] = this.referalsTypeID
-      // obj['ReferralComission'] = this.BillAmount,
-      // obj['ReferralComissionTypeId'] = this.BillAmount,
+     obj['ReferId'] = this.referalsID
+     obj['ReferTypeId'] = this.referalsTypeID
+      obj['ReferralComission'] = this.CommisionRate,
+      obj['ReferralComissionTypeId'] = this.CommisionRateType,
       obj['ReverseCharge'] = 0
       obj['ReverseTax'] = 0
       obj['CessAmount'] = 0
@@ -2326,33 +2293,33 @@ else{
       obj['TotalTaxAmount'] = this.totalTaxAmount,
       obj['TotalChallan'] = this.totalChallan,
       obj['stateId'] = this.stateId,
-      // obj['Drivername'] = this.BillAmount,
-      // obj['Transportation'] = this.BillAmount,
+      obj['Drivername'] = this.Drivername,
+      obj['Transportation'] = this.Transportation,
       obj['TotalQty'] = this.TotalQuantity,
       obj['OtherCharge'] = this.OtherCharge,
       obj['GodownId'] = this.godownId,
       obj['CurrencyId'] = 0,
       obj['OrgId'] = this.orgNameId,
-      obj['InterestRate'] = this.InterestRate,
+       obj['InterestRate'] = this.InterestRate,
       obj['InterestAmount'] = 0
       obj['InterestType'] = this.InterestRateType
       obj['OrderId'] = 0
       obj['Advanceamount'] = 0
       obj['NetAmount'] = this.netBillAmount
-      obj['AddressId'] = 0
+      obj['AddressId'] = this.stateId
       obj['ConvertedCurrencyId'] = 0
       obj['PaymentDetail'] = this.transactions
       obj['Items'] = this.items
       obj['ItemAttributeTrans'] = this.sendAttributeData
       let _self = this
-      console.log('sale-challan -bill-request : ',JSON.stringify(obj))
-      this._commonService.postSaleChallanBillingAPI(obj).subscribe(
+      console.log('sale-direct-request : ',JSON.stringify(obj))
+      this._commonService.postSaleDirectAPI(obj).subscribe(
         (data: any) => {
           if (data.Code === UIConstant.THOUSAND) {
             _self.toastrService.showSuccess(UIConstant.SUCCESS, UIConstant.SAVED_SUCCESSFULLY)
             _self._commonService.newSaleAdded()
             if (!_self.keepOpen) {
-              _self._commonService.closeChallanBill()
+              _self._commonService.closeSaleDirect()
             } else {
               _self.initComp()
               _self.clearExtras()
@@ -2403,7 +2370,6 @@ else{
   editTransId:any
   ChallanId:any
   addressShowFlag:any
-  attrinuteSetDataId:any
   editRowItem(type,index, item, editId, attributeData,) {
    this.addressShowFlag = false
    this.editAttributeData = attributeData
@@ -2437,12 +2403,7 @@ else{
       this.categoryName = item.CategoryName
       this.categoryId = item.CategoryId
       this.taxSelect2.setElementValue(item.TaxSlabId)
-    for(let i= 0; i  < this.editAttributeData.length; i++ ){
-     this.attrinuteSetDataId[i] = this.editAttributeData[i].AttributeId
-
-    }
-   
-
+      //this.catSelect2.setElementValue(item.CategoryId)
       this.unitSelect2.setElementValue(item.UnitId)
       this.itemSelect2.setElementValue(item.ItemId)
       this.deleteItem('items',index)

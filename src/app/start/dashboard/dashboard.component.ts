@@ -68,8 +68,8 @@ export class DashboardComponent {
   routeSalesChallan () {
     this._route.navigate([URLConstant.SALE_CHALLAN])
   }
-  //  routeSalesChallanBilling () {
-  //   this._route.navigate([URLConstant.SALE_CHALLAN_BILLING])
-  // }
+   routeDirectSale () {
+    this._route.navigate([URLConstant.SALE_DIRECT])
+  }
 
 }

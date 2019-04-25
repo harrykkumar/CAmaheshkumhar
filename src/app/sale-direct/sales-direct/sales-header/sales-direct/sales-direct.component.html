@@ -1,4 +1,4 @@
-<div class="modal fade" id="sale_challan_billing_form" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="sale_direct_form" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog large_form modal-full-height modal-top" role="document">
     <div class="modal-content bgcH-grey-100">
       <div class="modal-header primary-bg">
@@ -91,7 +91,7 @@
                 </div>
               </div>
             </div>
-                    <div *ngIf="addressShowFlag" class="form-group col-md-6">
+                    <div  class="form-group col-md-6">
                   <label>Address </label>
                     <div class="input-group adw_select">
                      <select2 [disabled]="disabledAddressFlag" #state_Select2Id [data]="stateList" class="control_select"
@@ -221,7 +221,7 @@
   
                    <div class="input-group adw_select ">
                     <select2 #atrColour_id [data]="allAttributeData && allAttributeData[i]?.item" class="control_select " (valueChanged)="onChangeAttribute($event ,i ,allAttributeData)" autocomplete="true"
-                    [options]="attributeColourPlaceHolder" [value]="attrinuteSetDataId{{i}}"  ></select2>
+                    [options]="attributeColourPlaceHolder" [value]="attrinuteSetDataId"  ></select2>
                   </div>
                     </td>
 
@@ -335,28 +335,74 @@
           <div class="form-row mt-4">
             <div class="col-md-4 card p-3">
                   <div class="form-row">
+
+            <div class="form-group col-md-6">
+                  <label class="">Location To</label>
+                 <input type="text" class="form-control" id="Location" placeholder="Location" (input)="checkValidation()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.EwayBillNo }" class="form-control" name="Location" [(ngModel)]="LocationTo">
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Vehicle Number</label>
+                  <input type="text" class="form-control" id="VehicleNo" placeholder="Vehicle No" (input)="checkValidation()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.VehicleNo }" class="form-control" name="VehicleNo" [(ngModel)]="VehicleNo">
+                </div>
+                  <div class="form-group col-md-6">
+                  <label>Driver Name</label>
+                   <input type="text" class="form-control" id="Drivername" placeholder="Driver name" (input)="checkValidation()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.Drivername }" class="form-control" name="Drivername" [(ngModel)]="Drivername">
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Transportation</label>
+                  <input type="text" class="form-control" id="Transportation" placeholder="Transportation" (input)="checkValidation()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.Transportation }" class="form-control" name="Transportation" [(ngModel)]="Transportation">
+                </div>
+                 <div class="form-group col-md-6">
+                  <label for="bill_no">Referal </label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2 #referal_id [data]="referals" class="control_select " (valueChanged)="onChangeReferals($event)" [options]="referalsPlaceHolder"  autocomplete="true" [value]='' ></select2>
+                    </div>
+                  </div>
+                </div>
+               <div class="form-group col-md-6">
+                  <label for="bill_no">Referal Type </label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2 #referal_type  [data]="referalsType" class="control_select " (valueChanged)="onChangeReferalsType($event)" [value]='' autocomplete="true" [options]="referalsTypePlaceHolder"  ></select2>
+                    </div>
+                  </div>
+                </div>
+               
+          
+           
+                 <div class="form-group col-md-4">
+                  <label>Total Discount </label>
+                   <input type="number" disabled="true" class="form-control" id="Commission" placeholder="Total Discount" (input)="checkValidation()" class="form-control" name="Commission" [(ngModel)]="totalDiscount">
+                </div>
+                  <div class="form-group col-md-4">
+                  <label>Total Tax </label>
+                   <input type="number" disabled="true"  class="form-control" id="TaxAmount" placeholder="Total Tax" (input)="checkValidation()"  class="form-control" name="totalTaxAmount" [(ngModel)]="totalTaxAmount">
+                </div>
+                <div class="form-group  col-md-4">
+                        <label> Commission</label>
+                               <div class="discount">
+                                <input type="text" class="form-control Input_width" appIncludeDecimal name="CommisionRate"  placeholder="Commission " [(ngModel)]="CommisionRate">
+                                <select (ngModelChange)="changeCommisiontrate($event)" class="form-control discount_type" id="CommisionRate" [(ngModel)]="CommisionRateType"  name="CommisionRateType" >
+                                  <option *ngFor="let value of currencyValues;" [value]="value.id" >{{value.symbol}}</option>
+                                </select>
+                              </div>
+                      </div>
                 <div class="form-group col-md-4">
                   <label>Other Charge</label>
                   <input type="number" (input)="calculate()" class="form-control" id="OtherCharge" placeholder="Other Charge" [ngClass]="{'errorSelecto': submitSave && invalidObj?.OtherCharge }" class="form-control" name="OtherCharge" [(ngModel)]="OtherCharge">
                 </div>
                 <div class="form-group col-md-4">
-                  <label>Total Freight</label>
+                  <label> Freight</label>
                  <input type="text" class="form-control"  id="TotalFreight" placeholder="Total Freight" (input)="checkValidation();calculate()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.TotalFreight }" class="form-control" name="TotalFreight" [(ngModel)]="TotalFreight">
                 </div>
                 <div class="form-group col-md-4">
                   <label>Freight-By</label>
                   <div class="input-group adw_select">
-                      <select2 [disabled]="true" #freight_By [data]="freightByData" class="control_select " (valueChanged)="onChangeFreight($event)" [options]="frightPlaceholder" autocomplete="true" [value]="freightByValue"  [ngClass]="{ 'errorSelecto is-invalid ': submitClick &&  catagoryError }"></select2>
+                      <select2  #freight_By [data]="freightByData" class="control_select " (valueChanged)="onChangeFreight($event)" [options]="frightPlaceholder" autocomplete="true" [value]="freightByValue"  [ngClass]="{ 'errorSelecto is-invalid ': submitClick &&  catagoryError }"></select2>
                     </div>
                 </div>
-                <div class="form-group col-md-6">
-                  <label>Total Discount </label>
-                   <input type="number" disabled="true" class="form-control" id="Commission" placeholder="Total Discount" (input)="checkValidation()" class="form-control" name="Commission" [(ngModel)]="totalDiscount">
-                </div>
-                  <div class="form-group col-md-6">
-                  <label>Total Tax </label>
-                   <input type="number" disabled="true"  class="form-control" id="TaxAmount" placeholder="Total Tax" (input)="checkValidation()"  class="form-control" name="totalTaxAmount" [(ngModel)]="totalTaxAmount">
-                </div>
+               
                 
 
                 <div class="form-group col-md-4">

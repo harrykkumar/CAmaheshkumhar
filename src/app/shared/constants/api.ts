@@ -191,5 +191,7 @@ export class ApiConstant {
 
   public static get USER_PERMISSION (): string { return this.BASE_URL + '/api/v1/setting/userpermission' }
  
+  public static get SALE_DIRECT_BILLING_API (): string { return this.BASE_URL + '/api/v1/ims/sale' }
+
 }
                     

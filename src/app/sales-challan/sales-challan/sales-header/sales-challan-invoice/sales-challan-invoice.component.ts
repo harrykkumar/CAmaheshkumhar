@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core'
+import { Component, ViewChild ,ViewChildren,QueryList } from '@angular/core'
 import { Subscription } from 'rxjs'
 import { AddCust, ResponseSale } from '../../../../model/sales-tracker.model'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
@@ -124,9 +124,10 @@ export class SalesChallanInvoiceComponent {
   categoryPlaceHolder: Select2Options
   editMode: boolean
   Id: any
+  CommisionRateType:any
   editItemId: any
   clientDateFormat: string = ''
-
+industryId:any
   constructor(private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
     private _ledgerServices: VendorServices,
     private toastrService: ToastrCustomService,
@@ -134,6 +135,8 @@ export class SalesChallanInvoiceComponent {
     public _globalService: GlobalService,
     public _settings: Settings) {
 this.clientDateFormat = this._settings.dateFormat
+this.industryId = this._settings.industryId
+    this.CommisionRateType = 0
 
     this.clientNameSelect2 = []
     this.suplierNameSelect2 = []
@@ -203,7 +206,7 @@ this.clientDateFormat = this._settings.dateFormat
             this.editMode = true
             this.Id = status.editId
           }
-          this.setDefaultSelectovalue()
+        //  this.setDefaultSelectovalue()
           this.openModal()
         } else {
           this.closeModal()
@@ -220,7 +223,7 @@ this.clientDateFormat = this._settings.dateFormat
             this.categoryType = newData
             this.cateGoryValue = +data.id
             this.categoryId = +data.id
-            this.catSelect2.setElementValue(this.categoryId)
+            ///this.catSelect2.setElementValue(this.categoryId)
           }
           if (data.type === 'subCat' && data.parentId) {
             let newData = Object.assign([], this.subCategoryType)
@@ -236,23 +239,11 @@ this.clientDateFormat = this._settings.dateFormat
     this.Id = 0
     this.AttrId = 0
     this.editItemId = 0
-    this.getDataforItemSaleChallan();
     this.getFreightValueData()
-    
     this.initComp()
-    //  this.getCurrency()
     this.setSupplyDate()
-    // this.getItemMasterDetail()
     this.selectTax = []
-
-    //  this.getTaxtDetail(0)
-
-
-    // this.categoryList(0)
-    //  this.getCategoryDetails()
-   
   }
-  @ViewChild('cat_select2') catSelect2: Select2Component
   @ViewChild('item_select2') itemSelect2: Select2Component
   @ViewChild('atrColour_id') atrColorSelect2: Select2Component
   @ViewChild('atrSize_id') atrSizeSelect2: Select2Component
@@ -261,7 +252,6 @@ this.clientDateFormat = this._settings.dateFormat
   initComp() {
     this.initialiseItem()
     this.initialiseParams()
-    //  this.initialiseTransaction()
   }
   attributesLabels: any;
   unitDataType: any
@@ -279,7 +269,9 @@ this.clientDateFormat = this._settings.dateFormat
 allAttributeData:any
 prototype:any
 tempAttribute:any
+categorylabels:any
   getDataforItemSaleChallan() {
+
         this.subscribe = this._commonService.getSPUtilityData(UIConstant.SALE_CHALLAN_TYPE).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
@@ -295,6 +287,7 @@ tempAttribute:any
              AttributeId :data.Data.AttributeValueResponses[j].AttributeId
           })
 }
+
 this.attributesLabels = newData
 console.log(this.attributesLabels ,'attrilabel')
       for(let k=0; k < this.attributesLabels.length; k++ ){
@@ -318,8 +311,9 @@ console.log(this.attributesLabels ,'attrilabel')
 }
 
         
-
-    
+if(this.Id !== 0){
+ this.getSaleChllanEditData(this.Id)
+}
 
           this.unitDataType = []
           this.unitPlaceHolder = { placeholder: 'Select Unit' }
@@ -358,19 +352,6 @@ console.log(this.attributesLabels ,'attrilabel')
         }
         this.clientNameSelect2 = newData
 
-       //  this.categoryType = []
-       // this.categoryPlaceHolder = { placeholder: 'Select Category' }
-       // this.categoryType = [{ id: UIConstant.BLANK, text: 'Select  Category' }, { id: '-1', text: '+Add New' }]
-       //  if (data.Data && data.Data.ItemCategorys.length > 0) {
-       //    data.Data.ItemCategorys.forEach(element => {
-       //      if (element.ParentId === UIConstant.ZERO) {
-       //        this.categoryType.push({
-       //          id: element.Id,
-       //          text: element.Name
-       //        })
-       //      }
-       //    })
-       //  }
         this.itemCategoryType = []
         this.itemCategoryData = data.Data.Items
         this.itemcategoryPlaceHolder = { placeholder: 'Select Item' }
@@ -386,30 +367,38 @@ console.log(this.attributesLabels ,'attrilabel')
         }
         // add Referals  
         this.referals = []
+        let newRefdata =[]
         this.referalsPlaceHolder = { placeholder: 'Select  Referals' }
-        this.referals = [{ id: UIConstant.BLANK, text: 'Select Referals' }]
+       this.referals = [{ id: '-1', text: 'Select Referals' }]
         if (data.Data && data.Data.Referals.length > 0) {
           data.Data.Referals.forEach(element => {
-            this.referals.push({
+           newRefdata.push({
               id: element.Id,
               text: element.Name,
 
             })
 
           })
+           this.referals = newRefdata
         }
+       if (data.Data && data.Data.ItemCategorys.length > 0) {      
+             this.getCatagoryDetail(data.Data.ItemCategorys)
+         }
+
         // add Referals  type
         this.referalsType = []
+       let newRftype =[]
         this.referalsTypePlaceHolder = { placeholder: 'Select  Type' }
-        this.referalsType = [{ id: UIConstant.BLANK, text: 'Select Type' }]
+       this.referalsType = [{ id: '-1', text: 'Select Type' }]
         if (data.Data && data.Data.ReferalTypes.length > 0) {
           data.Data.ReferalTypes.forEach(element => {
-            this.referalsType.push({
+            newRftype.push({
               id: element.Id,
               text: element.CommonDesc
             })
 
           })
+          this.referalsType = newRftype
         }
 
       }
@@ -420,7 +409,7 @@ console.log(this.attributesLabels ,'attrilabel')
   referalsID: any
   onChangeReferals(event) {
     if (event.data.length > 0) {
-      if (event.data[0].id !== UIConstant.BLANK) {
+      if (event.data[0].id !== '-1') {
         if (event.data[0].text) {
           this.referalsID = event.value
         }
@@ -430,7 +419,7 @@ console.log(this.attributesLabels ,'attrilabel')
   referalsTypeID: any
   onChangeReferalsType(event) {
     if (event.data.length > 0) {
-      if (event.data[0].id !== UIConstant.BLANK) {
+      if (event.data[0].id !== '-1') {
         if (event.data[0].text) {
           this.referalsTypeID = event.value
         }
@@ -549,16 +538,8 @@ else{
 
       })
 }
-console.log(this.itemsAttribute ,'attribute')
   }
 
-// checkAttributeValidation(attributeIndex){
-// if(attributeIndex){
-
-//   let attrIndex = this.itemsAttribute.filter(s=>s.Index === attributeIndex)
-
-// }
-// }
 
   
   freightByData: any
@@ -568,23 +549,17 @@ console.log(this.itemsAttribute ,'attribute')
     this.freightByData = []
     this.frightPlaceholder = { placeholder: 'Select freight ' }
     this.freightByData = [{ id: '0', text: 'Select freight' }, { id: '1', text: 'Paid' }, { id: '2', text: 'To-pay' }]
-    this.freightById =this.freightByData[1].id
-    //return this.freightByValue = value
+   // this.freightById =this.freightByData[1].id
+    
   }
-setDefaultSelectovalue(){
-  this.commision_TypeSelect2.selector.nativeElement.value = ''
-  this.orgnizationSelect2.selector.nativeElement.value = ''
-
-  this.commision_TypeSelect2.setElementValue(this.CommissionTypeID)
-  this.orgnizationSelect2.setElementValue(this.orgNameId)
-}
 
 
+CommissionTypeId:any
   getCommisionTypeValue() {
     debugger;
     this.CommissionType = []
     this.CommissionType = [ { id: '1', text: '%' }, { id: '2', text: '$' }]
-     this.CommissionTypeID =   this.CommissionType[0].id
+     this.CommissionTypeId =   this.CommissionType[0].id
      
     // this.onChangeCommissionType(this.CommissionTypeID)
   }
@@ -595,9 +570,9 @@ setDefaultSelectovalue(){
           this.freightById = event.value
         }
       }
-      else {
-        this.freightById = '0'
-      }
+      // else {
+      //   this.freightById = '0'
+      // }
     }
   }
   godownId:any
@@ -702,15 +677,20 @@ onChangeGodown(event){
         this.itemCategoryType = [{ id: UIConstant.BLANK, text: 'Select  Item' }, { id: '-1', text: '+Add New' }]
         if (data.Data && data.Data.length > 0) {
           data.Data.forEach(element => {
-            // if (element.CategoryId === JSON.parse(this.SenderId) ) {
+            if (element.CategoryId === categoryId ) {
             this.itemCategoryType.push({
               id: element.Id,
               text: element.Name,
               categoryId: element.CategoryId
             })
-            //}
+            }
           })
         }
+      }
+      else{
+         this.itemCategoryType =[]
+        this.itemCategoryType = [{ id: UIConstant.BLANK, text: 'Select  Item' }, { id: '-1', text: '+Add New' }]
+
       }
       if (data.Code === 5004) {
         this.itemCategoryType = [{ id: UIConstant.BLANK, text: 'Select  Item' }, { id: '-1', text: '+Add New' }]
@@ -719,27 +699,11 @@ onChangeGodown(event){
     })
   }
   categoryName: any
-  onSelectCategory(event) {
-    if (event.data.length > 0) {
-      if (event.data[0].id !== UIConstant.BLANK) {
-        if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
-          this.catSelect2.selector.nativeElement.value = ''
-          this._commonService.openCategory('', false)
-        } else {
-          this.categoryId = event.value
-          this.categoryName = event.data[0].text;
-          this.getItemByCategoryid(this.categoryId);
-          this.validationForItemData()
-        }
-      }
-    }
-  }
+  
   itemCategoryId: any
   ItemName: any;
   itemAddRequiredFlag:boolean 
   onSelectItemCategory(event) {
-   // alert("kk")
-      //this.itemAddRequiredFlag = true
     if (event.data.length > 0) {
       if (event.data[0].id !== "") {
         if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
@@ -748,75 +712,54 @@ onChangeGodown(event){
         } else {
          this.itemCategoryId = event.value
           this.ItemName = event.data[0].text;
-
           this.categoryId = event.data[0].categoryId;
+          this.updateCategories(this.categoryId)
          //this.getAllSubCategory(this.categoryId)
           this.validationForItemData()
         }
       }
     }
   }
-     // data.Data.ItemCategorys.forEach(element => {
-          //   if (element.ParentId === UIConstant.ZERO) {
-          //     this.categoryType.push({
-          //       id: element.Id,
-          //       text: element.Name
-          //     })
-          //   }
-          // })
-  //
-  categoryTypeData:any
-getAllSubCategory(value){
-     this.categoryType = []
-       this.categoryPlaceHolder = { placeholder: 'Select Category' }
-        let newData = [{ id: UIConstant.BLANK, text: 'Select Category' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }] 
- this.subscribe = this._itemmasterServices.getAllSubCategories(1).subscribe(data => {
-if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
-//if(value !== 0){
-        data.Data.forEach(element => {
-         // if(element.Id === value){
-           newData.push({
-            id: element.Id,
-            text: element.Name
-          })
-        //  }
- // return  this.cateGoryValue = value
-    this.categoryType = newData
-//console.log(data,'category')
 
-        })
-       
-//}
-// else{
-//    data.Data.forEach(element => {
+  categoryTypeData:any
+// getAllSubCategory(value){
+//      this.categoryType = []
+//        this.categoryPlaceHolder = { placeholder: 'Select Category' }
+//         let newData = [{ id: UIConstant.BLANK, text: 'Select Category' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }] 
+//  this.subscribe = this._itemmasterServices.getAllSubCategories(1).subscribe(data => {
+// if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+// //if(value !== 0){
+//         data.Data.forEach(element => {
 //            newData.push({
 //             id: element.Id,
 //             text: element.Name
 //           })
-//         })
+//         //  }
 //     this.categoryType = newData
-//       }
-    }
-  })
- }
+
+//         })
+       
+//     }
+//   })
+//  }
 
   autoCategory: any
-  getCategoryDetails(value) {
-    let newData = [{ id: UIConstant.BLANK, text: 'Select  Category' }, { id: '-1', text: '+Add New' }]
-    this.subscribe = this._categoryServices.GetCatagoryDetail(UIConstant.BLANK).subscribe(Data => {
-      if (Data.Code === UIConstant.THOUSAND && Data.Data.length > UIConstant.ZERO) {
-        Data.Data.forEach(element => {
-          if (element.Id === value) {
-            newData.push({
-              id: element.Id,
-              text: element.Name
-            })
-          }
-        })
-        this.cateGoryValue = value
-      }
-    })
-  }
+  // getCategoryDetails(value) {
+  //   let newData = [{ id: UIConstant.BLANK, text: 'Select  Category' }, { id: '-1', text: '+Add New' }]
+  //   this.subscribe = this._categoryServices.GetCatagoryDetail(UIConstant.BLANK).subscribe(Data => {
+  //     if (Data.Code === UIConstant.THOUSAND && Data.Data.length > UIConstant.ZERO) {
+  //       Data.Data.forEach(element => {
+  //         if (element.Id === value) {
+  //           newData.push({
+  //             id: element.Id,
+  //             text: element.Name
+  //           })
+  //         }
+  //       })
+  //       this.cateGoryValue = value
+  //     }
+  //   })
+  // }
 
   setupOrganization: any
   organizationData: any
@@ -825,12 +768,9 @@ if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
     let _self = this
     this.getAvailableCurrency().toPromise().then(
       (data: ResponseSale) => {
-  
-
         if (data.Code === UIConstant.THOUSAND && data.Data.SetupModules.length > 0) {
           _self.setupModules = data.Data.SetupModules[0]
           if (!this.editMode) {
-            //   alert("ih")
             if (!_self.setupModules.IsBillNoManual) {
               _self.BillNo = _self.setupModules.BillNo
             }
@@ -891,11 +831,9 @@ if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
 
             this.organizationData = this.organizationData[1].id
             this.OrgId = data.Data.SetupOrganization[1].id
-         //   this.BillNo =  data.Data.SetupOrganization[0].BillNo
-            console.log( this.organizationData ,"--->organizationData1")
           }
           else {
-            this.enableDisableflagOrgName = true
+        //    this.enableDisableflagOrgName = true
           }
         }
 
@@ -1131,7 +1069,6 @@ snoIndex:any
     this.Quantity = ''
     this.TotalAmount = 0
     this.clickItem = false
-    this.getCategoryDetails(0)
     this.getItemByCategoryid(0)
    
   }
@@ -1147,8 +1084,8 @@ snoIndex:any
   @ViewChild('freight_By') freightBySelect2: Select2Component
   @ViewChild('referal_type') referal_typeSelect2: Select2Component
   @ViewChild('referal_id') referal_idSelect2: Select2Component
-  @ViewChild('commision_Type') commision_TypeSelect2: Select2Component
-
+//  @ViewChild('commision_Type') commision_TypeSelect2: Select2Component
+currencyValues:any
   initialiseParams() {
     this.items = []
     this.localItemas =[]
@@ -1190,14 +1127,15 @@ snoIndex:any
     this.ParcelLength = 0
     this.ParcelHeight = 0
     this.ParcelWidth = 0
+    this.currencyValues = [{ id: 0, symbol: '%' },{ id: 1, symbol: '$' }]
 
 
     if (this.clientSelect2  && this.clientSelect2.selector.nativeElement.value) {
       this.clientSelect2.setElementValue('')
     }
-    if (this.catSelect2 && this.catSelect2.selector.nativeElement.value) {
-      this.catSelect2.setElementValue('')
-    }
+    // if (this.catSelect2 && this.catSelect2.selector.nativeElement.value) {
+    //   this.catSelect2.setElementValue('')
+    // }
     if (this.itemSelect2 && this.itemSelect2.selector.nativeElement.value) {
       this.itemSelect2.setElementValue('')
     }
@@ -1211,9 +1149,9 @@ snoIndex:any
     } if (this.referal_idSelect2 && this.referal_idSelect2.selector.nativeElement.value) {
       this.referal_idSelect2.setElementValue('')
     }
-    if (this.commision_TypeSelect2 && this.commision_TypeSelect2.selector.nativeElement.value) {
-      this.commision_TypeSelect2.setElementValue('')
-    }
+    // if (this.commision_TypeSelect2 && this.commision_TypeSelect2.selector.nativeElement.value) {
+    //   this.commision_TypeSelect2.setElementValue('')
+    // }
     if (this.stateSelect2Id && this.stateSelect2Id.selector.nativeElement.value) {
       this.stateSelect2Id.setElementValue('')
     }
@@ -1222,8 +1160,6 @@ snoIndex:any
     }
 
   }
-  // cat_select2
-  // item_select2
   setTravelDate() {
 
     let _self = this
@@ -1237,7 +1173,6 @@ snoIndex:any
   }
 
   setPayDate() {
-
     let _self = this
     jQuery(function ($) {
       flatpickr('#pay-date', {
@@ -1246,46 +1181,52 @@ snoIndex:any
       })
     })
   }
-
   setBillDate() {
  
     let _self = this
-    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
+    if (this.backDateEntry) {
       jQuery(function ($) {
         flatpickr('#bill-date', {
-          maxDate: 'today',
           dateFormat: _self.clientDateFormat,
-          // defaultDate: 'today',
-          //enableTime: true
+       defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
 
         }
 )      })
     } else {
       jQuery(function ($) {
         flatpickr('#bill-date', {
-          
           minDate: 'today',
           dateFormat:_self.clientDateFormat,
-          defaultDate: 'today',
-         // enableTime: true
+      defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
+       
 
         })
       })
     }
+    this.InvoiceDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
+
   }
 
-
   setSupplyDate() {
-
     let _self = this
+  if (this.backDateEntry) {
     jQuery(function ($) {
+      flatpickr('#supply-date', {
+        dateFormat: _self.clientDateFormat,
+       defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
+      })
+    })
+}
+else{
+      jQuery(function ($) {
       flatpickr('#supply-date', {
         minDate: 'today',
         dateFormat: _self.clientDateFormat,
-      //  defaultDate: 'today',
-        //enableTime: true
+       defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
       })
     })
+}
+    this.SupplyDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
 
   }
 
@@ -1302,41 +1243,15 @@ snoIndex:any
 
   }
 closebtn(){
-     this.commision_TypeSelect2.setElementValue('')
+    // this.commision_TypeSelect2.setElementValue('')
 
 }
-
-
-  // totalQty() {
-  //   if (this.items.length === 0) {
-  //     this.TotalQuantity = (isNaN(+this.Quantity)) ? 0 : +this.Quantity
-  //   }
-  //   else {
-  //     let totalQty = 0
-  //     for (let i = 0; i < this.items.length; i++) {
-  //       totalQty = +totalQty + +this.items[i].Quantity
-  //     }
-  //     this.TotalQuantity = (isNaN(+totalQty)) ? 0 : +totalQty
-  //   }
-  // }
-
-
-
-
-
-
 
   calculateTotalOfRow() {
     let  totalQty = 0;
     let Rate = (isNaN(+this.Rate)) ? 0 : +this.Rate
     let Quantity = (isNaN(+this.Quantity)) ? 0 : +this.Quantity
-
 this.TotalAmount = Rate * Quantity
-    // if(totalQty){
-    //     totalQty = totalQty + +this.TotalQuantity 
-     
-    // }
-    // this.TotalQuantity  = totalQty
         let totalAmount = this.TotalAmount
         return isNaN(totalAmount) ? 0 : totalAmount
 
@@ -1382,12 +1297,6 @@ this.TotalAmount = Rate * Quantity
             totalQty = totalQty
          }
     this.TotalQuantity = totalQty
-
-    // else{
-
-    //     totalBillAmt += +this.Rate * this.Quantity
-
-    // }
     this.netBillAmount = totalBillAmt + +this.TotalAllFreight + +this.OtherAllCharge + +this.totalCommsion 
 
 }
@@ -1445,9 +1354,7 @@ totalCommsion:any
     let netAmt =0
     for (let i = 0; i < this.localItemas.length; i++) {
       totalAmount = +totalAmount + +(this.localItemas[i].Quantity * this.localItemas[i].SaleRate)
-     // totalQty = +totalQty + +this.localItemas[i].Quantity 
-
-
+ 
     }
 
     if (!this.clickItem) {
@@ -1509,10 +1416,8 @@ totalCommsion:any
     this.newCustAddSub.unsubscribe()
     this.newCustAddCutomer.unsubscribe()
     this.newNewAddress.unsubscribe()
-    //   this.newVendAddSub.unsubscribe()
-    // this.newLedgerAddSub.unsubscribe()
   }
-
+loginCategoryLevel:any
   openModal() {
     this.getCommisionTypeValue()
     this.godownId = 0
@@ -1522,16 +1427,9 @@ totalCommsion:any
     this.localLabelData =[]
     this.trsnItemId = 1
     this.itemsAttribute = []
-    this.getAllSubCategory(0)
-     this.getDataforItemSaleChallan();
- this.editItemId = 0
-    if (this.editMode) {
-      this.getSaleChllanEditData(this.Id)
-     // this.editItemId = 0
-    }
-    else {
-
-    }
+    this.getDataforItemSaleChallan();
+    this.getModuleSettingData()
+    this.editItemId = 0
     this.getCurrency()
     this.setSupplyDate()
     this.initComp()
@@ -1669,9 +1567,7 @@ validationForItemData(){
   ArticleCode: any
   editAlreadyItemDataFlag:boolean
   getSaleChllanEditData(id) {
-    // this.getAddressOfCustomerByID(0,0)
     this._commonService.saleEditChallan(id).subscribe(data => {
-   //   console.log(JSON.stringify(data), 'editData----------->>');
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data && data.Data.InventoryTransactionSales.length > 0) {
           this.inventoryItemSales = []
@@ -1683,11 +1579,12 @@ validationForItemData(){
           this.stateId = this.inventoryItemSales[0].SupplyState
           this.orgnizationSelect2.setElementValue(this.inventoryItemSales[0].OrgId)
           this.clientSelect2.setElementValue(this.inventoryItemSales[0].LedgerId)
-          this.commision_TypeSelect2.setElementValue(this.inventoryItemSales[0].CommissionType)
+          this.CommisionRateType = this.inventoryItemSales[0].CommissionType
+console.log(this.CommisionRateType ,'jjjjjjjjjjjjjjjjjjjjj00000000')
           this.freightBySelect2.setElementValue(this.inventoryItemSales[0].FreightMode)
           this.referal_typeSelect2.setElementValue(this.inventoryItemSales[0].ReferTypeid)
           this.referal_idSelect2.setElementValue(this.inventoryItemSales[0].ReferId)
-          this.catSelect2.setElementValue(this.inventoryItemSales[0].CategoryId)
+        //  this.catSelect2.setElementValue(this.inventoryItemSales[0].CategoryId)
           this.BillNo = this.inventoryItemSales[0].BillNo;
           this.InvoiceDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].BillDate, this.clientDateFormat) 
           this.SupplyDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].SupplyDate, this.clientDateFormat)
@@ -1821,11 +1718,11 @@ SupplyDateChngae:any
       obj['FreightMode'] = this.freightById
       obj['ReferId'] = this.referalsID
       obj['ReferTypeId'] = this.referalsTypeID
-      obj['Commission'] = this.Commission
-      obj['CommissionType'] = this.CommissionTypeID
+      obj['Commission'] = this.CommisionRate
+      obj['CommissionType'] = this.CommisionRateType
       obj['OtherCharge'] = this.OtherCharge
       obj['TotalQuantity'] = this.TotalQuantity
-      obj['BillAmount'] = this.BillAmount
+      obj['BillAmount'] = this.netBillAmount
       obj['Items'] = this.items
       obj['itemAttributeTrans'] = this.sendAttributeData
       let _self = this
@@ -1904,7 +1801,7 @@ SupplyDateChngae:any
 
       this.Rate = item.SaleRate
       this.TotalAmount = this.Quantity * this.Rate
-      this.catSelect2.setElementValue(item.CategoryId)
+    //  this.catSelect2.setElementValue(item.CategoryId)
       this.unitSelect2.setElementValue(item.UnitId)
       this.itemSelect2.setElementValue(item.ItemId)
       this.deleteItem(index)
@@ -1915,9 +1812,185 @@ SupplyDateChngae:any
    
   
   }
+categories:any
+createModels (levels) {
+   // console.log('levels : ', levels)
+   this.categories = []
+   let obj = { placeholder: 'Select Category',
+     value: 'category',
+     data: [{ id: '0', text: 'Select Category' }],
+     level: 1
+   }
+   this.categories.push({ ...obj })
+   if (levels > 1) {
+     for (let i = 0; i < levels - 1; i++) {
+       obj['value'] = 'sub' + this.categories[this.categories.length - 1].value
+       obj['level'] = this.categories[this.categories.length - 1].level + 1
+       obj['data'] = [{ id: '0', text: 'Select Category' }]
+       this.categories.push({ ...obj })
+     }
+   }
+   // console.log('categories : ', this.categories)
+ }
+ loading:boolean
+ catLevel:any = 3
+allCategories: any = []
+ getCatagoryDetail (data) {
+   if(data.length > 0){
+      // console.log('category data : ', data)
+   for (let i = 0; i < this.catLevel; i++) {
+     this.categories[i].data = [{ id: '0', text: 'Select Category' }]
+   }
+   this.allCategories = [ ...data ]
+   let _self = this
+   data.forEach(category => {
+     _self.categories[category.LevelNo - 1].data.push({
+       text: category.Name,
+       id: category.Id
+     })
+   })
+   for (let i = 0; i < this.catLevel; i++) {
+     this.categories[i].data = Object.assign([], this.categories[i].data)
+   }
+   // console.log('dynamic categories : ', this.categories)
+   this.loading = false
+   }
+  
+ }
 
 
+onSelectCategory (evt, levelNo) {
+   if (+evt.value > 0) {
+     if (levelNo === this.catLevel) {
+       if (this.categoryId !== +evt.value) {
+         this.categoryId = +evt.value
+         this.categoryName = evt.data[0].text
+         console.log('categoryname : ', this.categoryName)
+         console.log('category id : ', this.categoryId)
+         this.getItemByCategoryid(this.categoryId);
+       
+         //this.validateItem()
+         this.updateCategories(+evt.value)
+       }
+     } else {
+       if (levelNo < this.catLevel) {
+         let categoryId = +evt.value
+         let newData = []
+         this.categories[levelNo].data = [{ id: '0', text: 'Select Category' }]
+         this.allCategories.forEach(category => {
+           if (category.LevelNo !== levelNo && category.LevelNo > levelNo) {
+             if (category.ParentId === categoryId) {
+               newData.push({
+                 text: category.Name,
+                 id: category.Id
+               })
+             }
+           } else {
+             this.categories[category.LevelNo - 1].data.push({
+               text: category.Name,
+               id: category.Id
+             })
+           }
+         })
+         this.categories[levelNo].data = Object.assign([], newData)
+         this.loading = false
+       }
+     }
+   } else if (+evt.value === 0) {
+     this.getCatagoryDetail(this.allCategories)
+   }
+ }
 
+parentMostCategory:any
+@ViewChildren('cat_select2') catSelect2: QueryList<Select2Component>
+
+ updateCategories (childmostId) {
+   let categoryId = childmostId
+   this.getParentMostCat(childmostId, this.catLevel)
+   categoryId = this.parentMostCategory
+   if (+this.categoryId !== +childmostId || this.editItemId !== -1) {
+     this.categoryId = +childmostId
+     this.catSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
+       if (index === 0) {
+         item.setElementValue(categoryId)
+       } else if (index === (this.catLevel - 1)) {
+         item.setElementValue(+childmostId)
+       }
+     })
+     let evt = { value: categoryId, data: [{ text: '' }] }
+     this.onSelectCategory(evt, 1)
+   }
+ }
+getParentMostCat (id, level) {
+   let parentMostCategory = 0
+   while (level !== 0) {
+     this.allCategories.forEach(category => {
+       if (id === category.Id) {
+         parentMostCategory = category.Id
+         id = category.ParentId
+         level--
+       }
+     })
+   }
+   console.log('parentMostCategory : ', parentMostCategory)
+   this.parentMostCategory = parentMostCategory
+ }
+ applyCustomRateOnItemFlag:any
+ localItemRate:any
+ backDateEntry:boolean =false
+ isManualBillNoEntry:boolean =false
+
+ 
+getModuleSettingData(){
+   let checkForCustomItemRate;
+   let checkForCatLevel;
+   let checkForBackDateEntry;
+   let checkforBillManualNo
+ this.applyCustomRateOnItemFlag = false
+ this.localItemRate = true;
+ this.subscribe = this._commonService.getModulesettingAPI('SaleChallan').subscribe(data=>{
+if(data.Code === UIConstant.THOUSAND ){
+  if(data.Data && data.Data.SetupMasters && data.Data.SetupMasters.length &&  data.Data.SetupClients.length >0){
+    data.Data.SetupMasters.forEach(ele => {
+      // check for item custom rate and apply for this custom rate // SetupId = 12 for apply custom Rate
+       checkForCustomItemRate = data.Data.SetupClients.filter(s=> (s.SetupId === ele.Id) && (ele.Id=== 12) )
+                if ( checkForCustomItemRate.length > 0) {               
+                   this.applyCustomRateOnItemFlag = true;
+                  
+                }
+                //check for category level
+                checkForCatLevel = data.Data.SetupClients.filter(s=> (s.SetupId === ele.Id) && (ele.Id=== 1) )
+                if ( checkForCatLevel.length > 0) { 
+                      this.loginCategoryLevel = JSON.parse(checkForCatLevel[0].Val)
+                  
+                }
+                //back date entry 
+                  checkForBackDateEntry = data.Data.SetupClients.filter(s=> (s.SetupId === ele.Id) && (ele.Id=== 58) )
+                if ( checkForBackDateEntry.length > 0) { 
+                     this.backDateEntry  = JSON.parse(checkForBackDateEntry[0].Val);
+                 
+                } 
+                //  id master 22 /Sale BillNo Manual Entry
+                checkforBillManualNo = data.Data.SetupClients.filter(s=> (s.SetupId === ele.Id) && (ele.Id=== 22) )
+                 if ( checkforBillManualNo.length > 0) { 
+                      this.isManualBillNoEntry = JSON.parse(checkforBillManualNo[0].Val) ;
+                  
+                }
+
+    })
+
+
+  }
+     this.createModels(this.loginCategoryLevel)
+
+ console.log(this.backDateEntry  ,'setupSetting-module')
+ }
+})
+}
+CommisionRate:any
+changeCommisiontrate(e){
+ this.CommisionRateType = e === '0' ? 0 : 1
+}
 }
 
 

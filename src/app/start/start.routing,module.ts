@@ -90,11 +90,12 @@ const routes: Routes = [
       {
         path: 'user-rights',
         loadChildren: '../user/user-rights/user-rights.module#UserRightsModule'
+      },
+        {
+        path: 'ims/sale-direct',
+        loadChildren: '../sale-direct/sales-direct/sales-direct.module#SalesDirectModule'
       }
-      //  {
-      //   path: 'ims/sale-billing/billing',
-      //   loadChildren: '../sales-challan/sales-billing/sales-challan-bill.module#SalesChallanBillingModule'
-      // }
+     
     ]
   }
 ]

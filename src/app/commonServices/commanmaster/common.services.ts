@@ -39,6 +39,7 @@ export class CommonService {
   private newCatOrSubCatAdded = new Subject()
   private newCompositeAdded = new Subject()
   private openChallanBillingSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openSaleDirectSubject = new BehaviorSubject<AddCust>({ 'open': false })
 
   /* Regex Patterns  ---b */
   companyNameRegx = `^[A-Za-z0-9&-]+$`
@@ -546,4 +547,25 @@ postSaleChallanBillingAPI (input) {
   setupSettingByType (type) {
     return this._basesService.getRequest(ApiConstant.SETTING_SETUP_BY_TYPE + type)
   }
+
+//sale direct HARRY
+   openSaleDirect (editId) {
+    this.openSaleDirectSubject.next({ 'open': true ,'editId' : editId })
+  }
+
+  closeSaleDirect () {
+    this.openSaleDirectSubject.next({ 'open': false })
+  }
+
+  getSaleDirectStatus (): Observable<any> {
+    return this.openSaleDirectSubject.asObservable()
+  }
+  postSaleDirectAPI (input) {
+  return this._basesService.postRequest( ApiConstant.SALE_DIRECT_BILLING_API,input)
+}
+getListSaleDirect (){
+  return this._basesService.getRequest( ApiConstant.SALE_DIRECT_BILLING_API)
+
+
+}
 }

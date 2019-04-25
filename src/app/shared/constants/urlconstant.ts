@@ -48,4 +48,8 @@ export class URLConstant {
   public static get ATTRIBUTE_ADD (): string { return 'ims/attribute' }
 
  public static get SALE_CHALLAN_BILLING (): string {return 'ims/sale-billing/billing'}
+
+ public static get SALE_DIRECT (): string {return 'ims/sale-direct/direct'}
+
+ 
 }
