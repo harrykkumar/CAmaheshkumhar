@@ -801,7 +801,7 @@ onChangeGodown(event){
         }
 
 
-        if (data.Data && data.Data.SetupOrganization && data.Data.SetupOrganization.length > 1) {
+        if (data.Data && data.Data.SetupOrganization && data.Data.SetupOrganization.length > 0) {
           this.organizationData = []
           this.orgnazationPlaceHolder = { placeholder: 'Select Organization' }
           this.organizationData = [{ id: UIConstant.BLANK, text: 'Select  Organization' }]
@@ -813,28 +813,11 @@ onChangeGodown(event){
               text: ele.Name
             })
           })
-          this.orgnizationSelect2.setElementValue('')
-            this.orgNameId = this.organizationData[1].id
-          console.log(this.orgNameId  ,"organizationData4")
+           this.orgnizationSelect2.setElementValue(this.orgNameId)
+          this.orgNameId = this.organizationData[1].id
+          return this.orgNameId
 
-          if (data.Data&& data.Data.SetupOrganization && data.Data.SetupOrganization.length === UIConstant.ONE) {
-            _self.BillNo = _self.setupModules.BillNo
-          _self.setupOrganization = data.Data.SetupOrganization;
-            this.enableDisableflagOrgName = true
-                  data.Data.SetupOrganization.forEach(ele => {
-            this.organizationData.push({
-              id: ele.Id,
-              text: ele.Name
-            })
-          })
-          this.orgnizationSelect2.setElementValue('')
-
-            this.organizationData = this.organizationData[1].id
-            this.OrgId = data.Data.SetupOrganization[1].id
-          }
-          else {
-        //    this.enableDisableflagOrgName = true
-          }
+         
         }
 
 

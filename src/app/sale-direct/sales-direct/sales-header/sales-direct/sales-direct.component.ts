@@ -233,8 +233,6 @@ this.clientDateFormat = this._settings.dateFormat
           } else {
             this.editMode = true
             this.Id = status.editId
-           // this.ChallanIds = status.data
-           // this.allChallanNos =status.challanNos
           }
           this.openDirectModal()
          
@@ -253,7 +251,6 @@ this.clientDateFormat = this._settings.dateFormat
             this.categoryType = newData
             this.cateGoryValue = +data.id
             this.categoryId = +data.id
-            //this.catSelect2.setElementValue(this.categoryId)
           }
           if (data.type === 'subCat' && data.parentId) {
             let newData = Object.assign([], this.subCategoryType)
@@ -272,15 +269,9 @@ this.clientDateFormat = this._settings.dateFormat
     this.getFreightValueData()
     this.getCommisionTypeValue()
     this.initComp()
-  //  this.setSupplyDate()
-    // this.getItemMasterDetail()
     this.selectTax = []
 
-    //  this.getTaxtDetail(0)
 
-
-    // this.categoryList(0)
-    //  this.getCategoryDetails()
    
   }
  // @ViewChild('cat_select2') catSelect2: Select2Component
@@ -481,7 +472,6 @@ let newRefdata =[]
 
           })
            this.referalsType  = newRefTypeData
-           console.log( this.referalsType ,'ffffffffff-----------')
         }
          if (data.Data && data.Data.ItemCategorys.length > 0) {      
              this.getCatagoryDetail(data.Data.ItemCategorys)
@@ -498,13 +488,11 @@ let newRefdata =[]
 setCurrencyId :any
 officeAddressId :any
 onSelectCurrency(event){
-
      if (event.data && event.data[0].text) {
       this.CurrencyId = event.value
+      console.log(this.CurrencyId ,'jjjjjjhuhuhuhu8');
       this.defaultCurrency = event.data[0].text
       this.currencyValues[1] = { id: 1, symbol: event.data[0].text }
-     // this.checkForValidation()
-        //  this.checkValidation()
 
     }
 }
@@ -667,7 +655,6 @@ console.log(this.itemsAttribute ,'attribute')
     this.frightPlaceholder = { placeholder: 'Select freight ' }
     this.freightByData = [{ id: '0', text: 'Select freight' }, { id: '1', text: 'Paid' }, { id: '2', text: 'To-pay' }]
     this.freightById =this.freightByData[1].id
-    //return this.freightByValue = value
   }
 
   getCommisionTypeValue() {
@@ -717,15 +704,12 @@ onChangeTaxSlabType(event){
           if (event.data[0] && event.data[0].text) {
             this.taxSlabId = event.value;
             this.taxSlabName = event.data[0].text;
-           // console.log(this.taxSlabId ,'i-slab')
 
             this.onChangeSlabTax(this.taxSlabId)
-            //this.validationForItemData()
           }
         }
        }
 }
-//onChangeSlabGetTaxRate
 taxRate:any
 allTaxRateForItem:any
 alltaxVATTax:any
@@ -761,7 +745,6 @@ this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(da
       
     }
        }
-   // console.log(this.allTaxRateForItem, this.alltaxVATTax,'tax slab')
     this.calculate()
 
   }
@@ -806,10 +789,6 @@ this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(da
         this.stateListplaceHolder = { placeholder: 'Select Address' }
         this.stateList = [{ id: '0', text: 'select Address' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
         if (data.Data && data.Data.length > 0) {
-         
-console.log(data.Data,"cus dadd")
-          //text: element.AddressTypeName +'-'+   element.AddressValue ? element.AddressValue +  ' , ' : ""  +  element. AreaName ? element.AreaName +  ' , ' : " "  + element.CityName+ ' , ' + element.StateName + ' , ' + element.CountryName
-
           data.Data.forEach(element => {
             this.stateList.push({
               id: element.Id,
@@ -817,16 +796,10 @@ console.log(data.Data,"cus dadd")
               text: ((element.AddressTypeName ? (element.AddressTypeName + '-') : '') + (element.AddressValue ? (element.AddressValue + ' , ') : '') + (element.AreaName ? element.AreaName + ' , ' : '') + element.CityName + ' , ' + element.StateName + ' , ' + element.CountryName)
 
             })
-
          
           })
-           let alredayStateId =  this.stateList.filter(d=> d.stateId ===this.ledgerStateId)
-         if(alredayStateId.length >0){
-           this.ledgerStateId
-             this.stateValue = alredayStateId[0].id
-            return this.stateValue 
-         }
-          this.stateId = ''
+          this.stateValue = this.stateList[2].id
+            return this.stateValue          
           this.checkValidation()
         }
         else {
@@ -875,21 +848,6 @@ console.log(data.Data,"cus dadd")
     })
   }
   categoryName: any
-  // onSelectCategory(event) {
-  //   if (event.data.length > 0) {
-  //     if (event.data[0].id !== UIConstant.BLANK) {
-  //       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
-  //         this.catSelect2.selector.nativeElement.value = ''
-  //         this._commonService.openCategory('', false)
-  //       } else {
-  //         this.categoryId = event.value
-  //         this.categoryName = event.data[0].text;
-  //         this.getItemByCategoryid(this.categoryId);
-  //         this.validationForItemData()
-  //       }
-  //     }
-  //   }
-  // }
   itemCategoryId: any
   ItemName: any;
   itemAddRequiredFlag:boolean 
@@ -910,14 +868,10 @@ console.log(data.Data,"cus dadd")
 
           this.getItemRateByLedgerData(this.itemCategoryId,this.clientNameId)
           }
-         //this.getAllSubCategory(this.categoryId)
          this.updateCategories(this.categoryId)
           this.validationForItemData()
         }
-        // if(this.editItemId === 0){
-        //   this.getAddressOfCustomerByID(this.clientNameId ,5)
-        //     this.addressShowFlag = true
-        // }
+      
       }
     }
   }
@@ -928,7 +882,6 @@ console.log(data.Data,"cus dadd")
         newItemsList.push(item)
       }
     })
-   // this.purchaseService.createItems(newItemsList)
   }
 disabledAddressFlag:boolean = false
   selectStatelist(event) {
@@ -936,7 +889,6 @@ disabledAddressFlag:boolean = false
       if (event.data[0].id !== "") {
         if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
           this.stateSelect2Id.selector.nativeElement.value = ''
-
           this._commonService.openAddress(this.clientNameId)
 
         }
@@ -946,7 +898,6 @@ disabledAddressFlag:boolean = false
           this.checkOtherStateForNewItemAdd()
           this.onChangeSlabTax(this.taxSlabId)
           this.calculate()
-       //  console.log( this.ledgerStateId  ,"kk")
           this.stateId = event.value
           this.stateError = false
           this.checkValidation()
@@ -957,50 +908,7 @@ disabledAddressFlag:boolean = false
     }
 
   }
-     // data.Data.ItemCategorys.forEach(element => {
-          //   if (element.ParentId === UIConstant.ZERO) {
-          //     this.categoryType.push({
-          //       id: element.Id,
-          //       text: element.Name
-          //     })
-          //   }
-          // })
-  //
   categoryTypeData:any
-// getAllSubCategory(value){
-//      this.categoryType = []
-//        this.categoryPlaceHolder = { placeholder: 'Select Category' }
-//         let newData = [{ id: UIConstant.BLANK, text: 'Select Category' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }] 
-//  this.subscribe = this._itemmasterServices.getAllSubCategories(1).subscribe(data => {
-// if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
-// //if(value !== 0){
-//         data.Data.forEach(element => {
-//          // if(element.Id === value){
-//            newData.push({
-//             id: element.Id,
-//             text: element.Name
-//           })
-//         //  }
-//  // return  this.cateGoryValue = value
-//     this.categoryType = newData
-// //console.log(data,'category')
-
-//         })
-       
-// //}
-// // else{
-// //    data.Data.forEach(element => {
-// //            newData.push({
-// //             id: element.Id,
-// //             text: element.Name
-// //           })
-// //         })
-// //     this.categoryType = newData
-// //       }
-//     }
-//   })
-//  }
-
   autoCategory: any
   getCategoryDetails(value) {
     let newData = [{ id: UIConstant.BLANK, text: 'Select  Category' }, { id: '-1', text: '+Add New' }]
@@ -1025,23 +933,16 @@ disabledAddressFlag:boolean = false
     let _self = this
     this.getAvailableCurrency().toPromise().then(
       (data: ResponseSale) => {
-  
-
         if (data.Code === UIConstant.THOUSAND && data.Data.SetupModules.length > 0) {
           _self.setupModules = data.Data.SetupModules[0]
-
             if (_self.setupModules.IsBillNoManual === 0) {
-      
               _self.BillNo = _self.setupModules.BillNo
-              //this.enableDisableflagOrgName = true
             }
             else{
                _self.BillNo = _self.setupModules.BillNo
-              //this.enableDisableflagOrgName = false
             }
          // }
 
-         // _self.setSupplyDate()
           _self.setBillDate()
           _self.setPayDate()
           this.setExpiryDate()
@@ -1063,43 +964,34 @@ disabledAddressFlag:boolean = false
               })
             }
           })
-               // console.log(data.Data.SetupSettings ,'fffffffffffffffffffff')
           _self.currenciesSelect2 = newData
           _self.isDataAvailable = true
         }
 
         if (data.Data && data.Data.SetupSettings &&  data.Data.SetupSettings.length > 0) {
-       // console.log(data.Data.SetupSettings,'setting')
           data.Data.SetupSettings.forEach(ele => {
-            // if (ele.SetupId === 28 && ele.Val === '1,2,3') {
             
-            // }
+    
           })
         }
  
         if (data.Data && data.Data.SetupOrganization && data.Data.SetupOrganization.length > 0) {
           this.organizationData = []
+
           this.orgnazationPlaceHolder = { placeholder: 'Select Organization' }
           this.organizationData = [{ id: UIConstant.BLANK, text: 'Select  Organization' }]
           _self.setupOrganization = data.Data.SetupOrganization;
-          //console.log(  data.Data.SetupOrganization  ,"organizationData4")
           data.Data.SetupOrganization.forEach(ele => {
             this.organizationData.push({
               id: ele.Id,
               text: ele.Name
             })
           })
-          if (data.Data&& data.Data.SetupOrganization && data.Data.SetupOrganization.length === UIConstant.ONE) {
-            _self.BillNo = _self.setupModules.BillNo
-          //  this.enableDisableflagOrgName = true
-            this.organizationData = this.organizationData[0].id
-            this.OrgId = data.Data.SetupOrganization[0].id
-         //   this.BillNo =  data.Data.SetupOrganization[0].BillNo
-          //  console.log( this.organizationData ,"--->organizationData1")
-          }
-          // else {
-          //   this.enableDisableflagOrgName = true
-          // }
+         
+          this.orgnizationSelect2.setElementValue(this.orgNameId)
+          this.orgNameId = this.organizationData[1].id
+          return this.orgNameId
+       
         }
 
 
@@ -1122,7 +1014,6 @@ disabledAddressFlag:boolean = false
           if (data.Code === 1000 && data.Data.length > 0) {
             this.OrgId = data.Data[0].Id
            this.BillNo = data.Data[0].BillNo
-           // console.log(this.BillNo,data,"kkk")
           }
 
         })
@@ -1890,6 +1781,31 @@ calTotalBillAmount(){
 
     this.subTotalBillAmount = totalBillAmt
 
+    if(!this.clickTrans){
+
+     let unBilledAmt = 0
+    for (let i = 0; i <= this.transactions.length - 1; i++) {
+      unBilledAmt = unBilledAmt + +this.transactions[i].Amount
+    }
+    unBilledAmt = (isNaN(+unBilledAmt)) ? 0 : +unBilledAmt
+    this.netBillAmount = (isNaN(+this.netBillAmount)) ? 0 : +this.netBillAmount
+      let lastAmt =  this.netBillAmount - unBilledAmt
+      let amt = this.netBillAmount - lastAmt
+      let amt2 = amt - unBilledAmt
+      this.Amount = lastAmt  + amt2 
+
+
+   
+    }
+    else{
+    this.Amount = this.netBillAmount
+    }
+
+
+    if(this.Amount > 0) {
+    this.validateTransaction()
+    }
+
 }
 
 
@@ -1911,6 +1827,7 @@ calTotalBillAmount(){
     this.netBillAmount = (isNaN(+this.netBillAmount)) ? 0 : +this.netBillAmount
     if (!this.clickTrans) {
       let amount = JSON.parse(this.Amount)
+
       if (amount) {
         paymentTotal += amount
       }
@@ -2117,6 +2034,10 @@ validationForItemData(){
           this.orgnizationSelect2.setElementValue(this.inventoryItemSales[0].OrgId)
           this.clientSelect2.setElementValue(this.inventoryItemSales[0].LedgerId)
           this.freightBySelect2.setElementValue(this.inventoryItemSales[0].FreightMode)
+          this.stateSelect2Id.setElementValue(this.stateId)
+
+          // this.stateValue = this.stateList[2].id
+           // return this.stateValue  
          // this.catSelect2.setElementValue(this.inventoryItemSales[0].CategoryId)
           this.InvoiceDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].BillDate, this.clientDateFormat) ;
           console.log(this.InvoiceDate ,'billdate')
@@ -2298,9 +2219,9 @@ else{
       obj['TotalQty'] = this.TotalQuantity,
       obj['OtherCharge'] = this.OtherCharge,
       obj['GodownId'] = this.godownId,
-      obj['CurrencyId'] = 0,
+      obj['CurrencyId'] = this.CurrencyId,
       obj['OrgId'] = this.orgNameId,
-       obj['InterestRate'] = this.InterestRate,
+      obj['InterestRate'] = this.InterestRate,
       obj['InterestAmount'] = 0
       obj['InterestType'] = this.InterestRateType
       obj['OrderId'] = 0
@@ -2355,6 +2276,8 @@ else{
     }
     if(type === 'trans'){
       this.transactions.splice(a, 1)
+      this.unBilledAmount()
+      
     }
 
   }
@@ -2416,7 +2339,7 @@ else{
            if(this.deleteEditPaymentFlag){
       this.editTransId = editId
       this.snoForPAymentId  = item 
-
+this.deleteEditPaymentFlag = false
       //index = index - 1
       if (+this.transactions[index].PayModeId === 3) {
         this.paymodeSelect2.setElementValue('')
@@ -2429,7 +2352,8 @@ else{
         this.LedgerId = this.transactions[index].LedgerId
         this.ledgerName = this.transactions[index].ledgerName
         this.Amount = this.transactions[index].Amount
-        this.PayDate = this.transactions[index].PayDate
+          this.PayDate = this._globalService.utcToClientDateFormat(this.transactions[index].PayDate, this.clientDateFormat) ;
+
         this.ChequeNo = this.transactions[index].ChequeNo
         this.paymodeSelect2.setElementValue(this.PayModeId)
         this.ledgerSelect2.setElementValue(this.LedgerId)
@@ -2492,20 +2416,13 @@ snoForPAymentId:any
     this.Paymode = ''
     this.PayModeId = 0
     this.LedgerId = 0
-    this.Amount = 0
+    this.Amount = this.Amount
     this.PayDate = ''
     this.ChequeNo = ''
     this.paymode = 0
     this.ledger = 0
     this.ledgerName = ''
     this.editTransId = 0
-
-    // if (this.ledgerSelect2) {
-    //   this.ledgerSelect2.setElementValue('')
-    // }
-   // if (this.paymodeSelect2) {
-     // this.paymodeSelect2.setElementValue('')
-    //}
     this.clickTrans = false
   }
 
@@ -2558,7 +2475,7 @@ snoForPAymentId:any
       console.log(error)
     },
     () => {
-      if (this.editTransId  && this.snoForPAymentId > 0 && this.transactions[i]) {
+      if (this.snoForPAymentId === this.transactions[i].Sno && this.transactions[i]) {
         this.Paymode = this.transactions[i].Paymode
         this.PayModeId = this.transactions[i].PayModeId
         this.LedgerId = this.transactions[i].LedgerId
@@ -2574,10 +2491,10 @@ snoForPAymentId:any
     })
   }
 
-
   addTransactions () {
       this.deleteEditPaymentFlag = true
     if (this.Paymode && this.PayModeId && this.LedgerId && this.ledgerName && this.Amount && this.PayDate) {
+
       if (this.checkValidationForAmount()) {
         this.addTransaction()
         this.clickTrans = true
@@ -2589,15 +2506,24 @@ snoForPAymentId:any
   }PayModeId:any
 LedgerId:any
 payDateVar:any
+
+
+unBilledAmount(){
+   let unBilledAmt = 0
+    for (let i = 0; i <= this.transactions.length - 1; i++) {
+      unBilledAmt = unBilledAmt + +this.transactions[i].Amount
+    }
+    unBilledAmt = (isNaN(+unBilledAmt)) ? 0 : +unBilledAmt
+    this.netBillAmount = (isNaN(+this.netBillAmount)) ? 0 : +this.netBillAmount
+    if (!this.clickTrans) {
+      this.Amount =  this.netBillAmount - unBilledAmt
+
+    }
+}
+
+
     addTransaction () {
-       if(this.PayDate !== ''){
      this.payDateVar = this._globalService.clientToSqlDateFormat(this.PayDate, this.clientDateFormat)
-    }
-    else{
-        this.payDateVar =''
-    }
-
-
     if (this.transactions.length === 0) {
       this.transactions.push({
         Id: 0,
@@ -2627,6 +2553,7 @@ payDateVar:any
     if (this.editTransId !== 0) {
       this.transactions[this.transactions.length - 1].Id = this.editTransId
     }
+    this.unBilledAmount()
   }
 applyCustomRateOnItemFlag:any
 localItemRate :any
@@ -2688,24 +2615,18 @@ getItemRateByLedgerData (ItemId,CustomerId) {
     if(Data.Code === UIConstant.THOUSAND){
      if(this.applyCustomRateOnItemFlag){
        if( Data.Data && Data.Data.ItemCustomRateWithItemDetails.length > 0){
-         //  this.categoryName = Data.Data.ItemCustomRateWithItemDetails[0].CategoryName
            this.Rate = Data.Data.ItemCustomRateWithItemDetails[0].SaleRate
            this.MrpRate =Data.Data.ItemCustomRateWithItemDetails[0].Mrp
            this.unitId =Data.Data.ItemCustomRateWithItemDetails[0].UnitId
            this.taxSlabId =Data.Data.ItemCustomRateWithItemDetails[0].TaxId
            this.UnitName =Data.Data.ItemCustomRateWithItemDetails[0].UnitName
            this.taxSlabName =Data.Data.ItemCustomRateWithItemDetails[0].TaxSlab
-        //   this.itemCategoryId = Data.Data.ItemCustomRateWithItemDetails[0].ItemId
            this.taxSelect2.setElementValue(this.taxSlabId)
            this.unitSelect2.setElementValue(this.unitId)
 
   }
 }
  if(Data.Data && Data.Data.ItemDetails.length > 0){
-    // if(Data.Data && Data.Data.ItemDetails.length > 0){
-           //this.categoryName = Data.Data.ItemDetails[0].CategoryName
-        //   this.itemCategoryId = Data.Data.ItemDetails[0].ItemId
-
             this.unitId =Data.Data.ItemDetails[0].UnitId
            this.taxSlabId =Data.Data.ItemDetails[0].TaxId
             this.UnitName =Data.Data.ItemDetails[0].UnitName
@@ -2721,15 +2642,12 @@ getItemRateByLedgerData (ItemId,CustomerId) {
 
   this.onChangeSlabTax(this.taxSlabId)
    this.calculate()
-     // console.log(Data ,'item-rate')
     }
   })
 
 }
 
 checkOtherStateForNewItemAdd(){
-//  console.log(this.ledgerStateId ,"jjjjjjjjjjjjj")
-  debugger;
   if(this.officeAddressId === this.ledgerStateId){
     this.taxRateForOtherStateFlag = false;
   }
@@ -2740,8 +2658,6 @@ checkOtherStateForNewItemAdd(){
 }
 categories:any
 createModels (levels) {
-  debugger;
-   // console.log('levels : ', levels)
    this.categories = []
    let obj = { placeholder: 'Select Category',
      value: 'category',
@@ -2779,14 +2695,12 @@ allCategories: any = []
    for (let i = 0; i < this.catLevel; i++) {
      this.categories[i].data = Object.assign([], this.categories[i].data)
    }
-   // console.log('dynamic categories : ', this.categories)
    this.loading = false
    }
  
  }
 
 onSelectCategory (evt, levelNo) {
-   // console.log('evt on change of category : ', evt, 'level : ', levelNo)
    if (+evt.value > 0) {
      if (levelNo === this.catLevel) {
        if (this.categoryId !== +evt.value) {
@@ -2820,7 +2734,6 @@ onSelectCategory (evt, levelNo) {
            }
          })
          this.categories[levelNo].data = Object.assign([], newData)
-         // console.log('dynamic categories : ', this.categories)
          this.loading = false
        }
      }
@@ -2836,7 +2749,6 @@ parentMostCategory:any
    let categoryId = childmostId
    this.getParentMostCat(childmostId, this.catLevel)
    categoryId = this.parentMostCategory
-   // console.log('category id : ', categoryId)
    if (+this.categoryId !== +childmostId || this.editItemId !== -1) {
      this.categoryId = +childmostId
      this.catSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
@@ -2851,8 +2763,6 @@ parentMostCategory:any
    }
  }
 getParentMostCat (id, level) {
-   // console.log('id : ', id)
-   // console.log('level : ', level)
    let parentMostCategory = 0
    while (level !== 0) {
      this.allCategories.forEach(category => {
@@ -2863,7 +2773,6 @@ getParentMostCat (id, level) {
        }
      })
    }
-   console.log('parentMostCategory : ',  this.allCategories)
    this.parentMostCategory = parentMostCategory
  }
 

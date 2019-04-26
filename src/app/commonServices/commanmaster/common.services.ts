@@ -40,6 +40,7 @@ export class CommonService {
   private newCompositeAdded = new Subject()
   private openChallanBillingSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openSaleDirectSubject = new BehaviorSubject<AddCust>({ 'open': false })
+  private openPrintAddSub = new BehaviorSubject<AddCust>({ 'open': false })
 
   /* Regex Patterns  ---b */
   companyNameRegx = `^[A-Za-z0-9&-]+$`
@@ -401,6 +402,10 @@ export class CommonService {
       this.openAddressAddSub.next({ 'open': false })
     }
   }
+  getAddressStatus () {
+    return this.openAddressAddSub.asObservable()
+  }
+
 
   public addAreaNameUnderCity (param) {
     return this._basesService.postRequest(ApiConstant.ADD_AREA_UNDER_CITY_ID ,param)
@@ -409,9 +414,6 @@ export class CommonService {
     return this._basesService.getRequest(ApiConstant.SEARCH_COUNTRY_BY_ID_AND_NAME + name)
   }
 
-  getAddressStatus () {
-    return this.openAddressAddSub.asObservable()
-  }
 
   getSaleChallanSettings (type) {
     return this._basesService.getRequest(ApiConstant.SETTING_SALE_CHALLAN + type)
@@ -566,6 +568,25 @@ postSaleChallanBillingAPI (input) {
 getListSaleDirect (){
   return this._basesService.getRequest( ApiConstant.SALE_DIRECT_BILLING_API)
 
+}
+
+  openPrint (id,type) {
+    this.openPrintAddSub.next({ 'open': true, 'id': id ,'type':type})
+  }
+
+  closePrint (address) {
+    if (address) {
+      this.openPrintAddSub.next({ 'open': false, 'name': address.name, 'id': address.id })
+    } else {
+      this.openPrintAddSub.next({ 'open': false })
+    }
+  }
+  getprintStatus () {
+    return this.openPrintAddSub.asObservable()
+  }
+printDirectSale(id){
+  return this._basesService.getRequest( ApiConstant.DIRECT_SALE_PRINT_API+id)
 
 }
+
 }

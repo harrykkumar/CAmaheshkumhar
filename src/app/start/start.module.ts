@@ -29,6 +29,7 @@ import { AddressAddModule } from '../shared/transactionMaster/address/address-ad
 import { AttributeAddModule } from '../shared/transactionMaster/attribute-add/attribute-add.module'
 import { OrganisationProfileComponent } from './header/organisation-profile/organisation-profile.component';
 import { SharedModule } from '../shared/shared.module';
+import { PrintModule } from '../shared/transactionMaster/print/print-add/print.module'
 @NgModule({
   declarations: [
     HeaderComponent,
@@ -63,7 +64,8 @@ import { SharedModule } from '../shared/shared.module';
     TaxAddModule,
     AddressAddModule,
     AttributeAddModule,
-    SharedModule
+    SharedModule,
+    PrintModule,
   ],
   bootstrap: []
 })

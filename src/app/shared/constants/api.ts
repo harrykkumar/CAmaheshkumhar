@@ -193,5 +193,7 @@ export class ApiConstant {
  
   public static get SALE_DIRECT_BILLING_API (): string { return this.BASE_URL + '/api/v1/ims/sale' }
 
+  public static get DIRECT_SALE_PRINT_API (): string { return this.BASE_URL + '/api/v1/ims/sale/print?Id=' }
+
 }
                     

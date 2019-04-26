@@ -504,7 +504,9 @@
                           </div>
                         </div>
                       </td>
+                      
                       <td><input type="text" appIncludeDecimal name="Amount" class="form-control" id="Amount" [(ngModel)]="Amount" (input)="validateTransaction()" [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans) }" placeholder="Enter Amount"></td>
+
                       <td><input type="text" name="PayDate" id="pay-date" class="form-control flatpickr" [(ngModel)]="PayDate" (input)="validateTransaction()" [ngClass]="{'errorSelecto': invalidObj?.PayDate && (submitSave || !clickTrans) }" placeholder="Select Date"></td>
                       <td><input type="text" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo" (input)="validateTransaction()" ></td>
                     </tr>

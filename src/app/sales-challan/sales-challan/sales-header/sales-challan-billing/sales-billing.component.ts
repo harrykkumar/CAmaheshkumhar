@@ -827,7 +827,6 @@ console.log(data.Data,"cus dadd")
           })
            let alredayStateId =  this.stateList.filter(d=> d.stateId ===this.ledgerStateId)
          if(alredayStateId.length >0){
-           this.ledgerStateId
              this.stateValue = alredayStateId[0].id
             return this.stateValue 
          }
@@ -1894,7 +1893,28 @@ calTotalBillAmount(){
 
     this.netBillAmount = totalBillAmt + +this.TotalAllFreight + +this.OtherAllCharge
     this.subTotalBillAmount = totalBillAmt
+       if(!this.clickTrans){
 
+     let unBilledAmt = 0
+    for (let i = 0; i <= this.transactions.length - 1; i++) {
+      unBilledAmt = unBilledAmt + +this.transactions[i].Amount
+    }
+    unBilledAmt = (isNaN(+unBilledAmt)) ? 0 : +unBilledAmt
+    this.netBillAmount = (isNaN(+this.netBillAmount)) ? 0 : +this.netBillAmount
+      let lastAmt =  this.netBillAmount - unBilledAmt
+      let amt = this.netBillAmount - lastAmt
+      let amt2 = amt - unBilledAmt
+      this.Amount = lastAmt  + amt2 
+
+
+   
+    }
+    else{
+    this.Amount = this.netBillAmount
+    }
+    if(this.Amount > 0) {
+    this.validateTransaction()
+    }
     //this.checkCreditLimitAmount()
 
 }
@@ -2388,6 +2408,7 @@ else{
     }
     if(type === 'trans'){
       this.transactions.splice(a, 1)
+      this.unBilledAmount()
     }
 
   }
@@ -2437,10 +2458,10 @@ else{
       this.categoryName = item.CategoryName
       this.categoryId = item.CategoryId
       this.taxSelect2.setElementValue(item.TaxSlabId)
-    for(let i= 0; i  < this.editAttributeData.length; i++ ){
-     this.attrinuteSetDataId[i] = this.editAttributeData[i].AttributeId
+    // for(let i= 0; i  < this.editAttributeData.length; i++ ){
+    //  this.attrinuteSetDataId[i] = this.editAttributeData[i].AttributeId
 
-    }
+    // }
    
 
       this.unitSelect2.setElementValue(item.UnitId)
@@ -2451,11 +2472,13 @@ else{
       this.toastrService.showWarning('Warning','First save item!')
     }
     }
-        if (type === 'trans' && !this.editTransId) {
+    if (type === 'trans' && !this.editTransId) {
+      debugger;
            if(this.deleteEditPaymentFlag){
       this.editTransId = editId
       this.snoForPAymentId  = item 
-
+this.deleteEditPaymentFlag = false
+        this.validateTransaction()
       //index = index - 1
       if (+this.transactions[index].PayModeId === 3) {
         this.paymodeSelect2.setElementValue('')
@@ -2467,8 +2490,8 @@ else{
         this.PayModeId = this.transactions[index].PayModeId
         this.LedgerId = this.transactions[index].LedgerId
         this.ledgerName = this.transactions[index].ledgerName
-        this.Amount = this.transactions[index].Amount
-        this.PayDate = this.transactions[index].PayDate
+        this.Amount = this.transactions[index].Amount 
+        this.PayDate = this._globalService.utcToClientDateFormat(this.transactions[index].PayDate, this.clientDateFormat) ;
         this.ChequeNo = this.transactions[index].ChequeNo
         this.paymodeSelect2.setElementValue(this.PayModeId)
         this.ledgerSelect2.setElementValue(this.LedgerId)
@@ -2476,7 +2499,7 @@ else{
       }
     }
     else{
-      this.toastrService.showWarning('Warning','First save Payment!')
+      this.toastrService.showWarning('Warning','First Save Payment!')
     }
 
     }
@@ -2531,7 +2554,7 @@ snoForPAymentId:any
     this.Paymode = ''
     this.PayModeId = 0
     this.LedgerId = 0
-    this.Amount = 0
+    this.Amount = this.Amount
     this.PayDate = ''
     this.ChequeNo = ''
     this.paymode = 0
@@ -2597,7 +2620,7 @@ snoForPAymentId:any
       console.log(error)
     },
     () => {
-      if (this.editTransId  && this.snoForPAymentId > 0 && this.transactions[i]) {
+      if (this.snoForPAymentId === this.transactions[i].Sno && this.transactions[i]) {
         this.Paymode = this.transactions[i].Paymode
         this.PayModeId = this.transactions[i].PayModeId
         this.LedgerId = this.transactions[i].LedgerId
@@ -2607,6 +2630,8 @@ snoForPAymentId:any
         this.ChequeNo = this.transactions[i].ChequeNo
         this.paymodeSelect2.setElementValue(this.PayModeId)
         this.ledger = this.LedgerId
+        this.validateTransaction()
+
        // this.ledgerSelect2.setElementValue(this.LedgerId)
         this.deleteItem('trans',i)
       }
@@ -2628,14 +2653,22 @@ snoForPAymentId:any
   }PayModeId:any
 LedgerId:any
 payDateVar:any
-    addTransaction () {
-       if(this.PayDate !== ''){
-     this.payDateVar = this._globalService.clientToSqlDateFormat(this.PayDate, this.clientDateFormat)
-    }
-    else{
-        this.payDateVar =''
-    }
 
+unBilledAmount(){
+   let unBilledAmt = 0
+    for (let i = 0; i <= this.transactions.length - 1; i++) {
+      unBilledAmt = unBilledAmt + +this.transactions[i].Amount
+    }
+    unBilledAmt = (isNaN(+unBilledAmt)) ? 0 : +unBilledAmt
+    this.netBillAmount = (isNaN(+this.netBillAmount)) ? 0 : +this.netBillAmount
+    if (!this.clickTrans) {
+      this.Amount =  this.netBillAmount - unBilledAmt
+
+    }
+}
+    addTransaction () {
+     this.payDateVar = this._globalService.clientToSqlDateFormat(this.PayDate, this.clientDateFormat)
+      console.log(this.payDateVar , this.PayDate ,"date")
 
     if (this.transactions.length === 0) {
       this.transactions.push({
@@ -2666,6 +2699,7 @@ payDateVar:any
     if (this.editTransId !== 0) {
       this.transactions[this.transactions.length - 1].Id = this.editTransId
     }
+    this.unBilledAmount()
   }
 applyCustomRateOnItemFlag:any
 localItemRate :any
