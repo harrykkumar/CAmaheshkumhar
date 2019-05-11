@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core'
 import { Observable, of, throwError } from 'rxjs'
 import { catchError } from 'rxjs/internal/operators/catchError'
 import { map } from 'rxjs/operators'
-import { UserFormService } from '../user-form/user-form.service'
 import * as _ from 'lodash'
+import { ResponseSale } from '../../model/sales-tracker.model'
+import { UserFormService } from '../user-form/user-form.service'
 
 @Component({
   selector: 'app-user-list',
@@ -24,7 +25,7 @@ export class UserListComponent implements OnInit {
 
   getUserListData = () => {
     this.userList = this._userService.getUserListData().pipe(
-      map((Data) => {
+      map((Data: ResponseSale) => {
         return _.map(Data.Data.LoginUserDetails, (element) => {
           const contactObject = _.find(Data.Data.ContactInfos, (contactList) => {
             if (contactList.ParentId === element.Id) {
@@ -51,6 +52,7 @@ export class UserListComponent implements OnInit {
     return throwError(error.message)
   }
 
+  // tslint:disable-next-line:no-empty
   searchUser = () => {
 
   }
@@ -70,6 +72,7 @@ export class UserListComponent implements OnInit {
     }
   }
 
+  // tslint:disable-next-line:no-empty
   deleteUser = (id) => {
 
   }

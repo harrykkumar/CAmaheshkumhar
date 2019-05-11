@@ -1,0 +1,25 @@
+<!-- <div *ngIf="loading" >Loading categories</div>
+<div *ngIf="!loading" >
+  <td *ngFor="let category of categories" >
+    <label for="bill_no">Category</label>
+    <div class="input-group adw_select">
+      <div class="input-group adw_select">
+        <select2 [data]="category.data" #cat_select2{{category.level}} class="control_select" 
+          (valueChanged)="selectCategory($event, category.level)"
+          autocomplete="true" [options]="{ placeholder: 'Select Category' }" [value]="category.value"
+        ></select2>
+      </div>
+    </div>
+  </td>
+</div> -->
+<div *ngIf="loading" ></div>
+<ng-container *ngIf="!loading" >
+  <td *ngFor="let category of categories" >
+    <div class="input-group adw_select" >
+      <select2 [data]="category.data" #cat_select2{{category.level}} class="control_select" 
+        (valueChanged)="selectCategory($event, category.level)"
+        autocomplete="true" [options]="{ placeholder: 'Select Category' }" [value]="category.value"
+      ></select2>
+    </div>
+  </td>
+</ng-container>

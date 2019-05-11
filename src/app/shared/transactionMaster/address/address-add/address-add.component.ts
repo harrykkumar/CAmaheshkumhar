@@ -50,7 +50,7 @@ export class AddressAddComponent {
     this.modalSub = this._CommonService.getAddressStatus().subscribe(
       (status: any) => {
         if (status.open) {
-          this.legerId = status.legerId
+          this.legerId = status.ledgerId
           this.openModal()
         } else {
           this.closeModal()
@@ -72,6 +72,7 @@ export class AddressAddComponent {
     this.getCountry(0)
     this.adressType(0)
     $('#addressPopup').modal(UIConstant.MODEL_SHOW)
+    // $('#add_area_Popup').modal(UIConstant.MODEL_SHOW)
 
   }
 
@@ -165,7 +166,7 @@ export class AddressAddComponent {
   }
 
   private getAreaId (id) {
-    debugger
+    // // debugger
     // this.openAreaModel()
     this.subscribe = this._coustomerServices.getAreaList(id).subscribe(Data => {
       console.log(' area list : ', Data)
@@ -202,7 +203,7 @@ export class AddressAddComponent {
   areaName: any
   areaAdd () {
     this.addAreaClick = true
-    debugger
+    // // debugger
     const addValue = {
       Id: 0,
       CommonDesc3: this.areaForm.value.areaName,
@@ -237,7 +238,7 @@ export class AddressAddComponent {
   }
 
   selectedArea (event) {
-    debugger
+    // // debugger
     //  alert("change")
     if (event.data.length > 0) {
       if (event.data[0].selected) {
@@ -320,10 +321,10 @@ export class AddressAddComponent {
   // }
 
   onSaveAddress () {
-    debugger
+    // // debugger
     this.addressClick = true
     this.addressDetailsValidation()
-    debugger
+    // // debugger
     if (this.countrId > 0 && this.stateId > 0 && this.cityId > 0 && this.addressForm.value.address !== null) {
       this.subscribe = this._CommonService.postAddNewAddress(this.addressParam()).subscribe(data => {
         if (data.Code === 1000 && data.Data.length > 0) {
@@ -346,7 +347,7 @@ export class AddressAddComponent {
     }
   }
   addressParam (): Addresses {
-    // debugger;
+    // // // debugger;
     const Obj = {
       addressObj: {
         Id: 0,

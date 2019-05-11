@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core'
-import { Observable, of, throwError } from 'rxjs';
-import { OrganisationProfileService } from '../../header/organisation-profile/organisation-profile.service';
-import { UIConstant } from 'src/app/shared/constants/ui-constant';
-import { map } from 'rxjs/internal/operators/map';
-import { catchError } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs'
+import { OrganisationProfileService } from '../../header/organisation-profile/organisation-profile.service'
+import { map } from 'rxjs/internal/operators/map'
+import { catchError } from 'rxjs/operators'
 
 @Component({
   selector: 'app-org-branch-list',
@@ -32,9 +31,6 @@ export class OrgBranchListComponent implements OnInit {
     console.error(error)
     return throwError(error.message)
   }
-  searchBranch = () => {
-
-  }
 
   addNewBranch = () => {
     this.openModal = {
@@ -59,10 +55,6 @@ export class OrgBranchListComponent implements OnInit {
       mode: 'EDIT',
       editId: item.Id
     }
-  }
-
-  deleteBranch = (id) => {
-
   }
 
   /* Function invoke on click of save and close of branch modal */

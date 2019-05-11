@@ -19,8 +19,8 @@ export class VendorServices {
 
   constructor (private _baseServices: BaseServices) { }
 
-  getVendor (id) {
-    return this._baseServices.getRequest(ApiConstant.VENDOR_URL + '?GLID=' + id)
+  getVendor (id, queryParams) {
+    return this._baseServices.getRequest(ApiConstant.VENDOR_URL + '?GLID=' + id + queryParams)
   }
 
   addVendore (parmas) {
@@ -67,10 +67,10 @@ export class VendorServices {
   sendEditVendoWithObservable (e) {
     this.sendVendorEditData.next(e)
   }
-    private sendCustomerData = new BehaviorSubject<any>([])
+  private sendCustomerData = new BehaviorSubject<any>([])
   getCustomerData = this.sendCustomerData.asObservable()
 
   sendCustomerDataObservable (e) {
-     this.sendCustomerData.next(e)
+    this.sendCustomerData.next(e)
   }
 }

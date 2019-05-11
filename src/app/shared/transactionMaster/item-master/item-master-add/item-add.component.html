@@ -38,8 +38,11 @@
                                         <label for="bill_no">Category</label>
                                         <div class="input-group adw_select">
                                             <div class="input-group adw_select">
-                                                <select2 [data]="categoryType" #cat_select2 class="control_select" (valueChanged)="selectedCategory($event)"
-                                                autocomplete="true" [options]="categoryPlaceHolder" [value]="cateGoryValue"
+                                                <select2 [data]="categoryType" #cat_select2 class="control_select"
+                                                 (valueChanged)="selectedCategory($event)"
+                                                 [disabled]="toDisableCat"
+                                                autocomplete="true" [options]="categoryPlaceHolder"
+                                                 [value]="cateGoryValue"
                                                 [ngClass]="{'errorSelecto': submitClick && invalidObj.CategoryId }"
                                                 ></select2>
                                             </div>
@@ -48,23 +51,35 @@
                                     <div class="form-group col-md-6">
                                         <label>Item Name </label>
                                         <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Enter Item Name" name="name"
-                                            [(ngModel)]="Name" (keyup)="searchForItemName($event.target.value)" [ngClass]="{'errorSelecto': ( submitClick && invalidObj.Name ) || existsCodes.name, 'loading': pendingCheck1 }" (input)="checkForValidation()" >
-                                        <span [ngClass]="{'spinner_tick': !pendingCheck1}" *ngIf="Name.length > 0 && !pendingCheck1" >
-                                            <i class="fas fa-check hideMe" *ngIf="!existsCodes.name"></i>
-                                            <i *ngIf="existsCodes.name" class="fas fa-times hideMe"></i>
-                                        </span>
+                                            <input type="text" #itemname
+                                            class="form-control" placeholder="Enter Item Name"
+                                            name="name"
+                                            [(ngModel)]="Name"
+                                            (keyup)="searchForItemName($event.target.value)"
+                                
+                                            [ngClass]="{'errorSelecto': ( submitClick && invalidObj.Name ) || existsCodes.name, 'loading': pendingCheck1 }" (input)="checkForValidation()" >
+                                            <span [ngClass]="{'spinner_tick': !pendingCheck1}" *ngIf="Name.length > 0 && !pendingCheck1" >
+                                                <i class="fas fa-check hideMe" *ngIf="!existsCodes.name"></i>
+                                                <i *ngIf="existsCodes.name" class="fas fa-times hideMe"></i>
+                                            </span>
                                         </div>
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label for="p_code">HSN/SAC Code</label>
-                                        <input type="text" class="form-control" id="p_code" placeholder="Enter HSN/SAC Code" name="HsnNo"
-                                            [(ngModel)]="HsnNo" [ngClass]="{'errorSelecto': submitClick && invalidObj.HsnNo }" (input)="checkForValidation()"  >
+                                        <input type="text" class="form-control"
+                                         id="p_code" placeholder="Enter HSN/SAC Code"
+                                         name="HsnNo"
+                                        [(ngModel)]="HsnNo" 
+                                        [ngClass]="{'errorSelecto': submitClick && invalidObj.HsnNo }" 
+                                        (input)="checkForValidation()"
+                            
+                                        >
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label for="barcode">Bar Code</label>
                                         <div class="input-group">
-                                        <input type="text" [disabled]="isBarCode" (keyup)="searchForBarCode($event.target.value)"
+                                        <input type="text" 
+                                        [disabled]="isBarCode" (keyup)="searchForBarCode($event.target.value)"
                                             class="form-control" id="barcode" placeholder="Enter Bar Code" name="BarCode"
                                             [(ngModel)]="BarCode" [ngClass]="{'errorSelecto': (submitClick && invalidObj.BarCode) || existsCodes.barcode, 'loading': pendingCheck}" 
                                             (input)="checkForValidation()" >
@@ -73,64 +88,69 @@
                                                 <i *ngIf="existsCodes.barcode" id="check-cross" class="fas fa-times hideMe"></i>
                                             </span>
                                         </div>
-                                        <!-- <div *ngIf="pendingCheck">
-                                            <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 20px;height: 20px;position: absolute;" />
-                                        </div> -->
-                                        <!-- <i class="fa fa-check-circle" style="font-size:36px"></i> -->
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label for="p_code">Item Code</label>
-                                        <input type="text" class="form-control" id="p_code" placeholder="Enter Item Code" name="ItemCode"
+                                        <input type="text"
+                                        class="form-control" id="p_code" placeholder="Enter Item Code" name="ItemCode"
                                             [(ngModel)]="ItemCode" [ngClass]="{'errorSelecto': submitClick && invalidObj.ItemCode }" (input)="checkForValidation()"  >
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label for="bill_no">Item Type</label>
                                         <div class="input-group adw_select">
-                                            <select2 [data]="selectItemTpye" #itemtype_select2 class="control_select" (valueChanged)="selectedItemType($event)"
+                                            <select2 [data]="selectItemTpye" 
+                                             #itemtype_select2 class="control_select" (valueChanged)="selectedItemType($event)"
                                                 autocomplete="true" [options]="itemTpyePlaceHolder" [value]="itemDetailValue"></select2>
                                         </div>
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label for="bill_no">Packing Type</label>
                                         <div class="input-group adw_select">
-                                            <select2 [data]="selectPackingType" #packingtype_select2 class="control_select" (valueChanged)="selectedPackingType($event)"
+                                            <select2 [data]="selectPackingType"
+                                            #packingtype_select2 class="control_select" (valueChanged)="selectedPackingType($event)"
                                                 autocomplete="true" [options]="packingTypePlaceHolder" [value]="packingTypeValue"></select2>
                                         </div>
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label>MRP Rate</label>
-                                        <input type="text" appIncludeDecimal class="form-control" placeholder="Enter MRP" name="MrpRate"
+                                        <input type="text" appIncludeDecimal
+                                         class="form-control" placeholder="Enter MRP" name="MrpRate"
                                             [(ngModel)]="MrpRate">
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label>Sale Rate</label>
-                                        <input type="text" appIncludeDecimal class="form-control" placeholder="Enter Sale Rate" name="SaleRate"
+                                        <input type="text" appIncludeDecimal
+                                         class="form-control" placeholder="Enter Sale Rate" name="SaleRate"
                                             [(ngModel)]="SaleRate">
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label>Purchase Rate</label>
-                                        <input type="text" appIncludeDecimal class="form-control" placeholder="Enter Purchase" name="PurchaseRate"
+                                        <input type="text" appIncludeDecimal
+                                         class="form-control" placeholder="Enter Purchase" name="PurchaseRate"
                                             [(ngModel)]="PurchaseRate">
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label>Our Price</label>
-                                        <input type="text" appIncludeDecimal class="form-control" placeholder="Enter Our Price" name="OurPrice"
+                                        <input type="text" appIncludeDecimal 
+                                        class="form-control" placeholder="Enter Our Price" name="OurPrice"
                                             [(ngModel)]="OurPrice">
                                     </div>
 
                                     <div class="form-group col-md-4">
                                         <label>Opening Stock</label>
-                                        <input type="text" appIncludeDecimal class="form-control" placeholder="Enter Opening Stock" name="OpeningStock"
+                                        <input type="text" appIncludeDecimal
+                                        class="form-control" placeholder="Enter Opening Stock" name="OpeningStock"
                                             [(ngModel)]="OpeningStock">
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label for="bill_no">Unit</label>
                                         <div class="input-group adw_select">
                                             <div class="input-group adw_select">
-                                                <select2 [data]="selectUnitType" #unit_select2 class="control_select" (valueChanged)="selectedUnitTpye($event)"
-                                                    autocomplete="true" [options]="unitTypePlaceHolder" [value]="unitTypeValue"
-                                                    [ngClass]="{'errorSelecto': submitClick && invalidObj.UnitId }"
-                                                    ></select2>
+                                                <select2 [data]="selectUnitType" #unit_select2 class="control_select"
+                                                (valueChanged)="selectedUnitTpye($event)"
+                                                autocomplete="true" [options]="unitTypePlaceHolder" [value]="unitTypeValue"
+                                                [ngClass]="{'errorSelecto': submitClick && invalidObj.UnitId }"
+                                                ></select2>
                                             </div>
                                         </div>
                                     </div>
@@ -138,29 +158,20 @@
                                         <label>Tax</label>
                                         <div class="input-group adw_select">
                                             <select2 [data]="selectTax" #tax_select2 class="control_select" (valueChanged)="selectedTax($event)"
-                                                autocomplete="true" [options]="taxTypePlaceHolder" [value]="taxValue"
+                                                autocomplete="true"
+                                                 [options]="taxTypePlaceHolder" [value]="taxValue"
                                                 [ngClass]="{'errorSelecto': submitClick && invalidObj.TaxId }"
                                                 ></select2>
                                         </div>
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label>Net Realizable Value(NRV)</label>
-                                        <input type="text" appIncludeDecimal class="form-control" placeholder="Enter Net Refer Value"
+                                        <input type="text" appIncludeDecimal
+                                        class="form-control" placeholder="Enter Net Refer Value"
                                             autocomplete="true" [(ngModel)]="Nrv" name="Nrv" >
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="bill_no">Brand Master</label>
-                                        <!--<ng-multiselect-dropdown #brand_multi
-                                            name="brands"
-                                            [placeholder]="'Select Brands'"
-                                            [data]="selectBrand"
-                                            [settings]="dropdownSettings"
-                                            (onSelect)="onItemSelect($event)"
-                                            (onSelectAll)="onSelectAll($event)"
-                                            (onDeSelect)= "onItemDeSelect($event)"
-                                            (onDeSelectAll)= "onDeSelectAll($event)"
-                                        >
-                                        </ng-multiselect-dropdown>-->
                                         <select2 [data]="selectBrand" #brand_select2
                                             [options]="options"
                                             [width]="300"
@@ -170,12 +181,14 @@
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label for="bill_no">Min. Stock</label>
-                                        <input type="text" appIncludeDecimal class="form-control" id="name" name="MinStock" placeholder="Enter Minimum Stock"
+                                        <input type="text" appIncludeDecimal 
+                                        class="form-control" id="name" name="MinStock" placeholder="Enter Minimum Stock"
                                             autocomplete="true" [(ngModel)]="MinStock" step="0.01">
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label>Max. Stock</label>
-                                        <input type="text" appIncludeDecimal class="form-control" name="MaxStock" placeholder="Enter Maximum Stock"
+                                        <input type="text" appIncludeDecimal 
+                                        class="form-control" name="MaxStock" placeholder="Enter Maximum Stock"
                                             [(ngModel)]="MaxStock">
                                     </div>
                                     <div class="form-group col-md-4">
@@ -186,18 +199,20 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
-                                        <input type="checkbox" name="IsNotDiscountable" class="custom-control-input" id="customControlInline1"
-                                            [(ngModel)]="IsNotDiscountable" >
+                                        <input type="checkbox" name="IsNotDiscountable" (keydown.enter)="onPressEnter(1)" class="custom-control-input" id="customControlInline1"
+                                        [(ngModel)]="IsNotDiscountable" >
                                         <label class="custom-control-label" for="customControlInline1">Is Not
-                                            Discountable</label>
+                                        Discountable</label>
                                     </div>
                                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
                                         <input type="checkbox" class="custom-control-input" id="tradediscount2"
+                                        (keydown.enter)="onPressEnter(2)"
                                         [(ngModel)]="IsTradeDiscountApply" name="IsTradeDiscountApply" >
                                         <label class="custom-control-label" for="tradediscount2">Trade Discount</label>
                                     </div>
                                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
                                         <input type="checkbox" class="custom-control-input" id="volumediscount3"
+                                        (keydown.enter)="onPressEnter(3)"
                                         [(ngModel)]="IsVolumeDiscountApply" name="IsVolumeDiscountApply" >
                                         <label class="custom-control-label" for="volumediscount3">Volume Discount</label>
                                     </div>
@@ -206,7 +221,7 @@
                             <div class="col-md-2" >
                                 <div class="left_item">
                                     <div class="custom-file-upload mB-20">
-                                        <a (click)="openImageModal()" class="custom-file-upload"><i class="fas fa-upload"></i> Image Upload </a>
+                                        <a (click)="openImageModal()" #imagebutton class="custom-file-upload"><i class="fas fa-upload"></i> Image Upload </a>
                                     </div>
                                     <div *ngIf="addedImages && addedImages.queue.length > 0" >
                                         <div class="toast mB-5" *ngFor="let image of addedImages.queue;let i = index;" >

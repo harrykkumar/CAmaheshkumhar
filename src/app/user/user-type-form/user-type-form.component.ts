@@ -1,10 +1,10 @@
-import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
-import { UIConstant } from 'src/app/shared/constants/ui-constant';
-import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs';
+import { ToastrCustomService } from 'src/app/commonServices/toastr.service'
+import { UIConstant } from 'src/app/shared/constants/ui-constant'
+import { Component, Input, Output, EventEmitter, SimpleChanges } from '@angular/core'
+import { Subject } from 'rxjs'
 import * as _ from 'lodash'
-import { UserFormService } from '../user-form/user-form.service';
-import { takeUntil } from 'rxjs/operators';
+import { UserFormService } from '../user-form/user-form.service'
+import { takeUntil } from 'rxjs/operators'
 
 declare var $: any
 
@@ -13,7 +13,7 @@ declare var $: any
   templateUrl: './user-type-form.component.html',
   styleUrls: ['./user-type-form.component.css']
 })
-export class UserTypeFormComponent implements OnInit {
+export class UserTypeFormComponent {
   userType: any = {}
   @Input() showUserTypeForm: any
   @Output() closeUserTypeForm = new EventEmitter<any>()
@@ -23,11 +23,8 @@ export class UserTypeFormComponent implements OnInit {
     private toastrService: ToastrCustomService
   ) { }
 
-  ngOnInit() {
-  }
-
   /* Function invoke when profile menu clicked  */
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges (changes: SimpleChanges): void {
     if (this.showUserTypeForm.open === true) {
       $('#user_type_form').modal(UIConstant.MODEL_SHOW)
       this.initFormData()
@@ -38,7 +35,7 @@ export class UserTypeFormComponent implements OnInit {
       $('#user_type_form').modal(UIConstant.MODEL_HIDE)
     }
   }
-  
+
   closeForm = () => {
     this.closeUserTypeForm.emit(this.showUserTypeForm)
     this.resetFormData()

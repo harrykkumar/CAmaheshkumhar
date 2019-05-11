@@ -1,0 +1,80 @@
+// let categoryId = -1
+    // let childmostId = -1
+    // for (let i = 0; i < this.allItems.length; i++) {
+    //   const element = this.allItems[i]
+    //   if (element.Id === this.ItemId) {
+    //     categoryId = +element.CategoryId
+    //     childmostId = +element.CategoryId
+    //     break
+    //   }
+    // }
+    // for (let i = 0; i < this.allCategories.length; i++) {
+    //   const element = this.allCategories[i]
+    //   if (element.Id === categoryId) {
+    //     if (element.LevelNo > 1) {
+    //       categoryId = element.ParentId
+    //       i = 0
+    //     } else {
+    //       break
+    //     }
+    //   }
+    // }
+    // console.log('category id : ', categoryId)
+    // if (+this.categoryId !== +childmostId) {
+    //   this.categoryId = +childmostId
+    //   // this.catSelect2.setElementValue(categoryId)
+    //   let evt = { value: categoryId, data: [{ text: '' }] }
+    //   this.onSelectCategory(evt, 1)
+    // }
+
+
+
+
+     onSelectCategory (evt, levelNo) {
+    console.log('evt on change of category : ', evt, 'level : ', levelNo)
+    if (+evt.value > 0) {
+      if (levelNo > 1) {
+        this.parentMostCategory = this.getParentMostCat(+evt.value, levelNo)
+      }
+      if (levelNo === this.catLevel) {
+        if (this.categoryId !== +evt.value) {
+          this.categoryId = +evt.value
+          this.categoryName = evt.data[0].text
+          console.log('categoryname : ', this.categoryName)
+          console.log('category id : ', this.categoryId)
+          this.checkForItems(+evt.value)
+        }
+      } else {
+        if (levelNo < this.catLevel) {
+          let categoryId = +evt.value
+          let newData = []
+          this.categories[levelNo].data = [{ id: '0', text: 'Select Category' }]
+          this.allCategories.forEach(category => {
+            if (category.LevelNo !== levelNo && category.LevelNo > levelNo) {
+              if (category.ParentId === categoryId) {
+                newData.push({
+                  text: category.Name,
+                  id: category.Id
+                })
+              }
+            } else {
+              this.categories[category.LevelNo - 1].data.push({
+                text: category.Name,
+                id: category.Id
+              })
+            }
+          })
+          this.categories[levelNo].data = Object.assign([], newData)
+          console.log('dynamic categories : ', this.categories)
+          this.loading = false
+        }
+      }
+    } else if (+evt.value === 0) {
+      this.getCatagoryDetail(this.allCategories)
+    }
+  }
+
+  2 - retail shoes
+  5 - medical
+  3 - wood or stone
+  6 - retail store

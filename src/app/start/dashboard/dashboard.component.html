@@ -65,9 +65,10 @@
                         <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeRouting()">Routing</a></li>
                         <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeCustomer()">Customer</a>
                         </li>
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeVendor()">Supplier</a></li>
-                          <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeAttribute()">Attribute</a></li>
-                        <!--<li><a class="sidebar-link" href="javascript:void(0);" >Bank</a></li>
+                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeVendor()">Vendor</a></li>
+                           <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeAttribute()">Attribute</a></li>
+                           <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeBank()">Bank</a></li>
+                        <!--
                         <li><a class="sidebar-link" href="javascript:void(0);">Coupon</a></li>
                         <li><a class="sidebar-link" href="javascript:void(0);">Loyalty</a></li>
                         <li><a class="sidebar-link" href="javascript:void(0);">Wallet</a></li> -->
@@ -92,13 +93,13 @@
                         <li><a class="sidebar-link" (click)="routeSaleReturn()">Sale Return</a></li>
                     </ul>
                 </li>
-      <!--           <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
+                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
                     class="fas fa-chart-line"></i></span><span class="title">Sales Courier</span>
                     </a>
                     <ul class="sidebar-submenu scrollable">
                         <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeSaleCourier()">Sale</a></li>
                     </ul>
-                </li> -->
+                </li>
                 <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
                     class="fas fa-chart-line"></i></span><span class="title">Sales Courier Parcel</span>
                     </a>
@@ -106,27 +107,24 @@
                         <li><a class="sidebar-link" (click)="routeSalesCourierParcel()">Sale</a></li>
                     </ul>
                 </li>
+                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
+                    class="fas fa-chart-line"></i></span><span class="title">Inventory</span>
+                    </a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" (click)="routePurchase()">Purchase</a></li>
+                        <li><a class="sidebar-link" (click)="routeSalesChallan()">Sale Challan</a></li>
+                        <li><a class="sidebar-link" (click)="routeDirectSale()">Sale Direct</a></li>
+                    </ul>
+                </li>
                 <li class="nav-item sidebar-dropdown">
                     <a>
                         <span class="icon-holder"><i class="fas fa-chart-line"></i></span>
-                        <span class="title">Sales Challan</span>
+                        <span class="title">Report</span>
                     </a>
                     <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" (click)="routeSalesChallan()">Sale</a></li>
-                         <!--  <li><a class="sidebar-link" (click)="routeSalesChallanBilling()">Sale-Billing</a></li> -->
+                        <li><a class="sidebar-link" (click)="routeItemStockReport()">Item Stock</a></li>
+                        <li><a class="sidebar-link" (click)="routeProfitReport()" >Profit Report</a></li>
                     </ul>
-                    
-                </li>
-                 <li class="nav-item sidebar-dropdown">
-                    <a>
-                        <span class="icon-holder"><i class="fas fa-chart-line"></i></span>
-                        <span class="title">Sale Direct</span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" (click)="routeDirectSale()">Sale</a></li>
-                         <!--  <li><a class="sidebar-link" (click)="routeSalesChallanBilling()">Sale-Billing</a></li> -->
-                    </ul>
-                    
                 </li>
               <!--   <li class="nav-item"><a class="sidebar-link" href="javascript:void(0);"><span class="icon-holder"><i
                                 class="fab fa-delicious"></i></span><span class="title">Inventory</span></a></li>

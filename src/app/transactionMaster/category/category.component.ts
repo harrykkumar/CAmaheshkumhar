@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core'
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { CatagoryDetailModel } from '../../model/sales-tracker.model'
 import { Subscription } from 'rxjs/Subscription'
@@ -7,6 +7,9 @@ import { CategoryServices } from '../../commonServices/TransactionMaster/categor
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { UIConstant } from '../../shared/constants/ui-constant'
 import { CommonService } from '../../commonServices/commanmaster/common.services'
+import { fromEvent } from 'rxjs'
+import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { PagingComponent } from '../../shared/pagination/pagination.component'
 
 declare const $: any
 @Component({
@@ -16,9 +19,8 @@ declare const $: any
 })
 export class CategoryComponent implements OnInit {
   parentId: number
-  private Id: number
+  Id: number
   deletedId: number
-  searchForm: FormGroup
   categoryForm: FormGroup
   subscribe: Subscription
   submitClick: boolean
@@ -27,7 +29,15 @@ export class CategoryComponent implements OnInit {
   public selectCategory: Array<Select2OptionData>
   newCatSub: Subscription
   deleteSub: Subscription
+  searchForm: FormGroup
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
+  lastItemIndex: number = 0
   @ViewChild('open_add_form') myModal
+  @ViewChild('searchData') searchData: ElementRef
+  isSearching: boolean = false
+  @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (private _catagoryservices: CategoryServices,
     private _formBuilder: FormBuilder,
     private commonService: CommonService,
@@ -78,21 +88,58 @@ export class CategoryComponent implements OnInit {
     this.parentId = UIConstant.ZERO
     this.categoryDetail = []
     this.getCategoryDetails()
-    this.getCategoryAllData()
+    this.commonService.fixTableHF('cat-table')
+    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+      map((event: any) => {
+        return event.target.value
+      }),
+      filter(res => res.length > 3 || res.length === 0),
+      debounceTime(1000),
+      distinctUntilChanged()
+      ).subscribe((text: string) => {
+        this.isSearching = true
+        this.searchGetCall(text).subscribe((data) => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          this.categoryDetail = data.Data
+          this.total = this.categoryDetail[0] ? this.categoryDetail[0].TotalRows : 0
+          // console.log('categories : ', this.categoryDetail)
+        },(err) => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          console.log('error',err)
+        },
+        () => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+        })
+      })
+  }
+
+  searchGetCall (term: string) {
+    if (!term) {
+      term = ''
+    }
+    this.pagingComp.setPage(1)
+    return this._catagoryservices.GetCatagoryDetail('?Name=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
   }
 
   ngOnDestroy () {
     this.newCatSub.unsubscribe()
   }
 
-  getCategoryAllData () {
-    this._catagoryservices.castArray.subscribe(categoryDetail => this.categoryDetail = categoryDetail)
-  }
-
   getCategoryDetails () {
-    this._catagoryservices.GetCatagoryDetail(UIConstant.BLANK).subscribe(data => {
+    if (!this.searchForm.value.searckKey) {
+      this.searchForm.value.searckKey = ''
+    }
+    this._catagoryservices.GetCatagoryDetail('?Name=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         this.categoryDetail = data.Data
+        this.total = this.categoryDetail[0] ? this.categoryDetail[0].TotalRows : 0
+        // console.log('categories : ', this.categoryDetail)
       }
     })
   }
@@ -109,15 +156,15 @@ export class CategoryComponent implements OnInit {
     this.commonService.openCategory('', '2')
   }
 
-  searchingCategory () {
-    if (this.searchForm.value.searckKey.length > UIConstant.THREE) {
-      this.subscribe = this._catagoryservices.GetCatagoryDetail(this.searchForm.value.searckKey).subscribe(Data => {
-        this.categoryDetail = Data.Data
-      })
-    } else if (this.searchForm.value.searckKey.length === UIConstant.ZERO) {
-      this.subscribe = this._catagoryservices.GetCatagoryDetail(this.searchForm.value.searckKey).subscribe(Data => {
-        this.categoryDetail = Data.Data
-      })
-    }
-  }
+  // searchingCategory () {
+  //   if (this.searchForm.value.searckKey.length > UIConstant.THREE) {
+  //     this.subscribe = this._catagoryservices.GetCatagoryDetail(this.searchForm.value.searckKey, '').subscribe(Data => {
+  //       this.categoryDetail = Data.Data
+  //     })
+  //   } else if (this.searchForm.value.searckKey.length === UIConstant.ZERO) {
+  //     this.subscribe = this._catagoryservices.GetCatagoryDetail(this.searchForm.value.searckKey).subscribe(Data => {
+  //       this.categoryDetail = Data.Data
+  //     })
+  //   }
+  // }
 }

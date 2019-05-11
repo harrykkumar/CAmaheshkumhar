@@ -65,7 +65,23 @@ const routes: Routes = [
       },
       {
         path: 'ims/sale-challan',
-        loadChildren: '../sales-challan/sales-challan/sales-challan.module#SalesChallanModule'
+        loadChildren: '../inventory/sales-challan/sales-challan/sales-challan.module#SalesChallanModule'
+      },
+      {
+        path: 'ims/attribute',
+        loadChildren: '../transactionMaster/attribute/attribute.module#AttributeModule'
+      },
+      {
+        path: 'ims/purchase',
+        loadChildren: '../inventory/purchase/purchase.module#PurchaseModule'
+      },
+      {
+        path: 'ims/report',
+        loadChildren: '../report/item-stock-report/item-stock-report.module#ItemStockReportModule'
+      },
+      {
+        path: 'ims/profit-report',
+        loadChildren: '../report/profit-report/profit-report.module#ProfitReportModule'
       },
       {
         path: 'ims/attribute',
@@ -91,11 +107,14 @@ const routes: Routes = [
         path: 'user-rights',
         loadChildren: '../user/user-rights/user-rights.module#UserRightsModule'
       },
-        {
+      {
         path: 'ims/sale-direct',
-        loadChildren: '../sale-direct/sales-direct/sales-direct.module#SalesDirectModule'
+        loadChildren: '../inventory/sale-direct/sales-direct/sales-direct.module#SalesDirectModule'
+      },
+      {
+        path: 'ims/bank',
+        loadChildren: '../transactionMaster/bank/bank.module#BankModule'
       }
-     
     ]
   }
 ]

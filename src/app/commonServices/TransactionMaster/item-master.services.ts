@@ -14,10 +14,12 @@ export class ItemmasterServices {
   private openImageModalSub = new BehaviorSubject<AddCust>({ 'open': false })
   private imageAddSub = new Subject<Image>()
   public imageAdd$ = this.imageAddSub.asObservable()
+  private queryStrSub = new Subject<string>()
+  public queryStr$ = this.queryStrSub.asObservable()
   constructor (private _basesService: BaseServices) { }
 
-  public getItemMasterDetail () {
-    return this._basesService.getRequest(ApiConstant.ITEM_MASTER_DETAIL_URL)
+  public getItemMasterDetail (queryParams) {
+    return this._basesService.getRequest(ApiConstant.ITEM_MASTER_DETAIL_URL + queryParams)
   }
   public getTaxDetail () {
     return this._basesService.getRequest(ApiConstant.GET_TAX_DETAIL_URL)
@@ -105,9 +107,11 @@ export class ItemmasterServices {
   }
 
   searchName (name$: Observable<string>): Observable<any> {
-    return name$.pipe(debounceTime(4000),
+    return name$.pipe(debounceTime(3),
       distinctUntilChanged(),
       switchMap(term => this.searchItemName(term)))
+
+    // return name$.pipe(debounceTime(1000))
   }
 
   searchItemName (name) {
@@ -118,5 +122,9 @@ export class ItemmasterServices {
 
   getEditData (id) {
     return this._basesService.getRequest(ApiConstant.EDIT_ITEM_MASTER + id)
+  }
+
+  setSearchQueryParamsStr (str) {
+    this.queryStrSub.next(str)
   }
 }

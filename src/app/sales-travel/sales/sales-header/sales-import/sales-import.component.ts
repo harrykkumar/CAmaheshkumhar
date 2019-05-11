@@ -42,7 +42,7 @@ export class SalesImportComponent implements OnInit, OnDestroy {
       private commonService: CommonService,
       private settings: Settings) {
     this.clientDateFormat = this.settings.dateFormat
-    console.log('client date format : ', this.clientDateFormat)
+    // console.log('client date format : ', this.clientDateFormat)
     if (this.clientDateFormat === '') {
       this.commonService.getSettingById(SetUpIds.dateFormat).subscribe(
         (data) => {
@@ -215,9 +215,9 @@ export class SalesImportComponent implements OnInit, OnDestroy {
               newRow['COMMISSIONAUTHORIZER'] = +newRow['COMMISSIONAUTHORIZER']
               newRow['COMMISSIONTYPE'] = +newRow['COMMISSIONTYPE']
               newRow['FARE'] = +newRow['FARE']
-              newRow['DATE'] = this.gs.checkForValidDayAndMonth(newRow['DATE'])
-              newRow['DATEOFTRAVEL'] = this.gs.checkForValidDayAndMonth(newRow['DATEOFTRAVEL'])
-              newRow['RETURNDATE'] = this.gs.checkForValidDayAndMonth(newRow['RETURNDATE'])
+              newRow['DATE'] = this.gs.checkForValidDayAndMonthForImport(newRow['DATE'])
+              newRow['DATEOFTRAVEL'] = this.gs.checkForValidDayAndMonthForImport(newRow['DATEOFTRAVEL'])
+              newRow['RETURNDATE'] = this.gs.checkForValidDayAndMonthForImport(newRow['RETURNDATE'])
               this.masterKeys = Object.keys(newRow)
               console.log(newRow)
               if (!newRow['CLIENTNAME']) {
@@ -292,7 +292,7 @@ export class SalesImportComponent implements OnInit, OnDestroy {
                 this.toastrService.showError('Invalid Commssion Type Value ' + 'at SNO. ' + newRow['SNO'], newRow['COMMISSIONTYPE'])
                 this.reset()
                 return false
-              } else if (!this.gs.validReturnDate(newRow['DATEOFTRAVEL'], newRow['RETURNDATE'])) {
+              } else if (!this.gs.validReturnDateForImport(newRow['DATEOFTRAVEL'], newRow['RETURNDATE'])) {
                 this.toastrService.showError('Invalid Return Date ' + 'at SNO. ' + newRow['SNO'], newRow['RETURNDATE'])
                 this.reset()
                 return false
@@ -339,37 +339,5 @@ export class SalesImportComponent implements OnInit, OnDestroy {
       // check validation
     }
         // return this.array
-  }
-
-  downloadSample () {
-    const datatoexport = [{
-      SNO: '',
-      RETURNDATE: '',
-      DATE: '',
-      CURRENCY: '',
-      BOOKINGNO: '',
-      SUPPLIER : '',
-      AIRLINETICKETCODE: '',
-      TICKETNO: '',
-      CLIENTNAME : '',
-      ROUTING : '',
-      DATEOFTRAVEL: '',
-      FARE : '',
-      REISSUECHARGES: '',
-      REFUNDPANELTY: '',
-      MISCELLANEOUSE: '',
-      LANGITAX: '',
-      FORMOFPAYMENT: '',
-      DISCOUNT: '',
-      DISCOUNTTYPE: '',
-      DISCOUNTAMOUNT: '',
-      SVCFEE: '',
-      COMMISSION: '',
-      COMMISSIONTYPE: '',
-      COMMISSIONAMOUNT: '',
-      COMMISSIONAUTHORIZER: '',
-      REMARK: ''
-    }]
-    this.excelService.exportAsExcelFile(datatoexport, 'Sample_Sale_Invoice')
   }
 }

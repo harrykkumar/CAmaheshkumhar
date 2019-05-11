@@ -1,6 +1,4 @@
 import { NgModule } from '@angular/core'
-import { Select2Module } from 'ng2-select2';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { CommonModule } from '@angular/common'
 import { StartComponent } from './start/start.component'
 import { HeaderComponent } from './header/header.component'
@@ -27,9 +25,12 @@ import { CategoryAddModule } from '../shared/transactionMaster/category/category
 import { UnitAddModule } from '../shared/transactionMaster/unit/unit-add/unit-add.module'
 import { AddressAddModule } from '../shared/transactionMaster/address/address-add/address-add.module'
 import { AttributeAddModule } from '../shared/transactionMaster/attribute-add/attribute-add.module'
-import { OrganisationProfileComponent } from './header/organisation-profile/organisation-profile.component';
-import { SharedModule } from '../shared/shared.module';
-import { PrintModule } from '../shared/transactionMaster/print/print-add/print.module'
+import { OrganisationProfileComponent } from './header/organisation-profile/organisation-profile.component'
+import { FormsModule } from '@angular/forms'
+import { Select2Module } from 'ng2-select2'
+import { PrintModule } from '../transactionMaster/print/print-add/print.module'
+import { BankModule } from '../transactionMaster/bank/bank.module'
+
 @NgModule({
   declarations: [
     HeaderComponent,
@@ -46,17 +47,18 @@ import { PrintModule } from '../shared/transactionMaster/print/print-add/print.m
   imports: [
     CommonModule,
     HttpClientModule,
+// tslint:disable-next-line: deprecation
     HttpModule,
+    Select2Module,
+    FormsModule,
     StartRoutingModule,
     CustomerAddModule,
     BankAddModule,
-    FormsModule,
     CompositeUnitAddModule,
     RoutingAddModule,
     VendorAddModule,
     ItemAddModule,
     TaxAddModule,
-    Select2Module,
     DeleteModule,
     ImageModalModule,
     CategoryAddModule,
@@ -64,8 +66,8 @@ import { PrintModule } from '../shared/transactionMaster/print/print-add/print.m
     TaxAddModule,
     AddressAddModule,
     AttributeAddModule,
-    SharedModule,
     PrintModule,
+    BankModule
   ],
   bootstrap: []
 })

@@ -3,7 +3,6 @@
 <div
   class="modal fade"
   id="branch_popup"
-  tabindex="-1"
   role="dialog"
   aria-labelledby="exampleModalLabel"
   aria-hidden="true"
@@ -24,7 +23,7 @@
             <div class="row">
               <div class="col-md-3 left_side_head">
                 <p class="heading_lead">
-                  <i class="far fa-building"></i>
+                  <i class="fas fa-code-branch"></i>
                   {{ modalData?.type === "BRANCH" ? "Branch" : "New Office" }}
                 </p>
               </div>
@@ -312,13 +311,13 @@
                                   >
                                     <thead>
                                       <tr>
-                                        <th style="width: 5%;">#</th>
+                                        <th>#</th>
                                         <th>Contact Type</th>
                                         <th>Contact Number</th>
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      <tr
+                                      <tr class="default_row"
                                         *ngFor="
                                           let item of personalDetail?.mobileArray;
                                           let i = index
@@ -477,13 +476,13 @@
                                   >
                                     <thead>
                                       <tr>
-                                        <th style="width: 5%;">#</th>
+                                        <th>#</th>
                                         <th>Email Type</th>
                                         <th>Email Address</th>
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      <tr
+                                      <tr class="default_row"
                                         *ngFor="
                                           let item of personalDetail?.emailArray;
                                           let i = index

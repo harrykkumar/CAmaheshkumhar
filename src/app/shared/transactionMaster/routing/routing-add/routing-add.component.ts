@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core'
+import { Component, ViewChild, Renderer2 } from '@angular/core'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { Subscription } from 'rxjs/Subscription'
 import { ItemModel, AddCust } from '../../../../model/sales-tracker.model'
@@ -45,7 +45,8 @@ export class RoutingAddComponent {
     private _formBuilder: FormBuilder,
     private commonService: CommonService,
     private _catagoryservices: CategoryServices,
-    private unitMasterService: UnitMasterServices
+    private unitMasterService: UnitMasterServices,
+    private renderer: Renderer2
     ) {
     this.routingFormMethod()
     this.modalSub = this.commonService.getRoutingStatus().subscribe(
@@ -71,6 +72,12 @@ export class RoutingAddComponent {
           this.categoryType = newData
           this.categoryId = +data.id
           this.cateGoryValue = data.id
+          setTimeout(() => {
+            if (this.catSelect2) {
+              const element = this.renderer.selectRootElement(this.catSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
@@ -84,6 +91,12 @@ export class RoutingAddComponent {
           this.unitId = +data.id
           this.unitTypeValue = +data.id
           this.unitSelect2.setElementValue(this.unitTypeValue)
+          setTimeout(() => {
+            if (this.unitSelect2) {
+              const element = this.renderer.selectRootElement(this.unitSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
@@ -97,6 +110,12 @@ export class RoutingAddComponent {
           this.taxId = +data.id
           this.taxValue = +data.id
           this.taxSelect2.setElementValue(this.taxValue)
+          setTimeout(() => {
+            if (this.taxSelect2) {
+              const element = this.renderer.selectRootElement(this.taxSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
@@ -113,6 +132,7 @@ export class RoutingAddComponent {
 
   openModal () {
     if (this.editMode) {
+      this.getCategoryDetails()
       this.getEditRoutingForm(this.id)
     } else {
       this.submitClick = false
@@ -129,6 +149,12 @@ export class RoutingAddComponent {
       this.subCategoryPlaceHolder = { placeholder: 'Select Subcategory' }
     }
     $('#item_form_inventory').modal(UIConstant.MODEL_SHOW)
+    setTimeout(() => {
+      if (this.catSelect2) {
+        const element = this.renderer.selectRootElement(this.catSelect2.selector.nativeElement, true)
+        element.focus({ preventScroll: false })
+      }
+    }, 1000)
   }
   closeModal () {
     if ($('#item_form_inventory').length > 0) {
@@ -155,24 +181,18 @@ export class RoutingAddComponent {
   }
   getEditRoutingForm (id) {
     this.getCategoryDetails()
-    this.subscribe = this._itemmasterServices.editRoute(id).subscribe(Data => {
-      console.log('edit route form : ', Data)
-      if (Data.Code === UIConstant.THOUSAND && Data.Data.length > 0) {
-       let _this= this;
-        this.id = Data.Data[0].Id
-        console.log(Data.Data,"category-editdata")
-       _this.getTaxtDetail(0)
-       this.getUnitTypeDetail(0)
-          _this.unitSelect2.setElementValue(Data.Data[0].UnitId);
-          _this.catSelect2.setElementValue(Data.Data[0].CategoryId);
-          _this.taxSelect2.setElementValue(Data.Data[0].TaxId);
-
-   //   this.catSelect2.selector.nativeElement.value = ''
-
-     // this.unitSelect2.selector.nativeElement.value = ''
-
-        this.routingForm.controls.routine.setValue(Data.Data[0].Name)
-        this.routingForm.controls.saleRate.setValue(Data.Data[0].OurPrice)
+    this.subscribe = this._itemmasterServices.editRoute(id).subscribe(data => {
+      console.log('edit route form : ', data)
+      if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+        this.id = data.Data[0].Id
+        this.getTaxtDetail(data.Data[0].TaxId)
+        this.getUnitTypeDetail(data.Data[0].UnitId)
+        this.routingForm.controls.routine.setValue(data.Data[0].Name)
+        this.routingForm.controls.saleRate.setValue(data.Data[0].OurPrice)
+        setTimeout(() => {
+          this.catSelect2.setElementValue(data.Data[0].CategoryId)
+          this.categoryId = +data.Data[0].CategoryId
+        }, 1000)
       }
     })
   }
@@ -191,6 +211,14 @@ export class RoutingAddComponent {
           })
         })
         this.selectUnitType = newData
+      }
+      if (+value !== 0) {
+        if (+value !== 0) {
+          setTimeout(() => {
+            this.unitSelect2.setElementValue(value)
+            this.unitId = +value
+          }, 1000)
+        }
       }
     })
   }
@@ -280,6 +308,12 @@ export class RoutingAddComponent {
           })
         })
       }
+      if (+value !== 0) {
+        setTimeout(() => {
+          this.taxSelect2.setElementValue(value)
+          this.taxId = +value
+        }, 1000)
+      }
     })
 
   }
@@ -304,7 +338,7 @@ export class RoutingAddComponent {
   }
 
   getItemMasterDetail () {
-    this.subscribe = this._itemmasterServices.getItemMasterDetail().subscribe(Data => {
+    this.subscribe = this._itemmasterServices.getItemMasterDetail('').subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND && Data.Data.length > UIConstant.ZERO) {
         this.itemDetail = Data.Data
       }
@@ -379,5 +413,9 @@ export class RoutingAddComponent {
         }
       }
     )
+  }
+
+  closeRoute () {
+    this.commonService.closeRouting('')
   }
 }

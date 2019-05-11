@@ -30,8 +30,8 @@ export class CategoryServices {
     return this.editDataSource.next(data)
   }
 
-  public GetCatagoryDetail (name) {
-    return this._basesService.getRequest(ApiConstant.CATEGORY_DETAIL_URL + name)
+  public GetCatagoryDetail (queryParams) {
+    return this._basesService.getRequest(ApiConstant.CATEGORY_DETAIL_URL + queryParams)
   }
 
   public GetCatagory (id) {
@@ -39,7 +39,7 @@ export class CategoryServices {
   }
 
   public saveAndUpdateCategory (parms: any): Observable<any> {
-    return this._basesService.postRequest(ApiConstant.SAVE_AND_UPDATE_CATEGORY_URL, parms)
+    return this._basesService.postRequest(ApiConstant.GET_SAVE_AND_UPDATE_CATEGORY_URL, parms)
   }
 
   public deleteCatagory (deletedId) {

@@ -1,24 +1,35 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
 import { UIConstant } from '../../shared/constants/ui-constant'
-import { Subscription } from 'rxjs'
+import { Subscription, fromEvent } from 'rxjs'
 import { Ledger } from '../../model/sales-tracker.model'
 import { VendorServices } from '../../commonServices/TransactionMaster/vendoer-master.services'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
-import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
+import { FormGroup, FormBuilder } from '@angular/forms'
+import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { PagingComponent } from '../../shared/pagination/pagination.component'
 
+declare var $: any
 @Component({
   selector: 'app-customer',
   templateUrl: './customer.component.html',
   styleUrls: ['./customer.component.css']
 })
 export class CustomerComponent implements OnInit {
-
   coustomerDetails: Ledger[]
   deleteSub: Subscription
   subscribe: Subscription
+  searchForm: FormGroup
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
+  lastItemIndex: number = 0
+  isSearching: boolean = false
+  @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (private _coustomerServices: VendorServices,
     private commonService: CommonService,
-    private toastrService: ToastrCustomService) {
+    private toastrService: ToastrCustomService,
+    private _formBuilder: FormBuilder) {
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
         if (obj.id && obj.type && obj.type === 'customer') {
@@ -26,6 +37,15 @@ export class CustomerComponent implements OnInit {
         }
       }
     )
+
+    this.formSearch()
+  }
+
+  @ViewChild('searchData') searchData: ElementRef
+  private formSearch () {
+    this.searchForm = this._formBuilder.group({
+      'searckKey': [UIConstant.BLANK]
+    })
   }
 
   deleteItem (id) {
@@ -33,41 +53,74 @@ export class CustomerComponent implements OnInit {
       this._coustomerServices.delteVendor(id).subscribe(Data => {
         console.log('Delete customer : ', Data)
         if (Data.Code === UIConstant.DELETESUCCESS) {
-          this.toastrService.showSuccess('Sucess', 'Deleted Successfully')
+          this.toastrService.showSuccess(UIConstant.SUCCESS, 'Deleted Successfully')
           this.commonService.closeDelete('')
           this.getCustomerDetail()
-          this.getAllCustomerData()
-          // if (data.Code === 1000 && data.Data === '-1') {
-          // this.toastrService.showInfo('Info', 'Please check mapping Data')
-          // }
-        } else if (Data.Code === UIConstant.NORECORDFOUND) {
-          this.toastrService.showError('FAILED', 'RECORD ALREADY DELETED PLEASE REFRESH THE PAGE')
-        } else if (Data.Code === UIConstant.CANNOTDELETERECORD) {
-          this.toastrService.showInfo('INFO', Data.Message)
+        } if (Data.Code === UIConstant.NORECORDFOUND) {
+          this.toastrService.showError('Fail', ' Record Already Deleted ,Please Refresh Page')
+          this.commonService.closeDelete('')
+
+        }
+        if (Data.Code === UIConstant.CANNOTDELETERECORD) {
+          this.toastrService.showInfo('Info', 'Can not deleted !')
+          this.commonService.closeDelete('')
         }
       })
     }
   }
 
   ngOnInit () {
+    this.commonService.fixTableHF('cat-table')
     this.coustomerDetails = []
     this.getCustomerDetail()
-    this.getAllCustomerData()
+    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+      map((event: any) => {
+        return event.target.value
+      }),
+      filter(res => res.length > 1 || res.length === 0),
+      debounceTime(1000),
+      distinctUntilChanged()
+      ).subscribe((text: string) => {
+        this.isSearching = true
+        this.searchGetCall(text).subscribe((data) => {
+          console.log('search data : ', data)
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          this.coustomerDetails = data.Data
+          this.total = this.coustomerDetails[0] ? this.coustomerDetails[0].TotalRows : 0
+        },(err) => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          console.log('error',err)
+        },
+        () => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+        })
+      })
   }
-  getAllCustomerData () {
-    this._coustomerServices.getCustomerData.subscribe(Data =>
-      this.coustomerDetails = Data
-      )
+
+  searchGetCall (term: string) {
+    if (!term) {
+      term = ''
+    }
+    this.pagingComp.setPage(1)
+    return this._coustomerServices.getVendor(5, '&Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
   }
+
   ngOnDestroy () {
     this.subscribe.unsubscribe()
   }
 
   addnewCoustomer () {
-    this.commonService.openCust('')
+    this.commonService.openCust('', false)
   }
+
   editCoustomer (editid) {
-    this.commonService.openCust(editid)
+    this.commonService.openCust(editid, false)
   }
 
   openSearch: boolean = false
@@ -76,11 +129,14 @@ export class CustomerComponent implements OnInit {
   }
 
   getCustomerDetail () {
-    this.coustomerDetails = []
-    this.subscribe = this._coustomerServices.getVendor(5).subscribe(Data => {
+    if (!this.searchForm.value.searckKey) {
+      this.searchForm.value.searckKey = ''
+    }
+    this.subscribe = this._coustomerServices.getVendor(5, '&Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).subscribe(Data => {
       console.log('customers : ', Data)
       if (Data.Code === UIConstant.THOUSAND) {
         this.coustomerDetails = Data.Data
+        this.total = this.coustomerDetails[0] ? this.coustomerDetails[0].TotalRows : 0
       }
     })
   }

@@ -1,13 +1,13 @@
-import { CommonService } from './../../../commonServices/commanmaster/common.services';
+import { CommonService } from './../../../commonServices/commanmaster/common.services'
 /* Created  by Bharat */
 
 import { Component, OnInit, EventEmitter, Output, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
-import { Subject, Subscription } from 'rxjs'
-import { takeUntil, map } from 'rxjs/operators'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service'
 import * as _ from 'lodash'
-import { OrganisationProfileService } from '../../header/organisation-profile/organisation-profile.service';
+import { OrganisationProfileService } from '../../header/organisation-profile/organisation-profile.service'
 declare var $: any
 declare const flatpickr: any
 
@@ -161,6 +161,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
       ).
       subscribe((response: any) => {
         this.mobileCountryCodeList = [...response]
+        console.log(this.mobileCountryCodeList ,'kkkkkkkkk----')
       }, error => console.log(error))
   }
 
@@ -258,6 +259,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
 
   /* Function to add new mobile details */
   addNewMobileDetail = () => {
+    debugger
     if (this.editMobileDetailIndex !== null && this.editMobileDetailIndex >= 0) {
       this.personalDetail.mobileArray[this.editMobileDetailIndex] = { ...this.mobileDetail }
       this.editMobileDetailIndex = null

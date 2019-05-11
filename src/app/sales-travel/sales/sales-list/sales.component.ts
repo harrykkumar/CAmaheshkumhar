@@ -1,18 +1,20 @@
-import { Component } from '@angular/core'
-import { Subscription } from 'rxjs'
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
+import { Subscription, fromEvent } from 'rxjs'
 import { SaleTravelServices } from '../sale-travel.services'
 import { Settings } from 'src/app/shared/constants/settings.constant'
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { SaleTravel } from '../../../model/sales-tracker.model'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 import { UIConstant } from '../../../shared/constants/ui-constant'
+import { FormGroup, FormBuilder } from '@angular/forms'
+import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 declare const $: any
 @Component({
   selector: 'app-travel-invoice',
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css']
 })
-export class SalesComponent {
+export class SalesComponent implements OnInit {
   saleTravelDetails: SaleTravel[]
   newBillSub: Subscription
   printData: any
@@ -41,9 +43,18 @@ export class SalesComponent {
   CONST_WEB_TYPE: any = 'WEB'
   totalTaxAmount: any
   clientDateFormat: string
+
+  searchForm: FormGroup
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
+  lastItemIndex: number = 0
+  isSearching: boolean = false
   constructor (private _saleTravelServices: SaleTravelServices,
     private settings: Settings,
-    private commonService: CommonService) {
+    private commonService: CommonService,
+    private _formBuilder: FormBuilder) {
+    this.formSearch()
     this.getSaleTraveDetail()
     this.newBillSub = this.commonService.newSaleStatus().subscribe(
       (obj: any) => {
@@ -52,7 +63,7 @@ export class SalesComponent {
     )
 
     this.clientDateFormat = this.settings.dateFormat
-    console.log('client date format : ', this.clientDateFormat)
+    // console.log('client date format : ', this.clientDateFormat)
     if (this.clientDateFormat === '') {
       this.commonService.getSettingById(SetUpIds.dateFormat).subscribe(
         (data) => {
@@ -62,6 +73,54 @@ export class SalesComponent {
           }
         }
       )
+    }
+  }
+
+  @ViewChild('searchData') searchData: ElementRef
+  private formSearch () {
+    this.searchForm = this._formBuilder.group({
+      'searckKey': [UIConstant.BLANK]
+    })
+  }
+
+  ngOnInit () {
+    this.commonService.fixTableHF('cat-table')
+    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+      map((event: any) => {
+        return event.target.value
+      }),
+      filter(res => res.length > 1 || res.length === 0),
+      debounceTime(1000),
+      distinctUntilChanged()
+      ).subscribe((text: string) => {
+        this.isSearching = true
+        this.searchGetCall(text).subscribe((data) => {
+          console.log('search data : ', data)
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          this.saleTravelDetails = data.Data
+          this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
+        },(err) => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          console.log('error',err)
+        },
+        () => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+        })
+      })
+  }
+
+  searchGetCall (term: string) {
+    if (term !== '') {
+      this.p = 1
+      return this.commonService.getSaleDetail('?Name=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
+    } else {
+      return this.commonService.getSaleDetail('?Page=' + this.p + '&Size=' + this.itemsPerPage)
     }
   }
 
@@ -87,13 +146,14 @@ export class SalesComponent {
   totaltax: number
   totalBillAmount: number
   getSaleTraveDetail () {
-    this.commonService.getSaleDetail().subscribe(data => {
+    this.commonService.getSaleDetail('?Name=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         console.log('sales data: ', data)
         this.totalDiscount = 0
         this.totaltax = 0
         this.totalBillAmount = 0
         this.saleTravelDetails = data.Data
+        this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
         if (data.Data.length > 0) {
           data.Data.forEach(element => {
             this.totalDiscount = +(this.totalDiscount + +element.Discount).toFixed(2)
@@ -141,6 +201,7 @@ export class SalesComponent {
               _self.salesItemDatails.push({
                 itemName: data.Data.Saletravels[i].ItemName,
                 travelDate: data.Data.Saletravels[i].TravelDate,
+                returnDate: data.Data.Saletravels[i].ReturnDate,
                 flightCode: data.Data.Saletravels[i].FlightCode,
                 remark: data.Data.Saletravels[i].Remark,
                 saleRate: data.Data.Saletravels[i].SaleRate,
@@ -157,6 +218,7 @@ export class SalesComponent {
               _self.salesSummuryItemDatails.push({
                 itemName: data.Data.Saletravels[i].ItemName,
                 travelDate: data.Data.Saletravels[i].TravelDate,
+                returnDate: data.Data.Saletravels[i].ReturnDate,
                 flightCode: data.Data.Saletravels[i].FlightCode,
                 saleRate: data.Data.Saletravels[i].SaleRate,
                 langiTax: data.Data.Saletravels[i].LangiTax,

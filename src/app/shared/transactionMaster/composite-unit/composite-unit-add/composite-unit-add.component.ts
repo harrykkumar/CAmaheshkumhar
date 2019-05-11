@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnDestroy } from '@angular/core'
+import { Component, ViewChild, OnDestroy, Renderer2 } from '@angular/core'
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { Subscription } from 'rxjs/Subscription'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
@@ -43,7 +43,8 @@ export class CompositeUnitAddComponent implements OnDestroy {
     private _formBuilder: FormBuilder,
     private _unitMasterServices: UnitMasterServices,
     private commonService: CommonService,
-    private toastrService: ToastrCustomService) {
+    private toastrService: ToastrCustomService,
+    private renderer: Renderer2) {
     this.createCompositeForm()
     this.modalSub = this.commonService.getCompositeUnitStatus().subscribe(
       (data: AddCust) => {
@@ -71,12 +72,24 @@ export class CompositeUnitAddComponent implements OnDestroy {
             this.selectMainUnit = newData1
             this.primaryUnitId = +data.id
             this.select2Primary = +data.id
+            setTimeout(() => {
+              if (this.mainUnitSelect2) {
+                const element = this.renderer.selectRootElement(this.mainUnitSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
           } else if (+this.secondaryUnitId === -1) {
             let newData = Object.assign([], this.selectPackedIn)
             newData.push({ id: +data.id, text: data.name })
             this.selectPackedIn = newData
             this.secondaryUnitId = +data.id
             this.select2Secondary = +data.id
+            setTimeout(() => {
+              if (this.packedInSelect2) {
+                const element = this.renderer.selectRootElement(this.packedInSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
           }
         }
       }
@@ -113,6 +126,12 @@ export class CompositeUnitAddComponent implements OnDestroy {
     } else {
       this.id = UIConstant.ZERO
       $('#composite_unit').modal(UIConstant.MODEL_SHOW)
+      setTimeout(() => {
+        if (this.packedInSelect2) {
+          const element = this.renderer.selectRootElement(this.packedInSelect2.selector.nativeElement, true)
+          element.focus({ preventScroll: false })
+        }
+      }, 1000)
     }
   }
 

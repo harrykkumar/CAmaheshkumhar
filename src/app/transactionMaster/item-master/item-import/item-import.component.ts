@@ -8,7 +8,7 @@ import { ImportExportItem, AddCust } from '../../../model/sales-tracker.model'
 import { ItemmasterServices } from 'src/app/commonServices/TransactionMaster/item-master.services'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { ExcelService } from '../../../commonServices/excel.service'
-import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 declare var $: any
 @Component({
   selector: 'app-item-import',
@@ -272,6 +272,7 @@ export class ItemImportComponent implements OnDestroy {
       newRow['MINSTOCK'] = +newRow['MINSTOCK']
       newRow['MAXSTOCK'] = +newRow['MAXSTOCK']
       newRow['REORDERQTY'] = +newRow['REORDERQTY']
+      newRow['NRV'] = isNaN(+newRow['NRV']) ? 0 : +newRow['NRV']
       _self.masterData.push(newRow)
     })
     // console.log('masterData : ', this.masterData)
@@ -546,6 +547,7 @@ export class ItemImportComponent implements OnDestroy {
             newRow['MINSTOCK'] = +newRow['MINSTOCK']
             newRow['MAXSTOCK'] = +newRow['MAXSTOCK']
             newRow['REORDERQTY'] = +newRow['REORDERQTY']
+            newRow['NRV'] = isNaN(+newRow['NRV']) ? 0 : +newRow['NRV']
             this.masterKeys = Object.keys(newRow)
             if (!newRow['NAME']) {
               this.toastrService.showError('Name is Required at SNO. ' + newRow['SNO'], newRow['NAME'])
@@ -634,6 +636,17 @@ export class ItemImportComponent implements OnDestroy {
   }
 
   closeImportModal () {
+    this.reset()
+    this.masterData = []
+    this.insideArray = []
+    this.sheetname = []
+    this.masterTableArray = []
+    this.array = []
+    this.duplicateTuples = []
+    this.file = []
+    this.itemImportKeys = []
+    this.masterKeys = []
+    this.itemImport = []
     this.commonService.closeItemImport()
   }
 }

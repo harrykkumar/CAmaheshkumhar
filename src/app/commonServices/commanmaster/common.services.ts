@@ -3,11 +3,7 @@ import { BehaviorSubject, Subject, Observable } from 'rxjs'
 import { AddCust } from '../../model/sales-tracker.model'
 import { BaseServices } from '../base-services'
 import { ApiConstant } from '../../shared/constants/api'
-import * as FileSaver from 'file-saver';
-import * as XLSX from 'xlsx';
-
-const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-const EXCEL_EXTENSION = '.xlsx';
+declare const $: any
 @Injectable({
   providedIn: 'root'
 })
@@ -27,8 +23,8 @@ export class CommonService {
   private openItemImportSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openSaleReturnSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openAddAttributeSub = new BehaviorSubject<AddCust>({ 'open': false })
-  private closeAddAttribute = new BehaviorSubject<any>({})
   private openAddressAddSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openPurchaseAddSub = new BehaviorSubject<AddCust>({ 'open': false })
   private newInvoiceSub = new Subject()
   private newCatSub = new Subject()
   private newUnitSub = new Subject()
@@ -38,11 +34,14 @@ export class CommonService {
   private newItemAdded = new Subject()
   private newCatOrSubCatAdded = new Subject()
   private newCompositeAdded = new Subject()
+  private newPurchaseAdded = new Subject()
+  private onActionClicked$ = new Subject()
+
   private openChallanBillingSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openSaleDirectSubject = new BehaviorSubject<AddCust>({ 'open': false })
   private openPrintAddSub = new BehaviorSubject<AddCust>({ 'open': false })
 
-  /* Regex Patterns  ---b */
+  // validation reg ex
   companyNameRegx = `^[A-Za-z0-9&-]+$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
   panRegx = `[A-Z]{5}[0-9]{4}[A-Z]{1}$`
@@ -53,10 +52,10 @@ export class CommonService {
   gstInRegx = `^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})
   ([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$`
 
-  constructor (private _basesService: BaseServices) { }
+  constructor (private baseService: BaseServices) { }
 
   public getCountry () {
-    return this._basesService.getRequest(ApiConstant.BASE_URL)
+    return this.baseService.getRequest(ApiConstant.BASE_URL)
   }
 
   openInvoice (editId) {
@@ -83,8 +82,8 @@ export class CommonService {
     return this.openImportSub.asObservable()
   }
 
-  openCust (editId) {
-    this.openAddCustSub.next({ 'open': true ,'editId': editId })
+  openCust (editId, isAddNew) {
+    this.openAddCustSub.next({ 'open': true ,'editId': editId, 'isAddNew': isAddNew })
   }
 
   closeCust (newCust) {
@@ -115,8 +114,8 @@ export class CommonService {
     return this.openAddCompositeUnitAdd.asObservable()
   }
 
-  openItemMaster (editId) {
-    this.openAddItemMasterSub.next({ 'open': true, 'editId': editId })
+  openItemMaster (editId, categoryId) {
+    this.openAddItemMasterSub.next({ 'open': true, 'editId': editId, 'categoryId': categoryId })
   }
 
   closeItemMaster (newItemMaster) {
@@ -131,8 +130,8 @@ export class CommonService {
     return this.openAddItemMasterSub.asObservable()
   }
 
-  openVend (editId) {
-    this.openAddVendSub.next({ 'open': true ,'editId': editId })
+  openVend (editId, isAddNew) {
+    this.openAddVendSub.next({ 'open': true ,'editId': editId, 'isAddNew': isAddNew })
   }
 
   closeVend (newVend) {
@@ -168,7 +167,13 @@ export class CommonService {
 
   closeCategory (newCat) {
     if (newCat) {
-      this.openAddCategorySub.next({ 'open': false, 'name': newCat.name, 'id': newCat.id, 'type': newCat.type, 'parentId': newCat.parentId })
+      this.openAddCategorySub.next({ 'open': false,
+        'name': newCat.name,
+        'id': newCat.id,
+        'type': newCat.type,
+        'parentId': newCat.parentId,
+        'level': newCat.level
+      })
     } else {
       this.openAddCategorySub.next({ 'open': false })
     }
@@ -210,19 +215,20 @@ export class CommonService {
     return this.openAddTaxSub.asObservable()
   }
 
-  openLedger () {
-    this.openAddLedgerSub.next({ 'open': true })
+  openLedger (editId) {
+    this.openAddLedgerSub.next({ 'open': true , 'editId': editId })
   }
 
-  closeLedger (newLedger) {
-    if (newLedger) {
-      this.openAddLedgerSub.next({ 'open': false, 'name': newLedger.name, 'id': newLedger.id })
+  closeLedger (flg,newLedger) {
+    if (!flg) {
+      this.openAddLedgerSub.next({ 'open': flg, 'name': newLedger.name, 'id': newLedger.id })
     } else {
-      this.openAddLedgerSub.next({ 'open': false })
+      this.openAddLedgerSub.next({ 'open': flg, 'name': newLedger.name, 'id': newLedger.id })
     }
   }
 
   getLedgerStatus () {
+    debugger
     return this.openAddLedgerSub.asObservable()
   }
 
@@ -345,32 +351,36 @@ export class CommonService {
     return this.newCompositeAdded.asObservable()
   }
 
+  newPurchaseAdd () {
+    this.newPurchaseAdded.next()
+  }
+
+  getNewPurchaseAddedStatus () {
+    return this.newPurchaseAdded.asObservable()
+  }
+
   getSettingById (id) {
-    return this._basesService.getRequest(ApiConstant.GET_SETTING_BY_ID + id)
+    return this.baseService.getRequest(ApiConstant.GET_SETTING_BY_ID + id)
   }
 
-  getSaleSettings () {
-    return this._basesService.getRequest(ApiConstant.SETTING_SALE)
-  }
+  // getSaleSettings () {
+  //   return this.baseService.getRequest(ApiConstant.SETTING_SETUP_BY_TYPE + 'sale')
+  // }
 
-  getSaleDetail () {
-    return this._basesService.getRequest(ApiConstant.SALE_TRVEL_DETAIL_URL)
+  getSaleDetail (queryParams) {
+    return this.baseService.getRequest(ApiConstant.SALE_TRVEL_DETAIL_URL + queryParams)
   }
 
   getPaymentLedgerDetail (id) {
-    return this._basesService.getRequest(ApiConstant.LEDGER_DETAIL_URL + '?Glid=' + id)
+    return this.baseService.getRequest(ApiConstant.LEDGER_DETAIL_URL + '?Glid=' + id)
   }
 
   getPaymentModeDetail () {
-    return this._basesService.getRequest(ApiConstant.PAYMENT_MODE_DETAIL_URL)
+    return this.baseService.getRequest(ApiConstant.PAYMENT_MODE_DETAIL_URL)
   }
 
   getCountryList () {
-    return this._basesService.getRequest(ApiConstant.COUNTRY_LIST)
-  }
-
-  getSaleReturnSetting () {
-    return this._basesService.getRequest(ApiConstant.SETTING_SALE_RETURN)
+    return this.baseService.getRequest(ApiConstant.COUNTRY_LIST)
   }
 
   openAttribute (data, isSubAttr) {
@@ -381,18 +391,30 @@ export class CommonService {
     return this.openAddAttributeSub.asObservable()
   }
 
+  closeAttributeForDynamicAdd (attribute) {
+    if (attribute) {
+      this.openAddAttributeSub.next({ 'open': false, 'name': attribute.name, 'id': attribute.id, 'AttributeId': attribute.AttributeId })
+    } else {
+      this.openAddAttributeSub.next({ 'open': false })
+    }
+  }
+
   closeAttribute (data) {
-    this.closeAddAttribute.next(data)
+    if (data) {
+      this.openAddAttributeSub.next({ 'open': false, 'name': data.name, 'id': data.id })
+    } else {
+      this.openAddAttributeSub.next({ 'open': false })
+    }
   }
 
   closeAttributeStatus () {
-    return this.closeAddAttribute.asObservable()
+    return this.openAddAttributeSub.asObservable()
   }
   getsettingforOrgnizationData (orgid,forSaleType,date) {
-    return this._basesService.getRequest(ApiConstant.SETTING_FOR_ORGNIZATION_DATA + orgid + '&TransDate=' + date + '&TransactionType=' + forSaleType)
+    return this.baseService.getRequest(ApiConstant.SETTING_FOR_ORGNIZATION_DATA + orgid + '&TransDate=' + date + '&TransactionType=' + forSaleType)
   }
   openAddress (leaderId) {
-    this.openAddressAddSub.next({ 'open': true, 'legerId': leaderId })
+    this.openAddressAddSub.next({ 'open': true, 'ledgerId': leaderId })
   }
 
   closeAddress (address) {
@@ -402,133 +424,101 @@ export class CommonService {
       this.openAddressAddSub.next({ 'open': false })
     }
   }
+
+  public addAreaNameUnderCity (param) {
+    return this.baseService.postRequest(ApiConstant.ADD_AREA_UNDER_CITY_ID ,param)
+  }
+  public searchCountryByName (name) {
+    return this.baseService.getRequest(ApiConstant.SEARCH_COUNTRY_BY_ID_AND_NAME + name)
+  }
+
   getAddressStatus () {
     return this.openAddressAddSub.asObservable()
   }
 
-
-  public addAreaNameUnderCity (param) {
-    return this._basesService.postRequest(ApiConstant.ADD_AREA_UNDER_CITY_ID ,param)
-  }
-  public searchCountryByName (name) {
-    return this._basesService.getRequest(ApiConstant.SEARCH_COUNTRY_BY_ID_AND_NAME + name)
-  }
-
-
-  getSaleChallanSettings (type) {
-    return this._basesService.getRequest(ApiConstant.SETTING_SALE_CHALLAN + type)
-  }
+  // getSaleChallanSettings () {
+  //   return this.baseService.getRequest(ApiConstant.SETTING_SALE_CHALLAN)
+  // }
   getSaleChallanInitializeData () {
-    return this._basesService.getRequest(ApiConstant.SALE_CHALLAN_GET_TYPEBY_SALE_DATA)
+    return this.baseService.getRequest(ApiConstant.SALE_CHALLAN_GET_TYPEBY_SALE_DATA)
   }
 
   getAddressByIdOfCustomer (parentId, ParentTypeId) {
-    return this._basesService.getRequest(ApiConstant.GET_ADDRESS_OF_CUSTOMER_BY_ID_FOR_SAL_ECHALLAN + parentId + '&ParentTypeId=' + ParentTypeId)
+    return this.baseService.getRequest(ApiConstant.GET_ADDRESS_OF_CUSTOMER_BY_ID_FOR_SAL_ECHALLAN + parentId + '&ParentTypeId=' + ParentTypeId)
 
   }
   postSaleChallan (param) {
-    return this._basesService.postRequest(ApiConstant.POST_SALE_CHALLAN, param)
+    return this.baseService.postRequest(ApiConstant.POST_SALE_CHALLAN, param)
   }
   public getItemByCategoryId (id) {
-    return this._basesService.getRequest(ApiConstant.GET_ITEM_BY_CATEGORY_URL + id)
+    return this.baseService.getRequest(ApiConstant.GET_ITEM_BY_CATEGORY_URL + id)
   }
 
   getAllDataOfSaleChallan () {
-    return this._basesService.getRequest(ApiConstant.GET_ALL_DETAILS_SALE_CHALLAN_URL)
+    return this.baseService.getRequest(ApiConstant.GET_ALL_DETAILS_SALE_CHALLAN_URL)
 
   }
   printAndEditSaleChallan (id) {
-    return this._basesService.getRequest(ApiConstant.GET_PRINT_SALE_CHALLAN_URL + id)
+    return this.baseService.getRequest(ApiConstant.GET_PRINT_SALE_CHALLAN_URL + id)
 
   }
   public postAddNewAddress (param) {
-    return this._basesService.postRequest(ApiConstant.POST_NEW_ADDRESS, param)
+    return this.baseService.postRequest(ApiConstant.POST_NEW_ADDRESS, param)
   }
   public saleEditChallan (id) {
-    return this._basesService.getRequest(ApiConstant.GET_PRINT_SALE_CHALLAN_URL + id)
+    return this.baseService.getRequest(ApiConstant.GET_PRINT_SALE_CHALLAN_URL + id)
   }
 
   public allsetupSettingAPI () {
-    return this._basesService.getRequest(ApiConstant.ALL_SETUP_SETTING)
+    return this.baseService.getRequest(ApiConstant.ALL_SETUP_SETTING)
   }
 
   public excelForCouirerParcelData () {
-    return this._basesService.getRequest(ApiConstant.GET_EXCEL_API_FOR_DATA)
+    return this.baseService.getRequest(ApiConstant.GET_EXCEL_API_FOR_DATA)
   }
 
-//by hari
   public attributeData () {
-    return this._basesService.getRequest(ApiConstant.GET_ATTRIBUTE_SALE_CHALLAN_DATA)
+    return this.baseService.getRequest(ApiConstant.GET_ATTRIBUTE_SALE_CHALLAN_DATA)
   }
 
-    openChallanBill (data,challanNos) {
-    this.openChallanBillingSub.next({ 'open': true ,'data' : data , 'challanNos':challanNos })
+  openPurchase (editId) {
+    this.openPurchaseAddSub.next({ 'open': true, 'editId': editId })
   }
 
-  closeChallanBill () {
-    this.openChallanBillingSub.next({ 'open': false })
+  getPurchaseStatus () {
+    return this.openPurchaseAddSub.asObservable()
   }
 
-  getChallanBillStatus (): Observable<any> {
-    return this.openChallanBillingSub.asObservable()
-  }
-    getChallanDataByIdForBilling(id){
-    return this._basesService.getRequest(ApiConstant.GET_CHALLAN_DETAILS_FOR_BILLING_BY_ID + id)
-}
-
-  getSaleTravelDetail() {
-    return this._basesService.getRequest(ApiConstant.SALE_TRVEL_DETAIL_URL)
+  closePurchase () {
+    this.openPurchaseAddSub.next({ 'open': false })
   }
 
- public exportAsExcelFile(json: any[], excelFileName: string): void {
-    
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
-    console.log('worksheet',worksheet);
-    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    //const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
-    this.saveAsExcelFile(excelBuffer, excelFileName);
+  getModuleSettings (name) {
+    return this.baseService.getRequest(ApiConstant.GET_MODULE_SETTING + name)
   }
 
-  private saveAsExcelFile(buffer: any, fileName: string): void {
-    const data: Blob = new Blob([buffer], {
-      type: EXCEL_TYPE
-    });
-    FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
-  }
-    /* Function to get industry type list ----b */
-  getIndustryType = () => {
-    return this._basesService.getRequest(ApiConstant.INDUSTRY_TYPE_LIST_URL)
+  getSPUtilityData (type) {
+    return this.baseService.getRequest(ApiConstant.SPUTILITY + type)
   }
 
-  /* Function to get key person type type list ----b */
-  getPersonType = () => {
-    return this._basesService.getRequest(ApiConstant.KEY_PERSON_TYPE_LIST_URL)
+  setupSettingByType (type) {
+    return this.baseService.getRequest(ApiConstant.SETTING_SETUP_BY_TYPE + type)
   }
 
-  /* Fucntion to get accounting method list ----b */
-  getAccountingMethod = () => {
-    return this._basesService.getRequest(ApiConstant.ACCOUNTING_METHOD_LIST_URL)
+  getAllCategories () {
+    return this.baseService.getRequest(ApiConstant.GET_SAVE_AND_UPDATE_CATEGORY_URL)
   }
 
-/* HARRY*/
-  ledgerGetGSTByAddress = (Leaderid) => {
-    return this._basesService.getRequest(ApiConstant.LEDGER_GET_ADDRESS_FOR_GST + Leaderid)
+  onActionClicked (action) {
+    this.onActionClicked$.next(action)
   }
- onChangeSlabGetTaxRate (slabId) {
-    return this._basesService.getRequest(ApiConstant.EDIT_TAX_BY_ID_URL + slabId)
+
+  getActionClickedStatus () {
+    return this.onActionClicked$.asObservable()
   }
-getModulesettingAPI (type) {
-  return this._basesService.getRequest(ApiConstant.GET_MODULE_SETTING + type)
-}
-getItemRateByLedgerAPI (ItemId,CustomerId) {
-  return this._basesService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + ItemId + '&Ledgerid=' + CustomerId)
-}
 
-
-  /* Fucntion to get branch type list ----b */
   getBranchTypeList = () => {
-    return this._basesService.getRequest(ApiConstant.BRANCH_TYPE_LIST_URL)
+    return this.baseService.getRequest(ApiConstant.BRANCH_TYPE_LIST_URL)
   }
 
   /* Function to allow numeric input only for input type text  ----b */
@@ -539,19 +529,23 @@ getItemRateByLedgerAPI (ItemId,CustomerId) {
       return false
     }
   }
-postSaleChallanBillingAPI (input) {
-  return this._basesService.postRequest( ApiConstant.POST_ALL_SLECTED_CHALLAN_BILL_API,input)
-}
-  getSPUtilityData (type) {
-    return this._basesService.getRequest(ApiConstant.SPUTILITY + type)
+
+  /* Function to get industry type list ----b */
+  getIndustryType = () => {
+    return this.baseService.getRequest(ApiConstant.INDUSTRY_TYPE_LIST_URL)
   }
 
-  setupSettingByType (type) {
-    return this._basesService.getRequest(ApiConstant.SETTING_SETUP_BY_TYPE + type)
+/* Function to get key person type type list ----b */
+  getPersonType = () => {
+    return this.baseService.getRequest(ApiConstant.KEY_PERSON_TYPE_LIST_URL)
   }
 
-//sale direct HARRY
-   openSaleDirect (editId) {
+/* Fucntion to get accounting method list ----b */
+  getAccountingMethod = () => {
+    return this.baseService.getRequest(ApiConstant.ACCOUNTING_METHOD_LIST_URL)
+  }
+
+  openSaleDirect (editId) {
     this.openSaleDirectSubject.next({ 'open': true ,'editId' : editId })
   }
 
@@ -563,15 +557,15 @@ postSaleChallanBillingAPI (input) {
     return this.openSaleDirectSubject.asObservable()
   }
   postSaleDirectAPI (input) {
-  return this._basesService.postRequest( ApiConstant.SALE_DIRECT_BILLING_API,input)
-}
-getListSaleDirect (){
-  return this._basesService.getRequest( ApiConstant.SALE_DIRECT_BILLING_API)
+    return this.baseService.postRequest(ApiConstant.SALE_DIRECT_BILLING_API,input)
+  }
+  getListSaleDirect () {
+    return this.baseService.getRequest(ApiConstant.SALE_DIRECT_BILLING_API)
 
-}
+  }
 
   openPrint (id,type) {
-    this.openPrintAddSub.next({ 'open': true, 'id': id ,'type':type})
+    this.openPrintAddSub.next({ 'open': true, 'id': id ,'type': type })
   }
 
   closePrint (address) {
@@ -584,9 +578,135 @@ getListSaleDirect (){
   getprintStatus () {
     return this.openPrintAddSub.asObservable()
   }
-printDirectSale(id){
-  return this._basesService.getRequest( ApiConstant.DIRECT_SALE_PRINT_API+id)
+  printDirectSale (id) {
+    return this.baseService.getRequest(ApiConstant.DIRECT_SALE_PRINT_API + id)
 
-}
+  }
+
+  getSaleDirectEditData (id) {
+    return this.baseService.getRequest(ApiConstant.DIRECT_SALE_EDIT_GET_API + id)
+  }
+
+  getReportItemStock () {
+    return this.baseService.getRequest(ApiConstant.REPORT_ITEM_STOCK)
+  }
+
+  postSaleChallanBillingAPI (input) {
+    return this.baseService.postRequest(ApiConstant.POST_ALL_SLECTED_CHALLAN_BILL_API,input)
+  }
+
+  getSaleChallanSettings (type) {
+    return this.baseService.getRequest(ApiConstant.SETTING_SETUP_BY_TYPE + type)
+  }
+
+  openChallanBill (data,challanNos) {
+    this.openChallanBillingSub.next({ 'open': true, 'data': data , 'challanNos': challanNos })
+  }
+
+  closeChallanBill () {
+    this.openChallanBillingSub.next({ 'open': false })
+  }
+
+  getChallanBillStatus (): Observable<any> {
+    return this.openChallanBillingSub.asObservable()
+  }
+  getChallanDataByIdForBilling (id) {
+    return this.baseService.getRequest(ApiConstant.GET_CHALLAN_DETAILS_FOR_BILLING_BY_ID + id)
+  }
+
+  getSaleTravelDetail () {
+    return this.baseService.getRequest(ApiConstant.SALE_TRVEL_DETAIL_URL)
+  }
+
+  ledgerGetGSTByAddress = (Leaderid) => {
+    return this.baseService.getRequest(ApiConstant.LEDGER_GET_ADDRESS_FOR_GST + Leaderid)
+  }
+  onChangeSlabGetTaxRate (slabId) {
+    return this.baseService.getRequest(ApiConstant.EDIT_TAX_BY_ID_URL + slabId)
+  }
+  getModulesettingAPI (type) {
+    return this.baseService.getRequest(ApiConstant.GET_MODULE_SETTING + type)
+  }
+  getItemRateByLedgerAPI (ItemId,CustomerId) {
+    return this.baseService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + ItemId + '&Ledgerid=' + CustomerId)
+  }
+
+  getSearchItemStock (getSearchItemStock) {
+    this.baseService.postRequest(ApiConstant.REPORT_ITEM_STOCK + '?=AttributeSearch', getSearchItemStock)
+  }
+
+  /**
+   * Gets form dependency - get a form dependency
+   * @param name - form name
+   * @returns - observable
+   */
+  getFormDependency (name) {
+    return this.baseService.getRequest(ApiConstant.GET_DEPENDENCY_FOR_FORM + name)
+  }
+
+  /**
+   * Checks for existence - Created by Dolly Garg
+   * @param checkForExistence - array returned from backend
+   * @param others - the top data of each form
+   * @returns Observable
+   */
+  checkForExistence (checkForExistence, others): Observable<any> {
+    checkForExistence.forEach(element => {
+      if (!element.IsIdentity) {
+        element.FieldValue = others[element.FormKeyName]
+      }
+    })
+    console.log('checkForExistence : ', checkForExistence)
+    let obj = {
+      ExistencyNames: checkForExistence
+    }
+    console.log('existency : ', JSON.stringify(obj))
+    return this.baseService.postRequest(ApiConstant.CHECK_FOR_EXISTENCE, obj)
+  }
+
+  /**
+   * Fixs table hf - Created by Dolly Garg
+   * @param classname - the table class name
+   */
+  fixTableHF (classname) {
+    $(document).ready(function () {
+      $('.' + classname).tableHeadFixer({
+        head: true,
+        foot: true
+      })
+    })
+  }
+
+  /**
+   * Fixs table hf - Created by Dolly Garg
+   * @param classname - the table class name
+   */
+  fixTableHFL (classname) {
+    $('.' + classname).tableHeadFixer({
+      head: true,
+      foot: true,
+      left: 2
+    })
+  }
+
+  /**
+   * Gets last bill no - for manual case - created by Dolly Garg
+   * @param type - form type
+   * @param date - billdate
+   * @param orgNo - organisation id
+   * @returns - observable
+   */
+  getLastBillNo (type,date,orgNo) {
+    return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_MANUAL + 'Type=' + type + '&BillDate=' + date + '&OrgId=' + orgNo)
+  }
+  getBankList () {
+    return this.baseService.getRequest(ApiConstant.BANK_DETAIL_URL)
+  }
+  getEditbankDetails (id) {
+    return this.baseService.getRequest(ApiConstant.EDIT_BANK_DATA + id)
+  }
+  deleteBankDetails (id) {
+    return this.baseService.deleteRequest(ApiConstant.EDIT_BANK_DATA + id)
+  }
 
 }

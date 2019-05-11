@@ -1,13 +1,12 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core'
-import { UIConstant } from '../../constants/ui-constant'
+import { Component, OnInit, OnDestroy, ViewChild, Renderer2, ElementRef } from '@angular/core'
 import { Subject } from 'rxjs'
 import { takeUntil, map } from 'rxjs/operators'
 import _ from 'lodash'
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service'
-declare var $: any
-import { CommonService } from '../../../commonServices/commanmaster/common.services'
 import { AttributeService } from 'src/app/transactionMaster/attribute/attribute.service'
-
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
+import { UIConstant } from 'src/app/shared/constants/ui-constant'
+declare var $: any
 @Component({
   selector: 'app-attribute-add',
   templateUrl: './attribute-add.component.html',
@@ -24,13 +23,19 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   constructor (
     private attributeService: AttributeService,
     private toastrService: ToastrCustomService,
-    public _CommonService: CommonService) {
+    public _CommonService: CommonService,
+    private renderer: Renderer2
+    ) {
   }
 
-  ngOnInit () {
-    this.initAttributeNameList()
+  // tslint:disable-next-line:space-before-function-paren
+  ngOnInit() {
+
+    this.initAttributeNameList(0)
     this.initAddAttributeData()
   }
+
+  @ViewChild('attrname') attrname: ElementRef
 
   /* initialising attribute data to open add attribute modal */
   initAddAttributeData = () => {
@@ -38,16 +43,31 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
       takeUntil(this.unSubscribe$)
     )).subscribe((response: any) => {
       if (response.open === true) {
-        console.log(response ,'add attr')
+        console.log(response, 'add attr')
         this.resetFormData()
         if (response.data.editId) {
           this.setEditData(response)
         }
-        else{
-        $('#attribute_master').modal(UIConstant.MODEL_SHOW)
-          
+        if (response.data.addNewId) {
+          this.disabledAddNewFlag = false
+          this.initAttributeNameList(response.data.attrNameId)
+          this.addNewAttributeDynamic(response)
+        } else {
+          $('#attribute_master').modal(UIConstant.MODEL_SHOW)
+          setTimeout(() => {
+            if (this.attrname) {
+              const element = this.renderer.selectRootElement(this.attrname.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 1000)
         }
         $('#attribute_master').modal(UIConstant.MODEL_SHOW)
+        setTimeout(() => {
+          if (this.attrname) {
+            const element = this.renderer.selectRootElement(this.attrname.nativeElement, true)
+            element.focus({ preventScroll: false })
+          }
+        }, 1000)
       }
     }, error => console.log(error))
   }
@@ -58,6 +78,15 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
     this.selectedAttribute = response.data.attrNameId
     this.attribute.value = response.data.attrValue
   }
+  disabledAddNewFlag: boolean
+  AttributeNameNewAdd: any
+  addNewAttributeDynamic = (response) => {
+    this.attrEditId = 0
+    this.selectedAttribute = response.data.attrValue
+    this.attribute.name = this.AttributeNameNewAdd
+    this.disabledAddNewFlag = response.data.disabledAddButton
+
+  }
 
   /* Resetting form data by default */
   resetFormData = () => {
@@ -65,19 +94,24 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
     this.selectedAttribute = null
     this.attrEditId = null
     this.formModel.submitted = false
-    console.log(this.formModel)
+    //  console.log(this.formModel)
   }
 
   /* Initialising function to get the attribute name dropdown list */
-  initAttributeNameList = () => {
+  initAttributeNameList = (newAddId) => {
+    // // debugger
     this.attributeService.getAttributeName().pipe(
       takeUntil(this.unSubscribe$),
       map((response) => {
         return _.map(response.Data, (value) => {
+          if (value.Id === newAddId) {
+            this.attribute.name = value.Name
+          }
           return {
             id: value.Id,
             text: value.Name
           }
+
         })
       })
     ).subscribe((response: any) => {
@@ -103,11 +137,21 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
         this.attributeList = [...this.attributeList, { id: response.Data, text: this.attribute.name }]
         this.selectedAttribute = response.Data
       }
-    },error => console.log(error))
+    }, error => console.log(error))
   }
 
   /* Function to save and update the attribute name with value */
   saveAndUpdateAttribute = () => {
+ debugger
+ alert("j")
+
+
+
+
+
+
+
+ 
     const payload = {
       Id: this.attrEditId ? this.attrEditId : 0,
       Name: this.attribute.value,
@@ -116,13 +160,24 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
     this.attributeService.postAttributeValue(payload).pipe((
       takeUntil(this.unSubscribe$)
     ))
-    .subscribe((response) => {
-      if (response.Code === 1000) {
-        this.toastrService.showSuccess('Success', 'Saved Successfully')
-        $('#attribute_master').modal(UIConstant.MODEL_HIDE)
-        this._CommonService.closeAttribute({ status: 'saved' })
-      }
-    }, error => console.log(error))
+      .subscribe((response) => {
+        if (response.Code === 1000) {
+          alert("j2")
+          this.toastrService.showSuccess('Success', 'Saved Successfully')
+          $('#attribute_master').modal(UIConstant.MODEL_HIDE)
+          // this._CommonService.closeAttribute({ status: 'saved' })
+          const data = { id: response.Data, name: this.attribute.value, AttributeId: this.selectedAttribute }
+          this._CommonService.closeAttributeForDynamicAdd({ ...data })
+        }
+        if (response.Code === 1001) {
+          this.toastrService.showInfo('Error', response.Message)
+
+        }
+        if (response.Code === 5000) {
+          this.toastrService.showError('Error', response.Message)
+
+        }
+      }, error => console.log(error))
   }
 
   /* Function call on dropdown value changes */

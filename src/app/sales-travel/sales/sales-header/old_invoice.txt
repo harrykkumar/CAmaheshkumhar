@@ -84,7 +84,7 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <tr class="selected_row active" id="items{{i}}" *ngFor="let item of items; trackBy:customTrackBy" >
+                          <tr class="default_row" id="items{{i}}" *ngFor="let item of items;" >
                             <td>
                               <div class="action_btn">
                                 <button type="submit" class="btn btn-primary btn_add_more" (click)="addItems()" >+</button>

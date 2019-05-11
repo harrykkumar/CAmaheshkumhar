@@ -8,7 +8,7 @@
             </div>
             <div *ngIf="loading" class="modal-content" >
                 <div class="modal-body" style="height:inherit;" >
-                  <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+                  <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" class="center-loader" />
                 </div>
             </div>
             <div class="modal-body" *ngIf="!loading" >
@@ -18,15 +18,35 @@
                             <div class="form-row">
                                 <div class="form-group col-md-12">
                                     <label for="org_code">Category Name</label>
-                                    <input id="cateName" type="text" class="form-control" placeholder="Enter Category Name"
-                                    formControlName="CategoryName" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.CategoryName.errors }" >
+                                    <input id="cateName" 
+                                    type="text"
+                                    #catname class="form-control" 
+                                    placeholder="Enter Category Name"
+                                    formControlName="CategoryName" 
+                                    [ngClass]="{ 'errorTextBoxBorder is-invalid': ((submitClick && f.CategoryName.errors.required) || (f.CategoryName.dirty && f.CategoryName.errors?.minlength)) }" >
                                 </div>
+<!-- 
+                                <select2 #vendor_select2 id="vendor" 
+                                    [data]="vendorData" class="control_select"
+                                    (valueChanged)="onVendorSelect($event)"
+                                    autocomplete="true" 
+                                    [options]="{placeholder: 'Select Vendor'}"
+                                    [ngClass]="{'errorSelecto': submitSave && invalidObj?.PartyId }"
+                                    [value]="vendorValue">
+                                </select2> -->
+
                                 <div class="form-group col-md-12" *ngIf="catLevel > 1" >
-                                    <label for="bill_no">Under Category </label>
+                                    <label>Under Category</label>
                                     <div class="input-group adw_select">
-                                        <select2 [data]="selectCategory" #cat_select2 class="control_select" (valueChanged)="selectedCategory($event)"
-                                        autocomplete="true" [options]="catagoriesPlaceHolder" [value]="categoryValue"
-                                        [disabled]="disabledValue"></select2>
+                                        <div class="input-group adw_select">
+                                            <select2 [data]="selectCategory"
+                                            #cat_select2 class="control_select"
+                                            (valueChanged)="selectedCategory($event)"
+                                            autocomplete="true"
+                                            [options]="catagoriesPlaceHolder"
+                                            [value]="categoryValue"
+                                            [disabled]="disabledValue"></select2>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group col-md-12">
@@ -39,8 +59,11 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary waves-effect" (click)="saveAndUpdateCategory()">Save
-                 </button>
+                <button type="button"
+                 (keydown.enter)="saveAndUpdateCategory()"
+                 class="btn btn-primary waves-effect"
+                 (click)="saveAndUpdateCategory()">Save
+                changes</button>
             </div>
         </div>
     </div>

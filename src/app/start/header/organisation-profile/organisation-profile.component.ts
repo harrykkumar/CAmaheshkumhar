@@ -1,7 +1,7 @@
-import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 /* Created by Bharat */
 
-import { Component, OnInit, Input,NgModule , OnChanges, SimpleChanges, OnDestroy, Output,  EventEmitter, ViewChild } from '@angular/core'
+import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, ViewChild, EventEmitter } from '@angular/core'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { Subject } from 'rxjs'
 import { takeUntil, map } from 'rxjs/operators'
@@ -443,43 +443,43 @@ export class OrganisationProfileComponent implements OnInit, OnChanges {
   }
 
     /* Function to validate mobile detail */
-    validateMobileDetail = () => {
-      let valid = true
-      if (this.mobileDetail.selectedMobileCountryCode && Number(this.mobileDetail.selectedMobileCountryCode.id) === 0) {
-        valid = false
-      }
-      return valid
+  validateMobileDetail = () => {
+    let valid = true
+    if (this.mobileDetail.selectedMobileCountryCode && Number(this.mobileDetail.selectedMobileCountryCode.id) === 0) {
+      valid = false
     }
-  
+    return valid
+  }
+
     /* Function to validate key person details */
-    validateKeyPersonDetail = () => {
-      let valid = true
-      if (this.keyPersonDetail.keyPersonMobileCountryCode && Number(this.keyPersonDetail.keyPersonMobileCountryCode.id) === 0) {
-        valid = false
-      }
-      if (this.keyPersonDetail.selectedKeyPersonType && Number(this.keyPersonDetail.selectedKeyPersonType.id) === 0) {
-        valid = false
-      }
-      return valid
+  validateKeyPersonDetail = () => {
+    let valid = true
+    if (this.keyPersonDetail.keyPersonMobileCountryCode && Number(this.keyPersonDetail.keyPersonMobileCountryCode.id) === 0) {
+      valid = false
     }
-  
+    if (this.keyPersonDetail.selectedKeyPersonType && Number(this.keyPersonDetail.selectedKeyPersonType.id) === 0) {
+      valid = false
+    }
+    return valid
+  }
+
     /* Function to validate address details */
-    validateAddressDetail = () => {
-      let valid = true
-      if (this.addressDetail.selectedCountry && Number(this.addressDetail.selectedCountry.id) === 0) {
-        valid = false
-      }
-      if (this.addressDetail.selectedState && Number(this.addressDetail.selectedState.id) === 0) {
-        valid = false
-      }
-      if (this.addressDetail.selectedCity && Number(this.addressDetail.selectedCity.id) === 0) {
-        valid = false
-      }
-      if (this.addressDetail.selectedAddressType && Number(this.addressDetail.selectedAddressType.id) === 0) {
-        valid = false
-      }
-      return valid
+  validateAddressDetail = () => {
+    let valid = true
+    if (this.addressDetail.selectedCountry && Number(this.addressDetail.selectedCountry.id) === 0) {
+      valid = false
     }
+    if (this.addressDetail.selectedState && Number(this.addressDetail.selectedState.id) === 0) {
+      valid = false
+    }
+    if (this.addressDetail.selectedCity && Number(this.addressDetail.selectedCity.id) === 0) {
+      valid = false
+    }
+    if (this.addressDetail.selectedAddressType && Number(this.addressDetail.selectedAddressType.id) === 0) {
+      valid = false
+    }
+    return valid
+  }
 
   /* Function to get all the email type list */
   getEmailTypeList = () => {

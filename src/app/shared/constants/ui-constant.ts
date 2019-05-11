@@ -89,7 +89,9 @@ export class UIConstant {
   public static get ADD_NEW_OPTION (): string {
     return '+Add New'
   }
-
+  public static get INFO (): string {
+    return 'info'
+  }
   public static get SUCCESS (): string {
     return 'Success'
   }
@@ -141,24 +143,8 @@ export class UIConstant {
   public static get IMPORT_ITEM_PENDING (): string {
     return 'Some Items were left out, please upload them in order to move further'
   }
-  //hari 
-   public static get FIRST_SAVE_EDIT_ITEM (): string {
-    return 'First Edit & Save Item'
-  }
-   public static get ADD_ITEM (): string {
-    return 'Please Add Item'
-  } 
-  public static get ERROR (): string {
-    return 'Error'
-  }
-   public static get WARNING (): string {
-    return 'Warning'
-  }
- 
-   public static get PAYMENT_NOT_MORE_BILLAMOUNT (): string {
-    return 'Payment can\'t be more the bill amount'
-  }
-    public static get PURCHASE_TYPE (): string {
+
+  public static get PURCHASE_TYPE (): string {
     return 'purchase'
   }
 
@@ -171,4 +157,26 @@ export class UIConstant {
   public static get SALE_RETURN (): string {
     return 'saleReturn'
   }
+
+  public static get FIRST_SAVE_EDIT_ITEM (): string {
+    return 'First Edit & Save Item'
+  }
+  public static get ADD_ITEM (): string {
+    return 'Please Add Item'
+  }
+  public static get ERROR (): string {
+    return 'Error'
+  }
+  public static get WARNING (): string {
+    return 'Warning'
+  }
+
+  public static get PAYMENT_NOT_MORE_BILLAMOUNT (): string {
+    return 'Payment can\'t be more the bill amount'
+  }
+  public static get SERVERERROR (): number {
+    return 5000
+  }
+
+ 
 }

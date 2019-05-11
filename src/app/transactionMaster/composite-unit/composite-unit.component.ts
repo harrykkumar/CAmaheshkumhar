@@ -1,41 +1,37 @@
-import { Component, OnInit, OnDestroy } from '@angular/core'
-import { Subscription } from 'rxjs'
-import { FormGroup } from '@angular/forms'
-import { Select2OptionData } from 'ng2-select2'
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core'
+import { Subscription, fromEvent } from 'rxjs'
 import { UnitModel } from '../../model/sales-tracker.model'
 import { CompositeUnitService } from '../../commonServices/TransactionMaster/composite-unit.services'
 import { UIConstant } from '../../shared/constants/ui-constant'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { CommonService } from '../../commonServices/commanmaster/common.services'
+import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { FormGroup, FormBuilder } from '@angular/forms'
+import { PagingComponent } from '../../shared/pagination/pagination.component'
 
 declare const $: any
+declare const _: any
 @Component({
   selector: 'app-composite-unit',
   templateUrl: './composite-unit.component.html',
   styleUrls: ['./composite-unit.component.css']
 })
 export class CompositeUnitComponent implements OnInit, OnDestroy {
-  id: number
-  select2Primary: any
-  selec2Secondary: any
-  submitClick: boolean
-  errorMassage: string
-  primaryUnitId: number
-  primaryUnitQty: number
-  secondaryUnitId: number
-  campositeForm: FormGroup
-  primearyIdError: boolean
   subUnitDetail: UnitModel[]
-  secondaryUnitIdError: boolean
-  packedInPlaceHolder: Select2Options
-  mainUnitPlaceHolder: Select2Options
-  public selectPackedIn: Array<Select2OptionData>
-  public selectMainUnit: Array<Select2OptionData>
   deleteSub: Subscription
   compositeUnitAddSub: Subscription
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
+  lastItemIndex: number = 0
+  searchForm: FormGroup
+  isSearching: boolean = false
+  @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (private _compositeUnitserivices: CompositeUnitService,
     private commonService: CommonService,
-    private toastrService: ToastrCustomService) {
+    private toastrService: ToastrCustomService,
+    private _formBuilder: FormBuilder) {
+    this.formSearch()
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
         if (obj.id && obj.type && obj.type === 'composite') {
@@ -71,20 +67,72 @@ export class CompositeUnitComponent implements OnInit, OnDestroy {
   }
 
   searchSubUnit: any
-
+  @ViewChild('searchData') searchData: ElementRef
   ngOnInit () {
-    this.primaryUnitQty = UIConstant.ONE
-    this.id = UIConstant.ZERO
     this.getCompositeDetail()
+    this.commonService.fixTableHF('cat-table')
+    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+      map((event: any) => {
+        return event.target.value
+      }),
+      filter(res => res.length > 1 || res.length === 0),
+      debounceTime(1000),
+      distinctUntilChanged()
+      ).subscribe((text: string) => {
+        this.isSearching = true
+        this.searchGetCall(text).subscribe((data) => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          this.subUnitDetail = data.Data
+          this.total = this.subUnitDetail[0] ? this.subUnitDetail[0].TotalRows : 0
+          // console.log('categories : ', this.categoryDetail)
+        },(err) => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          console.log('error',err)
+        },
+        () => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+        })
+      })
+  }
+
+  searchGetCall (term: string) {
+    if (!term) {
+      term = ''
+    }
+    this.pagingComp.setPage(1)
+    return this._compositeUnitserivices.getSubUnitDetails('?WithOutUnit=1' + '&Name=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
+  }
+
+  private formSearch () {
+    this.searchForm = this._formBuilder.group({
+      'searckKey': [UIConstant.BLANK]
+    })
   }
 
   getCompositeDetail () {
-    this._compositeUnitserivices.getSubUnitDetails().subscribe(data => {
-      console.log('composite data : ', data)
-      if (data.Code === UIConstant.THOUSAND) {
-        this.subUnitDetail = data.Data
+    if (!this.searchForm.value.searckKey) {
+      this.searchForm.value.searckKey = ''
+    }
+    this._compositeUnitserivices.getSubUnitDetails('?WithOutUnit=1&Name=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).pipe(
+      filter(data => data.Code),
+      map(data => data.Data),
+      map(data => {
+        console.log('old data : ', data)
+        let newData = data.filter(element => element.PrimaryUnitId !== element.SecondaryUnitId)
+        return newData
+      }))
+      .subscribe(data => {
+        this.subUnitDetail = data
+        this.total = this.subUnitDetail[0] ? this.subUnitDetail[0].TotalRows : 0
+        console.log('composite unit : ', this.subUnitDetail)
       }
-    })
+    )
   }
 
   editSubUnit (id) {

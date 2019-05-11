@@ -33,8 +33,8 @@ export class UnitMasterServices {
   constructor (private _basesService: BaseServices) {
   }
 
-  getUnitDetail () {
-    return this._basesService.getRequest(ApiConstant.GET_UNIT_DETAIL)
+  getUnitDetail (queryParams) {
+    return this._basesService.getRequest(ApiConstant.GET_UNIT_DETAIL + queryParams)
   }
 
   getUnit (id) {

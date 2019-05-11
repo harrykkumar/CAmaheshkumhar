@@ -4,7 +4,8 @@ import { Select2Module } from 'ng2-select2'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { CategoryComponent } from './category.component'
 import { CategoryRoutingModule } from './category.routing.module'
-
+import { PagingUtilityModule } from '../../shared/pagination/pagination.module'
+import { NgxPaginationModule } from 'ngx-pagination'
 @NgModule({
   declarations: [CategoryComponent],
   imports: [
@@ -12,7 +13,9 @@ import { CategoryRoutingModule } from './category.routing.module'
     ReactiveFormsModule,
     FormsModule,
     Select2Module,
-    CategoryRoutingModule
+    CategoryRoutingModule,
+    PagingUtilityModule,
+    NgxPaginationModule
   ]
 })
 export class CategoryModule { }

@@ -1,0 +1,141 @@
+/* .table1 {
+  width: 100% !important;
+} */
+.scroll tr {
+  display: flex;
+}
+/* .scroll tfoot tr {
+  display: block;
+} */
+
+
+.scroll td {
+  padding: 3px;
+  flex: 1 auto;
+  /* border: 1px solid #aaa; */
+  width: 1px;
+  word-wrap: break;
+}
+
+.scroll thead tr:after {
+  content: '';
+  overflow-y: scroll;
+  visibility: hidden;
+  height: 0;
+}
+
+.scroll thead th {
+  flex: 1 auto;
+  display: flex;
+  /* border: 1px solid #000; */
+}
+.scroll tfoot th {
+  flex: 1 auto;
+  display: block;
+  /* border: 1px solid #000; */
+}
+.scroll tbody {
+  display: block;
+  width: 100%;
+  overflow-y: auto;
+ /* max-height: calc(100vh - 264px); */
+}
+
+.table1 {
+  width: 100% !important;
+}
+
+.table1 {
+  margin-bottom: 0 !important;
+}
+
+table.table1 thead th {
+  border-top: none;
+  z-index: 99;
+  margin-right: -16px;
+}
+table.table1 tfoot th {
+border-top: none;
+z-index: 99;
+
+}
+
+
+table.table1-hover tbody tr:hover {
+  transition: .5s;
+  background-color: #eaebee8a !important;
+}
+table.table1 td, table.table1 th {
+  padding: 7px 23px;
+  font-weight: 400;
+  vertical-align: middle;
+}
+
+
+table.table1 th {
+  font-weight: 600;
+  color: #000;
+  border: 1px solid #fff;
+  font-size: .75rem;
+  background: #d9e3f7;
+}
+.table1-striped tbody tr:nth-of-type(odd) {
+background: none !important;
+}
+
+.table1 tfoot th {
+  font-weight: 600;
+  color: #333;
+  border: none;
+  background: #d9e3f7;
+}
+
+/* .table1 {
+  margin-bottom: 0 !important;
+}
+
+table.table1 thead th {
+  border-top: none;
+  z-index: 99;
+}
+table.table1 tfoot th {
+  border-top: none;
+  z-index: 99;
+}
+
+
+table.table1-hover tbody tr:hover {
+  transition: .5s;
+  background-color: #eaebee8a !important;
+}
+table.table1 td, table.table1 th {
+  font-weight: 400;
+  vertical-align: middle;
+}
+
+
+table.table1 th {
+  font-weight: 600;
+  color: #000;
+  border: 1px solid #fff;
+  font-size: .75rem;
+  background: #d9e3f7;
+}
+.table1-striped tbody tr:nth-of-type(odd) {
+  background: none !important;
+}
+
+.table1 tfoot th {
+  font-weight: 600;
+  color: #333;
+  border: none;
+  background: #d9e3f7;
+}
+
+.table1 tbody {
+  display: block;
+  width: 100%;
+  overflow-y: auto;
+ max-height: calc(100vh - 264px);
+} */
+

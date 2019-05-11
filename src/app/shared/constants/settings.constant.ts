@@ -16,27 +16,28 @@ export class Settings {
   set dateFormat (dateFormat: string) {
     window.localStorage['dateFormat'] = dateFormat
   }
+
   get catLevel (): number {
-   if (window.localStorage['catLevel']) {
-     return window.localStorage['catLevel']
-   } else {
-     return 1
-   }
- }
+    if (window.localStorage['catLevel']) {
+      return window.localStorage['catLevel']
+    } else {
+      return 1
+    }
+  }
 
- set catLevel (catLevel: number) {
-   window.localStorage['catLevel'] = catLevel
- }
+  set catLevel (catLevel: number) {
+    window.localStorage['catLevel'] = catLevel
+  }
 
- get industryId (): number {
-   if (window.localStorage['industryId']) {
-     return window.localStorage['industryId']
-   } else {
-     return 1
-   }
- }
+  get industryId (): number {
+    if (window.localStorage['industryId']) {
+      return window.localStorage['industryId']
+    } else {
+      return 1
+    }
+  }
 
- set industryId (industryId: number) {
-   window.localStorage['industryId'] = industryId
- }
+  set industryId (industryId: number) {
+    window.localStorage['industryId'] = industryId
+  }
 }

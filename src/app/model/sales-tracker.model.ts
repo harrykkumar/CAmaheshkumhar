@@ -16,6 +16,7 @@ export interface CatagoryDetailModel {
   Name: string
   ParentId: number
   UnderCategory: string
+  TotalRows: number
 }
 
 export interface SaveCategoryModel {
@@ -51,6 +52,7 @@ export interface ItemModel {
   MaxStock?: number
   MinStock?: number
   ReOrderQty?: number
+  TotalRows?: number
 }
 
 export interface UnitModel {
@@ -70,6 +72,7 @@ export interface UnitModel {
   primaryUnitId: any
   isPrimaryUnit: boolean
   MainUnitId: number
+  TotalRows: number
 }
 
 export interface CompositeUnit {
@@ -139,6 +142,7 @@ export interface Ledger {
   taxType: string
   taxTypeId: string
   websites: string
+  TotalRows?: number
 }
 
 export interface AddLedger {
@@ -254,6 +258,7 @@ export interface SaleTravel {
   TaxAmount: number
   TicketNo: string
   TotalAmount: number
+  TotalRows?: number
 }
 
 export interface AddCust {
@@ -271,9 +276,15 @@ export interface AddCust {
   baseImages?: number[]
   isSubAttr?: any
   status?: string
-  data?:any
-  legerId?:any
-  challanNos?:any
+  ledgerId?: number
+  categoryId?: number
+  unitId?: number
+  taxId?: number
+  level?: number
+  data?: any
+  challanNos?: any
+  AttributeId?: any
+  isAddNew?: boolean
 }
 
 export interface ResponseSale {
@@ -495,4 +506,110 @@ export interface ItemMasterAdd {
   IsVolumeDiscountApply?: boolean
   IsTradeDiscountApply?: boolean
   ImageFiles?: Array<Object>[]
+}
+
+export interface PurchaseItem {
+  TransType: number
+  TransId: number
+  ChallanId: number
+  CategoryId: number
+  ItemId: number
+  UnitId: number
+  Length: number
+  Height: number
+  Width: number
+  Quantity: number
+  SaleRate: number
+  MrpRate: number
+  PurchaseRate: number
+  TaxSlabId: number
+  TaxType: number
+  TaxAmount: number
+  DiscountType: number
+  Discount: number
+  DiscountAmt: number
+  ExpiryDate: string
+  MfdDate: string
+  BatchNo: string
+  Remark: string
+  Id: number
+  Sno: number
+  itemName: string
+  categoryName: string
+  unitName: string
+  taxSlabName: string
+  taxTypeName: string
+  SubTotal: number
+  itemAttributeTrans?: Array<PurchaseAttribute>
+  taxRates: Array<any>
+  taxSlabType: number
+}
+
+export class PurchaseAttribute {
+  ItemId: number
+  ItemTransId: number
+  AttributeId: number
+  ParentTypeId: number
+  name: string
+  id: number
+}
+
+export class PurchaseTransaction {
+  Paymode: string
+  PayModeId: number
+  LedgerId: number
+  Amount: number
+  BankLedgerName: string
+  ChequeNo: string
+  PayDate: string
+  Id: number
+  Sno: number
+}
+
+export class PurchaseAdd {
+  ReferralCommissionTypeId: number
+  ReferralCommission: number
+  PaymentDetail: Array<PurchaseTransaction>
+  Items: Array<PurchaseItem>
+  BillAmount: number
+  BillDate: string
+  PartyBillDate: string
+  PartyBillNo: string
+  BillNo: string
+  ConvertedAmount: number
+  CurrencyRate: number
+  TotalDiscount: number
+  Freight: number
+  FreightMode: number
+  Id: number
+  PartyId: number
+  ReferralId: number
+  ReferralTypeId: number
+  ReferralComission: number
+  ReferralComissionTypeId: number
+  ReverseCharge: number
+  ReverseTax: number
+  CessAmount: number
+  RoundOff: number
+  SubTotalAmount: number
+  TotalTaxAmount: number
+  TotalChallan: number
+  VehicleNo: string
+  Drivername: string
+  Transportation: string
+  TotalQty: number
+  OtherCharge: number
+  GodownId: number
+  CurrencyId: number
+  OrgId: number
+  InterestRate: number
+  InterestAmount: number
+  InterestType: number
+  DueDate: string
+  OrderId: number
+  Advanceamount: number
+  NetAmount: number
+  AddressId: number
+  ConvertedCurrencyId: number
+  ItemAttributeTrans: Array<PurchaseAttribute>
 }

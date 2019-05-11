@@ -1,14 +1,14 @@
 <!--  Created by bharat  -->
-
 <main class="main-content bgc-grey">
-  <div id="mainContent">
-    <div class="modal-header page-header p-0">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-md-4 left_side_head">
-            <p class="heading_lead c-grey-900"><i class="fas fa-flag" aria-hidden="true"></i>Office</p>
+    <div id="mainContent">
+        <div class="page-header p-0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4 left_side_head">
+                        <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-flag" aria-hidden="true"></i>Office</p>
           </div>
-          <div class="col-md-8">
+          <div class="col-md-8 right_saerch_side p-0">
+              <div class="mr-2">
             <form>
               <div id="custom-search-input" class="btn_header1 search-align">
                 <div class="input-group col-md-12">
@@ -22,22 +22,23 @@
                 </div>
               </div>
             </form>
+              </div>
             <div class="btn_header">
               <a><img src="assets/img/printer.png"> </a>
               <a><img src="assets/img/pdf.png"></a>
               <a><img src="assets/img/excel.png"></a>
               <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
-                (click)="addNewOffice()">Add New Office</button>
+                (click)="addNewOffice()">Add New</button>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="row">
-      <div class="col-md-12">
-        <div class="bgc-white bdrs-3 p-20 mB-20">
-          <div class="table-responsive" id="parent">
-            <table class="table" id="fixTable">
+        <div class="col-md-12">
+            <div class="bgc-white bdrs-3 mB-20">
+                <div class="table-responsive table_height">
+                    <table class="table cat-table table-hover">
               <thead>
                 <tr>
                   <th width="10%">Sr No.</th>

@@ -23,8 +23,8 @@ export class AttributeService {
     return this.baseService.getRequest(ApiConstant.ATTRIBUTE_NAME_URL)
   }
 
-  getAttributeList = () => {
-    return this.baseService.getRequest(ApiConstant.ATTRIBUTE_VALUE_URL)
+  getAttributeList = (queryParams) => {
+    return this.baseService.getRequest(ApiConstant.ATTRIBUTE_VALUE_URL + queryParams)
   }
 
   deleteAttribute = (deletedId) => {

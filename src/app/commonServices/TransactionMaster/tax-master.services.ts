@@ -10,8 +10,8 @@ export class TaxMasterService {
   constructor (private _basesService: BaseServices) {
   }
 
-  getTaxDetail () {
-    return this._basesService.getRequest(ApiConstant.GET_TAX_DETAIL_URL)
+  getTaxDetail (queryParams) {
+    return this._basesService.getRequest(ApiConstant.GET_TAX_DETAIL_URL + queryParams)
   }
 
   deleteTax (id) {

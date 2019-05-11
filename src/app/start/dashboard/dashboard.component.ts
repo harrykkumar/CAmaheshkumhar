@@ -38,9 +38,7 @@ export class DashboardComponent {
   routeVouture () {
     this._route.navigate([URLConstant.IMS_VOUCHER_URL])
   }
- routeAttribute () {
-    this._route.navigate([URLConstant.ATTRIBUTE_ADD])
-  }
+
   routePurchases () {
     this._route.navigate([URLConstant.PURCHASES])
   }
@@ -68,8 +66,26 @@ export class DashboardComponent {
   routeSalesChallan () {
     this._route.navigate([URLConstant.SALE_CHALLAN])
   }
-   routeDirectSale () {
-    this._route.navigate([URLConstant.SALE_DIRECT])
+
+  routePurchase () {
+    this._route.navigate([URLConstant.PURCHASE])
   }
 
+  routeItemStockReport () {
+    this._route.navigate([URLConstant.REPORT_ITEM_STOCK])
+  }
+
+  routeProfitReport () {
+    this._route.navigate([URLConstant.PROFIT_REPORT])
+  }
+
+  routeDirectSale () {
+    this._route.navigate([URLConstant.SALE_DIRECT])
+  }
+  routeAttribute () {
+    this._route.navigate([URLConstant.ATTRIBUTE_ADD])
+  }
+  routeBank () {
+    this._route.navigate([URLConstant.BANK_URL])
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core'
+import { Component, ViewChild, ElementRef } from '@angular/core'
 import { Subscription } from 'rxjs'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { SalesCourierLocalServices } from '../../sales-courier-local.services'
@@ -145,13 +145,12 @@ export class SalesInvoiceComponent {
           }
           _self.setBillDate()
           _self.setPayDate()
-          _self.setTravelDate()
           let currencies = data.Data.SetupSettings
           _self.placeholderCurreny = { placeholder: 'Select Currency' }
-          let newData = [{ id: UIConstant.BLANK, text: 'Select Currency' }]
+          let newData = []
           currencies.forEach(element => {
-            if (+element.SetupId === 37 && +element.Type === 3) {
-              if (+element.Id !== 0 && +element.Id === +element.defaultvalue) {
+            if (+element.SetupId === SetUpIds.currency && +element.Type === 3) {
+              if (+element.Id !== 0 && +element.Id === +element.DefaultValue) {
                 _self.defaultCurrency = element.Val
                 _self.currenyValues[1] = { id: '1', symbol: _self.defaultCurrency }
               }
@@ -185,7 +184,7 @@ export class SalesInvoiceComponent {
         Id: 0,
         Sno: 1,
         UnitId: 1,
-        Remark:  this.Remark,
+        Remark: this.Remark,
         Length: +this.Length,
         Quantity: +this.Quantity,
         SaleRate: +this.SaleRate
@@ -196,7 +195,7 @@ export class SalesInvoiceComponent {
         Id: 0,
         Sno: index,
         UnitId: 1,
-        Remark:  this.Remark,
+        Remark: this.Remark,
         Length: +this.Length,
         Quantity: +this.Quantity,
         SaleRate: +this.SaleRate
@@ -259,24 +258,16 @@ export class SalesInvoiceComponent {
     }
   }
 
-  setTravelDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#travel-date', {
-        minDate: 'today',
-        dateFormat: _self.clientDateFormat
-      })
-    })
-  }
-
   setPayDate () {
     let _self = this
     jQuery(function ($) {
       flatpickr('#pay-date', {
         minDate: 'today',
-        dateFormat: _self.clientDateFormat
+        dateFormat: _self.clientDateFormat,
+        defaultDate: [_self.BillDate]
       })
     })
+    this.PayDate = this.BillDate
   }
 
   setBillDate () {
@@ -323,6 +314,7 @@ export class SalesInvoiceComponent {
     if (!isNaN(totalAmount)) {
       this.RoundOff = +(Math.round(totalAmount) - totalAmount).toFixed(2)
       this.BillAmount = Math.round(totalAmount)
+      this.calculatePaymentAmount()
     }
   }
 
@@ -330,11 +322,11 @@ export class SalesInvoiceComponent {
   LedgerId: any
   deleteItem (i, forArr) {
     if (forArr === 'trans') {
-      this.transactions.splice(i,1)
+      this.transactions.splice(i, 1)
       this.checkValidationForAmount()
     }
     if (forArr === 'items') {
-      this.items.splice(i,1)
+      this.items.splice(i, 1)
       this.calculateTotalOfRow()
     }
   }
@@ -346,14 +338,28 @@ export class SalesInvoiceComponent {
   }
   // bank
   addTransactions () {
-    if (this.Paymode && this.PayModeId && this.ledgerName && this.Amount && this.PayDate && this.ChequeNo) {
-      if (this.checkValidationForAmount()) {
-        this.addTransaction()
-        this.clickTrans = true
-        this.initialiseTransaction()
-        this.paymentLedgerselect2 = []
-        console.log('transactions : ', this.transactions)
-        this.setPayDate()
+    if (this.Paymode && this.PayModeId > 0 && this.LedgerId > 0 && this.ledgerName && this.Amount > 0 && this.PayDate) {
+      if ((+this.PayModeId === 3 && this.ChequeNo) || (+this.PayModeId === 1)) {
+        if (this.checkValidationForAmount()) {
+          this.addTransaction()
+          this.clickTrans = true
+          this.initialiseTransaction()
+          this.paymentLedgerselect2 = []
+          console.log('transactions : ', this.transactions)
+          this.setPayDate()
+          this.calculatePaymentAmount()
+        }
+      } else {
+        this.clickTrans = false
+        if (+this.PayModeId === 3) {
+          if (this.ChequeNo) {
+            this.invalidObj['ChequeNo'] = false
+          } else {
+            this.invalidObj['ChequeNo'] = true
+          }
+        } else {
+          this.invalidObj['ChequeNo'] = false
+        }
       }
     }
   }
@@ -419,7 +425,7 @@ export class SalesInvoiceComponent {
   onSelectSupplier (event) {
     console.log(' supplier select : ', event)
     if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
-      this.commonService.openVend('')
+      this.commonService.openVend('', true)
       this.supplierSelect2.selector.nativeElement.value = ''
     } else {
       if (event.data[0] && event.data[0].text) {
@@ -437,7 +443,7 @@ export class SalesInvoiceComponent {
     if (event.value) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
         this.clientSelect2.selector.nativeElement.value = ''
-        this.commonService.openCust('')
+        this.commonService.openCust('', true)
       } else {
         this.PartyId = event.value
         this.checkValidation()
@@ -466,7 +472,7 @@ export class SalesInvoiceComponent {
   getClientName (value) {
     this.clientnamePlaceHolder = { placeholder: 'Select ClientName' }
     this.clientNameSelect2 = [{ id: UIConstant.BLANK, text: 'Select Client Name' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this._ledgerServices.getVendor(5).subscribe(data => {
+    this._ledgerServices.getVendor(5, '').subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
           data.Data.forEach(element => {
@@ -479,14 +485,14 @@ export class SalesInvoiceComponent {
         }
       }
     },
-    (error) => {
-      console.log(error)
-    },
-    () => {
-      if (this.suplierNameSelect2.length === 0) {
-        this.getSuplier(0)
-      }
-    })
+      (error) => {
+        console.log(error)
+      },
+      () => {
+        if (this.suplierNameSelect2.length === 0) {
+          this.getSuplier(0)
+        }
+      })
   }
   ngOnDestroy () {
     this.modalOpen.unsubscribe()
@@ -498,6 +504,13 @@ export class SalesInvoiceComponent {
   openModal () {
     this.initComp()
     $('#salerout').modal(UIConstant.MODEL_SHOW)
+    if (this.clientSelect2) {
+      setTimeout(() => {
+        this.clientSelect2.selector.nativeElement.focus({ preventScroll: false })
+        this.CurrencyId = this.currencies[0].id
+        this.currencySelect2.setElementValue(this.currencies[0].id)
+      }, 1000)
+    }
   }
 
   closeModal () {
@@ -515,7 +528,7 @@ export class SalesInvoiceComponent {
   getSuplier (value) {
     this.supplierPlaceHolder = { placeholder: 'Select Supplier' }
     this.suplierNameSelect2 = [{ id: UIConstant.BLANK, text: 'Select Supplier' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this._ledgerServices.getVendor(4).subscribe(data => {
+    this._ledgerServices.getVendor(4, '').subscribe(data => {
       console.log('data: ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
@@ -530,14 +543,14 @@ export class SalesInvoiceComponent {
         this.toastrService.showError('error', data.Message)
       }
     },
-    (error) => {
-      console.log(error)
-    },
-    () => {
-      if (this.paymentModeSelect2.length === 0) {
-        this.getPaymentModeDetail(0)
-      }
-    })
+      (error) => {
+        console.log(error)
+      },
+      () => {
+        if (this.paymentModeSelect2.length === 0) {
+          this.getPaymentModeDetail(0)
+        }
+      })
   }
 
   getPaymentModeDetail (index) {
@@ -556,12 +569,12 @@ export class SalesInvoiceComponent {
       this.paymentModeSelect2 = newData
       console.log('paymentModeSelect2 : ', this.paymentModeSelect2)
     },
-    (error) => {
-      console.log(error)
-    },
-    () => {
-      this.getCurrency()
-    })
+      (error) => {
+        console.log(error)
+      },
+      () => {
+        this.getCurrency()
+      })
   }
 
   // PayModeId: any
@@ -573,10 +586,14 @@ export class SalesInvoiceComponent {
       this.Paymode = event.data[0].text
       this.PayModeId = event.value
       if (event.value === '3') {
+        this.ledgerName = ''
+        this.LedgerId = 0
         this.setpaymentLedgerSelect2(0)
       } else if (event.value === '1') {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.ledgerName = 'Cash'
+        this.LedgerId = 1
+        this.ledgerSelect2.setElementValue(this.LedgerId)
       }
     }
   }
@@ -585,7 +602,7 @@ export class SalesInvoiceComponent {
   paymentLedgerId (event) {
     console.log('payment ledger id : ', event)
     if (+event.value === -1) {
-      this.commonService.openLedger()
+      this.commonService.openLedger('')
       this.ledgerSelect2.selector.nativeElement.value = ''
     } else {
       if (event.value && event.data[0] && event.data[0].text) {
@@ -599,10 +616,10 @@ export class SalesInvoiceComponent {
   currency: any
   defaultCurrency: string
   setupModules: any
-  currenyValues: Array < { id: string, symbol: string } > = [{ id: '0', symbol: '%' }]
+  currenyValues: Array<{ id: string, symbol: string }> = [{ id: '0', symbol: '%' }]
   isDataAvailable: boolean = false
   getAvailableCurrency () {
-    return this.commonService.getSaleSettings()
+    return this.commonService.setupSettingByType(UIConstant.SALE_TYPE)
   }
 
   onSelectCurreny (evt) {
@@ -621,8 +638,9 @@ export class SalesInvoiceComponent {
     this.addTransactions()
     this.calculateTotalOfRow()
     if (this.checkValidation() && this.isValidAmount) {
-      this.BillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
-      this.transactions.forEach(transaction => {
+      let newBillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
+      let newTransactions = JSON.parse(JSON.stringify(this.transactions))
+      newTransactions.forEach(transaction => {
         transaction.PayDate = this.gs.clientToSqlDateFormat(transaction.PayDate, this.clientDateFormat)
       })
       let obj = {}
@@ -630,12 +648,12 @@ export class SalesInvoiceComponent {
       obj['BillNo'] = this.BillNo
       obj['PartyId'] = +this.PartyId
       obj['ReferId'] = +this.ReferId
-      obj['BillDate'] = this.BillDate
+      obj['BillDate'] = newBillDate
       obj['CurrencyId'] = +this.CurrencyId
       obj['BillAmount'] = this.BillAmount
       obj['RoundOff'] = this.RoundOff
       obj['Items'] = this.items
-      obj['PaymentDetail'] = this.transactions
+      obj['PaymentDetail'] = newTransactions
       let _self = this
       console.log('obj : ', JSON.stringify(obj))
       this.saleService.postLocalCourier(obj).subscribe(
@@ -728,4 +746,51 @@ export class SalesInvoiceComponent {
     }
     return !!isValid
   }
+
+  @ViewChild('description') description: ElementRef
+  onEnterPressItem () {
+    this.addItems()
+    setTimeout(() => {
+      this.description.nativeElement.focus({ preventScroll: false })
+    }, 10)
+  }
+
+  @ViewChild('savebutton') savebutton: ElementRef
+  onEnterPressTrans () {
+    this.addTransactions()
+    let paymentTotal = this.getPaymentTotal()
+    if (this.BillAmount === paymentTotal) {
+      this.manipulateData()
+    } else {
+      setTimeout(() => {
+        this.paymentSelect2.selector.nativeElement.focus({ preventScroll: false })
+      }, 10)
+    }
+  }
+
+  getPaymentTotal (): number {
+    let paymentTotal = 0
+    for (let i = 0; i <= this.transactions.length - 1; i++) {
+      paymentTotal = paymentTotal + +this.transactions[i].Amount
+    }
+    if (!this.clickTrans) {
+      if (+this.Amount) {
+        paymentTotal += +this.Amount
+      }
+    }
+    return +paymentTotal
+  }
+
+  calculatePaymentAmount () {
+    let paymentTotal = 0
+    for (let i = 0; i <= this.transactions.length - 1; i++) {
+      paymentTotal = paymentTotal + +this.transactions[i].Amount
+    }
+    if (this.BillAmount >= 0 && paymentTotal >= 0 && paymentTotal < this.BillAmount) {
+      this.Amount = this.BillAmount - paymentTotal
+    } else if (paymentTotal > this.BillAmount) {
+      this.Amount = 0
+    }
+  }
+
 }

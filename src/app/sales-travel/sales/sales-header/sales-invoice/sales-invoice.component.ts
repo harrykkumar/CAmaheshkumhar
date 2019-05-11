@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core'
+import { Component, ViewChild, Renderer2, ElementRef } from '@angular/core'
 import { Subscription } from 'rxjs'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { TravelImports, TravelPayments, AddCust, ResponseSale, SalesTourism } from '../../../../model/sales-tracker.model'
@@ -102,8 +102,8 @@ export class SalesInvoiceComponent {
   keepOpen: boolean = false
   returnDateError: boolean = false
   editMode: boolean = false
-  editTransId: number
-  editItemId: number
+  editTransId: number = -1
+  editItemId: number = -1
   validItem: boolean = true
   validTransaction: boolean = true
   clientDateFormat: string = ''
@@ -113,7 +113,9 @@ export class SalesInvoiceComponent {
     private toastrService: ToastrCustomService,
     private settings: Settings,
     private commonService: CommonService,
-    private gs: GlobalService) {
+    private gs: GlobalService,
+    private renderer: Renderer2
+    ) {
 
     this.clientNameSelect2 = []
     this.suplierNameSelect2 = []
@@ -123,7 +125,7 @@ export class SalesInvoiceComponent {
     this.getClientName(0)
 
     this.clientDateFormat = this.settings.dateFormat
-    console.log('client date format : ', this.clientDateFormat)
+    // console.log('client date format : ', this.clientDateFormat)
     if (this.clientDateFormat === '') {
       this.commonService.getSettingById(SetUpIds.dateFormat).subscribe(
         (data) => {
@@ -142,7 +144,13 @@ export class SalesInvoiceComponent {
           newData.push({ id: data.id, text: data.name })
           this.clientNameSelect2 = newData
           this.clientNameId = +data.id
-          this.clientName = data.id
+          this.clientName = +data.id
+          setTimeout(() => {
+            if (this.clientSelect2) {
+              const element = this.renderer.selectRootElement(this.clientSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
@@ -154,18 +162,30 @@ export class SalesInvoiceComponent {
           this.suplierNameSelect2 = newData
           this.supplierId = +data.id
           this.Supplier = data.id
+          setTimeout(() => {
+            if (this.supplierSelect2) {
+              const element = this.renderer.selectRootElement(this.supplierSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
     this.newRoutingAddSub = this.commonService.getRoutingStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
-          console.log('routing added : ', data)
+          // console.log('routing added : ', data)
           let newData = Object.assign([], this.select2Item)
           newData.push({ id: data.id, text: data.name })
           this.select2Item = newData
           this.routingId = +data.id
           this.Routing = data.id
+          setTimeout(() => {
+            if (this.routingSelect2) {
+              const element = this.renderer.selectRootElement(this.routingSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
@@ -178,6 +198,12 @@ export class SalesInvoiceComponent {
           this.ledger = data.id
           this.LedgerId = data.id
           this.ledgerName = data.name
+          setTimeout(() => {
+            if (this.ledgerSelect2) {
+              const element = this.renderer.selectRootElement(this.ledgerSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
@@ -271,14 +297,10 @@ export class SalesInvoiceComponent {
     this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
     console.log('currency values : ', this.currencyValues)
     this.other = others
-    // setTimeout(() => {
-    //   console.log(this.clientSelect2)
-
-    // }, 1000)
   }
 
   editItem (i, editId, type) {
-    if (type === 'trans' && !this.editTransId) {
+    if (type === 'trans' && this.editTransId === -1) {
       this.editTransId = editId
       i = i - 1
       if (+this.transactions[i].PayModeId === 3) {
@@ -298,8 +320,10 @@ export class SalesInvoiceComponent {
         this.ledgerSelect2.setElementValue(this.LedgerId)
         this.deleteItem(i, type)
       }
+    } else if (type === 'trans' && this.editTransId !== -1) {
+      this.toastrService.showInfo('', 'There is already one transaction to edit, please update it this first in order to edit others')
     }
-    if (type === 'items' && !this.editItemId) {
+    if (type === 'items' && this.editItemId === -1) {
       this.editItemId = editId
       i = i - 1
       this.Supplier = this.items[i].SupplierId
@@ -330,6 +354,8 @@ export class SalesInvoiceComponent {
       this.routingSelect2.setElementValue(this.Routing)
       this.supplierSelect2.setElementValue(this.Supplier)
       this.deleteItem(i, type)
+    } else if (type === 'items' && this.editItemId !== -1) {
+      this.toastrService.showInfo('', 'There is already one item to edit, please update it this first in order to edit others')
     }
   }
 
@@ -348,7 +374,7 @@ export class SalesInvoiceComponent {
   }
 
   addItems () {
-    if (this.Supplier && this.TicketNo && this.Routing && this.Remark && this.Date && this.Fare) {
+    if (this.Supplier > 0 && this.TicketNo && this.Routing > 0 && this.Remark && this.Date && this.Fare > 0) {
       if (this.returnDate) {
         if (this.checkForValidReturnDate()) {
           if (this.editMode) {
@@ -397,19 +423,19 @@ export class SalesInvoiceComponent {
         Date:  this.Date,
         ReturnDate: this.returnDate,
         Fare: +this.Fare,
-        Discount: this.Discount,
-        discountAmount: this.discountAmount,
-        TaxAmount: this.taxAmount,
-        ReIssueCharges: this.ReIssueCharges,
-        RefundPanelty: this.RefundPanelty,
-        Miscellaneouse: this.Miscellaneouse,
+        Discount: +this.Discount,
+        discountAmount: +this.discountAmount,
+        TaxAmount: +this.taxAmount,
+        ReIssueCharges: +this.ReIssueCharges,
+        RefundPanelty: +this.RefundPanelty,
+        Miscellaneouse: +this.Miscellaneouse,
         Company: this.Company,
-        LangiTax: this.LangiTax,
-        SvcFee: this.SvcFee,
-        Commission: this.Comm,
-        CommissionAmount: this.CommissionAmount,
-        Comm: this.Comm,
-        Commtoauthorizor: this.Commtoauthorizor,
+        LangiTax: +this.LangiTax,
+        SvcFee: +this.SvcFee,
+        Commission: +this.Comm,
+        CommissionAmount: +this.CommissionAmount,
+        Comm: +this.Comm,
+        Commtoauthorizor: +this.Commtoauthorizor,
         CommissionType: this.CommissionType,
         DiscountType: this.DiscountType,
         TotalAmount: this.TotalAmount,
@@ -450,23 +476,57 @@ export class SalesInvoiceComponent {
         TaxType: '3'
       })
     }
-
-    if (this.editItemId !== 0) {
+    setTimeout(() => {
+      this.commonService.fixTableHFL('item-table')
+    }, 1)
+    if (this.editItemId !== -1) {
       this.items[this.items.length - 1].Id = this.editItemId
     }
   }
 
   // bank
   addTransactions () {
-    if (this.Paymode && this.PayModeId && this.LedgerId && this.ledgerName && this.Amount && this.PayDate && this.ChequeNo) {
-      if (this.checkValidationForAmount()) {
-        this.addTransaction()
-        this.clickTrans = true
-        this.initialiseTransaction()
-        console.log('transactions : ', this.transactions)
-        this.setPayDate()
+    if (this.Paymode && this.PayModeId > 0 && this.LedgerId > 0 && this.ledgerName && this.Amount > 0 && this.PayDate) {
+      if ((+this.PayModeId === 3 && this.ChequeNo) || (+this.PayModeId === 1)) {
+        if (this.checkValidationForAmount()) {
+          this.addTransaction()
+          this.clickTrans = true
+          this.initialiseTransaction()
+          console.log('transactions : ', this.transactions)
+          this.setPayDate()
+          this.calculatePaymentAmount()
+        }
+      } else {
+        this.clickTrans = false
+        if (+this.PayModeId === 3) {
+          if (this.ChequeNo) {
+            this.invalidObj['ChequeNo'] = false
+          } else {
+            this.invalidObj['ChequeNo'] = true
+          }
+        } else {
+          this.invalidObj['ChequeNo'] = false
+        }
       }
     }
+  }
+
+  calculatePaymentAmount () {
+    let paymentTotal = 0
+    if (this.transactions.length === 0) {
+      this.Amount = this.totalBillAmount
+    } else {
+      for (let i = 0; i <= this.transactions.length - 1; i++) {
+        paymentTotal = paymentTotal + +this.transactions[i].Amount
+      }
+      if (this.totalBillAmount >= 0 && paymentTotal >= 0 && paymentTotal < this.totalBillAmount) {
+        this.Amount = this.totalBillAmount - paymentTotal
+      } else if (paymentTotal > this.totalBillAmount) {
+        this.Amount = 0
+      }
+    }
+
+    this.validateTransaction()
   }
 
   addTransaction () {
@@ -496,7 +556,10 @@ export class SalesInvoiceComponent {
         ChequeNo: this.ChequeNo
       })
     }
-    if (this.editTransId !== 0) {
+    setTimeout(() => {
+      this.commonService.fixTableHFL('trans-table')
+    }, 1)
+    if (this.editTransId !== -1) {
       this.transactions[this.transactions.length - 1].Id = this.editTransId
     }
   }
@@ -528,7 +591,7 @@ export class SalesInvoiceComponent {
     this.returnDate = ''
     this.supplierId = 0
     this.routingId = 0
-    this.editItemId = 0
+    this.editItemId = -1
     this.returnDateError = false
     if (this.routingSelect2) {
       this.routingSelect2.setElementValue('')
@@ -545,12 +608,12 @@ export class SalesInvoiceComponent {
     this.PayModeId = 0
     this.LedgerId = 0
     this.Amount = 0
-    this.PayDate = ''
+    this.PayDate = this.BillDate
     this.ChequeNo = ''
     this.paymode = 0
     this.ledger = 0
     this.ledgerName = ''
-    this.editTransId = 0
+    this.editTransId = -1
     if (this.ledgerSelect2) {
       this.ledgerSelect2.setElementValue('')
     }
@@ -601,25 +664,15 @@ export class SalesInvoiceComponent {
 
   setTravelDate () {
     let _self = this
-    jQuery(function ($) {
-      flatpickr('#travel-date', {
-        minDate: 'today',
-        dateFormat: _self.clientDateFormat
-      })
-    })
-  }
-
-  setPayDate () {
-    let _self = this
     if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
       jQuery(function ($) {
-        flatpickr('#pay-date', {
+        flatpickr('#travel-date', {
           dateFormat: _self.clientDateFormat
         })
       })
     } else {
       jQuery(function ($) {
-        flatpickr('#pay-date', {
+        flatpickr('#travel-date', {
           minDate: 'today',
           dateFormat: _self.clientDateFormat
         })
@@ -627,14 +680,44 @@ export class SalesInvoiceComponent {
     }
   }
 
+  setPayDate () {
+    let _self = this
+    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
+      jQuery(function ($) {
+        flatpickr('#pay-date1', {
+          dateFormat: _self.clientDateFormat,
+          defaultDate: [_self.BillDate]
+        })
+      })
+    } else {
+      jQuery(function ($) {
+        flatpickr('#pay-date1', {
+          minDate: 'today',
+          dateFormat: _self.clientDateFormat,
+          defaultDate: [_self.BillDate]
+        })
+      })
+    }
+
+    _self.PayDate = _self.BillDate
+  }
+
   setReturnDate () {
     let _self = this
-    jQuery(function ($) {
-      flatpickr('#return-travel-date', {
-        minDate: 'today',
-        dateFormat: _self.clientDateFormat
+    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
+      jQuery(function ($) {
+        flatpickr('#return-travel-date', {
+          dateFormat: _self.clientDateFormat
+        })
       })
-    })
+    } else {
+      jQuery(function ($) {
+        flatpickr('#return-travel-date', {
+          minDate: 'today',
+          dateFormat: _self.clientDateFormat
+        })
+      })
+    }
   }
 
   setBillDate () {
@@ -713,39 +796,69 @@ export class SalesInvoiceComponent {
       (isNaN(+this.LangiTax) ? 0 : +this.LangiTax) +
       (isNaN(+this.SvcFee) ? 0 : +this.SvcFee)
     }
-    this.totalDiscount = totalDiscount
-    this.totalFare = totalFare
-    this.Commission = Commission
-    this.OtherCharge = OtherCharge
+    this.totalDiscount = +totalDiscount.toFixed(2)
+    this.totalFare = +totalFare.toFixed(2)
+    this.Commission = +Commission.toFixed(2)
+    this.OtherCharge = +OtherCharge.toFixed(2)
 
     this.calTotalInvoiceAmount()
+    this.calculatePaymentAmount()
   }
 
   calculate () {
     if ('' + this.DiscountType === '0') {
       if (this.Discount && this.Fare) {
-        this.discountAmount = (+this.Discount / 100) * (+this.Fare)
+        this.discountAmount = +((+this.Discount / 100) * (+this.Fare)).toFixed(2)
       } else {
         this.discountAmount = 0
       }
     } else {
-      this.discountAmount = isNaN(+this.Discount) ? 0 : +this.Discount
+      this.discountAmount = +(isNaN(+this.Discount) ? 0 : +this.Discount).toFixed(2)
     }
     if ('' + this.CommissionType === '0') {
       if (this.Comm && this.Fare) {
-        this.CommissionAmount = (+this.Comm / 100) * (+this.Fare)
+        this.CommissionAmount = +((+this.Comm / 100) * (+this.Fare)).toFixed(2)
       } else {
         this.CommissionAmount = 0
       }
     } else {
-      this.CommissionAmount = isNaN(+this.Comm) ? 0 : +this.Comm
+      this.CommissionAmount = +(isNaN(+this.Comm) ? 0 : +this.Comm).toFixed(2)
     }
     if ('' + this.taxAmount === '0') {
-      this.taxAmount = isNaN(+this.taxAmount) ? 0 : +this.taxAmount
+      this.taxAmount = +(isNaN(+this.taxAmount) ? 0 : +this.taxAmount).toFixed(2)
     }
     this.TotalAmount = +this.calculateTotal()
     this.calculateTotalOfRow()
-    this.calculateAllTotal()
+    this.calTotalInvoiceAmount()
+
+    if (+this.Supplier > 0 && this.TicketNo && +this.Routing > 0 && this.Remark && this.Date && +this.Fare > 0) {
+      this.calculateAllTotal()
+    } else {
+      this.backtrackCalc()
+    }
+  }
+
+  backtrackCalc () {
+    let totalDiscount = 0
+    let totalFare = 0
+    let Commission = 0
+    let OtherCharge = 0
+    for (let i = 0; i < this.items.length; i++) {
+      totalDiscount = totalDiscount + +this.items[i].discountAmount
+      totalFare = totalFare + +this.items[i].Fare
+      Commission = Commission + +this.items[i].CommissionAmount
+      OtherCharge = OtherCharge +
+      (isNaN(+this.items[i].ReIssueCharges) ? 0 : +this.items[i].ReIssueCharges) +
+      (isNaN(+this.items[i].RefundPanelty) ? 0 : +this.items[i].RefundPanelty) +
+      (isNaN(+this.items[i].Miscellaneouse) ? 0 : +this.items[i].Miscellaneouse) +
+      (isNaN(+this.items[i].LangiTax) ? 0 : +this.items[i].LangiTax) +
+      (isNaN(+this.items[i].SvcFee) ? 0 : +this.items[i].SvcFee)
+    }
+    this.totalDiscount = totalDiscount
+    this.totalFare = totalFare
+    this.Commission = Commission
+    this.OtherCharge = OtherCharge
+
     this.calTotalInvoiceAmount()
   }
 
@@ -843,7 +956,7 @@ export class SalesInvoiceComponent {
       (data: ResponseSale) => {
         if (data.Code === UIConstant.THOUSAND) {
           _self.setupModules = data.Data.SetupModules[0]
-          console.log('set up modules : ', _self.setupModules)
+          console.log('settings : ', data.Data)
           if (!_self.editMode) {
             if (!_self.setupModules.IsBillNoManual) {
               _self.BillNo = _self.setupModules.BillNo
@@ -857,10 +970,10 @@ export class SalesInvoiceComponent {
           _self.setReturnDate()
           let currencies = data.Data.SetupSettings
           _self.placeholderCurreny = { placeholder: 'Select Currency' }
-          let newData = [{ id: UIConstant.BLANK, text: 'Select Currency' }]
+          let newData = []
           currencies.forEach(element => {
-            if (+element.SetupId === 37 && +element.Type === 3) {
-              if (+element.Id !== 0 && +element.Id === +element.defaultvalue && !_self.editMode) {
+            if (+element.SetupId === SetUpIds.currency && +element.Type === 3) {
+              if (+element.Id !== 0 && +element.Id === +element.DefaultValue && !_self.editMode) {
                 _self.defaultCurrency = element.Val
                 _self.currencyValues[1] = { id: 1, symbol: _self.defaultCurrency }
               }
@@ -876,13 +989,20 @@ export class SalesInvoiceComponent {
           $('#salerout').removeClass('fadeOut')
           $('#salerout').addClass('fadeInDown')
           $('#salerout').modal(UIConstant.MODEL_SHOW)
-          if (this.id !== 0) {
-            setTimeout(() => {
+          setTimeout(() => {
+            if (this.id !== 0) {
               this.clientSelect2.setElementValue(this.other.ClientName)
               this.currencySelect2.setElementValue(this.other.CurrencyId)
-            }, 1000)
-          }
-          console.log('currencies available : ', _self.currencies)
+            } else {
+              this.CurrencyId = +_self.currencies[0].id
+              this.currencySelect2.setElementValue(_self.currencies[0].id)
+            }
+            if (this.clientSelect2) {
+              const element = this.renderer.selectRootElement(this.clientSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 1000)
+          // console.log('currencies available : ', _self.currencies)
         }
       }
     )
@@ -895,11 +1015,11 @@ export class SalesInvoiceComponent {
   currencyValues: Array<{id: number, symbol: string}> = [{ id: 0, symbol: '%' }]
   isDataAvailable: boolean = false
   getAvailableCurrency () {
-    return this.commonService.getSaleSettings()
+    return this.commonService.setupSettingByType(UIConstant.SALE_TYPE)
   }
 
   onSelectCurrency (evt) {
-    console.log('selected curreny : ', evt)
+    // console.log('selected currency : ', evt)
     if (evt.data && evt.data[0].text) {
       this.CurrencyId = evt.value
       this.defaultCurrency = evt.data[0].text
@@ -912,9 +1032,9 @@ export class SalesInvoiceComponent {
   itemValueSelect2: any
   getItemDetail () {
     this.select2PlaceHlderItem = { placeholder: 'Select Routing' }
-    this.select2Item = [{ id: UIConstant.BLANK, text: 'Select Routing' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this._itemServices.getItemMasterDetail().subscribe(data => {
-      console.log('routing data : ', data)
+    this.select2Item = [{ id: '0', text: 'Select Routing' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+    this._itemServices.getItemMasterDetail('').subscribe(data => {
+      // console.log('routing data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
           this.select2Item.push({
@@ -934,7 +1054,7 @@ export class SalesInvoiceComponent {
   routeFareSub: Subscription
   @ViewChild('routing_select2') routingSelect2: Select2Component
   onSelectedRoutingId (event) {
-    console.log('selected route : ', event)
+    // console.log('selected route : ', event)
     let _self = this
     if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
       this.Fare = 0
@@ -944,16 +1064,17 @@ export class SalesInvoiceComponent {
       this.commonService.openRouting('')
       this.validateItem()
     } else {
-      if (+event.value >= 0 && event.data[0] && event.data[0].text) {
+      if (+event.value > 0 && event.data[0] && event.data[0].text) {
         this.routingName = event.data[0].text
-        this.Routing = event.value
+        this.Routing = +event.value
         this.validateItem()
         this.checkForValidation()
         this.routeFareSub = this._saleTravelServices.getRouteFare(+event.value).subscribe(
           (route: any) => {
-            console.log('route : ', route)
+            // console.log('route : ', route)
             _self.Fare = +route.Data[0].SaleRate
             _self.calculate()
+            _self.calculatePaymentAmount()
             this.checkForValidation()
           }
         )
@@ -966,11 +1087,11 @@ export class SalesInvoiceComponent {
     if (event.value && event.data.length > 0) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
         this.supplierSelect2.selector.nativeElement.value = ''
-        this.commonService.openVend('')
+        this.commonService.openVend('', true)
       } else {
-        if (event.data[0] && event.data[0].text) {
+        if (+event.value > 0 && event.data[0] && event.data[0].text) {
           this.supplierName = event.data[0].text
-          this.Supplier = event.value
+          this.Supplier = +event.value
           this.checkForValidation()
         }
       }
@@ -980,24 +1101,25 @@ export class SalesInvoiceComponent {
 
   @ViewChild('client_select2') clientSelect2: Select2Component
   onSelected2clientId (event) {
-    console.log('on select of customer : ', event)
+    // console.log('on select of customer : ', event)
     if (event.value && event.data.length > 0) {
+      this.clientName = +event.value
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
         this.clientSelect2.selector.nativeElement.value = ''
-        this.commonService.openCust('')
-      } else {
-        this.clientName = event.value
-        this.checkForValidation()
+        this.commonService.openCust('', true)
+      } else if (+event.value > 0) {
+        this.clientName = +event.value
       }
+      this.checkForValidation()
     }
   }
 
   paymentLedgerselect2: Array<Select2OptionData>
   setpaymentLedgerSelect2 (i) {
     this.ledgerPlaceHolder = { placeholder: 'Select Ledger' }
-    let newData = [{ id: UIConstant.BLANK, text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+    let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.commonService.getPaymentLedgerDetail(9).subscribe(data => {
-      console.log('PaymentModeData : ', data)
+      // console.log('PaymentModeData : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
           newData.push({
@@ -1013,7 +1135,7 @@ export class SalesInvoiceComponent {
       console.log(error)
     },
     () => {
-      if ('' + this.editTransId && this.transactions[i]) {
+      if (this.editTransId !== -1 && this.transactions[i]) {
         this.Paymode = this.transactions[i].Paymode
         this.PayModeId = this.transactions[i].PayModeId
         this.LedgerId = this.transactions[i].LedgerId
@@ -1030,8 +1152,8 @@ export class SalesInvoiceComponent {
   }
   getClientName (value) {
     this.clientnamePlaceHolder = { placeholder: 'Select ClientName' }
-    this.clientNameSelect2 = [{ id: UIConstant.BLANK, text: 'Select Client Name' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this._ledgerServices.getVendor(5).subscribe(data => {
+    this.clientNameSelect2 = [{ id: '0', text: 'Select Client Name' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+    this._ledgerServices.getVendor(5, '').subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
           data.Data.forEach(element => {
@@ -1055,9 +1177,9 @@ export class SalesInvoiceComponent {
   supplierValue: any
   getSuplier (value) {
     this.supplierPlaceHolder = { placeholder: 'Select Supplier' }
-    this.suplierNameSelect2 = [{ id: UIConstant.BLANK, text: 'Select Supplier' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this._ledgerServices.getVendor(4).subscribe(data => {
-      console.log('supplier data : ', data)
+    this.suplierNameSelect2 = [{ id: '0', text: 'Select Supplier' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+    this._ledgerServices.getVendor(4, '').subscribe(data => {
+      // console.log('supplier data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
           data.Data.forEach(element => {
@@ -1079,9 +1201,9 @@ export class SalesInvoiceComponent {
 
   getPaymentModeDetail (index) {
     this.paymentPlaceHolder = { placeholder: 'Select Payment Mode' }
-    let newData = [{ id: UIConstant.BLANK, text: 'Select Payment Mode' }]
+    let newData = [{ id: '0', text: 'Select Payment Mode' }]
     this.commonService.getPaymentModeDetail().subscribe(data => {
-      console.log('payment data: ', data)
+      // console.log('payment data: ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
           newData.push({
@@ -1101,26 +1223,31 @@ export class SalesInvoiceComponent {
     console.log('payment method select: ', event)
     if (event.value && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
-      this.PayModeId = event.value
+      this.PayModeId = +event.value
       if (event.value === '3') {
+        this.ledgerName = ''
+        this.LedgerId = 0
         this.setpaymentLedgerSelect2(0)
       } else if (event.value === '1') {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.ledgerName = 'Cash'
+        this.LedgerId = 1
+        this.ledgerSelect2.setElementValue(this.LedgerId)
       }
     }
     this.validateTransaction()
   }
+
   selectedTransIndex = 0
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
   paymentLedgerId (event) {
     console.log('payment ledger id : ', event)
     if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
       this.ledgerSelect2.selector.nativeElement.value = ''
-      this.commonService.openLedger()
+      this.commonService.openLedger('')
     } else {
-      if (event.value && event.data[0] && event.data[0].text) {
-        this.LedgerId = event.value
+      if (+event.value > 0 && event.data[0] && event.data[0].text) {
+        this.LedgerId = +event.value
         this.ledgerName = event.data[0].text
       }
     }
@@ -1128,29 +1255,32 @@ export class SalesInvoiceComponent {
   }
 
   private salesTravelParams (): SalesTourism {
-    this.BillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
-    this.items.forEach(item => {
+    let newBillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
+    let newItems = JSON.parse(JSON.stringify(this.items))
+    let newTransactions = JSON.parse(JSON.stringify(this.transactions))
+    newItems.forEach(item => {
       item.Date = this.gs.clientToSqlDateFormat(item.Date, this.clientDateFormat)
-      item.ReturnDate = this.gs.clientToSqlDateFormat(item.ReturnDate, this.clientDateFormat)
+      item.ReturnDate = (item.ReturnDate) ? this.gs.clientToSqlDateFormat(item.ReturnDate, this.clientDateFormat) : ''
     })
-    this.transactions.forEach(transaction => {
+    newTransactions.forEach(transaction => {
       transaction.PayDate = this.gs.clientToSqlDateFormat(transaction.PayDate, this.clientDateFormat)
     })
+    console.log('items : ', newItems)
     const salesTravelElement = {
       obj: {
         Id: this.id ? this.id : UIConstant.ZERO,
         BillNo: this.BillNo,
-        clientName: this.clientName,
-        BillDate: this.BillDate,
+        clientName: +this.clientName,
+        BillDate: newBillDate,
         BookingNo: this.BookingNo,
         LpoNo: this.LpoNo,
-        CurrencyId: this.CurrencyId,
-        Commission: this.Commission,
-        OtherCharge: this.OtherCharge,
-        RoundOff: this.RoundOff,
-        CessAmount: this.CessAmount,
-        travelImports: this.items,
-        travelPayments: this.transactions
+        CurrencyId: +this.CurrencyId,
+        Commission: +this.Commission,
+        OtherCharge: +this.OtherCharge,
+        RoundOff: +this.RoundOff,
+        CessAmount: +this.CessAmount,
+        travelImports: newItems,
+        travelPayments: newTransactions
       } as SalesTourism
     }
     console.log('obj : ', JSON.stringify(salesTravelElement.obj))
@@ -1189,7 +1319,7 @@ export class SalesInvoiceComponent {
 
   checkForValidation (): boolean {
     let isValid = 1
-    if (this.clientName) {
+    if (+this.clientName > 0) {
       this.invalidObj['clientName'] = false
     } else {
       this.invalidObj['clientName'] = true
@@ -1221,13 +1351,13 @@ export class SalesInvoiceComponent {
     }
     if (this.items.length === 0 && this.submitSave) {
       isValid = 0
-      if (this.Routing) {
+      if (+this.Routing > 0) {
         this.invalidObj['Routing'] = false
       } else {
         this.invalidObj['Routing'] = true
         isValid = 0
       }
-      if (this.Supplier) {
+      if (+this.Supplier > 0) {
         this.invalidObj['Supplier'] = false
       } else {
         this.invalidObj['Supplier'] = true
@@ -1251,7 +1381,7 @@ export class SalesInvoiceComponent {
         this.invalidObj['TicketNo'] = true
         isValid = 0
       }
-      if (this.Fare) {
+      if (+this.Fare > 0) {
         this.invalidObj['Fare'] = false
       } else {
         this.invalidObj['Fare'] = true
@@ -1261,8 +1391,7 @@ export class SalesInvoiceComponent {
     return !!isValid
   }
 
-  isValidAmount = true
-  checkValidationForAmount () {
+  getPaymentTotal (): number {
     let paymentTotal = 0
     for (let i = 0; i <= this.transactions.length - 1; i++) {
       paymentTotal = paymentTotal + +this.transactions[i].Amount
@@ -1272,6 +1401,12 @@ export class SalesInvoiceComponent {
         paymentTotal += +this.Amount
       }
     }
+
+    return +paymentTotal
+  }
+  isValidAmount = true
+  checkValidationForAmount () {
+    let paymentTotal = this.getPaymentTotal()
     paymentTotal = (isNaN(+paymentTotal)) ? 0 : +paymentTotal
     this.totalBillAmount = (isNaN(+this.totalBillAmount)) ? 0 : +this.totalBillAmount
     if (this.totalBillAmount !== 0) {
@@ -1291,13 +1426,13 @@ export class SalesInvoiceComponent {
   validateItem () {
     if (this.Supplier || this.TicketNo || this.Routing || this.Remark || this.Date || this.Fare) {
       let isValid = 1
-      if (+this.Routing) {
+      if (+this.Routing > 0) {
         this.invalidObj['Routing'] = false
       } else {
         isValid = 0
         this.invalidObj['Routing'] = true
       }
-      if (+this.Supplier) {
+      if (+this.Supplier > 0) {
         this.invalidObj['Supplier'] = false
       } else {
         isValid = 0
@@ -1321,7 +1456,7 @@ export class SalesInvoiceComponent {
         isValid = 0
         this.invalidObj['TicketNo'] = true
       }
-      if (+this.Fare) {
+      if (+this.Fare > 0) {
         this.invalidObj['Fare'] = false
       } else {
         isValid = 0
@@ -1334,15 +1469,15 @@ export class SalesInvoiceComponent {
   }
 
   validateTransaction () {
-    if (this.Paymode || +this.PayModeId || +this.LedgerId || this.ledgerName || +this.Amount || this.PayDate || this.ChequeNo) {
+    if (+this.Paymode > 0 || +this.PayModeId > 0 || +this.LedgerId > 0 || this.ledgerName || +this.Amount > 0 || this.ChequeNo) {
       let isValid = 1
-      if (+this.PayModeId) {
+      if (+this.PayModeId > 0) {
         this.invalidObj['PayModeId'] = false
       } else {
         isValid = 0
         this.invalidObj['PayModeId'] = true
       }
-      if (+this.LedgerId) {
+      if (+this.LedgerId > 0) {
         this.invalidObj['LedgerId'] = false
       } else {
         isValid = 0
@@ -1354,7 +1489,7 @@ export class SalesInvoiceComponent {
         isValid = 0
         this.invalidObj['ledgerName'] = true
       }
-      if (+this.Amount) {
+      if (+this.Amount > 0) {
         this.invalidObj['Amount'] = false
       } else {
         isValid = 0
@@ -1366,15 +1501,42 @@ export class SalesInvoiceComponent {
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-      if (this.ChequeNo) {
-        this.invalidObj['ChequeNo'] = false
+      if (+this.PayModeId === 3) {
+        if (this.ChequeNo) {
+          this.invalidObj['ChequeNo'] = false
+        } else {
+          isValid = 0
+          this.invalidObj['ChequeNo'] = true
+        }
       } else {
-        isValid = 0
-        this.invalidObj['ChequeNo'] = true
+        this.invalidObj['ChequeNo'] = false
       }
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
+    }
+    this.clickTrans = false
+  }
+
+  onEnterPressItem () {
+    this.addItems()
+    setTimeout(() => {
+      if (this.routingSelect2) {
+        this.routingSelect2.selector.nativeElement.focus({ preventScroll: false })
+      }
+    }, 10)
+  }
+
+  @ViewChild('savebutton') savebutton: ElementRef
+  onEnterPressTrans () {
+    this.addTransactions()
+    let paymentTotal = this.getPaymentTotal()
+    if (this.totalBillAmount === paymentTotal) {
+      this.manipulateData()
+    } else {
+      setTimeout(() => {
+        this.paymodeSelect2.selector.nativeElement.focus({ preventScroll: false })
+      }, 10)
     }
   }
 }

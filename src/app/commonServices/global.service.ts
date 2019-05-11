@@ -54,6 +54,25 @@ export class GlobalService {
     }
   }
 
+  checkForValidDayAndMonthForImport (date) {
+    if (this.isValidDate(date)) {
+      let parts = date.split('/')
+      let day = '' + parseInt(parts[1], 10)
+      let month = '' + parseInt(parts[0], 10)
+      let year = '' + parseInt(parts[2], 10)
+
+      if (+day < 10) {
+        day = '0' + day
+      }
+      if (+month < 10) {
+        month = '0' + month
+      }
+      return month + '/' + day + '/' + year
+    } else {
+      return ''
+    }
+  }
+
   validReturnDate (d1, d2): boolean {
     // check if date 2 is greater then date 1
     if (!d2) {
@@ -71,6 +90,32 @@ export class GlobalService {
       return true
     } else {
       d1 = this.clientToSqlDateFormat(d1, this.settings.dateFormat)
+      if (this.isValidDate(d1)) {
+        d1 = new Date(d1)
+        // this.toastrService.showError('', 'Invalid Travel Date')
+      } else {
+        return false
+      }
+    }
+    // console.log('d1.getTime() <= d2.getTime() : ', d1.getTime(), d2.getTime())
+    return d1.getTime() <= d2.getTime()
+  }
+
+  validReturnDateForImport (d1, d2): boolean {
+    // check if date 2 is greater then date 1
+    if (!d2) {
+      return true
+    } else {
+      if (this.isValidDate(d2)) {
+        d2 = new Date(d2)
+        // this.toastrService.showError('', 'Invalid Return Date')
+      } else {
+        return false
+      }
+    }
+    if (!d1) {
+      return true
+    } else {
       if (this.isValidDate(d1)) {
         d1 = new Date(d1)
         // this.toastrService.showError('', 'Invalid Travel Date')
@@ -228,7 +273,6 @@ export class GlobalService {
         return this.convertToClientDateFormat(date, '-', 'm', 'd', 'y')
       }
     }
-
     if (clientDateFormat === 'm/d/Y') {
       if (type === 1) {
         return this.convertToClientDateFormat(date, '/', 'm', 'd', 'Y')
@@ -274,7 +318,6 @@ export class GlobalService {
         return this.convertToClientDateFormat(date, '/', 'd', 'm', 'y')
       }
     }
-
     if (clientDateFormat === 'M d y') {
       if (type === 1) {
         return this.convertToClientDateFormat(date, ' ', 'M', 'd', 'y')
@@ -364,7 +407,6 @@ export class GlobalService {
         return this.convertToClientDateFormat(date, '-', 'd', 'M', 'Y')
       }
     }
-
     if (clientDateFormat === 'M/d/y') {
       if (type === 1) {
         return this.convertToClientDateFormat(date, '/', 'M', 'd', 'y')
@@ -409,7 +451,6 @@ export class GlobalService {
         return this.convertToClientDateFormat(date, '/', 'd', 'M', 'Y')
       }
     }
-
     if (clientDateFormat === 'M.d.y') {
       if (type === 1) {
         return this.convertToClientDateFormat(date, '.', 'M', 'd', 'y')
@@ -454,7 +495,6 @@ export class GlobalService {
         return this.convertToClientDateFormat(date, '.', 'd', 'M', 'Y')
       }
     }
-
     if (clientDateFormat === 'd.m.Y') {
       if (type === 1) {
         return this.convertToClientDateFormat(date, '.', 'd', 'm', 'Y')
@@ -477,7 +517,6 @@ export class GlobalService {
         return this.convertToClientDateFormat(date, '.', 'd', 'm', 'y')
       }
     }
-
     if (clientDateFormat === 'm.d.Y') {
       if (type === 1) {
         return this.convertToClientDateFormat(date, '.', 'm', 'd', 'Y')
@@ -516,6 +555,9 @@ export class GlobalService {
     }
     if (first === 'M' || second === 'M') {
       month = months[month]
+    }
+    if (first === 'm' || second === 'm') {
+      month = '' + (+month + 1)
     }
     if ((first === 'm' || second === 'm') && +month < 10) {
       month = '0' + month
@@ -561,7 +603,7 @@ export class GlobalService {
     if (+day < 10) {
       day = '0' + day
     }
-    if ((first === 'm' || second === 'm') && +month < 10) {
+    if (+month < 10) {
       month = '0' + month
     }
     if (last === 'y') {
@@ -574,5 +616,11 @@ export class GlobalService {
   sqlToUtc (date) {
     let newDate = new Date(date).toISOString()
     return newDate
+  }
+
+  setDueDate (creditDays, clientDateFormat) {
+    const d = new Date()
+    d.setDate(d.getDate() + creditDays)
+    return this.checkForFormat(4, d, clientDateFormat)
   }
 }

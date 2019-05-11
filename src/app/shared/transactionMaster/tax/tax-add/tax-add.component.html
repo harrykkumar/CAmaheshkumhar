@@ -17,7 +17,7 @@
                                 <div class="form-group col-md-6">
                                     <label for="bill_no">Tax Type</label>
                                     <div class="input-group adw_select">
-                                        <select2 [data]="selectTaxTpye" class="control_select"
+                                        <select2 [data]="selectTaxTpye" #taxtype_select2 class="control_select"
                                             (valueChanged)="selectedTaxType($event)" autocomplete="true"
                                             [options]="selectTaxTypePlaceHolde" [value]="deafaultValue"
                                             >
@@ -29,8 +29,8 @@
                                     <label for="tax_slab">Tax Slab</label>
                                     <input type="text" class="form-control" id="tax_slab" placeholder="Enter Slab-Name"
                                         formControlName="slab"
+                                        (keydown.enter)="texboxDiv()"
                                         [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.slab.errors }">
-
                                 </div>
                                 <div class="row">
                                     <a class="m-2 text-primary bold pl-4" (click)="texboxDiv()"><strong>Add Tax Rates
@@ -59,23 +59,21 @@
                                                     placeholder="Tax-Name" autocomplete="true"
                                                     value="{{item.name}}"></td>
                                             <td>
-                                                <input type="number" appIncludeDecimal class="form-control" id="taxRate{{i}}"
+                                                <input type="number" appIncludeDecimal  class="form-control" id="taxRate{{i}}"
                                                     placeholder="Taxrate" autocomplete="true" value="{{item.taxRate}}">
                                             </td>
                                             <td>
-
                                                 <select class="form-control" id="exampleFormControlSelect1{{i}}"
                                                     value="{{item.valueType}}">
                                                     <option value="0">%</option>
-
-                                                    <option *ngFor="let currency of currencies;" [value]="currency.cuyId" >{{currency.val}}</option>
-                                                    
+                                                    <option *ngFor="let currency of currencies;"
+                                                    [value]="currency.cuyId" >{{currency.val}}</option>
                                                 </select>
                                             </td>
                                             <td>
                                                 <div class="custom-control custom-checkbox">
                                                     <input type="checkbox" class="custom-control-input"
-                                                        id="customCheck{{i}}" checked="{{item.isForOtherState}}">
+                                                        id="customCheck{{i}}" [checked]="item.isForOtherState">
                                                     <label class="custom-control-label" for="customCheck{{i}}"></label>
                                                 </div>
                                             </td>

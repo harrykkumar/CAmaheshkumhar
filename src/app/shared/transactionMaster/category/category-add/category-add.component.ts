@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core'
+import { Component, ViewChild, Renderer2, ElementRef } from '@angular/core'
 import { Validators, FormGroup, FormBuilder } from '@angular/forms'
 import { UIConstant } from '../../../constants/ui-constant'
 import { SaveCategoryModel, ResponseCategory, CatagoryDetailModel, AddCust } from '../../../../model/sales-tracker.model'
@@ -39,7 +39,8 @@ export class CategoryAddComponent {
     private _formBuilder: FormBuilder,
     private saleService: CommonService,
     private toastrService: ToastrCustomService,
-    private itemService: ItemmasterServices) {
+    private itemService: ItemmasterServices,
+    private renderer: Renderer2) {
     this.formCategory()
     this.modalSub = this.saleService.getCategoryStatus().subscribe(
       (data: AddCust) => {
@@ -107,10 +108,10 @@ export class CategoryAddComponent {
   }
   ngOnInit () {
     this.submitClick = false
-    $('#cateName').focus()
   }
 
   get f () {
+    // console.log(this.categoryForm.controls)
     return this.categoryForm.controls
   }
 
@@ -126,6 +127,12 @@ export class CategoryAddComponent {
       this.parentId = UIConstant.ZERO
       this.Id = UIConstant.ZERO
       $('#category_master').modal(UIConstant.MODEL_SHOW)
+      setTimeout(() => {
+        if (this.catname) {
+          const element = this.renderer.selectRootElement(this.catname.nativeElement, true)
+          element.focus({ preventScroll: false })
+        }
+      }, 1000)
     }
   }
 
@@ -137,6 +144,7 @@ export class CategoryAddComponent {
   }
 
   @ViewChild('cat_select2') catSelect2: Select2Component
+  @ViewChild('catname') catname: ElementRef
   formValue: ResponseCategory = {}
   getEditDetailData (id) {
     let _self = this
@@ -150,6 +158,10 @@ export class CategoryAddComponent {
           _self.catSelect2.setElementValue(data.Data[0].ParentId)
           this.parentId = data.Data[0].ParentId
           // console.log('parent id : ', this.parentId)
+          if (this.catname) {
+            const element = this.renderer.selectRootElement(this.catname.nativeElement, true)
+            element.focus({ preventScroll: false })
+          }
         }, 1000)
         $('#category_master').modal(UIConstant.MODEL_SHOW)
       }
@@ -158,7 +170,7 @@ export class CategoryAddComponent {
 
   private formCategory () {
     this.categoryForm = this._formBuilder.group({
-      'CategoryName': ['', Validators.required],
+      'CategoryName': ['', Validators.compose([Validators.required, Validators.minLength(4)])],
       'ShortName': [''],
       'level': [0]
     })
@@ -185,31 +197,45 @@ export class CategoryAddComponent {
     if (this.categoryForm.valid) {
       this._catagoryservices.saveAndUpdateCategory(this.CategoryParams()).subscribe(data => {
         // console.log('added category: ', data)
-        if (this.addForItem) {
-          if (!this.toEmitName) {
-            this.toEmitName = this.categoryForm.value.CategoryName
+        if (data.Code === UIConstant.THOUSAND && data.Data) {
+          if (this.addForItem) {
+            if (!this.toEmitName) {
+              this.toEmitName = this.categoryForm.value.CategoryName
+            } else {
+              this.toEmitName += ' >> ' + this.categoryForm.value.CategoryName
+            }
+            console.log('to emit name : ', this.toEmitName)
+            if (this.categoryForm.value.level < this.catLevel) {
+              let toSend = { name: _self.toEmitName, id: data.Data }
+              this.saleService.onCatOrSubCatAdded(toSend)
+              this.categoryForm.controls.level.setValue(this.categoryForm.value.level + 1)
+              this.categoryForm.controls.CategoryName.setValue('')
+              this.categoryForm.controls.ShortName.setValue('')
+              setTimeout(() => {
+                if (this.catname) {
+                  const element = this.renderer.selectRootElement(this.catname.nativeElement, true)
+                  element.focus({ preventScroll: false })
+                }
+              }, 1000)
+            }
+            if (this.categoryForm.value.level === this.catLevel) {
+              _self.saleService.categoryAdded()
+              let toSend = { name: _self.toEmitName, id: data.Data }
+              _self.clearCategoryvalidation()
+              _self.saleService.closeCategory(toSend)
+            }
           } else {
-            this.toEmitName += ' >> ' + this.categoryForm.value.CategoryName
-          }
-          console.log('to emit name : ', this.toEmitName)
-          if (this.categoryForm.value.level < this.catLevel) {
-            let toSend = { name: _self.toEmitName, id: data.Data }
-            this.saleService.onCatOrSubCatAdded(toSend)
-            this.categoryForm.controls.level.setValue(this.categoryForm.value.level + 1)
-            this.categoryForm.controls.CategoryName.setValue('')
-            this.categoryForm.controls.ShortName.setValue('')
-          }
-          if (this.categoryForm.value.level === this.catLevel) {
             _self.saleService.categoryAdded()
-            let toSend = { name: _self.toEmitName, id: data.Data }
+            _self.toastrService.showSuccess('Success', 'Saved Successfully')
+            let toSend = { name: _self.categoryForm.value.CategoryName, id: data.Data,
+              level: _self.categoryForm.value.level + 1 }
+            this.saleService.closeCategory(toSend)
             _self.clearCategoryvalidation()
-            _self.saleService.closeCategory(toSend)
           }
+        } else if (data.Code === UIConstant.THOUSANDONE) {
+          this.toastrService.showError(data.Message, '')
         } else {
-          _self.saleService.categoryAdded()
-          _self.toastrService.showSuccess('Success', 'Saved Successfully')
-          _self.clearCategoryvalidation()
-          this.saleService.closeCategory('')
+          _self.toastrService.showError('', data.Message)
         }
       })
     }

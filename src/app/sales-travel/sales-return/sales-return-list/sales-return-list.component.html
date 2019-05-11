@@ -1,12 +1,28 @@
 <main class="main-content bgc-grey">
-  <div id="mainContent">
-    <div class="modal-header page-header p-0">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-md-6 left_side_head">
-            <p class="heading_lead c-grey-900"><i class="fa fa-tag"></i>Sale-Return Summary</p>
-          </div>
-          <div class="col-md-6">
+    <div id="mainContent">
+        <div class="page-header p-0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4 left_side_head">
+                        <p class="heading_lead c-grey-900 mb-0"><i class="fa fa-chart-line"></i>Sale-Return</p>
+                </div>
+                <div class="col-md-8 right_saerch_side p-0">
+                        <div class="mr-2">
+                          
+                            <form>
+                                    <div id="custom-search-input" class="btn_header1">
+                                        <div class="input-group col-md-12">
+                                            <input type="text" class="form-control input-lg" placeholder="Search"
+                                               />
+                                            <span class="input-group-btn">
+                                                <a>
+                                                    <i class="fas fa-search"></i>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
             <div class="btn_header">
               <a>
                 <img src="assets/img/printer.png">
@@ -23,10 +39,10 @@
     </div>
     <app-sales-search [toShow]="toShowSearch" ></app-sales-search>
     <div class="row">
-      <div class="col-md-12">
-        <div class="bgc-white bdrs-3 p-20 mB-20">
-          <div class="table-responsive" id="parent">
-            <table class="table" id="fixTable">
+        <div class="col-md-12">
+            <div class="bgc-white bdrs-3 mB-20">
+                <div class="table-responsive table_height">
+                    <table class="table cat-table table-hover">
               <thead>
                 <tr>
                   <th>Sr.No.</th>
@@ -187,7 +203,7 @@
                 <th>S.N.</th>
                 <th>Routing</th>
                 <th>Traval Date</th>
-                <!-- <th>Flight Code</th> -->
+                <th>Return Date</th>
                 <th>Passanger Name</th>
 
                 <th style="text-align:right">Fare</th>
@@ -199,7 +215,7 @@
                   {{ salesItem.itemName}}
                 </td>
                 <td>{{salesItem.travelDate | dateFormat: clientDateFormat }}</td>
-                <!-- <td>{{ salesItem.flightCode}}</td> -->
+                <td>{{salesItem.returnDate | dateFormat: clientDateFormat }}</td>
                 <td>{{ salesItem.remark}}</td>
                 <td style="text-align:right;"><span *ngIf="salesItem.type == 1" >-</span><span *ngIf="salesItem.type == 2" >+</span>{{ salesItem.saleRate}}</td>
               </tr>

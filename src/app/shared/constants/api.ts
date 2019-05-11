@@ -18,7 +18,7 @@ export class ApiConstant {
 
   public static get ITEM_DETAIL_URL (): string { return this.BASE_URL + '/api/v1/Setting/CommonMaster?CommonCode=143' }
 
-  public static get CATEGORY_DETAIL_URL (): string { return this.BASE_URL + '/api/v1/category?Name=' }
+  public static get CATEGORY_DETAIL_URL (): string { return this.BASE_URL + '/api/v1/category' }
 
   public static get GET_CATEGORY_BY_ID (): string { return this.BASE_URL + '/api/v1/category?Id=' }
 
@@ -38,7 +38,7 @@ export class ApiConstant {
 
   public static get GET_BRAND_DETAIL (): string { return this.BASE_URL + '/api/v1/Brand' }
 
-  public static get SAVE_AND_UPDATE_CATEGORY_URL (): string { return this.BASE_URL + '/api/v1/category' }
+  public static get GET_SAVE_AND_UPDATE_CATEGORY_URL (): string { return this.BASE_URL + '/api/v1/category' }
 
   public static get ADD_UNIT_URL (): string { return this.BASE_URL + '/api/v1/unit' }
 
@@ -65,10 +65,6 @@ export class ApiConstant {
   public static get BANK_DETAIL_URL (): string { return this.BASE_URL + '/api/v1/setting/bank' }
 
   public static get LEDGER_DETAIL_URL (): string { return this.BASE_URL + '/api/v1/Ledger' }
-
-  public static get SETTING_SALE (): string { return this.BASE_URL + '/api/v1/SetupSetting?type=Sale' }
-
-  public static get SETTING_SALE_RETURN (): string { return this.BASE_URL + '/api/v1/SetupSetting?type=SaleReturn' }
 
   public static get SETTING_SETUP (): string { return this.BASE_URL + '/api/v1/SetupSetting' }
 
@@ -116,8 +112,6 @@ export class ApiConstant {
 
   public static get GET_SETTING_BY_ID (): string { return this.BASE_URL + '/api/v1/setting/setupsetting?Id=' }
 
-  public static get SETTING_SALE_CHALLAN (): string { return this.BASE_URL + '/api/v1/SetupSetting?type=saleChallan' }
-
   public static get SALE_CHALLAN_GET_TYPEBY_SALE_DATA (): string { return this.BASE_URL + '/api/v1/ims/SPUtility?type=saleChallan' }
 
   public static get SETTING_FOR_ORGNIZATION_DATA (): string { return this.BASE_URL + '/api/v1/setting/transactionno?OrgId=' }
@@ -152,34 +146,33 @@ export class ApiConstant {
 
   public static get DELETE_ATTRIBUTE_URL (): string { return this.BASE_URL + '/api/v1/AttributeValue?Id=' }
 
-  public static get GET_CHALLAN_DETAILS_FOR_BILLING_BY_ID ():string {return this.BASE_URL +'/api/v1/ims/sale/salechallandetails?CallFor=Sale&IDSearch=';}
-  
-  public static get INDUSTRY_TYPE_LIST_URL (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=125' }
+  public static get PURCHASE_LIST (): string { return this.BASE_URL + '/api/v1/IMS/Purchase' }
 
-  public static get KEY_PERSON_TYPE_LIST_URL (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=110' }
+  public static get SPUTILITY (): string { return this.BASE_URL + '/api/v1/ims/SPUtility?type=' }
 
-  public static get ACCOUNTING_METHOD_LIST_URL (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=153' }
+  public static get GET_ADDRESS_OF_VENDOR (): string { return this.BASE_URL + '/api/v1/setting/LedgerUtility?Id=' }
 
-  public static get ORG_PROFILE_URL (): string { return this.BASE_URL + '/api/v1/Owner/profile' }
+  public static get GET_ITEM_DETAIL (): string { return this.BASE_URL + '/api/v1/Item?Id=' }
 
-// HARRY
-  public static get LEDGER_GET_ADDRESS_FOR_GST (): string { return this.BASE_URL + '/api/v1/setting/LedgerUtility?Id='}
+  public static get GET_TAX_SLAB_DATA (): string { return this.BASE_URL + '/api/v1/Tax?Id=' }
 
   public static get GET_MODULE_SETTING (): string { return this.BASE_URL + '/api/v1/setting/setupsetting?StrSearch=' }
- 
-  public static get GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING (): string { return this.BASE_URL + '/api/v1/setting/ItemUtility?Id=' }
-
-  public static get BRANCH_TYPE_LIST_URL (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=109' }
-
-  public static get BRANCH_OFFICE_LIST_URL (): string { return this.BASE_URL + '/api/v1/owner/branchoffice' }
-
-  public static get BRANCH_OFFICE_URL (): string { return this.BASE_URL + '/api/v1/owner/branchofficedetails' }
-
-  public static get POST_ALL_SLECTED_CHALLAN_BILL_API (): string { return this.BASE_URL + '/api/v1/ims/sale/salechallandetails' }
 
   public static get SETTING_SETUP_BY_TYPE (): string { return this.BASE_URL + '/api/v1/SetupSetting?type=' }
 
-  public static get SPUTILITY (): string { return this.BASE_URL + '/api/v1/ims/SPUtility?type=' }
+  public static get CHECK_FOR_EXISTENCE (): string { return this.BASE_URL + '/api/v1/checkexistency' }
+
+  public static get GET_DEPENDENCY_FOR_FORM (): string { return this.BASE_URL + '/api/v1/existency?Formname=' }
+
+  public static get GET_NEW_BILL_NO_AUTO (): string { return this.BASE_URL + '/api/v1/setting/transactionno?' }
+
+  public static get GET_DETAIL_OF_PURCHASE_BY_ID (): string { return this.BASE_URL + '/api/v1/IMS/purchasedetail?Id=' }
+
+  public static get GET_PURCHASE_PRINT_DATA (): string { return this.BASE_URL + '/api/v1/ims/purchase/print?Id=' }
+
+  public static get GET_PROFIT_REPORT_DATA (): string { return this.BASE_URL + '/api/v1/ims/sale/travel/profit' }
+
+  public static get GET_NEW_BILL_NO_MANUAL (): string { return this.BASE_URL + '/api/v1/ims/lastbillno?' }
 
   public static get CREATE_USER (): string { return this.BASE_URL + '/api/v1/setting/User' }
 
@@ -190,10 +183,40 @@ export class ApiConstant {
   public static get USER_TYPE (): string { return this.BASE_URL + '/api/v1/setting/usertype' }
 
   public static get USER_PERMISSION (): string { return this.BASE_URL + '/api/v1/setting/userpermission' }
- 
+
+  public static get GET_CHALLAN_DETAILS_FOR_BILLING_BY_ID (): string { return this.BASE_URL + '/api/v1/ims/sale/salechallandetails?CallFor=Sale&IDSearch=' }
+
+  public static get INDUSTRY_TYPE_LIST_URL (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=125' }
+
+  public static get KEY_PERSON_TYPE_LIST_URL (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=110' }
+
+  public static get ACCOUNTING_METHOD_LIST_URL (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=153' }
+
+  public static get ORG_PROFILE_URL (): string { return this.BASE_URL + '/api/v1/Owner/profile' }
+
+// HARRY
+  public static get LEDGER_GET_ADDRESS_FOR_GST (): string { return this.BASE_URL + '/api/v1/setting/LedgerUtility?Id=' }
+
+  public static get GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING (): string { return this.BASE_URL + '/api/v1/setting/ItemUtility?Id=' }
+
+  public static get BRANCH_TYPE_LIST_URL (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=109' }
+
+  public static get BRANCH_OFFICE_LIST_URL (): string { return this.BASE_URL + '/api/v1/owner/branchoffice' }
+
+  public static get BRANCH_OFFICE_URL (): string { return this.BASE_URL + '/api/v1/owner/branchofficedetails' }
+
+  public static get POST_ALL_SLECTED_CHALLAN_BILL_API (): string { return this.BASE_URL + '/api/v1/ims/sale/salechallandetails' }
+
   public static get SALE_DIRECT_BILLING_API (): string { return this.BASE_URL + '/api/v1/ims/sale' }
 
   public static get DIRECT_SALE_PRINT_API (): string { return this.BASE_URL + '/api/v1/ims/sale/print?Id=' }
 
+  public static get DIRECT_SALE_EDIT_GET_API (): string { return this.BASE_URL + '/api/v1/ims/saledetails?Id=' }
+
+  public static get REPORT_ITEM_STOCK (): string { return this.BASE_URL + '/api/v1/ims/itemcurrentstock' }
+
+  //public static get GET_BANK_LIST (): string { return this.BASE_URL + '/api/v1/common/bank' }
+
+  public static get EDIT_BANK_DATA (): string { return this.BASE_URL + '/api/v1/setting/bank?id=' }
+
 }
-                    

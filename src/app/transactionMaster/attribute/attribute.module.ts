@@ -4,7 +4,8 @@ import { AttributeRoutingModule } from './attribute-routing.module'
 import { AttributeComponent } from './attribute.component'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 import { Select2Module } from 'ng2-select2'
-
+import { PagingUtilityModule } from '../../shared/pagination/pagination.module'
+import { NgxPaginationModule } from 'ngx-pagination'
 @NgModule({
   declarations: [AttributeComponent],
   imports: [
@@ -12,7 +13,9 @@ import { Select2Module } from 'ng2-select2'
     ReactiveFormsModule,
     FormsModule,
     Select2Module,
-    AttributeRoutingModule
+    AttributeRoutingModule,
+    PagingUtilityModule,
+    NgxPaginationModule
   ]
 })
 export class AttributeModule { }

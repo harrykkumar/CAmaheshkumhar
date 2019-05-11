@@ -1,0 +1,42 @@
+<table class="table {{class}} cat-table"> <!--class="table {{class}} table-fixed"-->
+  <thead>
+    <tr>
+      <th *ngFor="let title of header;" [ngClass]="{'text-right': title.isRightAligned}" >{{title.text}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of content; let i=index">
+      <td>{{i+1}}</td>
+      <td *ngFor="let key of keys;" [ngClass]="{'text-right': key.isRightAligned}" >{{item[key.text]}}</td>
+      <td class="text-right" >
+          <div class="dropdown enquiry-tag">
+              <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+              <ul class="dropdown-menu fsz-sm">
+                  <li *ngFor="let action of actionList" >
+                    <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="onActionClicked(action, item.Id)" >
+                      <i class="fas mR-10 cH-blue"
+                        [ngClass]="{'fa-print': action.type === 2,
+                         'fa-edit': action.type === 1,
+                         'fa-trash': action.type === 4,
+                         'fa-arrow': action.type === 5
+                        }"
+                      ></i>
+                      <span>{{action.text}}</span>
+                    </a>
+                  </li>
+              </ul>
+          </div>
+      </td>
+    </tr>
+  </tbody>
+  <tfoot *ngIf="footer.length > 0" >
+    <tr>
+      <ng-container *ngFor="let foot of footer;">
+        <th [colSpan]="foot.colspan"></th>
+        <th class="text-right font-weight-bold" *ngFor="let data of foot.data" >{{data}}</th>
+      </ng-container>
+      <th></th>
+    </tr>
+  </tfoot>
+</table>

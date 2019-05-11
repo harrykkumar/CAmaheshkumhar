@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { ApiConstant } from '../../shared/constants/api'
 import { BaseServices } from '../base-services'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Observable } from 'rxjs'
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +14,8 @@ export class CompositeUnitService {
   constructor (private _basesService: BaseServices) {
   }
 
-  getSubUnitDetails () {
-    return this._basesService.getRequest(ApiConstant.GET__SUB_UNIT_DETAIL)
+  getSubUnitDetails (queryParams): Observable<any> {
+    return this._basesService.getRequest(ApiConstant.GET__SUB_UNIT_DETAIL + queryParams)
   }
 
   getSubUnit (id) {

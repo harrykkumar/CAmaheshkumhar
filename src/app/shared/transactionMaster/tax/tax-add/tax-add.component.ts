@@ -1,7 +1,7 @@
-import { Component, Output, EventEmitter } from '@angular/core'
+import { Component, Output, EventEmitter, ViewChild, Renderer2 } from '@angular/core'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms'
 import { Subscription } from 'rxjs/Subscription'
-import { Select2OptionData } from 'ng2-select2'
+import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { TaxModal, AddCust } from '../../../../model/sales-tracker.model'
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { TaxMasterService } from '../../../../commonServices/TransactionMaster/tax-master.services'
@@ -10,7 +10,6 @@ import { UIConstant } from '../../../constants/ui-constant'
 import { ErrorConstant } from '../../../constants/error-constants'
 import { TaxModule } from '../../../../transactionMaster/tax/tax.module'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
-
 declare var $: any
 @Component({
   selector: 'app-tax-add',
@@ -40,7 +39,9 @@ export class TaxAddComponent {
   constructor (public toastrCustomService: ToastrCustomService , private _taxMasterServices: TaxMasterService,
     private _formBuilder: FormBuilder,
     private _commonGetSetServices: CommonSetGraterServices,
-    private commonService: CommonService) {
+    private commonService: CommonService,
+    private renderer: Renderer2
+    ) {
   //  this.selectTaxTpye = [{ id: '1', text: 'GST' }, { id: '2', text: 'VAT' },{ id: '3', text: 'Other' }]
 
     this.formTax()
@@ -65,13 +66,13 @@ export class TaxAddComponent {
   currencies: Array<any> = []
   getAvailableCurrency () {
     let _self = this
-    this.commonService.getSaleSettings().subscribe(Settings => {
+    this.commonService.setupSettingByType(UIConstant.SALE_TYPE).subscribe(Settings => {
       _self.currencies = []
       if (Settings.Code === UIConstant.THOUSAND) {
         let currencies = Settings.Data.SetupSettings
         currencies.forEach(element => {
           if (+element.SetupId === 37 && +element.Type === 3) {
-            //debugger;
+            //// debugger;
           //   this.currencies = [{ cuyId: 0, id: 0, val: '%' }]
 
             _self.currencies.push({
@@ -125,6 +126,7 @@ export class TaxAddComponent {
       this.getSelectTaxType(0)
   }
 
+  @ViewChild('taxtype_select2') taxtypeSelect2: Select2Component
   closeModal () {
     if ($('#add_tax').length > 0) {
       this.clearValidation()
@@ -156,12 +158,14 @@ export class TaxAddComponent {
   taxErrormass: any
   taxType: any
   getTaxEditData (id) {
+    debugger
     this.taxboxDivVisibale = true
     this.subscribe = this._taxMasterServices.editTax(id).subscribe(Data => {
       //console.log('tax edit : ', Data)
       if (Data.Data && Data.Data.TaxRates.length > 0) {
         this.addPulsSign = []
         for (let i = 0 ; i < Data.Data.TaxRates.length; i++) {
+        
           this.addPulsSign.push({
             id: Data.Data.TaxRates[i].Id,
             name: Data.Data.TaxRates[i].Name,
@@ -170,7 +174,7 @@ export class TaxAddComponent {
             isForOtherState: Data.Data.TaxRates[i].IsForOtherState
           })
           if (this.addPulsSign[i].isForOtherState === true) {
-            $('#customCheck' + i).prop('checked', true)
+           $('#customCheck' + i).prop('checked', true)
           } else {
             $('#customCheck' + i).prop('checked', false)
           }
@@ -217,8 +221,8 @@ taxTypeName:any
     if (this.addPulsSign.length > 0) {
       for (let i = 0; i < this.addPulsSign.length; i++) {
         if ($('#taxrateName' + i).val() !== '') {
-          document.getElementById('taxRate' + i).className += ' successTextBoxBorder'
-          document.getElementById('taxRate' + i).classList.remove('errorTextBoxBorder')
+         // document.getElementById('taxRate' + i).className += ' successTextBoxBorder'
+         // document.getElementById('taxRate' + i).classList.remove('errorTextBoxBorder')
 
           if ($('#taxRate' + i).val() > 0) {
             boolCheck = true
@@ -229,7 +233,7 @@ taxTypeName:any
             break
           }
         } else {
-          $('#taxRate' + i).focus()
+          $('#taxrateName' + i).focus()
           this.taxErrorFlag = true
           document.getElementById('taxRate' + i).className += ' errorTextBoxBorder'
           boolCheck = false
@@ -266,9 +270,8 @@ taxTypeName:any
   }
   taxId: any
   getTaxFormValue () {
-    debugger;
+    // debugger;
     this.taxrates = []
-
     for (let i = 0; i < this.addPulsSign.length; i++) {
      if ($('#exampleFormControlSelect1' + i).val() === '') {
           $('#exampleFormControlSelect1' + i).val("0")
@@ -328,7 +331,7 @@ taxTypeName:any
   }
 
   private taxParams (): TaxModule {
-    debugger;
+    // debugger;
     const taxElement = {
       taxObj: {
         Id: this.id,

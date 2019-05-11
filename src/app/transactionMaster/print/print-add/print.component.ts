@@ -1,0 +1,360 @@
+import { Component } from '@angular/core'
+import { FormGroup } from '@angular/forms'
+import { Subscription } from 'rxjs'
+import { SaleTravel } from 'src/app/model/sales-tracker.model'
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
+import { UIConstant } from 'src/app/shared/constants/ui-constant'
+import { Settings } from '../../../shared/constants/settings.constant'
+declare const $: any
+
+@Component({
+  selector: 'app-print',
+  templateUrl: './print.component.html',
+  styleUrls: ['./print.component.css']
+})
+export class PrintComponent {
+  subscribe: Subscription
+  modalSub: Subscription
+  arrayBuffer: any
+  file: any
+  saleDirectDetails: any
+  sheetname: any
+  masterData: any
+  subcribe: Subscription
+  saleTravelDetails: SaleTravel[]
+  saletravelForm: FormGroup
+  bankForm: FormGroup
+  newBillSub: Subscription
+  printOpenData: Subscription
+  transactions: any = []
+  printData: any
+  salesData: any
+  ItemTransactionactions: any
+  netAmount: number
+  salesItemDatails: any = []
+  salesSummuryItemDatails: any
+  totalRefundPanelty: any
+  totalReIssueCharge: any
+  totalmiscellanouseChange: any
+  customerAddress: any[]
+  orgAddress: any[]
+  customerMobileData: any[]
+  customerEmailData: any[]
+  orgMobileData: any[]
+  orgEmailData: any[]
+  orgImageData: any[]
+  orgWebData: any[]
+  orgImage: string
+
+  totalTaxAmount: any
+  // bar code variable
+  elementType = 'svg'
+  value = '0123456789012'
+  format = 'CODE128'
+  lineColor = '#000000'
+  width = 2
+  height = 100
+  displayValue = true
+  fontOptions = ''
+  font = 'monospace'
+  textAlign = 'center'
+  textPosition = 'bottom'
+  textMargin = 2
+  fontSize = 20
+  background = '#ffffff'
+  margin = 10
+  marginTop = 10
+  marginBottom = 10
+  marginLeft = 10
+  marginRight = 10
+
+  codeList: string[] = [
+    '', 'CODE128',
+    'CODE128A', 'CODE128B', 'CODE128C',
+    'UPC', 'EAN8', 'EAN5', 'EAN2',
+    'CODE39',
+    'ITF14',
+    'MSI', 'MSI10', 'MSI11', 'MSI1010', 'MSI1110',
+    'pharmacode',
+    'codabar'
+  ]
+
+  industryId: any
+  printId: any
+  type: any
+  constructor (private _CommonService: CommonService, public _settings: Settings) {
+
+    this.modalSub = this._CommonService.getprintStatus().subscribe(
+      (status: any) => {
+        if (status.open) {
+          this.printId = status.id
+          this.type = status.type
+          this.openModal(this.type)
+        } else {
+          this.closeModal()
+        }
+      }
+    )
+  }
+
+  ngOnDestroy () {
+    this.modalSub.unsubscribe()
+  }
+
+  openModal (type) {
+    if (type === 'DirectSale') {
+      let data = JSON.stringify(this._settings.industryId)
+      this.industryId = JSON.parse(data)
+      this.onPrintForDirectSale(this.printId, 'sale_Direct_print_id')
+    }
+  }
+  closeModal () {
+    $('#sale_Direct_print_id').modal(UIConstant.MODEL_HIDE)
+  }
+
+  // generate bar code
+  InventoryTransactionSales: any
+  barcode: any
+  ItemAttributesTransactions: any
+  reciverContData: any
+  reciverAddress: any
+  itemAttributeDatails: any
+  itemAttbute: any
+  website: any
+  ContactCustInfo: any
+  ContactOrgInfo: any
+  ItemTaxTrans: any
+  totalDiscountAmt: any
+  totaltaxAmount: any
+  subTotalAmount: any
+  billAmount: any
+  paymentModeData: any
+  TermsConditions: any
+  ClientInfos: any
+  onPrintForDirectSale (id, htmlId) {
+    this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
+    let _self = this
+    _self._CommonService.printDirectSale(id).subscribe(data => {
+      //    console.log(JSON.stringify(data)  , 'salechallan')
+      if (data.Code === UIConstant.THOUSAND) {
+
+        if (data.Data && data.Data.SaleTransactionses.length > 0) {
+          _self.InventoryTransactionSales = []
+          this.billAmount = 0
+          _self.InventoryTransactionSales = data.Data.SaleTransactionses
+          _self.barcode = data.Data.SaleTransactionses[0].BarcodeBill
+          this.billAmount = (data.Data.SaleTransactionses[0].BillAmount).toFixed(2)
+          this.NumInWords(this.billAmount)
+        } else {
+          _self.InventoryTransactionSales = []
+        }
+
+        _self.ItemTransactionactions = []
+        if (data.Data && data.Data.ItemTransactions.length > 0) {
+          _self.ItemTransactionactions = []
+          _self.ItemTransactionactions = data.Data.ItemTransactions
+        } else {
+          _self.ItemTransactionactions = []
+        }
+        if (data.Data.AttributeValues.length > 0) {
+          _self.itemAttributeDatails = []
+          _self.itemAttributeDatails = data.Data.AttributeValues
+        } else {
+          _self.itemAttributeDatails = []
+        }
+        if (data.Data.ItemTaxTransDetails.length > 0) {
+          _self.ItemTaxTrans = []
+          _self.ItemTaxTrans = data.Data.ItemTaxTransDetails
+        } else {
+          _self.ItemTaxTrans = []
+        }
+        //
+        if (data.Data.ItemTaxTransDetails.length > 0) {
+          _self.paymentModeData = []
+          _self.paymentModeData = data.Data.PaymentDetails
+        } else {
+          _self.paymentModeData = []
+        }
+        if (data.Data && data.Data.ItemTransactions.length > 0) {
+          _self.ItemTransactionactions = []
+          _self.itemAttbute = []
+          this.totalDiscountAmt = 0
+          this.totaltaxAmount = 0
+          this.subTotalAmount = 0
+          let totalDiscountAmt = data.Data.ItemTransactions.filter(item1 => item1.DiscountAmt)
+            .map(item1 => parseFloat(item1.DiscountAmt))
+            .reduce((sum, current) => sum + current, 0)
+             this.totalDiscountAmt = (totalDiscountAmt).toFixed(2)
+          let totaltaxAmount = data.Data.ItemTransactions.filter(item1 => item1.TaxAmount)
+            .map(item1 => parseFloat(item1.TaxAmount))
+            .reduce((sum, current) => sum + current, 0)
+            this.totaltaxAmount = (totaltaxAmount).toFixed(2)
+          let subTotalAmount = data.Data.ItemTransactions.filter(item1 => item1.SubTotalAmount)
+            .map(item1 => parseFloat(item1.SubTotalAmount))
+            .reduce((sum, current) => sum + current, 0)
+            this.subTotalAmount = (subTotalAmount).toFixed(2)
+          _self.ItemTransactionactions = data.Data.ItemTransactions
+          for (let i = 0; i < data.Data.ItemTransactions.length; i++) {
+            for (let j = 0; j < data.Data.ItemAttributesTrans.length; j++) {
+              if (data.Data.ItemTransactions[i].Id === data.Data.ItemAttributesTrans[j].ItemTransId) {
+                this.itemAttbute.push({
+                  attr: data.Data.ItemAttributesTrans[j].AttributeName,
+                  ItemId: data.Data.ItemAttributesTrans[j].ItemId,
+                  rowId: data.Data.ItemAttributesTrans[j].ItemTransId,
+                  Id: data.Data.ItemAttributesTrans[j].Id
+                })
+              }
+            }
+          }
+        } else {
+          _self.ItemTransactionactions = []
+        }
+        if (data.Data.AddressDetails.length > 0) {
+          _self.customerAddress = []
+          _self.customerAddress = data.Data.AddressDetails
+        } else {
+          _self.customerAddress = []
+        }
+        if (data.Data.AddressDetailsOrg.length > 0) {
+          _self.orgAddress = []
+          _self.orgAddress = data.Data.AddressDetailsOrg
+        } else {
+          _self.orgAddress = []
+        }
+        if (data.Data.Websites.length > 0) {
+          this.website = []
+          this.website = data.Data.Websites
+        } else {
+          this.website = []
+        }
+        if (data.Data.ContactInfos.length > 0) {
+          this.ContactCustInfo = []
+          this.ContactCustInfo = data.Data.ContactInfos
+        } else {
+          this.ContactCustInfo = []
+        }
+        if (data.Data.TermsConditions.length > 0) {
+          this.TermsConditions = []
+          this.TermsConditions = data.Data.TermsConditions
+        } else {
+          this.TermsConditions = []
+        }
+        if (data.Data.ClientInfos.length > 0) {
+          this.ClientInfos = []
+          this.ClientInfos = data.Data.ClientInfos
+        } else {
+          this.ClientInfos = []
+        }
+        if (data.Data.ContactInfosOrg.length > 0) {
+          this.ContactOrgInfo = []
+          this.ContactOrgInfo = data.Data.ContactInfosOrg
+        } else {
+          this.ContactOrgInfo = []
+        }
+        setTimeout(function () {
+          _self.InitializedPrintForDirectSale(htmlId)
+        }, 10)
+        $('#' + htmlId).modal(UIConstant.MODEL_SHOW)
+      }
+    }
+    )
+
+  }
+
+  get values (): string[] {
+    if (this.barcode) {
+      return this.barcode.split('\n')
+    }
+  }
+  InitializedPrintForDirectSale (cmpName) {
+    let title = document.title
+    let divElements = document.getElementById(cmpName).innerHTML
+    let printWindow = window.open('', '_blank', '')
+    printWindow.document.open()
+    printWindow.document.write('<html><head><title>' + title + '</title><style>@font-face{font-family:OpenSans-Regular;src:url(OpenSans-Regular.ttf),url(OpenSans-Bold.ttf),url(OpenSans-Light.ttf),url(OpenSans-SemiBold.ttf)}.clearfix:after{content:"";display:table;clear:both}a{color:#0087c3;text-decoration:none}body{position:relative;width:21cm;height:29.7cm;margin:0 auto;color:#000;background:#fff;font-family:Arial,sans-serif;font-size:14px;font-family:SourceSansPro}.row{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-direction:row}.col{-ms-flex-preferred-size:0;-ms-flex-positive:1;padding-left:10px;max-width:100%}.row1{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-direction:row;flex-wrap:wrap;margin-right:1px;margin-left:0}.col1{-ms-flex-preferred-size:0;flex-basis:0;-ms-flex-positive:1;flex-grow:1;padding-left:10px;max-width:100%}header{padding:10px 0}.header1{padding:5px 0;border-top:1px solid #aaa;border-bottom:1px solid #aaa}#logo{float:left;margin-top:8px}#logo img{height:70px}#company{float:right;text-align:right}#client{padding-left:6px;float:left}#client .to{color:#333}h2.name{font-size:1.4em;font-weight:600;margin:0}#invoice{float:right;text-align:right}#invoice h1{color:#0087c3;font-size:2.4em;line-height:1em;font-weight:400;margin:0 0 10px 0}#invoice .date{font-size:1.1em;color:#000}table{width:100%;border-collapse:collapse;border-spacing:0;margin-bottom:20px}table td,table th{padding:5px;vertical-align:bottom;text-align:center}table th{font-weight:700;background:#f1f1f1}table td{text-align:left}table td h3{color:#000;font-size:1em;font-weight:600;margin:0 0 .2em 0}table .no{color:#000}table .desc{text-align:left}table .total{color:#000;text-align:right}table td.qty,table td.total,table td.unit{font-size:1em}table tfoot td{background:#fff;border-bottom:none;font-weight:600;text-align:right;margin-top:100px}table tfoot tr:first-child td{border-top:none}table tfoot tr:last-child td{border-top:1px solid #333}.table1 tbody tr td,.table1 thead tr th{border:1px solid #333}#thanks{font-size:2em;margin-bottom:50px}#notices{padding-left:6px;border-left:6px solid #0087c3}#notices .notice{font-size:1.2em}footer{color:#000;width:100%;height:30px;position:absolute;bottom:60px;border-top:1px solid #aaa;padding:8px 0;text-align:center}.name-footer{text-align:left}</style></head><body>')
+    printWindow.document.write(divElements)
+    printWindow.document.write('</body></html>')
+    printWindow.document.close()
+    printWindow.focus()
+    $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
+    setTimeout(function () {
+      printWindow.print()
+      printWindow.close()
+    }, 100)
+
+  }
+
+  word: string = ''
+  NumInWords (value) {
+    let fraction = Math.round(this.frac(value) * 100)
+    let fText = ''
+
+    if (fraction > 0) {
+      fText = 'AND ' + this.convertNumber(fraction) + ' PAISE'
+    }
+
+    return this.convertNumber(value) + ' RUPEE ' + fText + ' ONLY'
+  }
+
+  frac (f) {
+    return f % 1
+  }
+
+  convertNumber (num1) {
+    if ((num1 < 0) || (num1 > 999999999)) {
+      return 'Number not count !!-Sysytem issue'
+    }
+    let Gn = Math.floor(num1 / 10000000)  /* Crore */
+    num1 -= Gn * 10000000
+    let kn = Math.floor(num1 / 100000)     /* lakhs */
+    num1 -= kn * 100000
+    let Hn = Math.floor(num1 / 1000)      /* thousand */
+    num1 -= Hn * 1000
+    let Dn = Math.floor(num1 / 100)       /* Tens (deca) */
+    num1 = num1 % 100               /* Ones */
+    let tn = Math.floor(num1 / 10)
+    let one = Math.floor(num1 % 10)
+    this.word = ''
+
+    if (Gn > 0) {
+      this.word += (this.convertNumber(Gn) + ' Crore')
+    }
+    if (kn > 0) {
+      this.word += (((this.word === '') ? '' : ' ') +
+        this.convertNumber(kn) + ' Lakh')
+    }
+    if (Hn > 0) {
+      this.word += (((this.word === '') ? '' : ' ') +
+        this.convertNumber(Hn) + ' Thousand')
+    }
+
+    if (Dn) {
+      this.word += (((this.word === '') ? '' : ' ') +
+        this.convertNumber(Dn) + ' Hundred')
+    }
+
+    let ones = Array('', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', ' Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen')
+    let tens = Array('', '', 'Twenty', 'Thirty', 'Fourty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety')
+
+    if (tn > 0 || one > 0) {
+      if (!(this.word === '')) {
+        this.word += ' And '
+      }
+      if (tn < 2) {
+        this.word += ones[tn * 10 + one]
+      } else {
+
+        this.word += tens[tn]
+        if (one > 0) {
+          this.word += ('-' + ones[one])
+        }
+      }
+    }
+
+    if (this.word === '') {
+      this.word = ' zero'
+    }
+    return this.word
+  }
+
+}

@@ -10,6 +10,8 @@ import { SharedModule } from '../../shared/shared.module'
 import { SalesReturnComponent } from './sales-header/sale-return/sales-return.component'
 import { SaleTravelServices } from './sale-travel.services'
 import { SalesComponent } from './sales-list/sales.component'
+import { PagingUtilityModule } from 'src/app/shared/pagination/pagination.module'
+import { NgxPaginationModule } from 'ngx-pagination'
 @NgModule({
   declarations: [
     SalesComponent,
@@ -24,7 +26,9 @@ import { SalesComponent } from './sales-list/sales.component'
     FormsModule,
     Select2Module,
     SalesTravelRoutingModule,
-    SharedModule
+    SharedModule,
+    PagingUtilityModule,
+    NgxPaginationModule
   ],
   providers: [SaleTravelServices]
 })

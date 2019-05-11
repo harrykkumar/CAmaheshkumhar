@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
 import { Subscription } from 'rxjs'
 import { SaleTravel } from '../../../model/sales-tracker.model'
 import { SaleTravelReturnServices } from '../sale-travel-return.services'
@@ -12,7 +12,7 @@ declare const $: any
   templateUrl: './sales-return-list.component.html',
   styleUrls: ['./sales-return-list.component.css']
 })
-export class SalesReturnListComponent implements OnDestroy {
+export class SalesReturnListComponent implements OnInit, OnDestroy {
   saleReturnDetails: SaleTravel[]
   newSaleReturnSub: Subscription
   toShowSearch = false
@@ -87,6 +87,10 @@ export class SalesReturnListComponent implements OnDestroy {
     })
   }
 
+  ngOnInit () {
+    this.commonService.fixTableHF('cat-table')
+  }
+
   onPrintButton (id, htmlID) {
     console.log('id : ', id)
     this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
@@ -124,6 +128,7 @@ export class SalesReturnListComponent implements OnDestroy {
               _self.salesItemDatails.push({
                 itemName: data.Data.Saletravels[i].ItemName,
                 travelDate: data.Data.Saletravels[i].TravelDate,
+                returnDate: data.Data.Saletravels[i].ReturnDate,
                 flightCode: data.Data.Saletravels[i].FlightCode,
                 remark: data.Data.Saletravels[i].Remark,
                 saleRate: data.Data.Saletravels[i].SaleRate,
@@ -140,6 +145,7 @@ export class SalesReturnListComponent implements OnDestroy {
               _self.salesSummuryItemDatails.push({
                 itemName: data.Data.Saletravels[i].ItemName,
                 travelDate: data.Data.Saletravels[i].TravelDate,
+                returnDate: data.Data.Saletravels[i].ReturnDate,
                 flightCode: data.Data.Saletravels[i].FlightCode,
                 saleRate: data.Data.Saletravels[i].SaleRate,
                 langiTax: data.Data.Saletravels[i].LangiTax,

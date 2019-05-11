@@ -1,13 +1,31 @@
 <main class="main-content bgc-grey">
-    <div id="mainContent">
-        <div class="modal-header page-header p-0">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-5 left_side_head">
-                        <p class="heading_lead c-grey-900"><i class="fas fa-user" aria-hidden="true"></i>Customer
-                        Detail</p>
+        <div id="mainContent">
+            <div class="page-header p-0">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-4 left_side_head">
+                            <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-user" ></i>Customer</p>
                     </div>
-                    <div class="col-md-7">
+                    <div class="col-md-8 right_saerch_side p-0">
+                            <div class="mr-2">
+                                <form [formGroup]="searchForm">
+                                    <div id="custom-search-input" class="btn_header1">
+                                        <div class="input-group col-md-12">
+                                            <input type="text" 
+                                            class="form-control input-lg"
+                                            placeholder="Search"
+                                            formControlName="searckKey"
+                                            #searchData
+                                            />
+                                            <span class="input-group-btn">
+                                                <a>
+                                                    <i class="fas fa-search"></i>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         <div class="btn_header">
                             <a><img src="assets/img/printer.png"> </a>
                             <a><img src="assets/img/pdf.png"></a>
@@ -23,45 +41,51 @@
         <app-customer-search [toShow]="openSearch" ></app-customer-search>
         <div class="row">
             <div class="col-md-12">
-                <div class="bgc-white bdrs-3 p-20 mB-20">
-                    <div class="table-responsive" id="parent">
-                        <table class="table" id="fixTable">
+                <div class="bgc-white bdrs-3 pb-3 mB-20">
+                    <div class="table-responsive table_height">
+                        <table class="table cat-table table-hover">
                             <thead>
                                 <tr>
                                     <th>SNO</th>
                                     <th>Ledger Name</th>
                                     <th>Contact Person</th>
                                     <th>Customer Type</th>
-                                    <th>Phone Number</th>
+                                    <th>Phone Number/Email</th>
                                     <th class="text-right">Opening Balance</th>
                                     <th>GST No</th>
                                     <th class="text-right">Credit Limit</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
+                            <tbody *ngIf="isSearching" style="height:100px;" >
+                                <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;" />
+                            </tbody>
                             <tbody>
-                                <tr *ngFor="let item of coustomerDetails let i=index">
-                                    <td>{{i+1}}</td>
+                                <tr *ngFor="let item of coustomerDetails | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index">
+                                    <td>{{lastItemIndex +  i + 1}}</td>
                                     <td>{{item.Name}}</td>
                                     <td>{{item.ContactPersonName}}</td>
                                     <td>{{item.CustomerType}}</td>
-                                    <td>{{item.ContactNo}}</td>
+                                    <td>{{item.ContactNo}} <br>{{item.EmailAddress}}</td>
                                     <td class="text-right">{{item.OpeningBalance}}</td>
                                     <td>{{item.GstinNo}}</td>
                                     <td class="text-right">{{item.CreditLimit}}</td>
-                                    <td class="text-center">
-                                        <a data-toggle="tooltip" data-placement="top" title=""
-                                            data-original-title="Edit"><i class="fa fa-edit fa-1x" style="color: darkgreen"
-                                            aria-hidden="true" (click)="editCoustomer(item.Id)"></i></a>
-                                        <a data-toggle="tooltip" data-placement="bottom" title=""
+                                     <td class="text-center">
+                                        <a class="actionBtn" data-toggle="tooltip"  title=""
+                                            data-original-title="Edit" (click)="editCoustomer(item.Id)"><i class="fa fa-edit fa-1x"
+                                                aria-hidden="true"></i></a>
+                                        <a class="actionBtn" data-toggle="tooltip"  title=""
                                             data-original-title="Delete" (click)="delteCustomerPopup(item.Id)"><i
-                                            class="fa fa-trash fa-1x" style="color: red" aria-hidden="true"></i></a>
+                                                class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+                <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+                (pageNoEmitter)="p = $event;getCustomerDetail();"
+                (pageSizeEmitter)="itemsPerPage = $event;getCustomerDetail();" ></app-pagination>
             </div>
         </div>
     </div>

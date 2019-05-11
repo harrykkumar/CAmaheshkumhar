@@ -1,13 +1,13 @@
 import { UserFormService } from './user-form.service'
-import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges, ViewChild } from '@angular/core'
+import { Component, Input, Output, EventEmitter, SimpleChanges, ViewChild } from '@angular/core'
 import { UIConstant } from '../../shared/constants/ui-constant'
 import { Subject, forkJoin } from 'rxjs'
 import { takeUntil } from 'rxjs/internal/operators/takeUntil'
 import { map, tap } from 'rxjs/operators'
 import * as _ from 'lodash'
-import { OrganisationProfileService } from '../../start/header/organisation-profile/organisation-profile.service'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { CommonService } from '../../commonServices/commanmaster/common.services'
+import { OrganisationProfileService } from '../../start/header/organisation-profile/organisation-profile.service'
 declare var $: any
 declare const flatpickr: any
 
@@ -16,7 +16,7 @@ declare const flatpickr: any
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css']
 })
-export class UserFormComponent implements OnInit {
+export class UserFormComponent {
   @ViewChild('mobileDetailModel') mobileDetailModel
   @ViewChild('emailDetailModel') emailDetailModel
   @ViewChild('userFormModel') userFormModel
@@ -47,9 +47,6 @@ export class UserFormComponent implements OnInit {
     public _commonService: CommonService
   ) { }
 
-  ngOnInit () {
-  }
-
   /* Function invoke when profile menu clicked  */
   ngOnChanges (changes: SimpleChanges): void {
     if (this.showUserForm.open === true) {
@@ -64,7 +61,6 @@ export class UserFormComponent implements OnInit {
       $('#add_user').modal(UIConstant.MODEL_HIDE)
     }
   }
-
 
   /* Function to initialise flatpicker date format */
   initDateFormat = () => {

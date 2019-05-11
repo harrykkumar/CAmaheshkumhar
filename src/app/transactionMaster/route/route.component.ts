@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
 import { ItemModel } from '../../model/sales-tracker.model'
 import { Subscription } from 'rxjs/Subscription'
 import { Select2OptionData } from 'ng2-select2'
@@ -6,7 +6,10 @@ import { ItemmasterServices } from '../../commonServices/TransactionMaster/item-
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { UIConstant } from '../../shared/constants/ui-constant'
 import { ErrorConstant } from '../../shared/constants/error-constants'
-import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
+import { fromEvent } from 'rxjs'
+import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { FormGroup, FormBuilder } from '@angular/forms'
 declare const $: any
 @Component({
   selector: 'app-route',
@@ -14,12 +17,15 @@ declare const $: any
   styleUrls: ['./route.component.css']
 })
 export class RouteComponent implements OnInit {
-  unitId: number
-  taxId: number
   id: number
-  categoryId: number
   itemDetail: ItemModel[]
   subscribe: Subscription
+  searchForm: FormGroup
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
+  lastItemIndex: number = 0
+  isSearching: boolean = false
   public subCategoryType: Array<Select2OptionData>
   public selectUnitType: Array<Select2OptionData>
   public selectTax: Array<Select2OptionData>
@@ -35,7 +41,8 @@ export class RouteComponent implements OnInit {
   recordNotFoundMessage: string = ''
   constructor (private _itemmasterServices: ItemmasterServices,
     private commonService: CommonService,
-    private toastrService: ToastrCustomService) {
+    private toastrService: ToastrCustomService,
+    private _formBuilder: FormBuilder) {
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
         if (obj.id && obj.type && obj.type === 'route') {
@@ -51,6 +58,15 @@ export class RouteComponent implements OnInit {
         this.getItemMasterDetail()
       }
     )
+
+    this.formSearch()
+  }
+
+  @ViewChild('searchData') searchData: ElementRef
+  private formSearch () {
+    this.searchForm = this._formBuilder.group({
+      'searckKey': [UIConstant.BLANK]
+    })
   }
 
   ngOnDestroy () {
@@ -78,17 +94,56 @@ export class RouteComponent implements OnInit {
   ngOnInit () {
     this.itemDetail = []
     this.getItemMasterDetail()
+    this.commonService.fixTableHF('cat-table')
+    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+      map((event: any) => {
+        return event.target.value
+      }),
+      filter(res => res.length > 1 || res.length === 0),
+      debounceTime(1000),
+      distinctUntilChanged()
+      ).subscribe((text: string) => {
+        this.isSearching = true
+        this.searchGetCall(text).subscribe((data) => {
+          console.log('search data : ', data)
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          this.itemDetail = data.Data
+          this.total = this.itemDetail[0] ? this.itemDetail[0].TotalRows : 0
+        },(err) => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          console.log('error',err)
+        },
+        () => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+        })
+      })
   }
 
   editRoute (id) {
     this.commonService.openRouting(id)
   }
 
+  searchGetCall (term: string) {
+    if (term !== '') {
+      this.p = 1
+      return this._itemmasterServices.getItemMasterDetail('?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
+    } else {
+      return this._itemmasterServices.getItemMasterDetail('?Page=' + this.p + '&Size=' + this.itemsPerPage)
+    }
+  }
+
   getItemMasterDetail () {
-    this.subscribe = this._itemmasterServices.getItemMasterDetail().subscribe(Data => {
+    this.subscribe = this._itemmasterServices.getItemMasterDetail('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).subscribe(Data => {
       console.log('route data : ', Data)
       if (Data.Code === UIConstant.THOUSAND && Data.Data) {
         this.itemDetail = Data.Data
+        this.total = this.itemDetail[0] ? this.itemDetail[0].TotalRows : 0
       } else {
         this.recordNotFoundMessage = ErrorConstant.RECORD_NOT_FOUND_TABLE
       }

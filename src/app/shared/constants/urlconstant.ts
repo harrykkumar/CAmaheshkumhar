@@ -25,7 +25,7 @@ export class URLConstant {
 
   public static get FORGOT_PASSWORD_URL (): string { return 'forgot-password' }
 
-  public static get IMS_VOUCHER_URL (): string { return 'ims/voucher' } 
+  public static get IMS_VOUCHER_URL (): string { return 'ims/voucher' }
 
   public static get PURCHASES (): string { return 'purchase' }
 
@@ -45,11 +45,19 @@ export class URLConstant {
 
   public static get SALE_CHALLAN (): string { return 'ims/sale-challan/challan' }
 
+  public static get PURCHASE (): string { return 'ims/purchase' }
+
+  public static get REPORT_ITEM_STOCK (): string { return 'ims/report/item-stock' }
+
+  public static get PROFIT_REPORT (): string { return 'ims/profit-report' }
+
   public static get ATTRIBUTE_ADD (): string { return 'ims/attribute' }
 
- public static get SALE_CHALLAN_BILLING (): string {return 'ims/sale-billing/billing'}
+  public static get SALE_CHALLAN_BILLING (): string { return 'ims/sale-billing/billing' }
 
- public static get SALE_DIRECT (): string {return 'ims/sale-direct/direct'}
+  public static get SALE_DIRECT (): string { return 'ims/sale-direct/direct' }
 
- 
+ // public static get BANK_LIST (): string { return 'ims/bank' }
+
+  
 }

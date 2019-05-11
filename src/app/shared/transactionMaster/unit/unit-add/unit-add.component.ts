@@ -1,11 +1,11 @@
-import { Component } from '@angular/core'
+import { Component, ViewChild, Renderer2, ElementRef } from '@angular/core'
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms'
 import { UnitModel, AddCust, ResponseUnit } from '../../../../model/sales-tracker.model'
 import { Subscription } from 'rxjs/Subscription'
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { UnitMasterServices } from '../../../../commonServices/TransactionMaster/unit-mater.services'
 import { UIConstant } from '../../../constants/ui-constant'
-import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 
 declare const $: any
 @Component({
@@ -24,7 +24,8 @@ export class UnitAddComponent {
   constructor (public toastrCustomService: ToastrCustomService,
     private _unitmasterServices: UnitMasterServices,
     private _formBuilder: FormBuilder,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private renderer: Renderer2
     ) {
     this.modalSub = this.commonService.getUnitStatus().subscribe(
       (data: AddCust) => {
@@ -59,6 +60,7 @@ export class UnitAddComponent {
     })
   }
 
+  @ViewChild('first') first: ElementRef
   openModal () {
     if (this.editMode) {
       this.getEditUnit(this.id)
@@ -68,6 +70,12 @@ export class UnitAddComponent {
     }
     this.unitFormDetail()
     $('#unit_master').modal(UIConstant.MODEL_SHOW)
+    setTimeout(() => {
+      if (this.first) {
+        const element = this.renderer.selectRootElement(this.first.nativeElement, true)
+        element.focus({ preventScroll: false })
+      }
+    }, 1000)
   }
 
   closeModal () {
@@ -108,7 +116,7 @@ export class UnitAddComponent {
           const datatoSend = { id: data.Data, name: this.unitForm.value.UnitName }
           this.commonService.closeUnit(datatoSend)
         } else {
-          this.toastrCustomService.showError('Oops', data.Message)
+          this.toastrCustomService.showError('', data.Message)
         }
       })
     }

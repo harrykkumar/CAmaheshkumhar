@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { Observable, of, throwError } from 'rxjs'
-import { OrganisationProfileService } from '../../header/organisation-profile/organisation-profile.service';
+import { OrganisationProfileService } from '../../header/organisation-profile/organisation-profile.service'
 import { map, catchError } from 'rxjs/operators'
 
 @Component({
@@ -11,7 +11,7 @@ import { map, catchError } from 'rxjs/operators'
 export class OrgBranchOfficeListComponent implements OnInit {
   officeList: Observable<Array<any>> = of([])
   openModal: any = {}
-  constructor(
+  constructor (
     private _orgService: OrganisationProfileService
   ) { }
 
@@ -31,10 +31,6 @@ export class OrgBranchOfficeListComponent implements OnInit {
     return throwError(error.message)
   }
 
-  searchOffice = () => {
-
-  }
-
   addNewOffice = () => {
     this.openModal = {
       open: true,
@@ -50,10 +46,6 @@ export class OrgBranchOfficeListComponent implements OnInit {
       mode: 'EDIT',
       editId: item.Id
     }
-  }
-
-  deleteOffice = (id) => {
-
   }
 
   /* Function invoke on click of save and close of branch modal */

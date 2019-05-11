@@ -8,7 +8,8 @@ import { ItemMasterRoutingModule } from './item-master.routing.module'
 import { ItemImportComponent } from './item-import/item-import.component'
 import { ItemSearchPipe } from '../../pipes/item-search.pipe'
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
-
+import { PagingUtilityModule } from '../../shared/pagination/pagination.module'
+import { NgxPaginationModule } from 'ngx-pagination'
 @NgModule({
   imports: [
     CommonModule,
@@ -16,7 +17,9 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
     ReactiveFormsModule,
     Select2Module,
     ItemMasterRoutingModule,
-    NgMultiSelectDropDownModule
+    NgMultiSelectDropDownModule,
+    PagingUtilityModule,
+    NgxPaginationModule
   ],
   declarations: [
     ItemMasterComponent,

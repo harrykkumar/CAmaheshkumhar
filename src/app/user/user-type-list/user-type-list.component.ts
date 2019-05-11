@@ -1,7 +1,7 @@
-import { UserFormService } from './../user-form/user-form.service';
-import { Component, OnInit } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { UserFormService } from './../user-form/user-form.service'
+import { Component, OnInit } from '@angular/core'
+import { Observable, of, throwError } from 'rxjs'
+import { map, catchError, tap } from 'rxjs/operators'
 import * as _ from 'lodash'
 
 @Component({
@@ -36,10 +36,6 @@ export class UserTypeListComponent implements OnInit {
     return throwError(error.message)
   }
 
-  searchUser = () => {
-
-  }
-
   addNewUserType = () => {
     this.showUserType = {
       open: true,
@@ -55,10 +51,6 @@ export class UserTypeListComponent implements OnInit {
       editId: item.Id,
       indexLength: this.indexLength
     }
-  }
-
-  deleteUserType = (id) => {
-
   }
 
   closeUserTypeForm = (event) => {

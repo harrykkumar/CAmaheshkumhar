@@ -22,28 +22,39 @@
                <div class="form row">
                    <div class="form-group col-md-12">
                        <label class="active">Bank Name</label>
-                       <input type="text" class="form-control" placeholder="Enter Bank Name"  formControlName="banName">
+                       <input type="text" class="form-control" placeholder=" Bank Name" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.banName.errors }"  formControlName="banName">
                    </div>
                    <div class="form-group col-md-12">
-                       <label class="active">Account Number)</label>
-                       <input type="text" class="form-control" placeholder="Enter Account Number" formControlName="accountNo">
+                       <label class="active">Account Number</label>
+                       <input type="text" class="form-control" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.accountNo.errors }" placeholder=" Account Number" formControlName="accountNo">
                    </div>
                    <div class="form-group col-md-12">
                        <label class="active">IFSC Code</label>
-                       <input type="text" class="form-control" placeholder="Enter IFSC Code " formControlName="ifscCode">
+                       <input type="text" class="form-control" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.ifscCode.errors }" placeholder=" IFSC Code " formControlName="ifscCode">
                    </div>
                    <div class="form-group col-md-12">
                        <label>Branch</label>
-                       <input type="text " class="form-control " placeholder="Enter Branch " formControlName="branch">
+                       <input type="text " class="form-control " [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.branch.errors }" placeholder=" Branch " formControlName="branch">
                    </div>
                    <div class="form-group col-md-12">
                     <label>MICR No</label>
-                   <input type="text " class="form-control " placeholder="Enter MICR Number " formControlName="micr">
+                   <input type="text " class="form-control " [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.micr.errors }" placeholder=" MICR Number " formControlName="micr">
+                   </div>
+                   <div class="form-group col-md-12">
+                    <label>Opening Balance</label>
+                    <div class="discount">
+                            <input type="number " class="form-control " placeholder="Opening Balance" name="CrDrRate" appIncludeDecimal formControlName="openingbalance">
+                                <div class="input-group">
+                                  <select2 #crdr_selecto2 [data]="selectCrDr" class="dropdown_width_100" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="select2CrDrPlaceHolder" [value]="valueCRDR"></select2>
+                                </div>
+                      </div>
+                  
                    </div>
                 </div>
            </div>
-           <div class="modal-footer"><button class="btn btn_close waves-effect" data-dismiss="modal" type="button">Close</button>
-               <button class="btn btn-primary waves-effect" type="button" (click)="addbank()">Save changes</button>
+           <div class="modal-footer">
+               <button class="btn btn-primary waves-effect" (click)="addbank('new')" type="button">Save and New Add</button>
+               <button class="btn btn-primary waves-effect" type="button" (click)="addbank('save')">Save changes</button>
            </div>
        </div>
    </div>

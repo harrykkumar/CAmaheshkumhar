@@ -1,17 +1,36 @@
 <main class="main-content bgc-grey">
-    <div id="mainContent">
-        <div class="modal-header page-header p-0">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-5 left_side_head">
-                        <p class="heading_lead c-grey-900"><i class="far fa-building"></i>Routing</p>
+        <div id="mainContent">
+            <div class="page-header p-0">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-4 left_side_head">
+                            <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-route" ></i>Routing</p>
                     </div>
-                    <div class="col-md-7">
+                    <div class="col-md-8 right_saerch_side p-0">
+                        <div class="mr-2">
+                            <form [formGroup]="searchForm">
+                                <div id="custom-search-input" class="btn_header1">
+                                    <div class="input-group col-md-12">
+                                        <input type="text" 
+                                        class="form-control input-lg"
+                                        placeholder="Search"
+                                        formControlName="searckKey"
+                                        #searchData
+                                        />
+                                        <span class="input-group-btn">
+                                            <a>
+                                                <i class="fas fa-search"></i>
+                                            </a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                         <div class="btn_header">
                             <a><img src="assets/img/printer.png"> </a>
                             <a><img src="assets/img/pdf.png"></a>
                             <a><img src="assets/img/excel.png"></a>
-                            <button type="button" class="btn btn-primary waves-effect waves-light" (click)="addRoutinPopup()"> Add Routing </button>
+                            <button type="button" class="btn btn-primary waves-effect waves-light" (click)="addRoutinPopup()"> Add New </button>
                             <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a>
                         </div>
                     </div>
@@ -19,10 +38,11 @@
             </div>
         </div>
         <app-route-search [toShow]="openSearch" ></app-route-search>
-        <div class="row ">
-            <div class="col-md-12 ">
-                <div class="table-responsive bgc-white" id="parent">
-                    <table class="table" id="fixTable" >
+        <div class="row">
+                <div class="col-md-12">
+                    <div class="bgc-white bdrs-3 pb-3 mB-20">
+                        <div class="table-responsive table_height">
+                            <table class="table cat-table table-hover">
                         <thead>
                             <tr>
                                 <th>SR</th>
@@ -33,20 +53,23 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
+                        <tbody *ngIf="isSearching" style="height:100px;" >
+                            <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;" />
+                        </tbody>
                         <tbody>
-                            <tr *ngFor="let item of itemDetail ; let i = index" [attr.data-itemDetail]="i">
-                                <td>{{i+1}}</td>
+                            <tr *ngFor="let item of itemDetail | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total } ; let i = index" [attr.data-itemDetail]="i">
+                                <td>{{lastItemIndex + i + 1}}</td>
                                 <td>{{item.CategoryName}}</td>
                                 <td>{{item.Name}}</td>
                                 <td>{{item.SaleRate}}</td>
                                 <td>{{item.TaxSlab}} </td>
                                 <td>
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit">
-                                    <i class="fa fa-edit fa-1x" style="color: darkgreen" aria-hidden="true"
+                                    <a class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit">
+                                    <i class="fa fa-edit fa-1x"  aria-hidden="true"
                                     (click)="editRoute(item.Id)">
                                     </i></a>
-                                    <a data-toggle="tooltip" data-placement="bottom" title="Delete" (click)="deleteRoute(item.Id)"><i
-                                    class="fa fa-trash fa-1x" style="color: red" aria-hidden="true"></i></a>
+                                    <a class="actionBtn" data-toggle="tooltip" data-placement="bottom" title="Delete" (click)="deleteRoute(item.Id)"><i
+                                    class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
                                 </td>
                             </tr>
                              <tr *ngIf="itemDetail.length === 0"><td colspan="6" class="error_msg recordNotFound"  >{{recordNotFoundMessage}}</td> </tr>
@@ -54,6 +77,10 @@
                     </table>
                 </div>
             </div>
+            <app-pagination (lastValueEmitter)="lastItemIndex = $event;"
+                (pageNoEmitter)="p = $event;getItemMasterDetail();"
+                (pageSizeEmitter)="itemsPerPage = $event;getItemMasterDetail();" ></app-pagination>
+        </div>
         </div>
     </div>
 </main>

@@ -112,7 +112,7 @@ export class SalesComponent {
   totaltax: number
   totalBillAmount: number
   getSaleTraveDetail () {
-    this.commonService.getSaleDetail().subscribe(data => {
+    this.commonService.getSaleDetail('').subscribe(data => {
       console.log('sales data: ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         this.totalBillAmount = 0

@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
-import { FormGroup } from '@angular/forms'
+import { FormGroup, FormBuilder } from '@angular/forms'
 import { TaxModal } from '../../model/sales-tracker.model'
-import { Select2OptionData } from 'ng2-select2'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { TaxMasterService } from '../../commonServices/TransactionMaster/tax-master.services'
 import { UIConstant } from '../../shared/constants/ui-constant'
-import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
+import { filter, map, debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { fromEvent } from 'rxjs'
+import { PagingComponent } from '../../shared/pagination/pagination.component'
 
 declare const $: any
 @Component({
@@ -15,28 +17,20 @@ declare const $: any
   styleUrls: ['./tax.component.css']
 })
 export class TaxComponent implements OnInit {
-
-  modalSub: Subscription
   deleteSub: Subscription
-  id: number
-  type: number
-  deafaultValue: any
-  taxrates: any[]
-  addPulsSign: any
-  plusValue: number
-  taxForm: FormGroup
-  errorMassage: string
-  submitClick: boolean
-  select2Error: boolean
-  taxDetail: TaxModal[]
-  subscribe: Subscription
-  selectTaxTypePlaceHolde: Select2Options
-  public selectTaxTpye: Array<Select2OptionData>
-  fillingTaxRate: any[]
-  // taxboxDivVisibale: boolean
-  // subCatagoryPopup: boolean
+  modalSub: Subscription
+  taxrates: TaxModal[]
+  searchForm: FormGroup
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
+  lastItemIndex: number = 0
+  isSearching: boolean = false
+  fillingTaxRate: Array<any> = []
+  taxDetail: Array<any> = []
+  @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (public toastrCustomService: ToastrCustomService ,private _taxMasterServices: TaxMasterService,
-    private commonService: CommonService) {
+    private commonService: CommonService, private _formBuilder: FormBuilder) {
     this.modalSub = this.commonService.getTaxAddStatus().subscribe(
       (obj) => {
         this.getTaxDetail()
@@ -49,6 +43,15 @@ export class TaxComponent implements OnInit {
         }
       }
     )
+
+    this.formSearch()
+  }
+
+  @ViewChild('searchData') searchData: ElementRef
+  private formSearch () {
+    this.searchForm = this._formBuilder.group({
+      'searckKey': [UIConstant.BLANK]
+    })
   }
 
   deleteItem (id) {
@@ -71,18 +74,56 @@ export class TaxComponent implements OnInit {
     this.taxrates = []
     this.taxDetail = []
     this.getTaxDetail()
-    this.addPulsSign = []
+    this.commonService.fixTableHF('cat-table')
+    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+      map((event: any) => {
+        return event.target.value
+      }),
+      filter(res => res.length > 1 || res.length === 0),
+      debounceTime(1000),
+      distinctUntilChanged()
+      ).subscribe((text: string) => {
+        this.isSearching = true
+        this.searchGetCall(text).subscribe((data) => {
+          // console.log('search tax : ', data)
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          this.taxDetail = data.Data.TaxSlabs
+          this.total = this.taxDetail[0] ? this.taxDetail[0].TotalRows : 0
+        },(err) => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          console.log('error',err)
+        },
+        () => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+        })
+      })
+  }
+
+  searchGetCall (term: string) {
+    if (!term) {
+      term = ''
+    }
+    this.pagingComp.setPage(1)
+    return this._taxMasterServices.getTaxDetail('?Name=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
   }
 
   getTaxDetail () {
-    this.subscribe = this._taxMasterServices.getTaxDetail().subscribe(Data => {
+    if (!this.searchForm.value.searckKey) {
+      this.searchForm.value.searckKey = ''
+    }
+    this._taxMasterServices.getTaxDetail('?Name=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).subscribe(Data => {
       console.log('tax data : ', Data)
       this.taxDetail = []
-      this.fillingTaxRate = []
       if (Data.Code === UIConstant.THOUSAND) {
         if (Data.Data && Data.Data.TaxSlabs) {
           this.taxDetail = Data.Data.TaxSlabs
-          this.fillingTaxRate = Data.Data.TaxRates
+          this.total = this.taxDetail[0] ? this.taxDetail[0].TotalRows : 0
         }
       }
     })
@@ -93,10 +134,6 @@ export class TaxComponent implements OnInit {
   }
   editTax (id) {
     this.commonService.openTax(id)
-  }
-  selectedTaxType (event) {
-    this.type = event.value
-    this.select2Error = false
   }
 
   deletePopup (id, name) {

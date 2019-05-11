@@ -5,13 +5,17 @@ import { CommonModule } from '@angular/common'
 import { RouteComponent } from './route.component'
 import { RouteRoutingModule } from './route.routing.module'
 import { RouteSearchComponent } from './route-search/route-search.component'
+import { PagingUtilityModule } from '../../shared/pagination/pagination.module'
+import { NgxPaginationModule } from 'ngx-pagination'
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     Select2Module,
-    RouteRoutingModule
+    RouteRoutingModule,
+    PagingUtilityModule,
+    NgxPaginationModule
   ],
   declarations: [
     RouteComponent,

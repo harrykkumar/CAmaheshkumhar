@@ -1,8 +1,4 @@
-body {
-	font-size: 16px;
-	
-	color: #6c7279
-}
+
 .navbar-light .navbar-nav .active > .nav-link, .navbar-light .navbar-nav .nav-link.active {
 	color: #0862ce
 }
