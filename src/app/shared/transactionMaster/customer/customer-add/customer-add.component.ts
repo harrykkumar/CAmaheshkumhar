@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ViewChild, NgModule } from '@angular/core'
+import { Component, OnDestroy, ViewChild } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { Ledger, AddCust, AddLedger } from '../../../../model/sales-tracker.model'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
@@ -11,7 +11,6 @@ import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { CommonService } from '../../../../commonServices/commanmaster/common.services'
 import { GlobalService } from '../../../../commonServices/global.service'
 import { Settings } from '../../../../shared/constants/settings.constant'
-import { forEach } from '@angular/router/src/utils/collection'
 declare const $: any
 declare const flatpickr: any
 @Component({

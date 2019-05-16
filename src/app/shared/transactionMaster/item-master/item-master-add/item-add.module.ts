@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common'
 import { SharedModule } from '../../../shared.module'
 import { ItemAddComponent } from './item-add.component'
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
+import { ComboComponent } from '../item-combo/combo.component'
 @NgModule({
   imports: [
     CommonModule,
@@ -15,7 +16,8 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
     SharedModule
   ],
   declarations: [
-    ItemAddComponent
+    ItemAddComponent,
+    ComboComponent
   ],
   exports: [
     ItemAddComponent

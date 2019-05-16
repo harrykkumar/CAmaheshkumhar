@@ -285,6 +285,8 @@ export interface AddCust {
   challanNos?: any
   AttributeId?: any
   isAddNew?: boolean
+  isParent?: boolean
+  title?: string
 }
 
 export interface ResponseSale {
@@ -506,6 +508,8 @@ export interface ItemMasterAdd {
   IsVolumeDiscountApply?: boolean
   IsTradeDiscountApply?: boolean
   ImageFiles?: Array<Object>[]
+  ItemAttributeTrans?: Array<PurchaseAttribute>[]
+  ItemTransactions?: Array<ComboItem>[]
 }
 
 export interface PurchaseItem {
@@ -545,6 +549,58 @@ export interface PurchaseItem {
   taxSlabType: number
 }
 
+export interface PurchaseItem {
+  TransType: number
+  TransId: number
+  ChallanId: number
+  CategoryId: number
+  ItemId: number
+  UnitId: number
+  Length: number
+  Height: number
+  Width: number
+  Quantity: number
+  SaleRate: number
+  MrpRate: number
+  PurchaseRate: number
+  TaxSlabId: number
+  TaxType: number
+  TaxAmount: number
+  DiscountType: number
+  Discount: number
+  DiscountAmt: number
+  ExpiryDate: string
+  MfdDate: string
+  BatchNo: string
+  Remark: string
+  Id: number
+  Sno: number
+  itemName: string
+  categoryName: string
+  unitName: string
+  taxSlabName: string
+  taxTypeName: string
+  SubTotal: number
+  itemAttributeTrans?: Array<PurchaseAttribute>
+  taxRates: Array<any>
+  taxSlabType: number
+}
+
+export interface ComboItem {
+  ItemId: number
+  UnitId: number
+  Quantity: number
+  SaleRate: number
+  MrpRate: number
+  PurchaseRate: number
+  Id: number
+  Sno: number
+  TransId?: number
+  itemName: string
+  unitName: string
+  itemAttributeTrans?: Array<PurchaseAttribute>
+}
+
 export class PurchaseAttribute {
   ItemId: number
   ItemTransId: number
@@ -552,6 +608,7 @@ export class PurchaseAttribute {
   ParentTypeId: number
   name: string
   id: number
+  GroupId?: number
 }
 
 export class PurchaseTransaction {

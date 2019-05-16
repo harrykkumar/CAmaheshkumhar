@@ -20,7 +20,6 @@ import { ToastrCustomService } from '../../../commonServices/toastr.service'
 import { Settings } from '../../../shared/constants/settings.constant'
 import { GlobalService } from '../../../commonServices/global.service'
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
-import { map, tap } from 'rxjs/operators'
 declare const flatpickr: any
 declare const $: any
 @Component({
@@ -67,6 +66,7 @@ export class PurchaseAddComponent {
   paymentLedgerselect2: Array<Select2OptionData>
   taxSlabsData: Array<Select2OptionData>
 
+  subUnitsValue: number
   attributeValue: number
   itemValue: number
   vendorValue: number
@@ -75,7 +75,6 @@ export class PurchaseAddComponent {
   organisationValue: number
   godownValue: number
   referralTypesValue: number
-  subUnitsValue: number
   referralValue: number
   taxSlabValue: number
   currencyValue: number
@@ -278,24 +277,6 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.attr$ = this.purchaseService.attributesData$.subscribe(
-      data => {
-        if (data.attributeKeys && data.attributesData) {
-          this.initAttribute()
-          this.attributeKeys = data.attributeKeys
-          this.attibutesData = data.attributesData
-        }
-      }
-    )
-
-    this.item$ = this.purchaseService.itemData$.subscribe(
-      data => {
-        if (data.itemData) {
-          this.itemData = Object.assign([], data.itemData)
-        }
-      }
-    )
-
     this.vendorData$ = this.purchaseService.vendorData$.subscribe(
       data => {
         if (data.data) {
@@ -351,6 +332,23 @@ export class PurchaseAddComponent {
         if (data.data) {
           this.referralTypesData = data.data
           // console.log('referralTypesData : ', this.referralTypesData)
+        }
+      }
+    )
+    this.attr$ = this.purchaseService.attributesData$.subscribe(
+      data => {
+        if (data.attributeKeys && data.attributesData) {
+          this.initAttribute()
+          this.attributeKeys = data.attributeKeys
+          this.attibutesData = data.attributesData
+        }
+      }
+    )
+
+    this.item$ = this.purchaseService.itemData$.subscribe(
+      data => {
+        if (data.itemData) {
+          this.itemData = Object.assign([], data.itemData)
         }
       }
     )

@@ -7,6 +7,8 @@ import { BaseServices } from '../base-services'
 })
 export class VendorServices {
 
+  private queryStrSub = new Subject<string>()
+  public queryStr$ = this.queryStrSub.asObservable()
   private _listners = new Subject<any>()
 
   listen (): Observable<any> {
@@ -47,7 +49,7 @@ export class VendorServices {
     return this._baseServices.getRequest(ApiConstant.EDIT_LEDGER_BY_ID_URL + id)
   }
 
-  delteVendor (id) {
+  deleteLedger (id) {
     return this._baseServices.deleteRequest(ApiConstant.VENDOR_URL + '?id=' + id)
   }
 
@@ -72,5 +74,9 @@ export class VendorServices {
 
   sendCustomerDataObservable (e) {
     this.sendCustomerData.next(e)
+  }
+
+  setSearchQueryParamsStr (str) {
+    this.queryStrSub.next(str)
   }
 }

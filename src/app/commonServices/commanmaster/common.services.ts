@@ -228,7 +228,6 @@ export class CommonService {
   }
 
   getLedgerStatus () {
-    debugger
     return this.openAddLedgerSub.asObservable()
   }
 
@@ -274,8 +273,8 @@ export class CommonService {
 
   deleteId: string
   type: string
-  openDelete (id, type) {
-    this.openDeleteSub.next({ 'open': true })
+  openDelete (id, type, title) {
+    this.openDeleteSub.next({ 'open': true, 'title': title })
     this.deleteId = id
     this.type = type
   }
@@ -329,12 +328,10 @@ export class CommonService {
   }
 
   openSaleReturn (editId) {
-    console.log('open called')
     this.openSaleReturnSub.next({ 'open': true, 'editId': editId })
   }
 
   closeSaleReturn () {
-    console.log('close called')
     this.openSaleReturnSub.next({ 'open': false })
   }
 
@@ -393,7 +390,7 @@ export class CommonService {
 
   closeAttributeForDynamicAdd (attribute) {
     if (attribute) {
-      this.openAddAttributeSub.next({ 'open': false, 'name': attribute.name, 'id': attribute.id, 'AttributeId': attribute.AttributeId })
+      this.openAddAttributeSub.next({ 'open': false, 'status': attribute.status, 'name': attribute.name, 'id': attribute.id, 'AttributeId': attribute.AttributeId })
     } else {
       this.openAddAttributeSub.next({ 'open': false })
     }
@@ -699,8 +696,8 @@ export class CommonService {
   getLastBillNo (type,date,orgNo) {
     return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_MANUAL + 'Type=' + type + '&BillDate=' + date + '&OrgId=' + orgNo)
   }
-  getBankList () {
-    return this.baseService.getRequest(ApiConstant.BANK_DETAIL_URL)
+  getBankList (queryParams) {
+    return this.baseService.getRequest(ApiConstant.BANK_DETAIL_URL + queryParams)
   }
   getEditbankDetails (id) {
     return this.baseService.getRequest(ApiConstant.EDIT_BANK_DATA + id)
@@ -708,5 +705,8 @@ export class CommonService {
   deleteBankDetails (id) {
     return this.baseService.deleteRequest(ApiConstant.EDIT_BANK_DATA + id)
   }
-
+  obj: any
+  getReportItemByCategorySale (type) {
+    return this.baseService.getRequest(ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA + type)
+  }
 }

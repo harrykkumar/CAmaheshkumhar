@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { CatagoryDetailModel } from '../../model/sales-tracker.model'
 import { Subscription } from 'rxjs/Subscription'
-import { Select2OptionData } from 'ng2-select2'
+import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { CategoryServices } from '../../commonServices/TransactionMaster/category.services'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { UIConstant } from '../../shared/constants/ui-constant'
@@ -10,6 +10,7 @@ import { CommonService } from '../../commonServices/commanmaster/common.services
 import { fromEvent } from 'rxjs'
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { PagingComponent } from '../../shared/pagination/pagination.component'
+import { Settings } from '../../shared/constants/settings.constant'
 
 declare const $: any
 @Component({
@@ -34,6 +35,10 @@ export class CategoryComponent implements OnInit {
   itemsPerPage: number = 20
   total: number = 0
   lastItemIndex: number = 0
+  catLevel: number = 0
+  categoryLevels: Array<Select2OptionData> = []
+  categoryPlaceholder: Select2Options
+  LevelNo: number = 0
   @ViewChild('open_add_form') myModal
   @ViewChild('searchData') searchData: ElementRef
   isSearching: boolean = false
@@ -41,8 +46,10 @@ export class CategoryComponent implements OnInit {
   constructor (private _catagoryservices: CategoryServices,
     private _formBuilder: FormBuilder,
     private commonService: CommonService,
-    private toastrService: ToastrCustomService
+    private toastrService: ToastrCustomService,
+    private settings: Settings
     ) {
+    this.catLevel = this.settings.catLevel
     this.newCatSub = this.commonService.newCatStatus().subscribe(
       (obj) => {
         this.Id = UIConstant.ZERO
@@ -59,6 +66,9 @@ export class CategoryComponent implements OnInit {
       }
     )
     this.formSearch()
+    if (this.catLevel > 1) {
+      this.createLevels()
+    }
   }
 
   deleteItem (id) {
@@ -70,9 +80,33 @@ export class CategoryComponent implements OnInit {
           this.getCategoryDetails()
         }
         if (Data.Code === UIConstant.CANNOTDELETERECORD) {
-          this.toastrService.showInfo('Info', 'Can not deleted !')
+          this.toastrService.showInfo('', Data.Description)
           this.commonService.closeDelete('')
         }
+      })
+    }
+  }
+
+  @ViewChild('catlevel_select2') catlevelSelect2: Select2Component
+  catLevelValue: number = 0
+  createLevels () {
+    if (this.catlevelSelect2) {
+      this.catlevelSelect2.setElementValue(0)
+    }
+    this.catLevelValue = 0
+    this.categoryPlaceholder = { placeholder: 'Filter on category level' }
+    this.categoryLevels.push({
+      id: '0',
+      text: 'Select Category Level'
+    })
+    this.categoryLevels.push({
+      id: '1',
+      text: '1 - Main'
+    })
+    for (let i = 1; i <= this.catLevel; i++) {
+      this.categoryLevels.push({
+        id: '' + i,
+        text: '' + i + ' - Child'
       })
     }
   }
@@ -81,6 +115,13 @@ export class CategoryComponent implements OnInit {
     this.searchForm = this._formBuilder.group({
       'searckKey': [UIConstant.BLANK]
     })
+  }
+
+  selectCatLevel (evt) {
+    if (evt.value && evt.data.length > 0) {
+      this.LevelNo = +evt.value
+      this.getCategoryDetails()
+    }
   }
 
   ngOnInit () {
@@ -124,7 +165,7 @@ export class CategoryComponent implements OnInit {
       term = ''
     }
     this.pagingComp.setPage(1)
-    return this._catagoryservices.GetCatagoryDetail('?Name=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
+    return this._catagoryservices.GetCatagoryDetail('?Name=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + '&LevelNo=' + this.LevelNo)
   }
 
   ngOnDestroy () {
@@ -135,11 +176,20 @@ export class CategoryComponent implements OnInit {
     if (!this.searchForm.value.searckKey) {
       this.searchForm.value.searckKey = ''
     }
-    this._catagoryservices.GetCatagoryDetail('?Name=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).subscribe(data => {
+    this.isSearching = true
+    this._catagoryservices.GetCatagoryDetail('?Name=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + '&LevelNo=' + this.LevelNo).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         this.categoryDetail = data.Data
         this.total = this.categoryDetail[0] ? this.categoryDetail[0].TotalRows : 0
         // console.log('categories : ', this.categoryDetail)
+        setTimeout(() => {
+          this.isSearching = false
+        }, 100)
+      } else {
+        this.toastrService.showError(data.Description, '')
+        setTimeout(() => {
+          this.isSearching = false
+        }, 100)
       }
     })
   }
@@ -149,7 +199,7 @@ export class CategoryComponent implements OnInit {
   }
 
   deleteCatagory (id) {
-    this.commonService.openDelete(id, 'category')
+    this.commonService.openDelete(id, 'category', 'Category')
   }
 
   addCatagory () {

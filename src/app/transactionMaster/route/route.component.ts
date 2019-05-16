@@ -10,6 +10,7 @@ import { CommonService } from 'src/app/commonServices/commanmaster/common.servic
 import { fromEvent } from 'rxjs'
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { FormGroup, FormBuilder } from '@angular/forms'
+import { PagingComponent } from '../../shared/pagination/pagination.component'
 declare const $: any
 @Component({
   selector: 'app-route',
@@ -39,6 +40,9 @@ export class RouteComponent implements OnInit {
   newRouteSub: Subscription
   deleteSub: Subscription
   recordNotFoundMessage: string = ''
+  queryStr$: Subscription
+  queryStr: string = ''
+  @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (private _itemmasterServices: ItemmasterServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
@@ -58,7 +62,14 @@ export class RouteComponent implements OnInit {
         this.getItemMasterDetail()
       }
     )
-
+    this.queryStr$ = this._itemmasterServices.queryStr$.subscribe(
+      (str) => {
+        console.log(str)
+        this.queryStr = str
+        this.p = 1
+        this.getItemMasterDetail()
+      }
+    )
     this.formSearch()
   }
 
@@ -71,6 +82,8 @@ export class RouteComponent implements OnInit {
 
   ngOnDestroy () {
     this.newRouteSub.unsubscribe()
+    this.queryStr$.unsubscribe()
+    this.deleteSub.unsubscribe()
   }
 
   deleteItem (id) {
@@ -130,17 +143,23 @@ export class RouteComponent implements OnInit {
   }
 
   searchGetCall (term: string) {
-    if (term !== '') {
-      this.p = 1
-      return this._itemmasterServices.getItemMasterDetail('?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
-    } else {
-      return this._itemmasterServices.getItemMasterDetail('?Page=' + this.p + '&Size=' + this.itemsPerPage)
+    if (!term) {
+      term = ''
     }
+    this.pagingComp.setPage(1)
+    return this._itemmasterServices.getItemMasterDetail('?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
   }
 
   getItemMasterDetail () {
-    this.subscribe = this._itemmasterServices.getItemMasterDetail('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).subscribe(Data => {
+    this.isSearching = true
+    if (!this.searchForm.value.searckKey) {
+      this.searchForm.value.searckKey = ''
+    }
+    this._itemmasterServices.getItemMasterDetail('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(Data => {
       console.log('route data : ', Data)
+      setTimeout(() => {
+        this.isSearching = false
+      }, 100)
       if (Data.Code === UIConstant.THOUSAND && Data.Data) {
         this.itemDetail = Data.Data
         this.total = this.itemDetail[0] ? this.itemDetail[0].TotalRows : 0
@@ -159,7 +178,7 @@ export class RouteComponent implements OnInit {
   }
 
   deleteRoute (id) {
-    this.commonService.openDelete(id, 'route')
+    this.commonService.openDelete(id, 'route', 'Route')
   }
 
 }

@@ -19,7 +19,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   attrEditId: number = null
   attributeList: Array<any> = []
   selectedAttribute: number = null
-
+  isParent: boolean = false
   constructor (
     private attributeService: AttributeService,
     private toastrService: ToastrCustomService,
@@ -45,6 +45,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
       if (response.open === true) {
         console.log(response, 'add attr')
         this.resetFormData()
+        this.isParent = response.data.isParent
         if (response.data.editId) {
           this.setEditData(response)
         }
@@ -68,6 +69,8 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
             element.focus({ preventScroll: false })
           }
         }, 1000)
+      } else {
+        this.closeModal()
       }
     }, error => console.log(error))
   }
@@ -76,7 +79,11 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   setEditData = (response) => {
     this.attrEditId = response.data.editId
     this.selectedAttribute = response.data.attrNameId
-    this.attribute.value = response.data.attrValue
+    if (response.data.isParent) {
+      this.attribute.name = response.data.attrValue
+    } else {
+      this.attribute.value = response.data.attrValue
+    }
   }
   disabledAddNewFlag: boolean
   AttributeNameNewAdd: any
@@ -99,7 +106,6 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
 
   /* Initialising function to get the attribute name dropdown list */
   initAttributeNameList = (newAddId) => {
-    // // debugger
     this.attributeService.getAttributeName().pipe(
       takeUntil(this.unSubscribe$),
       map((response) => {
@@ -128,30 +134,30 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
     this.attributeService.postAttribute(payload).pipe((
       takeUntil(this.unSubscribe$)
     )).subscribe((response) => {
-      if (response.Code === 1001) {
+      if (response.Code === UIConstant.THOUSANDONE) {
         const data = _.find(this.attributeList, (item) => {
           return item.text === this.attribute.name
         })
         this.selectedAttribute = data ? data.id : null
-      } else if (response.Code === 1000) {
+      } else if (response.Code === UIConstant.THOUSAND) {
         this.attributeList = [...this.attributeList, { id: response.Data, text: this.attribute.name }]
         this.selectedAttribute = response.Data
+        if (this.isParent) {
+          const data = { status: 'saved' }
+          this._CommonService.closeAttributeForDynamicAdd({ ...data })
+        }
       }
     }, error => console.log(error))
   }
 
+  closeModal () {
+    if ($('#attribute_master')) {
+      $('#attribute_master').modal(UIConstant.MODEL_HIDE)
+    }
+  }
+
   /* Function to save and update the attribute name with value */
   saveAndUpdateAttribute = () => {
- debugger
- alert("j")
-
-
-
-
-
-
-
- 
     const payload = {
       Id: this.attrEditId ? this.attrEditId : 0,
       Name: this.attribute.value,
@@ -161,21 +167,18 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
       takeUntil(this.unSubscribe$)
     ))
       .subscribe((response) => {
-        if (response.Code === 1000) {
-          alert("j2")
+        if (response.Code === UIConstant.THOUSAND) {
           this.toastrService.showSuccess('Success', 'Saved Successfully')
           $('#attribute_master').modal(UIConstant.MODEL_HIDE)
           // this._CommonService.closeAttribute({ status: 'saved' })
-          const data = { id: response.Data, name: this.attribute.value, AttributeId: this.selectedAttribute }
+          const data = { status: 'saved', id: response.Data, name: this.attribute.value, AttributeId: this.selectedAttribute }
           this._CommonService.closeAttributeForDynamicAdd({ ...data })
         }
-        if (response.Code === 1001) {
-          this.toastrService.showInfo('Error', response.Message)
-
+        if (response.Code === UIConstant.THOUSANDONE) {
+          this.toastrService.showError('', response.Message)
         }
-        if (response.Code === 5000) {
-          this.toastrService.showError('Error', response.Message)
-
+        if (response.Code === UIConstant.SERVERERROR) {
+          this.toastrService.showError('', response.Message)
         }
       }, error => console.log(error))
   }

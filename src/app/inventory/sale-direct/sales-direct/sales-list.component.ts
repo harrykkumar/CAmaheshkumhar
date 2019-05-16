@@ -33,18 +33,12 @@ export class SalesListComponent implements   OnInit   {
   }
 
   openSaleDirect (id) {
-      this._commonService.openSaleDirect(id)
-    }
+    this._commonService.openSaleDirect(id)
+  }
+  // tslint:disable-next-line:no-empty
   ngOnInit () {
-  $(document).ready(function () {
-
-              $('.table_challan').tableHeadFixer({
-       head: true,
-       foot: true
-
-     })
-            })
-}
+    this._commonService.fixTableHF('cat-table')
+  }
   toShowSearch = false
 
   toggleSearch () {
@@ -60,16 +54,16 @@ export class SalesListComponent implements   OnInit   {
         this.totalBillAmount = 0
         this.saleDirectDetails = data.Data
         data.Data.forEach(element => {
-               this.totalDiscount = +(this.totalDiscount + +element.Discount).toFixed(2)
-               this.totaltax = +(this.totaltax + +element.TaxAmount).toFixed(2)
-               this.totalBillAmount = +(this.totalBillAmount + +element.BillAmount).toFixed(2)
-             })
+          this.totalDiscount = +(this.totalDiscount + +element.Discount).toFixed(2)
+          this.totaltax = +(this.totaltax + +element.TaxAmount).toFixed(2)
+          this.totalBillAmount = +(this.totalBillAmount + +element.BillAmount).toFixed(2)
+        })
 
       }
     })
   }
   openPrint (id) {
-  this._commonService.openPrint(id,this.DIRECT_SALE_TYPE)
-}
+    this._commonService.openPrint(id,this.DIRECT_SALE_TYPE)
+  }
 
 }

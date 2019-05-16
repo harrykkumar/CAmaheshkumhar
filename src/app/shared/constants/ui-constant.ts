@@ -177,6 +177,4 @@ export class UIConstant {
   public static get SERVERERROR (): number {
     return 5000
   }
-
- 
 }

@@ -31,7 +31,15 @@ export class AttributeService {
     return this.baseService.deleteRequest(ApiConstant.DELETE_ATTRIBUTE_URL + deletedId)
   }
 
+  deleteParentAttribute = (deletedId) => {
+    return this.baseService.deleteRequest(ApiConstant.GET_PARENT_ATTRIBUTES_BY_ID + deletedId)
+  }
+
   getAttributeListBySearhFilter = (data) => {
     return this.baseService.getRequest(ApiConstant.ATTRIBUTE_SEARCH_URL + data)
+  }
+
+  getParentAttributeList = () => {
+    return this.baseService.getRequest(ApiConstant.GET_PARENT_ATTRIBUTES)
   }
 }

@@ -63,7 +63,7 @@ export class TaxComponent implements OnInit {
           this.commonService.closeDelete('')
         }
         if (Data.Code === UIConstant.CANNOTDELETERECORD) {
-          this.toastrCustomService.showInfo('Info','Can not deleted !')
+          this.toastrCustomService.showInfo('', Data.Description)
           this.commonService.closeDelete('')
         }
       })
@@ -137,7 +137,7 @@ export class TaxComponent implements OnInit {
   }
 
   deletePopup (id, name) {
-    this.commonService.openDelete(id, name)
+    this.commonService.openDelete(id, name, 'Tax')
   }
 
 }

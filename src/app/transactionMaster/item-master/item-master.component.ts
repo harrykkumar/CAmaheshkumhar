@@ -105,7 +105,7 @@ export class ItemMasterComponent implements OnInit, OnDestroy {
   }
 
   deleteItem (id) {
-    this.commonService.openDelete(id, 'itemMaster')
+    this.commonService.openDelete(id, 'itemMaster', 'Item')
     if (id) {
       this._itemmasterServices.deleteItem(id).subscribe(data => {
         if (data.Code === UIConstant.DELETESUCCESS) {
@@ -122,6 +122,9 @@ export class ItemMasterComponent implements OnInit, OnDestroy {
   }
   getItemMasterDetail () {
     this.isSearching = true
+    if (!this.searchForm.value.searckKey) {
+      this.searchForm.value.searckKey = ''
+    }
     this._itemmasterServices.getItemMasterDetail('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
       console.log('item master : ', data)
       if (data.Code === UIConstant.THOUSAND) {
@@ -160,7 +163,7 @@ export class ItemMasterComponent implements OnInit, OnDestroy {
 
   deleteItemMaster (id) {
     console.log('id : ', id)
-    this.commonService.openDelete(id, 'itemMaster')
+    this.commonService.openDelete(id, 'itemMaster', 'Item')
   }
 
 }

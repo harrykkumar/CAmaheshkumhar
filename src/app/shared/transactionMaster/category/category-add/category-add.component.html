@@ -21,19 +21,10 @@
                                     <input id="cateName" 
                                     type="text"
                                     #catname class="form-control" 
-                                    placeholder="Enter Category Name"
+                                    placeholder="Enter Atleast 4 Characters"
                                     formControlName="CategoryName" 
-                                    [ngClass]="{ 'errorTextBoxBorder is-invalid': ((submitClick && f.CategoryName.errors.required) || (f.CategoryName.dirty && f.CategoryName.errors?.minlength)) }" >
+                                    [ngClass]="{ 'errorTextBoxBorder is-invalid': ((submitClick && f.CategoryName.errors?.required) || (f.CategoryName.dirty && f.CategoryName.errors?.minlength)) }" >
                                 </div>
-<!-- 
-                                <select2 #vendor_select2 id="vendor" 
-                                    [data]="vendorData" class="control_select"
-                                    (valueChanged)="onVendorSelect($event)"
-                                    autocomplete="true" 
-                                    [options]="{placeholder: 'Select Vendor'}"
-                                    [ngClass]="{'errorSelecto': submitSave && invalidObj?.PartyId }"
-                                    [value]="vendorValue">
-                                </select2> -->
 
                                 <div class="form-group col-md-12" *ngIf="catLevel > 1" >
                                     <label>Under Category</label>

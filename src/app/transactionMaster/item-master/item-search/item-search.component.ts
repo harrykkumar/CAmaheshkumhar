@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core'
+import { Component, Input, OnInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core'
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { Select2Component, Select2OptionData } from 'ng2-select2'
 import { UnitMasterServices } from '../../../commonServices/TransactionMaster/unit-mater.services'
@@ -10,7 +10,16 @@ import { ItemmasterServices } from '../../../commonServices/TransactionMaster/it
   templateUrl: './item-search.component.html',
   styleUrls: ['./item-search.component.css']
 })
-export class ItemSearchComponent implements OnInit {
+export class ItemSearchComponent implements OnInit, OnChanges {
+  ngOnChanges (changes: SimpleChanges): void {
+    // console.log(changes)
+    if (changes.toShow && changes.toShow.currentValue) {
+      setTimeout(() => {
+        const element = this.catSelect2.selector.nativeElement
+        element.focus({ preventScroll: false })
+      }, 10)
+    }
+  }
   @Input() toShow: boolean = false
   searchForm: FormGroup
   unitTypePlaceHolder: Select2Options
@@ -200,6 +209,11 @@ export class ItemSearchComponent implements OnInit {
     if (this.packingTypeSelect2) {
       this.packingTypeSelect2.setElementValue(0)
     }
+    const queryStr = '&CategoryIdStr=' + this.CategoryIdStr +
+     '&PackingTypeId=' + this.PackingTypeId + '&ItemTypeId=' +
+      this.ItemTypeId + '&TaxSlabId=' + this.TaxSlabId + '&UnitId=' + this.UnitId
+      + '&StrCodes=' + this.searchForm.value.StrCodes
+    this._itemmasterServices.setSearchQueryParamsStr(queryStr)
   }
 
 }

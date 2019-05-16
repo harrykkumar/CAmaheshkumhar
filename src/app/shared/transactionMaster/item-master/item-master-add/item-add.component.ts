@@ -1,13 +1,15 @@
 import { Component, ViewChild, Renderer2, ElementRef } from '@angular/core'
-import { Subscription, Subject } from 'rxjs'
+import { Subscription, fromEvent } from 'rxjs'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { ItemmasterServices } from '../../../../commonServices/TransactionMaster/item-master.services'
 import { UIConstant } from '../../../constants/ui-constant'
-import { ItemModel, Image, AddCust, ItemMasterAdd } from '../../../../model/sales-tracker.model'
+import { ItemModel, Image, AddCust, ItemMasterAdd, ComboItem } from '../../../../model/sales-tracker.model'
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { CategoryServices } from '../../../../commonServices/TransactionMaster/category.services'
 import { UnitMasterServices } from 'src/app/commonServices/TransactionMaster/unit-mater.services'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
+import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { ComboComponent } from '../item-combo/combo.component'
 declare const $: any
 @Component({
   selector: 'app-item-add',
@@ -76,12 +78,14 @@ export class ItemAddComponent {
   IsTradeDiscountApply: boolean = false
   ImageFiles: any = []
   isBarCode: boolean = false
-  barCodeSub = new Subject<string>()
+  isItemCode: boolean = false
+  // barCodeSub = new Subject<string>()
   barCodeExistSub: Subscription
-  barCode$ = this.barCodeSub.asObservable()
-  nameSub = new Subject<string>()
   nameExistSub: Subscription
-  name$ = this.nameSub.asObservable()
+  // barCode$ = this.barCodeSub.asObservable()
+  // nameSub = new Subject<string>()
+  // nameExistSub: Subscription
+  // name$ = this.nameSub.asObservable()
   pendingCheck1 = false
   existsCodes: any = {}
   pendingCheck: boolean = false
@@ -92,6 +96,11 @@ export class ItemAddComponent {
   itemDetails: any = []
   modeOfForm: string = 'new'
   toDisableCat: boolean = false
+  Items = []
+  ItemAttributeTrans = []
+  @ViewChild('combo_comp') comboComp: ComboComponent
+
+  combo: Array<ComboItem> = []
   constructor (private _itemmasterServices: ItemmasterServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
@@ -237,8 +246,52 @@ export class ItemAddComponent {
     )
   }
 
+  ItemAttributesTrans: any = []
+  createAttributes (attributes) {
+    attributes.forEach((element, index) => {
+      this.ItemAttributesTrans[index] = {
+        ItemId: element.ItemId,
+        ItemTransId: element.ItemTransId,
+        AttributeId:  element.AttributeId,
+        ParentTypeId: 21,
+        name: element.AttributeName,
+        Id: element.Id
+      }
+    })
+  }
+
+  createItems (ComboDetails) {
+    this.combo = []
+    ComboDetails.forEach((element, index) => {
+      let itemAttributeTrans = []
+      itemAttributeTrans = this.ItemAttributesTrans.filter((attr) => {
+        if (attr.ItemTransId === element.Id) {
+          return attr
+        }
+      })
+      let obj = {
+        'Id': element.Id,
+        'TransId': element.TransId,
+        'Sno': index + 1,
+        'ItemId': element.ItemId,
+        'UnitId': element.UnitId,
+        'Quantity': element.Quantity,
+        'SaleRate': element.SaleRate,
+        'MrpRate': element.MrpRate,
+        'PurchaseRate': element.PurchaseRate,
+        'itemName': element.ItemName,
+        'unitName': element.UnitName,
+        'itemAttributeTrans': itemAttributeTrans
+      }
+      this.combo.push(obj)
+    })
+    console.log('combo : ', this.combo)
+  }
+
   createFormData (data) {
     this.openModal()
+    this.createAttributes(data.ItemAttributesTrans)
+    this.createItems(data.ComboDetails)
     this.ImageFiles = []
     this.addedImages = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
     this.itemDetails = data.ItemDetails[0]
@@ -277,6 +330,7 @@ export class ItemAddComponent {
   }
 
   @ViewChild('itemname') itemname: ElementRef
+  @ViewChild('barcode') barcode: ElementRef
   openModal () {
     this.initComp()
     $('#item_form').removeClass('fadeInUp')
@@ -295,6 +349,81 @@ export class ItemAddComponent {
           const element = this.renderer.selectRootElement(this.catSelect2.selector.nativeElement, true)
           element.focus({ preventScroll: false })
         }
+        fromEvent(this.itemname.nativeElement, 'keyup').pipe(
+          map((event: any) => {
+            return event.target.value
+          }),
+          filter(res => res.length > 0),
+          debounceTime(1000),
+          distinctUntilChanged()
+          ).subscribe((text: string) => {
+            this.pendingCheck1 = true
+            this.nameExistSub = this._itemmasterServices.searchItemName(text).subscribe((data) => {
+              if (data.Code === UIConstant.THOUSAND) {
+                console.log('search data : ', data)
+                setTimeout(() => {
+                  this.pendingCheck1 = false
+                  this.existsCodes.name = data.Data.Status
+                  if (this.existsCodes.name) {
+                    $('.fas fa-check').addClass('hideMe')
+                  } else {
+                    $('.fas fa-times').addClass('hideMe')
+                  }
+                }, 1000)
+              } else {
+                this.toastrService.showError('', data.Description)
+              }
+            },(err) => {
+              setTimeout(() => {
+                this.pendingCheck1 = false
+              }, 100)
+              console.log('error',err)
+            },
+            () => {
+              // setTimeout(() => {
+              //   this.pendingCheck1 = false
+              // }, 1000)
+            })
+          })
+
+        fromEvent(this.barcode.nativeElement, 'keyup').pipe(
+          map((event: any) => {
+            return event.target.value
+          }),
+          filter(res => res.length > 0),
+          debounceTime(1000),
+          distinctUntilChanged()
+          ).subscribe((text: string) => {
+            this.pendingCheck = true
+            console.log('search text : ', text)
+            this.barCodeExistSub = this._itemmasterServices.searchEntries(text).subscribe((data) => {
+              if (data.Code === UIConstant.THOUSAND) {
+                console.log('search data : ', data)
+                setTimeout(() => {
+                  this.pendingCheck = false
+                  this.existsCodes.barcode = data.Data[0].Status
+                  if (this.existsCodes.barcode) {
+                    $('.fas fa-check').addClass('hideMe')
+                  // this.toastrService.showError('Oops', 'Bar Code is already taken')
+                  } else {
+                    $('.fas fa-times').addClass('hideMe')
+                  }
+                }, 1000)
+              } else {
+                this.toastrService.showError('', data.Description)
+              }
+            },(err) => {
+              setTimeout(() => {
+                this.pendingCheck = false
+              }, 100)
+              console.log('error',err)
+            },
+            () => {
+              // setTimeout(() => {
+              //   this.pendingCheck = false
+              // }, 1000)
+            })
+          })
       }, 1000)
     }
   }
@@ -307,6 +436,7 @@ export class ItemAddComponent {
     this.invalidObj = {}
     this.submitClick = false
     this.isBarCode = false
+    this.isItemCode = false
     if (!this.toDisableCat) {
       this.cateGoryValue = ''
     }
@@ -318,6 +448,7 @@ export class ItemAddComponent {
     this.existsCodes = {}
     this.pendingCheck = false
     this.unitSettingType = 0
+    this.combo = []
     this.createForm()
     if (this.catSelect2) {
       this.catSelect2.setElementValue(this.CategoryId)
@@ -331,7 +462,12 @@ export class ItemAddComponent {
     if (this.brandSelect2) {
       this.brandSelect2.setElementValue('')
     }
+    if (this.packingTypeSelect2) {
+      this.packingTypeSelect2.setElementValue('1')
+    }
     if (this.modeOfForm === 'new') {
+      this.getItemCodeSetting()
+      this.getBarCodeSetting()
       this.getSetting()
       this.getUnitTypeDetail(0)
       this.getItemDetail(0)
@@ -364,6 +500,7 @@ export class ItemAddComponent {
     this.newTaxAddSub.unsubscribe()
     this.newUnitAddSub.unsubscribe()
     this.barCodeExistSub.unsubscribe()
+    this.nameExistSub.unsubscribe()
   }
 
   createForm () {
@@ -373,7 +510,7 @@ export class ItemAddComponent {
     }
     this.Name = ''
     this.HsnNo = ''
-    this.ItemCode = ''
+    this.ItemCode = this.BarCode
     this.UnitId = 0
     this.TaxId = 0
     this.ItemType = 1
@@ -425,7 +562,9 @@ export class ItemAddComponent {
         IsNotDiscountable: this.IsNotDiscountable,
         IsVolumeDiscountApply: this.IsVolumeDiscountApply,
         IsTradeDiscountApply: this.IsTradeDiscountApply,
-        ImageFiles: this.ImageFiles
+        ImageFiles: this.ImageFiles,
+        ItemTransactions: this.Items,
+        ItemAttributeTrans: this.ItemAttributeTrans
       } as ItemMasterAdd
     }
     return itemAddElement.obj
@@ -593,6 +732,10 @@ export class ItemAddComponent {
 
   selectedPackingType (event) {
     this.PackingType = +event.value
+    if (this.PackingType === 3) {
+      this.packingTypeSelect2.selector.nativeElement.value = ''
+      this.comboComp.openModal()
+    }
   }
   getItemDetail (value) {
     this.itemTpyePlaceHolder = { placeholder: 'select item' }
@@ -703,12 +846,16 @@ export class ItemAddComponent {
       (data) => {
         if (data.Code === UIConstant.THOUSAND && data.Data.SetupSettings.length > 0) {
           const setUpSettings = data.Data.SetupSettings
-          // console.log('setUpSettings : ', setUpSettings)
+          console.log('setUpSettings : ', setUpSettings)
           setUpSettings.forEach(setting => {
-            if (+setting.SetupId === 32) {
-              _self.isBarCode = true
+            // if (+setting.SetupId === 32) {
+            //   _self.isBarCode = true
               // console.log('isBarCode : ', _self.isBarCode)
-            }
+            // }
+            // if (+setting.SetupId === 64) {
+            //   _self.isItemCode = true
+            //   console.log('isItemCode : ', _self.isItemCode)
+            // }
             if (+setting.SetupId === 56) {
               _self.unitSettingType = +setting.Val
             }
@@ -719,74 +866,74 @@ export class ItemAddComponent {
         console.log(error)
       },
       () => {
-        if (_self.isBarCode) {
-          _self._itemmasterServices.getBarCode('ForBarCode').subscribe(
-            (data: any) => {
-              // console.log('bar code : ', data)
-              if (data.Code === UIConstant.THOUSAND && data.Data.length > 0 && data.Data[0].BarCode) {
-                this.BarCode = data.Data[0].BarCode
-              }
-            }
-          )
-        }
+        // if (_self.isBarCode) {
+        //   _self._itemmasterServices.getBarCode('ForBarCode').subscribe(
+        //     (data: any) => {
+        // console.log('bar code : ', data)
+        //       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0 && data.Data[0].BarCode) {
+        //         this.BarCode = data.Data[0].BarCode
+        //       }
+        //     }
+        //   )
+        // }
       }
     )
   }
 
-  searchForBarCode (barcode: string) {
-    if (!this.pendingCheck) {
-      this.barCodeSub.next(barcode)
-      this.pendingCheck = true
-      this.existsCodes.barcode = false
-      $('.fas fa-check').removeClass('hideMe')
-      $('.fas fa-times').removeClass('hideMe')
-      this._itemmasterServices.searchEntries(barcode).subscribe(
-      (data) => {
-        if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
-          this.pendingCheck = false
-          // console.log('on call of exist bar code api : ', data)
-          setTimeout(() => {
-            this.existsCodes.barcode = data.Data[0].Status
-            if (this.existsCodes.barcode) {
-              $('.fas fa-check').addClass('hideMe')
-              // this.toastrService.showError('Oops', 'Bar Code is already taken')
-            } else {
-              $('.fas fa-times').addClass('hideMe')
-            }
-          }, 1)
-        } else {
-          this.toastrService.showError(data.Message, '')
-        }
-      }
-    )
-    }
-  }
+  // searchForBarCode (barcode: string) {
+  //   if (!this.pendingCheck) {
+  //     this.barCodeSub.next(barcode)
+  //     this.pendingCheck = true
+  //     this.existsCodes.barcode = false
+  //     $('.fas fa-check').removeClass('hideMe')
+  //     $('.fas fa-times').removeClass('hideMe')
+  //     this._itemmasterServices.searchEntries(barcode).subscribe(
+  //     (data) => {
+  //       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+  //         this.pendingCheck = false
+  //         console.log('on call of exist bar code api : ', data)
+  //         setTimeout(() => {
+  //           this.existsCodes.barcode = data.Data[0].Status
+  //           if (this.existsCodes.barcode) {
+  //             $('.fas fa-check').addClass('hideMe')
+  //             this.toastrService.showError('Oops', 'Bar Code is already taken')
+  //           } else {
+  //             $('.fas fa-times').addClass('hideMe')
+  //           }
+  //         }, 1)
+  //       } else {
+  //         this.toastrService.showError(data.Message, '')
+  //       }
+  //     }
+  //   )
+  //   }
+  // }
 
-  searchForItemName (name: string) {
-    if (!this.pendingCheck1) {
-      this.nameSub.next(name)
-      this.pendingCheck1 = true
-      this._itemmasterServices.searchItemName(name).subscribe(
-        (data) => {
-          console.log('search for name data : ', data)
-          console.log('item name search : ', data)
-          if (data.Code === UIConstant.THOUSAND) {
-            this.pendingCheck1 = false
-            setTimeout(() => {
-              this.existsCodes.name = data.Data.Status
-              if (this.existsCodes.name) {
-                $('.fas fa-check').addClass('hideMe')
-              } else {
-                $('.fas fa-times').addClass('hideMe')
-              }
-            }, 1)
-          } else {
-            this.toastrService.showError(data.Message, '')
-          }
-        }
-      )
-    }
-  }
+  // searchForItemName (name: string) {
+  //   if (!this.pendingCheck1) {
+  //     this.nameSub.next(name)
+  //     this.pendingCheck1 = true
+  //     this._itemmasterServices.searchItemName(name).subscribe(
+  //       (data) => {
+  //         console.log('search for name data : ', data)
+  //         console.log('item name search : ', data)
+  //         if (data.Code === UIConstant.THOUSAND) {
+  //           this.pendingCheck1 = false
+  //           setTimeout(() => {
+  //             this.existsCodes.name = data.Data.Status
+  //             if (this.existsCodes.name) {
+  //               $('.fas fa-check').addClass('hideMe')
+  //             } else {
+  //               $('.fas fa-times').addClass('hideMe')
+  //             }
+  //           }, 1)
+  //         } else {
+  //           this.toastrService.showError(data.Message, '')
+  //         }
+  //       }
+  //     )
+  //   }
+  // }
 
   public exampleData: Array<Select2OptionData>
   public options: Select2Options
@@ -812,5 +959,56 @@ export class ItemAddComponent {
     } else if (type === 3) {
       this.IsVolumeDiscountApply = !this.IsVolumeDiscountApply
     }
+  }
+
+  comboAdded (combo) {
+    console.log('combo : ', combo)
+    this.combo = combo
+    this.Items = []
+    this.ItemAttributeTrans = []
+    this.combo.forEach(element => {
+      this.Items.push(element)
+      this.ItemAttributeTrans = this.ItemAttributeTrans.concat(element.itemAttributeTrans)
+    })
+    console.log('combo Items : ', this.Items)
+    console.log('combo ItemAttributeTrans : ', this.ItemAttributeTrans)
+  }
+
+  getBarCodeSetting () {
+    this._itemmasterServices.getBarCodeSetting().subscribe(
+      data => {
+        if (data.Code === UIConstant.THOUSAND && data.Data) {
+          console.log('BAR CODE SETTING : ', data)
+          this.isBarCode = !!(+data.Data.SetupClients[0].Val)
+        }
+      },
+      (error) => {
+        console.log(error)
+      },
+      () => {
+        if (this.isBarCode) {
+          this._itemmasterServices.getBarCode('ForBarCode').subscribe(
+            (data: any) => {
+              // console.log('bar code : ', data)
+              if (data.Code === UIConstant.THOUSAND && data.Data.length > 0 && data.Data[0].BarCode) {
+                this.BarCode = data.Data[0].BarCode
+                this.ItemCode = this.BarCode
+              }
+            }
+          )
+        }
+      }
+    )
+  }
+
+  getItemCodeSetting () {
+    this._itemmasterServices.getItemCodeSetting().subscribe(
+      data => {
+        if (data.Code === UIConstant.THOUSAND) {
+          console.log('ITEM CODE SETTING : ', data)
+          this.isItemCode = !!(+data.Data.SetupClients[0].Val)
+        }
+      }
+    )
   }
 }

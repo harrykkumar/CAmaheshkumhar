@@ -88,4 +88,8 @@ export class DashboardComponent {
   routeBank () {
     this._route.navigate([URLConstant.BANK_URL])
   }
+  routeItemSaleByCategoryReport (){
+    this._route.navigate([URLConstant.REPORT_ITEM_BY_CATEGORY_SALE])
+
+  }
 }

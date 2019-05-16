@@ -57,6 +57,8 @@ export class URLConstant {
 
   public static get SALE_DIRECT (): string { return 'ims/sale-direct/direct' }
 
+  public static get REPORT_ITEM_BY_CATEGORY_SALE (): string { return 'ims/report/item-sale' }
+
  // public static get BANK_LIST (): string { return 'ims/bank' }
 
   

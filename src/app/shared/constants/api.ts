@@ -215,8 +215,13 @@ export class ApiConstant {
 
   public static get REPORT_ITEM_STOCK (): string { return this.BASE_URL + '/api/v1/ims/itemcurrentstock' }
 
-  //public static get GET_BANK_LIST (): string { return this.BASE_URL + '/api/v1/common/bank' }
-
   public static get EDIT_BANK_DATA (): string { return this.BASE_URL + '/api/v1/setting/bank?id=' }
 
+  public static get REPORT_ITEM_BY_CATEGORY_SALE_DATA (): string { return this.BASE_URL + '/api/v1/ims/CategoryWiseSummary?Type=' }
+
+  public static get SPUTILITY_TO_CREATE_COMBO (): string { return this.BASE_URL + '/api/v1/ItemDetailForCombo' }
+
+  public static get GET_PARENT_ATTRIBUTES (): string { return this.BASE_URL + '/api/v1/Attribute' }
+
+  public static get GET_PARENT_ATTRIBUTES_BY_ID (): string { return this.BASE_URL + '/api/v1/Attribute?Id=' }
 }

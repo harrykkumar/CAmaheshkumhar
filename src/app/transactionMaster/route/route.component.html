@@ -77,7 +77,7 @@
                     </table>
                 </div>
             </div>
-            <app-pagination (lastValueEmitter)="lastItemIndex = $event;"
+            <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
                 (pageNoEmitter)="p = $event;getItemMasterDetail();"
                 (pageSizeEmitter)="itemsPerPage = $event;getItemMasterDetail();" ></app-pagination>
         </div>

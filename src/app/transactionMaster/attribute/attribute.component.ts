@@ -19,6 +19,7 @@ export class AttributeComponent implements OnInit {
   searchString: string = ''
   attributeListHolder: Array<any> = []
   attributeList: Array<any> = []
+  attributeParentList: Array<any> = []
   searchForm: FormGroup
   p: number = 1
   itemsPerPage: number = 20
@@ -38,6 +39,7 @@ export class AttributeComponent implements OnInit {
 
   ngOnInit () {
     this.initAttributeList()
+    this.getParentAttributeList()
     this.commonService.fixTableHF('cat-table')
     fromEvent(this.searchData.nativeElement, 'keyup').pipe(
       map((event: any) => {
@@ -84,7 +86,6 @@ export class AttributeComponent implements OnInit {
     return this.attributeService.getAttributeList('?Name=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage).
         pipe(takeUntil(this.unSubscribe$))
   }
-
   /* Function to intialising attribute list to show in table */
   initAttributeList = () => {
     if (!this.searchForm.value.searckKey) {
@@ -100,6 +101,20 @@ export class AttributeComponent implements OnInit {
     }, error => console.log(error))
   }
 
+  getParentAttributeList = () => {
+    if (!this.searchForm.value.searckKey) {
+      this.searchForm.value.searckKey = ''
+    }
+    this.attributeService.getParentAttributeList().
+    pipe(takeUntil(this.unSubscribe$)).
+    subscribe((Data: any) => {
+      console.log('data : ', Data)
+      if (Data.Code === UIConstant.THOUSAND && Data.Data) {
+        this.attributeParentList = [...Data.Data]
+      }
+    }, error => console.log(error))
+  }
+
   /* Function to listen add attribute save */
   initCloseAttributeStatus = () => {
     this.commonService.closeAttributeStatus().
@@ -107,6 +122,7 @@ export class AttributeComponent implements OnInit {
     subscribe((response) => {
       if (response.status === 'saved') {
         this.initAttributeList()
+        this.getParentAttributeList()
       }
     }, error => console.log(error))
   }
@@ -118,12 +134,16 @@ export class AttributeComponent implements OnInit {
 
   // Funtion to emit and open delete confirm dialog box
   deleteAttribute = (id) => {
-    this.commonService.openDelete(id, 'attribute')
+    this.commonService.openDelete(id, 'attribute', 'Attribute')
+  }
+
+  deleteAttributeParent = (id) => {
+    this.commonService.openDelete(id, 'attributeParent', 'Attribute')
   }
 
   //  Function to emit and open add-attribute-modal in edit mode
-  editAttribute (editAttrId, attrValue, attrId) {
-    const data = { 'editId': editAttrId, 'attrValue': attrValue, 'attrNameId': attrId }
+  editAttribute (editAttrId, attrValue, attrId, isParent) {
+    const data = { 'editId': editAttrId, 'attrValue': attrValue, 'attrNameId': attrId, 'isParent': isParent }
     this.commonService.openAttribute(data, true)
   }
 
@@ -135,6 +155,9 @@ export class AttributeComponent implements OnInit {
       (obj) => {
         if (obj.id && obj.type && obj.type === 'attribute') {
           this.confirmDeleteAttribute(obj.id)
+        }
+        if (obj.id && obj.type && obj.type === 'attributeParent') {
+          this.confirmDeleteParentAttribute(obj.id)
         }
       }, error => console.log(error)
     )
@@ -151,7 +174,24 @@ export class AttributeComponent implements OnInit {
         this.initAttributeList()
       }
       if (Data.Code === UIConstant.CANNOTDELETERECORD) {
-        this.toastrService.showInfo('Info', 'Can not deleted !')
+        this.toastrService.showInfo('', Data.Description)
+        this.commonService.closeDelete('')
+      }
+    }, error => console.log(error))
+  }
+
+  confirmDeleteParentAttribute = (id) => {
+    this.attributeService.deleteParentAttribute(id).
+    pipe(takeUntil(this.unSubscribe$)).
+    subscribe((Data) => {
+      console.log('delete : ', Data)
+      if (Data.Code === UIConstant.DELETESUCCESS) {
+        this.toastrService.showSuccess('Sucess', 'Deleted Successfully')
+        this.commonService.closeDelete('')
+        this.getParentAttributeList()
+      }
+      if (Data.Code === UIConstant.CANNOTDELETERECORD) {
+        this.toastrService.showInfo('', Data.Description)
         this.commonService.closeDelete('')
       }
     }, error => console.log(error))

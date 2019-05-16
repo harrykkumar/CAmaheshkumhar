@@ -21,7 +21,7 @@
           <form>
             <div class="form-row">
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
-                <label>Party</label>
+                <label><span>Party</span><a  (click)="openCustomerDetails()" class="info_tooltip" data-toggle="modal"  ><i class="fas fa-plus"></i></a> </label>
                 <div class="input-group adw_select">
                   <div class="input-group adw_select">
                     <select2 [disabled]="Id !== 0" #client_select2 id="client"  [data]="clientNameSelect2" class="control_select" (valueChanged)="onSelected2clientId($event)" autocomplete="true" [options]="clientnamePlaceHolder" [value]="clientNameId" [ngClass]="{'errorSelecto': submitSave && invalidObj?.clientNameId }"></select2>
@@ -91,7 +91,7 @@
                   </div>
                 </div>
               </div>
-                      <div  class="form-group col-md-3">
+                      <div  *ngIf="isCaseSaleFlag" class="form-group col-md-3">
                     <label> Billing Address </label>
                       <div class="input-group adw_select">
                        <select2 [disabled]="Id !== 0"  #state_Select2Id [data]="stateList" class="control_select"
@@ -100,7 +100,7 @@
                          </select2>
                   </div>
                   </div>
-                   <div  class="form-group col-md-3">
+                   <div *ngIf="isCaseSaleFlag" class="form-group col-md-3">
                     <label> Shipping Address </label>
                       <div class="input-group adw_select">
                        <select2 [disabled]="Id !== 0"  #state_shiping_Select2Id [data]="stateList" class="control_select"
@@ -232,7 +232,7 @@
                 <td *ngFor="let dataAttribute of allAttributeData; let i= index">
 
                <div class="input-group adw_select ">
-                <select2 #attr_select2 [data]="allAttributeData && allAttributeData[i]?.item" class="control_select " (valueChanged)="onChangeAttribute($event ,i ,allAttributeData)" autocomplete="true"
+                <select2 #atrColour_id [data]="allAttributeData && allAttributeData[i]?.item" class="control_select " (valueChanged)="onChangeAttribute($event ,i ,allAttributeData)" autocomplete="true"
                 [options]="attributeColourPlaceHolder" [value]="allAttributeData[i].item"  ></select2>
                </div>
                 </td>
@@ -316,7 +316,7 @@
                           <input type="text" disabled="true" class="form-control" appIncludeDecimal name="taxAmount" placeholder="Tax Amount"  [(ngModel)]="TaxAmount" >
                         </td>
                 <td >
-                  <input type="number" readonly="true" class="form-control" placeholder="Total Amount" appIncludeDecimal name="TotalAmount" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.TotalAmount }" [(ngModel)]="TotalAmount">
+                  <input   (keydown.enter)="enterPressItem($event)" type="number" readonly="true" class="form-control" placeholder="Total Amount" appIncludeDecimal name="TotalAmount" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.TotalAmount }" [(ngModel)]="TotalAmount">
                 </td>
               </tr>
                     <tr>  
@@ -328,13 +328,13 @@
                       <td colspan="2" *ngIf="industryId === '6' " ></td>
                       <td colspan="7"></td>
                       <td>
-                          <input type="number" readonly="true" class="form-control"
+                          <input type="number"  disabled="true" class="form-control"
                           placeholder="Total Discount" name="TotalDiscount" 
                           [(ngModel)]="totalDiscount">
                       </td>
                       <td colspan="2"></td>
                       <td>
-                        <input type="number" readonly="true" class="form-control"
+                        <input type="number" disabled="true" class="form-control"
                         placeholder="Total Tax Amount" name="totalTaxAmount" 
                         [(ngModel)]="totalTaxAmount"></td>
                       <td>
@@ -439,7 +439,7 @@
               </div>
               <div class="col-md-8 card p-3">
       <div class="table-responsive" id="parent">
-                  <table class="table editable_tbl" id="fixTable">
+                  <table class="table editable_tbl table-hover pay_table" id="fixTable">
                     <thead>
                       <tr class="default_row">
                         <th>#</th>
@@ -494,7 +494,7 @@
                       <tr class="selected_row active" >
                         <td>
                           <div class="action_btn">
-                            <button (click)="validateTransaction();addTransactions()" type="submit" class="btn btn-primary btn_add_more">+</button>
+                            <button (click)="addTransactions()" type="submit" class="btn btn-primary btn_add_more">+</button>
                           </div>
                         </td>
                         <td style="min-width:180px;">
@@ -518,10 +518,10 @@
                           </div>
                         </td>
                         
-                        <td><input type="text" appIncludeDecimal name="Amount" class="form-control" id="Amount" [(ngModel)]="Amount" (input)="validateTransaction()" [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans) }" placeholder="Enter Amount"></td>
+                        <td><input (input)="validateTransaction()" type="text" appIncludeDecimal name="Amount" class="form-control" id="Amount" [(ngModel)]="Amount"  [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans) }" placeholder="Enter Amount"></td>
   
-                        <td><input type="text" name="PayDate" id="pay-date" class="form-control flatpickr" [(ngModel)]="PayDate" (input)="validateTransaction()" [ngClass]="{'errorSelecto': invalidObj?.PayDate && (submitSave || !clickTrans) }" placeholder="Select Date"></td>
-                        <td><input type="text" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo" (input)="validateTransaction()" ></td>
+                        <td><input (input)="validateTransaction()" type="text" name="PayDate" id="pay-date" class="form-control flatpickr" [(ngModel)]="PayDate" [ngClass]="{'errorSelecto': invalidObj?.PayDate && (submitSave || !clickTrans) }" placeholder="Select Date"></td>
+                        <td><input (input)="validateTransaction()"  (keyup.enter)="enterPaymentSave($event)" type="text" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo"   ></td>
                       </tr>
                     </tbody>
                   </table>
@@ -534,4 +534,93 @@
       </div>
     </div>
   </div>
-  
+  <div class="modal fade right " *ngIf="!isCaseSaleFlag" id="cust_detail_m" role="dialog" aria-labelledby="unit_master" data-backdrop="static">
+
+    <!-- Change class .modal-sm to change the size of the modal -->
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+        <div class="modal-content">
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900">Customer Detail</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span> </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <div>
+                        <form [formGroup]="customerForm" novalidate >
+                            <div class="form-row">
+                                <div class="form-group col-md-12">
+                                    <label class="active">Customer Name</label>
+                                    <input #custName type="text" class="form-control" formControlName="caseCustomerName" [ngClass]="{ 'errorTextBoxBorder is-invalid': customerClick && add.caseCustomerName.errors }" placeholder="Enter Value">
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label class="active">Mobile Number</label>
+                                    <div class="mobile_code   ">
+                                        <select2 #countryCode_select2 
+                                          [data]="countryListWithCode"
+                                          class="control_select width_20"
+                                          (valueChanged)="
+                                          onCountryCodeSelectionChange($event)"
+                                          [value]='countryCodeFlag'
+                                          autocomplete="true"  [ngClass]="{ 'errorTextBoxBorder is-invalid': customerClick && !checkIsValidMobileNo }"
+                                        >
+                                        </select2>
+                                       
+                                     
+                                   
+                                            <input id='mobileId' (input)="checkOnInputMobile($event)"  [attr.disabled]="disbledInputMobileFlag?'':null"  type="number" class="form-control width_70"  formControlName="customerMobileNo" [ngClass]="{ 'errorTextBoxBorder is-invalid': customerClick && add.customerMobileNo.errors }" placeholder="Number">
+                                </div>
+                              </div>
+                                 <div class="form-group col-md-12">
+                                    <label class="active">Email</label>
+                                    <input type="text" class="form-control" formControlName="CustomerEmail"  [ngClass]="{ 'errorTextBoxBorder is-invalid': customerClick && checkvalidEmail }"  placeholder="Enter mail">
+                                </div><div class="form-group col-md-12">
+                                  <label class="active">Country</label>
+                                   <div class="input-group adw_select">
+                                                               <div class="input-group adw_select">
+                                                                   <select2 #country_select2 [data]="countryList" class="control_select"
+                                                                       (valueChanged)="selectCountryListId($event)" autocomplete="true"
+                                                                       [options]="countryListPlaceHolder" [value]="countryValue" ></select2>
+                                                               </div>
+                                                           </div>
+                              </div>
+                              <div class="form-group col-md-12">
+                                  <label class="active">State</label>
+                                   <div class="input-group adw_select">
+                                                               <div class="input-group adw_select">
+                                                                   <select2 #state_select2 [data]="stateListCustomer" class="control_select"
+                                                                       (valueChanged)="selectState($event)" autocomplete="true"
+                                                                       [options]="stateListplaceHolder" [value]="stateValuedata" ></select2>
+                                                               </div>
+                                                           </div>
+                              </div>
+                              <div class="form-group col-md-12">
+                                  <label class="active">City</label>
+                                 <div class="input-group adw_select">
+                                                               <select2 #city_select2 [data]="cityList" class="control_select" autocomplete="true"
+                                                                   (valueChanged)="selectedCityId($event)" [value]="cityValue" ></select2>
+                                                             
+                                                           </div>
+                              </div>
+                              <div class="form-group col-md-12">
+                                  <label>Area</label>
+                                 <div class="input-group adw_select">
+                                                               <select2 #areaSelecto2 [data]="areaList" class="control_select" autocomplete="true"
+                                                                   (valueChanged)="selectedArea($event)" [value]="areNameId" [options]="areaListPlaceHolder" ></select2>
+                                                           </div>
+                              </div>
+                                 <div class="form-group col-md-12">
+                                    <label class="active">Address</label>
+                                    <textarea class="form-control" formControlName="CustomerAddress" placeholder="Enter Value"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn_close waves-effect" data-dismiss="modal">Close</button>
+                <button type="button" (click)="addCaseCustomer()" class="btn btn-primary waves-effect">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>

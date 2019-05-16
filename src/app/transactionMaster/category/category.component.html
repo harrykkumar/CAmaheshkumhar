@@ -10,19 +10,30 @@
                         <div class="right_saerch_side">
                             <div class="mr-2">
                                 <form [formGroup]="searchForm">
-                                    <div id="custom-search-input" class="btn_header1">
-                                        <div class="input-group col-md-12">
-                                            <input type="text" 
-                                            class="form-control input-lg"
-                                            placeholder="Search Category"
-                                            formControlName="searckKey"
-                                            #searchData
-                                            />
-                                            <span class="input-group-btn">
-                                                <a>
-                                                    <i class="fas fa-search"></i>
-                                                </a>
-                                            </span>
+                                    <div class="row">
+                                        <div class="col-md-6 pr-0" >
+                                            <div class="input-group adw_select custom-search-input">
+                                                <select2 [data]="categoryLevels" 
+                                                #catlevel_select2 class="control_select"
+                                                (valueChanged)="selectCatLevel($event)"
+                                                autocomplete="true" [options]="categoryPlaceholder"
+                                                [value]="catLevelValue"></select2>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="input-group custom-search-input">
+                                                <input type="text" 
+                                                class="form-control input-lg"
+                                                placeholder="Search Category"
+                                                formControlName="searckKey"
+                                                #searchData
+                                                />
+                                                <span class="input-group-btn">
+                                                    <a>
+                                                        <i class="fas fa-search"></i>
+                                                    </a>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </form>
@@ -81,3 +92,15 @@
         </div>
     </div>
 </main>
+
+<!-- 
+    <div class="col-md-6" >
+                                                <div class="input-group adw_select">
+                                                    <select2 [data]="categoryLevels" 
+                                                    #catlevel_select2 class="control_select"
+                                                    (valueChanged)="selectedItemType($event)"
+                                                    autocomplete="true" [options]="categoryPlaceholder"
+                                                    [value]="catLevelValue"></select2>
+                                                </div>
+                                            </div>
+ -->

@@ -114,6 +114,10 @@ const routes: Routes = [
       {
         path: 'ims/bank',
         loadChildren: '../transactionMaster/bank/bank.module#BankModule'
+      },
+      {
+        path: 'ims/report',
+        loadChildren: '../report/item-category-sale/item-sale-report.module#ItemSaleReportModule'
       }
     ]
   }

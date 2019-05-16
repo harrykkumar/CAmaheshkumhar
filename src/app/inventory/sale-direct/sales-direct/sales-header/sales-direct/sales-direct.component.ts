@@ -1,5 +1,6 @@
-import { Component, ViewChild, ViewChildren, QueryList } from '@angular/core'
+import { Component,Renderer2, ViewChild, ViewChildren, QueryList } from '@angular/core'
 import { Subscription } from 'rxjs'
+import { FormGroup, FormBuilder, Validators } from '@angular/forms'
 import { AddCust, ResponseSale, TravelPayments } from '../../../../../model/sales-tracker.model'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { VendorServices } from '../../../../../commonServices/TransactionMaster/vendoer-master.services'
@@ -18,6 +19,7 @@ declare var flatpickr: any
   styleUrls: ['./sales-direct.component.css']
 })
 export class SalesDirectComponent {
+  customerForm: FormGroup
   BillNo: string
   ChallanIds: any
   SenderId: any
@@ -70,7 +72,19 @@ export class SalesDirectComponent {
   LocationTo: string
   TotalFreight: number
   TotalQuantity: number
-
+  public countryList: Array<Select2OptionData>
+  public stateListCustomer: Array<Select2OptionData>
+  public cityList: Array<Select2OptionData>
+  public stateList: any
+  public areaList: Array<Select2OptionData>
+  public customerType: Array<Select2OptionData>
+  public addressType: Array<Select2OptionData>
+  public selectyCoustmoreRegistration: Array<Select2OptionData>
+  public addressTypePlaceHolder: Select2Options
+  public coustmoerTypePlaceholder: Select2Options
+  public areaListPlaceHolder: Select2Options
+  public stateListplaceHolder: Select2Options
+  public countryListPlaceHolder: Select2Options
   clientNameSelect2: Array<Select2OptionData>
   suplierNameSelect2: Array<Select2OptionData>
   paymentModeSelect2: Array<Select2OptionData>
@@ -87,9 +101,6 @@ export class SalesDirectComponent {
   public frightPlaceholder: Select2Options
   public CommissionTypePlcaholder: Select2Options
   public referalsType: Array<Select2OptionData>
-  public stateList: any
-
-  public stateListplaceHolder: Select2Options
 
   public referalsTypePlaceHolder: Select2Options
   clientnamePlaceHolder: Select2Options
@@ -148,14 +159,14 @@ export class SalesDirectComponent {
   InterestRateType: any
   CommisionRateType: any
   transactions: any
-  constructor (public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
+  constructor (private _coustomerServices: VendorServices,private _formBuilder: FormBuilder,public renderer2: Renderer2, public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
     private _ledgerServices: VendorServices,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
     public _settings: Settings) {
     this.ATTRIBUTE_PARENTTYPEID = 6
     this.clientDateFormat = this._settings.dateFormat
-
+    this.addCustomerForm()
     this.clientNameSelect2 = []
     this.suplierNameSelect2 = []
     this.paymentModeSelect2 = []
@@ -180,6 +191,12 @@ export class SalesDirectComponent {
           this.unitDataType = newData
           this.unitId = data.id
           this.getUnitId = data.id
+          setTimeout(() => {
+            if (this.unitSelect2) {
+              const element = this.renderer2.selectRootElement(this.unitSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
@@ -210,6 +227,12 @@ export class SalesDirectComponent {
           newData.push({ id: data.id, text: data.name })
           this.taxSlabSelectoData = newData
           this.taxSlabId = data.id
+          setTimeout(() => {
+            if (this.taxSelect2) {
+              const element = this.renderer2.selectRootElement(this.taxSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
@@ -222,6 +245,12 @@ export class SalesDirectComponent {
           this.itemCategoryType = newData
           this.itemCategoryId = +data.id
           this.itemCategoryId = data.id
+          setTimeout(() => {
+            if (this.itemSelect2) {
+              const element = this.renderer2.selectRootElement(this.itemSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
@@ -245,7 +274,6 @@ export class SalesDirectComponent {
           newData.push({ id: data.id, text: data.name })
           this.clientNameSelect2 = newData
           this.clientNameId = data.id
-          // this.SenderId = data.id
         }
       }
     )
@@ -261,21 +289,15 @@ export class SalesDirectComponent {
         }
       }
     )
-    // setTimeout(() => {
-    //   if (this.ledgerSelect2) {
-    //     const element = this.renderer.selectRootElement(this.ledgerSelect2.selector.nativeElement, true)
-    //     element.focus({ preventScroll: false })
-    //   }
-    // }, 2000)
     this.modalOpen = this._commonService.getSaleDirectStatus().subscribe(
       (status: any) => {
         if (status.open) {
           if (status.editId === UIConstant.BLANK) {
             this.editMode = false
             this.Id = 0
+            this.CaseCustId = 0
           } else {
             this.editMode = true
-            // console.log(status,"hhhhhhhhh")
             this.Id = status.editId
           }
           this.openDirectModal()
@@ -288,24 +310,27 @@ export class SalesDirectComponent {
     )
     this.modalCategory = this._commonService.getCategoryStatus().subscribe(
       (data: AddCust) => {
-        if (data.id && data.name && data.type) {
-          if (data.type === 'cat') {
-            let newData = Object.assign([], this.categoryType)
-            newData.push({ id: data.id, text: data.name })
-            this.categoryType = newData
-            this.cateGoryValue = +data.id
-            this.categoryId = +data.id
-          }
-          if (data.type === 'subCat' && data.parentId) {
-            let newData = Object.assign([], this.subCategoryType)
-            newData.push({ id: data.id, text: data.name })
-
-          }
+        if (data.id && data.name) {
+          let categoryId = data.id
+          let categoryName = data.name
+          this.getAllCategories(categoryName, categoryId, true)
         }
+        // if (data.id && data.name && data.type) {
+        //   alert("kk")
+        //   debugger
+        //   if (data.type === 'cat') {
+        //     let newData = Object.assign([], this.categoryType)
+        //     newData.push({ id: data.id, text: data.name })
+        //     this.categoryType = newData
+        //     this.cateGoryValue = +data.id
+        //     this.categoryId = +data.id
+        //     this.getAllCategories(data.name, data.id, true)
+        //   }
+
+        // }
       }
     )
   }
-
   ngOnInit () {
     this.Id = 0
     this.AttrId = 0
@@ -314,7 +339,6 @@ export class SalesDirectComponent {
     this.getCommisionTypeValue()
     this.initComp()
     this.selectTax = []
-    
 
   }
   ledgerBank: any
@@ -330,7 +354,6 @@ export class SalesDirectComponent {
     this.initialiseItem()
     this.initialiseParams()
     this.initialiseTransaction()
-    //  this.initialiseTransaction()
   }
   attributesLabels: any
   unitDataType: any
@@ -349,6 +372,36 @@ export class SalesDirectComponent {
   prototype: any
   tempAttribute: any
   currencies: any
+
+  getAllCategories (categoryName, categoryId, isAddNew) {
+    debugger
+    this._commonService.getAllCategories().subscribe(
+      data => {
+        // console.log('all categories : ', data)
+        let levelNo = 0
+        if (data.Code === UIConstant.THOUSAND && data.Data && data.Data.length > 0) {
+          this.getCatagoryDetail(data.Data)
+          data.Data.forEach(category => {
+            if (+category.Id === +categoryId) {
+              levelNo = +category.LevelNo
+              return
+            }
+          })
+          this.categoryName = categoryName
+          this.categoryId = categoryId
+          this.catSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
+            if ((index + 1) === levelNo) {
+              item.setElementValue(this.categoryId)
+            }
+          })
+          // this.updateCategories(categoryId)
+          // console.log('categoryname : ', this.categoryName)
+          let evt = { value: categoryId, data: [{ text: categoryName }] }
+          this.onSelectCategory(evt, levelNo)
+        }
+      }
+    )
+  }
   getSPUtilityDataBilling () {
     // SPUtility API; For get all data of API
     this.subscribe = this._commonService.getSPUtilityData(UIConstant.SALE_TYPE).subscribe(data => {
@@ -397,7 +450,7 @@ export class SalesDirectComponent {
                 this.allAttributeData.push({
                   item: abs
                 })
-                 console.log(this.allAttributeData ,'nnnnnnnnnnn')
+                console.log(this.allAttributeData ,'nnnnnnnnnnn')
               }
 
             }
@@ -405,7 +458,6 @@ export class SalesDirectComponent {
         }
         if (this.editMode) {
           this.isManualBillNoEntry = false
-          // this.backDateEntry = false
           this.getSaleChllanEditData(this.Id)
         }
         let newDataCurrency = []
@@ -463,7 +515,6 @@ export class SalesDirectComponent {
           })
         }
         this.clientNameSelect2 = newData
-
         this.godownDataType = []
         this.godownPlaceholder = { placeholder: 'Select Godown' }
         let newGodown = []
@@ -482,8 +533,8 @@ export class SalesDirectComponent {
         this.godownDataType = newGodown
         // this.godownId =  this.godownDataType[0].id
 
-        this.paymentPlaceHolder = { placeholder: 'Select Payment Mode' }
-        let newDataPayment = [{ id: UIConstant.BLANK, text: 'Select Payment Mode' }]
+        this.paymentPlaceHolder = { placeholder: ' Payment Mode' }
+        let newDataPayment = [{ id: UIConstant.BLANK, text: ' Payment Mode' }]
         if (data.Data && data.Data.PaymentModes.length > 0) {
           data.Data.PaymentModes.forEach(element => {
             newDataPayment.push({
@@ -554,14 +605,15 @@ export class SalesDirectComponent {
       }
     })
   }
-
+  get add () { return this.customerForm.controls }
   setCurrencyId: any
   officeAddressId: any
+
+
   onSelectCurrency (event) {
     if (event.data.length > 0) {
       if (event.data && event.data[0].text) {
         this.CurrencyId = event.value
-        // console.log(this.CurrencyId ,'jjjjjjhuhuhuhu8');
         this.defaultCurrency = event.data[0].text
         this.currencyValues[1] = { id: 1, symbol: event.data[0].text }
 
@@ -833,7 +885,7 @@ export class SalesDirectComponent {
   @ViewChild('client_select2') clientSelect2: Select2Component
   @ViewChild('unit_select2') unitSelect2: Select2Component
   @ViewChild('tax_select2') taxSelect2: Select2Component
-
+  isCaseSaleFlag: boolean
   onSelected2clientId (event) {
     if (event.data.length > 0) {
       this.stateList = []
@@ -844,8 +896,18 @@ export class SalesDirectComponent {
         } else {
           this.clientNameId = event.value
           let parentTypeId = 5
-          this.getAddressOfCustomerByID(this.clientNameId, parentTypeId)
-
+          let caseId = this.caseSaleArrayId.filter(s => s.id === JSON.parse(this.clientNameId))
+          if (caseId.length > 0 && caseId[0].id > 0) {
+            this.isCaseSaleFlag = false
+            this.stateId = 0
+            this.ledgerStateId = 0
+            this.caseSaleCheckOtherState(this.stateId)
+            this.onChangeSlabTax(this.taxSlabId)
+            this.calculate()
+          } else {
+            this.isCaseSaleFlag = true
+            this.getAddressOfCustomerByID(this.clientNameId, parentTypeId)
+          }
         }
       }
     }
@@ -872,9 +934,9 @@ export class SalesDirectComponent {
             })
 
           })
+          this.checkValidation()
           this.stateValue = this.stateList[2].id
           return this.stateValue
-          this.checkValidation()
         } else {
           this.stateId = ''
           this.checkValidation()
@@ -893,7 +955,6 @@ export class SalesDirectComponent {
     this.subscribe = this._commonService.getItemByCategoryId(categoryId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.updatedFlag = true
-
         console.log(data, 'hhhhhhhhhh-')
         data.Data.forEach(element => {
           debugger
@@ -940,7 +1001,7 @@ export class SalesDirectComponent {
   disabledAddressFlag: boolean = false
   selectStatelist (event) {
     if (event.data.length > 0) {
-      if (event.data[0].id !== '') {
+      if (event.data[0].id !== '0') {
         if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
           this.stateSelect2Id.selector.nativeElement.value = ''
           this._commonService.openAddress(this.clientNameId)
@@ -948,12 +1009,13 @@ export class SalesDirectComponent {
         } else {
           this.disabledAddressFlag = false
           this.ledgerStateId = event.data[0].stateId
-          this.checkOtherStateForNewItemAdd()
+          this.checkOtherStateForNewItemAdd(this.ledgerStateId)
           this.onChangeSlabTax(this.taxSlabId)
           this.calculate()
           this.stateId = event.value
           this.stateError = false
           this.checkValidation()
+
         }
 
       }
@@ -1014,9 +1076,7 @@ export class SalesDirectComponent {
               })
             }
           })
-          if (!this.editMode) {
-            this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
-          }
+           this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
           _self.currenciesSelect2 = newData
           _self.isDataAvailable = true
         }
@@ -1247,7 +1307,7 @@ export class SalesDirectComponent {
     this.deleteEditflag = true
 
     if (this.editAlreadyItemDataFlag) {
-     
+
       this.localItemas = []
     } else {
       this.itemSubmit = true
@@ -1430,7 +1490,6 @@ export class SalesDirectComponent {
   subTotalBillAmount: any
   initialiseParams () {
     this.items = []
-    // this.currencyValues =[]
     this.TaxAmount = 0
     this.Width = 1
     this.Length = 1
@@ -1712,7 +1771,7 @@ export class SalesDirectComponent {
   TotalAllFreight: any
   OtherAllCharge: any
   calculateAllTotal () {
-    
+
     let totalDiscount = 0
     let totalQty = 0
     let totalTax = 0
@@ -1755,6 +1814,7 @@ export class SalesDirectComponent {
   }
   intrerestrateAmt: any
   DiscountValueType: any
+  get customer () { return this.customerForm.controls }
   changeIntrate (e) {
     this.InterestRateType = e === '0' ? 0 : 1
   }
@@ -1762,6 +1822,15 @@ export class SalesDirectComponent {
     this.CommisionRateType = e === '0' ? 0 : 1
   }
 
+  private addCustomerForm () {
+    this.customerForm = this._formBuilder.group({
+      'caseCustomerName': [UIConstant.BLANK, Validators.required],
+      'customerMobileNo': [UIConstant.BLANK, Validators.required],
+      'CustomerEmail': [UIConstant.BLANK, Validators.required],
+      'CustomerAddress': [UIConstant.BLANK, Validators.required]
+
+    })
+  }
   netBillAmount: any
 
   totalBillAmount: any
@@ -1802,10 +1871,10 @@ export class SalesDirectComponent {
       let lastAmt = this.netBillAmount - unBilledAmt
       let amt = this.netBillAmount - lastAmt
       let amt2 = amt - unBilledAmt
-      this.Amount = lastAmt + amt2
+      this.Amount = (lastAmt + amt2).toFixed(this.decimalDigit)
 
     } else {
-      this.Amount = this.netBillAmount
+      this.Amount = (this.netBillAmount).toFixed(this.decimalDigit)
     }
 
     if (this.Amount > 0) {
@@ -1820,18 +1889,27 @@ export class SalesDirectComponent {
     return item.Sno - 1
   }
 
-  checkValidationForAmount (): boolean {
+  getPaymentTotal (): number {
     let paymentTotal = 0
     for (let i = 0; i <= this.transactions.length - 1; i++) {
       paymentTotal = paymentTotal + +this.transactions[i].Amount
     }
+    if (!this.clickTrans) {
+      if (+this.Amount) {
+        paymentTotal += +this.Amount
+      }
+    }
+    return paymentTotal
+  }
+  checkValidationForAmount (): boolean {
+    let paymentTotal = this.getPaymentTotal()
     paymentTotal = (isNaN(+paymentTotal)) ? 0 : +paymentTotal
     this.netBillAmount = (isNaN(+this.netBillAmount)) ? 0 : +this.netBillAmount
     if (!this.clickTrans) {
       let amount = JSON.parse(this.Amount)
 
       if (amount) {
-        paymentTotal += amount
+        paymentTotal = amount
       }
     }
     if (this.netBillAmount !== 0) {
@@ -1871,19 +1949,33 @@ export class SalesDirectComponent {
         }
         if (data.Data.AddressDetails.length > 0) {
           this.ledgerStateId = data.Data.AddressDetails[0].StateId
-          //  let a =  data.Data.AddressDetails[1].StateId
-          //  console.log(data.Data.AddressDetails ,'state-id')
+          this.checkOtherStateForNewItemAdd(this.ledgerStateId)
         }
       }
     })
   }
   industryId: any
+  @ViewChild('custName') custName
+  openCustomerDetails () {
+
+    this.disbledInputMobileFlag = true
+    this.searchCountryCodeForMobile(' ')
+    this.customerClick = false
+
+    $('#cust_detail_m').modal(UIConstant.MODEL_SHOW)
+    setTimeout(() => {
+      this.custName.nativeElement.focus()
+    }, 1000)
+  }
+  caseSaleArrayId: any
   openDirectModal () {
+    this.caseSaleArrayId = [{ id: 1 }, { id: 5 }]
     this.Amount = 0
     let data = JSON.stringify(this._settings.industryId)
     this.industryId = JSON.parse(data)
     let datacatLevel = JSON.stringify(this._settings.catLevel)
     this.catLevel = JSON.parse(datacatLevel)
+    console.log(this.catLevel ,'cat-level')
     this.createModels(this.catLevel)
     this.disabledTaxFlag = false
     this.addressShowFlag = false
@@ -1901,6 +1993,7 @@ export class SalesDirectComponent {
     this.getCurrency()
     this.getModuleSettingData()
     this.getSPUtilityDataBilling()
+    this.getCountry(0)
     this.editItemId = 0
     this.initComp()
     $('#sale_direct_form').modal(UIConstant.MODEL_SHOW)
@@ -1973,7 +2066,6 @@ export class SalesDirectComponent {
       isValidItem = 0
     }
 
-
     return !!isValidItem
   }
 
@@ -1993,17 +2085,29 @@ export class SalesDirectComponent {
   SizeCode: any
   ArticleCode: any
   editAlreadyItemDataFlag: boolean
-
+  setEditCustomerData (data) {
+   // let mobile = data[0].MobileNo
+    this.CaseCustId = data[0].Id
+    this.customerForm.controls.caseCustomerName.setValue(data[0].Name)
+    this.customerForm.controls.customerMobileNo.setValue(data[0].MobileNo)
+    this.customerForm.controls.CustomerEmail.setValue(data[0].Email)
+    this.customerForm.controls.CustomerAddress.setValue(data[0].Address)
+  //  this.countryselect2.setElementValue(data[0].CountryId)
+  //  this.stateselect2.setElementValue(data[0].StateId)
+  //  this.cityselect2.setElementValue(data[0].CityId)
+   // this.areaSelect2.setElementValue(data[0].AreaId)
+   // this.countryCodeselect2.setElementValue(data[0].CountryCode)
+  }
   getSaleChllanEditData (id) {
     this._commonService.getSaleDirectEditData(id).subscribe(data => {
       console.log(JSON.stringify(data), 'editData----------->>')
       if (data.Code === UIConstant.THOUSAND && data.Data) {
+        if (data.Data && data.Data.CustomerTypes.length > 0) {
+          this.setEditCustomerData(data.Data.CustomerTypes)
+        }
         if (data.Data && data.Data.SaleTransactionses.length > 0) {
-          this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
-
           this.inventoryItemSales = []
           this.inventoryItemSales = data.Data.SaleTransactionses
-          // console.log(this.inventoryItemSales ,"sale inventry")
           this.BillNo = this.inventoryItemSales[0].BillNo
           this.itemsAttribute = []
           this.clientNameId = this.inventoryItemSales[0].LedgerId
@@ -2021,11 +2125,8 @@ export class SalesDirectComponent {
           this.orgnizationSelect2.setElementValue(this.inventoryItemSales[0].OrgId)
           this.clientSelect2.setElementValue(this.inventoryItemSales[0].LedgerId)
           this.freightBySelect2.setElementValue(this.inventoryItemSales[0].FreightMode)
-          this.stateSelect2Id.setElementValue(this.stateId)
           this.godownSelect2.setElementValue(this.inventoryItemSales[0].GodownId)
           this.currencySelect2.setElementValue(this.inventoryItemSales[0].CurrencyId)
-          this.stateShippingSelect2Id.setElementValue(this.SupplyStateId)
-
           this.InvoiceDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].BillDate, this.clientDateFormat)
           console.log(this.InvoiceDate, 'billdate')
           this.EwayBillNo = this.inventoryItemSales[0].EwayBillNo
@@ -2064,7 +2165,7 @@ export class SalesDirectComponent {
             debugger
             let payDate = this._globalService.utcToClientDateFormat(ele.PayDate, this.clientDateFormat)
             this.transactions.push({
-              Sno:0,
+              Sno: 0,
               Id: ele.Id,
               Paymode: ele.Paymode,
               PayModeId: ele.PayModeId,
@@ -2151,8 +2252,15 @@ export class SalesDirectComponent {
             })
 
           })
-          console.log( data.Data.ItemTransactions , this.localItemas, 'item edit')
-          this.checkOtherStateForNewItemAdd()
+          console.log(data.Data.ItemTransactions , this.localItemas, 'item edit')
+          if (this.stateId === 0) {
+            this.caseSaleCheckOtherState(this.stateId)
+            this.isCaseSaleFlag = false
+          } else {
+            this.checkOtherStateForNewItemAdd(this.stateId)
+            this.stateSelect2Id.setElementValue(this.stateId)
+            this.stateShippingSelect2Id.setElementValue(this.SupplyStateId)
+          }
           this.calculateAllTotal()
         }
       }
@@ -2162,6 +2270,16 @@ export class SalesDirectComponent {
 
     })
   }
+  enterPressItem (e: KeyboardEvent) {
+    this.addItems()
+    setTimeout(() => {
+      let item = this.catSelect2.find((item: Select2Component, index: number, array: Select2Component[]) => {
+        return index === 0
+      })
+      item.selector.nativeElement.focus()
+    }, 10)
+  }
+  caseSaleCustomerDetails: any
   seteditAttributeData: any
   CurrencyRate: any = 0
   InterestRate: any
@@ -2242,7 +2360,9 @@ export class SalesDirectComponent {
           obj['PaymentDetail'] = this.transactions
           obj['Items'] = this.items
           obj['ItemAttributeTrans'] = this.sendAttributeData
+          obj['CustomerTypes'] = this.caseSaleCustomerDetails
           let _self = this
+
           console.log('sale-direct-request : ', JSON.stringify(obj))
           this._commonService.postSaleDirectAPI(obj).subscribe(
             (data: any) => {
@@ -2306,9 +2426,8 @@ export class SalesDirectComponent {
 
   editRowItem (type, index, item, editId, attributeData) {
     this.addressShowFlag = false
+    this.editMode = false
     this.editAttributeData = attributeData
-     debugger
-
     if (type === 'items') {
       if (this.deleteEditflag) {
 
@@ -2347,7 +2466,7 @@ export class SalesDirectComponent {
         //     this.editAttributeData.forEach(inx => {
         //        let findIndex = item.item.findIndex(n => n.id === inx.AttributeId)
         //     //   item.setElementValue(this.allAttributeData[index].item[findIndex])
- 
+
         //     })
         //   })
         // }
@@ -2399,16 +2518,17 @@ export class SalesDirectComponent {
 
   }
   snoForPAymentId: any
+  
   validateTransaction () {
-    if (this.Paymode || +this.PayModeId || +this.LedgerId || this.ledgerName || +this.Amount || this.PayDate) {
+    if (this.Paymode || +this.PayModeId > 0 || +this.LedgerId > 0 || this.ledgerName || +this.Amount > 0 || this.ChequeNo) {
       let isValid = 1
-      if (+this.PayModeId) {
+      if (+this.PayModeId > 0) {
         this.invalidObj['PayModeId'] = false
       } else {
         isValid = 0
         this.invalidObj['PayModeId'] = true
       }
-      if (+this.LedgerId) {
+      if (+this.LedgerId > 0) {
         this.invalidObj['LedgerId'] = false
       } else {
         isValid = 0
@@ -2420,7 +2540,7 @@ export class SalesDirectComponent {
         isValid = 0
         this.invalidObj['ledgerName'] = true
       }
-      if (+this.Amount) {
+      if (+this.Amount > 0) {
         this.invalidObj['Amount'] = false
       } else {
         isValid = 0
@@ -2432,12 +2552,26 @@ export class SalesDirectComponent {
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-
+      if (+this.PayModeId === 3) {
+        if (this.ChequeNo) {
+          this.invalidObj['ChequeNo'] = false
+          this.ChequeNoFlag = false
+        } else {
+          isValid = 0
+          this.invalidObj['ChequeNo'] = true
+          this.ChequeNoFlag = true
+        }
+      } else {
+        this.invalidObj['ChequeNo'] = false
+        this.ChequeNoFlag = false
+      }
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
     }
+    this.clickTrans = false
   }
+
   // @ViewChild('currency_select2') currencySelect2: Select2Component
 
   @ViewChild('paymode_select2') paymodeSelect2: Select2Component
@@ -2448,13 +2582,19 @@ export class SalesDirectComponent {
     this.PayModeId = 0
     this.LedgerId = 0
     this.Amount = this.Amount
-    this.PayDate = ''
+    this.PayDate =  ''
     this.ChequeNo = ''
     this.paymode = 0
     this.ledgerBank = 0
     this.ledgerName = ''
     this.editTransId = 0
     this.clickTrans = false
+    if (this.paymodeSelect2 && this.paymodeSelect2.selector.nativeElement.value) {
+      this.paymodeSelect2.setElementValue('')
+    }
+    if (this.ledgerSelect2 && this.ledgerSelect2.selector.nativeElement.value) {
+      this.ledgerSelect2.setElementValue('')
+    }
   }
 
   select2PaymentModeId (event) {
@@ -2486,7 +2626,6 @@ export class SalesDirectComponent {
     this.validateTransaction()
   }
   setpaymentLedgerSelect2 (i) {
-
     this.ledgerPlaceHolder = { placeholder: 'Select Ledger' }
     let newData = [{ id: UIConstant.BLANK, text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this._commonService.getPaymentLedgerDetail(9).subscribe(data => {
@@ -2518,17 +2657,17 @@ export class SalesDirectComponent {
             this.PayDate = this.transactions[i].PayDate
             this.ChequeNo = this.transactions[i].ChequeNo
             this.paymodeSelect2.setElementValue(this.PayModeId)
-            this.ledgerBank = this.LedgerId
-            // this.ledgerSelect2.setElementValue(this.LedgerId)
+            this.ledgerSelect2.setElementValue(this.LedgerId)
+            this.snoForPAymentId = 0
             this.deleteItem('trans', i)
           }
         }
       })
   }
-
+  ChequeNoFlag: boolean
   addTransactions () {
     this.deleteEditPaymentFlag = true
-    if (this.Paymode && this.PayModeId && this.LedgerId && this.ledgerName && this.Amount && this.PayDate) {
+    if (this.Paymode && this.PayModeId && this.LedgerId && this.ledgerName && this.Amount && this.PayDate && !this.ChequeNoFlag) {
 
       if (this.checkValidationForAmount()) {
         this.addTransaction()
@@ -2583,6 +2722,9 @@ export class SalesDirectComponent {
         ChequeNo: this.ChequeNo
       })
     }
+    setTimeout(() => {
+      this._commonService.fixTableHFL('pay_table')
+    }, 1)
     if (this.editTransId !== 0) {
       this.transactions[this.transactions.length - 1].Id = this.editTransId
     }
@@ -2686,9 +2828,16 @@ export class SalesDirectComponent {
     })
 
   }
-
-  checkOtherStateForNewItemAdd () {
-    if (this.officeAddressId === this.ledgerStateId) {
+  caseSaleCheckOtherState (addressID) {
+    if (this.officeAddressId === addressID) {
+      this.taxRateForOtherStateFlag = true
+    } else {
+      this.taxRateForOtherStateFlag = false
+    }
+    return this.taxRateForOtherStateFlag
+  }
+  checkOtherStateForNewItemAdd (addressID) {
+    if (this.officeAddressId === addressID) {
       this.taxRateForOtherStateFlag = false
     } else {
       this.taxRateForOtherStateFlag = true
@@ -2850,4 +2999,254 @@ export class SalesDirectComponent {
 
   }
 
+  caseCustomerName: any
+  customerMobileNo: any
+  CustomerAddress: any
+  CustomerEmail: any
+  areaID: any
+  cityId: any
+  countrId: any
+  customerStateId: any
+
+  @ViewChild('countryCode_select2') countryCodeselect2: Select2Component
+  @ViewChild('areaSelecto2') areaSelect2: Select2Component
+  @ViewChild('country_select2') countryselect2: Select2Component
+  @ViewChild('state_select2') stateselect2: Select2Component
+  @ViewChild('city_select2') cityselect2: Select2Component
+  countryError: any
+  countryName: any
+  selectCountryListId (event) {
+    if (event.data.length > 0) {
+      this.countrId = event.value
+      this.countryName = event.data[0].text
+      this.countryError = false
+      if (this.countrId > 0) {
+        this.getStaeList(this.countrId, 0)
+
+      }
+    }
+  }
+  countryValue: any
+  getCountry (value) {
+    this.subscribe = this._coustomerServices.getCommonValues('101').subscribe(Data => {
+      this.countryListPlaceHolder = { placeholder: 'Select Country' }
+      this.countryList = [{ id: UIConstant.BLANK, text: 'select Country' }]
+      Data.Data.forEach(element => {
+        this.countryList.push({
+          id: element.Id,
+          text: element.CommonDesc
+        })
+      })
+      this.countryValue = value
+    })
+  }
+  stateValuedata: any
+  getStaeList (id, value) {
+    this.subscribe = this._coustomerServices.gatStateList(id).subscribe(Data => {
+      this.stateListplaceHolder = { placeholder: 'Select State' }
+      this.stateListCustomer = [{ id: UIConstant.BLANK, text: 'select State' }]
+      Data.Data.forEach(element => {
+        this.stateListCustomer.push({
+          id: element.Id,
+          text: element.CommonDesc1
+        })
+      })
+      this.stateValuedata = value
+    })
+  }
+
+  StateName: any
+  selectState (event) {
+    debugger
+    // console.log(event ,"sts")
+    if (event.data.length > 0) {
+      this.customerStateId = event.value
+      this.StateName = event.data[0].text
+      this.stateError = false
+      if (this.customerStateId > 0) {
+        this.getCitylist(this.customerStateId, 0)
+      }
+    }
+  }
+  cityValue: any
+  getCitylist (id, value) {
+    this.subscribe = this._coustomerServices.getCityList(id).subscribe(Data => {
+      this.cityList = []
+      Data.Data.forEach(element => {
+        this.cityList.push({
+          id: element.Id,
+          text: element.CommonDesc2
+        })
+      })
+      this.cityValue = value
+    })
+  }
+  cityError: boolean
+  cityName: any
+  selectedCityId (event) {
+    if (event.data.length > 0) {
+      this.cityId = event.value
+      this.cityName = event.data[0].text
+      this.cityError = false
+      if (this.cityId > 0) {
+        this.getAreaId(this.cityId)
+      }
+    }
+  }
+
+  private getAreaId (id) {
+    // // debugger
+    // this.openAreaModel()
+    this.subscribe = this._coustomerServices.getAreaList(id).subscribe(Data => {
+      console.log(' area list : ', Data)
+      this.areaListPlaceHolder = { placeholder: 'Select Area' }
+      this.areaList = [{ id: UIConstant.BLANK, text: 'select Area' }, { id: '0', text: '+Add New' }]
+      if (Data.Code === 1000 && Data.Data.length > 0) {
+        Data.Data.forEach(element => {
+          this.areaList.push({
+            id: element.Id,
+            text: element.CommonDesc3
+          })
+        })
+
+      }
+
+     // console.log(this.areaList, Data.Data, "arelist")
+
+    })
+  }
+  selectedArea (event) {
+    if (event.data.length > 0) {
+      if (event.data[0].selected) {
+        if (event.data[0].id !== '0') {
+          if (event.data[0].text) {
+            this.areaID = event.value
+           // this.areaName = event.data[0].text
+          }
+        }
+      }
+    }
+  }
+
+  validateEmail (email) {
+    let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    return re.test(email)
+  }
+  checkIsValidMobileNo: any
+  checkvalidEmail: boolean
+  customerClick: boolean
+  checkValidEmail () {
+    let email = this.customerForm.value.CustomerEmail
+    if (email !== '' && email !== null) {
+      if (this.validateEmail(email)) {
+        this.checkvalidEmail = false
+      } else {
+        this.checkvalidEmail = true
+      }
+    } else {
+      this.checkvalidEmail = false
+    }
+  }
+  // validateMobile (mobile) {
+  //   let regx = /\[0-9]/g
+  //   return regx.test(mobile)
+  // }
+  checkValidMobile () {
+    let mobile = JSON.stringify(this.customerForm.value.customerMobileNo)
+    debugger
+    if (mobile !== '' && mobile !== null) {
+      if (this.validmobileLength === mobile.length) {
+        this.checkIsValidMobileNo = true
+      } else {
+        this.checkIsValidMobileNo = false
+      }
+    } else {
+      this.checkIsValidMobileNo = false
+    }
+  }
+  checkOnInputMobile (e) {
+   // console.log(e,'jj--')
+    let d = e.target.value
+    if (d.length === this.validmobileLength) {
+      document.getElementById('mobileId').className += ' successTextBoxBorder'
+      document.getElementById('mobileId').classList.remove('errorTextBoxBorder')
+    } else {
+      document.getElementById('mobileId').className += ' errorTextBoxBorder'
+    }
+  }
+  CaseCustId: any
+  countryCodeFlag: any
+  addCaseCustomer () {
+    debugger
+    this.checkValidEmail()
+    this.checkValidMobile()
+    this.customerClick = true
+    if (this.customerForm.value.caseCustomerName !== '' && this.customerForm.value.caseCustomerName !== null && this.customerForm.value.customerMobileNo !== null && this.customerForm.value.customerMobileNo !== '' && !this.checkvalidEmail && this.checkIsValidMobileNo) {
+      this.caseSaleCustomerDetails = [{
+        Id: this.CaseCustId === 0 ? this.CaseCustId : this.CaseCustId,
+        Name: this.customerForm.value.caseCustomerName,
+        MobileNo: this.customerForm.value.customerMobileNo,
+        Email: this.customerForm.value.CustomerEmail,
+        AreaId: this.areaID,
+        CityId: this.cityId,
+        CountryId: this.countrId,
+        StateId: this.customerStateId,
+        Address: this.customerForm.value.CustomerAddress,
+        CountryCode: this.CountryCode
+      }]
+      console.log(this.caseSaleCustomerDetails ,'customer-add')
+      if (!this.editMode) {
+        this.customerForm.reset()
+        this.countryCodeFlag = '0'
+        this.getCountry(0)
+      }
+      $('#cust_detail_m').modal(UIConstant.MODEL_HIDE)
+    }
+  }
+  countryListWithCode: any
+  searchCountryCodeForMobile (name) {
+    this.subscribe = this._commonService.searchCountryByName(name).subscribe(Data => {
+      if (Data.Code === 1000 && Data.Data.length > 0) {
+        this.countryListWithCode = []
+        let newdataList = [{ id: '0',text : 'select code',PhoneCode : '0' , Length: 0 }]
+        Data.Data.forEach(element => {
+          newdataList.push({
+            id : element.Phonecode,
+            text : '+' + element.Phonecode + '-' + element.Name,
+            PhoneCode : element.Phonecode,
+            Length : element.Length
+          })
+        })
+        this.countryListWithCode = newdataList
+      } else {
+        this.toastrService.showError('Error', Data.Description)
+
+      }
+    })
+  }
+  validmobileLength: any
+  CountryCode: any
+  countryCodeId: any
+  disbledInputMobileFlag: boolean
+  onCountryCodeSelectionChange = (event) => {
+    if (event.data.length > 0) {
+      if (event.data[0].id !== '0') {
+       // this.countryCodeId = event.value
+        this.disbledInputMobileFlag = false
+        this.CountryCode = event.data[0].PhoneCode
+        this.validmobileLength = event.data[0].Length
+      } else {
+        this.disbledInputMobileFlag = true
+      }
+    }
+  }
+
+  enterPaymentSave (e: KeyboardEvent) {
+    e.preventDefault()
+    this.addTransactions()
+    setTimeout(() => {
+      this.paymodeSelect2.selector.nativeElement.focus()
+    }, 10)
+
+  }
 }

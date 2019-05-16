@@ -82,7 +82,9 @@ export class UnitAddComponent {
     if ($('#unit_master').length > 0) {
       this.id = UIConstant.ZERO
       this.editMode = false
-      this.unitForm.reset()
+      if (this.unitForm) {
+        this.unitForm.reset()
+      }
       $('#unit_master').modal(UIConstant.MODEL_HIDE)
     }
   }

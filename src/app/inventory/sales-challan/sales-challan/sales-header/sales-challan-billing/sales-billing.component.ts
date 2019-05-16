@@ -315,7 +315,6 @@ export class SalesChallanBillingComponent {
     this.initialiseItem()
     this.initialiseParams()
     this.initialiseTransaction()
-    //  this.initialiseTransaction()
   }
   attributesLabels: any
   unitDataType: any
@@ -334,6 +333,44 @@ export class SalesChallanBillingComponent {
   prototype: any
   tempAttribute: any
   currencies: any
+  getSetAttributeSPUTility (data) {
+    if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
+
+      this.allAttributeData = []
+      this.attributesLabels = []
+
+      let newData = Object.assign([], this.attributesLabels)
+      this.attributeColourPlaceHolder = { placeholder: 'Select' }
+      for (let j = 0; j < data.Data.AttributeValueResponses.length; j++) {
+        newData.push({
+          Name: data.Data.AttributeValueResponses[j].Name,
+          AttributeId: data.Data.AttributeValueResponses[j].AttributeId
+        })
+      }
+
+      this.attributesLabels = newData
+      for (let k = 0; k < this.attributesLabels.length; k++) {
+        for (let n = 0; n < data.Data.AttributeValueResponses.length; n++) {
+          if (this.attributesLabels[k].AttributeId === data.Data.AttributeValueResponses[n].AttributeId) {
+            let abs = data.Data.AttributeValueResponses[n].AttributeValues
+            for (let p = 0; p < data.Data.AttributeValueResponses[n].AttributeValuesResponse.length; p++) {
+              abs.push({
+                id: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].Id,
+                text: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].Name,
+                attributeId: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].AttributeId
+
+              })
+            }
+            this.allAttributeData.push({
+              item: abs
+            })
+          }
+
+        }
+      }
+    }
+  }
+  getAttributeSPUtilityData: any
   getSPUtilityDataBilling () {
     // debugger;
     // SPUtility API; For get all data of API
@@ -351,39 +388,9 @@ export class SalesChallanBillingComponent {
           }
         }
         if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
-
-          this.allAttributeData = []
-          this.attributesLabels = []
-
-          let newData = Object.assign([], this.attributesLabels)
-          this.attributeColourPlaceHolder = { placeholder: 'Select' }
-          for (let j = 0; j < data.Data.AttributeValueResponses.length; j++) {
-            newData.push({
-              Name: data.Data.AttributeValueResponses[j].Name,
-              AttributeId: data.Data.AttributeValueResponses[j].AttributeId
-            })
-          }
-
-          this.attributesLabels = newData
-          for (let k = 0; k < this.attributesLabels.length; k++) {
-            for (let n = 0; n < data.Data.AttributeValueResponses.length; n++) {
-              if (this.attributesLabels[k].AttributeId === data.Data.AttributeValueResponses[n].AttributeId) {
-                let abs = data.Data.AttributeValueResponses[n].AttributeValues
-                for (let p = 0; p < data.Data.AttributeValueResponses[n].AttributeValuesResponse.length; p++) {
-                  abs.push({
-                    id: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].Id,
-                    text: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].Name,
-                    attributeId: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].AttributeId
-
-                  })
-                }
-                this.allAttributeData.push({
-                  item: abs
-                })
-              }
-
-            }
-          }
+         // this.getAttributeSPUtilityData = []
+          this.getAttributeSPUtilityData = data
+          this.getSetAttributeSPUTility(data)
         }
 
       //  if(this.Id !==0 && this.editMode){
@@ -399,7 +406,7 @@ export class SalesChallanBillingComponent {
             })
           })
           this.CurrencyId = newDataCurrency[0].id
-          console.log( this.CurrencyId ,'cuuu--')
+          console.log(this.CurrencyId ,'cuuu--')
         }
         this.currencies = newDataCurrency
 
@@ -461,8 +468,8 @@ export class SalesChallanBillingComponent {
         this.godownDataType = newGodown
         // this.godownId =  this.godownDataType[0].id
 
-        this.paymentPlaceHolder = { placeholder: 'Select Payment Mode' }
-        let newDataPayment = [{ id: UIConstant.BLANK, text: 'Select Payment Mode' }]
+        this.paymentPlaceHolder = { placeholder: ' select Mode' }
+        let newDataPayment = [{ id: UIConstant.BLANK, text: ' select Mode' }]
         if (data.Data && data.Data.PaymentModes.length > 0) {
           data.Data.PaymentModes.forEach(element => {
             newDataPayment.push({
@@ -1265,7 +1272,6 @@ export class SalesChallanBillingComponent {
     this.deleteEditflag = true
 
     if (this.editAlreadyItemDataFlag) {
-      alert('i')
       this.localItemas = []
     } else {
       this.itemSubmit = true
@@ -1417,7 +1423,7 @@ export class SalesChallanBillingComponent {
     this.Width = 1
     this.Length = 1
     this.Height = 1
-    this.RoundOff = 0
+   // this.RoundOff = 0
     this.BatchNo = ''
     this.ExpiryDate = ''
     this.MfDate = ''
@@ -1429,7 +1435,7 @@ export class SalesChallanBillingComponent {
       this.getCatagoryDetail(this.allCategories)
     }
     if (this.allAttributeData && this.allAttributeData.length > 0) {
-      this.getSPUtilityDataBilling()
+      this.getSetAttributeSPUTility(this.getAttributeSPUtilityData)
     }
 
   }
@@ -1451,7 +1457,7 @@ export class SalesChallanBillingComponent {
     this.Length = 1
     this.BatchNo = ''
     this.Height = 1
-    this.RoundOff = 0
+   // this.RoundOff = 0
     this.totalRate = 0
     this.totalDiscount = 0
     this.DiscountPerItem = 0
@@ -1503,7 +1509,7 @@ export class SalesChallanBillingComponent {
     if (this.clientSelect2 && this.clientSelect2.selector.nativeElement.value) {
       this.clientSelect2.setElementValue('')
     }
- 
+
     if (this.itemSelect2 && this.itemSelect2.selector.nativeElement.value) {
       this.itemSelect2.setElementValue('')
     }
@@ -1689,26 +1695,17 @@ export class SalesChallanBillingComponent {
     let netAmt = 0
     for (let i = 0; i < this.localItemas.length; i++) {
       totalAmount = +totalAmount + +(this.localItemas[i].Quantity * this.localItemas[i].Rate)
-      // totalQty = +totalQty + +this.localItemas[i].Quantity
-
     }
 
     if (!this.clickItem) {
       if (this.TotalAmount !== 0 && typeof this.TotalAmount !== 'undefined' && !isNaN(+this.TotalAmount)) {
         totalAmount = totalAmount + +this.TotalAmount
-        // netAmt =  totalAmount + +totalfright + +totalOther
-        // totalQty = totalQty + +this.TotalQuantity
 
       }
     }
-
     if (!isNaN(totalAmount)) {
-      this.RoundOff = +(Math.round(totalAmount) - totalAmount).toFixed(this.decimalDigit)
       this.netBillAmount = Math.round(totalAmount).toFixed(this.decimalDigit)
       this.subTotalBillAmount = Math.round(totalAmount).toFixed(this.decimalDigit)
-      //  this.TotalQuantity = totalQty
-      // this.checkValidationForAmount()
-      // console.log('items : ', this.items)
     }
 
   }
@@ -1817,18 +1814,20 @@ export class SalesChallanBillingComponent {
     if (!this.clickTrans) {
 
       let unBilledAmt = 0
-      for (let i = 0; i <= this.transactions.length - 1; i++) {
-        unBilledAmt = unBilledAmt + +this.transactions[i].Amount
+      if(this.transactions.length > 0 ){
+        for (let i = 0; i <= this.transactions.length - 1; i++) {
+          unBilledAmt = unBilledAmt + +this.transactions[i].Amount
+        }
       }
       unBilledAmt = (isNaN(+unBilledAmt)) ? 0 : +unBilledAmt
       this.netBillAmount = (isNaN(+this.netBillAmount)) ? 0 : +this.netBillAmount
       let lastAmt = this.netBillAmount - unBilledAmt
       let amt = this.netBillAmount - lastAmt
       let amt2 = amt - unBilledAmt
-      this.Amount = lastAmt + amt2
+      this.Amount = (lastAmt + amt2).toFixed(this.decimalDigit)
 
     } else {
-      this.Amount = this.netBillAmount
+      this.Amount = (this.netBillAmount).toFixed(this.decimalDigit)
     }
     if (this.Amount > 0) {
       this.validateTransaction()
@@ -2415,15 +2414,16 @@ export class SalesChallanBillingComponent {
   }
   snoForPAymentId: any
   validateTransaction () {
-    if (this.Paymode || +this.PayModeId || +this.LedgerId || this.ledgerName || +this.Amount || this.PayDate) {
+    debugger
+    if (this.Paymode || +this.PayModeId > 0 || +this.LedgerId > 0 || this.ledgerName || +this.Amount > 0 || this.ChequeNo) {
       let isValid = 1
-      if (+this.PayModeId) {
+      if (+this.PayModeId > 0) {
         this.invalidObj['PayModeId'] = false
       } else {
         isValid = 0
         this.invalidObj['PayModeId'] = true
       }
-      if (+this.LedgerId) {
+      if (+this.LedgerId > 0) {
         this.invalidObj['LedgerId'] = false
       } else {
         isValid = 0
@@ -2435,7 +2435,7 @@ export class SalesChallanBillingComponent {
         isValid = 0
         this.invalidObj['ledgerName'] = true
       }
-      if (+this.Amount) {
+      if (+this.Amount > 0) {
         this.invalidObj['Amount'] = false
       } else {
         isValid = 0
@@ -2447,14 +2447,28 @@ export class SalesChallanBillingComponent {
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-
+      debugger
+      if (+this.PayModeId === 3) {
+        if (this.ChequeNo) {
+          this.invalidObj['ChequeNo'] = false
+          this.ChequeNoFlag = false
+        } else {
+          isValid = 0
+          this.invalidObj['ChequeNo'] = true
+          this.ChequeNoFlag = true
+        }
+      } else {
+        this.invalidObj['ChequeNo'] = false
+        this.ChequeNoFlag = false
+      }
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
     }
+    this.clickTrans = false
   }
   // @ViewChild('currency_select2') currencySelect2: Select2Component
-
+  ChequeNoFlag: boolean
   @ViewChild('paymode_select2') paymodeSelect2: Select2Component
 
   ledger: any
@@ -2469,13 +2483,12 @@ export class SalesChallanBillingComponent {
     this.ledgerBank = 0
     this.ledgerName = ''
     this.editTransId = 0
-
-    // if (this.ledgerSelect2) {
-    //   this.ledgerSelect2.setElementValue('')
-    // }
-    // if (this.paymodeSelect2) {
-    // this.paymodeSelect2.setElementValue('')
-    // }
+    if (this.paymodeSelect2 && this.paymodeSelect2.selector.nativeElement.value) {
+      this.paymodeSelect2.setElementValue('')
+    }
+    if (this.ledgerSelect2 && this.ledgerSelect2.selector.nativeElement.value) {
+      this.ledgerSelect2.setElementValue('')
+    }
     this.clickTrans = false
   }
 
@@ -2512,7 +2525,6 @@ export class SalesChallanBillingComponent {
     this.ledgerPlaceHolder = { placeholder: 'Select Ledger' }
     let newData = [{ id: UIConstant.BLANK, text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this._commonService.getPaymentLedgerDetail(9).subscribe(data => {
-      // console.log('PaymentModeData : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
           newData.push({
@@ -2521,7 +2533,7 @@ export class SalesChallanBillingComponent {
           })
         })
         newData = Object.assign([], newData)
-        }
+      }
       this.paymentLedgerselect2 = newData
       if (data.Code === 5000) {
         this.toastrService.showError('Error',data.Description)
@@ -2541,10 +2553,8 @@ export class SalesChallanBillingComponent {
             this.PayDate = this.transactions[i].PayDate
             this.ChequeNo = this.transactions[i].ChequeNo
             this.paymodeSelect2.setElementValue(this.PayModeId)
-            this.ledgerBank = this.LedgerId
-            this.validateTransaction()
-
-            // this.ledgerSelect2.setElementValue(this.LedgerId)
+            this.ledgerSelect2.setElementValue(this.LedgerId)
+            this.snoForPAymentId = 0
             this.deleteItem('trans', i)
           }
         }
@@ -2554,7 +2564,7 @@ export class SalesChallanBillingComponent {
 
   addTransactions () {
     this.deleteEditPaymentFlag = true
-    if (this.Paymode && this.PayModeId && this.LedgerId && this.ledgerName && this.Amount && this.PayDate) {
+    if (this.Paymode && this.PayModeId && this.LedgerId && this.ledgerName && this.Amount && this.PayDate && !this.ChequeNoFlag) {
       if (this.checkValidationForAmount()) {
         this.addTransaction()
         this.clickTrans = true
@@ -2609,6 +2619,9 @@ export class SalesChallanBillingComponent {
         ChequeNo: this.ChequeNo
       })
     }
+    setTimeout(() => {
+      this._commonService.fixTableHFL('pay_table')
+    }, 1)
     if (this.editTransId !== 0) {
       this.transactions[this.transactions.length - 1].Id = this.editTransId
     }
@@ -2873,6 +2886,23 @@ export class SalesChallanBillingComponent {
 
       }
     })
+
+  }
+  enterPressItem (e: KeyboardEvent) {
+    this.addItems()
+    setTimeout(() => {
+      let item = this.catSelect2.find((item: Select2Component, index: number, array: Select2Component[]) => {
+        return index === 0
+      })
+      item.selector.nativeElement.focus()
+    }, 10)
+  }
+  enterPaymentSave (e: KeyboardEvent) {
+    e.preventDefault()
+    this.addTransactions()
+    setTimeout(() => {
+      this.paymodeSelect2.selector.nativeElement.focus()
+    }, 10)
 
   }
 

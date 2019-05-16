@@ -9,10 +9,12 @@ declare const $: any
 })
 export class DeleteModalComponent implements OnDestroy {
   modalSub: Subscription
+  title: string = ''
   constructor (private commonService: CommonService) {
     this.modalSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
         if (obj.open) {
+          this.title = obj.title
           this.openModal()
         } else {
           this.closeModal()

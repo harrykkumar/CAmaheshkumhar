@@ -30,14 +30,8 @@ export class ItemStockReportComponent implements OnInit {
 
   }
 
-  ngOnInit() {
-    $(document).ready(function () {
-
-      $('.table_challan').tableHeadFixer({
-        head: true ,
-        foot: true
-      })
-    })
+  ngOnInit () {
+    this._commonService.fixTableHF('cat-table')
     this.getSaleChallanDetail()
   }
 
@@ -72,6 +66,7 @@ export class ItemStockReportComponent implements OnInit {
           this.AttributeValues = data.Data.AttributeValues
         }
         data.Data.ItemDetails.forEach(mainItm => {
+          debugger
           let itemAttributeDetailTrans = data.Data.ItemAttributesDetailsTrans.filter(s => s.GroupId === mainItm.GroupId)
           //   let label = itemAttributeDetailTrans.filter(d=>d.AttributeId ===)
           if (itemAttributeDetailTrans.length === 0) {

@@ -209,9 +209,11 @@ export class SalesChallanInvoiceComponent {
           if (status.editId === UIConstant.BLANK) {
             this.editMode = false
             this.Id = 0
+           // this.editRowFlag = false
           } else {
             this.editMode = true
             this.Id = status.editId
+            this.editRowFlag = false
           }
           //  this.setDefaultSelectovalue()
           this.openModalPopup()
@@ -334,7 +336,8 @@ export class SalesChallanInvoiceComponent {
           }
 
         }
-        if (this.Id !== 0 && this.editMode) {
+        if (this.Id !== 0 && this.editMode && !this.editRowFlag) {
+         alert('jj')
           this.getSaleChllanEditData(this.Id)
         }
         this.unitDataType = []
@@ -439,7 +442,7 @@ export class SalesChallanInvoiceComponent {
       }
     })
   }
-
+  editRowFlag: boolean
   referalsID: any
   onChangeReferals (event) {
     if (event.data.length > 0) {
@@ -720,6 +723,7 @@ export class SalesChallanInvoiceComponent {
   onSelectItemCategory (event) {
     if (event.data.length > 0) {
       if (event.data[0].id !== '') {
+        this.editRowFlag = true
         if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
           this.itemSelect2.selector.nativeElement.value = ''
           this._commonService.openItemMaster('',this.categoryId)
@@ -1847,8 +1851,8 @@ export class SalesChallanInvoiceComponent {
   editAttributeData: any
   editRowItem (index, item, editId, attributeData) {
     this.editAttributeData = attributeData
-    // debugger
     if (this.deleteEditflag) {
+      this.editRowFlag = true
       this.deleteEditflag = false
       this.editItemId = editId
       this.Remark = item.Remark
@@ -1860,8 +1864,17 @@ export class SalesChallanInvoiceComponent {
       this.categoryId = item.CategoryId
       this.Rate = item.SaleRate
       this.TotalAmount = this.Quantity * this.Rate
+     // this.itemsAttribute =
       this.unitSelect2.setElementValue(item.UnitId)
       this.itemSelect2.setElementValue(item.ItemId)
+      // if (this.editAttributeData.length > 0) {
+      //   debugger
+      //   this.editAttributeData.forEach((itm: Select2Component, inx: number, array: Select2Component[]) => {
+      //     console.log('attr : ', item)
+      //     let indexItm = this.allAttributeData[inx].item.findIndex(n => (n.id === itm.AttributeId))
+      //     this.atrColorSelect2.setElementValue(this.allAttributeData[inx].item[indexItm].id)
+      //   })
+      // }
       this.deleteItem(index)
     } else {
       this.toastrService.showWarning('Warning', 'First save item!')
@@ -2053,16 +2066,22 @@ export class SalesChallanInvoiceComponent {
               console.log(this.decimalDigitData ,'decimal')
 
             }
-
           })
-
         }
-
       }
     })
   }
   CommisionRate: any
   changeCommisiontrate (e) {
     this.CommisionRateType = e === '0' ? 0 : 1
+  }
+  enterPressItem (e: KeyboardEvent) {
+    this.addItems()
+    setTimeout(() => {
+      let item = this.catSelect2.find((item: Select2Component, index: number, array: Select2Component[]) => {
+        return index === 0
+      })
+      item.selector.nativeElement.focus()
+    }, 10)
   }
 }

@@ -48,6 +48,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <!--(keyup)="searchForItemName($event.target.value)"-->
                                     <div class="form-group col-md-6">
                                         <label>Item Name </label>
                                         <div class="input-group">
@@ -55,8 +56,6 @@
                                             class="form-control" placeholder="Enter Item Name"
                                             name="name"
                                             [(ngModel)]="Name"
-                                            (keyup)="searchForItemName($event.target.value)"
-                                
                                             [ngClass]="{'errorSelecto': ( submitClick && invalidObj.Name ) || existsCodes.name, 'loading': pendingCheck1 }" (input)="checkForValidation()" >
                                             <span [ngClass]="{'spinner_tick': !pendingCheck1}" *ngIf="Name.length > 0 && !pendingCheck1" >
                                                 <i class="fas fa-check hideMe" *ngIf="!existsCodes.name"></i>
@@ -72,15 +71,15 @@
                                         [(ngModel)]="HsnNo" 
                                         [ngClass]="{'errorSelecto': submitClick && invalidObj.HsnNo }" 
                                         (input)="checkForValidation()"
-                            
                                         >
                                     </div>
+                                    <!--(keyup)="searchForBarCode($event.target.value)"-->
                                     <div class="form-group col-md-4">
                                         <label for="barcode">Bar Code</label>
                                         <div class="input-group">
                                         <input type="text" 
-                                        [disabled]="isBarCode" (keyup)="searchForBarCode($event.target.value)"
-                                            class="form-control" id="barcode" placeholder="Enter Bar Code" name="BarCode"
+                                        [disabled]="isBarCode" 
+                                            class="form-control" #barcode id="barcode" placeholder="Enter Bar Code" name="BarCode"
                                             [(ngModel)]="BarCode" [ngClass]="{'errorSelecto': (submitClick && invalidObj.BarCode) || existsCodes.barcode, 'loading': pendingCheck}" 
                                             (input)="checkForValidation()" >
                                             <span [ngClass]="{'spinner_tick': !pendingCheck}" *ngIf="BarCode.length > 0 && !pendingCheck" >
@@ -92,6 +91,7 @@
                                     <div class="form-group col-md-4">
                                         <label for="p_code">Item Code</label>
                                         <input type="text"
+                                        [disabled]="isItemCode"
                                         class="form-control" id="p_code" placeholder="Enter Item Code" name="ItemCode"
                                             [(ngModel)]="ItemCode" [ngClass]="{'errorSelecto': submitClick && invalidObj.ItemCode }" (input)="checkForValidation()"  >
                                     </div>
@@ -231,6 +231,29 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div *ngIf="combo && combo.length > 0" >
+                                        <div class="toast-header toast mB-5 table-responsive" (click)="comboComp.openModal();" >
+                                            <label>Combo</label>
+                                            <table class="table table-hover" >
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Quantity</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let item of combo;let i = index;" >
+                                                        <td>
+                                                            <strong class="mr-auto">{{item.itemName}}</strong>
+                                                        </td>
+                                                        <td>
+                                                            <strong class="mr-auto">{{item.Quantity}}</strong>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -240,3 +263,5 @@
         </div>
     </div>
 </div>
+
+<app-combo #combo_comp (emitCombo)="comboAdded($event)" [editMode]="editMode" [previousCombo]="combo" ></app-combo>

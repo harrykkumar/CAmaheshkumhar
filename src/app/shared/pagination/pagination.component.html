@@ -1,4 +1,10 @@
-<select [(ngModel)]="itemsPerPage" (ngModelChange)="onChangePageSize($event)" >
-  <option *ngFor="let pageSize of pageSizes;" [value]="pageSize" >{{pageSize}}</option>
-</select>
-<pagination-controls (pageChange)="p = $event;onPageChange(p);"></pagination-controls>
+<div class="flex_page" >
+  <div>
+    <select [(ngModel)]="itemsPerPage" (ngModelChange)="onChangePageSize($event)" >
+      <option *ngFor="let pageSize of pageSizes;" [value]="pageSize" >{{pageSize}}</option>
+    </select>
+  </div>
+  <div>
+      <pagination-controls (pageChange)="p = $event;onPageChange(p);"></pagination-controls>
+  </div>
+</div>

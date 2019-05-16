@@ -229,7 +229,7 @@
                         <input type="number"  class="form-control"  (input)="calculate();" placeholder="Rate" appIncludeDecimal name="Rate"  [(ngModel)]="Rate">
                       </td>
                       <td >
-                        <input type="number" readonly="true" class="form-control" placeholder="Total Amount" appIncludeDecimal name="TotalAmount" [(ngModel)]="TotalAmount">
+                        <input (keydown.enter)="enterPressItem($event)" type="number" readonly="true" class="form-control" placeholder="Total Amount" appIncludeDecimal name="TotalAmount" [(ngModel)]="TotalAmount">
                       </td>
                     </tr>
                     </tfoot>

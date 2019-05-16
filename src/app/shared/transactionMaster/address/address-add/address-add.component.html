@@ -28,8 +28,6 @@
                                                             (valueChanged)="selectCountryListId($event)" autocomplete="true"
                                                             [options]="countryListPlaceHolder" [value]="countryValue" [ngClass]="{ 'errorSelecto is-invalid':  countryError  }"></select2>
                                                     </div>
-                                                    <!-- <div class="error_msg" *ngIf="countryError">{{this.errormassage}}</div> -->
-                                                    <!-- [value]="valueCRDR" -->
                                                 </div>
                    </div>
                    <div class="form-group col-md-12">
@@ -40,9 +38,6 @@
                                                             (valueChanged)="selectStatelist($event)" autocomplete="true"
                                                             [options]="stateListplaceHolder" [value]="stateValue" [ngClass]="{ 'errorSelecto is-invalid':  stateError  }"></select2>
                                                     </div>
-                                                    <!-- <div class="error_msg" *ngIf="countryError">{{this.errormassage}}</div> -->
-                                                    <!-- <div *ngIf="catagoryError">{{this.errormassage}}</div> -->
-                                                    <!-- [value]="valueCRDR" -->
                                                 </div>
                    </div>
                    <div class="form-group col-md-12">
@@ -50,7 +45,7 @@
                       <div class="input-group adw_select">
                                                     <select2 [data]="cityList" class="control_select" autocomplete="true"
                                                         (valueChanged)="selectedCityId($event)" [value]="cityValue" [ngClass]="{ 'errorSelecto is-invalid':  cityError  }"></select2>
-                                                    <!-- <div class="error_msg" *ngIf="cityError">{{this.errormassage}}</div> -->
+                                                  
                                                 </div>
                    </div>
                    <div class="form-group col-md-12">
@@ -66,7 +61,6 @@
                                                     <select2 [data]="addressType" class="control_select" autocomplete="true"
                                                         (valueChanged)="selectedAddressTypeId($event)" [options]="addressTypePlaceHolder"
                                                         [value]="addresTypeId" [ngClass]="{ 'errorSelecto is-invalid':  addressError  }"></select2>
-                                                    <!-- <div class="error_msg" *ngIf="addressError">{{this.errormassage}}</div> -->
                                                 </div>
                    </div>
                     <div class="form-group col-md-6">

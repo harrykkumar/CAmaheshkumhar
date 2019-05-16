@@ -56,7 +56,7 @@ export class CompositeUnitComponent implements OnInit, OnDestroy {
           this.getCompositeDetail()
         }
         if (Data.Code === UIConstant.CANNOTDELETERECORD) {
-          this.toastrService.showInfo('Info', 'Can not deleted data')
+          this.toastrService.showInfo('', Data.Description)
         }
       })
     }
@@ -139,7 +139,7 @@ export class CompositeUnitComponent implements OnInit, OnDestroy {
     this.commonService.openCompositeUnit(id)
   }
   deleteSubUnit (id) {
-    this.commonService.openDelete(id, 'composite')
+    this.commonService.openDelete(id, 'composite', 'Composite Unit')
   }
 
   ngOnDestroy () {

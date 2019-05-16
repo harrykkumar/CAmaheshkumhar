@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core'
 import { Subscription, fromEvent } from 'rxjs'
 import { Ledger } from '../../model/sales-tracker.model'
 import { VendorServices } from '../../commonServices/TransactionMaster/vendoer-master.services'
@@ -15,7 +15,7 @@ declare const $: any
   templateUrl: './vendor.component.html',
   styleUrls: ['./vendor.component.css']
 })
-export class VendorComponent implements OnInit {
+export class VendorComponent implements OnInit, OnDestroy {
   subscribe: Subscription
   VendorDetailShow: Ledger[]
   deleteSub: Subscription
@@ -25,6 +25,8 @@ export class VendorComponent implements OnInit {
   total: number = 0
   lastItemIndex: number = 0
   isSearching: boolean = false
+  queryStr$: Subscription
+  queryStr: string = ''
   @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (private _vendorServices: VendorServices,
     private commonService: CommonService,
@@ -35,6 +37,14 @@ export class VendorComponent implements OnInit {
         if (obj.id && obj.type && obj.type === 'vendor') {
           this.deleteItem(obj.id)
         }
+      }
+    )
+    this.queryStr$ = this._vendorServices.queryStr$.subscribe(
+      (str) => {
+        console.log(str)
+        this.queryStr = str
+        this.p = 1
+        this.getVendorDetail()
       }
     )
     this.formSearch()
@@ -49,14 +59,14 @@ export class VendorComponent implements OnInit {
 
   deleteItem (id) {
     if (id) {
-      this._vendorServices.delteVendor(id).subscribe(Data => {
+      this._vendorServices.deleteLedger(id).subscribe(Data => {
         if (Data.Code === UIConstant.DELETESUCCESS) {
           this.toastrService.showSuccess('Sucess', 'Deleted Successfully')
           this.commonService.closeDelete('')
           this.getVendorDetail()
         }
         if (Data.Code === UIConstant.CANNOTDELETERECORD) {
-          this.toastrService.showInfo('Info', 'Can not deleted')
+          this.toastrService.showInfo('', Data.Description)
           this.commonService.closeDelete('')
         }
       })
@@ -68,7 +78,7 @@ export class VendorComponent implements OnInit {
       term = ''
     }
     this.pagingComp.setPage(1)
-    return this._vendorServices.getVendor(4, '&Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
+    return this._vendorServices.getVendor(4, '&Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
   }
 
   ngOnInit () {
@@ -107,7 +117,7 @@ export class VendorComponent implements OnInit {
     if (!this.searchForm.value.searckKey) {
       this.searchForm.value.searckKey = ''
     }
-    this.subscribe = this._vendorServices.getVendor(4, '&Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).subscribe(Data => {
+    this.subscribe = this._vendorServices.getVendor(4, '&Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
         this.VendorDetailShow = Data.Data
         this.total = this.VendorDetailShow[0] ? this.VendorDetailShow[0].TotalRows : 0
@@ -129,6 +139,11 @@ export class VendorComponent implements OnInit {
   }
 
   showDeletePopup (id) {
-    this.commonService.openDelete(id, 'vendor')
+    this.commonService.openDelete(id, 'vendor', 'Vendor')
+  }
+
+  ngOnDestroy () {
+    this.queryStr$.unsubscribe()
+    this.deleteSub.unsubscribe()
   }
 }

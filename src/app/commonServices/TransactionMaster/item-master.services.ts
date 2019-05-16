@@ -127,4 +127,12 @@ export class ItemmasterServices {
   setSearchQueryParamsStr (str) {
     this.queryStrSub.next(str)
   }
+
+  getBarCodeSetting () {
+    return this._basesService.getRequest(ApiConstant.GET_SETTING_BY_ID + 32)
+  }
+
+  getItemCodeSetting () {
+    return this._basesService.getRequest(ApiConstant.GET_SETTING_BY_ID + 64)
+  }
 }

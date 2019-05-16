@@ -304,7 +304,7 @@
                           <input type="text" disabled="true" class="form-control" appIncludeDecimal name="taxAmount" placeholder="Tax Amount"  [(ngModel)]="TaxAmount" >
                         </td>
                 <td >
-                  <input type="number" readonly="true" class="form-control" placeholder="Total Amount" appIncludeDecimal name="TotalAmount" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.TotalAmount }" [(ngModel)]="TotalAmount">
+                  <input  (keydown.enter)="enterPressItem($event)" type="number" readonly="true" class="form-control" placeholder="Total Amount" appIncludeDecimal name="TotalAmount"  [(ngModel)]="TotalAmount">
                 </td>
               </tr>
                     <tr>
@@ -316,13 +316,13 @@
                       <td colspan="2" *ngIf="industryId === 6" ></td>
                       <td colspan="7"></td>
                       <td>
-                          <input type="number" readonly="true" class="form-control"
+                          <input type="number"  disabled="true"  class="form-control"
                           placeholder="Total Discount" name="TotalDiscount" 
                           [(ngModel)]="totalDiscount">
                       </td>
                       <td colspan="2"></td>
                       <td>
-                        <input type="number" readonly="true" class="form-control"
+                        <input type="number"  disabled="true"  class="form-control"
                         placeholder="Total Tax Amount" name="totalTaxAmount" 
                         [(ngModel)]="totalTaxAmount"></td>
                       <td>
@@ -381,7 +381,7 @@
               </div>
               <div class="col-md-8 card p-3">
       <div class="table-responsive" id="parent">
-                  <table class="table editable_tbl" id="fixTable">
+                  <table class="table editable_tbl table-hover pay_table" id="fixTable">
                     <thead>
                       <tr class="default_row">
                         <th>#</th>
@@ -459,9 +459,9 @@
                             </div>
                           </div>
                         </td>
-                        <td><input type="text" appIncludeDecimal name="Amount" class="form-control" id="Amount" [(ngModel)]="Amount" (input)="validateTransaction()" [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans) }" placeholder="Enter Amount"></td>
-                        <td><input type="text" name="PayDate" id="pay-date" class="form-control flatpickr" [(ngModel)]="PayDate" (input)="validateTransaction()" [ngClass]="{'errorSelecto': invalidObj?.PayDate && (submitSave || !clickTrans) }" placeholder="Select Date"></td>
-                        <td><input type="text" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo" (input)="validateTransaction()" ></td>
+                        <td><input (input)="validateTransaction()" type="text" appIncludeDecimal name="Amount" class="form-control" id="Amount" [(ngModel)]="Amount"  [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans) }" placeholder="Enter Amount"></td>
+                        <td><input (input)="validateTransaction()" type="text" name="PayDate" id="pay-date" class="form-control flatpickr" [(ngModel)]="PayDate"  [ngClass]="{'errorSelecto': invalidObj?.PayDate && (submitSave || !clickTrans) }" placeholder="Select Date"></td>
+                        <td><input (input)="validateTransaction()" type="text" (keyup.enter)="enterPaymentSave($event)" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo"  ></td>
                       </tr>
                     </tbody>
                   </table>

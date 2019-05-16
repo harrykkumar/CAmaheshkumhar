@@ -126,7 +126,7 @@ export class SalesChallanComponent  implements   OnInit  {
       }
     })
   }
-ngOnInit(){
+ngOnInit() {
             $(document).ready(function () {
 
      $('.table_challan').tableHeadFixer({
@@ -146,14 +146,14 @@ ngOnInit(){
   // generate bar code
   InventoryTransactionSales: any
   barcode: any
-  ItemAttributesTransactions:any
+  ItemAttributesTransactions: any
   reciverContData: any
   reciverAddress: any
   itemAttributeDatails: any
-  itemAttbute:any
-  website:any
-  ContactCustInfo:any
-  ContactOrgInfo:any
+  itemAttbute: any
+  website: any
+  ContactCustInfo: any
+  ContactOrgInfo: any
   onPrintButtonSaleChallan (id ,htmlId) {
     this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
 //alert(id)
@@ -193,8 +193,8 @@ ngOnInit(){
           _self.ItemTransactionactions = []
           _self.itemAttbute=[]
           _self.ItemTransactionactions = data.Data.ItemTransactionactions
-          for(let i=0; i < data.Data.ItemTransactionactions.length; i++){
-             for(let j=0; j < data.Data.ItemAttributesTransactions.length; j++)
+          for(let i=0; i < data.Data.ItemTransactionactions.length; i++) {
+             for(let j=0; j < data.Data.ItemAttributesTransactions.length; j++) {
             if(data.Data.ItemTransactionactions[i].Id === data.Data.ItemAttributesTransactions[j].ItemTransId){
                this.itemAttbute.push({
                  attr:data.Data.ItemAttributesTransactions[j].AttributeName,
@@ -204,6 +204,7 @@ ngOnInit(){
                })
                console.log(this.itemAttbute ,"colorr")
             }
+             }
 
           }
         } else {
@@ -235,19 +236,17 @@ ngOnInit(){
         else{
            this.website =[]
         }
-          if(data.Data.ContactInfo.length > 0){
+          if(data.Data.ContactInfo.length > 0) {
            this.ContactCustInfo =[]
            this.ContactCustInfo = data.Data.ContactInfo
-        }
-        else{
-           this.ContactCustInfo =[]
-        }
-              if(data.Data.ContactOrgInfo.length > 0){
-           this.ContactOrgInfo =[]
-           this.ContactOrgInfo = data.Data.ContactOrgInfo
-        }
-        else{
-           this.ContactOrgInfo =[]
+        } else {
+            this.ContactCustInfo =[]
+          }
+        if(data.Data.ContactOrgInfo.length > 0){
+          this.ContactOrgInfo =[]
+          this.ContactOrgInfo = data.Data.ContactOrgInfo
+        } else {
+          this.ContactOrgInfo =[]
         }
         setTimeout(function () {
           _self.printCourierParcel(htmlId)
@@ -298,74 +297,70 @@ ngOnInit(){
     ename: 'rajesh',
     esal: 3000
   }];
-importExcelFile(data) {
+  importExcelFile(data) {
   
  //this._saleTravelServices.exportAsExcelFile(this.saleTravelDetails, 'sample');
-}
-itemIdCollection:any
-generateBillFlagEnable:boolean 
- allChallanIds:any;
-getBillingId(data,e,index){
+  }
+  itemIdCollection: any
+  generateBillFlagEnable: boolean 
+  allChallanIds: any;
+  getBillingId(data,e,index){
   // debugger;
-let postDataId=[]
-let postDataChallnNo=[]
+    let postDataId=[]
+    let postDataChallnNo=[]
 
 
-if(e.target.checked){
-  if( this.itemIdCollection.length === 0){
-   this.generateBillFlagEnable = false
+    if(e.target.checked){
+      if(this.itemIdCollection.length === 0){
+        this.generateBillFlagEnable = false
 
-      this.itemIdCollection.push({
-       itemId:data.Id,
-      orgId:data.OrgId,
-      ledgerId:data.LedgerId,
-     ChallanNo: data.ChallanNo
-  })
-  }
-  else{
-     let loclOrgId
-     let localLedgerId
-this.itemIdCollection.forEach(ele=>{
-  if(data.OrgId === ele.orgId &&  data.LedgerId === ele.ledgerId){
-   this.generateBillFlagEnable = false
-   this.itemIdCollection.push({
-      itemId:data.Id,
-      orgId:data.OrgId,
-      ledgerId:data.LedgerId,
-     ChallanNo: data.ChallanNo
+        this.itemIdCollection.push({
+          itemId:data.Id,
+          orgId:data.OrgId,
+          ledgerId:data.LedgerId,
+          ChallanNo: data.ChallanNo
+        })
+      } else {
+        let loclOrgId
+        let localLedgerId
+        this.itemIdCollection.forEach(ele=>{
+          if(data.OrgId === ele.orgId &&  data.LedgerId === ele.ledgerId){
+            this.generateBillFlagEnable = false
+            this.itemIdCollection.push({
+              itemId:data.Id,
+              orgId:data.OrgId,
+              ledgerId:data.LedgerId,
+              ChallanNo: data.ChallanNo
 
-  }) 
+            })
 
-  }
-  else{
-     this.generateBillFlagEnable = true
-     this._toastrCustomService.showError('Error','Diffrent Orgnazation & Ledger ')
+          } else {
+            this.generateBillFlagEnable = true
+            this._toastrCustomService.showError('Error','Diffrent Orgnazation & Ledger ')
 
-  }
+          }
 
-})
-  }
-}
-else{
-  for(var i=0 ; i < this.itemIdCollection.length; i++) {
-       if(this.itemIdCollection[i].itemId == data.Id) {
-         this.itemIdCollection.splice(i,1);
-         this.generateBillFlagEnable = true
+        })
+      }
+    } else {
+      for (let i = 0 ; i < this.itemIdCollection.length; i++) {
+        if (this.itemIdCollection[i].itemId === data.Id) {
+          this.itemIdCollection.splice(i,1)
+          this.generateBillFlagEnable = true
+        }
       }
     }
-}
 
-this.itemIdCollection.forEach(id=>{
-  postDataId.push(id.itemId)
-  postDataChallnNo.push(id.ChallanNo)
+    this.itemIdCollection.forEach(id => {
+      postDataId.push(id.itemId)
+      postDataChallnNo.push(id.ChallanNo)
 
-  this.allChallanIds = postDataId.toString()
- this.allChallanNos = postDataChallnNo.toString()
+      this.allChallanIds = postDataId.toString()
+      this.allChallanNos = postDataChallnNo.toString()
 
-})
+    })
 
+    console.log(this.allChallanIds,  this.allChallanNos,'id')
 
-console.log(this.allChallanIds,  this.allChallanNos,'id')
-
-}
+  }
 }

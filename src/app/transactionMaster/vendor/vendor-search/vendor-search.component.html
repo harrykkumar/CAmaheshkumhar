@@ -1,139 +1,60 @@
 <div id="demo" class="collapse bgc-white" [ngStyle]="{'display': toShow ? 'block' : 'none'}" >
-    <div class="form-row bdrs-3 p-10 mB-5">
-        <div class="form-group col-md-3">
-            <label for="bill_no">Category</label>
-            <div class="input-group adw_select" id="adv-search">
-                <input type="text" class="form-control" placeholder="Search By Category" />
-                <div class="input-group-btn">
-                    <div class="btn-group" role="group">
-                        <div class="dropdown dropdown-lg">
-                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown"
-                                aria-expanded="false"><span class="caret"></span></button>
-                            <ul class="dropdown-menu select_dropdown">
-                                <li class="pX-20 pY-5 ta-c bdT bgc-grey"><a data-toggle="modal"
-                                        data-target="#category_master"><i class="fa fa-plus pR-10"></i><span
-                                            class="fsz-sm fw-600 c-grey-900">Add New</span></a></li>
-                                <li class="pX-20 pY-5 ta-c bdT"><span>Category</span></li>
-                            </ul>
-                        </div>
+        <form [formGroup]="searchForm" (ngSubmit)="search()" noValidate >
+            <div class="form-row bdrs-3 p-10 mB-5">
+                <div class="form-group col-md-3">
+                    <label for="bill_no">Vendor Registration Type</label>
+                    <div class="input-group adw_select">
+                        <select2 [data]="custRegTypeSelect2"
+                        tabindex="1"
+                            #custRTypeSelect2
+                            class="control_select" (valueChanged)="selectCustRegType($event)"
+                            autocomplete="true" [options]="custRegTypePlaceholder"
+                            [value]="customerRegValue"
+                        ></select2>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="form-group col-md-3">
-            <label for="bill_no">Sub Category</label>
-            <div class="input-group adw_select">
-                <input type="text" class="form-control" placeholder="Search By Sub Category" />
-                <div class="input-group-btn">
-                    <div class="btn-group" role="group">
-                        <div class="dropdown dropdown-lg">
-                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown"
-                                aria-expanded="false"><span class="caret"></span></button>
-                            <ul class="dropdown-menu select_dropdown">
-                                <li class="pX-20 pY-5 ta-c bdT bgc-grey"><a data-toggle="modal"
-                                        data-target="#sub_category_master"><i class="fa fa-plus pR-10"></i><span
-                                            class="fsz-sm fw-600 c-grey-900">Add New</span></a></li>
-                                <li class="pX-20 pY-5 ta-c bdT"><span>Category</span></li>
-                            </ul>
-                        </div>
+                <div class="form-group col-md-3">
+                    <label for="bill_no">Country</label>
+                    <div class="input-group adw_select">
+                        <select2 [data]="countryListSelect2"
+                            #countrySelect2
+                            class="control_select" (valueChanged)="selectCountry($event)"
+                            autocomplete="true" [options]="countryPlaceholder"
+                            [value]="countryValue">
+                        </select2>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="form-group col-md-3">
-            <label for="bill_no">Item</label>
-            <div class="input-group adw_select">
-                <input type="text" class="form-control" placeholder="Search By Item" />
-                <div class="input-group-btn">
-                    <div class="btn-group" role="group">
-                        <div class="dropdown dropdown-lg">
-                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown"
-                                aria-expanded="false"><span class="caret"></span></button>
-                            <ul class="dropdown-menu select_dropdown">
-                                <li class="pX-20 pY-5 ta-c bdT bgc-grey"><a data-toggle="modal"
-                                        data-target="#item_master"><i class="fa fa-plus pR-10"></i><span
-                                            class="fsz-sm fw-600 c-grey-900">Add New</span></a></li>
-                                <li class="pX-20 pY-5 ta-c bdT"><span>Suger</span></li>
-                            </ul>
-                        </div>
+                <div class="form-group col-md-3">
+                    <label for="bill_no">State</label>
+                    <div class="input-group adw_select">
+                        <select2 [data]="stateListSelect2" class="control_select"
+                            #stateSelect2
+                            (valueChanged)="selectState($event)" autocomplete="true"
+                            [options]="stateListPlaceHolder" [value]="stateValue"
+                        ></select2>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="form-group col-md-3">
-            <label for="bill_no">Status</label>
-            <div class="input-group adw_select">
-                <input type="text" class="form-control" placeholder="Search By Status" />
-                <div class="input-group-btn">
-                    <div class="btn-group" role="group">
-                        <div class="dropdown dropdown-lg">
-                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown"
-                                aria-expanded="false"><span class="caret"></span></button>
-                            <ul class="dropdown-menu select_dropdown">
-                                <li class="pX-20 pY-5 ta-c bdT bgc-grey"><a data-toggle="modal"
-                                        data-target="#item_master"><i class="fa fa-plus pR-10"></i><span
-                                            class="fsz-sm fw-600 c-grey-900">Add New</span></a></li>
-                                <li class="pX-20 pY-5 ta-c bdT"><span>Active</span></li>
-                            </ul>
-                        </div>
+                <div class="form-group col-md-3">
+                    <label for="bill_no">City</label>
+                    <div class="input-group adw_select">
+                        <select2 [data]="cityListSelect2" class="control_select"
+                        #citySelect2
+                        autocomplete="true" (valueChanged)="selectCity($event)"
+                        [options]="cityListPlaceHolder"
+                        [value]="cityValue" ></select2>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="form-group col-md-3">
-            <label for="bill_no">Supplier</label>
-            <div class="input-group adw_select">
-                <input type="text" class="form-control" placeholder="Search By Supplier" />
-                <div class="input-group-btn">
-                    <div class="btn-group" role="group">
-                        <div class="dropdown dropdown-lg">
-                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown"
-                                aria-expanded="false"><span class="caret"></span></button>
-                            <ul class="dropdown-menu select_dropdown">
-                                <li class="pX-20 pY-5 ta-c bdT bgc-grey"><a data-toggle="modal"
-                                        data-target="#item_master"><i class="fa fa-plus pR-10"></i><span
-                                            class="fsz-sm fw-600 c-grey-900">Add New</span></a></li>
-                                <li class="pX-20 pY-5 ta-c bdT"><span>Active</span></li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="form-group col-md-2">
+                    <label for="ledger">Ledger</label>
+                    <input type="text" formControlName="StrLedger" class="form-control"
+                     id="ledger" placeholder="Search For Ledgers">
+                </div>
+                <div class="form-group col-md-1 pt-3">
+                    <button type="submit" class="btn btn-primary waves-effect waves-light">Search</button>
+                </div>
+                <div class="form-group col-md-1 pt-3">
+                    <button type="button" class="btn btn_close waves-effect" (click)="resetSearch()" >Reset</button>
                 </div>
             </div>
-        </div>
-        <div class="form-group col-md-2">
-            <label for="org_code">Invoice Number</label>
-            <input type="text" class="form-control" id="org_code" placeholder="Enter Invoice Number">
-        </div>
-        <div class="form-group col-md-1 pt-4">
-            <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="bydate">
-                <label class="custom-control-label" for="bydate">By Date</label>
-            </div>
-
-        </div>
-        <div class="form-group col-md-2">
-            <label class="fw-500">From</label>
-            <div class="timepicker-input input-icon form-group">
-                <div class="input-group">
-                    <div class="input-group-addon bgc-white bd bdwR-0" start-date><i class="fas fa-calendar-alt"></i></div>
-                    <input type="text" class="form-control start-date" placeholder="Enter Reg. Date"
-                        data-provide="datepicker">
-                </div>
-            </div>
-        </div>
-        <div class="form-group col-md-2">
-            <label class="fw-500">To</label>
-            <div class="timepicker-input input-icon form-group">
-                <div class="input-group">
-                    <div class="input-group-addon bgc-white bd bdwR-0" start-date><i class="fas fa-calendar-alt"></i></div>
-                    <input type="text" class="form-control start-date" placeholder="Enter Reg. Date"
-                        data-provide="datepicker">
-                </div>
-            </div>
-        </div>
-        <div class="form-group col-md-1 pt-3">
-            <button type="button" class="btn btn-primary waves-effect waves-light">Search</button>
-        </div>
-
+        </form>
     </div>
-</div>

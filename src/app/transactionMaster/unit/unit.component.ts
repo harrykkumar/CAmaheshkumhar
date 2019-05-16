@@ -60,7 +60,7 @@ export class UnitComponent implements OnInit, OnDestroy {
           this.getUnitDetail()
         }
         if (Data.Code === UIConstant.CANNOTDELETERECORD) {
-          this.toastrService.showInfo('Info', 'Can not deleted')
+          this.toastrService.showInfo('', Data.Description)
           this.commonService.closeDelete('')
           this.getUnitDetail()
         }
@@ -135,7 +135,7 @@ export class UnitComponent implements OnInit, OnDestroy {
   }
 
   deleteUnit (id) {
-    this.commonService.openDelete(id, 'unit')
+    this.commonService.openDelete(id, 'unit', 'Unit')
   }
 
 }

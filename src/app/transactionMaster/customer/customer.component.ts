@@ -25,6 +25,8 @@ export class CustomerComponent implements OnInit {
   total: number = 0
   lastItemIndex: number = 0
   isSearching: boolean = false
+  queryStr$: Subscription
+  queryStr: string = ''
   @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (private _coustomerServices: VendorServices,
     private commonService: CommonService,
@@ -35,6 +37,15 @@ export class CustomerComponent implements OnInit {
         if (obj.id && obj.type && obj.type === 'customer') {
           this.deleteItem(obj.id)
         }
+      }
+    )
+
+    this.queryStr$ = this._coustomerServices.queryStr$.subscribe(
+      (str) => {
+        console.log(str)
+        this.queryStr = str
+        this.p = 1
+        this.getCustomerDetail()
       }
     )
 
@@ -50,7 +61,7 @@ export class CustomerComponent implements OnInit {
 
   deleteItem (id) {
     if (id) {
-      this._coustomerServices.delteVendor(id).subscribe(Data => {
+      this._coustomerServices.deleteLedger(id).subscribe(Data => {
         console.log('Delete customer : ', Data)
         if (Data.Code === UIConstant.DELETESUCCESS) {
           this.toastrService.showSuccess(UIConstant.SUCCESS, 'Deleted Successfully')
@@ -62,7 +73,7 @@ export class CustomerComponent implements OnInit {
 
         }
         if (Data.Code === UIConstant.CANNOTDELETERECORD) {
-          this.toastrService.showInfo('Info', 'Can not deleted !')
+          this.toastrService.showInfo('', Data.Description)
           this.commonService.closeDelete('')
         }
       })
@@ -108,7 +119,7 @@ export class CustomerComponent implements OnInit {
       term = ''
     }
     this.pagingComp.setPage(1)
-    return this._coustomerServices.getVendor(5, '&Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
+    return this._coustomerServices.getVendor(5, '&Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
   }
 
   ngOnDestroy () {
@@ -132,7 +143,7 @@ export class CustomerComponent implements OnInit {
     if (!this.searchForm.value.searckKey) {
       this.searchForm.value.searckKey = ''
     }
-    this.subscribe = this._coustomerServices.getVendor(5, '&Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).subscribe(Data => {
+    this.subscribe = this._coustomerServices.getVendor(5, '&Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(Data => {
       console.log('customers : ', Data)
       if (Data.Code === UIConstant.THOUSAND) {
         this.coustomerDetails = Data.Data
@@ -142,6 +153,6 @@ export class CustomerComponent implements OnInit {
   }
 
   delteCustomerPopup (id) {
-    this.commonService.openDelete(id, 'customer')
+    this.commonService.openDelete(id, 'customer', 'Customer')
   }
 }

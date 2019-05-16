@@ -1,10 +1,10 @@
 <main class="main-content bgc-grey">
-        <div id="mainContent">
-            <div class="page-header p-0">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-4 left_side_head">
-                            <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-file"></i>Attribute</p>
+    <div id="mainContent">
+        <div class="page-header p-0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4 left_side_head">
+                        <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-file"></i>Attribute</p>
                     </div>
                     <div class="col-md-8 right_saerch_side p-0">
                         <div class="mr-2">
@@ -26,56 +26,90 @@
                                 </div>
                             </form>
                         </div>
-                      <div class="btn_header">
-                          <a><img src="assets/img/printer.png"> </a>
-                          <a><img src="assets/img/pdf.png"></a>
-                          <a><img src="assets/img/excel.png"></a>
-                          <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
-                              (click)="addAttribute()">Add Attribute</button>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      <div class="row">
-            <div class="col-md-12">
-                    <div class="bgc-white bdrs-3 mB-20">
-                        <div class="table-responsive table_height">
-                            <table class="table cat-table table-hover">
-                          <thead>
-                              <tr>
-                                  <th width="10%">Sr No.</th>
-                                  <th>Attribute Name</th>
-                                  <th>Attribute Value</th>
-                                  <th width="10%">Action</th>
-                              </tr>
-                          </thead>
-                          <tbody *ngIf="isSearching" style="height:100px;" >
+                        <div class="btn_header">
+                            <a><img src="assets/img/printer.png"> </a>
+                            <a><img src="assets/img/pdf.png"></a>
+                            <a><img src="assets/img/excel.png"></a>
+                            <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                                (click)="addAttribute()">Add Attribute</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="bgc-white bdrs-3 mB-20">
+                    <div class="table-responsive table_height">
+                        <table class="table cat-table table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="10%">Sr No.</th>
+                                    <th>Attribute Name</th>
+                                    <th>Attribute Value</th>
+                                    <th width="10%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="isSearching" style="height:100px;" >
                             <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;" />
-                          </tbody>
-                          <tbody>
-                              <tr *ngFor="let item of attributeList | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total } ; let i = index"
-                                  [attr.data-attributeData]="i">
-                                  <td>{{lastItemIndex + i + 1}}</td>
-                                  <td>{{item?.AttributeName}}</td>
-                                  <td>{{item?.Name}}</td>
-                                  <td>
-                                      <a class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit">
-                                      <i class="fa fa-edit fa-1x"  aria-hidden="true"
-                                      (click)="editAttribute(item.Id, item.Name, item.AttributeId)">
-                                      </i></a>
-                                      <a class="actionBtn" data-toggle="tooltip" data-placement="bottom" title="Delete" (click)="deleteAttribute(item.Id)"><i
-                                      class="fa fa-trash fa-1x"  aria-hidden="true"></i></a>
-                                  </td>
-                              </tr>
-                          </tbody>
-                      </table>
-                  </div>
-              </div>
-              <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+                            </tbody>
+                            <tbody>
+                                <tr *ngFor="let item of attributeList | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total } ; let i = index"
+                                    [attr.data-attributeData]="i">
+                                    <td>{{lastItemIndex + i + 1}}</td>
+                                    <td>{{item?.AttributeName}}</td>
+                                    <td>{{item?.Name}}</td>
+                                    <td>
+                                        <a class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit">
+                                            <i class="fa fa-edit fa-1x"  aria-hidden="true"
+                                            (click)="editAttribute(item.Id, item.Name, item.AttributeId, false)">
+                                            </i>
+                                        </a>
+                                        <a class="actionBtn" data-toggle="tooltip" data-placement="bottom" title="Delete" (click)="deleteAttribute(item.Id)"><i
+                                            class="fa fa-trash fa-1x"  aria-hidden="true"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
                 (pageNoEmitter)="p = $event;initAttributeList();"
                 (pageSizeEmitter)="itemsPerPage = $event;initAttributeList();" ></app-pagination>
-          </div>
-      </div>
-  </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bgc-white bdrs-3 mB-20">
+                    <div class="table-responsive table_height">
+                        <table class="table cat-table table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="20%">Sr No.</th>
+                                    <th>Attribute Name</th>
+                                    <th width="10%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of attributeParentList; let i = index"
+                                    [attr.data-attributeData]="i">
+                                    <td>{{i + 1}}</td>
+                                    <td>{{item?.Name}}</td>
+                                    <td>
+                                        <a class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit">
+                                            <i class="fa fa-edit fa-1x"  aria-hidden="true"
+                                            (click)="editAttribute(item.Id, item.Name, 0, true)">
+                                            </i>
+                                        </a>
+                                        <a class="actionBtn" data-toggle="tooltip" data-placement="bottom"
+                                            title="Delete" (click)="deleteAttributeParent(item.Id)">
+                                            <i class="fa fa-trash fa-1x"  aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>

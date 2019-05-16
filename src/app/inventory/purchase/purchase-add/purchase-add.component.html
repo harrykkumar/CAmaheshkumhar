@@ -172,6 +172,7 @@
               <label for="currency-rate">Currency Rate</label>
               <input type="text" class="form-control" id="currency-rate"
                 placeholder="Currency Rate" class="form-control"
+                appIncludeDeciaml
                 name="currencyRate" [(ngModel)]="CurrencyRate">
             </div>
             <div class="form-group col-md-4 col-lg-2 col-xl-2">
@@ -190,8 +191,8 @@
             <div class="form-group col-md-4 col-lg-2 col-xl-2">
               <label>Interest Rate</label>
               <div class="discount">
-                <input type="text" class="form-control" placeholder="Interest Rate" class="form-control" name="Interest Rate" [(ngModel)]="InterestRate">
-                <select class="form-control discount_type" id="DiscountType" name="discountType" >
+                <input type="text" class="form-control" placeholder="Interest Rate" appIncludeDecimal class="form-control" name="Interest Rate" [(ngModel)]="InterestRate">
+                <select class="form-control discount_type" id="DiscountType" name="discountType">
                   <option *ngFor="let value of currencyValues;" [value]="value.id" >{{value.symbol}}</option>
                 </select>
               </div>
@@ -200,12 +201,14 @@
               <label>Interest Amount</label>
               <input type="text" readonly="true" class="form-control" class="form-control"
               tabindex="-1"
+              appIncludeDecimal
                 name="InterestAmount" [(ngModel)]="InterestAmount">
             </div>
             <div class="form-group col-md-4 col-lg-2 col-xl-2">
               <label>Credit Limit</label>
               <input type="text" readonly="true" class="form-control" class="form-control"
               tabindex="-1"
+              appIncludeDecimal
                 name="CreditLimit" [(ngModel)]="CreditLimit">
             </div>
           </div>
@@ -339,20 +342,20 @@
                         </td>
                         <ng-container *ngIf="industryId === 3" >
                           <td>
-                            <input type="number" class="form-control" 
+                            <input type="text" class="form-control" 
                             placeholder="Length" appIncludeDecimal name="length"
                             (input)="validateItem()"
                             [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Length }"
                               [(ngModel)]="Length">
                           </td>
                           <td>
-                            <input type="number" class="form-control" placeholder="Width"
+                            <input type="text" class="form-control" placeholder="Width"
                             (input)="validateItem()"
                             [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Width }"
                               appIncludeDecimal name="Width" [(ngModel)]="Width">
                           </td>
                           <td>
-                            <input type="number" class="form-control" placeholder="Height"
+                            <input type="text" class="form-control" placeholder="Height"
                             (input)="validateItem()"
                             [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Height }"
                               appIncludeDecimal name="Height" [(ngModel)]="Height">
@@ -382,24 +385,25 @@
                           </td>
                         </ng-container>
                         <td>
-                          <input type="number" class="form-control" placeholder="Sale Rate"
+                          <input type="text" class="form-control" placeholder="Sale Rate"
                           appIncludeDecimal
                            name="saleRate" [(ngModel)]="SaleRate">
                         </td>
                         <td>
-                          <input type="number" class="form-control" placeholder="Purchase Rate" name="PurchaseRate"
+                          <input type="text" class="form-control" placeholder="Purchase Rate" name="PurchaseRate"
                           (input)="validateItem()"
                           appIncludeDecimal
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.PurchaseRate }"
                            [(ngModel)]="PurchaseRate" (input)="calculate()" >
                         </td>
                         <td>
-                          <input type="number" class="form-control" placeholder="MrpRate"
+                          <input type="text" class="form-control" placeholder="MrpRate"
+                          appIncludeDecimal
                            name="MrpRate" [(ngModel)]="MrpRate">
                         </td>
                         <td>
                           <div class="discount">
-                            <input type="number" class="form-control" placeholder="Discount"
+                            <input type="text" class="form-control" placeholder="Discount"
                              appIncludeDecimal name="Discount" [(ngModel)]="Discount" (input)="calculate()" >
                             <select class="form-control discount_type" id="DiscountType"
                              [(ngModel)]="DiscountType"
@@ -410,8 +414,8 @@
                           </div>
                         </td>
                         <td>
-                          <input type="number" readonly="true" class="form-control" placeholder="Discount Amount"
-                          appIncludeDecimal
+                          <input type="text" readonly="true" class="form-control" placeholder="Discount Amount"
+                          appIncludeDecimal tabindex="-1"
                            name="DiscountAmt" [(ngModel)]="DiscountAmt">
                         </td>
                         <td>
@@ -431,12 +435,13 @@
                           </div>
                         </td>
                         <td>
-                          <input type="number" readonly="true" class="form-control" placeholder="Tax Amount"
+                          <input type="text" readonly="true" class="form-control" placeholder="Tax Amount"
+                          tabindex="-1"
                            appIncludeDecimal name="TaxAmount" [(ngModel)]="TaxAmount">
                         </td>
                         <td>
-                          <input type="number" readonly="true" class="form-control"
-                           placeholder="SubTotal" appIncludeDecimal name="SubTotal"
+                          <input type="text" readonly="true" class="form-control"
+                           placeholder="SubTotal" name="SubTotal"
                            appIncludeDecimal
                            (keydown.enter)="enterPressItem($event)"
                            [(ngModel)]="SubTotal">
@@ -449,22 +454,22 @@
                     <td colspan="3" *ngIf="industryId === 5" ></td>
                     <td colspan="9"></td>
                     <td>
-                        <input type="number" readonly="true" class="form-control"
+                        <input type="text" readonly="true" class="form-control"
                         tabindex="-1"
                         placeholder="Total Discount" name="TotalDiscount" 
                         [(ngModel)]="TotalDiscount">
                     </td>
                     <td colspan="2"></td>
                     <td>
-                      <input type="number" readonly="true" class="form-control"
+                      <input type="text" readonly="true" class="form-control"
                       placeholder="Total Tax Amount" name="TotalTaxAmount" 
                       tabindex="-1"
                       [(ngModel)]="TotalTaxAmount"></td>
                     <td>
-                        <input type="number" readonly="true" class="form-control"
-                        placeholder="Total Gross Amount" name="SubTotalAmount" 
-                        tabindex="-1"
-                        [(ngModel)]="SubTotalAmount">
+                      <input type="text" readonly="true" class="form-control"
+                      placeholder="Total Gross Amount" name="SubTotalAmount" 
+                      tabindex="-1"
+                      [(ngModel)]="SubTotalAmount">
                     </td>
                   </tr>
                 </tfoot>
@@ -495,7 +500,7 @@
                 <div class="form-group col-md-12">
                   <label>Commission</label>
                   <div class="discount">
-                    <input type="number" class="form-control" id="ReferralCommission" placeholder="ReferralCommission" 
+                    <input type="text" class="form-control" id="ReferralCommission" placeholder="ReferralCommission" 
                     (input)="calculate()" appIncludeDecimal class="form-control" name="ReferralCommission" [(ngModel)]="ReferralCommission">
                     <select class="form-control discount_type" id="ReferralCommissionTypeId " [(ngModel)]="ReferralCommissionTypeId "
                      (ngModelChange)="calculate()" name="ReferralCommissionTypeId " >
@@ -534,37 +539,38 @@
                 </div>
                 <div class="form-group col-md-6">
                   <label>Total Freight</label>
-                  <input type="text" class="form-control" id="Freight" placeholder="Freight"
+                  <input type="text" class="form-control" id="Freight" placeholder="Freight" appIncludeDecimal
                    class="form-control" name="Freight" [(ngModel)]="Freight" (input)="calculate()" >
                 </div>
                 <div class="form-group col-md-12">
                   <label>Total Quantity</label>
-                  <input type="number" readonly="true" class="form-control"
+                  <input type="text" readonly="true" class="form-control"
                   id="TotalQty" placeholder="Total Quantity"
                   tabindex="-1"
                   class="form-control" name="TotalQty" [(ngModel)]="TotalQty">
                 </div>
                 <div class="form-group col-md-12">
                   <label>Other Charge</label>
-                  <input type="number" class="form-control" id="OtherCharge" 
+                  <input type="text" class="form-control" id="OtherCharge" 
                   placeholder="Other Charge" (input)="calculate()"
+                  appIncludeDecimal
                   class="form-control" name="OtherCharge" [(ngModel)]="OtherCharge">
                 </div>
                 <div class="form-group col-md-12">
                   <label>Bill Amount</label>
-                  <input type="number" readonly="true" class="form-control" placeholder="Total Amount"
+                  <input type="text" readonly="true" class="form-control" placeholder="Total Amount"
                   tabindex="-1"
                    appIncludeDecimal name="BillAmount" [(ngModel)]="BillAmount">
                 </div>
                 <div class="form-group col-md-12">
                   <label>Round Off</label>
-                  <input type="number" readonly="true" class="form-control"
+                  <input type="text" readonly="true" class="form-control"
                   tabindex="-1"
                   name="RoundOff" [(ngModel)]="RoundOff">
                 </div>
                 <div class="form-group col-md-12">
                   <label>CessAmount</label>
-                  <input type="number" readonly="true" class="form-control"
+                  <input type="text" readonly="true" class="form-control"
                   tabindex="-1"
                   name="CessAmount" [(ngModel)]="CessAmount">
                 </div>

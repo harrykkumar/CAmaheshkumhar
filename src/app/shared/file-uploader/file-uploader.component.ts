@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core'
 import { FileUploader } from 'ng2-file-upload'
 import { DomSanitizer } from '@angular/platform-browser'
+import { ToastrCustomService } from '../../commonServices/toastr.service'
 @Component({
   selector: 'file-upload',
   templateUrl: './file-uploader.component.html',
@@ -13,13 +14,15 @@ export class FileUploaderComponent implements OnInit {
   queue: any = []
   id: number[] = []
   len: number = 0
+  allowedMimeTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/jpe', 'image/bmp']
   @Output() uploadedImages = new EventEmitter<{'images': string[], 'queue': any[], 'safeUrls': string[], 'baseImages': number[], 'id': number[]}>()
   public uploader: FileUploader = new FileUploader({
     isHTML5: true,
-    allowedMimeType: ['image/png', 'image/jpg', 'image/jpeg', 'image/gif'],
+    allowedMimeType: this.allowedMimeTypes,
+    allowedFileType: ['image'],
     maxFileSize: 1 * 1024 * 1024
   })
-  constructor (private domSanitizer: DomSanitizer) { }
+  constructor (private domSanitizer: DomSanitizer, private toastrService: ToastrCustomService) { }
 
   onFileSelect (blob) {
     // console.log('blob : ',blob)
@@ -27,9 +30,14 @@ export class FileUploaderComponent implements OnInit {
     for (const key in blob) {
       // console.log('blob[key] : ', blob[key])
       if (blob[key] instanceof File) {
-        this.len += 1
-        // console.log(blob[key] instanceof Blob)
-        this.blobToString(blob[key])
+        console.log(blob[key] instanceof Blob)
+        // console.log(blob[key].type)
+        if (this.allowedMimeTypes.indexOf(blob[key].type) > -1) {
+          this.len += 1
+          this.blobToString(blob[key])
+        } else {
+          this.toastrService.showError('Only image file types are supportive', '')
+        }
       }
     }
   }
@@ -37,7 +45,8 @@ export class FileUploaderComponent implements OnInit {
   ngOnInit () {
     this.uploader = new FileUploader({
       isHTML5: true,
-      allowedMimeType: ['image/png', 'image/jpg', 'image/jpeg', 'image/gif'],
+      allowedMimeType: this.allowedMimeTypes,
+      allowedFileType: ['image'],
       maxFileSize: 1 * 1024 * 1024
     })
     this.images = []
@@ -62,10 +71,10 @@ export class FileUploaderComponent implements OnInit {
       _self.queue.push(blob.name)
       _self.id.push(0)
       if (_self.len === _self.images.length) {
-        console.log(_self.images)
-        console.log(_self.safeUrls)
-        console.log(_self.queue)
-        console.log(_self.baseImages)
+        // console.log(_self.images)
+        // console.log(_self.safeUrls)
+        // console.log(_self.queue)
+        // console.log(_self.baseImages)
         let images = [..._self.images]
         let safeUrls = [..._self.safeUrls]
         let queue = [..._self.queue]

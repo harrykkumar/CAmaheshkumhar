@@ -3,19 +3,17 @@
         <div class="form-row bdrs-3 p-10 mB-5">
             <div class="form-group col-md-5">
                 <label for="bill_no">Category</label>
-                <div class="input-group adw_select" id="adv-search">
+                <div class="input-group adw_select">
                     <div class="input-group adw_select">
-                        <div class="input-group adw_select">
-                            <select2 [data]="categoryType" #cat_select2 class="control_select"
-                                (valueChanged)="selectedCategory($event)"
-                                [disabled]="toDisableCat"
-                                tabindex="1"
-                                autocomplete="true" [options]="categoryPlaceHolder"
-                                [value]="cateGoryValue"
-                                [width]="500"
-                                [ngClass]="{'errorSelecto': submitClick && invalidObj.CategoryId }"
-                            ></select2>
-                        </div>
+                        <select2 [data]="categoryType" #cat_select2 class="control_select"
+                            (valueChanged)="selectedCategory($event)"
+                            [disabled]="toDisableCat"
+                            tabindex="1"
+                            autocomplete="true" [options]="categoryPlaceHolder"
+                            [value]="cateGoryValue"
+                            [width]="500"
+                            [ngClass]="{'errorSelecto': submitClick && invalidObj.CategoryId }"
+                        ></select2>
                     </div>
                 </div>
             </div>
