@@ -10,7 +10,7 @@
                            <p class="heading_lead">Bank</p>
                        </div>
                        <div class="col-md-3">
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <button type="button" class="close" (click)='clearbank()' data-dismiss="modal" aria-label="Close">
                               <span aria-hidden="true" class="white-text">×</span>
                           </button>
                        </div>
@@ -22,25 +22,17 @@
                <div class="form row">
                    <div class="form-group col-md-12">
                        <label class="active">Bank Name</label>
-                       <input type="text" class="form-control" placeholder=" Bank Name" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.banName.errors }"  formControlName="banName">
+                       <input #bankname type="text" class="form-control" placeholder=" Bank Name" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.banName.errors }"  formControlName="banName">
                    </div>
                    <div class="form-group col-md-12">
                        <label class="active">Account Number</label>
                        <input type="text" class="form-control" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.accountNo.errors }" placeholder=" Account Number" formControlName="accountNo">
                    </div>
-                   <div class="form-group col-md-12">
+                   <div class="form-group col-md-6">
                        <label class="active">IFSC Code</label>
                        <input type="text" class="form-control" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.ifscCode.errors }" placeholder=" IFSC Code " formControlName="ifscCode">
                    </div>
-                   <div class="form-group col-md-12">
-                       <label>Branch</label>
-                       <input type="text " class="form-control " [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.branch.errors }" placeholder=" Branch " formControlName="branch">
-                   </div>
-                   <div class="form-group col-md-12">
-                    <label>MICR No</label>
-                   <input type="text " class="form-control " [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.micr.errors }" placeholder=" MICR Number " formControlName="micr">
-                   </div>
-                   <div class="form-group col-md-12">
+                   <div class="form-group col-md-6">
                     <label>Opening Balance</label>
                     <div class="discount">
                             <input type="number " class="form-control " placeholder="Opening Balance" name="CrDrRate" appIncludeDecimal formControlName="openingbalance">
@@ -48,8 +40,53 @@
                                   <select2 #crdr_selecto2 [data]="selectCrDr" class="dropdown_width_100" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="select2CrDrPlaceHolder" [value]="valueCRDR"></select2>
                                 </div>
                       </div>
-                  
                    </div>
+                   <div class="form-group col-md-6">
+                       <label>Branch</label>
+                       <input type="text " class="form-control " [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.branch.errors }" placeholder=" Branch " formControlName="branch">
+                   </div>
+                   <div class="form-group col-md-6">
+                    <label>MICR No</label>
+                   <input type="text " class="form-control "  placeholder=" MICR Number " formControlName="micr">
+                   </div>
+                          <div class="form-group col-md-6">
+                                  <label for="bill_no">Registration Type</label>
+                                  <div class="input-group adw_select">
+                                      <div class="input-group adw_select">
+                                        <select2 #select_regiType [data]="selectyCoustmoreRegistration" class="control_select" (valueChanged)="selectCoustmoreId($event)" autocomplete="true" [options]="selectCoustomerplaceHolder" [value]="coustomerValue" ></select2>
+                                      </div>
+                                    </div>
+                              </div>
+                   <div class="form-group col-md-6">
+                      <label class="active">GSTIN Number</label>
+                      <input style="text-transform:uppercase" 
+                      type="text" class="form-control"
+                       id="org_code" placeholder=" GSTIN No"
+                        formControlName="gstin" (input)="checkGSTNumber($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': (submitClick && validGSTNumber) || (submitClick && requiredGST ) }"
+                        >
+                  </div>
+                         <div class="form-group col-md-6">
+                      <label for="bill_no">Country</label>
+                      <div class="input-group adw_select">
+                          <select2  #country_selecto [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)" autocomplete="true" [options]="countryListPlaceHolder" [value]="countryValue" [ngClass]="{ 'errorSelecto is-invalid': addressClick && countryError  }"></select2>
+                      </div>
+                  </div>
+                    <div class="form-group col-md-6">
+                      <label for="bill_no">State</label>
+                      <div class="input-group adw_select">
+                          <select2 #state_select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)" autocomplete="true" [options]="stateListplaceHolder" [value]="stateValue" [ngClass]="{ 'errorSelecto is-invalid': addressClick &&  stateError  }"></select2>
+                      </div>
+                  </div>
+                         <div class="form-group col-md-6">
+                      <label for="bill_no">City</label>
+                      <div class="input-group adw_select">
+                          <select2 #city_select2 [data]="cityList" class="control_select" autocomplete="true" (valueChanged)="selectedCityId($event)" [value]="cityValue" [ngClass]="{ 'errorSelecto is-invalid':  addressClick && cityError  }"></select2>
+                      </div>
+                  </div>
+                <div class="col-md-6">
+                   <label class="">Address</label>
+                       <textarea class="form-control" formControlName="address" ></textarea>
+                        </div>
                 </div>
            </div>
            <div class="modal-footer">

@@ -317,7 +317,7 @@ export class ItemAddComponent {
     this.MrpRate = (isNaN(+this.itemDetails.MrpRate)) ? 0 : +this.itemDetails.MrpRate
     this.SaleRate = (isNaN(+this.itemDetails.SaleRate)) ? 0 : +this.itemDetails.SaleRate
     this.OurPrice = (isNaN(+this.itemDetails.OurPrice)) ? 0 : +this.itemDetails.OurPrice
-    this.Nrv = (isNaN(+this.itemDetails.Nrv)) ? 0 : +this.itemDetails.Nrv
+    // this.Nrv = (isNaN(+this.itemDetails.Nrv)) ? 0 : +this.itemDetails.Nrv
     this.MinStock = (isNaN(+this.itemDetails.MinStock)) ? 0 : +this.itemDetails.MinStock
     this.MaxStock = (isNaN(+this.itemDetails.MaxStock)) ? 0 : +this.itemDetails.MaxStock
     this.ReOrderQty = (isNaN(+this.itemDetails.ReOrderQty)) ? 0 : +this.itemDetails.ReOrderQty
@@ -518,7 +518,7 @@ export class ItemAddComponent {
     this.MrpRate = 0
     this.SaleRate = 0
     this.OurPrice = 0
-    this.Nrv = 0
+    // this.Nrv = 0
     this.MinStock = 0
     this.MaxStock = 0
     this.ReOrderQty = 0
@@ -537,6 +537,7 @@ export class ItemAddComponent {
   }
 
   private itemAddParams (): ItemMasterAdd {
+    // Nrv: +this.Nrv,
     const itemAddElement = {
       obj: {
         Id: this.Id !== UIConstant.ZERO ? this.Id : UIConstant.ZERO,
@@ -551,7 +552,6 @@ export class ItemAddComponent {
         MrpRate: +this.MrpRate,
         SaleRate: +this.SaleRate,
         OurPrice: +this.OurPrice,
-        Nrv: +this.Nrv,
         MinStock: +this.MinStock,
         MaxStock: +this.MaxStock,
         ReOrderQty: +this.ReOrderQty,

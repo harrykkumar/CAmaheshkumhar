@@ -294,10 +294,12 @@ export class SalesDirectComponent {
         if (status.open) {
           if (status.editId === UIConstant.BLANK) {
             this.editMode = false
+            this.editRowListFlag = true
             this.Id = 0
             this.CaseCustId = 0
           } else {
             this.editMode = true
+            this.editRowListFlag = false
             this.Id = status.editId
           }
           this.openDirectModal()
@@ -331,6 +333,7 @@ export class SalesDirectComponent {
       }
     )
   }
+  editRowListFlag: any
   ngOnInit () {
     this.Id = 0
     this.AttrId = 0
@@ -345,7 +348,6 @@ export class SalesDirectComponent {
   attrinuteSetDataId: any
   // @ViewChild('cat_select2') catSelect2: Select2Component
   @ViewChild('item_select2') itemSelect2: Select2Component
-  @ViewChild('atrColour_id') atrColorSelect2: Select2Component
   @ViewChild('atrSize_id') atrSizeSelect2: Select2Component
   @ViewChild('atrArticle_id') atrArticleSelect2: Select2Component
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
@@ -406,10 +408,8 @@ export class SalesDirectComponent {
     // SPUtility API; For get all data of API
     this.subscribe = this._commonService.getSPUtilityData(UIConstant.SALE_TYPE).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
-
         if (data.Data && data.Data.TransactionNoSetups.length > 0) {
-
-          if (!this.editMode) {
+          if (!this.editMode && this.editRowListFlag) {
             if (this.isManualBillNoEntry) {
               this.BillNo = ''
               this.updateLastBillNo(this.InvoiceDate, this.orgNameId)
@@ -466,7 +466,7 @@ export class SalesDirectComponent {
           data.Data.Currencies.forEach(element => {
             newDataCurrency.push({
               id: element.Id,
-              text: element.Name
+              text: element.Symbol
             })
           })
 
@@ -721,8 +721,12 @@ export class SalesDirectComponent {
           disabledAddButton: true
 
         }
-        this.atrColorSelect2.selector.nativeElement.value = ''
-        this._commonService.openAttribute(data, true)
+        this.atrColorSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
+          item.selector.nativeElement.value = ''
+          this._commonService.openAttribute(data, true)
+        })
+       // this.atrColorSelect2.selector.nativeElement.value = ''
+       
       }
     }
   }
@@ -917,26 +921,49 @@ export class SalesDirectComponent {
   stateId: any
   stateError: boolean
   addressStateId: any
+  stateListShip: any
+
+getBillingAddressList(data){
+  this.stateList = []
+  this.stateListplaceHolder = { placeholder: 'Select Address' }
+  this.stateList = [{ id: '0', text: 'select Address' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+  data.Data.forEach(element => {
+    this.stateList.push({
+      id: element.Id,
+      stateId: element.StateId,
+      text: ((element.AddressTypeName ? (element.AddressTypeName + '-') : '') + (element.AddressValue ? (element.AddressValue + ' , ') : '') + (element.AreaName ? element.AreaName + ' , ' : '') + element.CityName + ' , ' + element.StateName + ' , ' + element.CountryName)
+    })
+  })
+  this.checkValidation()
+  this.stateValue = this.stateList[2].id
+  return this.stateValue
+}
+  
+getShippingAddressList(data){
+  this.stateListShip =[]
+  this.stateListplaceHolder = { placeholder: 'Select Address' }
+  this.stateListShip = [{ id: '0', text: 'select Address' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+  data.Data.forEach(element => {
+    this.stateListShip.push({
+      id: element.Id,
+      stateId: element.StateId,
+      text: ((element.AddressTypeName ? (element.AddressTypeName + '-') : '') + (element.AddressValue ? (element.AddressValue + ' , ') : '') + (element.AreaName ? element.AreaName + ' , ' : '') + element.CityName + ' , ' + element.StateName + ' , ' + element.CountryName)
+    })
+  })
+  this.checkValidation()
+  this.stateShippingValue = this.stateListShip[2].id
+  return this.stateShippingValue
+}
+stateShippingValue: any
   getAddressOfCustomerByID (customerId, parentTypeId) {
     // // debugger
     this.subscribe = this._commonService.getAddressByIdOfCustomer(customerId, parentTypeId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
-        this.stateList = []
         this.stateListplaceHolder = { placeholder: 'Select Address' }
         this.stateList = [{ id: '0', text: 'select Address' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
         if (data.Data && data.Data.length > 0) {
-          data.Data.forEach(element => {
-            this.stateList.push({
-              id: element.Id,
-              stateId: element.StateId,
-              text: ((element.AddressTypeName ? (element.AddressTypeName + '-') : '') + (element.AddressValue ? (element.AddressValue + ' , ') : '') + (element.AreaName ? element.AreaName + ' , ' : '') + element.CityName + ' , ' + element.StateName + ' , ' + element.CountryName)
-
-            })
-
-          })
-          this.checkValidation()
-          this.stateValue = this.stateList[2].id
-          return this.stateValue
+             this.getBillingAddressList(data)
+             this.getShippingAddressList(data)
         } else {
           this.stateId = ''
           this.checkValidation()
@@ -1003,7 +1030,7 @@ export class SalesDirectComponent {
     if (event.data.length > 0) {
       if (event.data[0].id !== '0') {
         if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
-          this.stateSelect2Id.selector.nativeElement.value = ''
+          this.stateBillingSelect2Id.selector.nativeElement.value = ''
           this._commonService.openAddress(this.clientNameId)
 
         } else {
@@ -1179,6 +1206,7 @@ export class SalesDirectComponent {
   showAttributeData: any
 
   localItems () {
+    debugger
     let value = []
     this.items.forEach(element => {
       this.localLabelData = []
@@ -1299,13 +1327,13 @@ export class SalesDirectComponent {
 
     // }
 
-    console.log(this.localItemas, this.showAttributeData, this.localLabelData, 'localitem----')
+    console.log(this.localItemas, this.showAttributeData, this.localLabelData, 'localitem-final----')
   }
 
   isCheckLedgerOfficeFlag: any
   addItems () {
+    debugger
     this.deleteEditflag = true
-
     if (this.editAlreadyItemDataFlag) {
 
       this.localItemas = []
@@ -1479,7 +1507,7 @@ export class SalesDirectComponent {
   @ViewChild('referal_id') referal_idSelect2: Select2Component
   @ViewChild('orgnization_select2') orgnizationSelect2: Select2Component
   @ViewChild('godown_select2') godownSelect2: Select2Component
-  @ViewChild('state_Select2Id') stateSelect2Id: Select2Component
+  @ViewChild('state_Billing_Select2Id') stateBillingSelect2Id: Select2Component
   @ViewChild('state_shiping_Select2Id') stateShippingSelect2Id: Select2Component
   @ViewChild('currency_select2') currencySelect2: Select2Component
   @ViewChild('parcelby_select2') parcelbySelect2: Select2Component
@@ -1564,8 +1592,8 @@ export class SalesDirectComponent {
       this.referal_idSelect2.setElementValue('')
     }
 
-    if (this.stateSelect2Id && this.stateSelect2Id.selector.nativeElement.value) {
-      this.stateSelect2Id.setElementValue('')
+    if (this.stateBillingSelect2Id && this.stateBillingSelect2Id.selector.nativeElement.value) {
+      this.stateBillingSelect2Id.setElementValue('')
     }
     if (this.godownSelect2 && this.godownSelect2.selector.nativeElement.value) {
       this.godownSelect2.setElementValue('')
@@ -1665,7 +1693,6 @@ export class SalesDirectComponent {
     this.setupModules = {}
     this.currenyValues = [{ id: '0', symbol: '%' }]
     this.clientNameId = ''
-    //  this.BillNo = ''
     this.clientNameSelect2 = []
     this.organizationData = []
     this.getSPUtilityDataBilling()
@@ -2113,8 +2140,8 @@ export class SalesDirectComponent {
           this.clientNameId = this.inventoryItemSales[0].LedgerId
           this.getGSTByLedgerAddress(this.clientNameId)
           this.orgNameId = this.inventoryItemSales[0].OrgId
-          this.SupplyStateId = this.inventoryItemSales[0].SupplyState
-          this.stateId = this.inventoryItemSales[0].AddressId
+        //  this.SupplyStateId = this.inventoryItemSales[0].SupplyState
+        //  this.stateId = this.inventoryItemSales[0].AddressId
           this.LocationTo = this.inventoryItemSales[0].LocationTo
           this.VehicleNo = this.inventoryItemSales[0].VehicleNo
           this.Drivername = this.inventoryItemSales[0].Drivername
@@ -2258,8 +2285,8 @@ export class SalesDirectComponent {
             this.isCaseSaleFlag = false
           } else {
             this.checkOtherStateForNewItemAdd(this.stateId)
-            this.stateSelect2Id.setElementValue(this.stateId)
-            this.stateShippingSelect2Id.setElementValue(this.SupplyStateId)
+           // this.stateBillingSelect2Id.setElementValue(this.stateId)
+           // this.stateShippingSelect2Id.setElementValue(this.SupplyStateId)
           }
           this.calculateAllTotal()
         }
@@ -2316,8 +2343,10 @@ export class SalesDirectComponent {
 
           let obj = {}
           obj['Id'] = this.Id
-          obj['Commission'] = this.CommisionRate
-          obj['CommissionType'] = this.CommisionRateType
+          // obj['Commission'] = this.CommisionRate
+          // obj['CommissionType'] = this.CommisionRateType
+          obj['Commission'] = 0
+          obj['CommissionType'] = 0
           obj['BillNo'] = this.BillNo
           obj['BillDate'] = this.InvoiceDateChngae
           obj['DueDate'] = this.DueDateChngae
@@ -2425,10 +2454,12 @@ export class SalesDirectComponent {
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
 
   editRowItem (type, index, item, editId, attributeData) {
+    debugger
     this.addressShowFlag = false
-    this.editMode = false
+    this.editRowListFlag = false
     this.editAttributeData = attributeData
     if (type === 'items') {
+      debugger
       if (this.deleteEditflag) {
 
         this.isCheckLedgerOfficeFlag = true
@@ -2456,18 +2487,19 @@ export class SalesDirectComponent {
         this.categoryName = item.CategoryName
         this.categoryId = item.CategoryId
         this.taxSalbName = item.TaxSlabName
-       // this.Remark =  item.Remark
         this.taxSelect2.setElementValue(item.TaxSlabId)
         this.unitSelect2.setElementValue(item.UnitId)
         this.itemSelect2.setElementValue(item.ItemId)
-        // if (this.attrSelect2.length > 0) {
-        //   this.allAttributeData.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-        //     console.log('attr : ', this.attrSelect2)
-        //     this.editAttributeData.forEach(inx => {
-        //        let findIndex = item.item.findIndex(n => n.id === inx.AttributeId)
-        //     //   item.setElementValue(this.allAttributeData[index].item[findIndex])
-
-        //     })
+        // if (this.atrColorSelect2.length > 0) {
+        //   this.editAttributeData.forEach(inx => {
+        //     for(let i=0; i< this.atrColorSelect2.length; i++){
+        //       this.atrColorSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
+        //         let findIndex =  this.allAttributeData[index].item.findIndex(n => n.id === inx.AttributeId)
+        //         item.setElementValue(this.allAttributeData[index].item[findIndex].id)
+        //       //   break
+        //      })
+        //     }
+      
         //   })
         // }
         // attributeData.forEach(atr => {
@@ -2519,6 +2551,8 @@ export class SalesDirectComponent {
   }
   snoForPAymentId: any
   
+
+  @ViewChildren('atrColour_id') atrColorSelect2: QueryList<Select2Component>
   validateTransaction () {
     if (this.Paymode || +this.PayModeId > 0 || +this.LedgerId > 0 || this.ledgerName || +this.Amount > 0 || this.ChequeNo) {
       let isValid = 1
@@ -2757,6 +2791,7 @@ export class SalesDirectComponent {
             checkForCatLevel = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 1))
             if (checkForCatLevel.length > 0) {
               this.catLevel = JSON.parse(checkForCatLevel[0].Val)
+              console.log(this.catLevel ,'catlebelll')
 
             }
             // back date entry
@@ -2846,6 +2881,7 @@ export class SalesDirectComponent {
   }
   categories: any
   createModels (levels) {
+    debugger
     this.categories = []
     let obj = {
       placeholder: 'Select Category',

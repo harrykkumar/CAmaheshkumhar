@@ -90,6 +90,56 @@ export class DashboardComponent {
   }
   routeItemSaleByCategoryReport (){
     this._route.navigate([URLConstant.REPORT_ITEM_BY_CATEGORY_SALE])
-
   }
+
+  routeUser () {
+    this._route.navigate([URLConstant.USERS])
+  }
+
+  routeUserRights () {
+    this._route.navigate([URLConstant.USER_RIGHTS])
+  }
+
+  routeUserTypes () {
+    this._route.navigate([URLConstant.USER_TYPES])
+  }
+
+  routeOffice () {
+    this._route.navigate([URLConstant.OFFICE_PAGE])
+  }
+
+  routeBranch () {
+    this._route.navigate([URLConstant.BRANCH_PAGE])
+  }
+
+  routeSettings () {
+    this._route.navigate([URLConstant.SETTINGS_PAGE])
+  }
+
+  showProfileStatus: any = {
+    profileOpen: false,
+    editMode: false
+  }
+  closeProfile = () => {
+    this.showProfileStatus = {
+      profileOpen: false,
+      editMode: false
+    }
+  }
+
+  /* Function invoke on click of organisation profile menu */
+  showProfile = () => {
+    this.showProfileStatus = {
+      profileOpen: true,
+      editMode: true
+    }
+  }
+
+  routeCreation () {
+    this._route.navigate([URLConstant.LEDGER_CREATION])
+  }
+  routeGroup () {
+    this._route.navigate([URLConstant.LEDGER_GROUP])
+  }
+   
 }

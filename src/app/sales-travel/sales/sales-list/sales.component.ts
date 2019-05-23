@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
+import { Component, OnInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { Subscription, fromEvent } from 'rxjs'
 import { SaleTravelServices } from '../sale-travel.services'
 import { Settings } from 'src/app/shared/constants/settings.constant'
@@ -8,13 +8,17 @@ import { CommonService } from 'src/app/commonServices/commanmaster/common.servic
 import { UIConstant } from '../../../shared/constants/ui-constant'
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { ToastrCustomService } from '../../../commonServices/toastr.service';
+import { ItemmasterServices } from '../../../commonServices/TransactionMaster/item-master.services';
+import { VendorServices } from '../../../commonServices/TransactionMaster/vendoer-master.services';
+import { Select2Component, Select2OptionData } from 'ng2-select2';
 declare const $: any
 @Component({
   selector: 'app-travel-invoice',
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css']
 })
-export class SalesComponent implements OnInit {
+export class SalesComponent implements OnInit, OnDestroy {
   saleTravelDetails: SaleTravel[]
   newBillSub: Subscription
   printData: any
@@ -50,10 +54,15 @@ export class SalesComponent implements OnInit {
   total: number = 0
   lastItemIndex: number = 0
   isSearching: boolean = false
+  queryStr$: Subscription
+  queryStr: string = ''
   constructor (private _saleTravelServices: SaleTravelServices,
     private settings: Settings,
     private commonService: CommonService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private toastrService: ToastrCustomService,
+    private itemService: ItemmasterServices,
+    private _ledgerServices: VendorServices) {
     this.formSearch()
     this.getSaleTraveDetail()
     this.newBillSub = this.commonService.newSaleStatus().subscribe(
@@ -61,7 +70,14 @@ export class SalesComponent implements OnInit {
         this.getSaleTraveDetail()
       }
     )
-
+    this.queryStr$ = this._saleTravelServices.queryStr$.subscribe(
+      (str) => {
+        console.log(str)
+        this.queryStr = str
+        this.p = 1
+        this.getSaleTraveDetail()
+      }
+    )
     this.clientDateFormat = this.settings.dateFormat
     // console.log('client date format : ', this.clientDateFormat)
     if (this.clientDateFormat === '') {
@@ -84,6 +100,8 @@ export class SalesComponent implements OnInit {
   }
 
   ngOnInit () {
+    this.getRouteList()
+    this.getSuppliersList()
     this.commonService.fixTableHF('cat-table')
     fromEvent(this.searchData.nativeElement, 'keyup').pipe(
       map((event: any) => {
@@ -99,8 +117,13 @@ export class SalesComponent implements OnInit {
           setTimeout(() => {
             this.isSearching = false
           }, 100)
-          this.saleTravelDetails = data.Data
+          this.saleTravelDetails = data.Data.TravelDetails
           this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
+          if (data.Data.TravelSummary.length > 0) {
+            this.totalDiscount = +(+data.Data.TravelSummary[0].Discount).toFixed(2)
+            this.totaltax = +(+data.Data.TravelSummary[0].TaxAmount).toFixed(2)
+            this.totalBillAmount = +(+data.Data.TravelSummary[0].BillAmount).toFixed(2)
+          }
         },(err) => {
           setTimeout(() => {
             this.isSearching = false
@@ -115,13 +138,41 @@ export class SalesComponent implements OnInit {
       })
   }
 
+  getRouteList () {
+    this.itemService.getItemMasterDetail('').subscribe(data => {
+      // console.log('routing data : ', data)
+      if (data.Code === UIConstant.THOUSAND && data.Data) {
+        this._saleTravelServices.createRouteList(data.Data)
+      } else {
+        throw new Error (data.Description)
+      }
+    },
+    (error) => {
+      console.log(error)
+      this.toastrService.showError(error, '')
+    })
+  }
+
+  getSuppliersList () {
+    this._ledgerServices.getVendor(4, '').subscribe(data => {
+      // console.log('supplier data : ', data)
+      if (data.Code === UIConstant.THOUSAND && data.Data) {
+        this._saleTravelServices.createSupplierList(data.Data)
+      } else {
+        throw new Error (data.Description)
+      }
+    },
+    (error) => {
+      console.log(error)
+      this.toastrService.showError(error, '')
+    })
+  }
   searchGetCall (term: string) {
-    if (term !== '') {
-      this.p = 1
-      return this.commonService.getSaleDetail('?Name=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
-    } else {
-      return this.commonService.getSaleDetail('?Page=' + this.p + '&Size=' + this.itemsPerPage)
+    if (!term) {
+      term = ''
     }
+    this.p = 1
+    return this.commonService.getSaleDetail('?StrSearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
   }
 
   onOpenSale () {
@@ -146,22 +197,24 @@ export class SalesComponent implements OnInit {
   totaltax: number
   totalBillAmount: number
   getSaleTraveDetail () {
-    this.commonService.getSaleDetail('?Name=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).subscribe(data => {
+    this.commonService.getSaleDetail('?StrSearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         console.log('sales data: ', data)
-        this.totalDiscount = 0
-        this.totaltax = 0
-        this.totalBillAmount = 0
-        this.saleTravelDetails = data.Data
+        this.saleTravelDetails = data.Data.TravelDetails
         this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
-        if (data.Data.length > 0) {
-          data.Data.forEach(element => {
-            this.totalDiscount = +(this.totalDiscount + +element.Discount).toFixed(2)
-            this.totaltax = +(this.totaltax + +element.TaxAmount).toFixed(2)
-            this.totalBillAmount = +(this.totalBillAmount + +element.BillAmount).toFixed(2)
-          })
+        if (data.Data.TravelSummary.length > 0) {
+          this.totalDiscount = +(+data.Data.TravelSummary[0].Discount).toFixed(2)
+          this.totaltax = +(+data.Data.TravelSummary[0].TaxAmount).toFixed(2)
+          this.totalBillAmount = +(+data.Data.TravelSummary[0].BillAmount).toFixed(2)
+          this.isSearching = false
         }
+      } else {
+        throw new Error(data.Description)
       }
+    },
+    (error) => {
+      this.toastrService.showError(error, '')
+      this.isSearching = false
     })
   }
 
@@ -415,5 +468,10 @@ export class SalesComponent implements OnInit {
       this.word = 'zero'
     }
     return this.word
+  }
+
+  ngOnDestroy () {
+    this.queryStr$.unsubscribe()
+    this.newBillSub.unsubscribe()
   }
 }

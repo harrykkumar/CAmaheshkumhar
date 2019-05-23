@@ -402,7 +402,7 @@ export class SalesChallanBillingComponent {
           data.Data.Currencies.forEach(element => {
             newDataCurrency.push({
               id: element.Id,
-              text: element.Name
+              text: element.Symbol
             })
           })
           this.CurrencyId = newDataCurrency[0].id
@@ -1024,9 +1024,8 @@ export class SalesChallanBillingComponent {
               })
             }
           })
-          // if(!this.editMode){
-          //    this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
-          // }
+             this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
+        
           _self.currenciesSelect2 = newData
           _self.isDataAvailable = true
         }
@@ -2074,7 +2073,7 @@ export class SalesChallanBillingComponent {
       console.log(JSON.stringify(data), 'editData----------->>')
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data && data.Data.InventoryTransactionSales.length > 0) {
-          this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
+          //this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
           this.inventoryItemSales = []
           this.inventoryItemSales = data.Data.InventoryTransactionSales
           // console.log(this.inventoryItemSales ,"sale inventry")

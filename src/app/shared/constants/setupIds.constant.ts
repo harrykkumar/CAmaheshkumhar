@@ -44,4 +44,28 @@ export class SetUpIds {
   public static get purchaseBillNoManually (): number {
     return 60
   }
+
+  public static get multiple (): number {
+    return 4
+  }
+
+  public static get single (): number {
+    return 3
+  }
+
+  public static get getBoolean (): number {
+    return 1
+  }
+
+  public static get getStrOrNum (): number {
+    return 2
+  }
+
+  public static get baseTypeNum (): number {
+    return 1
+  }
+
+  public static get baseTypeStr (): number {
+    return 2
+  }
 }

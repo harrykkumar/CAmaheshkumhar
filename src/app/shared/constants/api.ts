@@ -215,13 +215,30 @@ export class ApiConstant {
 
   public static get REPORT_ITEM_STOCK (): string { return this.BASE_URL + '/api/v1/ims/itemcurrentstock' }
 
-  public static get EDIT_BANK_DATA (): string { return this.BASE_URL + '/api/v1/setting/bank?id=' }
+  public static get EDIT_BANK_DATA (): string { return this.BASE_URL + '/api/v1/setting/bankdetails?id=' }
 
-  public static get REPORT_ITEM_BY_CATEGORY_SALE_DATA (): string { return this.BASE_URL + '/api/v1/ims/CategoryWiseSummary?Type=' }
+  public static get REPORT_ITEM_BY_CATEGORY_SALE_DATA (): string { return this.BASE_URL + '/api/v1/ims/ItemCategorisedsummary?Type=' }
 
   public static get SPUTILITY_TO_CREATE_COMBO (): string { return this.BASE_URL + '/api/v1/ItemDetailForCombo' }
 
   public static get GET_PARENT_ATTRIBUTES (): string { return this.BASE_URL + '/api/v1/Attribute' }
 
   public static get GET_PARENT_ATTRIBUTES_BY_ID (): string { return this.BASE_URL + '/api/v1/Attribute?Id=' }
+
+  public static get GET_DYNAMIC_SETUP_FIELDS (): string { return this.BASE_URL + '/api/v1/CommonSetupsetting' }
+
+  public static get POST_DYNAMIC_SETUP_FIELDS (): string { return this.BASE_URL + '/api/v1/CommonSetupsetting' }
+
+  public static get GET_SALE_COURIER_LIST (): string { return this.BASE_URL + '/api/v1/ims/sale/courierparcel' }
+
+  public static get EDIT_SALE_COURIER (): string { return this.BASE_URL + '/api/v1/ims/sale/courierparcel/details?Id=' }
+  
+  public static get LEDGER_GROUP_API (): string { return this.BASE_URL + '/api/v1/account/group' }
+
+  public static get LEDGER_GROUP_PARENT_DATA_API (): string { return this.BASE_URL + '/api/v1/account/groupparent' }
+
+  public static get LEDGER_OPENING_BALANCE_STATUS_API (): string { return this.BASE_URL + '/api/v1/account/OpeningStatus' }
+
+  //api/v1/account/OpeningStatus
+
 }

@@ -9,6 +9,8 @@ import { SharedModule } from '../shared/shared.module'
 import { SalesComponent } from './sale-courier-parcel-list/sales.component'
 import { SalesSearchComponent } from './sale-courier-parcel-header/sales-search/sales-search.component'
 import { SalesInvoiceComponent } from './sale-courier-parcel-header/sales-invoice/sales-invoice.component'
+import { PagingUtilityModule } from 'src/app/shared/pagination/pagination.module'
+import { NgxPaginationModule } from 'ngx-pagination'
 
 @NgModule({
   declarations: [
@@ -23,7 +25,9 @@ import { SalesInvoiceComponent } from './sale-courier-parcel-header/sales-invoic
     FormsModule,
     Select2Module,
     NgxBarcodeModule,
-    SalesCourierParcelRoutingModule
+    SalesCourierParcelRoutingModule,
+    PagingUtilityModule,
+    NgxPaginationModule
   ],
   providers: [SalesCourierParcelServices]
 })

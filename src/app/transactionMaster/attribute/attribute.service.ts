@@ -2,13 +2,26 @@ import { BaseServices } from './../../commonServices/base-services'
 import { Injectable } from '@angular/core'
 import { ApiConstant } from '../../shared/constants/api'
 import { HttpClient } from '@angular/common/http'
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class AttributeService {
+  deleteParentSub = new Subject<boolean>()
+  deleteParent$ = this.deleteParentSub.asObservable()
+  parentAttrAddSub = new Subject()
+  parentAttrAdd$ = this.parentAttrAddSub.asObservable()
   constructor (private _http: HttpClient, private baseService: BaseServices) {
+  }
+
+  onDeleteStatus (status) {
+    this.deleteParentSub.next(status)
+  }
+
+  onParentAttrAdd () {
+    this.parentAttrAddSub.next()
   }
 
   postAttribute = (data) => {

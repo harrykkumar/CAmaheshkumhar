@@ -55,11 +55,24 @@ export class URLConstant {
 
   public static get SALE_CHALLAN_BILLING (): string { return 'ims/sale-billing/billing' }
 
-  public static get SALE_DIRECT (): string { return 'ims/sale-direct/direct' }
+  public static get SALE_DIRECT (): string { return 'ims/sale' }
 
   public static get REPORT_ITEM_BY_CATEGORY_SALE (): string { return 'ims/report/item-sale' }
 
- // public static get BANK_LIST (): string { return 'ims/bank' }
+  public static get SETTINGS_PAGE (): string { return 'settings/setup' }
 
-  
+  public static get BRANCH_PAGE (): string { return 'owner/branch' }
+
+  public static get USER_RIGHTS (): string { return 'user-rights' }
+
+  public static get OFFICE_PAGE (): string { return 'owner/branch/office' }
+
+  public static get USER_TYPES (): string { return 'usertypes' }
+
+  public static get USERS (): string { return 'users' }
+
+  public static get LEDGER_GROUP (): string { return 'account/ledgergroup' }
+
+  public static get LEDGER_CREATION  (): string { return 'account/ledgercreation' }
+
 }

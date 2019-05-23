@@ -213,7 +213,7 @@ export class AddressAddComponent {
     }
     if (this.areaForm.valid && this.cityId > 0) {
       this.subscribe = this._CommonService.addAreaNameUnderCity(addValue).subscribe(data => {
-        if (data.Code === 1000 && data.Data.length > 0) {
+        if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
           //  const Send = { id: data.Data, name: this.areaForm.value.areaName }
 
           let newData = Object.assign([], this.areaList)
@@ -228,7 +228,7 @@ export class AddressAddComponent {
           this.areaForm.reset()
           this.closeAreaModel()
         }
-        if (data.Code === 5000) {
+        if (data.Code === UIConstant.SERVERERROR) {
           this.toastrService.showError('Error', data.Description)
           this.closeAreaModel()
 

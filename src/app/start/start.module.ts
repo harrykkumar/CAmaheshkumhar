@@ -30,7 +30,8 @@ import { FormsModule } from '@angular/forms'
 import { Select2Module } from 'ng2-select2'
 import { PrintModule } from '../transactionMaster/print/print-add/print.module'
 import { BankModule } from '../transactionMaster/bank/bank.module'
-
+import {LedgerGroupAddModule} from '../shared/transactionMaster/ledger-group/ledger-group-add/ledger-group.module'
+import {LedgerCreationAddModule} from '../shared/transactionMaster/ledger-creation/ledger-creation-add/ledger-creation.module'
 @NgModule({
   declarations: [
     HeaderComponent,
@@ -67,7 +68,9 @@ import { BankModule } from '../transactionMaster/bank/bank.module'
     AddressAddModule,
     AttributeAddModule,
     PrintModule,
-    BankModule
+    BankModule,
+    LedgerGroupAddModule,
+    LedgerCreationAddModule
   ],
   bootstrap: []
 })

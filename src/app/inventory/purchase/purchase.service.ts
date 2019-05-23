@@ -39,9 +39,15 @@ export class PurchaseService {
   addressData$ = this.addressData.asObservable()
   settingData = new Subject<{data: Array<Select2OptionData>}>()
   settingData$ = this.settingData.asObservable()
+  chargestData = new Subject<{data: Array<Select2OptionData>}>()
+  chargestData$ = this.chargestData.asObservable()
+  searchSub = new Subject<string>()
+  search$ = this.searchSub.asObservable()
+  private queryStrSub = new Subject<string>()
+  public queryStr$ = this.queryStrSub.asObservable()
   constructor (private baseService: BaseServices) {}
-  getPurchaseList () {
-    return this.baseService.getRequest(ApiConstant.PURCHASE_LIST)
+  getPurchaseList (queryParams) {
+    return this.baseService.getRequest(ApiConstant.PURCHASE_LIST + queryParams)
   }
 
   postPurchaseList (obj) {
@@ -354,6 +360,17 @@ export class PurchaseService {
     return taxAmount
   }
 
+  createCharges (array) {
+    let newData = [ {id: '0', text: 'Select Charge'}, {id: '-1', text: UIConstant.ADD_NEW_OPTION} ]
+    array.forEach(data => {
+      newData.push({
+        id: data.Id,
+        text: data.Name
+      })
+    })
+    this.chargestData.next({ 'data': newData })
+  }
+
   postPurchase (obj) {
     return this.baseService.postRequest(ApiConstant.PURCHASE_LIST, obj)
   }
@@ -375,5 +392,13 @@ export class PurchaseService {
 
   getPrintData (id): Observable<ResponseSale> {
     return this.baseService.getRequest(ApiConstant.GET_PURCHASE_PRINT_DATA + id)
+  }
+
+  onTextEntered (text: string) {
+    this.searchSub.next(text)
+  }
+
+  setSearchQueryParamsStr (str) {
+    this.queryStrSub.next(str)
   }
 }

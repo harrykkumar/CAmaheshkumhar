@@ -2,8 +2,6 @@ import { Component, ViewChild, Renderer2, ElementRef } from '@angular/core'
 import { Subscription } from 'rxjs'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { TravelImports, TravelPayments, AddCust, ResponseSale, SalesTourism } from '../../../../model/sales-tracker.model'
-import { VendorServices } from '../../../../commonServices/TransactionMaster/vendoer-master.services'
-import { ItemmasterServices } from '../../../../commonServices/TransactionMaster/item-master.services'
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { Settings } from '../../../../shared/constants/settings.constant'
 import { GlobalService } from '../../../../commonServices/global.service'
@@ -107,9 +105,11 @@ export class SalesInvoiceComponent {
   validItem: boolean = true
   validTransaction: boolean = true
   clientDateFormat: string = ''
+
+  supplierList$: Subscription
+  routeList$: Subscription
+  clientList$: Subscription
   constructor (private _saleTravelServices: SaleTravelServices,
-    private _ledgerServices: VendorServices,
-    private _itemServices: ItemmasterServices,
     private toastrService: ToastrCustomService,
     private settings: Settings,
     private commonService: CommonService,
@@ -117,12 +117,30 @@ export class SalesInvoiceComponent {
     private renderer: Renderer2
     ) {
 
-    this.clientNameSelect2 = []
-    this.suplierNameSelect2 = []
-    this.paymentModeSelect2 = []
-    this.select2Item = []
-    this.currencies = []
-    this.getClientName(0)
+    // this.clientNameSelect2 = []
+    // this.suplierNameSelect2 = []
+    // this.paymentModeSelect2 = []
+    // this.select2Item = []
+    // this.currencies = []
+    // this.getClientName(0)
+    this.getPaymentModeDetail(0)
+    this.supplierList$ = this._saleTravelServices.supplierList$.subscribe(
+      (data: Array<Select2OptionData>[]) => {
+        this.suplierNameSelect2 = Object.assign([], data)
+      }
+    )
+
+    this.routeList$ = this._saleTravelServices.routeList$.subscribe(
+      (data: Array<Select2OptionData>[]) => {
+        this.select2Item = Object.assign([], data)
+      }
+    )
+
+    this.clientList$ = this._saleTravelServices.clientList$.subscribe(
+      (data) => {
+        this.select2Item = Object.assign([], data)
+      }
+    )
 
     this.clientDateFormat = this.settings.dateFormat
     // console.log('client date format : ', this.clientDateFormat)
@@ -698,7 +716,7 @@ export class SalesInvoiceComponent {
         })
       })
     }
-
+    console.log(_self.BillDate)
     _self.PayDate = _self.BillDate
   }
 
@@ -972,7 +990,7 @@ export class SalesInvoiceComponent {
           _self.placeholderCurreny = { placeholder: 'Select Currency' }
           let newData = []
           currencies.forEach(element => {
-            if (+element.SetupId === SetUpIds.currency && +element.Type === 3) {
+            if (+element.SetupId === SetUpIds.currency && +element.Type === SetUpIds.multiple) {
               if (+element.Id !== 0 && +element.Id === +element.DefaultValue && !_self.editMode) {
                 _self.defaultCurrency = element.Val
                 _self.currencyValues[1] = { id: 1, symbol: _self.defaultCurrency }
@@ -1027,30 +1045,9 @@ export class SalesInvoiceComponent {
       this.checkForValidation()
     }
   }
-
+  
   select2PlaceHlderItem: Select2Options
   itemValueSelect2: any
-  getItemDetail () {
-    this.select2PlaceHlderItem = { placeholder: 'Select Routing' }
-    this.select2Item = [{ id: '0', text: 'Select Routing' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this._itemServices.getItemMasterDetail('').subscribe(data => {
-      // console.log('routing data : ', data)
-      if (data.Code === UIConstant.THOUSAND && data.Data) {
-        data.Data.forEach(element => {
-          this.select2Item.push({
-            id: element.Id,
-            text: element.Name
-          })
-        })
-      }
-    },
-    (error) => {
-      console.log(error)
-    },
-    () => {
-      this.getPaymentModeDetail(0)
-    })
-  }
   routeFareSub: Subscription
   @ViewChild('routing_select2') routingSelect2: Select2Component
   onSelectedRoutingId (event) {
@@ -1104,7 +1101,7 @@ export class SalesInvoiceComponent {
     // console.log('on select of customer : ', event)
     if (event.value && event.data.length > 0) {
       this.clientName = +event.value
-      if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
+      if (+event.value === -1) {
         this.clientSelect2.selector.nativeElement.value = ''
         this.commonService.openCust('', true)
       } else if (+event.value > 0) {
@@ -1150,55 +1147,9 @@ export class SalesInvoiceComponent {
       }
     })
   }
-  getClientName (value) {
-    this.clientnamePlaceHolder = { placeholder: 'Select ClientName' }
-    this.clientNameSelect2 = [{ id: '0', text: 'Select Client Name' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this._ledgerServices.getVendor(5, '').subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND && data.Data) {
-        if (data.Data.length > 0) {
-          data.Data.forEach(element => {
-            this.clientNameSelect2.push({
-              id: element.Id,
-              text: element.Name
-            })
-          })
-        }
-      }
-    },
-    (error) => {
-      console.log(error)
-    },
-    () => {
-      this.getSuplier(0)
-    })
-  }
 
   supplierPlaceHolder: Select2Options
   supplierValue: any
-  getSuplier (value) {
-    this.supplierPlaceHolder = { placeholder: 'Select Supplier' }
-    this.suplierNameSelect2 = [{ id: '0', text: 'Select Supplier' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this._ledgerServices.getVendor(4, '').subscribe(data => {
-      // console.log('supplier data : ', data)
-      if (data.Code === UIConstant.THOUSAND && data.Data) {
-        if (data.Data.length > 0) {
-          data.Data.forEach(element => {
-            this.suplierNameSelect2.push({
-              id: element.Id,
-              text: element.Name
-            })
-          })
-        }
-      }
-    },
-    (error) => {
-      console.log(error)
-    },
-    () => {
-      this.getItemDetail()
-    })
-  }
-
   getPaymentModeDetail (index) {
     this.paymentPlaceHolder = { placeholder: 'Select Payment Mode' }
     let newData = [{ id: '0', text: 'Select Payment Mode' }]
@@ -1465,6 +1416,12 @@ export class SalesInvoiceComponent {
       this.validItem = !!isValid
     } else {
       this.validItem = true
+      this.invalidObj['Routing'] = false
+      this.invalidObj['Supplier'] = false
+      this.invalidObj['Remark'] = false
+      this.invalidObj['Date'] = false
+      this.invalidObj['TicketNo'] = false
+      this.invalidObj['Fare'] = false
     }
   }
 
@@ -1514,6 +1471,12 @@ export class SalesInvoiceComponent {
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
+      this.invalidObj['PayModeId'] = false
+      this.invalidObj['LedgerId'] = false
+      this.invalidObj['ledgerName'] = false
+      this.invalidObj['Amount'] = false
+      this.invalidObj['PayDate'] = false
+      this.invalidObj['ChequeNo'] = false
     }
     this.clickTrans = false
   }
@@ -1537,6 +1500,12 @@ export class SalesInvoiceComponent {
       setTimeout(() => {
         this.paymodeSelect2.selector.nativeElement.focus({ preventScroll: false })
       }, 10)
+    }
+  }
+
+  moveToPayments () {
+    if (this.paymodeSelect2) {
+      this.paymodeSelect2.selector.nativeElement.focus({ preventScroll: false })
     }
   }
 }

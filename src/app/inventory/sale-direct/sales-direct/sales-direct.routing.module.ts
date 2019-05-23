@@ -4,7 +4,7 @@ import { SalesListComponent } from './sales-list.component'
 
 const routes: Routes = [
   { path: '', component: SalesListComponent, children: [
-    { path: 'direct', component: SalesListComponent }
+    { path: '', component: SalesListComponent }
   ]}
 ]
 

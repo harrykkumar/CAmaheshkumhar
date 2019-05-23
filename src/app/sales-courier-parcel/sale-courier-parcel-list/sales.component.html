@@ -8,16 +8,16 @@
                     </div>
                     <div class="col-md-8 right_saerch_side p-0">
                         <div class="mr-2">
-                            <form>
+                            <form [formGroup]="searchForm">
                                 <div id="custom-search-input" class="btn_header1">
                                     <div class="input-group col-md-12">
-                                        <input type="text" class="form-control input-lg" placeholder="Search"
-                                            />
-                                        <span class="input-group-btn">
-                                            <a>
-                                                <i class="fas fa-search"></i>
-                                            </a>
-                                        </span>
+                                    <input type="text" class="form-control input-lg" placeholder="Search"
+                                    formControlName="searchKey"
+                                    #searchData
+                                    />
+                                    <span class="input-group-btn">
+                                        <a><i class="fas fa-search"></i></a>
+                                    </span>
                                     </div>
                                 </div>
                             </form>
@@ -29,7 +29,7 @@
                             <a>
                                 <img src="assets/img/pdf.png">
                             </a>
-                            <a>
+                            <a (click)="expoertFileData()" >
                                 <img src="assets/img/excel.png">
                             </a>
                             <button type="button" class="btn btn-primary waves-effect waves-light" (click)="onOpenInvoice('')" >New
@@ -57,9 +57,12 @@
                                     <th>Action</th>
                                 </tr>
                             </thead>
+                            <tbody *ngIf="isSearching" style="height:100px;" >
+                                <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;" />
+                            </tbody>
                             <tbody>
-                                <tr *ngFor="let item of saleTravelDetails; let i=index">
-                                    <td>{{i+1}}</td>
+                                <tr *ngFor="let item of saleList | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index">
+                                    <td>{{lastItemIndex + i + 1}}</td>
                                     <td>{{item.CustomerName}} </td>
                                     <td>{{item.BillNo}}</td>
                                     <td>{{item.BillDate  | dateFormat: clientDateFormat }}</td>
@@ -73,11 +76,6 @@
                                                 <li><a (click)="onPrintButtonCourierParcel(item.Id,'printCourierParcel_id')" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
                                                 <li><a (click)="onOpenInvoice(item.Id)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
                                                 <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
-                                                <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
-                                                <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-envelope mR-10 cH-blue"></i><span>Send
-                                                    Mail</span></a></li>
-                                                <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-envelope mR-10 cH-blue"></i><span>Sale
-                                                Bill Return</span></a></li>
                                             </ul>
                                         </div>
                                     </td>
@@ -93,12 +91,15 @@
                         </table>
                     </div>
                 </div>
+                <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+                (pageNoEmitter)="p = $event;getSaleList();"
+                (pageSizeEmitter)="itemsPerPage = $event;getSaleList();" ></app-pagination>
             </div>
         </div>
     </div>
 </main>
 <app-sales-invoice></app-sales-invoice>
-
+<!--print-->
 <div class="modal " id="printCourierParcel_id" >
   <div id="page-wrap" >
          <div style="width:100%; border: 1px solid #000; overflow: auto; display:flex; flex-direction:row;">

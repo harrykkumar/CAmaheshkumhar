@@ -36,11 +36,13 @@ export class CommonService {
   private newCompositeAdded = new Subject()
   private newPurchaseAdded = new Subject()
   private onActionClicked$ = new Subject()
-
   private openChallanBillingSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openSaleDirectSubject = new BehaviorSubject<AddCust>({ 'open': false })
   private openPrintAddSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openAddledgerGroupSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openAddledgerCreationSub = new BehaviorSubject<AddCust>({ 'open': false })
 
+  
   // validation reg ex
   companyNameRegx = `^[A-Za-z0-9&-]+$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
@@ -561,8 +563,8 @@ export class CommonService {
 
   }
 
-  openPrint (id,type) {
-    this.openPrintAddSub.next({ 'open': true, 'id': id ,'type': type })
+   openPrint (id,type,isViewPrint) {
+    this.openPrintAddSub.next({ 'open': true, 'id': id ,'type': type ,'isViewPrint' :isViewPrint })
   }
 
   closePrint (address) {
@@ -703,10 +705,73 @@ export class CommonService {
     return this.baseService.getRequest(ApiConstant.EDIT_BANK_DATA + id)
   }
   deleteBankDetails (id) {
-    return this.baseService.deleteRequest(ApiConstant.EDIT_BANK_DATA + id)
+    return this.baseService.deleteRequest(ApiConstant.BANK_DETAIL_URL +'?id=' + id)
   }
   obj: any
   getReportItemByCategorySale (type) {
     return this.baseService.getRequest(ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA + type)
   }
+  openledgerGroup (editId, type) {
+    this.openAddledgerGroupSub.next({ 'open': true, 'editId': editId, 'type': type })
+  }
+
+  closeledgerGroup (LegerGroup) {
+    if (LegerGroup) {
+      this.openAddledgerGroupSub.next({ 'open': false,
+        'name': LegerGroup.name,
+        'id': LegerGroup.id,
+        'type': LegerGroup.type,
+        'parentId': LegerGroup.parentId,
+      })
+    } else {
+      this.openAddledgerGroupSub.next({ 'open': false })
+    }
+  }
+
+  getledgerGroupStatus () {
+    return this.openAddledgerGroupSub.asObservable()
+  }
+ 
+  openledgerCretion (editId, isOtherCharge) {
+    this.openAddledgerCreationSub.next({ 'open': true, 'editId': editId, 'isOtherCharge': isOtherCharge })
+  }
+
+  closeledgerCretion (newItemMaster) {
+    if (newItemMaster) {
+      this.openAddledgerCreationSub.next({ 'open': false, 'name': newItemMaster.name, 'id': newItemMaster.id })
+    } else {
+      this.openAddledgerCreationSub.next({ 'open': false })
+    }
+  }
+
+  getledgerCretionStatus () {
+    return this.openAddledgerCreationSub.asObservable()
+  }
+  public postLedgerGroupAPI (parms: any): Observable<any> {
+    return this.baseService.postRequest(ApiConstant.LEDGER_GROUP_API, parms)
+  }
+ 
+  public getLedgerGroupParentData (type) {
+    return this.baseService.getRequest(ApiConstant.LEDGER_GROUP_PARENT_DATA_API + type)
+  }
+  public getLedgerGroupAPI (queryParams): Observable<any> {
+    return this.baseService.getRequest(ApiConstant.LEDGER_GROUP_API + queryParams)
+  }
+  deleteLedgerGroup (id) {
+    return this.baseService.deleteRequest(ApiConstant.LEDGER_GROUP_API + id)
+  }
+  gstNumberRegxValidation (gstNumber) {
+    let regxGST = /^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$/
+    return regxGST.test(gstNumber)
+  }
+  
+  panNumberRegxValidation (panNumber) {
+    let regxPAN = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/
+    return regxPAN.test(panNumber)
+  }
+  openingStatusForLedger() {
+    return this.baseService.getRequest(ApiConstant.LEDGER_OPENING_BALANCE_STATUS_API)
+
+  }
+  
 }

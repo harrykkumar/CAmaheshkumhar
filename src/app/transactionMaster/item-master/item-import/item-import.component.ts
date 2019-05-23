@@ -244,14 +244,14 @@ export class ItemImportComponent implements OnDestroy {
     let index = 0
     let masterKeys = ['Sno','Name','HsnNo','BarCode','Id','ItemCode','ItemType',
       'MRPRate','OurPrice','PackingType','PurchaseRate','ReOrderQty','SaleRate',
-      'TaxId','Unit', 'OpeningStockValue', 'MaxStock','MinStock','NRV',
+      'TaxId','Unit', 'OpeningStockValue', 'MaxStock','MinStock',
       'OpeningStock', 'IsNotDiscountable',
       'IsTradeDiscountApply','IsVolumeDiscountApply'
     ]
     this.masterKeys = ['SNO', 'NAME', 'HSNNO', 'CATEGORY','TAXID',
       'BARCODE', 'ITEMCODE','BRANDIDS',
       'ITEMTYPE', 'PACKINGTYPE', 'SALERATE',
-      'PURCHASERATE', 'MRPRATE', 'NRV',
+      'PURCHASERATE', 'MRPRATE',
       'OURPRICE', 'OPENINGSTOCK', 'OPENINGSTOCKVALUE',
       'MINSTOCK', 'MAXSTOCK', 'REORDERQTY',
       'ISNOTDISCOUNTABLE', 'ISVOLUMEDISCOUNTAPPLY', 'ISTRADEDISCOUNTAPPLY']
@@ -272,7 +272,7 @@ export class ItemImportComponent implements OnDestroy {
       newRow['MINSTOCK'] = +newRow['MINSTOCK']
       newRow['MAXSTOCK'] = +newRow['MAXSTOCK']
       newRow['REORDERQTY'] = +newRow['REORDERQTY']
-      newRow['NRV'] = isNaN(+newRow['NRV']) ? 0 : +newRow['NRV']
+      // newRow['NRV'] = isNaN(+newRow['NRV']) ? 0 : +newRow['NRV']
       _self.masterData.push(newRow)
     })
     // console.log('masterData : ', this.masterData)
@@ -518,7 +518,7 @@ export class ItemImportComponent implements OnDestroy {
         // console.log('keysArr : ', keysArr)
         const mandatoryKeys = ['NAME', 'HSNNO', 'BARCODE', 'ITEMCODE',
           'ITEMTYPE', 'PACKINGTYPE', 'SALERATE',
-          'PURCHASERATE', 'MRPRATE', 'NRV',
+          'PURCHASERATE', 'MRPRATE',
           'OURPRICE', 'OPENINGSTOCK', 'OPENINGSTOCKVALUE',
           'MINSTOCK', 'MAXSTOCK', 'REORDERQTY',
           'ISNOTDISCOUNTABLE', 'ISVOLUMEDISCOUNTAPPLY', 'ISTRADEDISCOUNTAPPLY']
@@ -547,7 +547,7 @@ export class ItemImportComponent implements OnDestroy {
             newRow['MINSTOCK'] = +newRow['MINSTOCK']
             newRow['MAXSTOCK'] = +newRow['MAXSTOCK']
             newRow['REORDERQTY'] = +newRow['REORDERQTY']
-            newRow['NRV'] = isNaN(+newRow['NRV']) ? 0 : +newRow['NRV']
+            // newRow['NRV'] = isNaN(+newRow['NRV']) ? 0 : +newRow['NRV']
             this.masterKeys = Object.keys(newRow)
             if (!newRow['NAME']) {
               this.toastrService.showError('Name is Required at SNO. ' + newRow['SNO'], newRow['NAME'])
@@ -608,32 +608,32 @@ export class ItemImportComponent implements OnDestroy {
     }
   }
 
-  downloadSample () {
-    const datatoexport = [{
-      SNo: '1',
-      NAME: 'ssdf',
-      HSNNO: 'sdfs',
-      BARCODE: 'dfsf',
-      ITEMCODE: 'sdfsdf',
-      ITEMTYPE: [1, 2, 3],
-      PACKINGTYPE: 'dsf',
-      SALERATE: 'sdfsdf',
-      PURCHASERATE: 'sdfsdf',
-      MRPRATE: 'sdfsdf',
-      NRV: 'sdfsfd',
-      OURPRICE: 'sdfdsf',
-      OPENINGSTOCK: 'sdfsf',
-      OPENINGSTOCKVALUE: 'sfdsdf',
-      MINSTOCK: 'sdfsdf',
-      MAXSTOCK: 'sdfsdf',
-      REORDERQTY: 'sdfsdf',
-      ISNOTDISCOUNTABLE: 'sdfsdf',
-      ISVOLUMEDISCOUNTAPPLY: 'sdfsdf',
-      ISTRADEDISCOUNTAPPLY: 'sdfsf',
-      UNIT: 'sfdsdf'
-    }]
-    this.excelService.exportAsExcelFile(datatoexport, 'Sample_Item_Master')
-  }
+  // downloadSample () {
+  //   const datatoexport = [{
+  //     SNo: '1',
+  //     NAME: 'ssdf',
+  //     HSNNO: 'sdfs',
+  //     BARCODE: 'dfsf',
+  //     ITEMCODE: 'sdfsdf',
+  //     ITEMTYPE: [1, 2, 3],
+  //     PACKINGTYPE: 'dsf',
+  //     SALERATE: 'sdfsdf',
+  //     PURCHASERATE: 'sdfsdf',
+  //     MRPRATE: 'sdfsdf',
+  //     NRV: 'sdfsfd',
+  //     OURPRICE: 'sdfdsf',
+  //     OPENINGSTOCK: 'sdfsf',
+  //     OPENINGSTOCKVALUE: 'sfdsdf',
+  //     MINSTOCK: 'sdfsdf',
+  //     MAXSTOCK: 'sdfsdf',
+  //     REORDERQTY: 'sdfsdf',
+  //     ISNOTDISCOUNTABLE: 'sdfsdf',
+  //     ISVOLUMEDISCOUNTAPPLY: 'sdfsdf',
+  //     ISTRADEDISCOUNTAPPLY: 'sdfsf',
+  //     UNIT: 'sfdsdf'
+  //   }]
+  //   this.excelService.exportAsExcelFile(datatoexport, 'Sample_Item_Master')
+  // }
 
   closeImportModal () {
     this.reset()

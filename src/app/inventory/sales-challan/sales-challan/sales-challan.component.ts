@@ -118,6 +118,15 @@ export class SalesChallanComponent  implements   OnInit  {
       console.log('sales data: ', data)
         this.totalBillAmount = 0
         this.saleTravelDetails = data.Data
+        for(let i=0; i < data.Data.length; i++){
+         if(data.Data[i].SaleId === 0){
+           this.generateBillFlagEnable = true
+          this.allChallanIds= [] 
+          this.allChallanNos= []
+         }
+        }
+        //if(this.saleTravelDetails)
+
         // if (data.Data.length > 0) {
         //   data.Data.forEach(element => {
         //     this.totalBillAmount = +(this.totalBillAmount + element.BillAmount).toFixed(2)

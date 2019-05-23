@@ -82,14 +82,18 @@ export class PrintComponent {
   industryId: any
   printId: any
   type: any
+  clientDateFormat: any
+  dicimalDigitFormat: any
   constructor (private _CommonService: CommonService, public _settings: Settings) {
 
+    this.clientDateFormat = this._settings.dateFormat
+    this.dicimalDigitFormat = 2
     this.modalSub = this._CommonService.getprintStatus().subscribe(
       (status: any) => {
         if (status.open) {
           this.printId = status.id
           this.type = status.type
-          this.openModal(this.type)
+          this.openModal(this.type,status.isViewPrint)
         } else {
           this.closeModal()
         }
@@ -101,11 +105,11 @@ export class PrintComponent {
     this.modalSub.unsubscribe()
   }
 
-  openModal (type) {
+  openModal (type,isViewPrint) {
     if (type === 'DirectSale') {
       let data = JSON.stringify(this._settings.industryId)
       this.industryId = JSON.parse(data)
-      this.onPrintForDirectSale(this.printId, 'sale_Direct_print_id')
+      this.onPrintForDirectSale(this.printId, 'sale_Direct_print_id',isViewPrint)
     }
   }
   closeModal () {
@@ -131,7 +135,7 @@ export class PrintComponent {
   paymentModeData: any
   TermsConditions: any
   ClientInfos: any
-  onPrintForDirectSale (id, htmlId) {
+  onPrintForDirectSale (id, htmlId,isViewForm) {
     this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
     let _self = this
     _self._CommonService.printDirectSale(id).subscribe(data => {
@@ -143,7 +147,7 @@ export class PrintComponent {
           this.billAmount = 0
           _self.InventoryTransactionSales = data.Data.SaleTransactionses
           _self.barcode = data.Data.SaleTransactionses[0].BarcodeBill
-          this.billAmount = (data.Data.SaleTransactionses[0].BillAmount).toFixed(2)
+          this.billAmount = (data.Data.SaleTransactionses[0].BillAmount).toFixed(this.dicimalDigitFormat)
           this.NumInWords(this.billAmount)
         } else {
           _self.InventoryTransactionSales = []
@@ -251,8 +255,69 @@ export class PrintComponent {
         } else {
           this.ContactOrgInfo = []
         }
+        if (data.Data.EmailsOrg.length > 0) {
+          this.EmailsOrg = []
+          this.EmailsOrg = data.Data.EmailsOrg
+        } else {
+          this.EmailsOrg = []
+        }
+        if (data.Data.Emails.length > 0) {
+          this.Emails = []
+          this.Emails = data.Data.Emails
+        } else {
+          this.Emails = []
+        }
+        // if (data.Data.SupplyAddress.length > 0) {
+        //   this.SupplyAddress = []
+        //   this.SupplyAddress = data.Data.SupplyAddress
+        // } else {
+        //   this.SupplyAddress = []
+        // }
+        if (data.Data.CustomerTypes.length > 0) {
+          this.CustomerTypes = []
+          this.CustomerTypes = data.Data.CustomerTypes
+          this.CustomerTypesLength = data.Data.CustomerTypes.length
+
+        } else {
+          this.CustomerTypes = []
+        }
+        if (data.Data.HsnItemTaxTransDetails.length > 0) {
+
+          this.CustomerTypes = []
+          this.hsntaxItem = data.Data.HsnItemTaxTransDetails
+
+        } else {
+          this.hsntaxItem = []
+        }
+        if (data.Data.HsnItemTransactions.length > 0) {
+          this.hsnItemData= []
+         let  hsnitem =[]
+          data.Data.HsnItemTransactions.forEach( ele =>{
+             hsnitem  = data.Data.HsnItemTaxTransDetails.filter(s=> s.HsnNo === ele.HsnNo)
+            if(hsnitem.length > 0) {
+              let totalrate = hsnitem.filter(item1 => item1.TaxRate)
+              .map(item1 => parseFloat(item1.TaxRate))
+              .reduce((sum, current) => sum + current, 0)
+              this.hsnItemData.push({
+                id:ele,
+               HsnNo:ele.HsnNo,
+               TaxableAmount:ele.TaxableAmount,
+               TotalAmount:ele.TotalAmount,
+               tax: hsnitem,
+               rate:totalrate
+               
+              })
+            }
+          })
+          console.log(this.hsnItemData,'HSN')
+          
+
+        } else {
+          this.hsntaxItem = []
+        }
+
         setTimeout(function () {
-          _self.InitializedPrintForDirectSale(htmlId)
+          _self.InitializedPrintForDirectSale(htmlId,isViewForm)
         }, 10)
         $('#' + htmlId).modal(UIConstant.MODEL_SHOW)
       }
@@ -260,26 +325,37 @@ export class PrintComponent {
     )
 
   }
+  SupplyAddress: any
+  hsnItemData: any
+  hsntaxItem: any
+  CustomerTypesLength: any
+  CustomerTypes: any
+  EmailsOrg: any
+  Emails: any
 
   get values (): string[] {
     if (this.barcode) {
       return this.barcode.split('\n')
     }
   }
-  InitializedPrintForDirectSale (cmpName) {
+  InitializedPrintForDirectSale (cmpName,isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
-    let printWindow = window.open('', '_blank', '')
+    let printWindow = window.open()
     printWindow.document.open()
-    printWindow.document.write('<html><head><title>' + title + '</title><style>@font-face{font-family:OpenSans-Regular;src:url(OpenSans-Regular.ttf),url(OpenSans-Bold.ttf),url(OpenSans-Light.ttf),url(OpenSans-SemiBold.ttf)}.clearfix:after{content:"";display:table;clear:both}a{color:#0087c3;text-decoration:none}body{position:relative;width:21cm;height:29.7cm;margin:0 auto;color:#000;background:#fff;font-family:Arial,sans-serif;font-size:14px;font-family:SourceSansPro}.row{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-direction:row}.col{-ms-flex-preferred-size:0;-ms-flex-positive:1;padding-left:10px;max-width:100%}.row1{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-direction:row;flex-wrap:wrap;margin-right:1px;margin-left:0}.col1{-ms-flex-preferred-size:0;flex-basis:0;-ms-flex-positive:1;flex-grow:1;padding-left:10px;max-width:100%}header{padding:10px 0}.header1{padding:5px 0;border-top:1px solid #aaa;border-bottom:1px solid #aaa}#logo{float:left;margin-top:8px}#logo img{height:70px}#company{float:right;text-align:right}#client{padding-left:6px;float:left}#client .to{color:#333}h2.name{font-size:1.4em;font-weight:600;margin:0}#invoice{float:right;text-align:right}#invoice h1{color:#0087c3;font-size:2.4em;line-height:1em;font-weight:400;margin:0 0 10px 0}#invoice .date{font-size:1.1em;color:#000}table{width:100%;border-collapse:collapse;border-spacing:0;margin-bottom:20px}table td,table th{padding:5px;vertical-align:bottom;text-align:center}table th{font-weight:700;background:#f1f1f1}table td{text-align:left}table td h3{color:#000;font-size:1em;font-weight:600;margin:0 0 .2em 0}table .no{color:#000}table .desc{text-align:left}table .total{color:#000;text-align:right}table td.qty,table td.total,table td.unit{font-size:1em}table tfoot td{background:#fff;border-bottom:none;font-weight:600;text-align:right;margin-top:100px}table tfoot tr:first-child td{border-top:none}table tfoot tr:last-child td{border-top:1px solid #333}.table1 tbody tr td,.table1 thead tr th{border:1px solid #333}#thanks{font-size:2em;margin-bottom:50px}#notices{padding-left:6px;border-left:6px solid #0087c3}#notices .notice{font-size:1.2em}footer{color:#000;width:100%;height:30px;position:absolute;bottom:60px;border-top:1px solid #aaa;padding:8px 0;text-align:center}.name-footer{text-align:left}</style></head><body>')
+    printWindow.document.write('<html><head><title>' + title + '</title><style>@media print {.hidden-print {display: none !important;}}@import url("https://fonts.googleapis.com/css?family=Open+Sans&display=swap");.clearfix:after{content:"";display:table;clear:both}a{color:#0087c3;text-decoration:none}body{position:relative;width:21cm;height:29.7cm;margin:0 auto;color:#000;background:#fff;font-family:Open Sans;font-size:11px}.row{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-direction:row}.col{-ms-flex-preferred-size:0;-ms-flex-positive:1;padding-left:10px;max-width:100%}.row1{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-direction:row;flex-wrap:wrap;margin-right:1px;margin-left:0}.col1{-ms-flex-preferred-size:0;flex-basis:0;-ms-flex-positive:1;flex-grow:1;max-width:100%}header{padding:10px 0}.header1{padding:1px 0;border-top:1px solid #333;border-bottom:1px solid #333}#logo{float:left;margin-top:8px}#logo img{height:70px}#company{float:right;text-align:right}#client{padding-left:6px;float:left}#client .to{color:#333}h2.name{font-size:1.4em;font-weight:600;margin:0}#invoice{float:right;text-align:right}#invoice h1{color:#0087c3;font-size:2.4em;line-height:1em;font-weight:400;margin:0 0 10px 0}#invoice .date{font-size:1.1em;color:#000}table{width:100%;border-collapse:collapse;border-spacing:0;margin-bottom:5px}table td,table th{padding:1px;vertical-align:bottom;text-align:center;font-size:11px;word-break:break-all}table th{white-space:nowrap;font-weight:700}table td{text-align:left}table td h3{color:#000;font-size:1em;font-weight:600;margin:0 0 .2em 0}table .no{color:#000}table .desc{text-align:left}table .total{color:#000;text-align:right}table td.qty,table td.total,table td.unit{font-size:1em}table tfoot td{background:#fff;border-bottom:none;font-weight:600;text-align:right;white-space:nowrap;margin-top:100px}table tfoot tr:first-child td{border-top:none}table tfoot tr:last-child td{border-top:1px solid #333}.table1 tbody tr td,.table1 thead tr th{border:1px solid #333;word-break:break-all}#thanks{font-size:2em;margin-bottom:50px}#notices{padding-left:6px;border-left:6px solid #0087c3}#notices .notice{font-size:1.2em}footer{color:#000;width:100%;height:30px;position:absolute;bottom:60px;border-top:1px solid #aaa;padding:8px 0;text-align:center}.name-footer{text-align:left;margin:0;font-size:12px;padding-left:10px}.tbl_footer tr td{text-align:right}.tbl_footer tr td.total{text-align:right;font-weight:700;width:120px}.total_word{padding:4px;border-top:1px solid #333}.terms_section { color: #000;width: 100%; position: absolute;bottom: 115px; border-top: 1px solid #aaa;padding:0;}.tbl_fix_height { min-height: 320px;border-bottom:1px solid #333;}</style></head><body>')
     printWindow.document.write(divElements)
     printWindow.document.write('</body></html>')
     printWindow.document.close()
     printWindow.focus()
     $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
     setTimeout(function () {
+      if(!isViewForm){
+        document.getElementsByTagName('body')[0] .classList.add('hidden-print');
       printWindow.print()
       printWindow.close()
+      }
+   
     }, 100)
 
   }

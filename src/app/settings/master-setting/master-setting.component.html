@@ -1,0 +1,65 @@
+<!--File created by dolly garg-->
+<div class="bgc-white bdrs-3 pb-3 mB-20">
+  <div class="table-responsive">
+    <table class="table cat-table table-hover">
+      <thead>
+        <tr>
+          <th style="width:10%;" ></th>
+          <th style="width:10%;" >Sno.</th>
+          <th style="width:30%;" >Setup Name</th>
+          <th style="width: 50%;" >Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let setting of settings;let i = index;" >
+          <td>
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="customCheck{{i}}" name="example1" (change)="setting.selected = $event.target.checked" >
+              <label class="custom-control-label" for="customCheck{{i}}"></label>
+            </div>
+          </td>
+          <td style="width: 10%" >{{i+1}}</td>
+          <td>
+            <div class="font-weight-bold">{{setting.name}}</div>
+          </td>
+          <td *ngIf="setting.Type === 1">
+            <fieldset id="group{{i}}">
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" class="custom-control-input" id="customRadio{{i}}" name="group{{i}}" [checked]="+setting.Value === 1" (change)="setting.Value = ($event.target.checked) ? 1 : 0" >
+                <label class="custom-control-label" for="customRadio{{i}}">True</label>
+              </div>
+              <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" class="custom-control-input" id="customRadio10{{i}}" name="group{{i}}" [checked]="+setting.Value === 0" (change)="setting.Value = ($event.target.checked) ? 0 : 1" >
+                <label class="custom-control-label" for="customRadio10{{i}}">False</label>
+              </div>
+            </fieldset>
+          </td>
+          <td *ngIf="setting.Type === 2" >
+            <input type="text" class="form-control" *ngIf="setting.BaseType === 2" [value]="setting.DefaultValue" (input)="setting.Value = $event.target.value;" >
+            <input type="text" class="form-control" appDigitsOnlyDirective *ngIf="setting.BaseType === 1" [value]="setting.DefaultValue" (input)="setting.Value = $event.target.value;" >
+          </td>
+          <td *ngIf="setting.Type === 3" >
+            <select (change)="setting.Value = ( $event.target.value );">
+              <option value="1" >Select {{setting.name}}</option>
+              <option *ngFor="let opt of setting.data" [value]="opt.Id" [selected]="( +setting.DefaultValue === +opt.Id )">
+                {{ opt.Val }}
+              </option>
+            </select>
+          </td>
+          <td *ngIf="setting.Type === 4" >
+            <div class="input-group adw_select">
+              <select2
+                [data]="setting.data" class="control_select"
+                [options]="options"
+                (valueChanged)="setting.Value = $event.value;"
+                autocomplete="true"
+                [options]="{placeholder: 'Select'}"
+                [value]="setting.Value">
+              </select2>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

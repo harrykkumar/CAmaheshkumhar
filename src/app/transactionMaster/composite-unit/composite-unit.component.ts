@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core'
-import { Subscription, fromEvent } from 'rxjs'
+import { Subscription, fromEvent, throwError } from 'rxjs'
 import { UnitModel } from '../../model/sales-tracker.model'
 import { CompositeUnitService } from '../../commonServices/TransactionMaster/composite-unit.services'
 import { UIConstant } from '../../shared/constants/ui-constant'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { CommonService } from '../../commonServices/commanmaster/common.services'
-import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { map, filter, debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators'
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { PagingComponent } from '../../shared/pagination/pagination.component'
 
@@ -120,7 +120,16 @@ export class CompositeUnitComponent implements OnInit, OnDestroy {
       this.searchForm.value.searckKey = ''
     }
     this._compositeUnitserivices.getSubUnitDetails('?WithOutUnit=1&Name=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage).pipe(
-      filter(data => data.Code),
+      filter(data => {
+        if (data.Code === UIConstant.THOUSAND) {
+          return true
+        } else {
+          throw new Error(data.Description)
+        }
+      }),
+      catchError(error => {
+        return throwError(error)
+      }),
       map(data => data.Data),
       map(data => {
         console.log('old data : ', data)
@@ -131,6 +140,9 @@ export class CompositeUnitComponent implements OnInit, OnDestroy {
         this.subUnitDetail = data
         this.total = this.subUnitDetail[0] ? this.subUnitDetail[0].TotalRows : 0
         console.log('composite unit : ', this.subUnitDetail)
+      },
+      (error) => {
+        this.toastrService.showError(error, '')
       }
     )
   }

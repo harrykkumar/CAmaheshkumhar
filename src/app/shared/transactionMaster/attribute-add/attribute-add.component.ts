@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, Renderer2, ElementRef } from '@angular/core'
-import { Subject } from 'rxjs'
+import { Subject, Subscription } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators'
 import _ from 'lodash'
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service'
@@ -20,6 +20,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   attributeList: Array<any> = []
   selectedAttribute: number = null
   isParent: boolean = false
+  deleteParent$: Subscription
   constructor (
     private attributeService: AttributeService,
     private toastrService: ToastrCustomService,
@@ -33,6 +34,14 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
 
     this.initAttributeNameList(0)
     this.initAddAttributeData()
+
+    this.deleteParent$ = this.attributeService.deleteParent$.subscribe(
+      (status) => {
+        if (status) {
+          this.initAttributeNameList(0)
+        }
+      }
+    )
   }
 
   @ViewChild('attrname') attrname: ElementRef
@@ -42,11 +51,12 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
     this._CommonService.getAttributeStatus().pipe((
       takeUntil(this.unSubscribe$)
     )).subscribe((response: any) => {
+      console.log('attribute edit : ', response)
       if (response.open === true) {
         console.log(response, 'add attr')
         this.resetFormData()
         this.isParent = response.data.isParent
-        if (response.data.editId) {
+        if (response.data.editId || response.data.attrNameId) {
           this.setEditData(response)
         }
         if (response.data.addNewId) {
@@ -121,6 +131,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
         })
       })
     ).subscribe((response: any) => {
+      console.log('attribute list : ', response)
       this.attributeList = [...response]
     }, error => console.log(error))
   }
@@ -128,23 +139,26 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   /* Function to add the new attribute name */
   AddAttributeName = () => {
     const payload = {
-      Id: this.attrEditId ? this.attrEditId : 0,
+      Id: this.selectedAttribute ? this.selectedAttribute : 0,
       Name: this.attribute.name
     }
     this.attributeService.postAttribute(payload).pipe((
       takeUntil(this.unSubscribe$)
     )).subscribe((response) => {
-      if (response.Code === UIConstant.THOUSANDONE) {
+      if (response.Code === UIConstant.THOUSANDONE && response.Data) {
+        this.toastrService.showError('', response.Description)
+      } else if (response.Code === UIConstant.THOUSAND && response.Data) {
         const data = _.find(this.attributeList, (item) => {
           return item.text === this.attribute.name
         })
         this.selectedAttribute = data ? data.id : null
-      } else if (response.Code === UIConstant.THOUSAND) {
         this.attributeList = [...this.attributeList, { id: response.Data, text: this.attribute.name }]
         this.selectedAttribute = response.Data
         if (this.isParent) {
           const data = { status: 'saved' }
           this._CommonService.closeAttributeForDynamicAdd({ ...data })
+        } else {
+          this.attributeService.onParentAttrAdd()
         }
       }
     }, error => console.log(error))
@@ -192,5 +206,6 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   ngOnDestroy (): void {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
+    this.deleteParent$.unsubscribe()
   }
 }

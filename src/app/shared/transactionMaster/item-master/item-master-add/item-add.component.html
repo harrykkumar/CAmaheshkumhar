@@ -96,7 +96,7 @@
                                             [(ngModel)]="ItemCode" [ngClass]="{'errorSelecto': submitClick && invalidObj.ItemCode }" (input)="checkForValidation()"  >
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label for="bill_no">Item Type</label>
+                                        <label for="bill_no">Inventory Maintain</label>
                                         <div class="input-group adw_select">
                                             <select2 [data]="selectItemTpye" 
                                              #itemtype_select2 class="control_select" (valueChanged)="selectedItemType($event)"
@@ -155,7 +155,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Tax</label>
+                                        <label>Tax Rate</label>
                                         <div class="input-group adw_select">
                                             <select2 [data]="selectTax" #tax_select2 class="control_select" (valueChanged)="selectedTax($event)"
                                                 autocomplete="true"
@@ -164,12 +164,12 @@
                                                 ></select2>
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-4">
+                                    <!-- <div class="form-group col-md-4">
                                         <label>Net Realizable Value(NRV)</label>
                                         <input type="text" appIncludeDecimal
                                         class="form-control" placeholder="Enter Net Refer Value"
                                             autocomplete="true" [(ngModel)]="Nrv" name="Nrv" >
-                                    </div>
+                                    </div> -->
                                     <div class="form-group col-md-6">
                                         <label for="bill_no">Brand Master</label>
                                         <select2 [data]="selectBrand" #brand_select2
@@ -180,19 +180,19 @@
                                         ></select2>
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label for="bill_no">Min. Stock</label>
+                                        <label for="bill_no">Min. Stock Level</label>
                                         <input type="text" appIncludeDecimal 
                                         class="form-control" id="name" name="MinStock" placeholder="Enter Minimum Stock"
                                             autocomplete="true" [(ngModel)]="MinStock" step="0.01">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Max. Stock</label>
+                                        <label>Max. Stock Level</label>
                                         <input type="text" appIncludeDecimal 
                                         class="form-control" name="MaxStock" placeholder="Enter Maximum Stock"
                                             [(ngModel)]="MaxStock">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Re Order Qty</label>
+                                        <label>Re Order Qty Level</label>
                                         <input type="text" appIncludeDecimal class="form-control" name="ReOrderQty" placeholder="Enter Re Order Qty"
                                             [(ngModel)]="ReOrderQty">
                                     </div>
@@ -223,11 +223,13 @@
                                     <div class="custom-file-upload mB-20">
                                         <a (click)="openImageModal()" #imagebutton class="custom-file-upload"><i class="fas fa-upload"></i> Image Upload </a>
                                     </div>
-                                    <div *ngIf="addedImages && addedImages.queue.length > 0" >
-                                        <div class="toast mB-5" *ngFor="let image of addedImages.queue;let i = index;" >
+                                    <div *ngIf="ImageFiles && ImageFiles.length > 0">
+                                        <img id="center-img" [src]="ImageFiles[0].BaseString" (click)="openImageModal()" />
+                                        <div class="toast mB-5" *ngFor="let image of ImageFiles;let i = index;" >
                                             <div class="toast-header">
-                                                <strong class="mr-auto">{{image}}</strong>
-                                                <button type="button" class="image-cross-icon ml-2 mb-1 close"  (click)="removeImage(i)" >&times;</button>
+                                                <strong class="mr-auto">{{image.Name}}</strong>
+                                                <button type="button" class="image-cross-icon ml-2 mb-1 close"
+                                                (click)="removeImage(i)" >&times;</button>
                                             </div>
                                         </div>
                                     </div>

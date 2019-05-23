@@ -1,0 +1,66 @@
+
+  <div class="modal right fade" id="general_group_ledger"  role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+        <div class="modal-content">
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900">Ledger Creation</h4>
+                <button type="button" class="close" (click)="clearCategoryvalidation()" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div *ngIf="loading" class="modal-content" >
+                <div class="modal-body" style="height:inherit;" >
+                  <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" class="center-loader" />
+                </div>
+            </div>
+            <div class="modal-body"  >
+                <div class="card-body">
+                    <div>
+                        <form [formGroup]="LedgerGroupForm">
+                            <div class="form-row">
+                                <div class="form-group col-md-12">
+                                    <label for="org_code">Group Name</label>
+                                    <input id="cateName" 
+                                    type="text"
+                                    #GLname class="form-control" 
+                                    placeholder="Group Name"
+                                    formControlName="LedgerGroupName" 
+                                    [ngClass]="{ 'errorTextBoxBorder is-invalid':submitClick && f.LedgerGroupName.errors?.required}" >
+                                </div>
+
+                                <div class="form-group col-md-12">
+                                    <label>Under Group</label>
+                                    <div class="input-group adw_select">
+                                        <div class="input-group adw_select">
+                                            <select2 [data]="ledgerGroupData"
+                                            #under_group_select2 class="control_select"
+                                            (valueChanged)="onChnageGroup($event)"
+                                            autocomplete="true"
+                                            [options]="catagoriesPlaceHolder"
+                                            [value]="LedgerGroupValue"
+                                            [ngClass]="{'errorSelecto': submitClick && isSelectParentGrp }"
+                                            ></select2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label>Short Name</label>
+                                    <input formControlName="ShortName" type="text" class="form-control" placeholder="Enter Short Name" >
+                                </div>
+                                <div  class="custom-control custom-checkbox mb-3 set_chek">
+                                    <input (click)="checkIsLedger($event)"  [checked]="isledger"  type="checkbox" class="custom-control-input" id="checkId" name="example1">
+                                    <label class="custom-control-label fix_lbl" for="checkId">Behaves like a Ledger</label>
+                                  </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                 (keydown.enter)="saveUpdateLedgerGroup()"
+                 class="btn btn-primary waves-effect"
+                 (click)="saveUpdateLedgerGroup()">Save
+                changes</button>
+            </div>
+        </div>
+    </div>
+</div>

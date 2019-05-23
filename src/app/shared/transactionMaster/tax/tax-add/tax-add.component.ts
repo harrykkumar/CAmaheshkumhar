@@ -10,6 +10,7 @@ import { UIConstant } from '../../../constants/ui-constant'
 import { ErrorConstant } from '../../../constants/error-constants'
 import { TaxModule } from '../../../../transactionMaster/tax/tax.module'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
+import { SetUpIds } from '../../../constants/setupIds.constant';
 declare var $: any
 @Component({
   selector: 'app-tax-add',
@@ -71,10 +72,7 @@ export class TaxAddComponent {
       if (Settings.Code === UIConstant.THOUSAND) {
         let currencies = Settings.Data.SetupSettings
         currencies.forEach(element => {
-          if (+element.SetupId === 37 && +element.Type === 3) {
-            //// debugger;
-          //   this.currencies = [{ cuyId: 0, id: 0, val: '%' }]
-
+          if (+element.SetupId === SetUpIds.currency && +element.Type === SetUpIds.multiple) {
             _self.currencies.push({
               cuyId:1,
               id: element.Id,

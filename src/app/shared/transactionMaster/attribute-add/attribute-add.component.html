@@ -31,8 +31,9 @@
                                         <label for="attrSelectName">Selected Attribute </label>
                                         <div class="input-group adw_select"
                                         [ngClass]="{'is-invalid': formModel?.submitted && !selectedAttribute}">
-                                            <select2 [disabled]='disabledAddNewFlag' id="attrSelectName" [data]="attributeList" class="control_select" (valueChanged)="onAttrValueChange($event)"
-                                            autocomplete="true"  [value]="selectedAttribute" 
+                                            <select2 [disabled]='disabledAddNewFlag' id="attrSelectName" [data]="attributeList"
+                                            class="control_select" (valueChanged)="onAttrValueChange($event)"
+                                            autocomplete="true"  [value]="selectedAttribute"
                                             ></select2>
                                         </div>
                                     </div>

@@ -153,6 +153,7 @@ export interface AddLedger {
   CreditDays: number,
   CreditLimit: number
   OpeningAmount: number
+  IsChargeLedger:any
   Id: number
   GlId: number
   Websites: any[]
@@ -166,10 +167,11 @@ export interface AddLedger {
     // CreditDays:number
   CrDr: number
   Statutories: Statutories[]
+  Addresses: Addresses[]
   ContactPersons: ContactPersons[]
   ContactInfos: any
   Emails: any
-  Addresses: Addresses[]
+ 
 }
 
 export interface Statutories {
@@ -209,6 +211,10 @@ export interface Banks {
   MicrNo: string
   IfscCode: string
   ParentTypeId: number
+  gstinNo:string
+  TaxTypeID: string
+  Statutories: Statutories[]
+  Addresses: Addresses[]
 
 }
 
@@ -287,6 +293,8 @@ export interface AddCust {
   isAddNew?: boolean
   isParent?: boolean
   title?: string
+  isViewPrint?:string
+  isOtherCharge?:any
 }
 
 export interface ResponseSale {
@@ -669,4 +677,23 @@ export class PurchaseAdd {
   AddressId: number
   ConvertedCurrencyId: number
   ItemAttributeTrans: Array<PurchaseAttribute>
+}
+export class AddLedgerGroup {
+  Id: number
+  GlName:string
+  UnderId:number
+  IsLedger:boolean
+  ShortName:string
+}
+
+export class AdditionalCharges {
+  Id: number
+  Sno: number
+  LedgerChargeId: number
+  LedgerName: string
+  AmountCharge: number
+  TaxSlabChargeId: number
+  TaxChargeName: string
+  TaxAmountCharge: number
+  TotalAmountCharge: number
 }

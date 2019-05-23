@@ -1,11 +1,14 @@
-import { Component } from '@angular/core'
+import { Component, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { Subscription } from 'rxjs'
+import { Subscription, fromEvent } from 'rxjs';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 import { PurchaseService } from '../purchase.service'
 import { Settings } from '../../../shared/constants/settings.constant'
 import { FormConstants } from 'src/app/shared/constants/forms.constant'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { PurchaseListComponent } from '../purchase-list/purchase-list.component';
 
 declare const $: any
 @Component({
@@ -47,10 +50,13 @@ export class PurchaseMainComponent {
   printData1: any = []
   ledgerinfos: any[]
   industryId: number
+
+  searchForm: FormGroup
   constructor (private route: ActivatedRoute,
      private commonService: CommonService,
       private purchaseService: PurchaseService,
-      private settings: Settings) {
+      private settings: Settings,
+      private _formBuilder: FormBuilder) {
     this.data$ = this.commonService.getActionClickedStatus().subscribe(
       (action: any) => {
         if (action.type === FormConstants.Edit && action.formname === FormConstants.Purchase) {
@@ -60,14 +66,33 @@ export class PurchaseMainComponent {
         }
       }
     )
-
+    this.formSearch()
     this.industryId = +this.settings.industryId
     this.clientDateFormat = this.settings.dateFormat
+  }
+
+  @ViewChild('searchData') searchData: ElementRef
+  private formSearch () {
+    this.searchForm = this._formBuilder.group({
+      'searchKey': [UIConstant.BLANK]
+    })
   }
   ngOnInit () {
     this.sub = this.route.data.subscribe(data => {
       this.title = data.title
     })
+
+    this.commonService.fixTableHF('cat-table')
+    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+      map((event: any) => {
+        return event.target.value
+      }),
+      filter(res => res.length > 1 || res.length === 0),
+      debounceTime(1000),
+      distinctUntilChanged()
+      ).subscribe((text: string) => {
+        this.purchaseService.onTextEntered(text)
+      })
   }
 
   ngOnDestroy () {
@@ -131,7 +156,6 @@ export class PurchaseMainComponent {
       while (end <= arr.length + 1 && start < arr.length) {
         console.log(end - start)
         newArr[i] = { page: end - start, data: arr1.splice(start, len) }
-        // newArr[i] = arr1.splice(start, len)
         start += len
         if (end + len < arr.length) {
           end += len

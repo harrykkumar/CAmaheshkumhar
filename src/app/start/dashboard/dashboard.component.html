@@ -68,6 +68,9 @@
                         <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeVendor()">Vendor</a></li>
                            <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeAttribute()">Attribute</a></li>
                            <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeBank()">Bank</a></li>
+                           <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeGroup()">General Ledger</a></li>
+                           <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeCreation()">Ledger </a></li>
+
                         <!--
                         <li><a class="sidebar-link" href="javascript:void(0);">Coupon</a></li>
                         <li><a class="sidebar-link" href="javascript:void(0);">Loyalty</a></li>
@@ -93,13 +96,13 @@
                         <li><a class="sidebar-link" (click)="routeSaleReturn()">Sale Return</a></li>
                     </ul>
                 </li>
-                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
+                <!-- <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
                     class="fas fa-chart-line"></i></span><span class="title">Sales Courier</span>
                     </a>
                     <ul class="sidebar-submenu scrollable">
                         <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeSaleCourier()">Sale</a></li>
                     </ul>
-                </li>
+                </li> -->
                 <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
                     class="fas fa-chart-line"></i></span><span class="title">Sales Courier Parcel</span>
                     </a>
@@ -113,7 +116,7 @@
                     <ul class="sidebar-submenu scrollable">
                         <li><a class="sidebar-link" (click)="routePurchase()">Purchase</a></li>
                         <li><a class="sidebar-link" (click)="routeSalesChallan()">Sale Challan</a></li>
-                        <li><a class="sidebar-link" (click)="routeDirectSale()">Sale Direct</a></li>
+                        <li><a class="sidebar-link" (click)="routeDirectSale()">Sale </a></li>
                     </ul>
                 </li>
                 <li class="nav-item sidebar-dropdown">
@@ -125,6 +128,30 @@
                         <li><a class="sidebar-link" (click)="routeItemStockReport()">Item Stock</a></li>
                         <li><a class="sidebar-link" (click)="routeProfitReport()" >Profit Report</a></li>
                         <li><a class="sidebar-link" (click)="routeItemSaleByCategoryReport()" >Item Sale Report</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item sidebar-dropdown">
+                    <a>
+                        <span class="icon-holder"><i class="fas fa-chart-line"></i></span>
+                        <span class="title">User Configuration</span>
+                    </a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" (click)="routeUser()">Users</a></li>
+                        <li><a class="sidebar-link" (click)="routeUserRights()" >User Rights</a></li>
+                        <li><a class="sidebar-link" (click)="routeUserTypes()" >User Types</a></li>
+                        <li><a class="side-link">Profile</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item sidebar-dropdown">
+                    <a>
+                        <span class="icon-holder"><i class="fas fa-chart-line"></i></span>
+                        <span class="title">Module Configuration</span>
+                    </a>
+                    <ul class="sidebar-submenu scrollable">
+                        <li><a class="sidebar-link" (click)="routeOffice()">Office</a></li>
+                        <li><a class="sidebar-link" (click)="routeBranch()">Branch</a></li>
+                        <li><a class="sidebar-link" (click)="routeSettings()">Settings</a></li>
+                        <li><a class="sidebar-link" (click)="showProfile()">Organisation Profile</a></li>
                     </ul>
                 </li>
               <!--   <li class="nav-item"><a class="sidebar-link" href="javascript:void(0);"><span class="icon-holder"><i
@@ -183,3 +210,6 @@
     </div>
     <div class="over-bar"></div>
 </div>
+
+<app-organisation-profile [openProfile]="showProfileStatus"
+(closeProfile)="closeProfile($event)"></app-organisation-profile>

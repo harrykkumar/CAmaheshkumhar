@@ -62,8 +62,9 @@ export class SalesListComponent implements   OnInit   {
       }
     })
   }
-  openPrint (id) {
-    this._commonService.openPrint(id,this.DIRECT_SALE_TYPE)
+  openPrint (id,isViewPrint) {
+    this._commonService.openPrint(id,this.DIRECT_SALE_TYPE,isViewPrint)
   }
+
 
 }

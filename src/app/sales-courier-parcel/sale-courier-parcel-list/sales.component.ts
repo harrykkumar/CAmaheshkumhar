@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core'
-import { Subscription } from 'rxjs'
-import { FormGroup } from '@angular/forms'
-import { SaleTravel } from '../../model/sales-tracker.model'
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Subscription, throwError, fromEvent } from 'rxjs';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { UIConstant } from '../../shared/constants/ui-constant'
 import { Settings } from '../../shared/constants/settings.constant'
-import { SetUpIds } from '../../shared/constants/setupIds.constant'
 import { SalesCourierParcelServices } from '../sale-courier-parcel.services'
 import { CommonService } from '../../commonServices/commanmaster/common.services'
+import { PagingComponent } from '../../shared/pagination/pagination.component';
+import { filter, catchError, map, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { ToastrCustomService } from '../../commonServices/toastr.service';
+import { ExcelService } from '../../commonServices/excel.service';
 declare const $: any
 @Component({
   selector: 'app-travel-invoice',
@@ -19,8 +21,7 @@ export class SalesComponent implements OnInit {
   sheetname: any
   masterData: any
   subcribe: Subscription
-  saleTravelDetails: SaleTravel[]
-  saletravelForm: FormGroup
+  saleList = []
   bankForm: FormGroup
   newBillSub: Subscription
   transactions: any = []
@@ -75,31 +76,99 @@ export class SalesComponent implements OnInit {
     'pharmacode',
     'codabar'
   ]
+
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
+  lastItemIndex: number = 0
+  isSearching: boolean = true
+  @ViewChild('paging_comp') pagingComp: PagingComponent
+  @ViewChild('searchData') searchData: ElementRef
+  onTextEnteredSub: Subscription
+  queryStr: string = ''
+  queryStr$: Subscription
+
+  searchForm: FormGroup
   constructor (private saleServices: SalesCourierParcelServices,
     private settings: Settings,
-    private commomService: CommonService) {
-    this.getSaleTraveDetail()
+    private commomService: CommonService,
+    private toastrService: ToastrCustomService,
+    private _formBuilder: FormBuilder,
+    private excelService: ExcelService
+    ) {
     this.newBillSub = this.commomService.newSaleStatus().subscribe(
       (obj: any) => {
-        this.getSaleTraveDetail()
+        this.getSaleList()
+      }
+    )
+    this.queryStr$ = this.saleServices.queryStr$.subscribe(
+      (str) => {
+        console.log(str)
+        this.queryStr = str
+        this.p = 1
+        this.getSaleList()
       }
     )
     this.clientDateFormat = this.settings.dateFormat
-    console.log('client date format : ', this.clientDateFormat)
-    if (this.clientDateFormat === '') {
-      this.commomService.getSettingById(SetUpIds.dateFormat).subscribe(
-        (data) => {
-          if (data.Code === UIConstant.THOUSAND && data.Data.SetupDynamicValues) {
-            this.clientDateFormat = data.Data.SetupDynamicValues.Val
-            this.settings.dateFormat = this.clientDateFormat
-          }
-        }
-      )
-    }
+    // console.log('client date format : ', this.clientDateFormat)
   }
 
   ngOnInit () {
+    this.createForm()
+    this.getSaleList()
     this.commomService.fixTableHF('cat-table')
+    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+      map((event: any) => {
+        return event.target.value
+      }),
+      filter(res => res.length > 1 || res.length === 0),
+      debounceTime(1000),
+      distinctUntilChanged()
+      ).subscribe((text: string) => {
+        this.searchGetCall(text).pipe(
+          filter(data => {
+            if (data.Code === UIConstant.THOUSAND) {
+              return true
+            } else {
+              throw new Error(data.Description)
+            }
+          }),
+          catchError(error => {
+            return throwError(error)
+          }),
+          map(data => data.Data)
+        ).subscribe((data) => {
+          this.totalBillAmount = 0
+          this.saleList = data
+          this.total = this.saleList && this.saleList.length > 0 ? this.saleList[0].TotalRows : 0
+          if (data.length > 0) {
+            data.forEach(element => {
+              this.totalBillAmount = +(this.totalBillAmount + element.BillAmount).toFixed(2)
+            })
+          }
+          this.isSearching = false
+        },(err) => {
+          this.isSearching = false
+          this.toastrService.showError(err, '')
+        },
+        () => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+        })
+      })
+  }
+  searchGetCall (term: string) {
+    if (!term) {
+      term = ''
+    }
+    this.pagingComp.setPage(1)
+    return this.saleServices.getSaleList('?StrSearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
+  }
+  createForm () {
+    this.searchForm = this._formBuilder.group({
+      'searchKey': ['']
+    })
   }
 
   onOpenInvoice (id) {
@@ -111,22 +180,38 @@ export class SalesComponent implements OnInit {
   toggleSearch () {
     this.toShowSearch = !this.toShowSearch
   }
-    /* get sale travel Detail */
   totalDiscount: number
   totaltax: number
   totalBillAmount: number
-  getSaleTraveDetail () {
-    this.commomService.getSaleDetail('').subscribe(data => {
-      console.log('sales data: ', data)
-      if (data.Code === UIConstant.THOUSAND && data.Data) {
-        this.totalBillAmount = 0
-        this.saleTravelDetails = data.Data
-        if (data.Data.length > 0) {
-          data.Data.forEach(element => {
-            this.totalBillAmount = +(this.totalBillAmount + element.BillAmount).toFixed(2)
-          })
+  getSaleList () {
+    if (!this.searchForm.value.searchKey || this.searchForm.value.searchKey.length === 0) {
+      this.searchForm.value.searchKey = ''
+    }
+    this.isSearching = true
+    this.saleServices.getSaleList('?StrSearch=' + this.searchForm.value.searchKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).pipe(
+      filter(data => {
+        if (data.Code === UIConstant.THOUSAND) {
+          return true
+        } else {
+          throw new Error(data.Description)
         }
-      }
+      }),
+      catchError(error => {
+        return throwError(error)
+      }),
+      map(data => data.Data)
+    ).
+    subscribe(data => {
+      console.log('sales courier data: ', data)
+      this.totalBillAmount = 0
+      this.saleList = data.CourierDetails
+      this.total = this.saleList && this.saleList.length > 0 ? this.saleList[0].TotalRows : 0
+      this.totalBillAmount = +(data.CourierSummary[0].BillAmount).toFixed(2)
+      this.isSearching = false
+    },
+    (error) => {
+      this.isSearching = false
+      this.toastrService.showError('', error)
     })
   }
 
@@ -147,7 +232,7 @@ export class SalesComponent implements OnInit {
 
     let _self = this
     _self.saleServices.printSCourierParcelSale(id).subscribe(data => {
-      console.log(data , 'courier_prcellll')
+      // console.log(data , 'courier_prcellll')
       _self.SaleTransactionDetails = []
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data && data.Data.SaleTransactionDetails.length > 0) {
@@ -156,7 +241,7 @@ export class SalesComponent implements OnInit {
           _self.SaleTransactionDetails = data.Data.SaleTransactionDetails
           _self.barcode = data.Data.SaleTransactionDetails[0].BarcodeBill
 
-          console.log(_self.SaleTransactionDetails ,'fffffffffffffff')
+          // console.log(_self.SaleTransactionDetails ,'fffffffffffffff')
         } else {
           _self.SaleTransactionDetails = []
         }
@@ -300,5 +385,103 @@ export class SalesComponent implements OnInit {
       printWindow.close()
     }, 10)
 
+  }
+
+  expoertdata: any
+  mainData: any
+  Quantity: any
+  expoertFileData() {
+    this.commomService.excelForCouirerParcelData().subscribe(data => {
+      console.log('excel data : ', data)
+      if (data.Code === UIConstant.THOUSAND) {
+        this.mainData = []
+        this.expoertdata = data.Data
+        data.Data.InventoryTransactionSales.forEach(mainItem => {
+          let item = this.expoertdata.ItemTransactiondetails.filter(s => s.SaleId === mainItem.Id)
+          console.log('item : ', item)
+          let address = this.expoertdata.Addresses.filter(s => (s.SaleId === mainItem.Id) && (s.ClientType === 'Receiver'))
+          if (address.length === 0) {
+            address.push({
+              AddressValue: '',
+              AreaName: '',
+              CityName: '',
+              StateName: '',
+              CountryName: '',
+              PostCode: ''
+            })
+          }
+          let Customeraddress = this.expoertdata.Addresses.filter(s => (s.SaleId === mainItem.Id) && (s.ClientType === 'Customer'))
+          if (Customeraddress.length === 0) {
+            Customeraddress.push({
+              AddressValue: '',
+              AreaName: '',
+              CityName: '',
+              StateName: '',
+              CountryName: '',
+              PostCode: ''
+            })
+          }
+
+          let reciverContact = this.expoertdata.LedgerTypeInfos.filter(s => (s.SaleId === mainItem.Id) && (s.ClientType === 'Receiver') && (s.EntityType === 'ContactNo'))
+
+          let customerContact = this.expoertdata.LedgerTypeInfos.filter(s => (s.SaleId === mainItem.Id) && (s.ClientType === 'Customer') && (s.EntityType === 'ContactNo'))
+          console.log(this.mainData)
+          this.mainData.push({
+            HAWB_No: mainItem.BillNo,
+            NO_of_PCS:
+              item.filter(item1 => item1.Quantity)
+                .map(item1 => parseFloat(item1.Quantity))
+                .reduce((sum, current) => sum + current)
+            ,
+            Consignee_Address_Tele_Number:
+              mainItem.CustomerName + ', ' +
+              (Customeraddress[0] && Customeraddress[0].AddressValue ? Customeraddress[0].AddressValue + ', ' : '') +
+              (Customeraddress[0] && Customeraddress[0].AreaName ? Customeraddress[0].AreaName + ', ' : '') +
+              (Customeraddress[0] && Customeraddress[0].CityName ? Customeraddress[0].CityName + ', ' : '') +
+              (Customeraddress[0] && Customeraddress[0].StateName ? Customeraddress[0].StateName + ',' : '') +
+              (Customeraddress[0] && Customeraddress[0].CountryName ? Customeraddress[0].CountryName + ',' : '') +
+              (Customeraddress[0] && Customeraddress[0].PostCode ? Customeraddress[0].PostCode + ', ' : '') +
+              'ContactNo - ' +
+              Array.prototype.map.call(reciverContact, function (item) { return item.Name }).join(','),
+            Description_Goods:
+              Array.prototype.map.call(item, function (item) { return item.Description }).join(',')
+            ,
+            Weight: mainItem.TotalWeight,
+            Invoice_Value:
+              item
+                .map(item1 => item1.TotalAmount)
+                .reduce((sum, current) => sum + +current),
+            Receiver: mainItem.ReceiverName + ' ,' +
+
+              (address[0] && address[0].AddressValue ? address[0].AddressValue + ', ' : '') +
+              (address[0] && address[0].AreaName ? address[0].AreaName + ', ' : '') +
+              (address[0] && address[0].CityName ? address[0].CityName + ', ' : '') +
+              (address[0] && address[0].StateName ? address[0].StateName + ',' : '') +
+              (address[0] && address[0].CountryName ? address[0].CountryName + ',' : '') +
+              (address[0] && address[0].PostCode ? address[0].PostCode + ', ' : '')  
+
+              + 'ContactNo -' +
+              Array.prototype.map.call(customerContact, function (item) { return item.Name }).join(',')
+            ,
+            Pincode: (Customeraddress[0].PostCode !== null ? Customeraddress[0].PostCode : ''),
+            L_H_W: mainItem.ParcelLength + 'x' + mainItem.ParcelHeight + 'x' + mainItem.ParcelWidth
+
+          })
+
+
+        })
+      } else {
+        throw new Error(data.Description)
+      }
+    },
+    (error) => {
+      this.toastrService.showError(error, '')
+    },
+    () => {
+      console.log(this.mainData)
+      if (this.mainData && this.mainData.length > 0) {
+        this.excelService.exportAsExcelFile(this.mainData, 'Sale Report')
+      }
+    })
   }
 }

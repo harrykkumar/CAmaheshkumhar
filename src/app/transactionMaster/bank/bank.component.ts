@@ -54,7 +54,7 @@ export class BankComponent implements OnInit {
     if (id) {
       this.commonService.deleteBankDetails(id).subscribe(Data => {
         if (Data.Code === UIConstant.DELETESUCCESS) {
-          this.toastrService.showSuccess(UIConstant.SUCCESS, UIConstant.DELETED_SUCCESSFULLY)
+          this.toastrService.showSuccess('', UIConstant.DELETED_SUCCESSFULLY)
           this.commonService.closeDelete('')
           this.getbankDetail()
         }

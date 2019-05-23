@@ -1,6 +1,6 @@
 import { Component } from '@angular/core'
 import { TokenService } from '../../commonServices/token.service'
-import { Router } from '@angular/router'
+declare const $: any
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -12,8 +12,7 @@ export class HeaderComponent {
     editMode: false
   }
   constructor (
-    private _tokenServices: TokenService,
-    private router: Router) {
+    private _tokenServices: TokenService) {
   }
   public siderbarMenu () {
     $('.app').toggleClass('is-collapsed')
@@ -25,25 +24,20 @@ export class HeaderComponent {
     this._tokenServices.destroyToken()
   }
 
-  /* Function invoke on click of organisation profile menu */
-  showProfile = () => {
-    this.showProfileStatus = {
-      profileOpen: true,
-      editMode: true
-    }
-  }
-
   /* Function to navigate branch list page */
-  navigate = (path) => {
-    this.router.navigate([path])
-  }
+  // navigate = (path) => {
+  //   this.router.navigate([path])
+  // }
 
   /* Function invoke on click of save and close org-profile modal  */
-  closeProfile = (event) => {
-    this.showProfileStatus = {
-      profileOpen: false,
-      editMode: false
-    }
-  }
+  // closeProfile = (event) => {
+  //   this.showProfileStatus = {
+  //     profileOpen: false,
+  //     editMode: false
+  //   }
+  // }
 
+  // navToSettings = () => {
+  //   this.router.navigate([URLConstant.SETTINGS_PAGE])
+  // }
 }

@@ -41,6 +41,8 @@ export class CategoryServices {
   public saveAndUpdateCategory (parms: any): Observable<any> {
     return this._basesService.postRequest(ApiConstant.GET_SAVE_AND_UPDATE_CATEGORY_URL, parms)
   }
+ 
+
 
   public deleteCatagory (deletedId) {
     return this._basesService.deleteRequest(ApiConstant.DELETE_CATEGORY_URL + deletedId)

@@ -250,7 +250,7 @@
 .select2-container--default .select2-selection--multiple {
     display: block;
     width: 100%;
-    height: calc(2rem + 2px);
+    min-height: calc(2rem + 2px);
     padding: .375rem .75rem;
     font-size: .75rem;
     line-height: 1.5;

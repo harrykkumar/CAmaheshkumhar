@@ -23,7 +23,15 @@
                 <label>Party</label>
                 <div class="input-group adw_select">
                   <div class="input-group adw_select">
-                    <select2 [disabled]="Id !== 0" #client_select2 id="client"  [data]="clientNameSelect2" class="control_select" (valueChanged)="onSelected2clientId($event)" autocomplete="true" [options]="clientnamePlaceHolder" [value]="clientNameId" [ngClass]="{'errorSelecto': submitSave && invalidObj?.clientNameId }"></select2>
+                    <select2 [disabled]="Id !== 0"
+                     #client_select2 id="client" 
+                      [data]="clientNameSelect2" 
+                      class="control_select"
+                       (valueChanged)="onSelected2clientId($event)" 
+                       autocomplete="true"
+                        [options]="clientnamePlaceHolder" 
+                        [value]="clientNameId" 
+                        [ngClass]="{'errorSelecto': submitSave && invalidObj?.clientNameId }"></select2>
                   </div>
                 </div>
               </div>

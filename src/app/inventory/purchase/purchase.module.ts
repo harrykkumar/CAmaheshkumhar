@@ -7,7 +7,8 @@ import { PurchaseSearchComponent } from './purchase-search/purchase-search.compo
 import { PurchaseMainComponent } from './purchase-main/purchase-main.component'
 import { Select2Module } from 'ng2-select2'
 import { SharedModule } from 'src/app/shared/shared.module'
-import { MatTooltipModule } from '@angular/material/tooltip'
+import { PagingUtilityModule } from 'src/app/shared/pagination/pagination.module'
+import { NgxPaginationModule } from 'ngx-pagination'
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { MatTooltipModule } from '@angular/material/tooltip'
     PurchaseRoutingModule,
     SharedModule,
     Select2Module,
-    MatTooltipModule
+    PagingUtilityModule,
+    NgxPaginationModule
   ]
 })
 export class PurchaseModule { }

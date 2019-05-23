@@ -108,7 +108,7 @@ const routes: Routes = [
         loadChildren: '../user/user-rights/user-rights.module#UserRightsModule'
       },
       {
-        path: 'ims/sale-direct',
+        path: 'ims/sale',
         loadChildren: '../inventory/sale-direct/sales-direct/sales-direct.module#SalesDirectModule'
       },
       {
@@ -118,7 +118,19 @@ const routes: Routes = [
       {
         path: 'ims/report',
         loadChildren: '../report/item-category-sale/item-sale-report.module#ItemSaleReportModule'
-      }
+      },
+      {
+        path: 'settings',
+        loadChildren: '../settings/settings.module#SettingsModule'
+      },
+      {
+        path: 'account/ledgergroup',
+        loadChildren: '../transactionMaster/ledger-group/ledger-group.module#LedgerGroupModule'
+      },
+      {
+        path: 'account/ledgercreation',
+        loadChildren: '../transactionMaster/ledger-creation/ledger-creation.module#LedgerCreationModule'
+      },
     ]
   }
 ]

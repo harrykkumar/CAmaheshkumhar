@@ -8,6 +8,7 @@ import _ from 'lodash'
 import { CommonService } from '../../commonServices/commanmaster/common.services'
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { PagingComponent } from '../../shared/pagination/pagination.component'
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-attribute',
@@ -26,6 +27,7 @@ export class AttributeComponent implements OnInit {
   total: number = 0
   lastItemIndex: number = 0
   isSearching: boolean = false
+  parentAttrAdd$: Subscription
   @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (
     private attributeService: AttributeService,
@@ -40,6 +42,11 @@ export class AttributeComponent implements OnInit {
   ngOnInit () {
     this.initAttributeList()
     this.getParentAttributeList()
+    this.parentAttrAdd$ = this.attributeService.parentAttrAdd$.subscribe(
+      () => {
+        this.getParentAttributeList()
+      }
+    )
     this.commonService.fixTableHF('cat-table')
     fromEvent(this.searchData.nativeElement, 'keyup').pipe(
       map((event: any) => {
@@ -189,6 +196,8 @@ export class AttributeComponent implements OnInit {
         this.toastrService.showSuccess('Sucess', 'Deleted Successfully')
         this.commonService.closeDelete('')
         this.getParentAttributeList()
+        this.initAttributeList()
+        this.attributeService.onDeleteStatus(true)
       }
       if (Data.Code === UIConstant.CANNOTDELETERECORD) {
         this.toastrService.showInfo('', Data.Description)

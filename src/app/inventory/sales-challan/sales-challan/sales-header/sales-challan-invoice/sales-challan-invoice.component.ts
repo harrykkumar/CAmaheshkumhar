@@ -337,7 +337,6 @@ export class SalesChallanInvoiceComponent {
 
         }
         if (this.Id !== 0 && this.editMode && !this.editRowFlag) {
-         alert('jj')
           this.getSaleChllanEditData(this.Id)
         }
         this.unitDataType = []

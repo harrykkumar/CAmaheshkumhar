@@ -1206,6 +1206,12 @@ export class SalesReturnComponent {
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
+      this.invalidObj['PayModeId'] = false
+      this.invalidObj['LedgerId'] = false
+      this.invalidObj['ledgerName'] = false
+      this.invalidObj['Amount'] = false
+      this.invalidObj['PayDate'] = false
+      this.invalidObj['ChequeNo'] = false
     }
   }
 

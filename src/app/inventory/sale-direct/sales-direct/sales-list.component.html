@@ -52,8 +52,8 @@
                               <tr>
                                 <th>Sr.No.</th>
                                 <th>Party Details</th>
-                                <th>Bill No.</th>
-                                <th>Bill Date</th>
+                                <th>Invoice No.</th>
+                                <th>Invoice Date</th>
                                 <th class="text-right" >Quantity</th>
                                 <th class="text-right">Discount </th>
                                 <th class="text-right">Tax Amount</th>
@@ -76,7 +76,8 @@
                                     <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
                                       class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
                                     <ul class="dropdown-menu fsz-sm">
-                                      <li><a (click)="openPrint(item.Id)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                                      <li><a (click)="openPrint(item.Id,false)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                                      <li><a (click)="openPrint(item.Id,true)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fas fa-print mR-10 cH-blue"></i><span>View Bill</span></a></li>
                                       <li ><a (click)="openSaleDirect(item.Id)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
                                       <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
                                       <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>

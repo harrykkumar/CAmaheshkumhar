@@ -13,79 +13,134 @@
               {{orgAddress && orgAddress[0]?.CityName}}
               {{orgAddress && orgAddress[0]?.StateName}}
               {{orgAddress && orgAddress[0]?.CountryName }}</div>
+            <div>{{EmailsOrg && EmailsOrg[0]?.EmailAddress }} </div>
+            <!-- <div>{{EmailsOrg && EmailsOrg[1]?.EmailAddress }} </div> -->
             <div>{{ContactOrgInfo && ContactOrgInfo[0]?.ContactNo }} </div>
             <div><a > {{website && website[0]?.Name}}</a></div>
         </div>
 
     </header>
     <div class=" header1">
-        <h4 style="text-align:center; margin:0;padding:0;">Invoice</h4>
+        <h4 style="text-align:center; margin:0;padding:0;">Tax-Invoice</h4>
     </div>
     <main>
+            <div id="details" class="clearfix">
+                    <div class="row1">
+                        <div class="col1">
+                            <table>
+                                <tbody>
+                              <tr>
+                                 <td style="width:25%;">Invoice No. :</td>
+                                 <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillNo }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:25%;">Invoice Date : </td>
+                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillDate | date :clientDateFormat}}</strong></td>
+                                </tr>
+                                <tr>
+                                 <td style="width:25%;">Due Date : </td>
+                                        <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.DueDate | date :clientDateFormat}}</strong></td>
+                                    </tr> 
+                                    <tr>
+                                            <td style="width:25%;">E-way BillNo : </td>
+                                                   <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.EwayBillNo | date :clientDateFormat}}</strong></td>
+                                               </tr> 
+                            </tbody></table>
+                        </div>
+                        <div class="col1">
+                            <table>
+                                <tbody>
+                          <ng-container *ngIf='CustomerTypes && CustomerTypes.length === 0'>
+                                <tr>
+                                    <td style="width:25%;">Driver Name :</td>
+                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.Drivername }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:25%;">Transportation : </td>
+                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.Transportation }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:25%;">Vehicle No : </td>
+                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.VehicleNo }}</strong></td>
+                                </tr>
+                            </ng-container>
+                              
+                            </tbody></table>
+                        </div>
+                        </div>
+                          
+                        </div>
+
+     
         <div id="details" class="clearfix">
-            <div id="client">
-                <table>
-                    <tr>
-                        <td>Bill NO:</td> 
-                        <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillNo }}</strong></td>
-                    </tr>
-                    <tr>
-                        <td>Bill Date : </td>
-                        <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillDate | date :'longDate'}}</strong></td>
-                    </tr>
-                    <!-- <tr>
-                        <td>Referance : </td>
-                        <td><strong></strong></td>
-                    </tr>
-                    <tr>
-                        <td>Delivery Date : </td>
-                        <td><strong>21/12-2019</strong></td>
-                    </tr -->
-                </table>
-            </div>
-            <div id="invoice">
-                <table>
-                    <tr>
-                        <td>Driver Name : </td>
-                        <td><strong> {{InventoryTransactionSales && InventoryTransactionSales[0]?.Drivername }}</strong></td>
-                    </tr>
-                     <tr>
-                        <td>Transportation : </td>
-                        <td><strong> {{InventoryTransactionSales && InventoryTransactionSales[0]?.Transportation }}</strong></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+                <div class="row1">
+                        <div class="col1">
+                                <div class=" header1">
+                                        <h4 style="text-align:center; margin:0;padding:0;">Bill To</h4>
+                                        </div>
+                            <table>
+                                <tbody><tr>
+                                    <td>Name :</td>
+                                    <td *ngIf='CustomerTypes && CustomerTypes.length === 0'><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.LedgerName}}</strong></td>
+                                    <td *ngIf='CustomerTypes && CustomerTypes.length > 0'><strong>{{CustomerTypes && CustomerTypes[0]?.Name}}</strong></td>
 
-        <div class=" header1">
-            <h4 style="text-align:center; margin:0;padding:0;">Detail of Customer</h4>
-        </div>
-        <div id="details" class="clearfix">
-            <div id="client">
-                <table>
-                     <tr>
-                        <td>Name :</td>
-                        <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.LedgerName}}</strong></td>
-                    </tr>
-                    <tr>
-                        <td>Address : </td>
-                        <td><strong>{{customerAddress && customerAddress[0]?.AddressValue}} {{customerAddress && customerAddress[0]?.AreaName}}
-                            {{customerAddress && customerAddress[0]?.CityName}} {{customerAddress && customerAddress[0]?.StateName}} {{customerAddress && customerAddress[0]?.CountryName }}
-                          </strong></td>
-                    </tr>
-                    <tr>
-                        <td>GST No : </td>
-                        <td><strong>{{ClientInfos && ClientInfos[0]?.GstinNo }}</strong></td>
-                    </tr>
-
-
-                </table>
-            </div>
+                                </tr>
+                                <!-- <tr>
+                                    <td>Mobile No :</td>
+                                    <td><strong>{{ContactCustInfo && ContactCustInfo[0]?.ContactNo}}{{CustomerTypes && CustomerTypes[0]?.CountryCode}}{{CustomerTypes && CustomerTypes[0]?.MobileNo}}</strong></td>
+                                </tr> -->
+                                <tr>
+                                    <td>Address : </td>
+                                    <td><strong>{{CustomerTypes && CustomerTypes[0]?.Address}}{{customerAddress && customerAddress[0]?.AddressValue}} {{customerAddress && customerAddress[0]?.AreaName}}
+                                            {{customerAddress && customerAddress[0]?.CityName}} </strong></td>
+                                </tr>
+                                <tr>
+                                        <td>State : </td>
+                                        <td><strong> {{customerAddress && customerAddress[0]?.StateName}} {{customerAddress && customerAddress[0]?.CountryName }}</strong></td>
+                                    </tr>
+                                <tr>
+                                  <td>GST No : </td>
+                                        <td><strong>{{ClientInfos && ClientInfos[0]?.GstinNo }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                            <td>State Code : </td>
+                                            <td><strong> {{InventoryTransactionSales && InventoryTransactionSales[0]?.StateCode}}</strong></td>
+                                        </tr>
+                                  
+                            </tbody></table>
+                        </div>
+                        <div class="col1">
+                                <div class=" header1">
+                                        <h4 style="text-align:center; margin:0;padding:0;">Shipping To</h4>
+                                        </div>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                    <td>State Name :</td>
+                                    <td><strong>{{customerAddress && customerAddress[0]?.StateName}}</strong></td>
+                                </tr>
+                              
+                                    <!-- <tr>
+                                            <td>Email :</td>
+                                            <td><strong>{{Emails && Emails[0]?.EmailAddress}}{{CustomerTypes && CustomerTypes[0]?.Email}}</strong></td>
+                                        </tr> -->
+                                        <tr>
+                                                <td>Address : </td>
+                                                <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.SupplyAddress}} </strong></td>
+                                            </tr>
+                                        <tr>
+                                            <td>State Code : </td>
+                                            <td><strong> {{InventoryTransactionSales && InventoryTransactionSales[0]?.StateCode}}</strong></td>
+                                        </tr>
+                            </tbody></table>
+                        </div>
+                        </div>
             <div id="invoice">
 
             </div>
         </div>
         <div class="table_summery">
+            <div class="tbl_fix_height">
         <table border="0" class="table1" cellspacing="0" cellpadding="0">
             <thead>
                 <tr>
@@ -93,9 +148,8 @@
                     <th class="desc" style="width:15%;">Category</th>
                     <th class="desc" style="width:15%;">Item Name</th>
                     <th *ngIf="industryId === '2' " class="desc">Item Description</th>
-                    <th class="desc" style="width:15%;">HSN Code</th>
-                    <th  *ngIf="industryId === '3' "  class="desc">Length x Height x Width</th>  
-                   
+                    <th class="desc" style="width:15%;">HSN</th>
+                    <th  *ngIf="industryId === '3' "  class="desc">Length x Height x Width</th> 
                      <ng-container *ngIf="industryId === '5' " >
                       <th>Batch No</th>
                       <th>Expiry Date</th>
@@ -106,9 +160,7 @@
                     </ng-container>  
                     <th class="qty">Qty</th>
                     <th class="desc">Unit</th>
-                    <th class="desc">Rate</th>
-                   <!--  <th class="desc">Discount</th>
-                    <th class="desc">Tax</th>   -->
+                    <th style="text-align:right">Rate</th>
                     <th class="total">Amount</th> 
                  
 
@@ -135,94 +187,98 @@
                     <td>{{item.BatchNo}}</td>
                     <td>{{item.ExpiryDate}}</td> 
                     </ng-container>
-                  <td >{{ item.Quantity}}</td>
+                  <td style="text-align:right">{{item.Quantity}}</td>
                   <td>{{ item.UnitName}}</td>
-                  <td>{{ item.SaleRate}}</td>
+                  <td style="text-align:right">{{(item.SaleRate).toFixed(dicimalDigitFormat)}}</td>
                  <!--  <td>{{ item.DiscountAmt}}</td>
                   <td>{{ item.TaxAmount}}</td> -->
-                  <td>{{ item.SubTotalAmount}}</td>
+                  <td style="text-align:right">{{(item.SubTotalAmount).toFixed(dicimalDigitFormat)}}</td>
 
                    
                 </tr>
                </tbody>
-            <tfoot>
-
-
-                <tr>
-                   <td colspan="1" *ngIf="industryId === '2' " ></td>  
-                   <td colspan="1" *ngIf="industryId === '3' " ></td>
-                    <td colspan="2" *ngIf="industryId === '5' " ></td>
-                    <td colspan="2" *ngIf="industryId === '6' " ></td>
-                    <td colspan="6">Sub Total Amount</td>
-                    <td colspan="2">{{subTotalAmount}} </td>
-                </tr>
-                <tr>
-                   <td colspan="1" *ngIf="industryId === '2' " ></td>  
-                   <td colspan="1" *ngIf="industryId === '3' " ></td>
-                    <td colspan="2" *ngIf="industryId === '5' " ></td>
-                    <td colspan="2" *ngIf="industryId === '6' " ></td>                
-                   <td colspan="6">Discount</td>
-                    <td colspan="2">{{totalDiscountAmt}} </td>
-                </tr>
-                <tr *ngFor ="let tax of ItemTaxTrans; let i= index" >  
-                    <td colspan="1" *ngIf="industryId === '2' " ></td>  
-                   <td colspan="1" *ngIf="industryId === '3' " ></td>
-                    <td colspan="2" *ngIf="industryId === '5' " ></td>
-                    <td colspan="2" *ngIf="industryId === '6' " ></td>   
-                   <td colspan="6">{{tax.Name}}</td>
-                    <td colspan="2">{{(tax.Amount).toFixed(2)}} </td>
-                </tr>
-                  <tr>
-                     <td colspan="1" *ngIf="industryId === '2' " ></td>  
-                    <td colspan="1" *ngIf="industryId === '3' " ></td>
-                    <td colspan="2" *ngIf="industryId === '5' " ></td>
-                    <td colspan="2" *ngIf="industryId === '6' " ></td>   
-                    <td colspan="6">Freight</td> 
-                    <td colspan="2">{{InventoryTransactionSales && (InventoryTransactionSales[0]?.Freight).toFixed(2) }} </td>
-                </tr>
-                  <tr>
-                     <td colspan="1" *ngIf="industryId === '2' " ></td>  
-                    <td colspan="1" *ngIf="industryId === '3' " ></td>
-                    <td colspan="2" *ngIf="industryId === '5' " ></td>
-                    <td colspan="2" *ngIf="industryId === '6' " ></td>   
-                    <td colspan="6">Other Charge </td>   
-                    <td colspan="2">{{InventoryTransactionSales && (InventoryTransactionSales[0]?.OtherCharge).toFixed(2) }} </td>
-                </tr>
-                <tr>
-                     <td colspan="1" *ngIf="industryId === '2' " ></td>  
-                    <td colspan="1" *ngIf="industryId === '3' " ></td>
-                    <td colspan="2" *ngIf="industryId === '5' " ></td>
-                    <td colspan="2" *ngIf="industryId === '6' " ></td>   
-                    <td colspan="6">Bill Amount</td>
-                    <td colspan="2">{{billAmount}}  {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</td>
-                </tr>
-                <tr>
-                    <td colspan="1" *ngIf="industryId === '2' " ></td>  
-                    <td colspan="1" *ngIf="industryId === '3' " ></td>
-                    <td colspan="2" *ngIf="industryId === '5' " ></td>
-                    <td colspan="2" *ngIf="industryId === '6' " ></td>   
-                    <td colspan="2">Total Amount In Words : </td>
-                    <td colspan="7"><strong>{{word}} {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong></td>
-                </tr>
-            </tfoot>
         </table>
+    </div>
+        <div class="clearfix">
+
+            <div class="row1">
+            
+                <div class="col1 bank_detail">
+                    <table>
+                            <tr>
+                                    <td style="width:25%;">Bank Name</td>
+                                    <td><strong>{{ClientInfos && ClientInfos[0]?.BankName}}</strong></td>
+                                </tr>
+                        <tr>
+                            <td style="width:25%;">Bank A/c No</td>
+                            <td><strong>{{ClientInfos && ClientInfos[0]?.AcNo}}</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="width:25%;">IFSC Code</td>
+                            <td><strong>{{ClientInfos && ClientInfos[0]?.IfscCode}}</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="width:25%;">Branch</td>
+                            <td><strong>{{ClientInfos && ClientInfos[0]?.BranchName}}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col1">
+                    <table class="tbl_footer">
+                        <tr>
+                            <td>Sub Total Amount :</td>
+                            <td ><strong>{{subTotalAmount}} </strong></td>
+                        </tr>
+                        <tr>
+                            <td >Discount :</td>
+                            <td ><strong>{{totalDiscountAmt}} </strong></td>
+                        </tr>
+                        <tr>
+                            <td>Total Tax :</td>
+                            <td ><strong>{{InventoryTransactionSales && (InventoryTransactionSales[0]?.TaxAmount).toFixed(dicimalDigitFormat) }} </strong></td>
+                        </tr>
+                        <tr>
+                            <td >Fright :</td>
+                            <td ><strong>{{InventoryTransactionSales && (InventoryTransactionSales[0]?.Freight).toFixed(dicimalDigitFormat) }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td >Other Charge :</td>
+                            <td ><strong>{{InventoryTransactionSales && (InventoryTransactionSales[0]?.OtherCharge).toFixed(dicimalDigitFormat) }} </strong> </td>
+                        </tr>
+                        <tr>
+                            <td >Bill Amonut :</td>
+                            <td ><strong> {{billAmount}}  {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong></td>
+                        </tr>
+                    <!-- <tr>
+                    <td >Total Amount In Words :</td>
+                    <td ><strong>{{word}} {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong></td>
+                </tr> -->
+                       
+                        
+                    </table>
+                </div>
+            </div>
+            <div class="row1 total_word">
+                    <div class="col1">Total Amount In Words :</div>
+                    <div class="col1" style="text-align:right;"><strong>{{word}} {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong></div>
+                </div>
+        </div>
         </div>
         <div class="table_summery">
                 <table border="0" class="table1" cellspacing="0" cellpadding="0">
                     <thead>
                         <tr>
                             <th colspan="6">
-                                <h4 style="text-align:center; margin:0;padding:0;">Last Payment Received</h4>
+                                <h4 style=" margin:0;padding:0;"> Payment Details</h4>
                             </th>
                         </tr>
                         <tr> 
                             <th>S.no</th> 
                             <th>Paymode</th>
-                            <th>Ledger  </th>
-                            <th>Amount</th>
+                            <th>Pay Through </th>
                             <th>Cheque/DD No.</th>
                             <th>Date</th>
-
+                            <th style="text-align:right">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -230,34 +286,58 @@
                             <td>{{i+1}}</td>
                             <td>{{item.Paymode}}</td>
                             <td>{{item.BankLedgerName}}</td>
-                            <td>{{(item.Amount).toFixed(2)}}</td>
                             <td>{{item.ChequeNo}}</td>
-                            <td>{{item.PayDate | date:'longDate'}}</td>
+                            <td>{{item.PayDate | date:clientDateFormat}}</td>
+                            <td style="text-align:right">{{(item.Amount).toFixed(dicimalDigitFormat)}}</td>
                         </tr>
-
                     </tbody>
-
                 </table>
-
-
             </div>
-            <div>  
-                    <h3  style="text-align: right;"   class="name-footer">For : {{ClientInfos && ClientInfos[0]?.OfficeName }}</h3>
-                </div>
-        <div class="row">
-                <p><strong>Terms & Condition</strong></p>
-            </div>
-            <ul  *ngFor="let term of TermsConditions; let i= index" style="margin:0;">
-                <li>{{term.Terms}}</li>
-            </ul>
+            <div class="table_summery">
+                    <table border="0" class="table1" cellspacing="0" cellpadding="0">
+                        <thead>
+                            <tr>
+                                <th colspan="6">
+                                    <h4 style=" margin:0;padding:0;"> GST Analysis</h4>
+                                </th>
+                            </tr>
+                            <tr *ngFor="let item of hsnItemData; let i =index"> 
+                                <th style="text-align:right">HSN </th>
+                                <th style="text-align:right">Taxable Amount </th>
+                                <th style="text-align:right">Rate </th>
+                                <th *ngFor="let label of item.tax">{{label.Name}}({{label.TaxRate}})%</th>
+                                <th style="text-align:right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of hsnItemData; let i =index" >
+                                <td style="text-align:right">{{item.HsnNo}}</td>
+                                <td style="text-align:right">{{item.TaxableAmount}}</td>
+                                <td style="text-align:right" >{{item.rate}}%</td>
+                                <td style="text-align:right" *ngFor="let keyd of item.tax">{{keyd.Amount}}</td>
+                                <td style="text-align:right">{{item.TotalAmount}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>   
+             
           
     </main>
+    <div class="terms_section">
+            <div class="row">
+                    <p><strong> Term & Condition</strong></p>
+                </div>
+                <ul   style="margin:0;">
+                    <li *ngFor="let term of TermsConditions; let i= index">{{term.Terms}}</li>
+                </ul>
+    </div>
     <footer>
-       
+        
+           
         <div class="row1">
             <div class="col1">
                 <div class="row">
-                  
+                        <h3  style="text-align: right;"   class="name-footer">For : {{ClientInfos && ClientInfos[0]?.OfficeName }}</h3>
                 </div>
                
             </div>

@@ -37,7 +37,7 @@
                 </div>
               </div>
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
-                <label class="fw-500">Bill Date</label>
+                <label class="fw-500">Invoice Date</label>
                 <div class="timepicker-input input-icon ">
                   <div class="input-group">
                     <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
@@ -46,12 +46,12 @@
                 </div>
               </div>
                <div class="form-group col-md-4 col-lg-2 col-xl-2">
-                <label>Bill NO.</label><label *ngIf="isManualBillNoEntry && lastBillNo" id="previous-bill-container" > ( Last BillNo. is -{{lastBillNo}} )</label>
+                <label>Invoice NO.</label><label *ngIf="isManualBillNoEntry && lastBillNo" id="previous-bill-container" > ( Last BillNo. is -{{lastBillNo}} )</label>
                 <input   type="text" placeholder="Bill Number" (input)="checkValidation()" [disabled]="!isManualBillNoEntry" [ngClass]="{'errorSelecto': submitSave && invalidObj?.BillNo }" class="form-control" name="BillNo" [(ngModel)]="BillNo">
               </div>
       
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
-                <label for="E-way">E-way Number</label>
+                <label for="E-way">E-way Bill Number</label>
                 <input  type="text" class="form-control" id="e-way" placeholder="E-way No." (input)="checkValidation()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.EwayBillNo }" class="form-control" name="EwayBillNo" [(ngModel)]="EwayBillNo">
               </div>
             
@@ -84,7 +84,7 @@
                                 </div>
                         </div>
                              <div class="form-group col-md-4 col-lg-2 col-xl-2">
-                <label for="E-way">Godown</label>
+                <label for="E-way">Godown/Location</label>
               <div class="input-group adw_select">
                   <div class="input-group adw_select">
                     <select2 [disabled]="Id !== 0" #godown_select2  id="godown" [data]="godownDataType" class="control_select" (valueChanged)="onChangeGodown($event)"  autocomplete="true"  [options]="godownPlaceHolder"  [value]="godownId" ></select2>
@@ -94,7 +94,7 @@
                       <div  *ngIf="isCaseSaleFlag" class="form-group col-md-3">
                     <label> Billing Address </label>
                       <div class="input-group adw_select">
-                       <select2 [disabled]="Id !== 0"  #state_Select2Id [data]="stateList" class="control_select"
+                       <select2 [disabled]="Id !== 0"  #state_Billing_Select2Id [data]="stateList" class="control_select"
                           (valueChanged)="selectStatelist($event)" autocomplete="true"
                          [options]="stateListplaceHolder" [value]="stateValue"  > 
                          </select2>
@@ -103,9 +103,9 @@
                    <div *ngIf="isCaseSaleFlag" class="form-group col-md-3">
                     <label> Shipping Address </label>
                       <div class="input-group adw_select">
-                       <select2 [disabled]="Id !== 0"  #state_shiping_Select2Id [data]="stateList" class="control_select"
+                       <select2 [disabled]="Id !== 0"  #state_shiping_Select2Id [data]="stateListShip" class="control_select"
                           (valueChanged)="selectShippingStatelist($event)" autocomplete="true"
-                         [options]="stateListplaceHolder" [value]="stateValue"  > 
+                         [options]="stateListplaceHolder" [value]="stateShippingValue"  > 
                          </select2>
                   </div>
                   </div>
@@ -197,7 +197,7 @@
                       <td>{{item.TaxSlabName}}</td>
                       <td>{{item.TaxTypeName}} </td>
                       <td>{{item.TaxAmount}} </td>
-                      <td>{{item.TotalAmount}}</td>
+                      <td>{{(item.TotalAmount).toFixed(decimalDigit)}}</td>
                      </tr>
                
                   </tbody>
@@ -365,25 +365,22 @@
                     <label>Transportation</label>
                     <input type="text" class="form-control" id="Transportation" placeholder="Transportation" (input)="checkValidation()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.Transportation }" class="form-control" name="Transportation" [(ngModel)]="Transportation">
                   </div>
-                   <div class="form-group col-md-6">
-                    <label for="bill_no">Referal </label>
-                    <div class="input-group adw_select">
-                      <div class="input-group adw_select">
-                        <select2 #referal_id [data]="referals" class="control_select " (valueChanged)="onChangeReferals($event)" [options]="referalsPlaceHolder"  autocomplete="true" [value]='' ></select2>
-                      </div>
-                    </div>
-                  </div>
-                 <div class="form-group col-md-6">
-                    <label for="bill_no">Referal Type </label>
+                  <div class="form-group col-md-6">
+                    <label for="bill_no">Reference Type </label>
                     <div class="input-group adw_select">
                       <div class="input-group adw_select">
                         <select2 #referal_type  [data]="referalsType" class="control_select " (valueChanged)="onChangeReferalsType($event)" [value]='' autocomplete="true" [options]="referalsTypePlaceHolder"  ></select2>
                       </div>
                     </div>
                   </div>
-                 
-            
-             
+                   <div class="form-group col-md-6">
+                    <label for="bill_no">Reference By </label>
+                    <div class="input-group adw_select">
+                      <div class="input-group adw_select">
+                        <select2 #referal_id [data]="referals" class="control_select " (valueChanged)="onChangeReferals($event)" [options]="referalsPlaceHolder"  autocomplete="true" [value]='' ></select2>
+                      </div>
+                    </div>
+                  </div>
                    <div class="form-group col-md-4">
                     <label>Total Discount </label>
                      <input type="number" disabled="true" class="form-control" id="Commission" placeholder="Total Discount" (input)="checkValidation()" class="form-control" name="Commission" [(ngModel)]="totalDiscount">
@@ -392,7 +389,7 @@
                     <label>Total Tax </label>
                      <input type="number" disabled="true"  class="form-control" id="TaxAmount" placeholder="Total Tax" (input)="checkValidation()"  class="form-control" name="totalTaxAmount" [(ngModel)]="totalTaxAmount">
                   </div>
-                  <div class="form-group  col-md-4">
+                  <!-- <div class="form-group  col-md-4">
                           <label> Commission</label>
                                  <div class="discount">
                                   <input type="text" class="form-control Input_width" appIncludeDecimal name="CommisionRate"  placeholder="Commission " [(ngModel)]="CommisionRate">
@@ -400,7 +397,7 @@
                                     <option *ngFor="let value of currencyValues;" [value]="value.id" >{{value.symbol}}</option>
                                   </select>
                                 </div>
-                        </div>
+                        </div> -->
                   <div class="form-group col-md-4">
                     <label>Other Charge</label>
                     <input type="number" (input)="calculate()" class="form-control" id="OtherCharge" placeholder="Other Charge" [ngClass]="{'errorSelecto': submitSave && invalidObj?.OtherCharge }" class="form-control" name="OtherCharge" [(ngModel)]="OtherCharge">
@@ -411,7 +408,7 @@
                   </div>
                   <div class="form-group col-md-4">
                     <label>Freight-By</label>
-                    <div class="input-group adw_select">
+                    <div class="input-group ">
                         <select2  #freight_By [data]="freightByData" class="control_select " (valueChanged)="onChangeFreight($event)" [options]="frightPlaceholder" autocomplete="true" [value]="freightByValue"  [ngClass]="{ 'errorSelecto is-invalid ': submitClick &&  catagoryError }"></select2>
                       </div>
                   </div>

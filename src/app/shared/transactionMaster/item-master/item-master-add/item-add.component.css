@@ -45,3 +45,9 @@
   top: 5px;
   right: 12px;
 }
+
+#center-img {
+  width: 45%;
+  height: auto;
+  margin: 10px 22.5%;
+}
