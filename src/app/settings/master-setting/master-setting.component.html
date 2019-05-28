@@ -39,7 +39,7 @@
             <input type="text" class="form-control" appDigitsOnlyDirective *ngIf="setting.BaseType === 1" [value]="setting.DefaultValue" (input)="setting.Value = $event.target.value;" >
           </td>
           <td *ngIf="setting.Type === 3" >
-            <select (change)="setting.Value = ( $event.target.value );">
+            <select (change)="setting.Value = ( $event.target.value );" class="form-control" >
               <option value="1" >Select {{setting.name}}</option>
               <option *ngFor="let opt of setting.data" [value]="opt.Id" [selected]="( +setting.DefaultValue === +opt.Id )">
                 {{ opt.Val }}

@@ -43,44 +43,87 @@
             <div class="col-md-12">
                 <div class="bgc-white bdrs-3 mB-20">
                     <div class="table-responsive table_height">
-                        <table class="table cat-table cat-table table-hover">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2" colspan="1">SNo</th>
-                                    <th rowspan="2" colspan="1">Category / item</th>
-                                     <th rowspan="2" colspan="1">Quantity </th>
-                                    <th rowspan="2" colspan="1">Discount Amt </th>
-                                    <th rowspan="2" colspan="1">Tax Amount</th>
-                                    <th rowspan="2" colspan="1">Bill Amount</th>
-                                </tr>      
-                            </thead>
+                         <table  class="table cat-table table-hover"> 
+                                <ng-container >
+                                        <th style="width:1px" > # </th>
+                                        <th  >Category/ Item </th>
+                                        <th  > Quantity</th>
+                                        <th  > Discount Amt </th>
+                                        <th  > Tax Amount </th>
+                                        <th  > Bill Amount </th>
+                                        
+                                      </ng-container>
+                                  
+                          
                             <tbody> 
-                              <tr *ngFor="let item of mainData; let i = index">
-                                <td >{{i+1}}</td>
+                            <ng-container *ngFor="let item of mainData; let i = index" > 
+             <tr *ngIf="item.ItemId === 0"  id='accordionExample'  class="default_row"   [ngClass]="{
+                                'category-bg':item.ItemId === 0,
+                                'item-bg':item.ItemId !== 0,
+                                'attribute-bg':item.AttributeId === 1
+                              }">
+                              <td  class="profile-pic1 collapsed new-clas"  data-target="#collapseThree33" data-toggle="collapse"
+                              data-role="expander" >
+                                <div class="edit1 ">                      
+                                    <a *ngIf="item.ItemId === 0 " (click)="collapsed1=!collapsed1;toggleCategory(i)" ><i class= " fas fa-minus-circle "></i></a>
+                                    <!-- <a *ngIf="item.ItemId !== 0 && item.AttributeId !== 1" (click)="collapsed2=!collapsed2" ><i class="fas fa-plus-circle"></i></a> -->
+                                </div>
+                              </td>
                                 <td  [ngClass]="{
                                     'pl-2':item.ItemId === 0,
                                     'pl-4':item.ItemId !== 0,
-                                    'pl-5':item.AttributeId === 1,
-                                    'category-bg':item.ItemId === 0,
-                                    'item-bg':item.ItemId !== 0,
-                                    'attribute-bg':item.AttributeId === 1
+                                    'pl-5':item.AttributeId === 1
                                   }" >{{item.Name}}</td>
                                 <td>{{item.Quantity}}</td>
                                 <td>{{item.DiscountAmt}}</td>
                                 <td>{{item.TaxAmount}}</td>
                                 <td>{{item.BillAmount}}</td>
                                 </tr>
-                                <!-- <tr *ngFor="let item of mainData; let i = index">
-                                    <td>{{i+1}}</td>
-                                    <td>{{item.item[0].ItemName}}</td>
-                                    <td>{{item.item[0].Quantity}}</td>
-                                    <td>{{item.item[0].DiscountAmt}}</td>
-                                    <td>{{item.item[0].TaxAmount}}</td>
-                                    <td>{{item.item[0].BillAmount}}</td>
-                                    </tr> -->
+              <tr *ngIf="item.ItemId !== 0 && item.AttributeId !== 1 && collapsed1" id='collapseThree33'   class="default_row "   [ngClass]="{
+                                  'category-bg':item.ItemId === 0,
+                                  'item-bg':item.ItemId !== 0,
+                                  'attribute-bg':item.AttributeId === 1
+                                }">
+                                <td class="profile-pic1" data-target="#collapseThreeAttribute" data-toggle="collapse"
+                                data-role="expander" >
+                                  <div class="edit1">                      
+                                      <a *ngIf="item.ItemId !== 0 && item.AttributeId !== 1" (click)="toggleAttribute=!toggleAttribute" ><i class="fas fa-minus-circle"></i></a>
+                                      <!-- <a *ngIf="item.ItemId !== 0 && item.AttributeId !== 1" ><i class="fas fa-plus-circle"></i></a> -->
+                                  </div>
+                                </td>
+                                  <td  [ngClass]="{
+                                      'pl-2':item.ItemId === 0,
+                                      'pl-4':item.ItemId !== 0,
+                                      'pl-5':item.AttributeId === 1
+                                   
+                                    }" >{{item.Name}}</td>
+                                  <td>{{item.Quantity}}</td>
+                                  <td>{{item.DiscountAmt}}</td>
+                                  <td>{{item.TaxAmount}}</td>
+                                  <td>{{item.BillAmount}}</td>
+                                  </tr>
+               <tr *ngIf="item.AttributeId === 1 && toggleAttribute "  id='collapseThreeAttribute' data-parent="#accordionExample" class="default_row collapse"   [ngClass]="{
+                                    'attribute-bg':item.AttributeId === 1
+                                  }">
+                                  <td class="profile-pic1" >
+                                   
+                                  </td>
+                                    <td  [ngClass]="{
+                                        'pl-2':item.ItemId === 0,
+                                        'pl-4':item.ItemId !== 0,
+                                        'pl-5':item.AttributeId === 1
+                                      }" >{{item.Name}}</td>
+                                    <td>{{item.Quantity}}</td>
+                                    <td>{{item.DiscountAmt}}</td>
+                                    <td>{{item.TaxAmount}}</td>
+                                    <td>{{item.BillAmount}}</td>
+                                    </tr>
+                                </ng-container>
+                            
                             </tbody>
-                        </table>
-                     
+                        </table>  
+                        
+                        
                     </div>
                 </div>
             </div>

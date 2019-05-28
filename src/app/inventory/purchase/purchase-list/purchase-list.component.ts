@@ -128,7 +128,7 @@ export class PurchaseListComponent implements OnInit {
       map(data => data.Data)
     )
     .subscribe(data => {
-      console.log('purchase data: ', data)
+      // console.log('purchase data: ', data)
       if (data.PurchaseTransactions.length > 0) {
         this.createTableData(data.PurchaseTransactions, data.PurchaseTransactionsSummary)
       } else {

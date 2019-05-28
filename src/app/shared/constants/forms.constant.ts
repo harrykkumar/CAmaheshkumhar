@@ -28,4 +28,16 @@ export class FormConstants {
   public static get ProfitReport (): number {
     return 6
   }
+
+  public static get PurchaseForm (): number {
+    return 7
+  }
+
+  public static get SaleForm (): number {
+    return 6
+  }
+
+  public static get ChargeForm (): number { 
+    return 22
+  }
 }

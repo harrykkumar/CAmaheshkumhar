@@ -684,7 +684,7 @@ export class CommonService {
     $('.' + classname).tableHeadFixer({
       head: true,
       foot: true,
-      left: 2
+      left: 1
     })
   }
 

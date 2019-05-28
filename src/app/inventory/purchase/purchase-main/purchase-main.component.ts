@@ -8,7 +8,8 @@ import { FormConstants } from 'src/app/shared/constants/forms.constant'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { PurchaseListComponent } from '../purchase-list/purchase-list.component';
+import { ToastrCustomService } from '../../../commonServices/toastr.service';
+import { PurchaseAddComponent } from '../purchase-add/purchase-add.component';
 
 declare const $: any
 @Component({
@@ -56,7 +57,10 @@ export class PurchaseMainComponent {
      private commonService: CommonService,
       private purchaseService: PurchaseService,
       private settings: Settings,
+      private toastrService: ToastrCustomService,
       private _formBuilder: FormBuilder) {
+        this.getSPUtilityData()
+        this.getPurchaseSetting()
     this.data$ = this.commonService.getActionClickedStatus().subscribe(
       (action: any) => {
         if (action.type === FormConstants.Edit && action.formname === FormConstants.Purchase) {
@@ -69,6 +73,28 @@ export class PurchaseMainComponent {
     this.formSearch()
     this.industryId = +this.settings.industryId
     this.clientDateFormat = this.settings.dateFormat
+  }
+
+  ngAfterContentInit() {
+    this.purchaseAdd.initComp()
+  }
+
+  getPurchaseSetting () {
+    let _self = this
+    this.commonService.getModuleSettings('purchase').subscribe(
+      (data) => {
+        // console.log('settings data : ', data)
+        if (data.Code === UIConstant.THOUSAND && data.Data) {
+          // console.log('purchase settings : ', data.Data)
+          _self.purchaseService.getAllSettings(data.Data)
+        }
+      },
+      (error) => {
+        console.log(error)
+      },
+      () => {
+      }
+    )
   }
 
   @ViewChild('searchData') searchData: ElementRef
@@ -94,6 +120,48 @@ export class PurchaseMainComponent {
         this.purchaseService.onTextEntered(text)
       })
   }
+  @ViewChild('purchase_add') purchaseAdd: PurchaseAddComponent
+  getSPUtilityData () {
+    let _self = this
+    this.commonService.getSPUtilityData(UIConstant.PURCHASE_TYPE).subscribe(
+      data => {
+        console.log('sputility data : ', data)
+        if (data.Code === UIConstant.THOUSAND && data.Data) {
+          if (data.Data.AttributeValueResponses.length > 0) {
+            _self.purchaseService.generateAttributes(data.Data)
+          }
+          if (data.Data.ItemCategorys.length > 0) {
+            _self.purchaseAdd.getCatagoryDetail(data.Data.ItemCategorys)
+          }
+          _self.purchaseAdd.allItems = [ ...data.Data.Items ]
+          // console.log('allItems : ', this.allItems)
+          _self.purchaseService.createItems(data.Data.Items)
+          _self.purchaseService.createVendors(data.Data.Vendors)
+          _self.purchaseService.createTaxProcess(data.Data.TaxProcesses)
+          _self.purchaseService.createPaymentModes(data.Data.PaymentModes)
+          _self.purchaseService.createOrganisations(data.Data.Organizations)
+          _self.purchaseService.createGodowns(data.Data.Godowns)
+          _self.purchaseService.createReferralTypes(data.Data.ReferalTypes)
+          _self.purchaseService.createSubUnits(data.Data.SubUnits)
+          _self.purchaseService.createTaxSlabs(data.Data.TaxSlabs)
+          _self.purchaseService.createReferral(data.Data.Referals)
+          _self.purchaseService.createCurrencies(data.Data.Currencies)
+          _self.purchaseService.createFreightBy(data.Data.FreightModes)
+          _self.purchaseService.createCharges(data.Data.LedgerCharges)
+          _self.purchaseAdd.clientStateId = data.Data.ClientAddresses[0].StateId
+          _self.purchaseAdd.TransactionNoSetups = data.Data.TransactionNoSetups
+        } else {
+          throw new Error (data.Description)
+        }
+      },
+      (error) => {
+        console.log(error)
+        this.toastrService.showError(error, '')
+      },
+      () => {
+      }
+    )
+  }
 
   ngOnDestroy () {
     this.sub.unsubscribe()
@@ -105,6 +173,7 @@ export class PurchaseMainComponent {
   }
 
   openPurchase () {
+    this.purchaseAdd.initialiseExtras()
     this.commonService.openPurchase('')
   }
 

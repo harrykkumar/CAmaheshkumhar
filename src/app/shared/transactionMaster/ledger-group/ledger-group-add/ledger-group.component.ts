@@ -175,7 +175,6 @@ export class LedgerGroupAddComponent {
   }
   checkValidation () {
     if (this.parentId > 0) {
-      alert("jjj-")
       return  this.isSelectParentGrp = false
     } else {
       return this.isSelectParentGrp = true

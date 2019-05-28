@@ -115,7 +115,7 @@ export class AttributeComponent implements OnInit {
     this.attributeService.getParentAttributeList().
     pipe(takeUntil(this.unSubscribe$)).
     subscribe((Data: any) => {
-      console.log('data : ', Data)
+      // console.log('data : ', Data)
       if (Data.Code === UIConstant.THOUSAND && Data.Data) {
         this.attributeParentList = [...Data.Data]
       }

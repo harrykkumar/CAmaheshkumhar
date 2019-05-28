@@ -65,7 +65,7 @@ export class ComboComponent {
     this.industryId = +this.settings.industryId
     this.attr$ = this.purchaseService.attributesData$.subscribe(
       data => {
-        console.log('attribute data : ', data)
+        // console.log('attribute data : ', data)
         if (data.attributeKeys && data.attributesData) {
           this.initAttribute()
           data.attributesData.forEach(element => {
@@ -77,16 +77,16 @@ export class ComboComponent {
       }
     )
 
-    this.item$ = this.purchaseService.itemData$.subscribe(
+    this.item$ = this.comboService.itemData$.subscribe(
       data => {
         // console.log('item data : ', data)
-        if (data.itemData) {
-          data.itemData.splice(1, 1)
-          this.itemData = Object.assign([], data.itemData)
+        if (data.data) {
+          data.data.splice(1, 1)
+          this.itemData = Object.assign([], data.data)
         }
       }
     )
-    this.subUnitsData$ = this.purchaseService.subUnitsData$.subscribe(
+    this.subUnitsData$ = this.comboService.subUnitsData$.subscribe(
       data => {
         // console.log('unit data : ', data)
         if (data.data) {

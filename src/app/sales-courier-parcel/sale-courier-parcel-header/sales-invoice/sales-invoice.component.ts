@@ -484,7 +484,7 @@ export class SalesInvoiceComponent {
     this.TotalKg = 0
     this.Rate = 0
 
-    this.parcelBy = ''
+    // this.parcelBy = ''
     this.destination = ''
 
     this.ParcelLength = 0

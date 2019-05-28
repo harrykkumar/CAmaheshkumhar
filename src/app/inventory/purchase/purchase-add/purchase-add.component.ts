@@ -7,12 +7,12 @@ import { Component,
   Renderer2,
   ElementRef
  } from '@angular/core'
-
+// import * as _ from 'underscore'
 import { Subscription } from 'rxjs/Subscription'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { PurchaseService } from '../purchase.service'
-import { Subject } from 'rxjs'
+import { Subject, forkJoin } from 'rxjs';
 import { PurchaseAttribute, AddCust, PurchaseAdd, PurchaseTransaction,
   PurchaseItem } from '../../../model/sales-tracker.model'
 import { CommonService } from '../../../commonServices/commanmaster/common.services'
@@ -20,9 +20,12 @@ import { ToastrCustomService } from '../../../commonServices/toastr.service'
 import { Settings } from '../../../shared/constants/settings.constant'
 import { GlobalService } from '../../../commonServices/global.service'
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
-import { AdditionalCharges } from '../../../model/sales-tracker.model';
+import { AdditionalCharges, ItemTaxTrans } from '../../../model/sales-tracker.model';
+import { FormConstants } from 'src/app/shared/constants/forms.constant';
+
 declare const flatpickr: any
 declare const $: any
+declare const _: any
 @Component({
   selector: 'app-purchase',
   templateUrl: './purchase-add.component.html',
@@ -108,6 +111,9 @@ export class PurchaseAddComponent {
   TotalAmountCharge: number
   taxChargeSlabType: number
   taxChargeRates: Array<any> = []
+  TaxTypeCharge: number = 0
+  itemTaxTrans: Array<ItemTaxTrans> = []
+  taxTypeChargeName: string
 
   Paymode: string
   PayModeId: number
@@ -123,6 +129,21 @@ export class PurchaseAddComponent {
   AttributeId: number
   ParentTypeId: number
   name: string
+
+  TaxTypeTax: number
+  AmountTax: number
+  ItemTransTaxId: number
+  ParentTaxId: number
+  ParentTypeTaxId: number
+  ItemTransTypeTax: number
+  TaxRateNameTax: string
+  TaxRateId: number
+  TaxRate: number
+  ValueType: number
+  TaxSlabName: string
+  editChargeSno: number = 0
+
+  ItemTaxTrans: Array<ItemTaxTrans> = []
 
   TransType: number
   TransId: number
@@ -151,6 +172,7 @@ export class PurchaseAddComponent {
   unitName: string
   taxSlabName: string
   taxTypeName: string
+  AmountItem: number
   SubTotal: number
   taxSlabType: number
   taxRates: Array<any> = []
@@ -204,8 +226,10 @@ export class PurchaseAddComponent {
   AddressId: number
   editTransId: number = -1
   editItemId: number = -1
+  editItemSno: number = 0
   editChargeId: number = -1
   validItem: boolean = true
+  validDiscount: boolean = true
   validTransaction: boolean = true
   validCharge: boolean = true
   clickItem = false
@@ -240,6 +264,7 @@ export class PurchaseAddComponent {
   freightData$: Subscription
   chargestData$: Subscription
   subUnitsData$: Subscription
+  newLedgerCreationAdd$: Subscription
   formReadySub = new Subject<boolean>()
   fromReady$ = this.formReadySub.asObservable()
   form$: Subscription
@@ -248,25 +273,51 @@ export class PurchaseAddComponent {
   previousBillNo: string = ''
   keepOpen: boolean = false
   isAddNew: boolean = false
+
+  creatingForm: boolean = false
+
+  TransactionNoSetups: any
   constructor (private commonService: CommonService,
     private purchaseService: PurchaseService,
     private toastrService: ToastrCustomService,
     private settings: Settings,
     private renderer: Renderer2,
     private gs: GlobalService) {
+    this.getFormDependency()
     this.modalSub = this.commonService.getPurchaseStatus().subscribe(
       (status: AddCust) => {
         if (status.open) {
           if (status.editId !== '') {
+            this.creatingForm = true
             this.editMode = true
             this.Id = +status.editId
           } else {
             this.Id = UIConstant.ZERO
             this.editMode = false
+            this.creatingForm = false
           }
           this.openModal()
         } else {
           this.closeModal()
+        }
+      }
+    )
+
+    this.newLedgerCreationAdd$ = this.commonService.getledgerCretionStatus().subscribe(
+      data => {
+        // console.log(data)
+        if (data.id && data.name) {
+          let newData = Object.assign([], this.chargesData)
+          newData.push({ id: +data.id, text: data.name })
+          this.chargesData = newData
+          this.LedgerChargeId = +data.id
+          this.ledgerChargeValue = data.id
+          setTimeout(() => {
+            if (this.chargeSelect2) {
+              const element = this.renderer.selectRootElement(this.chargeSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
         }
       }
     )
@@ -290,9 +341,7 @@ export class PurchaseAddComponent {
             this.vendorSelect2.setElementValue(this.PartyId)
             this.organisationSelect2.setElementValue(this.OrgId)
             this.godownSelect2.setElementValue(this.GodownId)
-            setTimeout(() => {
-              this.addressSelect2.setElementValue(this.AddressId)
-            }, 1000)
+            this.addressSelect2.setElementValue(this.AddressId)
             this.currencySelect2.setElementValue(this.CurrencyId)
             this.convertToSelect2.setElementValue(this.ConvertToCurrencyId)
             this.referralSelect2.setElementValue(this.ReferralId)
@@ -373,8 +422,8 @@ export class PurchaseAddComponent {
 
     this.item$ = this.purchaseService.itemData$.subscribe(
       data => {
-        if (data.itemData) {
-          this.itemData = Object.assign([], data.itemData)
+        if (data.data) {
+          this.itemData = Object.assign([], data.data)
         }
       }
     )
@@ -582,14 +631,25 @@ export class PurchaseAddComponent {
           let newData = Object.assign([], this.taxSlabsData)
           newData.push({ id: data.id, text: data.name })
           this.taxSlabsData = newData
-          this.TaxSlabId = +data.id
-          this.taxSlabValue = data.id
-          setTimeout(() => {
-            if (this.taxSlabSelect2) {
-              const element = this.renderer.selectRootElement(this.taxSlabSelect2.selector.nativeElement, true)
-              element.focus({ preventScroll: false })
-            }
-          }, 2000)
+          if (this.TaxSlabId === -1) {
+            this.TaxSlabId = +data.id
+            this.taxSlabValue = data.id
+            setTimeout(() => {
+              if (this.taxSlabSelect2) {
+                const element = this.renderer.selectRootElement(this.taxSlabSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
+          } else if (this.TaxSlabChargeId === -1) {
+            this.TaxSlabChargeId = +data.id
+            this.taxSlabChargeValue = data.id
+            setTimeout(() => {
+              if (this.taxSlabChargeSelect2) {
+                const element = this.renderer.selectRootElement(this.taxSlabChargeSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
+          }
         }
       }
     )
@@ -603,7 +663,7 @@ export class PurchaseAddComponent {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           this.allAddressData = data.Data.AddressDetails
           this.purchaseService.createAddress(data.Data.AddressDetails)
-          $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
+          // $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
           this.createForm(data.Data)
         } else {
           this.toastrService.showError(data.Message, '')
@@ -615,10 +675,77 @@ export class PurchaseAddComponent {
   dataForEdit: any
   createForm (data) {
     this.dataForEdit = data
+    this.other = {}
+    this.Items = []
+    this.ItemAttributeTrans = []
+    this.ItemTaxTrans = []
+    this.AdditionalCharges = []
+    this.PaymentDetail = []
     this.createOther(data.PurchaseTransactions[0])
     this.createAttributes(data.ItemAttributesTrans)
+    this.createItemTaxTrans(data.ItemTaxTransDetails)
     this.createItems(data.ItemTransactions)
+    this.createAdditionalCharges(data.AdditionalChargeDetails)
     this.createTransaction(data.PaymentDetails)
+    this.loading = false
+    this.getBillSummary()
+    this.creatingForm = false
+  }
+
+  createItemTaxTrans (taxRates) {
+    taxRates.forEach((element, index) => {
+      this.ItemTaxTrans[index] = {
+        TaxTypeTax: element.TaxTypeTax,
+        AmountTax: +element.AmountTax,
+        ItemTransTaxId: element.ItemTransTaxId,
+        ParentTaxId: element.ParentTaxId,
+        ParentTypeTaxId: element.ParentTypeTaxId,
+        ItemTransTypeTax: element.ItemTransTypeTax,
+        TaxRateId: element.TaxRateId,
+        TaxRate: element.TaxRate,
+        ValueType: element.ValueType,
+        TaxSlabName: element.TaxChargeName,
+        TaxRateNameTax: element.TaxRateName,
+        id: element.Id
+      }
+    })
+
+    console.log('this.ItemTaxTrans : ', this.ItemTaxTrans)
+  }
+
+  createAdditionalCharges (charges) {
+    charges.forEach(element => {
+      let itemTaxTrans = []
+      itemTaxTrans = this.ItemTaxTrans.filter((taxRate) => {
+        if (taxRate.ItemTransTaxId === element.Id) {
+          return taxRate
+        }
+      })
+      if (+element.TaxTypeCharge === 0) {
+        this.taxTypeChargeName = 'Exclusive'
+      } else {
+        this.taxTypeChargeName = 'Inclusive'
+      }
+      console.log('itemTaxTrans : ', itemTaxTrans)
+
+      this.LedgerChargeId = element.LedgerChargeId
+      this.LedgerName = element.LedgerName
+      this.AmountCharge = element.AmountCharge
+      this.TaxSlabChargeId = element.TaxSlabChargeId
+      this.TaxChargeName = element.TaxChargeName
+      this.TaxAmountCharge = element.TaxAmountCharge
+      this.TotalAmountCharge = element.TotalAmountCharge
+      this.TaxTypeCharge = element.TaxTypeCharge
+      this.taxTypeChargeName = this.taxTypeChargeName
+      this.addCharge()
+      if (this.AdditionalCharges[this.AdditionalCharges.length - 1]) {
+        this.AdditionalCharges[this.AdditionalCharges.length - 1].Id = element.Id
+        this.AdditionalCharges[this.AdditionalCharges.length - 1].itemTaxTrans = itemTaxTrans
+      } else {
+        this.toastrService.showError('Not getting enough data for edit', '')
+      }
+    })
+    console.log('this.AdditionalCharges : ', this.AdditionalCharges)
   }
 
   itemAttributesOthers: any = []
@@ -628,23 +755,31 @@ export class PurchaseAddComponent {
         ItemId: element.ItemId,
         ItemTransId: element.ItemTransId,
         AttributeId:  element.AttributeId,
-        ParentTypeId: 7,
+        ParentTypeId: FormConstants.PurchaseForm,
         name: element.AttributeName,
         Id: element.Id
       }
     })
 
-    console.log('this.itemAttributesOthers : ', this.itemAttributesOthers)
+    // console.log('this.itemAttributesOthers : ', this.itemAttributesOthers)
   }
 
   createItems (ItemTransactions) {
     ItemTransactions.forEach(element => {
-      let taxRates = []
-      // taxRates = this.dataForEdit.ItemTaxTrans.filter((taxRate) => {
-      //   if (taxRate.ItemTransId === element.Id) {
-      //     return taxRate
-      //   }
-      // })
+
+      let total = +(isNaN(+element.PurchaseRate) ? 0 : +element.PurchaseRate)
+      * (isNaN(+element.Quantity) || +element.Quantity === 0 ? 1 : +element.Quantity)
+      * (isNaN(+element.Length) || +element.Length === 0 ? 1 : +element.Length)
+      * (isNaN(+element.Width) || +element.Width === 0 ? 1 : +element.Width)
+      * (isNaN(+element.Height) || +element.Height === 0 ? 1 : +element.Height)
+      this.AmountItem = total - element.DiscountAmt
+      let itemTaxTrans = []
+      itemTaxTrans = this.ItemTaxTrans.filter((taxRate) => {
+        if (taxRate.ItemTransTaxId === element.Id) {
+          return taxRate
+        }
+      })
+      console.log('itemTaxTrans : ', itemTaxTrans)
       let itemAttributeTrans = []
       itemAttributeTrans = this.itemAttributesOthers.filter((attr) => {
         if (attr.ItemTransId === element.Id) {
@@ -656,7 +791,6 @@ export class PurchaseAddComponent {
       } else {
         this.taxTypeName = 'Inclusive'
       }
-      console.log('tax rate : ', taxRates)
       console.log('itemAttributeTrans : ', itemAttributeTrans)
       this.TransType = element.TransType
       this.TransId = element.TransId
@@ -686,61 +820,19 @@ export class PurchaseAddComponent {
       this.unitName = element.UnitName
       this.taxSlabName = element.TaxSlabName
       this.taxTypeName = this.taxTypeName
-      this.SubTotal = element.SubTotal
+      this.SubTotal = +element.SubTotal
       this.itemAttributeTrans = itemAttributeTrans
-      this.taxRates = taxRates
       this.taxSlabType = element.TaxSlabType
+      this.editItemId = element.Id
       this.addItems()
       if (this.Items[this.Items.length - 1]) {
         this.Items[this.Items.length - 1].Id = element.Id
+        this.Items[this.Items.length - 1].itemTaxTrans = itemTaxTrans
       } else {
         this.toastrService.showError('Not getting enough data for edit', '')
       }
     })
     console.log('items after edit : ', this.Items)
-    this.updateRow()
-  }
-
-  updateRow () {
-    this.Items.forEach(element => {
-      this.purchaseService.getSlabData(element.TaxSlabId).subscribe(
-        data => {
-          console.log('tax slab data : ', data)
-          if (data.Code === UIConstant.THOUSAND && data.Data) {
-            let taxRates = data.Data.TaxRates
-            element.taxRates = taxRates
-            let total = +(isNaN(+element.PurchaseRate) ? 0 : +element.PurchaseRate)
-              * (isNaN(+element.Quantity) || +element.Quantity === 0 ? 1 : +element.Quantity)
-              * (isNaN(+element.Length) || +element.Length === 0 ? 1 : +element.Length)
-              * (isNaN(+element.Width) || +element.Width === 0 ? 1 : +element.Width)
-              * (isNaN(+element.Height) || +element.Height === 0 ? 1 : +element.Height)
-            if (taxRates.length > 0 && total > 0) {
-              let discountedAmount = total - element.DiscountAmt
-              element.TaxAmount = +(this.purchaseService.taxCalculation(taxRates,
-                element.taxSlabType,
-                discountedAmount,
-                this.isOtherState)).toFixed(this.noOfDecimalPoint)
-            } else {
-              element.TaxAmount = 0
-            }
-
-            const totalAmount = +(((isNaN(+element.PurchaseRate) ? 0 : +element.PurchaseRate)
-              * (isNaN(+element.Quantity) || +element.Quantity === 0 ? 1 : +element.Quantity)
-              * (isNaN(+element.Length) || +element.Length === 0 ? 1 : +element.Length)
-              * (isNaN(+element.Width) || +element.Width === 0 ? 1 : +element.Width)
-              * (isNaN(+element.Height) || +element.Height === 0 ? 1 : +element.Height)
-            )
-            - (isNaN(+element.DiscountAmt) ? 0 : +element.DiscountAmt)
-            + (isNaN(+element.TaxAmount) ? 0 : +element.TaxAmount))
-
-            element.SubTotal = +(isNaN(totalAmount) ? 0 : totalAmount).toFixed(this.noOfDecimalPoint)
-            this.calculateAllTotal()
-          }
-        }
-      )
-    })
-
-    console.log('Items on update : ', this.Items)
   }
 
   createTransaction (paymentDetails) {
@@ -759,21 +851,17 @@ export class PurchaseAddComponent {
         this.toastrService.showError('Not getting enough data for edit', '')
       }
     })
-    console.log('this.PaymentDetail : ', this.PaymentDetail)
+    // console.log('this.PaymentDetail : ', this.PaymentDetail)
   }
 
   other: any = {}
   createOther (others) {
-    this.setBillDate()
-    this.setPartyBillDate()
-    this.setPayDate()
-    this.setExpiryDate()
-    this.setDueDate(0)
-    this.setMfdDate()
+    // this.setBillDate()
+    // this.setPartyBillDate()
     this.BillNo = others.BillNo
     this.ReferralCommissionTypeId = others.ReferralCommissionTypeId
     this.ReferralCommission = +others.ReferralCommission
-    this.BillAmount = +others.BillAmount
+    // this.BillAmount = +others.BillAmount
     this.BillDate = this.gs.utcToClientDateFormat(others.BillDate, this.clientDateFormat)
     this.PartyBillDate = this.gs.utcToClientDateFormat(others.PartyBillDate, this.clientDateFormat)
     this.DueDate = this.gs.utcToClientDateFormat(others.DueDate, this.clientDateFormat)
@@ -812,9 +900,13 @@ export class PurchaseAddComponent {
     this.CreditLimit = +others.CreditLimit
     this.ConvertToCurrencyId = +others.ConvertedCurrencyId
     this.LocationTo = others.LocationTo
-    this.isOtherState = others.IsOtherStatemain
+    this.isOtherState = !!others.IsOtherStatemain
     this.defaultCurrency = others.Currency
-    console.log('currency values : ', this.currencyValues)
+    // console.log('currency values : ', this.currencyValues)
+    this.setPayDate()
+    this.setExpiryDate()
+    this.setDueDate(0)
+    this.setMfdDate()
     this.other = others
     this.formReadySub.next(true)
   }
@@ -855,7 +947,7 @@ export class PurchaseAddComponent {
   isBillNoManuall: boolean = false
   freightAndOtherChangeCalc: string
   getSetUpModules (settings) {
-    console.log('settings : ', settings)
+    // console.log('settings : ', settings)
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
         this.catLevel = +element.val
@@ -992,18 +1084,22 @@ export class PurchaseAddComponent {
             _self.setExpiryDate()
             _self.setDueDate(0)
             _self.setMfdDate()
-            $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
             setTimeout(() => {
               if (this.vendorSelect2) {
                 this.vendorSelect2.selector.nativeElement.focus()
               }
               this.commonService.fixTableHF('cat-table')
+              this.loading = false
             }, 1000)
           }
+        } else {
+          throw new Error (data.Description)
         }
       },
       (error) => {
         console.log(error)
+        this.toastrService.showError(error, '')
+        this.loading = false
       },
       () => {
         if (!this.editMode) {
@@ -1017,36 +1113,64 @@ export class PurchaseAddComponent {
     )
   }
 
+  ngAfterViewInit () {
+    
+  }
+
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal () {
-    this.loading = true
-    this.categories = []
-    this.getPurchaseSetting()
-    this.AddressData = []
-    this.vendorData = []
-    this.organisationsData = []
-    this.currencyData = []
-    this.godownsData = []
-    this.allCategories = []
-    this.allItems = []
-    this.subUnitsData = []
-    this.paymentModesData = []
-    this. paymentLedgerselect2 = []
-    this.referralData = []
-    this.referralTypesData = []
-    this.freightData = []
-    this.attributeKeys = []
-    this.itemAttributeTrans = []
+    // this.loading = true
+    // this.categories = []
+    $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
+    // this.AddressData = []
+    // this.vendorData = []
+    // this.organisationsData = []
+    // this.currencyData = []
+    // this.godownsData = []
+    // this.allCategories = []
+    // this.allItems = []
+    // this.subUnitsData = []
+    // this.paymentModesData = []
+    // this. paymentLedgerselect2 = []
+    // this.referralData = []
+    // this.referralTypesData = []
+    // this.freightData = []
+    // this.attributeKeys = []
+    // this.itemAttributeTrans = []
     this.industryId = +this.settings.industryId
     this.taxTypeData = [
       { id: '0', text: 'Exclusive' },
       { id: '1', text: 'Inclusive' }
     ]
-    this.convertToCurrencyData = []
+    // this.convertToCurrencyData = []
     this.currencyValues = [{ id: '0', symbol: '%' }]
     this.initItem()
     this.initTransaction()
-    this.initComp()
+    // this.initComp()
+    this.initCharge()
+
+    if (!this.editMode) {
+      if (!this.isBillNoManuall) {
+        this.setBillNo(this.TransactionNoSetups)
+      }
+      this.setBillDate()
+      this.setPartyBillDate()
+      this.setPayDate()
+      this.setExpiryDate()
+      this.setDueDate(0)
+      this.setMfdDate()
+      this.loading = false
+      setTimeout(() => {
+        if (this.vendorSelect2) {
+          this.vendorSelect2.selector.nativeElement.focus()
+        }
+        this.commonService.fixTableHF('cat-table')
+      }, 1000)
+    } else {
+      if (this.editMode) {
+        this.getEditData()
+      }
+    }
   }
 
   checkForExistence: any = []
@@ -1227,20 +1351,20 @@ export class PurchaseAddComponent {
         this.categories[i].data = Object.assign([], this.categories[i].data)
       }
     }
-    console.log('dynamic categories : ', this.categories)
+    // console.log('dynamic categories : ', this.categories)
     this.loading = false
   }
 
   onSelectCategory (evt, levelNo) {
-    console.log('evt on change of category : ', evt, 'level : ', levelNo)
+    // console.log('evt on change of category : ', evt, 'level : ', levelNo)
     if (this.catLevel > 1) {
       if (+evt.value > 0) {
         if (levelNo === this.catLevel) {
           if (this.categoryId !== +evt.value) {
             this.categoryId = +evt.value
             this.categoryName = evt.data[0].text
-            console.log('categoryname : ', this.categoryName)
-            console.log('category id : ', this.categoryId)
+            // console.log('categoryname : ', this.categoryName)
+            // console.log('category id : ', this.categoryId)
             this.checkForItems(+evt.value)
             this.validateItem()
             this.updateCategories(+evt.value)
@@ -1278,8 +1402,8 @@ export class PurchaseAddComponent {
         if (this.categoryId !== +evt.value) {
           this.categoryId = +evt.value
           this.categoryName = evt.data[0].text
-          console.log('categoryname : ', this.categoryName)
-          console.log('category id : ', this.categoryId)
+          // console.log('categoryname : ', this.categoryName)
+          // console.log('category id : ', this.categoryId)
           this.checkForItems(+evt.value)
           this.validateItem()
           this.updateCategories(+evt.value)
@@ -1304,6 +1428,7 @@ export class PurchaseAddComponent {
       // console.log('evt on change of item : ', evt)
       if (+evt.value === 0) {
         this.ItemId = +evt.value
+        this.validateItem()
       }
       if (+evt.value === -1) {
         if (this.categoryId > 0) {
@@ -1312,6 +1437,7 @@ export class PurchaseAddComponent {
         } else {
           this.toastrService.showInfo('Please select a category', '')
         }
+        this.validateItem()
       } else {
         if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
           this.ItemId = +evt.value
@@ -1320,34 +1446,44 @@ export class PurchaseAddComponent {
           this.updateAttributes()
         }
       }
-      this.validateItem()
-      this.calculate()
     }
   }
 
   getItemDetail (id) {
     this.purchaseService.getItemDetail(id).subscribe(data => {
       // console.log('item detail : ', data)
-      if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
-        this.categoryName = data.Data[0].CategoryName
-        this.updateCategories(data.Data[0].CategoryId)
-        // console.log('categoryname : ', this.categoryName)
-        this.TaxSlabId = data.Data[0].TaxId
-        this.UnitId = data.Data[0].UnitId
-        this.unitSelect2.setElementValue(data.Data[0].UnitId)
-        this.unitName = data.Data[0].UnitName
-        this.taxSlabSelect2.setElementValue(data.Data[0].TaxId)
-        this.taxSlabName = data.Data[0].TaxSlab
-        this.SaleRate = data.Data[0].SaleRate
-        this.PurchaseRate = data.Data[0].PurchaseRate
-        this.MrpRate = data.Data[0].Mrprate
-        this.getTaxDetail(this.TaxSlabId)
+      if (data.Code === UIConstant.THOUSAND) {
+        if (data.Data.length > 0) {
+          this.categoryName = data.Data[0].CategoryName
+          this.updateCategories(data.Data[0].CategoryId)
+          // console.log('categoryname : ', this.categoryName)
+          this.TaxSlabId = data.Data[0].TaxId
+          this.UnitId = data.Data[0].UnitId
+          this.unitSelect2.setElementValue(data.Data[0].UnitId)
+          this.unitName = data.Data[0].UnitName
+          this.taxSlabSelect2.setElementValue(data.Data[0].TaxId)
+          this.taxSlabName = data.Data[0].TaxSlab
+          this.SaleRate = data.Data[0].SaleRate
+          this.PurchaseRate = data.Data[0].PurchaseRate
+          this.MrpRate = data.Data[0].Mrprate
+          if (+this.TaxSlabId > 0) {
+            this.getTaxDetail(this.TaxSlabId)
+          } else {
+            this.validateItem()
+            this.calculate()
+          }
+        }
+      } else {
+        throw new Error (data.Description)
       }
+    },
+    (error) => {
+      this.toastrService.showError(error, '')
     })
   }
 
   onAttributeSelect (evt, index, attributeId) {
-    console.log('evt on change of attribute : ', evt)
+    // console.log('evt on change of attribute : ', evt)
     if (+evt.value > 0 && evt.data.length > 0) {
       let Sno = 0
       if (this.Items.length === 0) {
@@ -1358,14 +1494,14 @@ export class PurchaseAddComponent {
       if (this.itemAttributeTrans[index]) {
         this.itemAttributeTrans[index]['ItemId'] = this.ItemId
         this.itemAttributeTrans[index]['AttributeId'] = +evt.value
-        this.itemAttributeTrans[index]['ParentTypeId'] = 7
+        this.itemAttributeTrans[index]['ParentTypeId'] = FormConstants.PurchaseForm
         this.itemAttributeTrans[index]['name'] = evt.data[0].text
       } else {
         this.itemAttributeTrans[index] = {
           ItemId: this.ItemId,
           ItemTransId: Sno,
           AttributeId:  +evt.value,
-          ParentTypeId: 7,
+          ParentTypeId: FormConstants.PurchaseForm,
           name: evt.data[0].text,
           id: 0
         }
@@ -1415,7 +1551,7 @@ export class PurchaseAddComponent {
         }
       })
     }
-    console.log('parentMostCategory : ', parentMostCategory)
+    // console.log('parentMostCategory : ', parentMostCategory)
     this.parentMostCategory = parentMostCategory
   }
 
@@ -1439,61 +1575,88 @@ export class PurchaseAddComponent {
     }
   }
 
+  appliedTaxRatesItem: any = []
+  appliedTaxRatesCharge: any = []
   calculate () {
     let total = +(isNaN(+this.PurchaseRate) ? 0 : +this.PurchaseRate)
     * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
     * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
     * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
     * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
-    if ('' + this.DiscountType === '0') {
-      if (this.Discount) {
-        this.DiscountAmt = +((+this.Discount / 100) * (total)).toFixed(this.noOfDecimalPoint)
+    if (this.validDiscount) {
+      if ('' + this.DiscountType === '0') {
+        if (+this.Discount < 100 && +this.Discount > 0) {
+          this.DiscountAmt = +((+this.Discount / 100) * (total)).toFixed(this.noOfDecimalPoint)
+        } else if (+this.Discount === 100 ) {
+          this.DiscountAmt = 0
+        }
       } else {
-        this.DiscountAmt = 0
+        this.DiscountAmt = isNaN(+this.Discount) ? 0 : +this.Discount
+      }
+
+      if (this.taxRates.length > 0 && total > 0) {
+        let discountedAmount = total - this.DiscountAmt
+        this.AmountItem = discountedAmount
+        if (this.TaxType === 1) {
+          let returnTax = this.purchaseService.taxCalCulationForInclusive(this.taxRates,
+            this.taxSlabType,
+            discountedAmount,
+            this.isOtherState, FormConstants.PurchaseForm, this.taxSlabName)
+          this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
+          this.appliedTaxRatesItem = returnTax.appliedTaxRates
+        } else if (this.TaxType === 0) {
+          let returnTax = this.purchaseService.taxCalculation(this.taxRates,
+            this.taxSlabType,
+            discountedAmount,
+            this.isOtherState, FormConstants.PurchaseForm, this.taxSlabName)
+          this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
+          this.appliedTaxRatesItem = returnTax.appliedTaxRates
+        }
+      } else {
+        if (this.editItemId === -1) {
+          this.TaxAmount = 0
+        }
       }
     } else {
-      this.DiscountAmt = isNaN(+this.Discount) ? 0 : +this.Discount
-    }
-    this.Freight = isNaN(+this.Freight) ? 0 : +this.Freight
-    if (this.taxRates.length > 0 && total > 0) {
-      let discountedAmount = total - this.DiscountAmt
-      if (this.TaxType === 1) {
-        this.TaxAmount = +(this.purchaseService.taxCalCulationForInclusive(this.taxRates,
-          this.taxSlabType,
-          discountedAmount,
-          this.isOtherState)).toFixed(this.noOfDecimalPoint)
-      } else if (this.TaxType === 0) {
-        this.TaxAmount = +(this.purchaseService.taxCalculation(this.taxRates,
-          this.taxSlabType,
-          discountedAmount,
-          this.isOtherState)).toFixed(this.noOfDecimalPoint)
-      }
-    } else {
+      this.DiscountAmt = 0
       this.TaxAmount = 0
     }
-    console.log('tax amount : ', this.TaxAmount)
+    // this.Freight = isNaN(+this.Freight) ? 0 : +this.Freight
+    // console.log('tax amount : ', this.TaxAmount)
     if (this.taxChargeRates.length > 0 && this.AmountCharge > 0) {
-      this.TaxAmountCharge = +(this.purchaseService.taxCalculation(this.taxChargeRates,
-        this.taxChargeSlabType,
-        this.AmountCharge,
-        this.isOtherState)).toFixed(this.noOfDecimalPoint)
-    } else {
+      if (this.TaxTypeCharge === 1) {
+        let returnTax = this.purchaseService.taxCalCulationForInclusive(this.taxChargeRates,
+          this.taxChargeSlabType,
+          +this.AmountCharge,
+          this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
+        this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
+        this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+      } else if (this.TaxTypeCharge === 0) {
+        let returnTax = this.purchaseService.taxCalculation(this.taxChargeRates,
+          this.taxChargeSlabType,
+          +this.AmountCharge,
+          this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
+        this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
+        this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+      }
+    }  else if (this.editChargeId === -1) {
       this.TaxAmountCharge = 0
     }
-    console.log('TaxAmountCharge : ', this.TaxAmountCharge)
+    // console.log('TaxAmountCharge : ', this.TaxAmountCharge)
     if (+this.AmountCharge > 0) {
-      this.TotalAmountCharge = +this.AmountCharge + +this.TaxAmountCharge
+      this.TotalAmountCharge = +(+this.AmountCharge + +this.TaxAmountCharge).toFixed(this.noOfDecimalPoint)
     } else {
       this.TotalAmountCharge = 0
     }
+    this.TotalAmountCharge = +this.TotalAmountCharge.toFixed(4)
     this.InterestAmount = 0
     this.SubTotal = +(this.calculateTotalOfRow()).toFixed(this.noOfDecimalPoint)
-    this.TotalAmountCharge = +this.TotalAmountCharge.toFixed(this.noOfDecimalPoint)
-    if (+this.ItemId > 0) {
+    if (+this.ItemId > 0 || +this.LedgerChargeId > 0) {
       this.calculateAllTotal()
     } else {
       this.backtrackCalc()
     }
+    this.getBillSummary()
   }
 
   calculateTotalOfRow () {
@@ -1504,7 +1667,7 @@ export class PurchaseAddComponent {
       * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
     )
      - (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
-    + ((this.TaxType === 0) ? (isNaN(+this.TaxAmount) ? 0 : +this.TaxAmount) : 0)
+    + (isNaN(+this.TaxAmount) ? 0 : +this.TaxAmount)
     return isNaN(totalAmount) ? 0 : totalAmount
   }
 
@@ -1534,14 +1697,20 @@ export class PurchaseAddComponent {
       }
     }
     this.TotalDiscount = +totalDiscount.toFixed(this.noOfDecimalPoint)
-    this.TotalTaxAmount = +totalTax.toFixed(this.noOfDecimalPoint)
+    this.TotalTaxAmount = +totalTax.toFixed(4)
     this.TotalQty = +totalQuantity.toFixed(this.noOfDecimalPoint)
     this.SubTotalAmount = +totalAmount.toFixed(this.noOfDecimalPoint)
-    if (!isNaN(totalAmount)) {
-      totalAmount = totalAmount + +this.OtherCharge
-      if (this.FreightMode === 1) {
-        totalAmount = totalAmount + +this.Freight
+    for (let i = 0; i < this.AdditionalCharges.length; i++) {
+      const element = this.AdditionalCharges[i];
+      totalAmount += element.TotalAmountCharge
+    }
+    if (!this.clickCharge) {
+      if (this.TotalAmountCharge) {
+        totalAmount += +this.TotalAmountCharge
       }
+    }
+    console.log('totalAmount : ', totalAmount)
+    if (!isNaN(totalAmount)) {
       this.RoundOff = +(Math.round(totalAmount) - totalAmount).toFixed(this.noOfDecimalPoint)
       this.CessAmount = 0
       this.BillAmount = Math.round(totalAmount)
@@ -1559,7 +1728,7 @@ export class PurchaseAddComponent {
     } else if (paymentTotal > this.BillAmount) {
       this.Amount = 0
     }
-    console.log('amount : ', this.Amount)
+    // console.log('amount : ', this.Amount)
   }
 
   backtrackCalc () {
@@ -1577,11 +1746,14 @@ export class PurchaseAddComponent {
     this.TotalTaxAmount = +totalTax.toFixed(this.noOfDecimalPoint)
     this.TotalQty = +totalQuantity.toFixed(this.noOfDecimalPoint)
     this.SubTotalAmount = +totalAmount.toFixed(this.noOfDecimalPoint)
+    for (let i = 0; i < this.AdditionalCharges.length; i++) {
+      totalAmount = +totalAmount + +this.AdditionalCharges[i].TotalAmountCharge
+    }
     if (!isNaN(totalAmount)) {
-      totalAmount = totalAmount + +this.OtherCharge
-      if (this.FreightMode === 1) {
-        totalAmount = totalAmount + +this.Freight
-      }
+      // totalAmount = totalAmount + +this.OtherCharge
+      // if (this.FreightMode === 1) {
+      //   totalAmount = totalAmount + +this.Freight
+      // }
       this.RoundOff = +(Math.round(totalAmount) - totalAmount).toFixed(this.noOfDecimalPoint)
       this.CessAmount = 0
       this.BillAmount = Math.round(totalAmount)
@@ -1612,26 +1784,6 @@ export class PurchaseAddComponent {
     }
   }
 
-  getPurchaseSetting () {
-    let _self = this
-    this.commonService.getModuleSettings('purchase').subscribe(
-      (data) => {
-        console.log('settings data : ', data)
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-          // console.log('purchase settings : ', data.Data)
-          _self.purchaseService.getAllSettings(data.Data)
-        }
-      },
-      (error) => {
-        console.log(error)
-      },
-      () => {
-        this.getSPUtilityData()
-        this.getFormDependency()
-      }
-    )
-  }
-
   @ViewChild('organisation_select2') organisationSelect2: Select2Component
   onChangeOrganisationId (evt) {
     // console.log('on org select : ', evt)
@@ -1646,7 +1798,7 @@ export class PurchaseAddComponent {
 
   @ViewChild('godown_select2') godownSelect2: Select2Component
   onGodownSelect (evt) {
-    console.log(evt)
+    // console.log(evt)
     if (evt.value && evt.data.length > 0) {
       if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
         this.GodownId = +evt.value
@@ -1657,7 +1809,7 @@ export class PurchaseAddComponent {
 
   @ViewChild('address_select2') addressSelect2: Select2Component
   onAddressSelect (evt) {
-    console.log('onAddressSelect : ', evt)
+    // console.log('onAddressSelect : ', evt)
     if (evt.value && evt.data.length > 0) {
       if (+evt.value === -1) {
         this.addressSelect2.selector.nativeElement.value = ''
@@ -1676,30 +1828,151 @@ export class PurchaseAddComponent {
     }
   }
 
+  needToCheckItem: boolean = false
+  needToCheckCharge: boolean = false
   checkForGST () {
-    this.isOtherState = true
+    console.log('check for gst')
+    let isOtherState = true
     this.allAddressData.forEach(element => {
       if (element.Id === this.AddressId && element.StateId === this.clientStateId) {
-        this.isOtherState = false
+        isOtherState = false
       }
     })
-
-    if (this.Items.length > 0) {
-      this.Items.forEach(item => {
-        let total = +(isNaN(+item.PurchaseRate) ? 0 : +item.PurchaseRate)
-        * (isNaN(+item.Quantity) || +item.Quantity === 0 ? 1 : +item.Quantity)
-        * (isNaN(+item.Length) || +item.Length === 0 ? 1 : +item.Length)
-        * (isNaN(+item.Width) || +item.Width === 0 ? 1 : +item.Width)
-        * (isNaN(+item.Height) || +item.Height === 0 ? 1 : +item.Height)
-        if (item.taxRates.length > 0 && total > 0) {
-          let discountedAmount = total - item.DiscountAmt
-          item.TaxAmount = +(this.purchaseService.taxCalculation(item.taxRates, item.taxSlabType ,discountedAmount, this.isOtherState)).toFixed(this.noOfDecimalPoint)
-        } else {
-          item.TaxAmount = 0
-        }
-      })
+    if (this.isOtherState !== isOtherState) {
+      this.isOtherState = isOtherState
+      this.updateItemTax()
+      this.updateChargeTax()
+      this.getBillSummary()
     }
-    this.calculate()
+  }
+
+  updateChargeTax () {
+    if (this.AdditionalCharges.length > 0) {
+      const observables = [];
+      for (const charge of this.AdditionalCharges) {
+        if (charge.TaxSlabChargeId !== 0) {
+          observables.push(this.purchaseService.getSlabData(charge.TaxSlabChargeId));
+        }
+      }
+      forkJoin(...observables).subscribe(
+        data => {
+          // console.log(data)
+          data.forEach((element, index) => {
+            let taxChargeSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
+            if (element.Data.TaxRates.length > 0 && +this.AdditionalCharges[index].AmountCharge > 0) {
+              if (this.AdditionalCharges[index].TaxTypeCharge === 1) {
+                let returnTax = this.purchaseService.taxCalCulationForInclusive(element.Data.TaxRates,
+                  taxChargeSlabType,
+                  +this.AdditionalCharges[index].AmountCharge,
+                  this.isOtherState, FormConstants.ChargeForm, element.Data.TaxSlabs[0].Slab)
+                this.AdditionalCharges[index]['TaxAmountCharge'] = +returnTax.taxAmount
+                this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+              } else if (this.AdditionalCharges[index].TaxTypeCharge === 0) {
+                let returnTax = this.purchaseService.taxCalculation(element.Data.TaxRates,
+                  taxChargeSlabType,
+                  +this.AdditionalCharges[index].AmountCharge,
+                  this.isOtherState, FormConstants.ChargeForm, element.Data.TaxSlabs[0].Slab)
+                this.AdditionalCharges[index]['TaxAmountCharge'] = returnTax.taxAmount
+                this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+              }
+
+              if (this.appliedTaxRatesCharge.length > 0) {
+                this.appliedTaxRatesCharge.forEach((taxRate) => {
+                  if (this.AdditionalCharges[index].Id !== 0) {
+                    taxRate['ItemTransTaxId'] = this.AdditionalCharges[index].Id
+                  } else {
+                    taxRate['ItemTransTaxId'] = this.AdditionalCharges[index].Sno
+                  }
+                })
+              }
+              this.AdditionalCharges[index].itemTaxTrans = this.appliedTaxRatesCharge
+            }
+            this.AdditionalCharges[index]['TotalAmountCharge'] = +this.AdditionalCharges[index].AmountCharge + +this.AdditionalCharges[index]['TaxAmountCharge']
+          });
+        },
+        (error) => {
+
+        }, 
+        () => {
+          setTimeout(() => {
+            this.updateTax()
+            this.getBillSummary()
+          }, 100)
+        }
+      )
+    }
+  }
+
+  updateItemTax () {
+    if (this.Items.length > 0) {
+      const observables = [];
+      for (const item of this.Items) {
+        if (item.TaxSlabId !== 0) {
+          observables.push(this.purchaseService.getSlabData(item.TaxSlabId));
+        }
+      }
+      forkJoin(...observables).subscribe(
+        data => {
+          // console.log(data)
+          data.forEach((element, index) => {
+            let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
+            if (element.Data.TaxRates.length > 0 && +this.Items[index].AmountItem > 0) {
+              if (this.Items[index].TaxType === 1) {
+                let returnTax = this.purchaseService.taxCalCulationForInclusive(element.Data.TaxRates,
+                  taxSlabType,
+                  +this.Items[index].AmountItem,
+                  this.isOtherState, FormConstants.PurchaseForm, element.Data.TaxSlabs[0].Slab)
+                this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                this.appliedTaxRatesItem = returnTax.appliedTaxRates
+              } else if (this.Items[index].TaxType === 0) {
+                let returnTax = this.purchaseService.taxCalculation(element.Data.TaxRates,
+                  taxSlabType,
+                  +this.Items[index].AmountItem,
+                  this.isOtherState, FormConstants.PurchaseForm, element.Data.TaxSlabs[0].Slab)
+                this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                this.appliedTaxRatesItem = returnTax.appliedTaxRates
+              }
+
+              if (this.appliedTaxRatesItem.length > 0) {
+                this.appliedTaxRatesItem.forEach((taxRate) => {
+                  if (this.Items[index].Id !== 0) {
+                    taxRate['ItemTransTaxId'] = this.Items[index].Id
+                  } else {
+                    taxRate['ItemTransTaxId'] = this.Items[index].Sno
+                  }
+                })
+              }
+              this.Items[index].itemTaxTrans = this.appliedTaxRatesItem
+            }
+            this.Items[index]['SubTotal'] = +this.Items[index].AmountItem + +this.Items[index]['TaxAmount']
+          });
+          this.calculateAllTotal()
+        },
+        (error) => {
+          console.log(error)
+        },
+        () => {
+          if (this.AdditionalCharges.length === 0) {
+            setTimeout(() => {
+              this.updateTax()
+              this.getBillSummary()
+            }, 100)
+          }
+        }
+      )
+    }
+  }
+
+  updateTax () {
+    this.ItemTaxTrans = []
+    this.Items.forEach(element => {
+      this.ItemTaxTrans = this.ItemTaxTrans.concat(element['itemTaxTrans'])
+    });
+    this.AdditionalCharges.forEach(element => {
+      this.ItemTaxTrans = this.ItemTaxTrans.concat(element['itemTaxTrans'])
+    })
+    console.log('updates itemtaxtrans : ', this.ItemTaxTrans)
+
   }
 
   onCurrencySelect (evt) {
@@ -1719,47 +1992,6 @@ export class PurchaseAddComponent {
     if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
       this.ReferralTypeId = +evt.value
     }
-  }
-
-  @ViewChild('taxSlab_select2') taxSlabSelect2: Select2Component
-  onTaxSlabSelect (evt) {
-    console.log('on change of tax slab : ', evt)
-    if (+evt.value === -1) {
-      this.commonService.openTax('')
-      this.taxSlabSelect2.selector.nativeElement.value = ''
-    } else {
-      if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
-        this.TaxSlabId = +evt.value
-        this.taxSlabName = evt.data[0].text
-        this.getTaxDetail(this.TaxSlabId)
-      }
-    }
-    this.validateItem()
-    this.calculate()
-  }
-
-  getTaxDetail (TaxSlabId) {
-    this.purchaseService.getSlabData(TaxSlabId).subscribe(
-      data => {
-        console.log('tax slab data : ', data)
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-          this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
-          this.taxRates = data.Data.TaxRates
-          this.calculate()
-        }
-      }
-    )
-  }
-
-  @ViewChild('taxType_select2') taxTypeSelect2: Select2Component
-  onTaxTypeSelect (evt) {
-    console.log('on change of tax Type : ', evt)
-    if (+evt.value >= 0 && evt.data[0] && evt.data[0].text) {
-      this.TaxType = +evt.value
-      this.taxTypeName = evt.data[0].text
-      this.calculate()
-    }
-    this.validateItem()
   }
 
   ConvertToCurrencyId: number
@@ -1886,7 +2118,7 @@ export class PurchaseAddComponent {
       paymentTotal = paymentTotal + +this.PaymentDetail[i].Amount
     }
     if (!this.clickTrans) {
-      if (+this.Amount) {
+      if (+this.Amount > 0 && +this.PayModeId > 0 && +this.LedgerId > 0) {
         paymentTotal += +this.Amount
       }
     }
@@ -1990,7 +2222,7 @@ export class PurchaseAddComponent {
   }
 
   addItems () {
-    if (+this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
+    if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
       if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
        || (this.industryId === 3 && this.Length && this.Width && this.Height)
        || (this.industryId === 2 || this.industryId === 6)) {
@@ -2020,87 +2252,59 @@ export class PurchaseAddComponent {
   addItem () {
     this.addItemBasedOnIndustry()
     this.ItemAttributeTrans = this.ItemAttributeTrans.concat(this.itemAttributeTrans)
-    console.log('ItemAttributeTrans : ', this.ItemAttributeTrans)
-    console.log('Items : ', this.Items)
+    // console.log('ItemAttributeTrans : ', this.ItemAttributeTrans)
+    if (this.appliedTaxRatesItem.length > 0) {
+      this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesItem)
+    }
+    console.log('ItemTaxTrans : ', this.ItemTaxTrans)
+    // console.log('Items : ', this.Items)
+    // this.getBillSummary()
   }
 
   addItemBasedOnIndustry () {
+    let Sno = 0
     if (this.Items.length === 0) {
-      this.Items.push({
-        Id: 0,
-        Sno: 1,
-        TransType: this.TransType,
-        TransId: this.TransId,
-        ChallanId: this.ChallanId,
-        CategoryId: +this.categoryId,
-        ItemId: +this.ItemId,
-        UnitId: +this.UnitId,
-        Length: +this.Length,
-        Height: +this.Height,
-        Width: +this.Width,
-        Quantity: +this.Quantity,
-        SaleRate: +this.SaleRate,
-        MrpRate: +this.MrpRate,
-        PurchaseRate: +this.PurchaseRate,
-        TaxSlabId: +this.TaxSlabId,
-        TaxType: +this.TaxType,
-        TaxAmount: +this.TaxAmount,
-        DiscountType: +this.DiscountType,
-        Discount: +this.Discount,
-        DiscountAmt: +this.DiscountAmt,
-        ExpiryDate: this.ExpiryDate,
-        MfdDate: this.MfdDate,
-        BatchNo: this.BatchNo,
-        Remark: this.Remark,
-        itemName: this.itemName,
-        categoryName: this.categoryName,
-        unitName: this.unitName,
-        taxSlabName: this.taxSlabName,
-        taxTypeName: this.taxTypeName,
-        SubTotal: this.SubTotal,
-        itemAttributeTrans: this.itemAttributeTrans,
-        taxRates: this.taxRates,
-        taxSlabType: this.taxSlabType
-      })
-    } else {
-      let index = +this.Items[this.Items.length - 1].Sno + 1
-      this.Items.push({
-        Id: 0,
-        Sno: index,
-        TransType: this.TransType,
-        TransId: this.TransId,
-        ChallanId: this.ChallanId,
-        CategoryId: +this.categoryId,
-        ItemId: +this.ItemId,
-        UnitId: +this.UnitId,
-        Length: +this.Length,
-        Height: +this.Height,
-        Width: +this.Width,
-        Quantity: +this.Quantity,
-        SaleRate: +this.SaleRate,
-        MrpRate: +this.MrpRate,
-        PurchaseRate: +this.PurchaseRate,
-        TaxSlabId: +this.TaxSlabId,
-        TaxType: +this.TaxType,
-        TaxAmount: +this.TaxAmount,
-        DiscountType: +this.DiscountType,
-        Discount: +this.Discount,
-        DiscountAmt: +this.DiscountAmt,
-        ExpiryDate: this.ExpiryDate,
-        MfdDate: this.MfdDate,
-        BatchNo: this.BatchNo,
-        Remark: this.Remark,
-        itemName: this.itemName,
-        categoryName: this.categoryName,
-        unitName: this.unitName,
-        taxSlabName: this.taxSlabName,
-        taxTypeName: this.taxTypeName,
-        SubTotal: this.SubTotal,
-        itemAttributeTrans: this.itemAttributeTrans,
-        taxRates: this.taxRates,
-        taxSlabType: this.taxSlabType
-      })
+      Sno = 1
+    } else if (this.Items.length > 0) {
+      Sno = +this.Items[this.Items.length - 1].Sno + 1
     }
+    this.Items.push({
+      Id: 0,
+      Sno: Sno,
+      TransType: this.TransType,
+      TransId: this.TransId,
+      ChallanId: this.ChallanId,
+      CategoryId: +this.categoryId,
+      ItemId: +this.ItemId,
+      UnitId: +this.UnitId,
+      Length: +this.Length,
+      Height: +this.Height,
+      Width: +this.Width,
+      Quantity: +this.Quantity,
+      SaleRate: +this.SaleRate,
+      MrpRate: +this.MrpRate,
+      PurchaseRate: +this.PurchaseRate,
+      TaxSlabId: +this.TaxSlabId,
+      TaxType: +this.TaxType,
+      TaxAmount: +this.TaxAmount,
+      DiscountType: +this.DiscountType,
+      Discount: +this.Discount,
+      DiscountAmt: +this.DiscountAmt,
+      ExpiryDate: this.ExpiryDate,
+      MfdDate: this.MfdDate,
+      BatchNo: this.BatchNo,
+      Remark: this.Remark,
+      itemName: this.itemName,
+      categoryName: this.categoryName,
+      unitName: this.unitName,
+      taxSlabName: this.taxSlabName,
+      taxTypeName: this.taxTypeName,
+      SubTotal: this.SubTotal,
+      itemAttributeTrans: this.itemAttributeTrans,
+      AmountItem: this.AmountItem,
+      taxSlabType: this.taxSlabType,
+      itemTaxTrans: this.appliedTaxRatesItem
+    })
 
     setTimeout(() => {
       this.commonService.fixTableHFL('item-table')
@@ -2112,20 +2316,25 @@ export class PurchaseAddComponent {
   }
 
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
-  editItem (i, editId, type) {
+  editItem (i, editId, type, sno) {
     console.log('editId : ', editId)
     if (type === 'charge' && this.editChargeId === -1) {
       this.editChargeId = editId
+      this.editChargeSno = sno
       i = i - 1
-      this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
       this.LedgerName = this.AdditionalCharges[i].LedgerName
       this.LedgerChargeId = this.AdditionalCharges[i].LedgerChargeId
+      this.AmountCharge = this.AdditionalCharges[i].AmountCharge
       this.TaxSlabChargeId = this.AdditionalCharges[i].TaxSlabChargeId
       this.TaxChargeName = this.AdditionalCharges[i].TaxChargeName
       this.TaxAmountCharge = this.AdditionalCharges[i].TaxAmountCharge
       this.TotalAmountCharge = this.AdditionalCharges[i].TotalAmountCharge
+      this.TaxTypeCharge = this.AdditionalCharges[i].TaxTypeCharge
+      this.taxTypeChargeName = this.AdditionalCharges[i].taxTypeChargeName
+      this.appliedTaxRatesCharge = this.AdditionalCharges[i].itemTaxTrans
       this.taxSlabChargeSelect2.setElementValue(this.TaxSlabChargeId)
       this.chargeSelect2.setElementValue(this.LedgerChargeId)
+      this.taxTypeChargeSelect2.setElementValue(this.TaxTypeCharge)
       this.deleteItem(i, type)
     } else if (type === 'charge' && this.editChargeId !== -1) {
       this.toastrService.showInfo('', 'There is already one transaction to edit, please update it this first in order to edit others')
@@ -2155,6 +2364,7 @@ export class PurchaseAddComponent {
     }
     if (type === 'items' && this.editItemId === -1) {
       this.editItemId = editId
+      this.editItemSno = sno
       i = i - 1
       this.TransType = 0
       this.TransId = 0
@@ -2185,9 +2395,10 @@ export class PurchaseAddComponent {
       this.BatchNo = this.Items[i].BatchNo
       this.Remark = this.Items[i].Remark
       this.SubTotal = this.Items[i].SubTotal
-      this.taxRates = this.Items[i].taxRates
+      this.AmountItem = this.Items[i].AmountItem
       this.taxSlabType = this.Items[i].taxSlabType
       this.itemAttributeTrans = this.Items[i].itemAttributeTrans
+      this.appliedTaxRatesItem = this.Items[i].itemTaxTrans
       this.unitSelect2.setElementValue(this.UnitId)
       this.itemselect2.setElementValue(this.ItemId)
       this.taxSlabSelect2.setElementValue(this.TaxSlabId)
@@ -2199,6 +2410,7 @@ export class PurchaseAddComponent {
           item.setElementValue(this.itemAttributeTrans[index].AttributeId)
         })
       }
+      console.log('before TaxAmount : ', this.Items[i].TaxAmount)
       this.updateCategories(this.categoryId)
       this.deleteItem(i, type)
     } else if (type === 'items' && this.editItemId !== -1) {
@@ -2210,14 +2422,31 @@ export class PurchaseAddComponent {
     if (forArr === 'trans') {
       this.PaymentDetail.splice(i,1)
       this.checkValidationForAmount()
-      this.editTransId = -1
+      // this.editTransId = -1
     }
     if (forArr === 'items') {
       this.Items.splice(i,1)
-      this.editItemId = -1
+      this.clickItem = false
+      // this.editItemId = -1
       this.ItemAttributeTrans = []
+      this.ItemTaxTrans = []
       this.Items.forEach(item => {
-        this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
+        this.ItemTaxTrans = this.ItemTaxTrans.concat([], item.itemTaxTrans)
+      })
+      this.AdditionalCharges.forEach(charge => {
+        this.ItemTaxTrans = this.ItemTaxTrans.concat([], charge.itemTaxTrans)
+      })
+      console.log('after TaxAmount : ', this.TaxAmount)
+    }
+    if (forArr === 'charge') {
+      this.AdditionalCharges.splice(i,1)
+      // this.editChargeId = -1
+      this.ItemTaxTrans = []
+      this.AdditionalCharges.forEach(charge => {
+        this.ItemTaxTrans = this.ItemTaxTrans.concat([], charge.itemTaxTrans)
+      })
+      this.Items.forEach(item => {
+        this.ItemTaxTrans = this.ItemTaxTrans.concat([], item.itemTaxTrans)
       })
     }
     this.calculate()
@@ -2256,9 +2485,10 @@ export class PurchaseAddComponent {
     this.Remark = ''
     this.categoryId = 0
     this.SubTotal = 0
+    this.AmountItem = 0
     this.editItemId = -1
     this.clickItem = false
-    console.log('categories : ', this.categories)
+    // console.log('categories : ', this.categories)
     if (this.allCategories && this.allCategories.length > 0) {
       this.getCatagoryDetail(this.allCategories)
     }
@@ -2278,6 +2508,8 @@ export class PurchaseAddComponent {
       this.taxSlabSelect2.setElementValue(this.TaxSlabId)
     }
     this.taxTypeName = 'Exclusive'
+    this.itemAttributeTrans = []
+    this.appliedTaxRatesItem = []
     // console.log('catSelect2 : ', this.catSelect2)
     this.taxRates = []
     this.taxSlabType = 0
@@ -2288,7 +2520,6 @@ export class PurchaseAddComponent {
         item.selector.nativeElement.value = ''
       })
     }
-    this.itemAttributeTrans = []
     this.initAttribute()
   }
 
@@ -2320,7 +2551,10 @@ export class PurchaseAddComponent {
     this.TaxChargeName = ''
     this.TaxAmountCharge = 0
     this.TotalAmountCharge = 0
+    this.editChargeSno = 0
     this.clickCharge = false
+    this.taxChargeRates = []
+    this.appliedTaxRatesCharge = []
     this.editChargeId = -1
     if (this.taxSlabChargeSelect2) {
       this.taxSlabChargeSelect2.setElementValue('')
@@ -2328,6 +2562,7 @@ export class PurchaseAddComponent {
     if (this.chargeSelect2) {
       this.chargeSelect2.setElementValue('')
     }
+    this.taxTypeChargeName = 'Exclusive'
   }
 
 
@@ -2400,14 +2635,23 @@ export class PurchaseAddComponent {
     this.ItemAttributeTrans = []
     this.PaymentDetail = []
     this.Items = []
+    this.AdditionalCharges = []
+    this.ItemTaxTrans = []
     this.clickTrans = false
     this.clickItem = false
+    this.clickCharge = false
     this.submitSave = false
     this.isValidAmount = true
+    this.NetBillAmount = 0
+    this.TaxableValue = 0
+    this.billSummary = []
     this.invalidObj = {}
-    if (this.freightBySelect2) {
-      this.freightBySelect2.setElementValue(1)
-    }
+    // if (this.currencyData.length >= 1) {
+    //   this.CurrencyId = +this.currencyData[0].id
+    //   this.currencyValue = +this.currencyData[0].id
+    //   this.ConvertToCurrencyId = +this.convertToCurrencyData[0].id
+    //   this.convertToCurrencyValue = +this.convertToCurrencyData[0].id
+    // }
     if (this.addressSelect2) {
       this.addressSelect2.setElementValue(0)
     }
@@ -2429,6 +2673,55 @@ export class PurchaseAddComponent {
   }
 
   initialiseExtras () {
+    this.BillAmount = 0
+    this.PartyBillNo = ''
+    this.BillNo = ''
+    this.AddressId = 0
+    this.ConvertedAmount = 0
+    this.CurrencyRate = 0
+    this.TotalDiscount = 0
+    this.PartyId = 0
+    this.ReferralId = 0
+    this.ReferralTypeId = 0
+    this.ReferralComission = 0
+    this.ReferralComissionTypeId = 0
+    this.ReverseCharge = 0
+    this.ReverseTax = 0
+    this.Cess = 0
+    this.CessAmount = 0
+    this.SubTotalAmount = 0
+    this.TotalTaxAmount = 0
+    this.TotalChallan = 0
+    this.VehicleNo = ''
+    this.LocationTo = ''
+    this.Drivername = ''
+    this.Transportation = ''
+    this.TotalQty = 0
+    this.InterestRate = 0
+    this.InterestAmount = 0
+    this.InterestType = 0
+    this.DueDate = ''
+    this.OrderId = 0
+    this.Advanceamount = 0
+    this.NetAmount = 0
+    this.ReferralCommission = 0
+    this.ReferralCommissionTypeId = 0
+    this.CreditLimit = 0
+    this.CreditDays = 0
+    this.ItemAttributeTrans = []
+    this.PaymentDetail = []
+    this.Items = []
+    this.AdditionalCharges = []
+    this.ItemTaxTrans = []
+    this.clickTrans = false
+    this.clickItem = false
+    this.clickCharge = false
+    this.submitSave = false
+    this.isValidAmount = true
+    this.NetBillAmount = 0
+    this.TaxableValue = 0
+    this.billSummary = []
+    this.invalidObj = {}
     if (this.organisationsData.length > 0) {
       this.OrgId = +this.organisationsData[0].id
       this.organisationValue = +this.organisationsData[0].id
@@ -2445,12 +2738,23 @@ export class PurchaseAddComponent {
       this.ConvertToCurrencyId = +this.convertToCurrencyData[0].id
       this.convertToCurrencyValue = +this.convertToCurrencyData[0].id
     }
+    if (this.vendorSelect2) {
+      this.vendorSelect2.setElementValue(0)
+    }
+    if (this.chargeSelect2) {
+      this.chargeSelect2.setElementValue(0)
+    }
+    if (this.taxSlabChargeSelect2) {
+      this.taxSlabChargeSelect2.setElementValue(0)
+    }
+    this.AddressData = []
     this.setBillDate()
     this.setPartyBillDate()
     this.setPayDate()
     this.setExpiryDate()
     this.setDueDate(0)
     this.setMfdDate()
+    this.getNewBillNo()
   }
 
   private purchaseAddParams (): PurchaseAdd {
@@ -2514,7 +2818,9 @@ export class PurchaseAddComponent {
         NetAmount: 0,
         AddressId: this.AddressId,
         ConvertedCurrencyId: this.ConvertToCurrencyId,
-        ItemAttributeTrans: this.ItemAttributeTrans
+        ItemAttributeTrans: this.ItemAttributeTrans,
+        ItemTaxTrans: this.ItemTaxTrans,
+        AdditionalCharges: this.AdditionalCharges
       } as PurchaseAdd
     }
     console.log('obj : ', JSON.stringify(purchaseAddParams.obj))
@@ -2522,7 +2828,7 @@ export class PurchaseAddComponent {
   }
 
   validateTransaction () {
-    if (this.Paymode || +this.PayModeId > 0 || +this.LedgerId > 0 || this.BankLedgerName || +this.Amount > 0 || this.ChequeNo) {
+    if (this.Paymode || +this.PayModeId > 0 || +this.LedgerId > 0 || this.BankLedgerName || this.ChequeNo) {
       let isValid = 1
       if (+this.PayModeId > 0) {
         this.invalidObj['PayModeId'] = false
@@ -2735,6 +3041,17 @@ export class PurchaseAddComponent {
   validateItem () {
     if (+this.ItemId > 0) {
       let isValid = 1
+      if (+this.DiscountType === 0) {
+        this.validDiscount = (+this.Discount >= 0 && +this.Discount < 100) ? true : false
+      } else {
+        this.validDiscount = true
+      }
+      if (this.validDiscount) {
+        this.invalidObj['Discount'] = false
+      } else {
+        isValid = 0
+        this.invalidObj['Discount'] = true
+      }
       if (+this.ItemId > 0) {
         this.invalidObj['ItemId'] = false
       } else {
@@ -2827,6 +3144,7 @@ export class PurchaseAddComponent {
       this.invalidObj['TaxSlabId'] = false
       this.invalidObj['UnitId'] = false
       this.invalidObj['ItemId'] = false
+      this.invalidObj['Discount'] = false
       this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
         if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
           $('#' + $('.attr')[index].id).removeClass('errorSelecto')
@@ -2870,6 +3188,7 @@ export class PurchaseAddComponent {
       () => {
         this.addItems()
         this.addTransactions()
+        this.addCharge()
         this.calculateAllTotal()
         this.validateItem()
         this.validateTransaction()
@@ -2887,6 +3206,7 @@ export class PurchaseAddComponent {
                   } else {
                     _self.initItem()
                     _self.initTransaction()
+                    _self.initCharge()
                     _self.initComp()
                     _self.initialiseExtras()
                   }
@@ -2928,15 +3248,16 @@ export class PurchaseAddComponent {
     this.settingData$.unsubscribe()
     this.freightData$.unsubscribe()
     this.subUnitsData$.unsubscribe()
+    this.newLedgerCreationAdd$.unsubscribe()
   }
 
   @ViewChild('loc_ref') locRef: ElementRef
   moveToLoc () {
-    this.locRef.nativeElement.focus({ preventScroll: false })
+    this.chargeSelect2.selector.nativeElement.focus({ preventScroll: false })
   }
 
   validateCharge () {
-    if (this.LedgerName || +this.LedgerChargeId > 0 || +this.TaxSlabChargeId > 0 || +this.AmountCharge > 0) {
+    if (this.LedgerName || +this.LedgerChargeId > 0 || +this.AmountCharge > 0) {
       let isValid = 1
       if (+this.LedgerChargeId > 0) {
         this.invalidObj['LedgerChargeId'] = false
@@ -2944,12 +3265,12 @@ export class PurchaseAddComponent {
         isValid = 0
         this.invalidObj['LedgerChargeId'] = true
       }
-      if (+this.TaxSlabChargeId > 0) {
-        this.invalidObj['TaxSlabChargeId'] = false
-      } else {
-        isValid = 0
-        this.invalidObj['TaxSlabChargeId'] = true
-      }
+      // if (+this.TaxSlabChargeId > 0) {
+      //   this.invalidObj['TaxSlabChargeId'] = false
+      // } else {
+      //   isValid = 0
+      //   this.invalidObj['TaxSlabChargeId'] = true
+      // }
       if (+this.AmountCharge > 0) {
         this.invalidObj['AmountCharge'] = false
       } else {
@@ -2967,8 +3288,9 @@ export class PurchaseAddComponent {
   }
 
   addCharge () {
-    if (this.LedgerName && +this.LedgerChargeId > 0 && +this.TaxSlabChargeId > 0 && +this.AmountCharge > 0) {
+    if (this.LedgerName && +this.LedgerChargeId > 0 && +this.AmountCharge > 0) {
       this.addCustomCharge()
+      // this.getBillSummary()
       this.clickCharge = true
       this.initCharge()
       console.log('charge : ', this.AdditionalCharges)
@@ -2976,6 +3298,10 @@ export class PurchaseAddComponent {
   }
 
   addCustomCharge () {
+    if (this.appliedTaxRatesCharge.length > 0) {
+      this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesCharge)
+    }
+    console.log('ItemTaxTrans : ', this.ItemTaxTrans)
     let index = 0
     if (this.AdditionalCharges.length === 0) {
      index = 1
@@ -2991,7 +3317,10 @@ export class PurchaseAddComponent {
       TaxSlabChargeId: this.TaxSlabChargeId,
       TaxChargeName: this.TaxChargeName,
       TaxAmountCharge: this.TaxAmountCharge,
-      TotalAmountCharge: this.TotalAmountCharge
+      TotalAmountCharge: this.TotalAmountCharge,
+      TaxTypeCharge: this.TaxTypeCharge,
+      taxTypeChargeName: this.taxTypeChargeName,
+      itemTaxTrans: this.appliedTaxRatesCharge
     })
     setTimeout(() => {
       this.commonService.fixTableHFL('charge-table')
@@ -3002,13 +3331,13 @@ export class PurchaseAddComponent {
   }
 
   onChargeSelect (evt) {
-    console.log('on change of charge : ', evt)
+    // console.log('on change of charge : ', evt)
     if (+evt.value === -1) {
-      // this.commonService.openTax('')
-      // this.taxSlabSelect2.selector.nativeElement.value = ''
+      this.commonService.openledgerCretion('', FormConstants.PurchaseForm)
+      this.taxSlabChargeSelect2.selector.nativeElement.value = ''
     } else {
+      this.LedgerChargeId = +evt.value
       if (evt.value > 0) {
-        this.LedgerChargeId = +evt.value
         this.LedgerName = evt.data[0].text
         this.getTaxDetail(this.TaxSlabId)
       }
@@ -3018,7 +3347,7 @@ export class PurchaseAddComponent {
   }
 
   onTaxSlabChargeSelect (evt) {
-    console.log('on change of tax slab : ', evt)
+    // console.log('on change of tax slab : ', evt)
     if (+evt.value === -1) {
       this.commonService.openTax('')
       this.taxSlabChargeSelect2.selector.nativeElement.value = ''
@@ -3040,8 +3369,180 @@ export class PurchaseAddComponent {
           this.taxChargeSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
           this.taxChargeRates = data.Data.TaxRates
           this.calculate()
+          this.createTaxes(FormConstants.ChargeForm)
         }
       }
     )
+  }
+
+  createTaxes (parentType) {
+    let Sno = 0
+    if (parentType === FormConstants.ChargeForm) {
+      if (this.editChargeId !== -1) {
+        Sno = this.editChargeSno
+      } else {
+        if (this.AdditionalCharges.length === 0) {
+          Sno = 1
+        } else {
+          Sno = this.AdditionalCharges[this.AdditionalCharges.length - 1].Sno + 1
+        }
+      }
+      if (this.appliedTaxRatesCharge.length > 0) {
+        this.appliedTaxRatesCharge.forEach((taxRate) => {
+          taxRate['ItemTransTaxId'] = Sno
+        })
+      }
+      let charge = this.AdditionalCharges.find((charge) => charge.Sno === Sno)
+      if (charge) {
+        charge.itemTaxTrans = this.appliedTaxRatesCharge
+      }
+      console.log('tax rates applied : ', this.appliedTaxRatesCharge)
+    } else if (parentType === FormConstants.PurchaseForm) {
+      if (this.editItemId !== -1) {
+        Sno = this.editItemSno
+      } else {
+        if (this.Items.length === 0) {
+          Sno = 1
+        } else {
+          Sno = this.Items[this.Items.length - 1].Sno + 1
+        }
+      }
+      if (this.appliedTaxRatesItem.length > 0) {
+        this.appliedTaxRatesItem.forEach((taxRate) => {
+          taxRate['ItemTransTaxId'] = Sno
+        })
+      }
+      let item = this.Items.find((item) => item.Sno === Sno)
+      if (item) {
+        item['itemTaxTrans'] = this.appliedTaxRatesItem
+      }
+      console.log('tax rates applied : ', this.appliedTaxRatesItem)
+    }
+  }
+
+  @ViewChild('taxTypecharge_select2') taxTypeChargeSelect2: Select2Component
+  onTaxTypeChargeSelect (evt) {
+    // console.log('on change of tax Type charge : ', evt)
+    if (+evt.value >= 0 && evt.data[0] && evt.data[0].text) {
+      this.TaxTypeCharge = +evt.value
+      this.taxTypeChargeName = evt.data[0].text
+      this.calculate()
+    }
+  }
+
+  @ViewChild('taxSlab_select2') taxSlabSelect2: Select2Component
+  onTaxSlabSelect (evt) {
+    // console.log('on change of tax slab : ', evt)
+    if (+evt.value === -1) {
+      this.commonService.openTax('')
+      this.taxSlabSelect2.selector.nativeElement.value = ''
+    } else {
+      if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
+        this.TaxSlabId = +evt.value
+        this.taxSlabName = evt.data[0].text
+        this.TaxSlabName = evt.data[0].text
+        this.getTaxDetail(this.TaxSlabId)
+      }
+    }
+    this.validateItem()
+  }
+
+  getTaxDetail (TaxSlabId) {
+    this.purchaseService.getSlabData(TaxSlabId).subscribe(
+      data => {
+        // console.log('tax slab data : ', data)
+        if (data.Code === UIConstant.THOUSAND && data.Data) {
+          this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
+          this.taxRates = data.Data.TaxRates
+          this.validateItem()
+          this.calculate()
+          this.createTaxes(FormConstants.PurchaseForm)
+        }
+      }
+    )
+  }
+
+  @ViewChild('taxType_select2') taxTypeSelect2: Select2Component
+  onTaxTypeSelect (evt) {
+    // console.log('on change of tax Type : ', evt)
+    if (+evt.value >= 0 && evt.data[0] && evt.data[0].text) {
+      this.TaxType = +evt.value
+      this.taxTypeName = evt.data[0].text
+      this.calculate()
+    }
+    this.validateItem()
+  }
+
+  NetBillAmount = 0
+  TaxableValue = 0
+  billSummary: Array<any> = []
+  AdditionalChargesToShow: any = []
+  getBillSummary () {
+    let taxableValue = 0
+    let ItemTaxTrans = []
+    console.log('item tax trans before bill sumarry : ', ItemTaxTrans)
+    this.Items.forEach(element => {
+      ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
+      taxableValue += +element.AmountItem
+    });
+    if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
+      taxableValue += +this.AmountItem
+      if (this.appliedTaxRatesItem.length > 0) {
+        ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
+      }
+    }
+    this.AdditionalChargesToShow = JSON.parse(JSON.stringify(this.AdditionalCharges))
+    this.AdditionalCharges.forEach(element => {
+      ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
+    });
+    if (!this.clickCharge && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
+      if (this.appliedTaxRatesCharge.length > 0) {
+        ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesCharge)
+      }
+      if (!this.creatingForm) {
+        this.AdditionalChargesToShow.push({
+          'LedgerName': this.LedgerName,
+          'AmountCharge': +this.AmountCharge
+        })
+      }
+    }
+    this.TaxableValue = taxableValue
+    this.billSummary = []
+    let groupOnId = _.groupBy(ItemTaxTrans, (tax) => {
+      return tax.TaxRateId
+    })
+    console.log(groupOnId)
+    for (const rateId in groupOnId) {
+      if (groupOnId.hasOwnProperty(rateId)) {
+        const element = groupOnId[rateId];
+        let obj = {}
+        obj['name'] = element[0]['TaxRateNameTax']
+        let sum = 0
+        element.forEach(tax => {
+          sum += +tax.AmountTax
+        })
+        obj['total'] = sum
+        this.billSummary.push(obj)
+      }
+    }
+    console.log('bill summary : ', this.billSummary)
+    this.calculateBillTotal()
+  }
+  calculateBillTotal () {
+    this.NetBillAmount = 0
+    this.billSummary.forEach(element => {
+      this.NetBillAmount += element.total
+    })
+    this.AdditionalChargesToShow.forEach(charge => {
+      this.NetBillAmount += +charge.AmountCharge
+    })
+    this.NetBillAmount += +this.TaxableValue
+  }
+
+  enterPressCharge (evt: KeyboardEvent) {
+    this.addCharge()
+    setTimeout(() => {
+      this.chargeSelect2.selector.nativeElement.focus()
+    }, 10)
   }
 }

@@ -6,6 +6,7 @@ import { CommonService } from 'src/app/commonServices/commanmaster/common.servic
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { Settings } from '../../../shared/constants/settings.constant'
 declare const $: any
+import { environment } from '../../../../environments/environment'
 
 @Component({
   selector: 'app-print',
@@ -42,7 +43,7 @@ export class PrintComponent {
   customerEmailData: any[]
   orgMobileData: any[]
   orgEmailData: any[]
-  orgImageData: any[]
+  orgImageData: any
   orgWebData: any[]
   orgImage: string
 
@@ -178,6 +179,13 @@ export class PrintComponent {
           _self.paymentModeData = data.Data.PaymentDetails
         } else {
           _self.paymentModeData = []
+        }
+        if (data.Data.ImageContents.length > 0) {
+          _self.orgImageData =''
+          _self.orgImageData =  data.Data.ImageContents[0].FilePath
+          console.log( _self.orgImageData,'image')
+        } else {
+          _self.orgImageData = ''
         }
         if (data.Data && data.Data.ItemTransactions.length > 0) {
           _self.ItemTransactionactions = []

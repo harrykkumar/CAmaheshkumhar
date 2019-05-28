@@ -989,7 +989,7 @@ export class ItemAddComponent {
         if (this.isBarCode) {
           this._itemmasterServices.getBarCode('ForBarCode').subscribe(
             (data: any) => {
-              // console.log('bar code : ', data)
+              console.log('bar code : ', data)
               if (data.Code === UIConstant.THOUSAND && data.Data.length > 0 && data.Data[0].BarCode) {
                 this.BarCode = data.Data[0].BarCode
                 this.ItemCode = this.BarCode

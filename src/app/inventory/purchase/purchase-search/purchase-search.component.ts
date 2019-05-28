@@ -83,7 +83,7 @@ export class PurchaseSearchComponent {
     this.supplierPlaceHolder = { placeholder: 'Select Supplier' }
     let newData = [{ id: '0', text: 'Select Supplier' }]
     this._ledgerServices.getVendor(4, '').subscribe(data => {
-      console.log('supplier data : ', data)
+      // console.log('supplier data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
           data.Data.forEach(element => {

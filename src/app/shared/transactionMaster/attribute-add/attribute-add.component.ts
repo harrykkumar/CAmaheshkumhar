@@ -51,9 +51,9 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
     this._CommonService.getAttributeStatus().pipe((
       takeUntil(this.unSubscribe$)
     )).subscribe((response: any) => {
-      console.log('attribute edit : ', response)
+      // console.log('attribute edit : ', response)
       if (response.open === true) {
-        console.log(response, 'add attr')
+        // console.log(response, 'add attr')
         this.resetFormData()
         this.isParent = response.data.isParent
         if (response.data.editId || response.data.attrNameId) {
@@ -131,7 +131,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
         })
       })
     ).subscribe((response: any) => {
-      console.log('attribute list : ', response)
+      // console.log('attribute list : ', response)
       this.attributeList = [...response]
     }, error => console.log(error))
   }

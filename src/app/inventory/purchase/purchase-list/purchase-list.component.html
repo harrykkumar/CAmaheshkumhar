@@ -47,18 +47,18 @@
                 </tbody>
                 <tfoot *ngIf="customFooter.length > 0" >
                     <tr>
-                    <ng-container *ngFor="let foot of customFooter;">
-                        <th [colSpan]="foot.colspan"></th>
-                        <th class="text-right font-weight-bold" *ngFor="let data of foot.data" >{{data}}</th>
-                    </ng-container>
-                    <th></th>
+                        <ng-container *ngFor="let foot of customFooter;">
+                            <th [colSpan]="foot.colspan"></th>
+                            <th class="text-right font-weight-bold" *ngFor="let data of foot.data" >{{data}}</th>
+                        </ng-container>
+                        <th></th>
                     </tr>
                 </tfoot>
-                </table>
-            </div>
+            </table>
         </div>
-        <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-        (pageNoEmitter)="p = $event;getPurchaseList();"
-        (pageSizeEmitter)="itemsPerPage = $event;getPurchaseList();" ></app-pagination>
+    </div>
+    <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+    (pageNoEmitter)="p = $event;getPurchaseList();"
+    (pageSizeEmitter)="itemsPerPage = $event;getPurchaseList();" ></app-pagination>
     </div>
 </div>

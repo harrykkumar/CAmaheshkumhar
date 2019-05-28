@@ -106,7 +106,7 @@ selectedCityId (event) {
   getStaeList (id, value) {
     this.subscribe = this._customerServices.gatStateList(id).subscribe(Data => {
       this.stateListplaceHolder = { placeholder: 'Select State' }
-      this.stateList = [{ id: '0', text: 'select State' }]
+      this.stateList = [{ id: '0', text: 'Select State' }]
       Data.Data.forEach(element => {
         this.stateList.push({
           id: element.Id,
@@ -188,17 +188,28 @@ selectedCityId (event) {
             //this.coustmoreRegistraionId ='1'
           }
           if(data.Data.AddressDetails.length >0){
-            this.countrySelect2.setElementValue(data.Data.AddressDetails[0].CountryId)
-            this.stateSelect2.setElementValue(data.Data.AddressDetails[0].StateId)
-            this.citySelect2.setElementValue(data.Data.AddressDetails[0].CityId)
             this.addressId =data.Data.AddressDetails[0].Id
-            this.getCountry(data.Data.AddressDetails[0].CountryId)
-            this.getStaeList(data.Data.AddressDetails[0].CountryId,data.Data.AddressDetails[0].StateId)
-            this.getCitylist(data.Data.AddressDetails[0].StateId,data.Data.AddressDetails[0].CityId)
-            this.countryValue = data.Data.AddressDetails[0].CountryId
-            this.stateValue = data.Data.AddressDetails[0].StateId
-            this.cityValue = data.Data.AddressDetails[0].CityId
             this.bankForm.controls.address.setValue(data.Data.AddressDetails[0].AddressValue)
+            this.getCountry(data.Data.AddressDetails[0].CountryId)
+            setTimeout(() => {
+              this.countryValue = data.Data.AddressDetails[0].CountryId
+              this.countrySelect2.setElementValue(data.Data.AddressDetails[0].CountryId)
+              
+            }, 100);
+          setTimeout(() => {
+            this.getStaeList(data.Data.AddressDetails[0].CountryId,data.Data.AddressDetails[0].StateId)
+            this.stateValue = data.Data.AddressDetails[0].StateId
+            this.stateSelect2.setElementValue(data.Data.AddressDetails[0].StateId)
+          
+          
+          }, 1000);
+         setTimeout(() => {
+          this.getCitylist(data.Data.AddressDetails[0].StateId,data.Data.AddressDetails[0].CityId)
+          this.cityValue = data.Data.AddressDetails[0].CityId
+          this.citySelect2.setElementValue(data.Data.AddressDetails[0].CityId)
+         }, 1500);
+         
+            
           }
           if(data.Data.Statutories.length >0){
             this.bankForm.controls.gstin.setValue(data.Data.Statutories[0].GstinNo)
@@ -215,6 +226,8 @@ selectedCityId (event) {
     this.countryList =[]
     this.stateList =[]
     this.cityList=[]
+    //this.selectyCoustmoreRegistration = []
+  this.select2VendorValue(0)
   }
   @ViewChild('select_regiType') registerTypeSelect2: Select2Component
   @ViewChild('crdr_selecto2') crDrSelect2: Select2Component
@@ -261,11 +274,9 @@ selectedCityId (event) {
           _self.toastrService.showSuccess('', 'Bank Added')
           if (type === 'save') {
             _self.commonService.closeLedger(false,toSend)
-            this.bankForm.reset()
             this.clearbank()
           } else {
             _self.commonService.closeLedger(true,toSend)
-            this.bankForm.reset()
             this.clearbank()
           }
         }
@@ -320,7 +331,7 @@ selectedCityId (event) {
   getCountry (value) {
     this.subscribe = this._customerServices.getCommonValues('101').subscribe(Data => {
       this.countryListPlaceHolder = { placeholder: 'Select Country' }
-      this.countryList = [{ id: '0', text: 'select Country' }]
+      this.countryList = [{ id: '0', text: 'Select Country' }]
       Data.Data.forEach(element => {
         this.countryList.push({
           id: element.Id,
@@ -344,12 +355,12 @@ selectedCityId (event) {
   selectyCoustmoreRegistration: any
   select2VendorValue (value) {
     this.selectyCoustmoreRegistration = []
-    this.selectCoustomerplaceHolder = { placeholder: 'Select Customer Regi.' }
-    this.selectyCoustmoreRegistration = [{ id: UIConstant.BLANK, text: 'select Customer' }, { id: '1', text: 'Regular' }
+    this.selectCoustomerplaceHolder = { placeholder: 'Select Customer' }
+    this.selectyCoustmoreRegistration = [{ id: UIConstant.BLANK, text: 'Select Customer' }, { id: '1', text: 'Regular' }
       , { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' }
       , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
       this.coustmoreRegistraionId = this.selectyCoustmoreRegistration[1].id
-    return this.coustomerValue = this.selectyCoustmoreRegistration[1].id
+    return this.coustomerValue = this.coustmoreRegistraionId
   }
   validGSTNumber: boolean = false
   requiredGST:boolean 
@@ -381,22 +392,26 @@ selectedCityId (event) {
     }
  
 }
+validError: boolean
 customerRegistraionError: any
 selectCoustmoreId (event) {
-  debugger
+  
   if(event.data.length > 0){
-    if(+event.value>0){
-      this.coustmoreRegistraionId = event.value
-if(this.coustmoreRegistraionId === '1'){
-  this.requiredGST = true
-}
-else{
-  this.requiredGST = false
-}
-    console.log(this.coustmoreRegistraionId ,'id--')
+        if(+event.value>0){
+          this.coustmoreRegistraionId = event.value
+        this.validError = false
+    if(this.coustmoreRegistraionId === '1'){
+      this.requiredGST = true
     }
- 
-  }
- 
-}
-}
+    else{
+      this.requiredGST = false
+    }
+        }
+        else{
+          this.validError = true
+        }
+    
+      }
+    
+    }
+    }

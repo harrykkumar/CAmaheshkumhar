@@ -190,13 +190,13 @@ export class ItemSearchComponent implements OnInit, OnChanges {
 
     this.taxValue = 0
     this.unitTypeValue = 0
-    this.packingTypeValue = 1
-    this.itemDetailValue = 1
+    this.packingTypeValue = 0
+    this.itemDetailValue = 0
     this.cateGoryValue = ''
     this.searchForm.reset()
-    if (this.catSelect2) {
-      this.catSelect2.setElementValue(0)
-    }
+    // if (this.catSelect2) {
+    //   this.catSelect2.setElementValue(0)
+    // }
     if (this.taxSelect2) {
       this.taxSelect2.setElementValue(0)
     }
@@ -208,6 +208,9 @@ export class ItemSearchComponent implements OnInit, OnChanges {
     }
     if (this.packingTypeSelect2) {
       this.packingTypeSelect2.setElementValue(0)
+    }
+    if (!this.searchForm.value.StrCodes) {
+      this.searchForm.value.StrCodes = ''
     }
     const queryStr = '&CategoryIdStr=' + this.CategoryIdStr +
      '&PackingTypeId=' + this.PackingTypeId + '&ItemTypeId=' +

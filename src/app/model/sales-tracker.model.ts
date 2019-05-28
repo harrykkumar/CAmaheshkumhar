@@ -151,6 +151,7 @@ export interface AddLedger {
   IsCashDiscountable: boolean
   CustomerTypeId: number
   CreditDays: number,
+  ShortName:string
   CreditLimit: number
   OpeningAmount: number
   IsChargeLedger:any
@@ -293,8 +294,8 @@ export interface AddCust {
   isAddNew?: boolean
   isParent?: boolean
   title?: string
-  isViewPrint?:string
-  isOtherCharge?:any
+  isViewPrint?: string
+  isOtherCharge?: any
 }
 
 export interface ResponseSale {
@@ -553,46 +554,48 @@ export interface PurchaseItem {
   taxTypeName: string
   SubTotal: number
   itemAttributeTrans?: Array<PurchaseAttribute>
-  taxRates: Array<any>
   taxSlabType: number
+  AmountItem: number
+  
+  itemTaxTrans?: Array<ItemTaxTrans>
 }
 
-export interface PurchaseItem {
-  TransType: number
-  TransId: number
-  ChallanId: number
-  CategoryId: number
-  ItemId: number
-  UnitId: number
-  Length: number
-  Height: number
-  Width: number
-  Quantity: number
-  SaleRate: number
-  MrpRate: number
-  PurchaseRate: number
-  TaxSlabId: number
-  TaxType: number
-  TaxAmount: number
-  DiscountType: number
-  Discount: number
-  DiscountAmt: number
-  ExpiryDate: string
-  MfdDate: string
-  BatchNo: string
-  Remark: string
-  Id: number
-  Sno: number
-  itemName: string
-  categoryName: string
-  unitName: string
-  taxSlabName: string
-  taxTypeName: string
-  SubTotal: number
-  itemAttributeTrans?: Array<PurchaseAttribute>
-  taxRates: Array<any>
-  taxSlabType: number
-}
+// export interface PurchaseItem {
+//   TransType: number
+//   TransId: number
+//   ChallanId: number
+//   CategoryId: number
+//   ItemId: number
+//   UnitId: number
+//   Length: number
+//   Height: number
+//   Width: number
+//   Quantity: number
+//   SaleRate: number
+//   MrpRate: number
+//   PurchaseRate: number
+//   TaxSlabId: number
+//   TaxType: number
+//   TaxAmount: number
+//   DiscountType: number
+//   Discount: number
+//   DiscountAmt: number
+//   ExpiryDate: string
+//   MfdDate: string
+//   BatchNo: string
+//   Remark: string
+//   Id: number
+//   Sno: number
+//   itemName: string
+//   categoryName: string
+//   unitName: string
+//   taxSlabName: string
+//   taxTypeName: string
+//   SubTotal: number
+//   itemAttributeTrans?: Array<PurchaseAttribute>
+//   taxRates: Array<any>
+//   taxSlabType: number
+// }
 
 export interface ComboItem {
   ItemId: number
@@ -677,6 +680,8 @@ export class PurchaseAdd {
   AddressId: number
   ConvertedCurrencyId: number
   ItemAttributeTrans: Array<PurchaseAttribute>
+  AdditionalCharges: Array<AdditionalCharges>
+  ItemTaxTrans: Array<ItemTaxTrans>
 }
 export class AddLedgerGroup {
   Id: number
@@ -696,4 +701,22 @@ export class AdditionalCharges {
   TaxChargeName: string
   TaxAmountCharge: number
   TotalAmountCharge: number
+  TaxTypeCharge: number
+  taxTypeChargeName: string
+  itemTaxTrans: Array<ItemTaxTrans>
+}
+
+export class ItemTaxTrans {
+  id: number
+  TaxTypeTax: number
+  AmountTax: number
+  ItemTransTaxId: number
+  ParentTaxId: number
+  ParentTypeTaxId: number
+  ItemTransTypeTax: number
+  TaxRateNameTax: string
+  TaxRateId: number
+  TaxRate: number
+  ValueType: number
+  TaxSlabName: string
 }

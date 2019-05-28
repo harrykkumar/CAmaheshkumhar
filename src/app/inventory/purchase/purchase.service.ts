@@ -5,13 +5,14 @@ import { BaseServices } from 'src/app/commonServices/base-services'
 import { ApiConstant } from 'src/app/shared/constants/api'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { ResponseSale } from 'src/app/model/sales-tracker.model'
+import { ToastrCustomService } from '../../commonServices/toastr.service';
 @Injectable({
   providedIn: 'root'
 })
 export class PurchaseService {
   attributesDataSub = new Subject<{attributeKeys: Array<string>, attributesData: Array<any>}>()
   attributesData$ = this.attributesDataSub.asObservable()
-  itemDataSub = new Subject<{itemData: Array<Select2OptionData>}>()
+  itemDataSub = new Subject<{data: Array<Select2OptionData>}>()
   itemData$ = this.itemDataSub.asObservable()
   vendorDataSub = new Subject<{data: Array<Select2OptionData>}>()
   vendorData$ = this.vendorDataSub.asObservable()
@@ -45,7 +46,7 @@ export class PurchaseService {
   search$ = this.searchSub.asObservable()
   private queryStrSub = new Subject<string>()
   public queryStr$ = this.queryStrSub.asObservable()
-  constructor (private baseService: BaseServices) {}
+  constructor (private baseService: BaseServices, private toastrService: ToastrCustomService) {}
   getPurchaseList (queryParams) {
     return this.baseService.getRequest(ApiConstant.PURCHASE_LIST + queryParams)
   }
@@ -79,10 +80,14 @@ export class PurchaseService {
         index = 0
       }
       index++
-      attributesData[j].data.push({ ...obj1 })
+      if (attributesData[j]) {
+        attributesData[j].data.push({ ...obj1 })
+      } else {
+        this.toastrService.showError('Not getting appropriate data', '')
+      }
     }
     let attibutesDataToSend = Object.assign([], attributesData)
-    console.log('attributes data : ', attibutesDataToSend)
+    // console.log('attributes data : ', attibutesDataToSend)
 
     this.attributesDataSub.next({ 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend })
   }
@@ -95,7 +100,8 @@ export class PurchaseService {
         text: item.Name
       })
     })
-    this.itemDataSub.next({ 'itemData': newData })
+    // console.log('items: ', newData)
+    this.itemDataSub.next({ 'data': JSON.parse(JSON.stringify(newData)) })
   }
 
   createVendors (array) {
@@ -173,7 +179,7 @@ export class PurchaseService {
         text: data.Name
       })
     })
-    this.subUnitsData.next({ 'data': newData })
+    this.subUnitsData.next({ 'data': JSON.parse(JSON.stringify(newData)) })
   }
 
   createReferral (array) {
@@ -259,6 +265,7 @@ export class PurchaseService {
   }
 
   getSlabData (id) {
+    console.log('id tax slab : ', id)
     return this.baseService.getRequest(ApiConstant.GET_TAX_SLAB_DATA + id)
   }
 
@@ -285,17 +292,35 @@ export class PurchaseService {
     this.settingData.next({ 'data': setting })
   }
 
-  taxCalculation (taxRates, taxSlabType, rate, isOtherState): number {
+  taxCalculation (taxRates, taxSlabType, rate, isOtherState, parentType, slabName) {
     let taxAmount = 0
+    let singleTaxRateAmount = 0
+    let appliedTaxRates = []
     if (taxRates.length > 0) {
       if ((+taxSlabType === 1 && isOtherState) || +taxSlabType === 2 || +taxSlabType === 3) {
         taxRates.forEach(element => {
           if (element.IsForOtherState) {
             if (element.ValueType === 1) {
               taxAmount = taxAmount + element.TaxRate
+              singleTaxRateAmount = element.TaxRate
             } else {
               taxAmount = taxAmount + ((element.TaxRate / 100) * rate)
+              singleTaxRateAmount = (element.TaxRate / 100) * rate
             }
+            appliedTaxRates.push({
+              TaxTypeTax: taxSlabType,
+              AmountTax: +(JSON.parse(JSON.stringify(singleTaxRateAmount))).toFixed(4),
+              ItemTransTaxId: 0,
+              ParentTaxId: 0,
+              ParentTypeTaxId: parentType,
+              ItemTransTypeTax: 0,
+              TaxRateId: element.Id,
+              TaxRate: element.TaxRate,
+              ValueType: element.ValueType,
+              TaxSlabName: slabName,
+              TaxRateNameTax: element.Name,
+              id: 0
+            })
           }
         })
       }
@@ -304,18 +329,36 @@ export class PurchaseService {
           if (!element.IsForOtherState) {
             if (element.ValueType === 1) {
               taxAmount = taxAmount + element.TaxRate
+              singleTaxRateAmount = element.TaxRate
             } else {
               taxAmount = taxAmount + ((element.TaxRate / 100) * rate)
+              singleTaxRateAmount = (element.TaxRate / 100) * rate
             }
+            appliedTaxRates.push({
+              TaxTypeTax: taxSlabType,
+              AmountTax: +(JSON.parse(JSON.stringify(singleTaxRateAmount))).toFixed(4),
+              ItemTransTaxId: 0,
+              ParentTaxId: 0,
+              ParentTypeTaxId: parentType,
+              ItemTransTypeTax: 0,
+              TaxRateId: element.Id,
+              TaxRate: element.TaxRate,
+              ValueType: element.ValueType,
+              TaxSlabName: slabName,
+              TaxRateNameTax: element.Name,
+              id: 0
+            })
           }
         })
       }
     }
-    return taxAmount
+    console.log(appliedTaxRates);
+    return {'taxAmount': taxAmount, 'appliedTaxRates': appliedTaxRates}
   }
 
-  taxCalCulationForInclusive (taxRates, taxSlabType, rate, isOtherState) {
+  taxCalCulationForInclusive (taxRates, taxSlabType, rate, isOtherState, parentType, slabName) {
     let sumOfAllRates = 0
+    let singleTaxRateAmount = 0
     if (taxRates.length > 0) {
       if ((+taxSlabType === 1 && isOtherState) || +taxSlabType === 2 || +taxSlabType === 3) {
         taxRates.forEach(element => {
@@ -334,30 +377,67 @@ export class PurchaseService {
     }
     const baseRate = +(rate / ((100 + sumOfAllRates) / 100))
     let taxAmount = 0
+    let appliedTaxRates = []
     if (taxRates.length > 0) {
       if ((+taxSlabType === 1 && isOtherState) || +taxSlabType === 2 || +taxSlabType === 3) {
         taxRates.forEach(element => {
-          if (element.IsForOtherState && +element.ValueType === 0) {
-            taxAmount += baseRate * (element.TaxRate / 100)
-          }
-          if (element.IsForOtherState && +element.ValueType === 1) {
-            taxAmount += element.TaxRate
+          if (element.IsForOtherState) {
+            if (+element.ValueType === 0) {
+              taxAmount += baseRate * (element.TaxRate / 100)
+              singleTaxRateAmount = baseRate * (element.TaxRate / 100)
+            }
+            if (+element.ValueType === 1) {
+              taxAmount += element.TaxRate
+              singleTaxRateAmount = element.TaxRate
+            }
+            appliedTaxRates.push({
+              TaxTypeTax: taxSlabType,
+              AmountTax: +(JSON.parse(JSON.stringify(singleTaxRateAmount))).toFixed(4),
+              ItemTransTaxId: 0,
+              ParentTaxId: 0,
+              ParentTypeTaxId: parentType,
+              ItemTransTypeTax: 0,
+              TaxRateId: element.Id,
+              TaxRate: element.TaxRate,
+              ValueType: element.ValueType,
+              TaxSlabName: slabName,
+              TaxRateNameTax: element.Name,
+              id: 0
+            })
           }
         })
       }
       if ((+taxSlabType === 1 && !isOtherState) || +taxSlabType === 2 || +taxSlabType === 3) {
         taxRates.forEach(element => {
-          if (!element.IsForOtherState && +element.ValueType === 0) {
-            taxAmount += baseRate * (element.TaxRate / 100)
-          }
-          if (!element.IsForOtherState && +element.ValueType === 1) {
-            taxAmount += element.TaxRate
+          if (!element.IsForOtherState) {
+            if (+element.ValueType === 0) {
+              taxAmount += baseRate * (element.TaxRate / 100)
+              singleTaxRateAmount = baseRate * (element.TaxRate / 100)
+            }
+            if (+element.ValueType === 1) {
+              taxAmount += element.TaxRate
+              singleTaxRateAmount = element.TaxRate
+            }
+            appliedTaxRates.push({
+              TaxTypeTax: taxSlabType,
+              AmountTax: +(JSON.parse(JSON.stringify(singleTaxRateAmount))).toFixed(4),
+              ItemTransTaxId: 0,
+              ParentTaxId: 0,
+              ParentTypeTaxId: parentType,
+              ItemTransTypeTax: 0,
+              TaxRateId: element.Id,
+              TaxRate: element.TaxRate,
+              ValueType: element.ValueType,
+              TaxSlabName: '',
+              TaxRateNameTax: element.Name,
+              id: 0
+            })
           }
         })
       }
     }
-
-    return taxAmount
+    console.log(appliedTaxRates);
+    return {'taxAmount': taxAmount, 'appliedTaxRates': appliedTaxRates}
   }
 
   createCharges (array) {
@@ -400,5 +480,17 @@ export class PurchaseService {
 
   setSearchQueryParamsStr (str) {
     this.queryStrSub.next(str)
+  }
+
+  removeByAttr (arr, attr, value) {
+    var i = arr.length;
+    while(i--){
+      if( arr[i] 
+          && arr[i].hasOwnProperty(attr) 
+          && (arguments.length > 2 && arr[i][attr] === value ) ){ 
+          arr.splice(i,1);
+      }
+    }
+    return arr;
   }
 }

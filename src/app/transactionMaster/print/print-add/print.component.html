@@ -3,7 +3,7 @@
  
     <header class="clearfix">
         <div id="logo">
-              <img src="{{orgImage}}" style="width: 58%;max-height: 120px;">
+              <img src="{{orgImageData}}" style="width: 58%;max-height: 120px;">
         </div>
         <div id="company">
             <h2 class="name"> {{ClientInfos && ClientInfos[0]?.OfficeName }}</h2>
@@ -35,15 +35,15 @@
                                 </tr>
                                 <tr>
                                     <td style="width:25%;">Invoice Date : </td>
-                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillDate | date :clientDateFormat}}</strong></td>
+                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillDate | dateFormat :clientDateFormat}}</strong></td>
                                 </tr>
                                 <tr>
                                  <td style="width:25%;">Due Date : </td>
-                                        <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.DueDate | date :clientDateFormat}}</strong></td>
+                                        <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.DueDate | dateFormat :clientDateFormat}}</strong></td>
                                     </tr> 
                                     <tr>
                                             <td style="width:25%;">E-way BillNo : </td>
-                                                   <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.EwayBillNo | date :clientDateFormat}}</strong></td>
+                                                   <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.EwayBillNo | dateFormat :clientDateFormat}}</strong></td>
                                                </tr> 
                             </tbody></table>
                         </div>
@@ -184,8 +184,8 @@
                     <td>{{item.ExpiryDate}}</td> 
                    </ng-container>
                     <ng-container *ngIf="industryId === '6' " >
-                    <td>{{item.BatchNo}}</td>
-                    <td>{{item.ExpiryDate}}</td> 
+                    <td>{{item.BatchNo  | dateFormat:clientDateFormat}}</td>
+                    <td>{{item.ExpiryDate  | dateFormat:clientDateFormat}}</td> 
                     </ng-container>
                   <td style="text-align:right">{{item.Quantity}}</td>
                   <td>{{ item.UnitName}}</td>
@@ -287,7 +287,7 @@
                             <td>{{item.Paymode}}</td>
                             <td>{{item.BankLedgerName}}</td>
                             <td>{{item.ChequeNo}}</td>
-                            <td>{{item.PayDate | date:clientDateFormat}}</td>
+                            <td>{{item.PayDate | dateFormat:clientDateFormat}}</td>
                             <td style="text-align:right">{{(item.Amount).toFixed(dicimalDigitFormat)}}</td>
                         </tr>
                     </tbody>

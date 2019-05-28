@@ -103,7 +103,7 @@ export class CategoryComponent implements OnInit {
       id: '1',
       text: '1 - Main'
     })
-    for (let i = 1; i <= this.catLevel; i++) {
+    for (let i = 2; i <= this.catLevel; i++) {
       this.categoryLevels.push({
         id: '' + i,
         text: '' + i + ' - Child'
