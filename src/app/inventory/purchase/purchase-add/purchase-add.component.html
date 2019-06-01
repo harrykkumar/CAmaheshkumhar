@@ -33,7 +33,7 @@
               <label>Vendor</label>
               <div class="input-group adw_select">
                 <div class="input-group adw_select">
-                  <select2 #vendor_select2 id="vendor" 
+                  <select2 [disabled]="Items.length > 0" #vendor_select2 id="vendor" 
                     [data]="vendorData" class="control_select"
                     (valueChanged)="onVendorSelect($event)"
                     autocomplete="true"
@@ -133,7 +133,7 @@
               <label>Address</label>
               <div class="input-group adw_select">
                 <div class="input-group adw_select">
-                  <select2 #address_select2 id="address"
+                  <select2 [disabled]="Items.length > 0" #address_select2 id="address"
                     [data]="AddressData" class="control_select"
                     (valueChanged)="onAddressSelect($event)"
                       autocomplete="true" [options]="{ placeholder: 'Select Address' }"
@@ -292,7 +292,7 @@
                     </ng-container>
                     <td>
                       <div class="input-group adw_select min_width_350">
-                        <select2 #item_select2 [data]="itemData" class="control_select " 
+                        <select2 [disabled]="AddressId <= 0" #item_select2 [data]="itemData" class="control_select " 
                         (valueChanged)="onItemSelect($event)" autocomplete="true"
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.ItemId }"
                           [options]="{placeholder: 'Select Item'}" [value]="itemValue" >
@@ -522,7 +522,7 @@
                         </td>
                         <td>
                           <div class="input-group adw_select">
-                            <select2 name="chargeselect" #charge_select2 [data]="chargesData"
+                            <select2 [disabled]="AddressId <= 0" name="chargeselect" #charge_select2 [data]="chargesData"
                               class="control_select"
                               (valueChanged)="onChargeSelect($event)"
                               autocomplete="true" [options]="{placeholder: 'Select Charge'}"
@@ -530,7 +530,7 @@
                               [value]="ledgerChargeValue" ></select2>
                           </div>
                         </td>
-                        <td><input type="text" appIncludeDecimal name="AmountCharge" class="form-control"
+                        <td><input type="text" [disabled]="AddressId <= 0" appIncludeDecimal name="AmountCharge" class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.AmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge();calculate();"
                           id="AmountCharge" [(ngModel)]="AmountCharge" placeholder="Enter Amount">
@@ -610,22 +610,33 @@
                         </div>
                       </div>
                       <div class="form-group col-md-3">
-                        <label>Round Off</label>
-                        <input type="text" appIncludeDecimal class="form-control" id="RoundOff" placeholder="Round Off"
-                          class="form-control" name="RoundOff" [(ngModel)]="RoundOff">
+                        <label>Auto Round Off</label>
+                        <input type="number" readonly="true" class="form-control"
+                         id="RoundOff" placeholder="Round Off"
+                          class="form-control" name="RoundOff"
+                          (input)="calculate()"
+                          [(ngModel)]="RoundOff">
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label>Manual Round Off</label>
+                        <input type="number" class="form-control"
+                         id="RoundOffManual" placeholder="Round Off Manual"
+                          class="form-control" name="RoundOffManual"
+                          (input)="calculate()"
+                          [(ngModel)]="RoundOffManual">
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <div class=" card pt-2 pr-2 pl-2 ">
+                  <div class=" card pt-2 pr-2 pl-2 " *ngIf="!loadingSummary" >
                     <h5 class="summery_text">Bill Summary</h5>
                       <div class="form-row">
                         <div class="col-md-6 text-left">
                           <div class="form-row">
                             <ng-container *ngIf="TaxableValue > 0" >
                               <div class="col-md-6 labal_text">Taxable Value</div>
-                              <div class="col-md-6 value_text">{{TaxableValue}}</div>
+                              <div class="col-md-6 value_text">{{TaxableValue.toFixed(noOfDecimal)}}</div>
                             </ng-container>
                             <ng-container *ngFor="let charge of AdditionalChargesToShow" >
                               <div class="col-md-6 labal_text">{{charge.LedgerName}}</div>
@@ -636,14 +647,19 @@
                         <div class="col-md-6 text-right" *ngIf="billSummary && billSummary.length > 0" >
                           <div class="form-row" *ngFor="let tax of billSummary" >
                             <div class="col-md-6 labal_text">{{tax.name}}</div>
-                            <div class="col-md-6 value_text">{{tax.total}}</div>
+                            <div class="col-md-6 value_text">{{tax.total.toFixed(4)}}</div>
                           </div>
                         </div>
                       </div>
                       <div class="form-row border-top pt-2">
                         <div class="col-md-6"></div>
                         <div class="col-md-3 labal_text font-weight-bold">Total Bill Amount</div>
-                        <div class="col-md-3 text-right font-weight-bold value_text">{{NetBillAmount}}</div>
+                        <div class="col-md-3 text-right font-weight-bold value_text">{{BillAmount}}</div>
+                      </div>
+                    </div>
+                    <div class="card pt-2 pr-2 pl-2" *ngIf="loadingSummary" >
+                      <div class="modal-body" style="height:inherit;" >
+                        <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 25px;height: 25px;position: absolute;left: 49%;top:49%;" />
                       </div>
                     </div>
                   </div>

@@ -177,4 +177,7 @@ export class UIConstant {
   public static get SERVERERROR (): number {
     return 5000
   }
+  public static get DECIMAL_FOUR_DIGIT (): number {
+    return 4
+  }
 }

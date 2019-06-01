@@ -48,14 +48,14 @@
 
 <div class="modal" id="purchase_print_id">
   <div id="page-wrap" *ngFor="let printData of printData1;let i = index;let last = last;" >
-    <div style="width:100%; border: 1px solid #000; overflow: auto;">
+    <div style="width:100%; overflow: auto;" class="border-bottom" >
       <div style="width:39%; padding: 20px 0 6px 10px; float:left">
         <img src="{{orgImage}}" style="width: 58%;max-height: 120px;">
       </div>
       <div style="width:59%;float:left">
-        <h4 align="center" style="margin-bottom:3px;text-align:right;" *ngIf="printData && printData.ClientInfos">
+        <h3 align="center" style="margin-bottom:3px;text-align:right;" *ngIf="printData && printData.ClientInfos">
           {{printData.ClientInfos[0]?.OfficeName}}
-        </h4>
+        </h3>
         <h1 align="center" style="font-size:14px; margin:0px;text-align:right;" *ngIf="printData && printData.AddressDetailsOrg" >
           {{printData.AddressDetailsOrg}}&nbsp;
         </h1>
@@ -73,31 +73,31 @@
       <div id="header">INVOICE</div>
       <div id="identity">
         <div class="invoiveN">
-          <table class="invoice_table" width="100%">
+          <table class="invoice_table border-bottom border-top " width="100%">
             <tbody>
               <tr>
-                <td style="max-width:25%;text-align:left;" >Invoice No</td>
-                <td style="max-width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0].BillNo}}</td>
-                <td style="max-width:25%;text-align:left;" >Location</td>
-                <td style="max-width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions" >{{printData.PurchaseTransactions[0]?.LocationTo }}</td>
+                <td style="width:25%;text-align:left;" >Invoice No</td>
+                <td style="width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0].BillNo}}</td>
+                <td style="width:25%;text-align:left;" >Location</td>
+                <td style="width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions" >{{printData.PurchaseTransactions[0]?.LocationTo }}</td>
               </tr>
               <tr>
-                <td style="max-width:25%;text-align:left;" >Party Invoice No</td>
-                <td style="max-width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0].PartyBillNo}}</td>
-                <td style="max-width:25%;text-align:left;" >Transportation</td>
-                <td style="max-width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0]?.Transportation }}</td>
+                <td style="width:25%;text-align:left;" >Party Invoice No</td>
+                <td style="width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0].PartyBillNo}}</td>
+                <td style="width:25%;text-align:left;" >Transportation</td>
+                <td style="width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0]?.Transportation }}</td>
               </tr>
               <tr>
-                <td style="max-width:25%;text-align:left;" >Invoice Date</td>
-                <td style="max-width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0].BillDate | dateFormat: clientDateFormat}}</td>
-                <td style="max-width:25%;text-align:left;" >Driver Name</td>
-                <td style="max-width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions" >{{printData.PurchaseTransactions[0]?.Drivername }}</td>
+                <td style="width:25%;text-align:left;" >Invoice Date</td>
+                <td style="width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0].BillDate | dateFormat: clientDateFormat}}</td>
+                <td style="width:25%;text-align:left;" >Driver Name</td>
+                <td style="width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions" >{{printData.PurchaseTransactions[0]?.Drivername }}</td>
               </tr>
               <tr>
-                <td style="max-width:25%;text-align:left;" >Party Invoice Date</td>
-                <td style="max-width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions" >{{printData.PurchaseTransactions[0].PartyBillDate | dateFormat: clientDateFormat}}</td>
-                <td style="max-width:25%;text-align:left;" >Vehicle No</td>
-                <td style="max-width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0]?.VehicleNo }}</td>
+                <td style="width:25%;text-align:left;" >Party Invoice Date</td>
+                <td style="width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions" >{{printData.PurchaseTransactions[0].PartyBillDate | dateFormat: clientDateFormat}}</td>
+                <td style="width:25%;text-align:left;" >Vehicle No</td>
+                <td style="width:25%;text-align:left;" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0]?.VehicleNo }}</td>
               </tr>
             </tbody>
           </table>
@@ -108,9 +108,9 @@
         </div>
       </div>
       <div style="clear:both"></div>
-      <div class="bill">
+      <div class="bill border-bottom ">
         <div id="header12">Details of Sender</div>
-        <table class="billT" width="100%">
+        <table class="billT border-top" width="100%">
           <tbody>
             <tr>
               <td>
@@ -154,10 +154,10 @@
       </div>
     </div>
     <div style="clear:both"></div>
-    <div class="invoice" style="margin:0px;">
+    <div class="invoice">
       <div style="clear:both"></div><!-- style="max-height:500px;min-height: 500px"-->
-      <div class="mainT">
-        <table class="record" width="100%" cellspacing="0" cellpadding="3" style="border-bottom: 1px solid #000;">
+      <div class="mainT" style="min-height: 250px;">
+        <table class="record border-bottom border-top" width="100%" cellspacing="0" cellpadding="3">
           <tbody id="main-con" >
             <tr>
               <th style="width:5%;">S.N.</th>
@@ -208,70 +208,107 @@
     </div>
     <div style="clear:both"></div>
     <!-- <div *ngIf="!last" style="max-width: 250px;min-width: 250px;margin:0px; position: relative;width:100%;" ></div> -->
-    <div [hidden]="!last" class="invoice" style="margin:0px; position: relative;min-height: 250px;max-height: 250px; width:100%;">
-      <div class="amount" style="width:50%; float:left; bottom: 0px; position: absolute;">
-      </div>
-      <div class="logo" style="bottom: 0px; position: absolute; right: 0px;">
-        <table width="100%" class="payment">
-          <tbody>
-            <tr style="background:#e9e9ea">
-              <th>Sub Total Amount</th>
-              <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions" >{{printData && printData.PurchaseTransactions[0]?.SubTotalAmount}}</th>
-            </tr>
-            <tr style="background:#e9e9ea; font-weight:bold;">
-              <th>Discount</th>
-              <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions" >{{printData && printData.PurchaseTransactions[0]?.Discount}}</th>
-            </tr>
-            <tr style="background:#e9e9ea" *ngFor="let tax of printData.ItemTaxTransDetails">
-              <th>Tax @ {{tax.Name}}</th>
-              <th style="text-align:right" *ngIf="tax.Amount" >{{tax.Amount}}</th>
-            </tr>
-            <tr style="background:#e9e9ea">
-              <th>Tax Amount </th>
-              <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0]?.TaxAmount}}</th>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="clear:both"></div>
-    </div>
-    <div class="amount" *ngIf="last" style="border-bottom: 1px solid #000; border-left:1px solid #000; border-right:1px solid #000; min-height: 125px; max-height: 125px; width:100%;">
-      <div class="invoiveN"></div>
-      <div class="logo">
-        <table class="payment" style="width: 100%;">
-          <tbody>
-            <tr style="background:#e9e9ea; font-weight:bold;">
-              <th>BillAmount</th>
-              <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions" >{{printData.PurchaseTransactions[0]?.BillAmount}}</th>
-            </tr>
-            <tr>
-              <td colspan="2"><b>Total Invoice Amount in Words</b> </td>
-            </tr>
-            <tr>
-              <td style="font-weight: bold;" colspan="2">{{word}}-Only </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="display:inline-flex; width:100%;">
-        <div class="invoiveN" style="width: 56.5%;
-          float: left; font-size: 14px;
-          padding: 13px;">
-          <h3 style="margin: 0px;">Term and Condition:</h3>
-          There is various terms & Condition according to rule of GOVT.
+
+    <div style="position: absolute; right: 0; left: 0" >
+      <div [hidden]="!last" class="invoice" style="width:100%;">
+        <div class="amount" style="width:50%;">
         </div>
-        <div class="invoiveN" style="width: 40%;
-          float: right; text-align:right; font-size: 14px;
-          padding: 13px;">
-          <h3 style="margin: 0px;" >For, {{printData.ClientInfos[0]?.OfficeName}}</h3>
-          Authorised Signatory
+        <div class="logo">
+          <table width="100%" class="payment">
+            <tbody>
+              <tr style="background:#e9e9ea">
+                <th>Sub Total Amount</th>
+                <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions" >{{printData && printData.PurchaseTransactions[0]?.SubTotalAmount}}</th>
+              </tr>
+              <tr style="background:#e9e9ea; font-weight:bold;">
+                <th>Discount</th>
+                <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions" >{{printData && printData.PurchaseTransactions[0]?.Discount}}</th>
+              </tr>
+              <tr *ngFor="let charge of printData.AdditionalChargeDetails;" >
+                <th>Charge @ {{charge.LedgerName}}</th>
+                <th style="text-align:right" *ngIf="charge.AmountCharge" >{{charge.AmountCharge}}</th>
+              </tr>
+              <!-- <tr style="background:#e9e9ea" *ngFor="let tax of printData.ItemTaxTransDetails">
+                <th>Tax @ {{tax.Name}}</th>
+                <th style="text-align:right" *ngIf="tax.Amount" >{{tax.Amount}}</th>
+              </tr> -->
+              <tr style="background:#e9e9ea">
+                <th>Tax Amount </th>
+                <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions">{{printData.PurchaseTransactions[0]?.TaxAmount}}</th>
+              </tr>
+              <tr style="background:#e9e9ea; font-weight:bold;">
+                <th>BillAmount</th>
+                <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions" >{{printData.PurchaseTransactions[0]?.BillAmount}}</th>
+              </tr>
+              <tr>
+                <td class="border-top" colspan="2"><b>Total Invoice Amount in Words</b> </td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold;" colspan="2">{{word}}-Only </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="clear:both"></div>
+      </div>
+      <div class="amount" *ngIf="last" style="min-height: 125px;width:100%;">
+      <div class="invoice border-top border-bottom">
+        <div style="clear:both"></div><!-- style="max-height:500px;min-height: 500px"-->
+        <div class="mainT">
+          <table class="record" width="100%" cellspacing="0" cellpadding="3">
+            <tbody id="main-con">
+              <tr>
+                <th style="width:10%;">HSN</th>
+                <th style="width:12%;">Taxable Value</th>
+                <th style="width:8%;">Rate</th>
+                <th *ngFor="let key of headerKeys;" >{{key}}</th>
+                <th style="text-align:right;">Total</th>
+              </tr>
+              <tr *ngFor="let item of hsnToSHow;">
+                <td>{{item.HsnNo}}</td>
+                <td class="cat-con" >{{item.TaxableAmount}}</td>
+                <td class="cat-con" >{{item.totalTaxRate}}</td>
+                <ng-container *ngFor="let col of headerKeys" >
+                  <td>
+                    <ng-container *ngIf="item.AppliedTaxes[col]"  >
+                      {{item.AppliedTaxes[col]}}
+                    </ng-container>
+                    <ng-container *ngIf="!item.AppliedTaxes[col]"  >
+                      -
+                    </ng-container>
+                  </td>
+                </ng-container>
+                <td style="text-align:right;">{{item.TotalAmount}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="clear:both"></div>
+      </div>
+        <!--new-->
+        <div style="display:inline-flex; width:100%;">
+          <div class="invoiveN" style="width: 56.5%;
+            float: left; font-size: 14px;
+            padding: 13px;">
+            <h3 style="margin: 0px;">Term and Condition:</h3>
+            <ul>
+              <li>
+                There is various terms & Condition according to rule of GOVT.
+              </li>
+            </ul>
+          </div>
+          <div class="invoiveN" style="width: 40%;
+            float: right; text-align:right; font-size: 14px;
+            padding: 13px;">
+            <h3 style="margin: 0px;" >For, {{printData.ClientInfos[0]?.OfficeName}}</h3>
+            Authorised Signatory
+          </div>
+        </div>
+        <div style="clear:both"></div>
+        <div *ngIf="last" style="float:left;text-align:right;overflow:auto;margin-top:5px;">
+          <span>Page No {{i+1}} of {{printData1.length}}</span>
         </div>
       </div>
-      <div style="clear:both"></div>
-    </div>
-    <div style="clear:both"></div>
-    <div *ngIf="last" style="float:left;text-align:right;overflow:auto;min-height:20px; margin-top:5px;">
-      <span>Page No {{i+1}} of {{printData1.length}}</span>
     </div>
   </div>
 </div>

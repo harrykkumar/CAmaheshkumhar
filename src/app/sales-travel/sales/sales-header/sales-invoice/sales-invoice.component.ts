@@ -125,20 +125,20 @@ export class SalesInvoiceComponent {
     // this.getClientName(0)
     this.getPaymentModeDetail(0)
     this.supplierList$ = this._saleTravelServices.supplierList$.subscribe(
-      (data: Array<Select2OptionData>[]) => {
+      (data) => {
         this.suplierNameSelect2 = Object.assign([], data)
       }
     )
 
     this.routeList$ = this._saleTravelServices.routeList$.subscribe(
-      (data: Array<Select2OptionData>[]) => {
+      (data) => {
         this.select2Item = Object.assign([], data)
       }
     )
 
     this.clientList$ = this._saleTravelServices.clientList$.subscribe(
       (data) => {
-        this.select2Item = Object.assign([], data)
+        this.clientNameSelect2 = Object.assign([], data)
       }
     )
 

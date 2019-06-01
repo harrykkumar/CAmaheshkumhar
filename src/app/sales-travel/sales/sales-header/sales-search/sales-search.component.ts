@@ -13,6 +13,7 @@ import { AddCust } from '../../../../model/sales-tracker.model';
 import { CommonService } from '../../../../commonServices/commanmaster/common.services';
 import { Settings } from '../../../../shared/constants/settings.constant';
 import { SaleTravelServices } from '../../sale-travel.services';
+import { ItemmasterServices } from '../../../../commonServices/TransactionMaster/item-master.services';
 declare const $: any
 declare const flatpickr: any
 @Component({
@@ -48,7 +49,8 @@ export class SalesSearchComponent {
   @ViewChild('billstatus_select2') billstatusSelect2: Select2Component
   constructor (private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
     private settings: Settings, private gs: GlobalService, private commonService: CommonService,
-    private saleService: SaleTravelServices) {}
+    private saleService: SaleTravelServices,
+    private _itemServices: ItemmasterServices) {}
   ngOnInit () {
     this.newCustAddSub = this.commonService.getCustStatus().subscribe(
       (data: AddCust) => {
@@ -69,6 +71,8 @@ export class SalesSearchComponent {
     this.setFromDate()
     this.setToDate()
     this.getLedgerList()
+    this.getItemDetail()
+    this.getSupplierList()
   }
 
   createForm () {
@@ -115,7 +119,49 @@ export class SalesSearchComponent {
       }
     )
   }
-  
+
+  getSupplierList () {
+    let newData = [{ id: '0', text: 'Select Party' }]
+    this._ledgerServices.getVendor(4, '').pipe(
+      filter(data => {
+        if (data.Code === UIConstant.THOUSAND) {
+          return data.Data
+        } else {
+          throw new Error (data.Description)
+        }
+      }),
+      catchError(error => {
+        return throwError(error)
+      }),
+      map(data => data.Data),
+      map(data => {
+        if (data.length > 0) {
+          data.forEach(element => {
+            newData.push({
+              id: element.Id,
+              text: element.Name
+            })
+          })
+        }
+        return newData
+      })
+    ).subscribe(data => {
+      console.log('Supplier data : ', data)
+      this.saleService.createSupplierList([...data])
+      }
+    )
+  }
+
+  getItemDetail () {
+    this._itemServices.getItemMasterDetail('').subscribe(data => {
+      // console.log('router data : ', data)
+      if (data.Code === UIConstant.THOUSAND && data.Data) {
+        console.log('route list : ', data.Data)
+        this.saleService.createRouteList([...data.Data])
+      }
+    })
+  }
+
   setFromDate () {
     let _self = this
     jQuery(function ($) {

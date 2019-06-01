@@ -428,7 +428,7 @@ export class PurchaseService {
               TaxRateId: element.Id,
               TaxRate: element.TaxRate,
               ValueType: element.ValueType,
-              TaxSlabName: '',
+              TaxSlabName: slabName,
               TaxRateNameTax: element.Name,
               id: 0
             })

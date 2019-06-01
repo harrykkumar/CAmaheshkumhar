@@ -556,7 +556,7 @@ export interface PurchaseItem {
   itemAttributeTrans?: Array<PurchaseAttribute>
   taxSlabType: number
   AmountItem: number
-  
+  taxRates: any
   itemTaxTrans?: Array<ItemTaxTrans>
 }
 
@@ -702,7 +702,9 @@ export class AdditionalCharges {
   TaxAmountCharge: number
   TotalAmountCharge: number
   TaxTypeCharge: number
+  taxChargeSlabType: number
   taxTypeChargeName: string
+  taxChargeRates: any
   itemTaxTrans: Array<ItemTaxTrans>
 }
 

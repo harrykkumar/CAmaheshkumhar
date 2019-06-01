@@ -5885,3 +5885,7 @@ input[type=number]::-webkit-inner-spin-button {
 input[type=number] {
     -moz-appearance:textfield;
 }
+.summery_text {
+    font-size: .8rem;
+    font-weight: 600;
+}

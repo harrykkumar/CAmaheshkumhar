@@ -301,13 +301,18 @@
                                     <h4 style=" margin:0;padding:0;"> GST Analysis</h4>
                                 </th>
                             </tr>
-                            <tr *ngFor="let item of hsnItemData; let i =index"> 
-                                <th style="text-align:right">HSN </th>
-                                <th style="text-align:right">Taxable Amount </th>
-                                <th style="text-align:right">Rate </th>
-                                <th *ngFor="let label of item.tax">{{label.Name}}({{label.TaxRate}})%</th>
-                                <th style="text-align:right">Total</th>
-                            </tr>
+                            <!-- <tr *ngFor="let item of hsnItemData; let i =index"> -->
+                                <ng-container >
+                                        <tr > 
+                                                <th style="text-align:right">HSN </th>
+                                                <th style="text-align:right">Taxable Amount </th>
+                                                <th style="text-align:right">Rate </th>
+                                             <!-- <th  *ngFor="let element of hsnItemData.tax"> {{element.Name}}({{label.TaxRate}})%}}</th>   -->
+                                                <th *ngFor="let label of hsnItemData?.tax">{{label.Name}}({{label.TaxRate}})%</th>
+                                                <th style="text-align:right">Total</th>
+                                            </tr>
+                                </ng-container>
+                           
                         </thead>
                         <tbody>
                             <tr *ngFor="let item of hsnItemData; let i =index" >

@@ -8,11 +8,11 @@ import { UIConstant } from '../../shared/constants/ui-constant';
 export class SaleTravelServices {
   private queryStrSub = new Subject<string>()
   public queryStr$ = this.queryStrSub.asObservable()
-  private supplierListSub = new Subject<Array<Select2OptionData>[]>()
+  private supplierListSub = new Subject<Array<Select2OptionData>>()
   public supplierList$ = this.supplierListSub.asObservable()
-  private routeListSub = new Subject<Array<Select2OptionData>[]>()
+  private routeListSub = new Subject<Array<Select2OptionData>>()
   public routeList$ = this.routeListSub.asObservable()
-  private clientListSub = new Subject<Array<Select2OptionData>[]>()
+  private clientListSub = new Subject<Array<Select2OptionData>>()
   public clientList$ = this.clientListSub.asObservable()
   constructor (private _basesService: BaseServices) { }
 
@@ -67,7 +67,8 @@ export class SaleTravelServices {
         text: element.Name
       })
     });
-    this.routeListSub.next(list)
+    console.log('router list update : ', newData)
+    this.routeListSub.next(newData)
   }
 
   createSupplierList (list) {
@@ -81,11 +82,11 @@ export class SaleTravelServices {
         text: element.Name
       })
     });
-    this.supplierListSub.next(list)
+    this.supplierListSub.next(newData)
   }
 
   setLedgerList (list) {
-    list.splice(1, 0, { id: '-1', text: UIConstant.THOUSAND })
+    list.splice(1, 0, { id: '-1', text: UIConstant.ADD_NEW_OPTION })
     this.clientListSub.next(list)
   }
 }
