@@ -293,38 +293,74 @@
                     </tbody>
                 </table>
             </div>
-            <div class="table_summery">
-                    <table border="0" class="table1" cellspacing="0" cellpadding="0">
-                        <thead>
-                            <tr>
-                                <th colspan="6">
-                                    <h4 style=" margin:0;padding:0;"> GST Analysis</h4>
-                                </th>
-                            </tr>
-                            <!-- <tr *ngFor="let item of hsnItemData; let i =index"> -->
-                                <ng-container >
-                                        <tr > 
-                                                <th style="text-align:right">HSN </th>
-                                                <th style="text-align:right">Taxable Amount </th>
-                                                <th style="text-align:right">Rate </th>
-                                             <!-- <th  *ngFor="let element of hsnItemData.tax"> {{element.Name}}({{label.TaxRate}})%}}</th>   -->
-                                                <th *ngFor="let label of hsnItemData?.tax">{{label.Name}}({{label.TaxRate}})%</th>
-                                                <th style="text-align:right">Total</th>
-                                            </tr>
-                                </ng-container>
-                           
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of hsnItemData; let i =index" >
-                                <td style="text-align:right">{{item.HsnNo}}</td>
-                                <td style="text-align:right">{{item.TaxableAmount}}</td>
-                                <td style="text-align:right" >{{item.rate}}%</td>
-                                <td style="text-align:right" *ngFor="let keyd of item.tax">{{keyd.Amount}}</td>
-                                <td style="text-align:right">{{item.TotalAmount}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>   
+            <div class=" table_summery invoice border-top border-bottom">
+                <div style="clear:both"></div><!-- style="max-height:500px;min-height: 500px"-->
+                <!-- <div class="mainT"> -->
+                        <h4 style=" padding-left:358px" > GST  Details</h4>
+                        <table border="0" class="table1" cellspacing="0" cellpadding="0">
+                               
+                   <thead>
+                        
+                  <tr>
+                    <th style="width:10%;">HSN</th>
+                    <th style="width:12%;">Taxable Value</th>
+                    <th style="width:8%;">Rate</th>
+                    <th *ngFor="let key of headerKeys;" >{{key}}</th>
+                    <th style="text-align:right;">Total</th>
+                  </tr>
+                   </thead>
+                       
+                      <tbody id="main-con">
+                      <tr *ngFor="let item of hsnToSHow;">
+                        <td>{{item.HsnNo}}</td>
+                        <td style="text-align:right;" >{{item.TaxableAmount}}</td>
+                        <td style="text-align:right;" >{{item.totalTaxRate}}</td>
+                        <ng-container *ngFor="let col of headerKeys" >
+                          <td>
+                            <ng-container style="text-align:right;" *ngIf="item.AppliedTaxes[col]"  >
+                              {{item.AppliedTaxes[col]}}
+                            </ng-container>
+                            <ng-container *ngIf="!item.AppliedTaxes[col]"  >
+                              -
+                            </ng-container>
+                          </td>
+                        </ng-container>
+                        <td style="text-align:right;">{{item.TotalAmount}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                <!-- </div> -->
+                <div style="clear:both"></div>
+              </div>
+            <!-- <div class="table_summery">
+                <table class="record" width="100%" cellspacing="0" cellpadding="3">
+                  <tbody id="main-con">
+                    <tr>
+                      <th style="width:10%;">HSN</th>
+                      <th style="width:12%;">Taxable Value</th>
+                      <th style="width:8%;">Rate</th>
+                      <th *ngFor="let key of headerKeys;" >{{key}}</th>
+                      <th style="text-align:right;">Total</th>
+                    </tr>
+                    <tr *ngFor="let item of hsnToSHow;">
+                      <td>{{item.HsnNo}}</td>
+                      <td class="cat-con" >{{item.TaxableAmount}}</td>
+                      <td class="cat-con" >{{item.totalTaxRate}}</td>
+                      <ng-container *ngFor="let col of headerKeys" >
+                        <td>
+                          <ng-container *ngIf="item.AppliedTaxes[col]"  >
+                            {{item.AppliedTaxes[col]}}
+                          </ng-container>
+                          <ng-container *ngIf="!item.AppliedTaxes[col]"  >
+                            -
+                          </ng-container>
+                        </td>
+                      </ng-container>
+                      <td style="text-align:right;">{{item.TotalAmount}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>    -->
              
           
     </main>

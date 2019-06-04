@@ -412,13 +412,13 @@ export class CommonService {
   getsettingforOrgnizationData (orgid,forSaleType,date) {
     return this.baseService.getRequest(ApiConstant.SETTING_FOR_ORGNIZATION_DATA + orgid + '&TransDate=' + date + '&TransactionType=' + forSaleType)
   }
-  openAddress (leaderId) {
+  openAddress (leaderId ) {
     this.openAddressAddSub.next({ 'open': true, 'ledgerId': leaderId })
   }
 
   closeAddress (address) {
     if (address) {
-      this.openAddressAddSub.next({ 'open': false, 'name': address.name, 'id': address.id })
+      this.openAddressAddSub.next({ 'open': false, 'name': address.name, 'id': address.id ,'stateId':address.stateId})
     } else {
       this.openAddressAddSub.next({ 'open': false })
     }
@@ -772,6 +772,14 @@ export class CommonService {
   openingStatusForLedger() {
     return this.baseService.getRequest(ApiConstant.LEDGER_OPENING_BALANCE_STATUS_API)
 
+  }
+
+  getLedgerSummaryData = (data) => {
+    return this.baseService.getRequest(`${ApiConstant.LEDGER_SUMMARY}?LedgerId=${data.LedgerId}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}`)
+  }
+
+  getLedgerItemList = () => {
+    return this.baseService.getRequest(`${ApiConstant.LEDGER_DETAIL_URL}`)
   }
   
 }

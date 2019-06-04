@@ -131,6 +131,10 @@ const routes: Routes = [
         path: 'account/ledgercreation',
         loadChildren: '../transactionMaster/ledger-creation/ledger-creation.module#LedgerCreationModule'
       },
+      {
+        path: 'account/ledger-summary',
+        loadChildren: '../transactionMaster/ledger-summary/ledger-summary.module#LedgerSummaryModule'
+      },
     ]
   }
 ]

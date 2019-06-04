@@ -75,4 +75,6 @@ export class URLConstant {
 
   public static get LEDGER_CREATION  (): string { return 'account/ledgercreation' }
 
+  public static get LEDGER_SUMMARY  (): string { return 'account/ledger-summary' }
+
 }

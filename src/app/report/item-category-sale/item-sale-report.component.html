@@ -48,9 +48,9 @@
                                         <th style="width:1px" > # </th>
                                         <th  >Category/ Item </th>
                                         <th  > Quantity</th>
-                                        <th  > Discount Amt </th>
-                                        <th  > Tax Amount </th>
-                                        <th  > Bill Amount </th>
+                                        <th class="text-right" > Discount Amt </th>
+                                        <th class="text-right" > Tax Amount </th>
+                                        <th class="text-right" > Bill Amount </th>
                                         
                                       </ng-container>
                                   
@@ -75,9 +75,9 @@
                                     'pl-5':item.AttributeId === 1
                                   }" >{{item.Name}}</td>
                                 <td>{{item.Quantity}}</td>
-                                <td>{{item.DiscountAmt}}</td>
-                                <td>{{item.TaxAmount}}</td>
-                                <td>{{item.BillAmount}}</td>
+                                <td class="text-right">{{item.DiscountAmt}}</td>
+                                <td class="text-right">{{item.TaxAmount}}</td>
+                                <td class="text-right">{{item.BillAmount}}</td>
                                 </tr>
               <tr *ngIf="item.ItemId !== 0 && item.AttributeId !== 1 && collapsed1" id='collapseThree33'   class="default_row "   [ngClass]="{
                                   'category-bg':item.ItemId === 0,
@@ -98,9 +98,9 @@
                                    
                                     }" >{{item.Name}}</td>
                                   <td>{{item.Quantity}}</td>
-                                  <td>{{item.DiscountAmt}}</td>
-                                  <td>{{item.TaxAmount}}</td>
-                                  <td>{{item.BillAmount}}</td>
+                                  <td class="text-right">{{item.DiscountAmt}}</td>
+                                  <td class="text-right">{{item.TaxAmount}}</td>
+                                  <td class="text-right">{{item.BillAmount}}</td>
                                   </tr>
                <tr *ngIf="item.AttributeId === 1 && toggleAttribute "  id='collapseThreeAttribute' data-parent="#accordionExample" class="default_row collapse"   [ngClass]="{
                                     'attribute-bg':item.AttributeId === 1
@@ -114,7 +114,7 @@
                                         'pl-5':item.AttributeId === 1
                                       }" >{{item.Name}}</td>
                                     <td>{{item.Quantity}}</td>
-                                    <td>{{item.DiscountAmt}}</td>
+                                    <td class="text-right">{{item.DiscountAmt}}</td>
                                     <td>{{item.TaxAmount}}</td>
                                     <td>{{item.BillAmount}}</td>
                                     </tr>

@@ -579,7 +579,7 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
     this.ledgerForm.value.openingblance = 0
   }
   if(this.editMode){
-    if(this.geteditOpeningbal !==undefined ){
+    if(this.geteditOpeningbal !==undefined || this.geteditOpeningbal >0 ){
       let editdata =  JSON.parse(this.geteditOpeningbal);
       let data = JSON.parse(this.ledgerForm.value.openingblance)
       tempOpeingbal =  data - editdata

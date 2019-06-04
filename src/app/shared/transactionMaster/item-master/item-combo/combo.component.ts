@@ -116,9 +116,12 @@ export class ComboComponent {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           if (data.Data.AttributeValueResponses.length > 0) {
             _self.purchaseService.generateAttributes(data.Data)
+            _self.comboService.generateAttributes(data.Data)
           }
           _self.purchaseService.createItems(data.Data.Items)
+          _self.comboService.createItems(data.Data.Items)
           _self.purchaseService.createSubUnits(data.Data.SubUnits)
+          _self.comboService.createSubUnits(data.Data.SubUnits)
         }
       },
       (error) => {

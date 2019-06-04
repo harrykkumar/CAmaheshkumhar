@@ -296,6 +296,7 @@ export interface AddCust {
   title?: string
   isViewPrint?: string
   isOtherCharge?: any
+  stateId?:any
 }
 
 export interface ResponseSale {

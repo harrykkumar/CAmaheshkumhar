@@ -72,6 +72,7 @@ export class ItemAddComponent {
   BarCode: any
   PurchaseRate: number
   OpeningStock: number
+  OpeningStockValue: number
   BrandIds: string
   IsNotDiscountable: boolean = false
   IsVolumeDiscountApply: boolean = false
@@ -324,6 +325,7 @@ export class ItemAddComponent {
     this.BarCode = this.itemDetails.BarCode
     this.PurchaseRate = (isNaN(+this.itemDetails.PurchaseRate)) ? 0 : +this.itemDetails.PurchaseRate
     this.OpeningStock = (isNaN(+this.itemDetails.OpeningStock)) ? 0 : +this.itemDetails.OpeningStock
+    this.OpeningStockValue = (isNaN(+this.itemDetails.OpeningStockValue)) ? 0 : +this.itemDetails.OpeningStockValue
     this.IsNotDiscountable = this.itemDetails.IsNotDiscountable
     this.IsVolumeDiscountApply = this.itemDetails.IsVolumeDiscountApply
     this.IsTradeDiscountApply = this.itemDetails.IsTradeDiscountApply
@@ -525,6 +527,7 @@ export class ItemAddComponent {
     this.BarCode = ''
     this.PurchaseRate = 0
     this.OpeningStock = 0
+    this.OpeningStockValue = 0
     this.BrandIds = ''
     this.IsNotDiscountable = false
     this.IsVolumeDiscountApply = false
@@ -558,6 +561,7 @@ export class ItemAddComponent {
         BarCode: this.BarCode,
         PurchaseRate: +this.PurchaseRate,
         OpeningStock: +this.OpeningStock,
+        OpeningStockValue: +this.OpeningStockValue,
         BrandIds: this.BrandIds,
         IsNotDiscountable: this.IsNotDiscountable,
         IsVolumeDiscountApply: this.IsVolumeDiscountApply,
@@ -1010,5 +1014,29 @@ export class ItemAddComponent {
         }
       }
     )
+  }
+
+  onPurchaseRateChange = () => {
+    if(this.OpeningStock) {
+      this.OpeningStockValue = this.OpeningStock*this.PurchaseRate;
+    } else if(this.OpeningStockValue) {
+      this.OpeningStock = this.OpeningStockValue/this.PurchaseRate
+    }
+  }
+
+  onOpeningStockChange = () => {
+    if(this.PurchaseRate) {
+      this.OpeningStockValue = this.OpeningStock*this.PurchaseRate;
+    } else if(this.OpeningStockValue) {
+      this.PurchaseRate = this.OpeningStockValue/this.OpeningStock
+    }
+  }
+
+  onOpeningStockValueChange = () => {
+    if(this.OpeningStock) {
+      this.PurchaseRate = this.OpeningStockValue/this.OpeningStock
+    } else if(this.PurchaseRate) {
+      this.OpeningStock = this.OpeningStockValue/this.PurchaseRate
+    }
   }
 }

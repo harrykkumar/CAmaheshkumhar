@@ -278,19 +278,19 @@
                 </td>
                 <td>
 
-                     <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate">
+                     <input (input)="validationForItemData()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate">
                 </td>
                   </ng-container>
                      <td>
-                  <input type="number"   class="form-control " (input)="checkValidation();calculate();"  placeholder="Quantity" appIncludeDecimal name="Quantity"  [(ngModel)]="Quantity">
+                  <input type="number"   class="form-control " (input)="validationForItemData();calculate();"  placeholder="Quantity" appIncludeDecimal name="Quantity" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.Quantity }"  [(ngModel)]="Quantity">
                 </td>
                 <td >
-                  <input type="number" appIncludeDecimal class="form-control "  (input)="calculate();" placeholder="Rate" appIncludeDecimal name="Rate" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.TotalAmount }" [(ngModel)]="Rate">
+                  <input type="number" appIncludeDecimal class="form-control "  (input)="validationForItemData();calculate();" placeholder="Rate" appIncludeDecimal name="Rate" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.Rate }" [(ngModel)]="Rate">
                 </td>
                  <td>
                   <div class="discount">
-                            <input type="text" class="form-control Input_width" appIncludeDecimal name="Discount" (input)="calculate()" placeholder="Discount" [(ngModel)]="Discount">
-                            <select  class="form-control discount_type" id="DiscountType" [(ngModel)]="DiscountType" (ngModelChange)="calculate()" name="discountType" >
+                            <input type="text" class="form-control Input_width" appIncludeDecimal name="Discount"  [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.Discount }"  (input)="validationForItemData();calculate()" placeholder="Discount" [(ngModel)]="Discount">
+                            <select  class="form-control discount_type" id="DiscountType" [(ngModel)]="DiscountType" (ngModelChange)="validationForItemData();calculate()" name="discountType" >
                               <option *ngFor="let value of currencyValues;" [value]="value.id" >{{value.symbol}}</option>
                             </select>
                           </div>

@@ -241,4 +241,6 @@ export class ApiConstant {
 
   //api/v1/account/OpeningStatus
 
+  public static get LEDGER_SUMMARY (): string { return this.BASE_URL + '/api/v1/account/LedgerSummary' }
+
 }

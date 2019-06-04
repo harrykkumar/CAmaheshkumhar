@@ -329,7 +329,7 @@ export class AddressAddComponent {
       this.subscribe = this._CommonService.postAddNewAddress(this.addressParam()).subscribe(data => {
         if (data.Code === 1000 && data.Data.length > 0) {
 
-          const dataToSend = { id: data.Data, name: this.addTypeName + '-' + this.addressForm.value.address + ',' + this.areaName + ',' + this.cityName + ',' + this.StateName + ',' + this.countryName }
+          const dataToSend = { id: data.Data, stateId: this.stateId ,name: this.addTypeName + '-' + this.addressForm.value.address + ',' + this.areaName + ',' + this.cityName + ',' + this.StateName + ',' + this.countryName }
           this._CommonService.closeAddress({ ...dataToSend })
           this.closeModal()
           this.toastrService.showSuccess('Success', 'Added successfully')

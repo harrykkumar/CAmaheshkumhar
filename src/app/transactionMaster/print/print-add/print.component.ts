@@ -7,6 +7,7 @@ import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { Settings } from '../../../shared/constants/settings.constant'
 declare const $: any
 import { environment } from '../../../../environments/environment'
+declare const _: any
 
 @Component({
   selector: 'app-print',
@@ -291,7 +292,8 @@ export class PrintComponent {
         }
         if (data.Data.HsnItemTaxTransDetails.length > 0) {
 
-          this.CustomerTypes = []
+        this.ValueOfTaxName(data.Data.HsnItemTaxTransDetails, data.Data.HsnItemTransactions, data.Data.SaleTransactionses[0].Currency)
+      //  this.CustomerTypes = []
           this.hsntaxItem = data.Data.HsnItemTaxTransDetails
 
         } else {
@@ -300,24 +302,24 @@ export class PrintComponent {
         if (data.Data.HsnItemTransactions.length > 0) {
           this.hsnItemData= []
          let  hsnitem =[]
-          data.Data.HsnItemTransactions.forEach( ele =>{
-             hsnitem  = data.Data.HsnItemTaxTransDetails.filter(s=> s.HsnNo === ele.HsnNo)
-            if(hsnitem.length > 0) {
-              let totalrate = hsnitem.filter(item1 => item1.TaxRate)
-              .map(item1 => parseFloat(item1.TaxRate))
-              .reduce((sum, current) => sum + current, 0)
-              this.hsnItemData.push({
-                id:ele,
-               HsnNo:ele.HsnNo,
-               TaxableAmount:ele.TaxableAmount,
-               TotalAmount:ele.TotalAmount,
-               tax: hsnitem,
-               rate:totalrate
+          // data.Data.HsnItemTransactions.forEach( ele =>{
+          //    hsnitem  = data.Data.HsnItemTaxTransDetails.filter(s=> s.HsnNo === ele.HsnNo)
+          //   if(hsnitem.length > 0) {
+          //     let totalrate = hsnitem.filter(item1 => item1.TaxRate)
+          //     .map(item1 => parseFloat(item1.TaxRate))
+          //     .reduce((sum, current) => sum + current, 0)
+          //     this.hsnItemData.push({
+          //       id:ele,
+          //      HsnNo:ele.HsnNo,
+          //      TaxableAmount:ele.TaxableAmount,
+          //      TotalAmount:ele.TotalAmount,
+          //      tax: hsnitem,
+          //      rate:totalrate
                
-              })
-            }
-          })
-          console.log(this.hsnItemData,'HSN')
+          //     })
+          //   }
+          // })
+         // console.log(this.hsnItemData,'HSN')
           
 
         } else {
@@ -332,6 +334,44 @@ export class PrintComponent {
     }
     )
 
+  }
+
+
+  headerKeys: any = []
+  hsnToSHow: any = []
+  headerValue: any
+  ValueOfTaxName (hsnData, hsnTransaction, currency) {
+    console.log(hsnData,hsnTransaction,currency)
+    let groupOnName = _.groupBy(hsnData, (data) => {
+      return data.Name + '(' + data.TaxRate + '%)'
+    })
+    this.headerKeys = []
+    this.hsnToSHow = []
+    console.log(groupOnName)
+    for (const name in groupOnName) {
+      this.headerKeys.push(name)
+     this.headerValue = this.headerKeys.length
+    }
+    hsnTransaction.forEach(hsnTrans => {
+      let hsnDetails = hsnData.filter(
+        hsnDetail => hsnDetail.HsnNo === hsnTrans.HsnNo
+        )
+      let totalTaxRate = 0
+      let obj = {}
+      hsnDetails.forEach(hsn => {
+        let index = this.headerKeys.indexOf(hsn.Name + '(' + hsn.TaxRate + '%)')
+        if (index >= 0) {
+          obj[hsn.Name + '(' + hsn.TaxRate + '%)'] = hsn.Amount
+          totalTaxRate += hsn.TaxRate
+        } else {
+          obj[hsn.Name + '(' + hsn.TaxRate + '%)'] = '-'
+        }
+      })
+      hsnTrans['totalTaxRate'] = totalTaxRate + ' ' + (hsnDetails[0].ValueType === 0 ? '%' : currency)
+      hsnTrans['AppliedTaxes'] = obj
+    })
+    this.hsnToSHow = JSON.parse(JSON.stringify(hsnTransaction))
+    console.log('hsn to show : ', this.hsnToSHow)
   }
   SupplyAddress: any
   hsnItemData: any

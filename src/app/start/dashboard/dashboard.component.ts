@@ -142,4 +142,7 @@ export class DashboardComponent {
     this._route.navigate([URLConstant.LEDGER_GROUP])
   }
    
+  routeLedgerSummary () {
+    this._route.navigate([URLConstant.LEDGER_SUMMARY]);
+  }
 }
