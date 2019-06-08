@@ -76,14 +76,14 @@
                                                     </i><span>&nbsp;New Office</span>
                                                 </a>
                                             </li>
-                                            <li>
-                                                <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"
+                                            <li *ngIf="menuData?.write || menuData?.delete">
+                                                <a  class="d-b td-n p-1 bgcH-grey-100 c-grey-700"
                                                 (click)="editBranch(item)">
                                                     <i class="fa fa-edit fa-1x" style="color: rgb(90, 171, 247)" aria-hidden="true">
                                                     </i><span>&nbsp;Edit</span></a>
                                             </li>
-                                            <li>
-                                                <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="deleteBranch(item.Id)"><i
+                                            <li *ngIf="menuData?.delete">
+                                                <a  class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="deleteBranch(item.Id)"><i
                                                         class="fa fa-trash fa-1x" style="color: rgb(90, 171, 247)" aria-hidden="true">
                                                     </i><span>&nbsp;Delete</span></a>
                                             </li>

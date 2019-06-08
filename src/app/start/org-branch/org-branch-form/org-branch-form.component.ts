@@ -1,7 +1,8 @@
+import { ItemmasterServices } from 'src/app/commonServices/TransactionMaster/item-master.services';
 import { CommonService } from './../../../commonServices/commanmaster/common.services'
 /* Created  by Bharat */
 
-import { Component, OnInit, EventEmitter, Output, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core'
+import { Component, OnInit, EventEmitter, Output, Input, OnChanges, SimpleChanges, ViewChild, AfterViewInit } from '@angular/core'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
@@ -16,7 +17,11 @@ declare const flatpickr: any
   templateUrl: './org-branch-form.component.html',
   styleUrls: ['./org-branch-form.css']
 })
-export class OrganisationBranchComponent implements OnInit, OnChanges {
+export class OrganisationBranchComponent implements OnInit, OnChanges, AfterViewInit {
+  imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
+  ImageFiles: any = []
+  model: any = {}
+  dummyData: any = {}
   @ViewChild('mobileDetailModel') mobileDetailModel
   @ViewChild('emailDetailModel') emailDetailModel
   @ViewChild('keyPersonFormModel') keyPersonFormModel
@@ -55,15 +60,18 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
   branchTypeList: Array<any> = []
   private unSubscribe$ = new Subject<void>()
 
-  constructor (
+  constructor(
     public _orgService: OrganisationProfileService,
     private toastrService: ToastrCustomService,
-    public _commonService: CommonService) {
+    public _commonService: CommonService,
+    private itemMaster: ItemmasterServices
+    ) {
 
   }
 
   // tslint:disable-next-line:no-empty
-  ngOnInit () {
+  ngOnInit() {
+    this.getUploadedImages();
   }
 
   /* Function to initialise flatpicker date format */
@@ -76,19 +84,23 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
     })
   }
 
-  ngOnChanges (changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     if (this.modalData.open === true) {
       this.initDateFormat()
       this.initDropDownData()
       $('#branch_popup').modal(UIConstant.MODEL_SHOW)
+      $('#activeTab').click();
     } else if (this.modalData.open === false) {
       $('#branch_popup').modal(UIConstant.MODEL_HIDE)
     }
   }
 
+  ngAfterViewInit() {
+  }
+
   /* Function invoke on click of close branch icon
       will close the dialog box and reset data */
-  emitClose (data) {
+  emitClose(data) {
     this.closeModal.emit(data)
     this.resetFormData()
   }
@@ -136,7 +148,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
     )
   }
 
-   /* Function to get existing profile data */
+  /* Function to get existing profile data */
   getOfficeFormData = (id) => {
     this._orgService.getOfficeDetails(id).subscribe(
       (Data: any) => {
@@ -161,7 +173,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
       ).
       subscribe((response: any) => {
         this.mobileCountryCodeList = [...response]
-        console.log(this.mobileCountryCodeList ,'kkkkkkkkk----')
+        console.log(this.mobileCountryCodeList, 'kkkkkkkkk----')
       }, error => console.log(error))
   }
 
@@ -172,7 +184,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
     }
   }
 
-   /* Function invoke on industry type selection change and assign new value */
+  /* Function invoke on industry type selection change and assign new value */
   onIndustryTypeSelectionChange = (event) => {
     if (Number(event.value) >= UIConstant.ZERO) {
       this.personalDetail.selectedIndustryType = Number(event.value)
@@ -197,8 +209,10 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
     if (event.data.length > 0) {
       this.addressDetail.selectedCountry = event.data[0]
     }
-    if (this.editAddressDetailIndex === null && this.addressDetail.selectedCountry && this.addressDetail.selectedCountry.id > UIConstant.ZERO) {
+    if (this.addressDetail.selectedCountry && this.addressDetail.selectedCountry.id > UIConstant.ZERO) {
       this.getStateList(this.addressDetail.selectedCountry.id)
+    } else {
+      this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }];
     }
   }
 
@@ -207,8 +221,10 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
     if (event.data.length > 0) {
       this.addressDetail.selectedState = event.data[0]
     }
-    if (this.editAddressDetailIndex === null && this.addressDetail.selectedState && this.addressDetail.selectedState.id > UIConstant.ZERO) {
+    if (this.addressDetail.selectedState && this.addressDetail.selectedState.id > UIConstant.ZERO) {
       this.getCityList(this.addressDetail.selectedState.id)
+    } else {
+      this.cityList = [{ id: UIConstant.ZERO, text: 'Select City' }]
     }
   }
 
@@ -217,8 +233,10 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
     if (event.data.length > 0) {
       this.addressDetail.selectedCity = event.data[0]
     }
-    if (this.editAddressDetailIndex === null && this.addressDetail.selectedCity && this.addressDetail.selectedCity.id > UIConstant.ZERO) {
+    if (this.addressDetail.selectedCity && this.addressDetail.selectedCity.id > UIConstant.ZERO) {
       this.getAreaList(this.addressDetail.selectedCity.id)
+    } else {
+      this.areaList = [{ id: UIConstant.ZERO, text: 'Select Area' }]
     }
   }
 
@@ -250,7 +268,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
     }
   }
 
-   /* Function invoke on accounting method type selection change  */
+  /* Function invoke on accounting method type selection change  */
   onAccMethodTypeChange = (event) => {
     if (event.data.length > 0) {
       this.statutoryDetail.accMethod = event.value
@@ -259,7 +277,6 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
 
   /* Function to add new mobile details */
   addNewMobileDetail = () => {
-    debugger
     if (this.editMobileDetailIndex !== null && this.editMobileDetailIndex >= 0) {
       this.personalDetail.mobileArray[this.editMobileDetailIndex] = { ...this.mobileDetail }
       this.editMobileDetailIndex = null
@@ -349,7 +366,11 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
         takeUntil(this.unSubscribe$)
       ).
       subscribe((response: any) => {
-        this.stateList = [...this.stateList, ...response]
+        this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }, ...response]
+        if(this.dummyData.stateCodeId) {
+          this.model.stateCodeId = this.dummyData.stateCodeId
+          this.dummyData.stateCodeId = null
+        }
       }, error => console.log(error))
   }
 
@@ -360,7 +381,11 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
         takeUntil(this.unSubscribe$)
       ).
       subscribe((response: any) => {
-        this.cityList = [...this.cityList, ...response]
+        this.cityList = [{ id: UIConstant.ZERO, text: 'Select City' }, ...response]
+        if(this.dummyData.cityCodeId) {
+          this.model.cityCodeId = this.dummyData.cityCodeId
+          this.dummyData.cityCodeId = null
+        }
       }, error => console.log(error))
   }
 
@@ -371,7 +396,11 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
         takeUntil(this.unSubscribe$)
       ).
       subscribe((response: any) => {
-        this.areaList = [...this.areaList, ...response]
+        this.areaList = [{ id: UIConstant.ZERO, text: 'Select Area' }, ...response]
+        if (this.dummyData.areaId) {
+          this.model.areaId = this.dummyData.areaId
+          this.dummyData.areaId = null
+        }
       }, error => console.log(error))
   }
 
@@ -397,7 +426,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
       }, error => console.log(error))
   }
 
-   /* Function to get all accounting method type list */
+  /* Function to get all accounting method type list */
   getBranchTypeList = () => {
     this._orgService.getBranchTypeList().
       pipe(
@@ -428,7 +457,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
 
   /* Function to remove existing bank details */
   removeBankDetail = (i) => {
-    this.bankDetailArray.splice(i,1)
+    this.bankDetailArray.splice(i, 1)
   }
 
   /* Function to add new address details */
@@ -440,18 +469,26 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
       this.addressDetailArray = [...this.addressDetailArray, this.addressDetail]
     }
     this.addressDetail = {}
+    this.model.countryCodeId = 0
+    this.model.stateCodeId = 0
+    this.model.cityCodeId = 0
+    this.model.areaId = 0
     this.addressFormModel.submitted = false
   }
 
   /* Function to edit existing address details */
   editAddress = (i) => {
     this.addressDetail = { ...this.addressDetailArray[i] }
+    this.model.countryCodeId = this.addressDetailArray[i].selectedCountry.id
+    this.dummyData.areaId = this.addressDetailArray[i].selectedArea.id
+    this.dummyData.stateCodeId = this.addressDetailArray[i].selectedState.id
+    this.dummyData.cityCodeId = this.addressDetailArray[i].selectedCity.id
     this.editAddressDetailIndex = i
   }
 
   /* Function to remove existing address details */
   removeAdress = (i) => {
-    this.addressDetailArray.splice(i,1)
+    this.addressDetailArray.splice(i, 1)
   }
 
   /* Function to add new key person details */
@@ -483,6 +520,14 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
 
   /* Function to initialise all form fields by profile data */
   initFormData = (branchData) => {
+    branchData.ImageFiles.forEach(element => {
+      this.imageList.queue.push(element.Name)
+      this.imageList.images.push(element.FilePath)
+      this.imageList.baseImages.push(0)
+      this.imageList.id.push(element.Id)
+    })
+    this.createImageFiles();
+
     this.addressDetailArray = _.map(branchData.Addressesdetails, (item) => {
       return {
         id: item.Id,
@@ -591,7 +636,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
     })
   }
 
-/* Function to prepare the request payload data for post */
+  /* Function to prepare the request payload data for post */
   prepareSavePayload = () => {
     const addressArray = _.map(this.addressDetailArray, (address) => {
       return {
@@ -681,7 +726,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
         ContactType: 1,
         EmailAddress: item.email,
         EmailType: 1,
-        IdEmail: item.idEmail ? item.idEmail : 0 ,
+        IdEmail: item.idEmail ? item.idEmail : 0,
         IdContact: item.idContact ? item.idContact : 0
       }
     })
@@ -696,7 +741,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
       Password: this.personalDetail.userPassword,
       GstinTypeId: this.personalDetail.selectedRegistrationType,
       AddBy: 2,
-      Code: this.personalDetail.orgCode,
+      // Code: this.personalDetail.orgCode,
       IndustryId: this.personalDetail.selectedIndustryType,
       RegistrationDate: this.personalDetail.registrationDate,
       RegistrationType: this.personalDetail.selectedRegistrationType,
@@ -707,7 +752,8 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
       Websites: websiteArray,
       ContactPersons: keyPersonArray,
       Statutories: statutoriesArray,
-      Banks: bankArray
+      Banks: bankArray,
+      ImageFiles: this.ImageFiles
     }
   }
 
@@ -728,14 +774,16 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
         if (Data.Code === UIConstant.THOUSAND) {
           this.toastrService.showSuccess('Success', 'Saved Successfully')
           this.emitClose(this.modalData)
+        } else {
+          this.toastrService.showError('Error', Data.Description)
         }
       }, error => {
-      console.log(error)
-      this.toastrService.showError('Error', 'error in Branch save')
-    }
+        console.log(error)
+        this.toastrService.showError('Error', 'error in Branch save')
+      }
     )
   }
-/* Function to save the office data */
+  /* Function to save the office data */
   saveOffice = () => {
     const data = this.prepareSavePayload()
     this._orgService.saveOffice(data).subscribe(
@@ -743,11 +791,13 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
         if (Data.Code === UIConstant.THOUSAND) {
           this.toastrService.showSuccess('Success', 'Saved Successfully')
           this.emitClose(this.modalData)
+        } else {
+          this.toastrService.showError('Error', Data.Description)
         }
       }, error => {
-      console.log(error)
-      this.toastrService.showError('Error', 'error in Office save')
-    }
+        console.log(error)
+        this.toastrService.showError('Error', 'error in Office save')
+      }
     )
   }
 
@@ -845,5 +895,33 @@ export class OrganisationBranchComponent implements OnInit, OnChanges {
     this.addressFormModel.submitted = false
     this.keyPersonFormModel.submitted = false
     this.bankFormModel.submitted = false
+  }
+
+  openImageModal () {
+    this.itemMaster.openImageModal(this.imageList)
+  }
+
+
+  getUploadedImages = () => {
+    this.itemMaster.imageAdd$.subscribe((response)=> {
+      this.imageList = response;
+      this.createImageFiles()
+    })
+  }
+
+  removeImage = (index) => {
+    _.forIn(this.imageList, (value) => {
+      value.splice(index, 1)
+    })
+    this.createImageFiles()
+  }
+
+  createImageFiles () {
+    let ImageFiles = []
+    for (let i = 0; i < this.imageList.images.length; i++) {
+      let obj = { Name: this.imageList.queue[i], BaseString: this.imageList.safeUrls[i], IsBaseImage: this.imageList.baseImages[i], Id: this.imageList.id[i] ? this.imageList.id[i] : 0 }
+      ImageFiles.push(obj)
+    }
+    this.ImageFiles = ImageFiles
   }
 }

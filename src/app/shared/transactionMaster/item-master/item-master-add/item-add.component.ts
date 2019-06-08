@@ -11,6 +11,8 @@ import { CommonService } from 'src/app/commonServices/commanmaster/common.servic
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { ComboComponent } from '../item-combo/combo.component'
 declare const $: any
+import * as _ from 'lodash'
+
 @Component({
   selector: 'app-item-add',
   templateUrl: './item-add.component.html',
@@ -97,11 +99,13 @@ export class ItemAddComponent {
   itemDetails: any = []
   modeOfForm: string = 'new'
   toDisableCat: boolean = false
+  ItemAttributewithRate: Array<any> = []
   Items = []
   ItemAttributeTrans = []
   @ViewChild('combo_comp') comboComp: ComboComponent
 
   combo: Array<ComboItem> = []
+  itemAttributeOpeningStockOpen: any = {};
   constructor (private _itemmasterServices: ItemmasterServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
@@ -293,6 +297,7 @@ export class ItemAddComponent {
     this.openModal()
     this.createAttributes(data.ItemAttributesTrans)
     this.createItems(data.ComboDetails)
+    this.createItemStockAttribute(data.ItemBarCodeDetails);
     this.ImageFiles = []
     this.addedImages = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
     this.itemDetails = data.ItemDetails[0]
@@ -568,7 +573,8 @@ export class ItemAddComponent {
         IsTradeDiscountApply: this.IsTradeDiscountApply,
         ImageFiles: this.ImageFiles,
         ItemTransactions: this.Items,
-        ItemAttributeTrans: this.ItemAttributeTrans
+        ItemAttributeTrans: this.ItemAttributeTrans,
+        ItemAttributewithRate: this.ItemAttributewithRate
       } as ItemMasterAdd
     }
     return itemAddElement.obj
@@ -1017,26 +1023,68 @@ export class ItemAddComponent {
   }
 
   onPurchaseRateChange = () => {
-    if(this.OpeningStock) {
+    if(this.OpeningStock && this.PurchaseRate) {
       this.OpeningStockValue = this.OpeningStock*this.PurchaseRate;
-    } else if(this.OpeningStockValue) {
+    } else if(this.OpeningStockValue && this.PurchaseRate) {
       this.OpeningStock = this.OpeningStockValue/this.PurchaseRate
     }
   }
 
   onOpeningStockChange = () => {
-    if(this.PurchaseRate) {
+    if(this.PurchaseRate && this.OpeningStock) {
       this.OpeningStockValue = this.OpeningStock*this.PurchaseRate;
-    } else if(this.OpeningStockValue) {
+    } else if(this.OpeningStockValue && this.OpeningStock) {
       this.PurchaseRate = this.OpeningStockValue/this.OpeningStock
     }
   }
 
   onOpeningStockValueChange = () => {
-    if(this.OpeningStock) {
+    if(this.OpeningStock && this.OpeningStockValue) {
       this.PurchaseRate = this.OpeningStockValue/this.OpeningStock
-    } else if(this.PurchaseRate) {
+    } else if(this.PurchaseRate && this.OpeningStockValue) {
       this.OpeningStock = this.OpeningStockValue/this.PurchaseRate
     }
+  }
+
+  openItemStockAttributeModel = () => {
+    this.itemAttributeOpeningStockOpen = {
+      data: this.ItemAttributewithRate,
+      value: true,
+      editMode: this.editMode
+    };
+  }
+  itemAttributeOpeningStockOpenClosed(data) {
+    this.itemAttributeOpeningStockOpen = {
+      value: false,
+      editMode: data.editMode
+    };
+    if(data.type === 'save') {
+      this.ItemAttributewithRate = [...data.data];
+    }
+  }
+
+  createItemStockAttribute = (Data) => {
+    this.ItemAttributewithRate = _.map(Data, (element) => {
+      return {
+        "ID": element.Id,
+        "ParentTypeId": element.ParentTypeId,
+        "AttributeId": element.AttributeId,
+        "Barcode": element.Barcode,
+        "ClientBarCode": element.ClientBarCode,
+        "GroupId": element.GroupId,
+        "IsBaseGroup": 1,
+        "ItemId": element.ItemId,
+        "ItemTransId": element.ItemTransId,
+        "Qty": element.Qty,
+        "QtyValue": element.QtyValue,
+        "RateMrp": element.RateMrp,
+        "RateNrv": element.RateNrv,
+        "RateOur": element.RateOur,
+        "RatePurchase": element.RatePurchase,
+        "RateSale": element.RateSale,
+        "AttributeStr": element.AttributeIdStr,
+        "AttributeNamestr": element.AttributeNamestr
+      }
+    })
   }
 }

@@ -169,8 +169,16 @@ export class CompositeUnitAddComponent implements OnDestroy {
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             const datatoSend = { id: data.Data, name: this.compositeForm.value.UnitName }
             this.commonService.newCompositeUnitAdd()
-            this.toastrService.showSuccess('Success', 'Saved successfully')
+            this.toastrService.showSuccess('', 'Saved successfully')
             this.commonService.closeCompositeUnit(datatoSend)
+          }
+          if(data.Code === UIConstant.THOUSANDONE){
+            this.toastrService.showInfo('', data.Description)
+
+          }
+          if(data.Code === UIConstant.SERVERERROR){
+            this.toastrService.showInfo('', data.Description)
+
           }
         })
       } else {

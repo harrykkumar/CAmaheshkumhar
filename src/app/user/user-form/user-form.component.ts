@@ -1,5 +1,6 @@
+import { LoginService } from './../../commonServices/login/login.services';
 import { UserFormService } from './user-form.service'
-import { Component, Input, Output, EventEmitter, SimpleChanges, ViewChild } from '@angular/core'
+import { Component, Input, Output, EventEmitter, SimpleChanges, ViewChild, AfterViewInit } from '@angular/core'
 import { UIConstant } from '../../shared/constants/ui-constant'
 import { Subject, forkJoin } from 'rxjs'
 import { takeUntil } from 'rxjs/internal/operators/takeUntil'
@@ -16,7 +17,8 @@ declare const flatpickr: any
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css']
 })
-export class UserFormComponent {
+export class UserFormComponent implements AfterViewInit {
+  userType: string
   @ViewChild('mobileDetailModel') mobileDetailModel
   @ViewChild('emailDetailModel') emailDetailModel
   @ViewChild('userFormModel') userFormModel
@@ -40,18 +42,19 @@ export class UserFormComponent {
   emailTypeList: Array<any> = []
   editEmailDetailIndex: number = null
   editMobileDetailIndex: number = null
-  constructor (
+  constructor(
     private _userService: UserFormService,
     public _orgService: OrganisationProfileService,
     private toastrService: ToastrCustomService,
-    public _commonService: CommonService
+    public _commonService: CommonService,
+    public _loginService: LoginService
   ) { }
 
   /* Function invoke when profile menu clicked  */
-  ngOnChanges (changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    this.userType = this._loginService.userData.LoginUserDetailsinfo[0].UserType
     if (this.showUserForm.open === true) {
       $('#add_user').modal(UIConstant.MODEL_SHOW)
-      this.initDateFormat()
       this.initDropDownData().subscribe((res) => {
         if (this.showUserForm.mode === 'EDIT') {
           this.getFormData(this.showUserForm.editId)
@@ -62,18 +65,18 @@ export class UserFormComponent {
     }
   }
 
+  ngAfterViewInit() {
+    this.initDateFormat()
+  }
+
   /* Function to initialise flatpicker date format */
   initDateFormat = () => {
-    jQuery(function ($) {
-      flatpickr('.dor', {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: 'H:i',
-        time_24hr: true
-        // minTime: "16:00",
-        // maxTime: "22:00"
-      })
-    })
+    // https://timepicker.co/options/
+    $('.timepicker').timepicker({
+      timeFormat: 'h:mm:ss p',
+      dropdown: true,
+      scrollbar: true
+    });
   }
 
   /* Function to initialise dropdown list data */
@@ -190,7 +193,7 @@ export class UserFormComponent {
         return true
       }
     })
-    this.underTypeData = [{ id: UIConstant.ZERO, text: 'Select Under Type' }, ...list]
+    this.underTypeData = [...list]
     if (this.underTypeData.length > 1 && this.dummyData.selectedUnderType && this.dummyData.selectedUnderType.id) {
       this.model.underTypeId = this.dummyData.selectedUnderType.id
       this.dummyData.selectedUnderType.id = 0
@@ -381,27 +384,27 @@ export class UserFormComponent {
   initFormData = (response) => {
     const loginData = response.LoginUserDetails[0]
     this.user = {
-      id : loginData.Id ? loginData.Id : 0 ,
-      code : loginData.Code ? loginData.Code : 0 ,
-      selectedClient : { id : loginData.ClientId },
-      selectedUserType : { id : loginData.UserTypeId } ,
-      name : loginData.Name ,
-      userName : loginData.LoginId ,
-      password : loginData.Password ,
-      email : loginData.EmailAddress ,
-      isUseEmail : loginData.IsShowTransactions ,
-      isUseTime : loginData.IsUseTime ,
-      inTime : loginData.FromTime ,
-      outTime : loginData.ToTime ,
-      emailPassword : loginData.EmailPassword ,
-      emailArray : _.map(response.Emails, (item) => {
+      id: loginData.Id ? loginData.Id : 0,
+      code: loginData.Code ? loginData.Code : 0,
+      selectedClient: { id: loginData.ClientId },
+      selectedUserType: { id: loginData.UserTypeId },
+      name: loginData.Name,
+      userName: loginData.LoginId,
+      password: loginData.Password,
+      email: loginData.EmailAddress,
+      isUseEmail: loginData.IsShowTransactions,
+      isUseTime: loginData.IsUseTime,
+      inTime: loginData.FromTime,
+      outTime: loginData.ToTime,
+      emailPassword: loginData.EmailPassword,
+      emailArray: _.map(response.Emails, (item) => {
         return {
           id: item.Id,
           selectedEmailType: item.EmailType,
           selectedEmail: item.EmailAddress
         }
-      }) ,
-      mobileArray :  _.map(response.ContactInfos, (item) => {
+      }),
+      mobileArray: _.map(response.ContactInfos, (item) => {
         return {
           id: item.Id,
           selectedMobileType: item.ContactType,
@@ -429,20 +432,20 @@ export class UserFormComponent {
   /* Function to prepare payload for post user data */
   prepareSavePayload = () => {
     return {
-      Code : this.user.code,
-      Id : this.user.id,
-      Name : this.user.name,
-      Email : this.user.email,
-      FromTime : this.user.inTime,
-      ToTime : this.user.outTime,
-      EmailPassword : this.user.emailPassword,
-      IsShowTransactions : this.user.isUseEmail,
-      IsUseTime : this.user.isUseTime,
-      UserTypeId : this.user.selectedUserType.id,
-      UnderUserId : this.user.selectedUnderUser.id,
-      LoginId : this.user.userName,
-      Password : this.user.password,
-      ContactInfos : _.map(this.user.mobileArray, (mobile) => {
+      Code: this.user.code,
+      Id: this.user.id,
+      Name: this.user.name,
+      Email: this.user.email,
+      FromTime: this.user.inTime,
+      ToTime: this.user.outTime,
+      EmailPassword: this.user.emailPassword,
+      IsShowTransactions: this.user.isUseEmail,
+      IsUseTime: this.user.isUseTime,
+      UserTypeId: this.user.selectedUserType.id,
+      UnderUserId: this.user.selectedUnderUser.id,
+      LoginId: this.user.userName,
+      Password: this.user.password,
+      ContactInfos: _.map(this.user.mobileArray, (mobile) => {
         return {
           Id: mobile.id ? mobile.id : 0,
           ContactNo: mobile.mobileNo,
@@ -451,7 +454,7 @@ export class UserFormComponent {
           ParentTypeId: 3
         }
       }),
-      Emails : _.map(this.user.emailArray, (email) => {
+      Emails: _.map(this.user.emailArray, (email) => {
         return {
           Id: email.id ? email.id : 0,
           EmailAddress: email.selectedEmail,
@@ -471,6 +474,8 @@ export class UserFormComponent {
       if (res.Code === UIConstant.THOUSAND) {
         this.toastrService.showSuccess('Success', 'Saved Successfully')
         this.closeForm()
+      } else {
+        this.toastrService.showError('Error', res.Message)
       }
     }, error => console.log(error))
   }
@@ -484,21 +489,28 @@ export class UserFormComponent {
     this.mobileDetailModel.submitted = false
     this.emailDetailModel.submitted = false
     this.userFormModel.submitted = false
+    this.userFormModel.reset()
   }
 
   validateForm = () => {
     let valid = true
-    if (Number(this.user.selectedClient.id) === 0) {
+    if (this.user.selectedClient && Number(this.user.selectedClient.id) === 0) {
       valid = false
-    } else if (valid && Number(this.user.selectedBranch.id) === 0) {
+    } else if (valid && this.user.selectedBranch && Number(this.user.selectedBranch.id) === 0) {
       valid = false
-    } else if (valid && Number(this.user.selectedOffice.id) === 0) {
+    } else if (valid && this.user.selectedOffice && Number(this.user.selectedOffice.id) === 0) {
       valid = false
     } else if (valid && Number(this.user.selectedUserType.id) === 0) {
       valid = false
     } else if (valid && Number(this.user.selectedUnderType.id) === 0) {
       valid = false
     } else if (valid && Number(this.user.selectedUnderUser.id) === 0) {
+      valid = false
+    }
+    if (this.user.mobileArray.length === 0) {
+      valid = false
+    }
+    if (this.user.emailArray.length === 0) {
       valid = false
     }
     return valid

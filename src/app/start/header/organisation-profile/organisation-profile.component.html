@@ -1,5 +1,5 @@
 <!-- Created by Bharat -->
-
+<!-- orgProfileFormModel.form.valid &&  -->
 <div
   class="modal fade"
   id="organisationModal"
@@ -15,7 +15,7 @@
       <form
         #orgProfileFormModel="ngForm"
         (ngSubmit)="
-          orgProfileFormModel.form.valid && validateForm() && saveOrgProfile()
+        orgProfileFormModel.form.valid && validateForm() && saveOrgProfile()
         "
         novalidate
       >
@@ -112,7 +112,7 @@
                       <div class="row">
                         <div class="col-md-12">
                           <div class="form-row">
-                            <div class="form-group col-md-3">
+                            <div class="form-group col-md-4">
                               <label>Name of Comapany</label>
                               <input
                               #companyNameModel="ngModel"
@@ -121,17 +121,15 @@
                               placeholder="Enter Name"
                               name="companyName"
                               [(ngModel)]="personalDetail.companyName"
+                              [pattern]="_commonService.companyNameRegx"
+                              required
                               [ngClass]="{
                                 'is-invalid':
-                                  (orgProfileFormModel?.submitted ||
-                                    companyNameModel.touched) &&
-                                  companyNameModel.invalid
+                                  (orgProfileFormModel?.submitted && (!personalDetail.companyName || companyNameModel.errors?.pattern))
                               }"
-                              required
-                              [pattern]="_commonService.companyNameRegx"
                               />
                             </div>
-                            <div class="form-group col-md-3">
+                            <div class="form-group col-md-4">
                               <label>Type Of Industry</label>
                               <div class="input-group adw_select">
                                 <div class="input-group adw_select">
@@ -147,7 +145,7 @@
                                       personalDetail.selectedIndustryType
                                     "
                                     [ngClass]="{
-                                      isInvalid:
+                                      'errorSelecto':
                                         orgProfileFormModel?.submitted &&
                                         !personalDetail.selectedIndustryType
                                     }"
@@ -156,7 +154,7 @@
                                 </div>
                               </div>
                             </div>
-                            <div class="form-group col-md-3">
+                            <div class="form-group col-md-4">
                               <label for="bill_no">Registration Type</label>
                               <div class="input-group adw_select">
                                 <div class="input-group adw_select">
@@ -171,7 +169,7 @@
                                       personalDetail.selectedRegistrationType
                                     "
                                     [ngClass]="{
-                                      isInvalid:
+                                      'errorSelecto':
                                         orgProfileFormModel?.submitted &&
                                         !personalDetail.selectedRegistrationType
                                     }"
@@ -180,7 +178,32 @@
                                 </div>
                               </div>
                             </div>
-                            <div class="form-group col-md-3">
+                            <div class="form-group col-md-4">
+                              <label for="bill_no">Type</label>
+                              <div class="input-group adw_select">
+                                <div class="input-group adw_select">
+                                  <select2
+                                    [data]="branchTypeList"
+                                    class="control_select"
+                                    (valueChanged)="
+                                      onBranchTypeSelectionChange($event)
+                                    "
+                                    autocomplete="true"
+                                    [value]="
+                                      personalDetail?.selectedBranchType?.id
+                                    "
+                                    [ngClass]="{
+                                      'errorSelecto':
+                                      orgProfileFormModel?.submitted &&
+                                        personalDetail?.selectedBranchType
+                                          ?.id === '0'
+                                    }"
+                                  >
+                                  </select2>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group col-md-4">
                               <label class="fw-500">Date Of Registration</label>
                               <div
                                 class="timepicker-input input-icon form-group"
@@ -230,8 +253,8 @@
                                     <thead>
                                       <tr>
                                         <th>#</th>
-                                        <th>Mobile Type</th>
-                                        <th>Mobile Number</th>
+                                        <th>Contact Type</th>
+                                        <th>Contact Number</th>
                                       </tr>
                                     </thead>
                                     <tbody>
@@ -324,7 +347,7 @@
                                                 .selectedMobileCountryCode?.id
                                             "
                                             [ngClass]="{
-                                              isInvalid:
+                                              'errorSelecto':
                                                 (mobileDetailModel?.submitted &&
                                                   mobileDetail
                                                     ?.selectedMobileCountryCode
@@ -384,7 +407,6 @@
                                 <form
                                   #emailDetailModel="ngForm"
                                   (ngSubmit)="
-                                    emailDetailModel.form.valid &&
                                       addNewEmailDetail()
                                   "
                                   novalidate
@@ -406,6 +428,7 @@
                                           let item of personalDetail?.emailArray;
                                           let i = index
                                         "
+                                        class="default_row"
                                       >
                                         <td class="profile-pic1">
                                           <div class="edit1">
@@ -462,7 +485,7 @@
                                                 let item of emailTypeList;
                                                 let i = index
                                               "
-                                              [value]="i + 1"
+                                              [value]="i"
                                             >
                                               {{ item }}</option
                                             >
@@ -477,16 +500,16 @@
                                           [(ngModel)]="
                                             emailDetail.selectedEmail
                                           "
+                                         
                                           [ngClass]="{
                                             'is-invalid':
                                               (emailDetailModel?.submitted &&
-                                                emailModel?.invalid) ||
+                                                (!emailDetail.selectedEmail || emailModel?.errors?.pattern)) ||
                                               (orgProfileFormModel?.submitted &&
                                                 personalDetail?.emailArray
                                                   ?.length === 0)
                                           }"
                                           required
-                                          [pattern]="_commonService.emailRegx"
                                           />
                                         </td>
                                       </tr>
@@ -505,36 +528,18 @@
                   <div class="left_item row p-3">
                     <div class="col-lg-4">
                       <div class="custom-file-upload mB-20">
-                        <a
-                          href="#"
-                          data-toggle="modal"
-                          data-target="#item_image"
-                          class="custom-file-upload"
-                          ><i class="fas fa-upload"></i>Image Upload
-                        </a>
+                        <a (click)="openImageModal()" class="custom-file-upload"><i class="fas fa-upload"></i> Image Upload </a>
                       </div>
                     </div>
                     <div class="col-lg-4">
-                      <div class="toast mB-5">
+                      <div class="toast mB-5" *ngFor="let item of imageList?.queue;let i = index;">
                         <div class="toast-header">
-                          <strong class="mr-auto">Front Image</strong>
-
+                          <strong class="mr-auto">{{item}}</strong>
                           <button
                             type="button"
                             class="ml-2 mb-1 close"
                             data-dismiss="toast"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      </div>
-                      <div class="toast mB-5">
-                        <div class="toast-header">
-                          <strong class="mr-auto">Front Image</strong>
-                          <button
-                            type="button"
-                            class="ml-2 mb-1 close"
-                            data-dismiss="toast"
+                            (click)="removeImage(i)"
                           >
                             ×
                           </button>
@@ -570,9 +575,9 @@
                                   onCountrySelectionChange($event)
                                 "
                                 autocomplete="true"
-                                [value]="addressDetail?.selectedCountry?.id"
+                                [value]="model.countryCodeId"
                                 [ngClass]="{
-                                  isInvalid:
+                                  'errorSelecto':
                                     addressFormModel?.submitted &&
                                     addressDetail?.selectedCountry?.id === '0'
                                 }"
@@ -590,9 +595,9 @@
                                 class="control_select"
                                 (valueChanged)="onStateSelectionChange($event)"
                                 autocomplete="true"
-                                [value]="addressDetail?.selectedState?.id"
+                                [value]="model.stateCodeId"
                                 [ngClass]="{
-                                  isInvalid:
+                                  'errorSelecto':
                                     addressFormModel?.submitted &&
                                     addressDetail?.selectedState?.id === '0'
                                 }"
@@ -610,9 +615,9 @@
                                 class="control_select"
                                 (valueChanged)="onCitySelectionChange($event)"
                                 autocomplete="true"
-                                [value]="addressDetail?.selectedCity?.id"
+                                [value]="model.cityCodeId"
                                 [ngClass]="{
-                                  isInvalid:
+                                  'errorSelecto':
                                     addressFormModel?.submitted &&
                                     addressDetail?.selectedCity?.id === '0'
                                 }"
@@ -630,7 +635,7 @@
                                 class="control_select"
                                 (valueChanged)="onAreaSelectionChange($event)"
                                 autocomplete="true"
-                                [value]="addressDetail?.selectedArea?.id"
+                                [value]="model.areaId"
                               ></select2>
                             </div>
                           </div>
@@ -646,7 +651,7 @@
                                 autocomplete="true"
                                 [value]="addressDetail.selectedAddressType"
                                 [ngClass]="{
-                                  isInvalid:
+                                  'errorSelecto':
                                     addressFormModel?.submitted &&
                                     !addressDetail.selectedAddressType
                                 }"
@@ -931,36 +936,32 @@
                           <label>PAN Number</label>
                           <input
                           type="text"
-                          #statPanModel
+                          #statPanModel="ngModel"
                           class="form-control"
                           placeholder="Enter PAN Number"
                           name="panNo"
                           [(ngModel)]="statutoryDetail.panNo"
+                          [pattern]="_commonService.panRegx"
                           [ngClass]="{
                             'is-invalid':
-                              (orgProfileFormModel?.submitted ||
-                                statPanModel?.dirty) &&
-                              statPanModel?.invalid
+                              (orgProfileFormModel?.submitted && statPanModel?.errors?.pattern)
                           }"
-                          [pattern]="_commonService.panRegx"
                           />
                         </div>
                         <div class="form-group col-md-4">
                           <label>GSTIN Number</label>
                           <input
-                          #gstInModel
+                          #gstInModel="ngModel"
                           type="text"
                           class="form-control"
                           placeholder="Enter GSTIN Number"
                           name="gstNo"
                           [(ngModel)]="statutoryDetail.gstNo"
+                          [pattern]="_commonService.gstInRegx"
                           [ngClass]="{
                             'is-invalid':
-                              (orgProfileFormModel?.submitted ||
-                                gstInModel.dirty) &&
-                              gstInModel.invalid
+                              (orgProfileFormModel?.submitted && gstInModel?.errors?.pattern)
                           }"
-                          [pattern]="_commonService.gstInRegx"
                           />
                         </div>
                         <div class="form-group col-md-4">
@@ -1050,7 +1051,7 @@
                                     keyPersonDetail?.selectedKeyPersonType?.id
                                   "
                                   [ngClass]="{
-                                    isInvalid:
+                                    'errorSelecto':
                                       keyPersonFormModel?.submitted &&
                                       keyPersonDetail?.selectedKeyPersonType
                                         ?.id === '0'
@@ -1079,7 +1080,7 @@
                                     ?.id
                                 "
                                 [ngClass]="{
-                                  isInvalid:
+                                  'errorSelecto':
                                     keyPersonFormModel?.submitted &&
                                     keyPersonDetail?.keyPersonMobileCountryCode
                                       ?.id === '0'
@@ -1105,14 +1106,16 @@
                             <label> Pan No. </label>
                             <input
                               type="text"
+                              #keyPersonPanNo="ngModel"
                               class="form-control"
                               placeholder="Enter Pan Card Number"
                               name="panNo"
                               [(ngModel)]="keyPersonDetail.panNo"
+                              [pattern]="_commonService.panRegx"
                               [ngClass]="{
                                 'is-invalid':
                                   keyPersonFormModel?.submitted &&
-                                  !keyPersonDetail?.panNo
+                                  (!keyPersonDetail?.panNo || keyPersonPanNo?.errors?.pattern)
                               }"
                               required
                             />
@@ -1123,7 +1126,7 @@
                               type="email"
                               class="form-control"
                               placeholder="Enter Email"
-                              name="panNo"
+                              name="keyPersonEmail"
                               [(ngModel)]="keyPersonDetail.email"
                               [ngClass]="{
                                 'is-invalid':

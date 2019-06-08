@@ -77,4 +77,6 @@ export class URLConstant {
 
   public static get LEDGER_SUMMARY  (): string { return 'account/ledger-summary' }
 
+  public static get ACCOUNT_BALANCE_SHEET  (): string { return 'account/balance-sheet' }
+
 }

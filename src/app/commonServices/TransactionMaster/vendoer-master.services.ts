@@ -26,6 +26,7 @@ export class VendorServices {
   }
 
   addVendore (parmas) {
+
     return this._baseServices.postRequest(ApiConstant.VENDOR_URL, parmas)
   }
 

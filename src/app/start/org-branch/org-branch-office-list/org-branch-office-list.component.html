@@ -65,12 +65,12 @@
                       <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
                           class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
                       <ul class="dropdown-menu fsz-sm">
-                        <li>
+                        <li *ngIf="menuData?.write || menuData?.delete">
                           <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="editOffice(item)">
                             <i class="fa fa-edit fa-1x" style="color: rgb(90, 171, 247)" aria-hidden="true">
                             </i><span>&nbsp;Edit</span></a>
                         </li>
-                        <li>
+                        <li *ngIf="menuData?.delete">
                           <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="deleteOffice(item.Id)"><i
                               class="fa fa-trash fa-1x" style="color: rgb(90, 171, 247)" aria-hidden="true">
                             </i><span>&nbsp;Delete</span></a>

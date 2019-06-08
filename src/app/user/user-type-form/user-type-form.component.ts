@@ -66,6 +66,8 @@ export class UserTypeFormComponent {
       if (response.Code === UIConstant.THOUSAND) {
         this.toastrService.showSuccess('Success', 'Saved Successfully')
         this.closeForm()
+      } else {
+        this.toastrService.showError('Error', response.Message)
       }
     }, error => console.log(error))
 

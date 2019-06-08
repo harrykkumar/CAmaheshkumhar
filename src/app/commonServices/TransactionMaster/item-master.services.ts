@@ -7,10 +7,9 @@ import { debounceTime } from 'rxjs/operators/debounceTime'
 import { distinctUntilChanged } from 'rxjs/operators/distinctUntilChanged'
 import { switchMap } from 'rxjs/operators/switchMap'
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root' 
 })
 export class ItemmasterServices {
-
   private openImageModalSub = new BehaviorSubject<AddCust>({ 'open': false })
   private imageAddSub = new Subject<Image>()
   public imageAdd$ = this.imageAddSub.asObservable()
@@ -134,5 +133,9 @@ export class ItemmasterServices {
 
   getItemCodeSetting () {
     return this._basesService.getRequest(ApiConstant.GET_SETTING_BY_ID + 64)
+  }
+
+  postItemAttributeOpeningStockData (data) {
+    // return this._basesService.postRequest(ApiConstant.)
   }
 }

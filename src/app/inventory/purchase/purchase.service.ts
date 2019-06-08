@@ -87,8 +87,6 @@ export class PurchaseService {
       }
     }
     let attibutesDataToSend = Object.assign([], attributesData)
-    // console.log('attributes data : ', attibutesDataToSend)
-
     this.attributesDataSub.next({ 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend })
   }
 

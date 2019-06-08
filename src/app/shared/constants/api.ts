@@ -239,8 +239,10 @@ export class ApiConstant {
 
   public static get LEDGER_OPENING_BALANCE_STATUS_API (): string { return this.BASE_URL + '/api/v1/account/OpeningStatus' }
 
-  //api/v1/account/OpeningStatus
-
   public static get LEDGER_SUMMARY (): string { return this.BASE_URL + '/api/v1/account/LedgerSummary' }
+
+  public static get BALANCE_SHEET_API (): string { return this.BASE_URL + '/api/v1/account/Balancesheet?OnDate=' }
+
+  public static get USER_PROFILE (): string { return this.BASE_URL + '/api/v1/UserProfile' }
 
 }

@@ -6,6 +6,7 @@ import { SharedModule } from '../../../shared.module'
 import { ItemAddComponent } from './item-add.component'
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
 import { ComboComponent } from '../item-combo/combo.component'
+import { ItemAttributeOpeningStockComponent } from '../item-attribute-opening-stock/item-attribute-opening-stock.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -17,11 +18,15 @@ import { ComboComponent } from '../item-combo/combo.component'
   ],
   declarations: [
     ItemAddComponent,
-    ComboComponent
+    ComboComponent,
+    ItemAttributeOpeningStockComponent
   ],
   exports: [
-    ItemAddComponent
+    ItemAddComponent,
+    ItemAttributeOpeningStockComponent
+
   ],
+  entryComponents:[ItemAttributeOpeningStockComponent],
   bootstrap: []
 })
 export class ItemAddModule {

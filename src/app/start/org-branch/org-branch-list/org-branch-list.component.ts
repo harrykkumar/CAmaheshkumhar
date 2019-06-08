@@ -1,3 +1,4 @@
+import { LoginService } from './../../../commonServices/login/login.services';
 import { Component, OnInit } from '@angular/core'
 import { Observable, of, throwError } from 'rxjs'
 import { OrganisationProfileService } from '../../header/organisation-profile/organisation-profile.service'
@@ -10,11 +11,17 @@ import { catchError } from 'rxjs/operators'
   styleUrls: ['./org-branch-list.component.css']
 })
 export class OrgBranchListComponent implements OnInit {
+  menuData: any;
+  searchString: any
+  searchBranch: any
   branchList: Observable<Array<any>> = of([])
   openModal: any = {}
   constructor (
-    private _orgService: OrganisationProfileService
-  ) { }
+    private _orgService: OrganisationProfileService,
+    private _loginService: LoginService
+  ) { 
+    this.menuData = this._loginService.getMenuPermission('Configuration', 'Branches');
+  }
 
   ngOnInit () {
     this.getBranchListData()

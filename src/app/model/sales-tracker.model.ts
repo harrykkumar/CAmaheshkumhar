@@ -297,6 +297,7 @@ export interface AddCust {
   isViewPrint?: string
   isOtherCharge?: any
   stateId?:any
+  date?:any
 }
 
 export interface ResponseSale {
@@ -520,6 +521,7 @@ export interface ItemMasterAdd {
   ImageFiles?: Array<Object>[]
   ItemAttributeTrans?: Array<PurchaseAttribute>[]
   ItemTransactions?: Array<ComboItem>[]
+  ItemAttributewithRate?: Array<any>
 }
 
 export interface PurchaseItem {

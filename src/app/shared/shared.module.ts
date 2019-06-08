@@ -1,3 +1,6 @@
+import { FooterComponent } from './../start/footer/footer.component';
+import { OrganisationProfileComponent } from './../start/header/organisation-profile/organisation-profile.component';
+import { HeaderComponent } from './../start/header/header.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { NgModule } from '@angular/core'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
@@ -13,14 +16,12 @@ import { UserTypeFormComponent } from '../user/user-type-form/user-type-form.com
 import { Select2Module } from 'ng2-select2'
 import { OrganisationBranchComponent } from '../start/org-branch/org-branch-form/org-branch-form.component'
 import { PagingUtilityModule } from './pagination/pagination.module'
-import { NgxPaginationModule } from 'ngx-pagination';
+
 @NgModule({
   imports: [
     FormsModule,
     CommonModule,
-    Select2Module,
-    PagingUtilityModule,
-    NgxPaginationModule
+    Select2Module
   ],
   exports: [
     CommonModule,
@@ -36,9 +37,11 @@ import { NgxPaginationModule } from 'ngx-pagination';
     DynamicCategoryModule,
     UserFormComponent,
     UserTypeFormComponent,
+    HeaderComponent,
+    FooterComponent,
+    OrganisationProfileComponent,
     OrganisationBranchComponent,
-    PagingUtilityModule,
-    NgxPaginationModule
+    PagingUtilityModule
   ],
   declarations: [
     ControlMessageComponent,
@@ -47,6 +50,9 @@ import { NgxPaginationModule } from 'ngx-pagination';
     DateFormatPipe,
     UserFormComponent,
     UserTypeFormComponent,
+    HeaderComponent,
+    FooterComponent,
+    OrganisationProfileComponent,
     OrganisationBranchComponent
   ]
 })

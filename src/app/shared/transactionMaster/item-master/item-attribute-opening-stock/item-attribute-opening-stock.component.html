@@ -1,0 +1,267 @@
+<div
+  class="modal fade"
+  id="item-attribute-opening-stock"
+  role="dialog"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+  data-backdrop="static"
+  data-keyboard="false"
+>
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <div class="modal-header primary-bg">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-3 left_side_head">
+              <p class="heading_lead">
+                <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                Opening Stock(With Attribute)
+              </p>
+            </div>
+            <div class="col-md-9">
+              <div class="btn_header">
+                <a
+                  class="btn btn-default waves-effect"
+                  (click)="validateForm() && postFormData(attribute, 'save')"
+                >
+                  Save
+                </a>
+                <button
+                  type="button"
+                  (click)="postFormData(editAttributeData, 'cancel')"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true" class="white-text">×</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="loading" class="modal-content">
+        <div class="modal-body" style="height:inherit;">
+          <img
+            src="assets/img/spinner-blue-circle.gif"
+            alt="loading screen"
+            style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;"
+          />
+        </div>
+      </div>
+      <div class="modal-body" *ngIf="!loading">
+        <form>
+          <div class="bgc-white bdrs-3 pb-3 mB-20">
+            <div class="table-responsive table-item-attribute">
+              <table
+                class="table cat-table table-hover"
+                id="table"
+              >
+                <thead>
+                  <tr class="default_row">
+                    <th>SNo.</th>
+                    <th><div class="custom-control custom-checkbox">
+                        <input
+                        name="checkAll"
+                        [(ngModel)]="allChecked"
+                        (change)="checkAllItem($event)"
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="CheckAllItemAttribute"
+                      />
+                      <label
+                          class="custom-control-label"
+                          for="CheckAllItemAttribute"
+                          ></label>
+                    </div></th>
+                    <th *ngFor="let column of masterData?.Attributes">
+                      {{ column?.Name }}
+                    </th>
+                    <th>BarCode</th>
+                    <th>Client BarCode</th>
+                    <th>Opn. Stk Qty</th>
+                    <th>Opn. Stk Value</th>
+                    <th>Rate</th>
+                    <th>SaleRate</th>
+                    <th>NrvRate</th>
+                    <th>Mrp</th>
+                    <th>OurPrice</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr
+                    class="default_row"
+                    *ngFor="let item of attribute; let i = index"
+                  >
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                        <div class="custom-control custom-checkbox">
+                        <input
+                        name="{{i}}-checkItem"
+                        [(ngModel)]="item.Checked"
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="{{i}}-itemAttribute"
+                      />
+                      <label
+                          class="custom-control-label"
+                          for="{{i}}-itemAttribute"
+                          ></label>
+                    </div>
+                    </td>
+                    <td *ngFor="let name of item?.AttributeNamestr;">
+                      {{name}}
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Bar Code"
+                        name="barCode-{{ i }}"
+                        [(ngModel)]="item.Barcode"
+                        [disabled]="!item.Checked"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Client Bar Code"
+                        name="client-barCode-{{ i }}"
+                        [(ngModel)]="item.ClientBarCode"
+                        [disabled]="!item.Checked"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Opening Stock Qty"
+                        name="opening-stock-qty-{{ i }}"
+                        (input)="onOpeningStockChange(i)" 
+                        [(ngModel)]="item.Qty"
+                        [disabled]="!item.Checked"
+                        [ngClass]="{ 'is-invalid':item.Checked && !item.Qty && item.isInvalid }"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Opening Stock Value"
+                        name="opening-stock-value-{{ i }}"
+                        (input)="onOpeningStockValueChange(i)"                                                                                     
+                        [(ngModel)]="item.QtyValue"
+                        [disabled]="!item.Checked"                      
+                        [ngClass]="{ 'is-invalid':item.Checked && !item.QtyValue && item.isInvalid }"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Purchase Rate"
+                        name="purchase-rate-{{ i }}"
+                        (input)="onPurchaseRateChange(i)"
+                        [(ngModel)]="item.RatePurchase"
+                        [disabled]="!item.Checked"
+                        [ngClass]="{ 'is-invalid':item.Checked && !item.RatePurchase && item.isInvalid }"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Sale Rate"
+                        name="sale-rate-{{ i }}"
+                        [(ngModel)]="item.RateSale"
+                        [disabled]="!item.Checked"
+                      />
+                    </td>
+                    <td>
+                        <input
+                          type="text"
+                          class="form-control"
+                          placeholder="Enter Nrv Rate"
+                          name="nrv-rate-{{ i }}"
+                          [(ngModel)]="item.RateNrv"
+                        [disabled]="!item.Checked"
+                        />
+                      </td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter Mrp Rate"
+                        name="mrp-rate-{{ i }}"
+                        [(ngModel)]="item.RateMrp"
+                        [disabled]="!item.Checked"
+                      />
+                    </td>
+
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter OarPrice"
+                        name="oar-price-{{ i }}"
+                        [(ngModel)]="item.RateOur"
+                        [disabled]="!item.Checked"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+
+                <!-- <tfoot>
+                  <tr class="selected_row active">
+                    <td>
+                      <div class="action_btn">
+                        <button type="submit" class="btn btn-primary redAlert btn_add_more" (click)="validateItem();addItems()">+</button>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="input-group adw_select min_width_350">
+                        <select2 #item_select2 [data]="itemData" class="control_select " 
+                        (valueChanged)="onItemSelect($event)" autocomplete="true"
+                        [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.ItemId }"
+                          [options]="{placeholder: 'Select Item'}" [value]="itemValue" >
+                        </select2>
+                      </div>
+                    </td>
+                    <td *ngFor="let attribute of attibutesData; let i= index">
+                      <div class="input-group adw_select">
+                        <select2 #attr_select2 [disabled]="ItemId <= 0" id="attr{{i}}" [data]="attribute.data" class="control_select attr"
+                        (valueChanged)="onAttributeSelect($event,i)"
+                        autocomplete="true" [options]="{ placeholder: 'Select Attribute' }" 
+                        [value]="attributeValue" ></select2>
+                      </div>
+                    </td>
+                    <td>
+                        <div class="input-group adw_select">
+                          <select2 #unit_select2 [data]="subUnitsData" class="control_select"
+                          (valueChanged)="onUnitSelect($event)" autocomplete="true"
+                          [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.UnitId }"
+                          [options]="{ placeholder: 'Select Unit' }" [value]="subUnitsValue" ></select2>
+                        </div>
+                    </td>
+                    <td>
+                      <input type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
+                      (input)="validateItem()"
+                      [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Quantity }"
+                      name="quantity" [(ngModel)]="Quantity" (keyup.enter)="enterPressItem($event)" >
+                    </td>
+                    <td class="align-middle" >{{SaleRate}}</td>
+                    <td class="align-middle" >{{PurchaseRate}}</td>
+                    <td class="align-middle" >{{MrpRate}}</td>
+                  </tr>
+                </tfoot>
+                 -->
+              </table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

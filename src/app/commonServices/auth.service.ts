@@ -7,6 +7,9 @@ import { ApiConstant } from '../shared/constants/api'
 import { UIConstant } from '../shared/constants/ui-constant'
 import { map } from 'rxjs/internal/operators/map'
 import { ToastrCustomService } from './toastr.service'
+import { LoginService } from './login/login.services'
+import * as _ from 'lodash'
+
 
 @Injectable({
   providedIn: 'root'
@@ -17,14 +20,25 @@ export class AuthService implements CanActivate {
         private _validUser: TokenService,
         private _router: Router,
         private baseService: BaseServices,
-        private toastrService: ToastrCustomService
+        private toastrService: ToastrCustomService,
+        private _loginService: LoginService
+
     ) { }
   public canActivate (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    return this.authenticateApp()
+  }
+
+  authenticateApp = async () => {
+    if (this._validUser.getToken() && _.isEmpty(this._loginService.selectedUserModule)) {
+      await this._loginService.getUserDetails()
+      this._loginService.selectedUserModule = JSON.parse(localStorage.getItem('SELECTED_MODULE'))
+      this._loginService.moduleSelected.next(true)
+    }
     return this.baseService.postRequest(ApiConstant.STATUS_URL, { 'token': this._validUser.getToken() }).pipe(
-      map(data => {
+      map((data) => {
         return data.Code === UIConstant.THOUSAND && data.Data.Status === 'false' ? (this._validUser.destroyToken(), this._router.parseUrl(URLConstant.LOGIN_URL)) : !!data.Data.Status
       })
-    )
+    ).toPromise()
   }
 }
 // this.toastrService.showWarning('', 'Please check you internet connectivity')

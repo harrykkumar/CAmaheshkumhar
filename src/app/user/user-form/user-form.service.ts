@@ -75,4 +75,14 @@ export class UserFormService {
   postUserPermissions = (data) => {
     return this._baseService.postRequest(ApiConstant.USER_PERMISSION, data)
   }
+
+  getUserPermissions = (data) => {
+    let url
+    if (data.UserId) {
+      url = `${ApiConstant.USER_PERMISSION}?Id=${data.Id}&UserId=${data.UserId}&UserTypeId=${data.UserTypeId}`
+    } else {
+      url = `${ApiConstant.USER_PERMISSION}?Id=${data.Id}&UserTypeId=${data.UserTypeId}`
+    }
+    return this._baseService.getRequest(url)
+  }
 }

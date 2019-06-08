@@ -506,7 +506,7 @@ export class ItemImportComponent implements OnDestroy {
       let worksheet = workbook.Sheets[this.firstSheetName]
       let masterTableArray = []
       if (this.sheetname[0] === 'data') {
-        this.masterTableArray = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
+        // this.masterTableArray = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
         masterTableArray = XLSX.utils.sheet_to_json(worksheet, { raw: true })
       }
       this.masterTableArray = this.masterTableArray.splice(0, masterTableArray.length)

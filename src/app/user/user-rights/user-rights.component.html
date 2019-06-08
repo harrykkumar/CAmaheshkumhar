@@ -2,38 +2,37 @@
   <div id="mainpage">
     <form
     #userRightsModel="ngForm"
-    (ngSubmit)="userRightsModel.form.valid && saveUser()"
+    (ngSubmit)="userRightsModel.form.valid && validateForm() && savePermission()"
     novalidate>
-
-    <div class="modal-header page-header p-0">
+    <div class="page-header p-0">
       <div class="container-fluid">
-        <div class="row">
-          <div class="col-md-3 left_side_head">
-            <p class="heading_lead c-grey-900">
-              <i class="fas fa-user"></i>User Right
-            </p>
-          </div>
-          <div class="col-md-9">
-            <div class="btn_header">
-              <button type="submit" class="btn btn-primary waves-effect waves-light">
-                Save
-              </button>
-              <a
-                href="#demo"
-                class="btn btn-light waves-effect waves-light"
-                data-toggle="collapse"
-                (click)="resetData()"
-                >Reset
-                </a>
-            </div>
-          </div>
+          <div class="row">
+              <div class="col-md-4 left_side_head">
+                  <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-users"></i>User Rights</p>
+              </div>
+              <div class="col-md-8 right_saerch_side p-0">
+                     
+                      <div class="btn_header">
+                        <button type="submit" class="btn btn-primary waves-effect waves-light">
+                          Save
+                        </button>
+                        <a
+                          href="#demo"
+                          class="btn btn-light waves-effect waves-light"
+                          data-toggle="collapse"
+                          (click)="resetData()"
+                          >Reset
+                          </a>
+                      </div>
         </div>
-      </div>
     </div>
+</div>
+</div>
+    
 
-    <div class="row">
+    <div class="row mb-2">
       <div class="col-md-12">
-        <div class="bgc-white bdrs-3 p-20">
+        <div class="bgc-white p-2">
           <div class="form-row">
             <div class="form-group col-md-4">
               <label>User Type</label>
@@ -46,9 +45,9 @@
                     autocomplete="true"
                     [value]="model?.userTypeId"
                     [ngClass]="{
-                      isInvalid:
-                        userFormModel?.submitted &&
-                        user?.selectedUserType?.id === '0'
+                      'errorSelecto':
+                      userRightsModel?.submitted &&
+                        rights?.selectedUserType.id === '0'
                     }"
                   >
                   </select2>
@@ -56,7 +55,7 @@
               </div>
             </div>
             <div class="form-group col-md-4">
-              <label>User Type</label>
+              <label>User</label>
               <div class="input-group adw_select">
                 <div class="input-group adw_select">
                   <select2
@@ -65,11 +64,6 @@
                     (valueChanged)="onUserChange($event)"
                     autocomplete="true"
                     [value]="model?.userId"
-                    [ngClass]="{
-                      isInvalid:
-                        userFormModel?.submitted &&
-                        user?.selectedUserType?.id === '0'
-                    }"
                   >
                   </select2>
                 </div>
@@ -97,6 +91,7 @@
                   #checkAllModel="ngModel"
                   name="checkAllInput"
                   [(ngModel)]="rights.checkAll"
+                  (change)="selectAllPermission($event)"
                   type="checkbox"
                   class="custom-control-input"
                   id="checkall"
@@ -112,223 +107,53 @@
       </div>
     </div>
 
+
+    <!-- Modules list -->
     <div class="row">
       <div class="col-md-12">
         <div class="bgc-white bdrs-3">
-          <div id="tabs" class="md-elevation-4dp bg-theme-primary">
+          <div id="tabs" class="md-elevation-4dp ">
             <ul class="nav nav-tabs" role="tablist">
-              <li class="nav-item">
-                <a
+              <li class="nav-item" *ngFor="let module of moduleList;let i = index;">
+                <a 
+                  (click)="onToggleModule(module, i)"
                   class="nav-link active"
                   data-index="0"
                   data-toggle="tab"
-                  href="#tab-0"
+                  href="#tab-{{module.Id}}"
                   role="tab"
                 >
-                  <i class="fas fa-home"></i>
-                  <p>Menu</p>
+                  <img [src]="module?.src" class="mx-auto d-block">
+                  <p>{{module?.AlternateName}}</p>
                 </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-index="1"
-                  data-toggle="tab"
-                  href="#tab-1"
-                  role="tab"
-                  ><i class="far fa-edit"></i>
-                  <p>Enquiry</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-index="2"
-                  data-toggle="tab"
-                  href="#tab-2"
-                  role="tab"
-                  ><i class="fas fa-tasks"></i>
-                  <p>Task</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-index="3"
-                  data-toggle="tab"
-                  href="#tab-3"
-                  role="tab"
-                  ><i class="fas fa-object-ungroup"></i>
-                  <p>Opportinuty</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-index="4"
-                  data-toggle="tab"
-                  href="#tab-4"
-                  role="tab"
-                  ><i class="fas fa-users"></i>
-                  <p>Client</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-index="5"
-                  data-toggle="tab"
-                  href="#tab-5"
-                  role="tab"
-                  ><i class="fas fa-user"></i>
-                  <p>Employee</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-index="5"
-                  data-toggle="tab"
-                  href="#tab-6"
-                  role="tab"
-                  ><i class="far fa-chart-bar"></i>
-                  <p>Reports</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-index="5"
-                  data-toggle="tab"
-                  href="#tab-7"
-                  role="tab"
-                  ><i class="fas fa-arrow-up"></i>
-                  <p>Follow Up</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-index="5"
-                  data-toggle="tab"
-                  href="#tab-8"
-                  role="tab"
-                  ><i class="far fa-calendar-alt"></i>
-                  <p>Calendar</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-index="5"
-                  data-toggle="tab"
-                  href="#tab-9"
-                  role="tab"
-                  ><i class="fas fa-cog"></i>
-                  <p>System Setting</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  data-index="5"
-                  data-toggle="tab"
-                  href="#tab-10"
-                  role="tab"
-                  ><i class="far fa-building"></i>
-                  <p>Organization</p>
-                </a>
-              </li>
-              <li class="nav-item dropdown">
-                <a
-                  class="nav-link dropdown-toggle"
-                  data-toggle="dropdown"
-                  aria-expanded="false"
-                  ><i class="fas fa-plus"></i>
-                  <p>More</p>
-                </a>
-                <ul
-                  class="dropdown-menu fsz-sm"
-                  x-placement="bottom-start"
-                  style="position: absolute; transform: translate3d(0px, 19px, 0px); top: 0px; left: 0px; will-change: transform;"
-                >
-                  <li>
-                    <a
-                      class="d-b td-n p-1 bgcH-grey-100 c-grey-700 "
-                      data-index="5"
-                      data-toggle="tab"
-                      href="#tab-11"
-                      ><i class="fa fa-users mR-10 cH-blue"></i
-                      ><span>Assign</span></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="d-b td-n p-1 bgcH-grey-100 c-grey-700"
-                      data-index="5"
-                      data-toggle="tab"
-                      href="#tab-12"
-                      ><i class="fa fa-headphones mR-10 cH-blue"></i
-                      ><span>Add Quatation</span></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="d-b td-n p-1 bgcH-grey-100 c-grey-700"
-                      data-index="5"
-                      data-toggle="tab"
-                      href="#tab-13"
-                      ><i class="fa fa-money mR-10 cH-blue"></i
-                      ><span>Add Expense</span></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="d-b td-n p-1 bgcH-grey-100 c-grey-700"
-                      data-index="5"
-                      data-toggle="tab"
-                      href="#tab-14"
-                      ><i class="fa fa-envelope mR-10 cH-blue"></i
-                      ><span>Send Mail</span></a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="d-b td-n p-1 bgcH-grey-100 c-grey-700"
-                      data-index="5"
-                      data-toggle="tab"
-                      href="#tab-15"
-                      ><i class="fa fa-phone mR-10 cH-blue"></i
-                      ><span>Contact Detail</span></a
-                    >
-                  </li>
-                </ul>
               </li>
             </ul>
           </div>
 
           <div class="tab-content">
             <div
-              class="tab-pane fade  mt-3 active show"
-              id="tab-0"
+              class="tab-pane fade active show"
+              id="tab-{{toggledModule.Id}}"
               role="tabpanel"
             >
-              <table class="table table-hover" style="width: 100%">
+              <table class="table table-hover" style="width: 100%" *ngFor="let menu of moduleList[toggledModule['index']]?.sideMenu; let j = index">
                 <thead>
                   <tr>
                     <th width="5%">#</th>
-                    <th>Home</th>
+                    <th>{{menu.Name}}</th>
                     <th width="10%">
                       <div class="custom-control custom-checkbox">
                         <input
                           type="checkbox"
                           class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
+                          id ="{{j}}-MenuRead-{{toggledModule['module']?.Name}}"
+                          name="{{j}}-MenuRead-{{toggledModule['module']?.Name}}"
+                          [(ngModel)]="menu.read"
+                          (change)="menuPermissionChange($event, menu, 'READ')"
                         />
                         <label
-                          class="custom-control-label text-white"
-                          for="customCheck"
+                          class="custom-control-label"
+                          for="{{j}}-MenuRead-{{toggledModule['module']?.Name}}"
                           >Read</label
                         >
                       </div>
@@ -338,12 +163,14 @@
                         <input
                           type="checkbox"
                           class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
+                          id="{{j}}-MenuWrite-{{toggledModule['module'].Name}}"
+                          name="{{j}}-MenuWrite-{{toggledModule['module'].Name}}"
+                          [(ngModel)]="menu.write"
+                          (change)="menuPermissionChange($event, menu, 'WRITE')"
                         />
                         <label
-                          class="custom-control-label text-white"
-                          for="customCheck"
+                          class="custom-control-label"
+                          for="{{j}}-MenuWrite-{{toggledModule['module'].Name}}"
                           >Write</label
                         >
                       </div>
@@ -353,31 +180,35 @@
                         <input
                           type="checkbox"
                           class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
+                          id="{{j}}-MenuDelete-{{toggledModule['module'].Name}}"
+                          name="{{j}}-MenuDelete-{{toggledModule['module'].Name}}"
+                          [(ngModel)]="menu.delete"
+                          (change)="menuPermissionChange($event, menu, 'DELETE')"
                         />
                         <label
-                          class="custom-control-label text-white"
-                          for="customCheck"
-                          >Delate</label
+                          class="custom-control-label"
+                          for="{{j}}-MenuDelete-{{toggledModule['module'].Name}}"
+                          >Delete</label
                         >
                       </div>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
+                  <tr *ngFor="let subMenu of menu.subMenu; let k = index;">
                     <td></td>
-                    <td>Add Enuairy</td>
+                    <td>{{subMenu?.Name}}</td>
                     <td>
                       <div class="custom-control custom-checkbox">
                         <input
                           type="checkbox"
                           class="custom-control-input"
-                          id="read"
-                          name="example1"
+                          id="{{j}}-{{k}}-SubMenuRead-{{toggledModule['module'].Name}}"
+                          name="{{j}}-{{k}}-SubMenuRead-{{toggledModule['module'].Name}}"
+                          [(ngModel)]="subMenu.read"
                         />
-                        <label class="custom-control-label" for="read"></label>
+                        <label class="custom-control-label"
+                         for="{{j}}-{{k}}-SubMenuRead-{{toggledModule['module'].Name}}"></label>
                       </div>
                     </td>
                     <td>
@@ -385,10 +216,13 @@
                         <input
                           type="checkbox"
                           class="custom-control-input"
-                          id="write"
-                          name="example1"
+                          id="{{j}}-{{k}}-SubMenuWrite-{{toggledModule['module'].Name}}"
+                          name="{{j}}-{{k}}-SubMenuWrite-{{toggledModule['module'].Name}}"
+                          [(ngModel)]="subMenu.write"
+                          (change)="onChangeSubMenu($event, subMenu, 'WRITE')"
                         />
-                        <label class="custom-control-label" for="write"></label>
+                        <label class="custom-control-label"
+                         for="{{j}}-{{k}}-SubMenuWrite-{{toggledModule['module'].Name}}"></label>
                       </div>
                     </td>
                     <td>
@@ -396,551 +230,25 @@
                         <input
                           type="checkbox"
                           class="custom-control-input"
-                          id="delete"
-                          name="example1"
+                          id="{{j}}-{{k}}-SubMenuDelete-{{toggledModule['module'].Name}}"
+                          name="{{j}}-{{k}}-SubMenuDelete-{{toggledModule['module'].Name}}"
+                          [(ngModel)]="subMenu.delete"
+                          (change)="onChangeSubMenu($event, subMenu, 'DELETE')"
                         />
                         <label
                           class="custom-control-label"
-                          for="delete"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td class="pl-4">
-                      <i class="fas fa-arrow-right"></i> Add Enuairy
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>Add Billing</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="billing"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="billing"
-                        ></label>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="billing"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="billing"
-                        ></label>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="billing"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="billing"
+                          for="{{j}}-{{k}}-SubMenuDelete-{{toggledModule['module'].Name}}"
                         ></label>
                       </div>
                     </td>
                   </tr>
                 </tbody>
               </table>
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-1" role="tabpanel">
-              <table class="table table-hover" style="width: 100%">
-                <thead>
-                  <tr>
-                    <th width="5%">#</th>
-                    <th>Enquiry</th>
-                    <th width="10%">
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td></td>
-                    <td>Add Enuairy</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td class="pl-4">
-                      <i class="fas fa-arrow-right"></i> Add Enuairy
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>Add Billing</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="billing"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="billing"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>Add Enuairy</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-2" role="tabpanel">
-              <table class="table table-hover" style="width: 100%">
-                <thead>
-                  <tr>
-                    <th width="5%">#</th>
-                    <th>Task</th>
-                    <th width="10%">
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td></td>
-                    <td>Add Enuairy</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td class="pl-4">
-                      <i class="fas fa-arrow-right"></i> Add Enuairy
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>Add Billing</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="billing"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="billing"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>Add Enuairy</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-3" role="tabpanel">
-              <table class="table table-hover" style="width: 100%">
-                <thead>
-                  <tr>
-                    <th width="5%">#</th>
-                    <th>Opportunity</th>
-                    <th width="10%">
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td></td>
-                    <td>Add Enuairy</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td class="pl-4">
-                      <i class="fas fa-arrow-right"></i> Add Enuairy
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>Add Billing</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="billing"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="billing"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>Add Enuairy</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-4" role="tabpanel">
-              <table class="table table-hover" style="width: 100%">
-                <thead>
-                  <tr>
-                    <th width="5%">#</th>
-                    <th>Client</th>
-                    <th width="10%">
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td></td>
-                    <td>Add Enuairy</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td class="pl-4">
-                      <i class="fas fa-arrow-right"></i> Add Enuairy
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>Add Billing</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="billing"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="billing"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td>Add Enuairy</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="customCheck"
-                          name="example1"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="customCheck"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-5" role="tabpanel">
-              5
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-6" role="tabpanel">
-              10
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-7" role="tabpanel">
-              10
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-8" role="tabpanel">
-              10
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-9" role="tabpanel">
-              10
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-10" role="tabpanel">
-              10
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-11" role="tabpanel">
-              10
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-12" role="tabpanel">
-              10
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-13" role="tabpanel">
-              10
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-14" role="tabpanel">
-              10
-            </div>
-            <div class="tab-pane fade ml-3 mt-3" id="tab-15" role="tabpanel">
-              10
             </div>
           </div>
         </div>
       </div>
     </div>
-
   </form>
   </div>
 </main>

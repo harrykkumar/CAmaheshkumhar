@@ -1,3 +1,4 @@
+import { async } from '@angular/core/testing';
 import { Component } from '@angular/core'
 import { FormBuilder, Validators, FormGroup } from '@angular/forms'
 import { Router } from '@angular/router'
@@ -44,7 +45,7 @@ export class LoginComponent {
     this.invalidUser = false
   }
 
-  login () {
+  login() {
     this.submitClick = true
     if (this.loginForm.valid) {
       this._loginService.login(this.LoginParms()).subscribe(
@@ -60,7 +61,7 @@ export class LoginComponent {
           }
           if (data.Data != null) {
             this.tokenService.saveToken(data.Data.Token)
-            this._route.navigate([URLConstant.ADMIN_URL])
+            this.mapModules()
           } else {
             this.invalidUser = true
             this.errorMessage = ErrorConstant.INVALID_USER
@@ -90,4 +91,18 @@ export class LoginComponent {
   clearErrorValidation () {
     this.invalidUser = false
   }
+
+  mapModules = async () => {
+    await this._loginService.getUserDetails()
+    if (this._loginService.userData.Modules.length === 1) {
+      this._loginService.selectedUserModule = { ...this._loginService.userData.Modules[0] }
+      this._loginService.selectedUserModule['index'] = 0
+      localStorage.setItem('SELECTED_MODULE', JSON.stringify(this._loginService.selectedUserModule))
+      this._loginService.moduleSelected.next(true)
+      this._route.navigate(['dashboard'])
+    } else {
+      this._route.navigate(['modules'])
+    }
+  }
+
 }

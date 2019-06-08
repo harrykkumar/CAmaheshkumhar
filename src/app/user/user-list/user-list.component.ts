@@ -1,3 +1,4 @@
+import { LoginService } from './../../commonServices/login/login.services';
 import { Component, OnInit } from '@angular/core'
 import { Observable, of, throwError } from 'rxjs'
 import { catchError } from 'rxjs/internal/operators/catchError'
@@ -14,10 +15,15 @@ import { UserFormService } from '../user-form/user-form.service'
 export class UserListComponent implements OnInit {
   showUser: any = {}
   userList: Observable<Array<any>> = of([])
+  menuData: any;
+  searchString: string;
 
   constructor (
-    private _userService: UserFormService
-  ) { }
+    private _userService: UserFormService,
+    private _loginService: LoginService
+  ) {
+    this.menuData = this._loginService.getMenuPermission('Configuration', 'User');
+   }
 
   ngOnInit () {
     this.getUserListData()

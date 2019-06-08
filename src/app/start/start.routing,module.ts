@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
 import { StartComponent } from './start/start.component'
+import { OrganisationProfileComponent } from './header/organisation-profile/organisation-profile.component';
 
 const routes: Routes = [
   {
@@ -14,6 +15,10 @@ const routes: Routes = [
       {
         path: 'admin',
         loadChildren: '../admin/admin.module#AdminModule'
+      },
+      {
+        path: 'dashboard',
+        loadChildren: '../start/dashboard/dashboard.module#DashboardModule'
       },
       {
         path: 'ims/sale-travel',
@@ -131,10 +136,18 @@ const routes: Routes = [
         path: 'account/ledgercreation',
         loadChildren: '../transactionMaster/ledger-creation/ledger-creation.module#LedgerCreationModule'
       },
-      {
+         {
         path: 'account/ledger-summary',
-        loadChildren: '../transactionMaster/ledger-summary/ledger-summary.module#LedgerSummaryModule'
+        loadChildren: '../report/ledger-summary/ledger-summary.module#LedgerSummaryModule'
       },
+         {
+        path: 'account/balance-sheet',
+        loadChildren: '../account/balance-sheet/balance-sheet-report.module#BalanceSheetReportModule'
+      },
+      {
+        path: 'organisation-profile',
+        component: OrganisationProfileComponent
+      }
     ]
   }
 ]

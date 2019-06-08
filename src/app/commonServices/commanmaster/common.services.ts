@@ -3,6 +3,7 @@ import { BehaviorSubject, Subject, Observable } from 'rxjs'
 import { AddCust } from '../../model/sales-tracker.model'
 import { BaseServices } from '../base-services'
 import { ApiConstant } from '../../shared/constants/api'
+import { Router, NavigationEnd } from '@angular/router'
 declare const $: any
 @Injectable({
   providedIn: 'root'
@@ -41,8 +42,9 @@ export class CommonService {
   private openPrintAddSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openAddledgerGroupSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openAddledgerCreationSub = new BehaviorSubject<AddCust>({ 'open': false })
-
-  
+private sendDataForSearchSub= new BehaviorSubject<AddCust>({ 'open': false })
+public previousUrl: String;
+public currentUrl: String;
   // validation reg ex
   companyNameRegx = `^[A-Za-z0-9&-]+$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
@@ -54,7 +56,10 @@ export class CommonService {
   gstInRegx = `^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})
   ([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$`
 
-  constructor (private baseService: BaseServices) { }
+  constructor (    private router: Router ,private baseService: BaseServices) { 
+    
+    this.setPreviousUrl();
+  }
 
   public getCountry () {
     return this.baseService.getRequest(ApiConstant.BASE_URL)
@@ -731,7 +736,10 @@ export class CommonService {
   getledgerGroupStatus () {
     return this.openAddledgerGroupSub.asObservable()
   }
- 
+  
+  getledgerCretionStatus () {
+    return this.openAddledgerCreationSub.asObservable()
+  }
   openledgerCretion (editId, isOtherCharge) {
     this.openAddledgerCreationSub.next({ 'open': true, 'editId': editId, 'isOtherCharge': isOtherCharge })
   }
@@ -744,9 +752,7 @@ export class CommonService {
     }
   }
 
-  getledgerCretionStatus () {
-    return this.openAddledgerCreationSub.asObservable()
-  }
+ 
   public postLedgerGroupAPI (parms: any): Observable<any> {
     return this.baseService.postRequest(ApiConstant.LEDGER_GROUP_API, parms)
   }
@@ -782,4 +788,33 @@ export class CommonService {
     return this.baseService.getRequest(`${ApiConstant.LEDGER_DETAIL_URL}`)
   }
   
+  getBalanceSheetList(date){
+    return this.baseService.getRequest(ApiConstant.BALANCE_SHEET_API + date)
+    
+  }
+
+  
+  getsearchByDateForBalancesheetStatus () {
+    return this.sendDataForSearchSub.asObservable()
+  }
+  searchByDateForBalancesheet (date) {
+    this.sendDataForSearchSub.next({ 'open': true, 'date': date })
+  }
+  setPreviousUrl = () => {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.previousUrl = this.currentUrl;
+        this.currentUrl = event.url;
+      }
+    });
+  }
+
+  // hanlding of navigation to the previous url
+  navigateToPreviousUrl() {
+    if (this.previousUrl) {
+      this.router.navigateByUrl(`${this.previousUrl}`);
+    } else {
+      this.router.navigate(['dashboard'])
+    }
+  }
 }

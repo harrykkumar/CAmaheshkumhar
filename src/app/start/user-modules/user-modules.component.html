@@ -1,0 +1,19 @@
+<app-header></app-header>
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div class="container-fluid">
+      <h4 class="c-grey-900">WelCome</h4>
+      <div class="row justify-content-md-center align-self-center h-100">
+        <div class="col-md-3" *ngFor="let module of modulesList; let i = index">
+          <a (click)="navigateTo('dashboard', module, i)">
+            <div class="highlight_box">
+              <img [src]="module?.src" class="mx-auto d-block" />
+              <h3>{{ module?.AlternateName }}</h3>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<app-footer></app-footer>

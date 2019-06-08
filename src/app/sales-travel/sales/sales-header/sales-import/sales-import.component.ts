@@ -167,7 +167,7 @@ export class SalesImportComponent implements OnInit, OnDestroy {
       let worksheet = workbook.Sheets[this.first_sheet_name]
       let masterTableArray = []
       if (this.sheetname[0] === 'data') {
-        this.masterTableArray = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
+        // this.masterTableArray = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
         masterTableArray = XLSX.utils.sheet_to_json(worksheet, { raw: true })
         this.masterTableDivShow = true
       }

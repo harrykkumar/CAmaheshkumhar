@@ -1,3 +1,4 @@
+import { LoginService } from './../../commonServices/login/login.services';
 import { Component, OnInit } from '@angular/core'
 
 @Component({
@@ -8,9 +9,12 @@ import { Component, OnInit } from '@angular/core'
 export class StartComponent implements OnInit {
 
   // tslint:disable-next-line:no-empty
-  constructor () {}
+  constructor (
+    public _loginService: LoginService
+  ) {}
 
   // tslint:disable-next-line:no-empty
-  ngOnInit () {}
+  ngOnInit () {
+  }
 
 }

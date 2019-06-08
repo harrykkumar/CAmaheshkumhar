@@ -137,51 +137,69 @@
                                     <tr>
                                       <th width="5%">#</th>
                                       <th width="10%">Contact Type</th>
-                                      <th width="20%">Contact NO</th>
+                                      <th width="20%">Contact No</th>
                                       <th width="10%"></th>
                                       <th width="10%"></th>
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    <tr *ngFor="let item of adressArray let i=index">
-                                      <td width="5%">
-                                        <button type="submit" class="btn btn-primary btn_add_more" (click)="addingArrayinMobleType(1)">+</button></td>
-                                      <td width="20%">
-                                        <select class="form-control" id="sel1{{i}}" value="{{item.ContactType}}">
-                                          <option value="">Select </option>
-                                          <option value="1">Work</option>
-                                          <option value="2">Home</option>
-                                          <option value="3">Mobile</option>
-                                          <option value="4">Fax</option>
-                                          <option value="5">Skype</option>
-                                          <option value="6">YMessenger</option>
-                                          <option value="7">Sip</option>
-                                          <option value="8">Other</option>
-                                        </select>
-                                      <td width="20%">
-                                          <div class="mobile_code ">
-                                              <select2 id ='ctryPhoneCode{{i}}'
-                                                [data]="countryListWithCode"
-                                                style="width:120px !important;"
-                                                class="control_select "
-                                                (valueChanged)="
-                                                onCountryCodeSelectionChange(
-                                                    $event
-                                                  )
-                                                "
-                                               [value]='item.CountryCode'
-                                                autocomplete="true"
-                                              >
-                                              </select2>
-                                             
+                                      <tr class="default_row" *ngFor="let item of mobileArray let i=index" >
+                                          <td  class="profile-pic1" >
+                                            <div class="edit1">
+                                              <a (click)="deleteArrayMobileType(i,'contact')" *ngIf="mobileArray.length > 0" >
+                                                <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
+                                              </a>
+                                              <a (click)="editRowItem(i,'contact',item.Id )"
+                                                *ngIf="mobileArray.length > 0" ><i class="fas fa-pen fa-1x"></i>
+                                              </a>
                                             </div>
-                                      </td>
-                                      <td width="50%">
-                                        <input [disabled]="enableContactFlag" (keyup)="checkNumberByCountry($event)" type="number" class="form-control" id=mobile{{i}} value="{{item.ContactNo}}">
-                                      </td>
-                                      <td width="5%" (click)="deleteArrayMobileType(i)" class="align-middle"><a><i class="fa fa-trash delete_icon" aria-hidden="true"></i></a></td>
-                                    </tr>
-                                  </tbody>
+                                          </td>
+                                          <td>
+                                            {{item.ContactTypeName}}
+                                          </td>
+                                          <td>
+                                            {{item.CountryCode}}
+                                          </td>
+                                          <td>
+                                            {{item.ContactNo}}
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                        <tfoot>
+                                            <tr>
+                                            <td width="5%">
+                                                  <button type="submit" class="btn btn-primary btn_add_more" (click)="addConatctDetails()">+</button></td>
+                                                <td width="20%">
+                                                    <select2  #select_mobiletype
+                                                          [data]="contactTypeData"
+                                                          style="width:120px !important;"
+                                                          class="control_select "
+                                                          (valueChanged)="onChangeContactType($event )"
+                                                          autocomplete="true" [ngClass]="{ 'errorSelecto is-invalid':  invalidObj?.contactType && (submitClick || addConctFlag ) }"
+                                                        >
+                                                        </select2>
+                                             
+                                                <td width="20%">
+                                                    <div class="mobile_code ">
+                                                        <select2 #phoneCode_select2
+                                                          [data]="countryListWithCode"
+                                                          style="width:120px !important;"
+                                                          class="control_select "
+                                                          (valueChanged)="
+                                                     onCountryCodeSelectionChange( $event )"
+                                                         
+                                                          autocomplete="true"
+                                                        >
+                                                        </select2>
+                                                       
+                                                      </div>
+                                                </td>
+                                                <td width="50%">
+                                                  <input [attr.disabled]="enableContactFlag?'':null"  formControlName="mobileNo" (keyup)="checkNumberByCountry($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': validMobileFlag  }" type="number" class="form-control" >
+                                                </td>
+                                                <!-- <td width="5%" (click)="deleteArrayMobileType(i)" class="align-middle"><a><i class="fa fa-trash delete_icon" aria-hidden="true"></i></a></td> -->
+                                              </tr>
+                                        </tfoot>
                                 </table>
                               </div>
                             </div>
@@ -197,22 +215,44 @@
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    <tr *ngFor="let item of emailAdressArray let i= index">
+                                    <tr class="default_row" *ngFor="let item of emailArray let i=index" >
+                                        <td  class="profile-pic1" >
+                                          <div class="edit1">
+                                            <a (click)="deleteArrayMobileType(i,'email')" *ngIf="emailArray.length > 0" >
+                                              <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
+                                            </a>
+                                            <a (click)="editRowItem(i,'email',item.Id )"
+                                              *ngIf="emailArray.length > 0" ><i class="fas fa-pen fa-1x"></i>
+                                            </a>
+                                          </div>
+                                        </td>
+                                        <td>
+                                          {{item.EmailTypeName}}
+                                        </td>
+                                        <td>
+                                          {{item.EmailAddress}}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                
+                                      <tfoot>
+                                    <tr >
                                       <td width="5%">
-                                        <button type="submit" class="btn btn-primary btn_add_more" (click)="emailAddingArray(1)">+</button></td>
+                                        <button type="submit" class="btn btn-primary btn_add_more" (click)="emailAddingArray()">+</button></td>
                                       <td>
-                                        <select class="form-control" id="sel1parmantent{{i}}" value="{{item.EmailType}}">
-                                          <option value="">Select Emails</option>
-                                          <option value="1">Personal</option>
-                                          <option value="2">Work</option>
-                                          <option value="3">Home</option>
-                                          <option value="4">Other</option>
-                                        </select>
+                                        <select2 #select_emailtype
+                                        [data]="emailTypeData"
+                                        style="width:120px !important;"
+                                        class="control_select "
+                                        (valueChanged)="onChangeEmailType($event )"
+                                        autocomplete="true" [ngClass]="{ 'errorSelecto is-invalid':  invalidObj?.contactType && (submitClick || addConctFlag ) }"
+                                      >
+                                      </select2>
                                       <td>
-                                        <input type="email" class="form-control" id="email{{i}}" value="{{item.EmailAddress}}"></td>
-                                      <td width="5%" (click)="delteEmailArray(i)" class="align-middle"><a><i class="fa fa-trash delete_icon" aria-hidden="true"></i></a></td>
+                                        <input (keyup)="checkvalidationEmail($event)" type="email" class="form-control" formControlName='EmailAddress' [ngClass]="{ 'errorTextBoxBorder is-invalid': !getEmailvalid  }"  ></td>
+                                      <!-- <td width="5%" (click)="delteEmailArray(i)" class="align-middle"><a><i class="fa fa-trash delete_icon" aria-hidden="true"></i></a></td> -->
                                     </tr>
-                                  </tbody>
+                                  </tfoot>
                                 </table>
                                 <!-- <h2 id='result'></h2> -->
                                 <!-- <div class="error_msg" style="text-align:center;" *ngIf="emailError">{{this.emailErrormass}}</div> -->

@@ -1,5 +1,7 @@
+import { LoginService } from './../../commonServices/login/login.services';
 import { Component } from '@angular/core'
 import { TokenService } from '../../commonServices/token.service'
+import { Router } from '@angular/router';
 declare const $: any
 @Component({
   selector: 'app-header',
@@ -7,12 +9,16 @@ declare const $: any
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
+  loggedinUserData: any = {}
   showProfileStatus: any = {
     profileOpen: false,
     editMode: false
   }
   constructor (
-    private _tokenServices: TokenService) {
+    private _tokenServices: TokenService,
+    private router: Router,
+    public _loginService: LoginService) {
+    this.loggedinUserData = this._loginService.userData
   }
   public siderbarMenu () {
     $('.app').toggleClass('is-collapsed')
@@ -20,24 +26,14 @@ export class HeaderComponent {
   }
 
   logOut () {
-    console.log('dfgdfdh')
     this._tokenServices.destroyToken()
   }
 
   /* Function to navigate branch list page */
-  // navigate = (path) => {
-  //   this.router.navigate([path])
-  // }
-
-  /* Function invoke on click of save and close org-profile modal  */
-  // closeProfile = (event) => {
-  //   this.showProfileStatus = {
-  //     profileOpen: false,
-  //     editMode: false
-  //   }
-  // }
-
-  // navToSettings = () => {
-  //   this.router.navigate([URLConstant.SETTINGS_PAGE])
-  // }
+  navigateTo = (path) => {
+    if (path === 'modules') {
+      this._loginService.moduleSelected.next(false)
+    }
+    this.router.navigate([path])
+  }
 }

@@ -1,148 +1,115 @@
-import { Component } from '@angular/core'
-import { Router } from '@angular/router'
-import { URLConstant } from '../../shared/constants/urlconstant'
-
+import { Component, OnInit } from '@angular/core'
+import * as CanvasJS from '../../../assets/js/canvasjs.min';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent {
-  constructor (private _route: Router) { }
+export class DashboardComponent implements OnInit {
 
-  routeCategory () {
-    this._route.navigate([URLConstant.IMS_CATEGORY_URL])
-  }
+  constructor() { }
 
-  itemMaster () {
-    this._route.navigate([URLConstant.IMS_ITEM_MASTER_URL])
-    console.log(URLConstant.IMS_ITEM_MASTER_URL)
+  ngOnInit() {
+  	 this.chartForAssets()
+    this.ChartForFinance()
+    this.ChartLiabilities()
+    this.chartForCashFlow()
   }
-  routeUnit () {
-    this._route.navigate([URLConstant.IMS_UNIT_URL])
-  }
-  routeComposite () {
-    this._route.navigate([URLConstant.IMS_COMPOSITE_URL])
-  }
+      ChartForFinance(){
+        let chart = new CanvasJS.Chart("chartContainer", {
+          theme: "light2",
+          animationEnabled: true,
+          exportEnabled: true,
+          title:{
+            text: ""
+          },
+          data: [{
+            type: "pie",
+            showInLegend: true,
+            toolTipContent: "<b>{name}</b>: ${y} (#percent%)",
+            indexLabel: "{name} - #percent%",
+            dataPoints: [
+              { y: 450, name: "Sale" },
+              { y: 120, name: "Purchase" },
+              { y: 300, name: "Profit" },
+              { y: 800, name: "Lose" }
+            ]
+          }]
+        });
+    
+        chart.render();
+      }
+      chartForAssets (){
 
-  routeTax () {
-    this._route.navigate([URLConstant.IMS_TAX_URL])
-  }
+        let chartForAssets = new CanvasJS.Chart("chartContainerAssets", {
+          theme: "light2",
+          animationEnabled: true,
+          exportEnabled: true,
+          title:{
+            text: ""
+          },
+          data: [{
+            type: "pie",
+            showInLegend: true,
+            toolTipContent: "<b>{name}</b>: ${y} (#percent%)",
+            indexLabel: "{name} - #percent%",
+            dataPoints: [
+              { y: 800, name: "Sale" },
+              { y: 50, name: "Purchase" },
+              { y: 200, name: "Profit" },
+              { y: 30, name: "Lose" }
+            ]
+          }]
+        });
+        chartForAssets.render()
+      } 
+      ChartLiabilities () {
+        let chartLiabilitie = new CanvasJS.Chart("chartContainerLiabilities", {
+          theme: "light2",
+          animationEnabled: true,
+          exportEnabled: true,
+          title:{
+            text: ""
+          },
+          data: [{
+            type: "pie",
+            showInLegend: true,
+            toolTipContent: "<b>{name}</b>: ${y} (#percent%)",
+            indexLabel: "{name} - #percent%",
+            dataPoints: [
+              { y: 500, name: "Sale" },
+              { y: 400, name: "Purchase" },
+              { y: 600, name: "Profit" },
+              { y: 20, name: "Lose" }
+            ]
+          }]
+        });
+    
+        chartLiabilitie.render();  
+      }
 
-  routeCustomer () {
-    this._route.navigate([URLConstant.IMS_COUSTMER_URL])
-  }
-  routeVendor () {
-    this._route.navigate([URLConstant.IMS_VENDOR_URL])
-  }
-  routeVouture () {
-    this._route.navigate([URLConstant.IMS_VOUCHER_URL])
-  }
-
-  routePurchases () {
-    this._route.navigate([URLConstant.PURCHASES])
-  }
-
-  routeSaleTourism () {
-    this._route.navigate([URLConstant.SALE_TOURISM])
-  }
-
-  routeSaleCourier () {
-    this._route.navigate([URLConstant.SALE_COURIER])
-  }
-
-  routeSalesCourierParcel () {
-    this._route.navigate([URLConstant.SALE_COURIER_PARCEL])
-  }
-
-  routeRouting () {
-    this._route.navigate([URLConstant.IMS_ROUTING_URL])
-  }
-
-  routeSaleReturn () {
-    this._route.navigate([URLConstant.SALE_RETURN_URL])
-  }
-
-  routeSalesChallan () {
-    this._route.navigate([URLConstant.SALE_CHALLAN])
-  }
-
-  routePurchase () {
-    this._route.navigate([URLConstant.PURCHASE])
-  }
-
-  routeItemStockReport () {
-    this._route.navigate([URLConstant.REPORT_ITEM_STOCK])
-  }
-
-  routeProfitReport () {
-    this._route.navigate([URLConstant.PROFIT_REPORT])
-  }
-
-  routeDirectSale () {
-    this._route.navigate([URLConstant.SALE_DIRECT])
-  }
-  routeAttribute () {
-    this._route.navigate([URLConstant.ATTRIBUTE_ADD])
-  }
-  routeBank () {
-    this._route.navigate([URLConstant.BANK_URL])
-  }
-  routeItemSaleByCategoryReport (){
-    this._route.navigate([URLConstant.REPORT_ITEM_BY_CATEGORY_SALE])
-  }
-
-  routeUser () {
-    this._route.navigate([URLConstant.USERS])
-  }
-
-  routeUserRights () {
-    this._route.navigate([URLConstant.USER_RIGHTS])
-  }
-
-  routeUserTypes () {
-    this._route.navigate([URLConstant.USER_TYPES])
-  }
-
-  routeOffice () {
-    this._route.navigate([URLConstant.OFFICE_PAGE])
-  }
-
-  routeBranch () {
-    this._route.navigate([URLConstant.BRANCH_PAGE])
-  }
-
-  routeSettings () {
-    this._route.navigate([URLConstant.SETTINGS_PAGE])
-  }
-
-  showProfileStatus: any = {
-    profileOpen: false,
-    editMode: false
-  }
-  closeProfile = () => {
-    this.showProfileStatus = {
-      profileOpen: false,
-      editMode: false
-    }
-  }
-
-  /* Function invoke on click of organisation profile menu */
-  showProfile = () => {
-    this.showProfileStatus = {
-      profileOpen: true,
-      editMode: true
-    }
-  }
-
-  routeCreation () {
-    this._route.navigate([URLConstant.LEDGER_CREATION])
-  }
-  routeGroup () {
-    this._route.navigate([URLConstant.LEDGER_GROUP])
-  }
-   
-  routeLedgerSummary () {
-    this._route.navigate([URLConstant.LEDGER_SUMMARY]);
-  }
+      chartForCashFlow(){
+        let chart = new CanvasJS.Chart("chartContainerForCashFlow", {
+          animationEnabled: true,
+          exportEnabled: true,
+          title: {
+            text: ""
+          },
+          data: [{
+            type: "column",
+            dataPoints: [
+              // { y: 71, label: "Apple" },
+              { y: 55, label: "Mango" },
+              { y: 50, label: "Orange" },
+              { y: 65, label: "Banana" },
+              { y: 95, label: "Pineapple" },
+              { y: 68, label: "Pears" },
+              { y: 28, label: "Grapes" },
+              { y: 34, label: "Lychee" },
+              { y: 14, label: "Jackfruit" }
+            ]
+          }]
+        });
+        chart.render(); 
+      }
 }

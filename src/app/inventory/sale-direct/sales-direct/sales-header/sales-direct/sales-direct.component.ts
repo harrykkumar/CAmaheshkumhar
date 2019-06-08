@@ -12,6 +12,7 @@ import { CommonService } from '../../../../../commonServices/commanmaster/common
 import { GlobalService } from '../../../../../commonServices/global.service'
 import { Settings } from '../../../../../shared/constants/settings.constant'
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
+import { IfStmt } from '@angular/compiler';
 declare const _: any
 declare var $: any
 declare var flatpickr: any
@@ -212,14 +213,13 @@ export class SalesDirectComponent {
     this.newAttributeADDModel1 = this._commonService.getAttributeStatus().subscribe(
       (Attri: AddCust) => {
         if (Attri.id > 0) {
-          let Atdata
+          debugger
           if (this.attributesLabels.length > 0) {
-            for (let i = 0; i < this.attributesLabels.length; i++) {
-              Atdata = this.allAttributeData[i].item.filter(value => value.attributeId === Attri.AttributeId)
-              if (Atdata.length > 0) {
-                let newData = Object.assign([], this.allAttributeData[i].item)
+            for (let i = 0; i < this.attributesLabels.length; i++) { 
+              if (this.allAttributeData[i].attributeId === Attri.AttributeId) {
+                let newData = Object.assign([], this.allAttributeData[i].data)
                 newData.push({ id: Attri.id, text: Attri.name, AttributeId: Attri.AttributeId })
-                this.allAttributeData[i].item = newData
+                this.allAttributeData[i].data = newData
                 this.attrinuteSetDataId = Attri.id
               }
             }
@@ -448,10 +448,10 @@ export class SalesDirectComponent {
     }
   }
   getSetAttributeSPUTility (data) {
+    this.allAttributeData = []
+      this.attributesLabels = []
     if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
 
-      this.allAttributeData = []
-      this.attributesLabels = []
 let newData =[]
        newData = Object.assign([], this.attributesLabels)
       this.attributeColourPlaceHolder = { placeholder: 'Select' }
@@ -482,9 +482,13 @@ let newData =[]
 
         }
       }
+      console.log(this.allAttributeData ,'old-atr----')
     }
   }
   getAttributeSPUtilityData: any
+
+
+
   getSPUtilityDataBilling () {
     // SPUtility API; For get all data of API
     this.subscribe = this._commonService.getSPUtilityData(UIConstant.SALE_TYPE).subscribe(data => {
@@ -504,10 +508,15 @@ let newData =[]
         if (data.Data && data.Data.Organizations.length > 0) {
           this.getOrgnization(data)
         }
+        this.allAttributeData = []
+        this.attributesLabels = []
         if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
           
            this.getAttributeSPUtilityData = data
-           this.getSetAttributeSPUTility(data)
+          // this.getSetAttributeSPUTility(data)
+         let AttributeDetails= this.generateAttributes(data.Data)
+          this.attributesLabels = AttributeDetails.attributeKeys
+          this.allAttributeData = AttributeDetails.attributesData
          }
         if (this.editMode) {
           this.isManualBillNoEntry = false
@@ -607,7 +616,7 @@ let newData =[]
         this.itemCategoryType = []
         this.allItemsData = []
         this.itemcategoryPlaceHolder = { placeholder: 'Select Item' }
-        console.log(data.Data, 'itam-data')
+      //  console.log(data.Data, 'itam-data')
         this.itemCategoryType = [{ id: UIConstant.BLANK, text: 'Select  Item' }, { id: '-1', text: '+Add New' }]
         if (data.Data && data.Data.Items.length > 0) {
           this.allItemsData = data.Data.Items
@@ -620,7 +629,7 @@ let newData =[]
           })
         }
         this.itemCategoryType = this.itemCategoryType
-        console.log(this.itemCategoryType, 'iyem-data--')
+      //  console.log(this.itemCategoryType, 'iyem-data--')
 
         // add Referals
         this.referals = []
@@ -814,7 +823,7 @@ alreadySelectCharge (chargeId,name,enableflag) {
   validAttribute: any
   AttrValueId: any
   onChangeAttribute (event, indexAttribute, attributeData) {
-
+    
     let editAttributValue
     let attributeEdit = this.editAttributeData
     let editAttrId = 0
@@ -822,7 +831,7 @@ alreadySelectCharge (chargeId,name,enableflag) {
       if (event.data[0].id !== '-1') {
         if (event.data[0].text) {
           this.AttrValueId = event.data[0].id
-          this.existId = event.data[0].attributeId
+          this.existId = attributeData.attributeId
           if (attributeEdit !== undefined) {
 
             editAttributValue = this.editAttributeData.filter(value => value.AttributeValueId === this.existId)
@@ -836,10 +845,22 @@ alreadySelectCharge (chargeId,name,enableflag) {
 
           }
           if( this.editItemId >0 &&this.editAttributeData.length ===0){
-            this.trsnItemId = this.editItemId
+            //this.trsnItemId =  this.editItemId
+            this.trsnItemId  = this.items.length + 1
+            for(let i=0; i < this.items.length; i ++){
+              if(this.trsnItemId === this.items[i].Sno){
+                this.trsnItemId =  this.trsnItemId + 1
+              }
+            }
           }
           if(this.editItemId ===0 && this.items.length >0){
-            this.trsnItemId = this.items[this.items.length - 1].Sno + 1
+            this.trsnItemId = this.items.length + 1
+            for(let i=0; i < this.items.length; i ++){
+              if(this.trsnItemId === this.items[i].Sno){
+                this.trsnItemId =  this.trsnItemId + 1
+              }
+            }
+            //this.trsnItemId = this.items[this.items.length - 1].Sno + 1
 
           }
           this.attributeName = event.data[0].text
@@ -848,17 +869,19 @@ alreadySelectCharge (chargeId,name,enableflag) {
         }
       } else {
         let data = {
-          addNewId: event.data[0].attributeId,
-          attrNameId: event.data[0].attributeId,
-          attrValue: event.data[0].attributeId,
+          addNewId:  attributeData.attributeId,
+          attrNameId:  attributeData.attributeId,
+          attrValue:  attributeData.attributeId,
           disabledAddButton: true
 
         }
+        debugger
         this.atrColorSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
           item.selector.nativeElement.value = ''
-          this._commonService.openAttribute(data, true)
+         
         })
-       // this.atrColorSelect2.selector.nativeElement.value = ''
+        
+        this._commonService.openAttribute(data, true)
 
       }
     }
@@ -872,6 +895,7 @@ alreadySelectCharge (chargeId,name,enableflag) {
         let newArray = {
           Id: AttrEditId,
           Index: attrIndex,
+          Sno:this.trsnItemId,
           ItemId: this.itemCategoryId,
           ItemTransId: this.trsnItemId,
           AttributeName: this.attributeName,
@@ -885,6 +909,7 @@ alreadySelectCharge (chargeId,name,enableflag) {
         this.itemsAttribute.push({
           Id: AttrEditId,
           Index: attrIndex,
+          Sno:this.trsnItemId,
           ItemId: this.itemCategoryId,
           ItemTransId: this.trsnItemId,
           AttributeName: this.attributeName,
@@ -898,6 +923,7 @@ alreadySelectCharge (chargeId,name,enableflag) {
       this.itemsAttribute.push({
         Id: AttrEditId,
         Index: attrIndex,
+        Sno:this.trsnItemId,
         ItemId: this.itemCategoryId,
         ItemTransId: this.trsnItemId,
         AttributeName: this.attributeName,
@@ -1380,6 +1406,7 @@ stateShippingValue: any
         this.sendAttributeData.push({
           AttributeId: this.itemsAttribute[i].AttributeId,
           AttributeName: this.itemsAttribute[i].AttributeName,
+          Sno: this.itemsAttribute[i].Sno,
           Index: this.itemsAttribute[i].Index,
           Id: this.itemsAttribute[i].Id,
           ItemId: this.itemsAttribute[i].ItemId,
@@ -1398,7 +1425,7 @@ stateShippingValue: any
   showAttributeData: any
 
   localItems () {
-
+debugger
     let value = []
     this.items.forEach(element => {
       this.localLabelData = []
@@ -1408,26 +1435,29 @@ stateShippingValue: any
             this.labeldata = this.sendAttributeData.filter(v => v.existId === label.AttributeId)
             value = []
             if (this.labeldata.length > 0) {
-              value = this.labeldata.filter(v => v.ItemTransId === element.Sno)
+              value = this.labeldata.filter(v => v.Sno === element.Sno)
 
             }
             this.localLabelData.push({
               AttributeId: label.AttributeId,
-              Label: label.Name,
+              Label: label.label,
               AttributeValue: value
 
             })
           })
        }
        else{
-        this.attributesLabels.forEach(label => {
-          this.localLabelData.push({
-            AttributeId: 0,
-            Label: '',
-            AttributeValue: '0'
-
+         if(this.attributesLabels.length > 0 ){
+          this.attributesLabels.forEach(label => {
+            this.localLabelData.push({
+              AttributeId: 0,
+              Label: '',
+              AttributeValue: '0'
+  
+            })
           })
-        })
+         }
+     
        }
 
         this.localItemas.push({
@@ -1441,8 +1471,10 @@ stateShippingValue: any
           Width: element.Width,
           MrpRate: element.MrpRate,
           PurchaseRate: element.PurchaseRate,
-          ExpiryDate: element.ExpiryDate,
-          MfDate: element.MfDate,
+          ExpiryDate: element.ExpiryDateToshow,
+          MfdDate: element.MfDateToshow,
+          //ExpiryDate: element.ExpiryDate,
+        //  MfdDate: element.MfDate,
           BatchNo: element.BatchNo,
           CategoryId: element.CategoryId,
           CategoryName: element.CategoryName,
@@ -1471,15 +1503,15 @@ stateShippingValue: any
       } else if (this.editItemId > 0 && element.rowEditFlagValue && (element.Sno === this.snoIndex)) {
         if (this.sendAttributeData.length > 0) {
           this.attributesLabels.forEach(label => {
-            this.labeldata = this.sendAttributeData.filter(s => (s.AttributeValueId === label.AttributeId) && (s.ItemTransId === element.Id))
+            this.labeldata = this.sendAttributeData.filter(s => (s.AttributeValueId === label.AttributeId) && (s.Sno === element.Sno))
             value = []
             if (this.labeldata.length > 0) {
-              value = this.labeldata.filter(v => v.ItemTransId === element.Id)
+              value = this.labeldata.filter(v => v.Sno === element.Sno)
 
             }
             this.localLabelData.push({
               AttributeId: label.AttributeId,
-              Label: label.Name,
+              Label: label.label,
               AttributeValue: value
 
             })
@@ -1496,8 +1528,10 @@ stateShippingValue: any
           Width: element.Width,
           MrpRate: element.MrpRate,
           PurchaseRate: element.PurchaseRate,
-          ExpiryDate: element.ExpiryDate,
-          MfDate: element.MfDate,
+          ExpiryDate: element.ExpiryDateToshow,
+          MfdDate: element.MfDateToshow,
+          //ExpiryDate: element.ExpiryDate,
+        //  MfdDate: element.MfDate,
           BatchNo: element.BatchNo,
           CategoryId: element.CategoryId,
           CategoryName: element.CategoryName,
@@ -1528,7 +1562,7 @@ stateShippingValue: any
     this.ChallanId = 0
     this.editAttributeData = undefined
     this.disabledAddressFlag = true
-    console.log(this.localItemas, this.showAttributeData, this.localLabelData, 'localitem-final----')
+    console.log(this.localItemas, this.sendAttributeData, this.localLabelData, 'localitem-final----')
   }
 
   isCheckLedgerOfficeFlag: any
@@ -1563,32 +1597,38 @@ stateShippingValue: any
   TaxAmount: any
   DiscountType: any
   ExpiryDate: any
-  MfDate: any
+  MfdDate: any
   ExpiryDateChngae: any
   MFDateChngae: any
   addItem () {
     let sendForBillingSumItem =[] ;
     let taxItem ;
-    
-    if ( typeof this.ExpiryDate !== null || this.ExpiryDate !=='') {
-      this.ExpiryDateChngae = ''
-    } else {
+    debugger
+    if (this.ExpiryDate !=='') {
      this.ExpiryDateChngae = this._globalService.clientToSqlDateFormat(this.ExpiryDate, this.clientDateFormat)
-      
-    }
-    if (  typeof this.MfDate !== null ||  this.MfDate !== '' ) {
-      this.MFDateChngae = ''
 
     } else {
-      this.MFDateChngae = this._globalService.clientToSqlDateFormat(this.MfDate, this.clientDateFormat)
+      this.ExpiryDateChngae = ''
+      
+    }
+    if (this.MfdDate !== '' ) {
+      this.MFDateChngae = this._globalService.clientToSqlDateFormat(this.MfdDate, this.clientDateFormat)
+
+    } else {
+      this.MFDateChngae = ''
 
     }
     if (this.items.length === 0) {
-      this.snoIndex = 2
+      this.snoIndex = 1
        taxItem  = this.taxCalculationForItem(this.snoIndex)
 
     } else {
-      this.snoIndex = +this.items[this.items.length - 1].Sno + 1
+      this.snoIndex = this.items.length + 1
+      for(let i=0; i < this.items.length; i ++){
+        if(this.snoIndex === this.items[i].Sno){
+          this.snoIndex =  this.snoIndex + 1
+        }
+      }
        taxItem  = this.taxCalculationForItem(this.snoIndex)
 
     }
@@ -1604,7 +1644,9 @@ stateShippingValue: any
       MrpRate: this.MrpRate,
       PurchaseRate: this.PurchaseRate,
       ExpiryDate: this.ExpiryDateChngae,
-      MfDate: this.MFDateChngae,
+      ExpiryDateToshow: this.ExpiryDate,
+      MfDateToshow: this.MfdDate,
+      MfdDate: this.MFDateChngae,
       BatchNo: this.BatchNo,
       CategoryId: this.categoryId,
       CategoryName: this.categoryName,
@@ -1641,8 +1683,8 @@ stateShippingValue: any
     setTimeout(() => {
       this._commonService.fixTableHFL('item-table')
     }, 1)
-    console.log(this.items, 'recentaly-added items')
-    this.trsnItemId = this.items[this.items.length - 1].Sno + 1
+    console.log(this.items, 'items-Array -recentaly-added items')
+    //this.trsnItemId = this.items[this.items.length - 1].Sno + 1
     this.localAddAttribute(this.trsnItemId)
     this.localItems()
     this.getBillingSummery(sendForBillingSumItem)
@@ -1673,7 +1715,7 @@ stateShippingValue: any
     this.Height = 1
     this.BatchNo = ''
     this.ExpiryDate = ''
-    this.MfDate = ''
+    this.MfdDate = ''
     this.itemCategoryId = 0
     this.attrinuteSetDataId = 0
     this.unitId = 0
@@ -1681,15 +1723,8 @@ stateShippingValue: any
     if (this.allCategories && this.allCategories.length > 0) {
       this.getCatagoryDetail(this.allCategories)
     }
-
-    if (this.atrColorSelect2 && this.atrColorSelect2.length > 0) {
-      if (this.atrColorSelect2.length > 0) {
-            this.atrColorSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-             
-           })
-      }
-    //  this.getSetAttributeSPUTility(this.getAttributeSPUtilityData)
-    }
+   
+  this.initAttribute()
   }
   // tslint:disable-next-line:variable-name
   @ViewChild('referal_type') referal_typeSelect2: Select2Component
@@ -1763,7 +1798,7 @@ stateShippingValue: any
     this.netBillAmount = 0
     this.subTotalBillAmount = 0
     this.ExpiryDate = ''
-    this.MfDate = ''
+    this.MfdDate = ''
     this.AdditionalChargeData =[]
 
     this.currencyValues = [{ id: 0, symbol: '%' }]
@@ -1815,6 +1850,7 @@ stateShippingValue: any
       })
     })
     this.DueDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
+   // console.log( this.DueDate ,'dat---->>>>>>>>>>>>')
 
   }
 
@@ -1958,7 +1994,7 @@ stateShippingValue: any
      }
     
  this.TotalAmountCharge = (((isNaN(+this.FinalAmount)) ? 0 : +this.FinalAmount ) + ((isNaN(+this.TaxAmountCharge)) ? 0 : +this.TaxAmountCharge)).toFixed(this.decimalDigit)
-console.log(this.TotalAmountCharge,'charge')
+//console.log(this.TotalAmountCharge,'charge')
   }
 }
 taxCalculationForExclusive(taxArray,rateItem){
@@ -2220,7 +2256,7 @@ return  taxPerItem
 
       this.netBillAmount = Math.round(totalAmount).toFixed(this.decimalDigit)
       this.subTotalBillAmount = Math.round(totalAmount).toFixed(this.decimalDigit)
-      console.log(this.subTotalBillAmount ,'sub1')
+    //  console.log(this.subTotalBillAmount ,'sub1')
     }
 
 
@@ -2340,27 +2376,51 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     
     let totalBillAmt = 0
     let toatltax =0
-    for (let i = 0; i < this.localItemas.length; i++) {
-if(this.localItemas[i].TaxType === '1'){
-  totalBillAmt = totalBillAmt + 
-  + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) +
-  (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
-  toatltax  = +toatltax + +this.localItemas[i].TaxAmount
-}
-else{
-  totalBillAmt = totalBillAmt + (isNaN(+this.localItemas[i].Rate) ? 0 : +this.localItemas[i].Rate) *
-  (isNaN(+this.localItemas[i].Quantity) ? 0 : +this.localItemas[i].Quantity) *
-  (isNaN(+this.localItemas[i].Height) ? 0 : +this.localItemas[i].Height) *
-  (isNaN(+this.localItemas[i].Width) ? 0 : +this.localItemas[i].Width) *
-  (isNaN(+this.localItemas[i].Length) ? 0 : +this.localItemas[i].Length)
-  - (isNaN(+this.localItemas[i].DiscountAmt) ? 0 : +this.localItemas[i].DiscountAmt) +
-  (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
-  toatltax = +toatltax + +this.localItemas[i].TaxAmount
-}
-console.log(totalBillAmt ,'totl---->>')
-   
-
+    if(this.localItemas.length > 0){
+      for (let i = 0; i < this.localItemas.length; i++) {
+        if(this.localItemas[i].TaxType === '1'){
+          totalBillAmt = totalBillAmt + 
+          + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) +
+          (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
+          toatltax  = +toatltax + +this.localItemas[i].TaxAmount
+// if(this.editMode){
+//   if(this.isInclusiveCaseBeforeDiscount === '2'){
+//     totalBillAmt = totalBillAmt + 
+//     + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) - 
+//     (isNaN(+this.localItemas[i].DiscountAmt) ? 0 : +this.localItemas[i].DiscountAmt) +
+//     (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
+//     toatltax  = +toatltax + +this.localItemas[i].TaxAmount
+//   }
+//   else if(this.isInclusiveCaseBeforeDiscount === '1'){
+//     totalBillAmt = totalBillAmt + 
+//     + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) +
+//     (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
+//     toatltax  = +toatltax + +this.localItemas[i].TaxAmount  
+//   }
+  
+// }
+        
+// else{
+//   totalBillAmt = totalBillAmt + 
+//   + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) +
+//   (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
+//   toatltax  = +toatltax + +this.localItemas[i].TaxAmount
+// }
+         
+        }
+        else{
+          totalBillAmt = totalBillAmt + (isNaN(+this.localItemas[i].Rate) ? 0 : +this.localItemas[i].Rate) *
+          (isNaN(+this.localItemas[i].Quantity) ? 0 : +this.localItemas[i].Quantity) *
+          (isNaN(+this.localItemas[i].Height) ? 0 : +this.localItemas[i].Height) *
+          (isNaN(+this.localItemas[i].Width) ? 0 : +this.localItemas[i].Width) *
+          (isNaN(+this.localItemas[i].Length) ? 0 : +this.localItemas[i].Length)
+          - (isNaN(+this.localItemas[i].DiscountAmt) ? 0 : +this.localItemas[i].DiscountAmt) +
+          (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
+          toatltax = +toatltax + +this.localItemas[i].TaxAmount
+        }
+             }
     }
+
 
     if (!this.clickItem) {
       if (this.Rate !== '') {
@@ -2406,7 +2466,7 @@ console.log(totalBillAmt ,'totl---->>')
     }
 
  
-    console.log(this.subTotalBillAmount ,'subo1')
+  //  console.log(this.subTotalBillAmount ,'subo1')
 
   
 
@@ -2523,6 +2583,8 @@ console.log(totalBillAmt ,'totl---->>')
   itemTableDisabledFlag: boolean
   withoursaveEditFlag : boolean
   openDirectModal () {
+    this.netBillAmount = 0
+    this.DiscountAmt = 0
     this.withoursaveEditFlag  = true
     this.itemTableDisabledFlag = true
     this.caseSaleArrayId = [{ id: 1 }, { id: 5 }]
@@ -2545,7 +2607,7 @@ console.log(totalBillAmt ,'totl---->>')
     this.editAlreadyItemDataFlag = false
     this.showAttributeData = []
     this.localLabelData = []
-    this.trsnItemId = 2
+    this.trsnItemId = 1
     this.itemsAttribute = []
     this.transactions = []
     this.AdditionalChargeData =[]
@@ -2623,28 +2685,45 @@ console.log(totalBillAmt ,'totl---->>')
       this.invalidObj['Rate'] = true
       isValidItem = 0
     }
+    if(this.industryId === '5' ){
+      if (this.BatchNo !=="") {
+        this.invalidObj['BatchNo'] = false
+      } else {
+        this.invalidObj['BatchNo'] = true
+        isValidItem = 0
+      }
+    }
+    if(this.industryId === '6' ){
+      if (this.BatchNo !=="") {
+        this.invalidObj['BatchNo'] = false
+      } else {
+        this.invalidObj['BatchNo'] = true
+        isValidItem = 0
+      }
+    }
+
     if (this.Quantity > 0) {
       this.invalidObj['Quantity'] = false
     } else {
       this.invalidObj['Quantity'] = true
       isValidItem = 0
     } 
-    //  if (this.DiscountType === '0'||0) {
-    //   if(this.Discount < 100){
-    //     this.invalidObj['Discount'] = false
-    //   }
-    //   else{
-    //     this.invalidObj['Discount'] = true
-    //      isValidItem = 0
-    //   }
+     if (this.DiscountType === '0'||0) {
+      if(this.Discount < 100){
+        this.invalidObj['Discount'] = false
+      }
+      else{
+        this.invalidObj['Discount'] = true
+         isValidItem = 0
+      }
      
-    // } else {
-    //   if(this.Discount > 0){
-    //     this.invalidObj['Discount'] = false
-    //   }
+    } else {
+      if(this.Discount > 0){
+        this.invalidObj['Discount'] = false
+      }
      
-    //   isValidItem = 0
-    // }
+      isValidItem = 0
+    }
 
     return !!isValidItem
   }
@@ -2869,11 +2948,28 @@ console.log(totalBillAmt ,'totl---->>')
                 })
               }
             }
-            const ExpiryDatevar = this._globalService.utcToClientDateFormat(element.ExpiryDate, this.clientDateFormat)
-            const MFDatevar = this._globalService.utcToClientDateFormat(element.utcToClientDateFormat, this.clientDateFormat)
+            let ExpiryDatevar;
+            let MFDatevar;
+            debugger
+            if(element.ExpiryDate !== null ){
+               ExpiryDatevar = this._globalService.utcToClientDateFormat(element.ExpiryDate, this.clientDateFormat)
+
+            }
+            else{
+              ExpiryDatevar = ''
+
+            }
+            if(element.MfdDate !== null ){
+              MFDatevar  = this._globalService.utcToClientDateFormat(element.MfdDate, this.clientDateFormat)
+
+            }
+            else{
+              MFDatevar = ''
+
+            }
           //  const TaxType =  element.TaxType === 0  ? 'Exclusive' : 'Inclusive'
             this.localItemas.push({
-              Sno: 1,
+              Sno: element.Sno,
               Id: element.Id,
               CategoryId: element.CategoryId,
               CategoryName: element.CategoryName,
@@ -2886,7 +2982,7 @@ console.log(totalBillAmt ,'totl---->>')
               Width: element.Width,
               Height: element.Height,
               ExpiryDate: ExpiryDatevar,
-              MFDate: MFDatevar,
+              MfdDate: MFDatevar,
               BatchNo: element.BatchNo,
               TaxId: element.TaxSlabId,
               Rate: element.SaleRate,
@@ -2898,9 +2994,11 @@ console.log(totalBillAmt ,'totl---->>')
               DiscountType: JSON.stringify(element.DiscountType),
               TaxSlabId: element.TaxSlabId,
               TaxTypeName : element.TaxType === 0 ? 'Exclusive' : 'Inclusive' ,
-              TaxTypeId :  element.TaxType,
+              TaxTypeId :element.TaxType ,
+              TaxType:JSON.stringify(element.TaxType),
               TaxSlabName: element.TaxSlabName,
               TaxAmount: element.TaxAmount,
+              baserate:element.EffectiveRate,
               TotalAmount: element.SubTotalAmount,
               attributeData: this.seteditAttributeData,
               LableAttributeVale: this.localLabelData
@@ -2960,18 +3058,15 @@ console.log(totalBillAmt ,'totl---->>')
         console.log(JSON.stringify(this.items), 'Request')
         if (this.items.length !== 0) {
           if (this.InvoiceDate !== '') {
-
             this.InvoiceDateChngae = this._globalService.clientToSqlDateFormat(this.InvoiceDate, this.clientDateFormat)
           } else {
             this.InvoiceDateChngae = ''
           }
-
           if (this.DueDate !== '') {
             this.DueDateChngae = this._globalService.clientToSqlDateFormat(this.DueDate, this.clientDateFormat)
           } else {
             this.DueDateChngae = ''
           }
-
           let obj = {}
           obj['Id'] = this.Id
           obj['Commission'] = 0
@@ -3048,14 +3143,34 @@ console.log(totalBillAmt ,'totl---->>')
       this.toastrService.showWarning('', UIConstant.FIRST_SAVE_EDIT_ITEM)
     }
   }
+  deleteAttribute (attribute){
+    debugger
+    console.log(this.sendAttributeData,'he')
+    if(this.sendAttributeData.length > 0){
+      this.sendAttributeData.forEach((element,index) => {
+        attribute.forEach((ele)=>{
+          if( (element.Sno === ele.AttributeValue[0].Sno)){
+            this.sendAttributeData.splice(index ,1)
+          }
+        })
+        
+      });
+    }
 
-  deleteItem (type, a,sno,id,detail) {
+    console.log(attribute,'ffff')
+     // this.sendAttributeData[a].ItemTransId
+  }
+  deleteItem (type, a,sno,id,detail,attribute) {
     
     console.log(detail,'delete')
     if (type === 'items') {
       this.lastItemFlag = true
       this.items.splice(a, 1)
       this.localItemas.splice(a, 1)
+      console.log(this.items,this.localItemas ,'after delete')
+      if(attribute.length >0){
+        this.deleteAttribute(attribute)
+      }
       if (this.items.length === 0 && this.localItemas.length === 0) {
         this.lastItemFlag = false
       }
@@ -3118,6 +3233,49 @@ console.log(totalBillAmt ,'totl---->>')
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   PurchaseRate: any
   SaleRate: any
+  initAttribute () {
+    if (this.attrSelect2 && this.attrSelect2.length > 0) {
+      this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
+        if ($('.attr') && $('.attr')[index]) {
+          //$('#' + $('.attr')[index].id).removeClass('errorSelecto')
+        }
+        item.setElementValue(0)
+      })
+    }
+  }
+  EditAttributeDataValue (data){
+    if(data !== undefined ){
+      this.itemsAttribute =[]
+      if(this.items.length >0){
+        this.trsnItemId = this.items.length + 1
+        for(let i=0; i < this.items.length; i ++){
+          if(this.trsnItemId === this.items[i].Sno){
+            this.trsnItemId =  this.trsnItemId + 1
+          }
+        }
+      }
+      else{
+        this.trsnItemId =1
+      }
+      
+      data.forEach((element,index) => {
+        this.itemsAttribute.push({
+          Id: element.AttributeValue[0].Id,
+          Index: element.AttributeValue[0].Index,
+          ItemId:element.AttributeValue[0].ItemId,
+          Sno:this.trsnItemId,
+          ItemTransId: this.trsnItemId,
+          AttributeName: element.AttributeValue[0].AttributeName,
+          existId: element.AttributeValue[0].AttributeValueId,
+          AttributeValueId: element.AttributeValue[0].AttributeValueId,
+          AttributeId: element.AttributeValue[0].AttributeId,
+          ParentTypeId: element.AttributeValue[0].ParentTypeId
+        })
+      })
+      console.log( this.itemsAttribute ,'edit attr-data')
+
+    }
+  }
   editRowItem (type, index, Sno,editId,item, attributeData) {
     console.log(item ,this.items[index],'edit-item')
     this.addressShowFlag = false
@@ -3132,7 +3290,7 @@ this.withoursaveEditFlag = false
         this.IsForOtherState = this.taxRateForOtherStateFlag 
         this.deleteEditflag = false
         this.editItemId = editId
-        
+        //this.snoIndex = item.Sno
         this.DiscountAmt = item.DiscountAmt
         this.Discount = item.Discount
         this.DiscountRate = item.DiscountRate
@@ -3149,58 +3307,54 @@ this.withoursaveEditFlag = false
           this.unitId = item.UnitId
         this.UnitName = item.UnitName
         this.categoryId = item.CategoryId
-        this.itemCategoryId = item.ItemId
+        this.itemCategoryId = +item.ItemId
         this.TotalAmount = item.TotalAmount
         this.categoryName =item.CategoryName
         this.categoryId = item.CategoryId
         this.taxSalbName = item.TaxSlabName
         this.taxSelect2.setElementValue(item.TaxSlabId)
         this.unitSelect2.setElementValue(item.UnitId)
-        this.itemSelect2.setElementValue(item.ItemId)
+        this.itemSelect2.setElementValue(+item.ItemId)
         this.PurchaseRate= item.PurchaseRate
         this.ExpiryDate= item.ExpiryDate
-        this.MfDate= item.MfDate
+        this.MfdDate= item.MfdDate
         this.BatchNo= item.BatchNo
         this.ItemName= item.ItemName
         this.taxSlabId= item.TaxSlabId
         this.taxSlabName= item.taxSlabName
         this.TaxTypeId= item.TaxType
         this.TaxTypeName= item.TaxTypeName
-
-         
-        if (this.atrColorSelect2.length > 0) {
-          if( this.editAttributeData.length> 0){
+        // if (this.attrSelect2 && this.attrSelect2.length > 0) {
+        //   debugger
+        //   this.attrSelect2.forEach((itemOfAttribute: Select2Component, indexAttr: number, array: Select2Component[]) => {
+        //     console.log('attr : ', itemOfAttribute)
+        //     itemOfAttribute.setElementValue(this.allAttributeData[indexAttr].AttributeId)
+        //   })
+        // }
+        if (this.attrSelect2.length > 0) {
+          if(  this.editAttributeData !== undefined ){
           this.editAttributeData.forEach(inx => {
-            for(let i=0; i< this.atrColorSelect2.length; i++){
-              this.atrColorSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-                let findIndex =  this.allAttributeData[index].item.findIndex(
+          //  for(let i=0; i< this.attrSelect2.length; i++){
+              
+              this.attrSelect2.forEach((item2: Select2Component, indexi: number, array: Select2Component[]) => {
+                let findIndex =  this.allAttributeData[indexi].data.findIndex(
                   element => ( element.id === inx.AttributeId)
                     )
                 if(findIndex !== -1){
-                  item.setElementValue(this.allAttributeData[index].item[findIndex].id)
+                  item2.setElementValue(this.allAttributeData[indexi].data[findIndex].id)
                   
                 }
                
              })
-            }
+           // }
 
           })
         }
         }
-        // attributeData.forEach(atr => {
-        //   this.abs = []
-        //   this.abs.push({
-        //     id: atr.Id,
-        //     text: atr.AttributeName,
-        //     attributeId: atr.AttributeId
-        //   })
-        // })
-        // this.allAttributeData.push({
-        //   item: this.abs
-        //  })
         this.calculateAllTotal()
-        //type, a,sno,id,detail
-        this.deleteItem('items', index,Sno,editId,item)
+        this.deleteItem('items', index,Sno,editId,item,attributeData)
+        this.EditAttributeDataValue (this.editAttributeData)
+        
       } else {
         this.toastrService.showWarning('', 'First save item!')
       }
@@ -3227,7 +3381,7 @@ this.withoursaveEditFlag = false
           this.ChequeNo = this.transactions[index].ChequeNo
           this.paymodeSelect2.setElementValue(this.PayModeId)
           this.ledgerSelect2.setElementValue(this.LedgerId)
-          this.deleteItem(type, index,Sno,editId,'')
+          this.deleteItem(type, index,Sno,editId,'','')
         }
       } else {
         this.toastrService.showWarning('', 'First save Payment!')
@@ -3252,7 +3406,7 @@ this.withoursaveEditFlag = false
           this.chargeSelect2.setElementValue(this.AdditionalChargeData[index].LedgerChargeId)
           this.taxChargeSelect2.setElementValue(this.AdditionalChargeData[index].TaxSlabChargeId)
           this.taxTypeChargeSelect2.setElementValue(this.AdditionalChargeData[index].TaxTypeCharge)
-          this.deleteItem(type, index,Sno, editId,this.AdditionalChargeData[index])
+          this.deleteItem(type, index,Sno, editId,this.AdditionalChargeData[index],'')
 
       } else {
         this.toastrService.showWarning('', 'First Save Charge !')
@@ -3345,34 +3499,40 @@ this.withoursaveEditFlag = false
   }
 
   select2PaymentModeId (event) {
-    if(event.data[0].selected){
-    if (event.value && event.data[0] && event.data[0].text) {
-      this.Paymode = event.data[0].text
-      this.PayModeId = event.value
-      if (event.value === '3') {
-        this.setpaymentLedgerSelect2(0)
-      } else if (event.value === '1') {
-        this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
-        this.ledgerName = 'Cash'
-        this.LedgerId = 1
+    if(event.data.length > 0){
+      if(event.data[0].selected){
+        if (event.value && event.data[0] && event.data[0].text) {
+          this.Paymode = event.data[0].text
+          this.PayModeId = event.value
+          if (event.value === '3') {
+            this.setpaymentLedgerSelect2(0)
+          } else if (event.value === '1') {
+            this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
+            this.ledgerName = 'Cash'
+            this.LedgerId = 1
+          }
+        }
+        this.validateTransaction()
       }
     }
-    this.validateTransaction()
-  }
+
   }
   paymentLedgerId (event) {
-    if(event.data[0].selected){
-    if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
-      this.ledgerSelect2.selector.nativeElement.value = ''
-      this._commonService.openLedger('')
-    } else {
-      if (event.value && event.data[0] && event.data[0].text) {
-        this.LedgerId = event.value
-        this.ledgerName = event.data[0].text
+    if(event.data.length > 0){
+      if(event.data[0].selected){
+        if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
+          this.ledgerSelect2.selector.nativeElement.value = ''
+          this._commonService.openLedger('')
+        } else {
+          if (event.value && event.data[0] && event.data[0].text) {
+            this.LedgerId = event.value
+            this.ledgerName = event.data[0].text
+          }
+        }
+        this.validateTransaction()
       }
     }
-    this.validateTransaction()
-  }
+
   }
   setpaymentLedgerSelect2 (i) {
     this.ledgerPlaceHolder = { placeholder: 'Select Ledger' }
@@ -3408,7 +3568,7 @@ this.withoursaveEditFlag = false
             this.paymodeSelect2.setElementValue(this.PayModeId)
             this.ledgerSelect2.setElementValue(this.LedgerId)
             this.snoForPAymentId = 0
-            this.deleteItem('trans', i,this.snoForPAymentId,this.transactions[i].Id,this.transactions)
+            this.deleteItem('trans', i,this.snoForPAymentId,this.transactions[i].Id,this.transactions,'')
           }
         }
       })
@@ -3523,8 +3683,8 @@ this.withoursaveEditFlag = false
             }
             isInclusiveCaseBeforeDiscount = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 66))
             if (isInclusiveCaseBeforeDiscount.length > 0) {
-              //this.isInclusiveCaseBeforeDiscount = isInclusiveCaseBeforeDiscount[0].Val
-              this.isInclusiveCaseBeforeDiscount='2'
+              this.isInclusiveCaseBeforeDiscount = JSON.stringify(isInclusiveCaseBeforeDiscount[0].Id) 
+              // this.isInclusiveCaseBeforeDiscount='2'
               console.log(this.isInclusiveCaseBeforeDiscount ,'Inclusive')
             }
             else{
@@ -3534,7 +3694,7 @@ this.withoursaveEditFlag = false
           })
 
         }
-        console.log(this.backDateEntry, 'setupSetting-module')
+      //  console.log(this.backDateEntry, 'setupSetting-module')
       }
     })
   }
@@ -3641,7 +3801,7 @@ this.withoursaveEditFlag = false
         this.categories[i].data = Object.assign([], this.categories[i].data)
       }
     }
-    console.log('dynamic categories : ', this.categories)
+   // console.log('dynamic categories : ', this.categories)
     this.loading = false
   }
   onSelectCategory (evt, levelNo) {
@@ -3652,8 +3812,8 @@ this.withoursaveEditFlag = false
           if (this.categoryId !== +evt.value) {
             this.categoryId = +evt.value
             this.categoryName = evt.data[0].text
-            console.log('categoryname : ', this.categoryName)
-            console.log('category id : ', this.categoryId)
+          //  console.log('categoryname : ', this.categoryName)
+          //  console.log('category id : ', this.categoryId)
             this.getItemByCategoryid(+evt.value)
 
             if (this.updatedFlag) {
@@ -3695,8 +3855,8 @@ this.withoursaveEditFlag = false
         if (this.categoryId !== +evt.value) {
           this.categoryId = +evt.value
           this.categoryName = evt.data[0].text
-          console.log('categoryname : ', this.categoryName)
-          console.log('category id : ', this.categoryId)
+         // console.log('categoryname : ', this.categoryName)
+        //  console.log('category id : ', this.categoryId)
           this.getItemByCategoryid(+evt.value)
           if (this.updatedFlag) {
             this.updateCategories(+evt.value)
@@ -3853,7 +4013,7 @@ this.withoursaveEditFlag = false
 
     // this.openAreaModel()
     this.subscribe = this._coustomerServices.getAreaList(id).subscribe(Data => {
-      console.log(' area list : ', Data)
+     // console.log(' area list : ', Data)
       this.areaListPlaceHolder = { placeholder: 'Select Area' }
       this.areaList = [{ id: UIConstant.BLANK, text: 'select Area' }, { id: '0', text: '+Add New' }]
       if (Data.Code === 1000 && Data.Data.length > 0) {
@@ -4132,7 +4292,7 @@ createChargeArray () {
 taxSlabSummery: any
 ParentTypeTaxId: any
 getBillingSummery(data) {
-  
+  if(data.length> 0){
   data.forEach(item=>{
     let taxDetails = item.taxItems.filter(s=>s.itemTransSno === item.Sno)
     if(item.type ==='items' && taxDetails.length >0){
@@ -4143,6 +4303,7 @@ getBillingSummery(data) {
         TaxTypeTax: item.TaxType,
         AmountTax:data.AmountTax ,
         editSno:data.Id,
+        Sno:item.Sno,
         ItemTransTaxId:item.Sno,
         ParentTaxId:0,
         ParentTypeTaxId:this.ParentTypeTaxId ,
@@ -4166,6 +4327,7 @@ getBillingSummery(data) {
           TaxTypeTax: item.TaxTypeCharge,
           AmountTax:data.AmountTax ,
           ItemTransTaxId:item.Sno,
+          Sno:item.Sno,
           editSno:data.Id,
           ParentTaxId:0,
           ParentTypeTaxId:this.ParentTypeTaxId ,
@@ -4183,6 +4345,7 @@ getBillingSummery(data) {
     }
 
   })
+}
   console.log( this.taxSlabSummery,"summery")
   this.showBillingSummery(this.taxSlabSummery)
 }
@@ -4193,7 +4356,7 @@ showBillingSummery (data){
   let groupOnId = _.groupBy(data, (tax) => {
     return tax.TaxRateId
   })
-  console.log(groupOnId)
+  //console.log(groupOnId)
   for (const rateId in groupOnId) {
     if (groupOnId.hasOwnProperty(rateId)) {
       const element = groupOnId[rateId];
@@ -4219,4 +4382,46 @@ showBillingSummery (data){
     this.chargeSelect2.selector.nativeElement.focus()
   }, 10)
 }
+
+generateAttributes (data) {
+  this.allAttributeData = []
+      this.attributesLabels = []
+  debugger
+  let obj = {}
+  let attributeKeys = []
+  let attributesData = []
+  data.AttributeValueResponses.forEach(attribute => {
+    attributeKeys.push({'label':attribute.Name ,'AttributeId':attribute.AttributeId})
+    obj['name'] = attribute.Name
+    obj['len'] = attribute.AttributeValuesResponse.length - 1
+    obj['data'] = [{ id: '0', text: 'Select' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+    obj['attributeId'] = attribute.AttributeId
+    obj['id'] = 0
+    attributesData.push({ ...obj })
+  })
+  let j = 0
+  let index = 0
+  for (let i = 0; i < data.AttributeValues.length; i++) {
+    const attr = data.AttributeValues[i]
+    let obj1 = {}
+    obj1['id'] = attr.Id
+    obj1['text'] = attr.Name
+    if (attributesData[j].len === index) {
+      j++
+      index = 0
+    }
+    index++
+    if (attributesData[j]) {
+      attributesData[j].data.push({ ...obj1 })
+    } else {
+      this.toastrService.showError('Not getting appropriate data', '')
+    }
+  }
+   let attibutesDataToSend = Object.assign([], attributesData)
+
+   let  returnObject = { 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend }
+   console.log(returnObject ,'atr----')
+   return returnObject
+}
+
 }

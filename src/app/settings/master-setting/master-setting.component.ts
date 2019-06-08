@@ -167,7 +167,14 @@ export class MasterSettingComponent implements OnInit {
     _settings.forEach((setting => {
       if (setting.Type === SetUpIds.multiple) {
         // setting.DefaultValue = setting.DefaultValue
-        setting.Value = setting.Value.join(',')
+      //  setting.Value = setting.Value.join(',')
+        if(setting.Value === '' || setting.Value === null){
+          setting.Value = setting.Value
+        }
+        else{
+          setting.Value = setting.Value.join(',')
+        }
+
       } else {
         setting.Value = setting.Value
         setting.DefaultValue = setting.Value

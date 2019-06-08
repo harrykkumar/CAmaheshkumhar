@@ -1,0 +1,3 @@
+.table-item-attribute {
+    max-height: calc(100vh - 125px) !important;
+}

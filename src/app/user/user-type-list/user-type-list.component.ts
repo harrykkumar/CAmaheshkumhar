@@ -1,3 +1,4 @@
+import { LoginService } from './../../commonServices/login/login.services';
 import { UserFormService } from './../user-form/user-form.service'
 import { Component, OnInit } from '@angular/core'
 import { Observable, of, throwError } from 'rxjs'
@@ -10,17 +11,25 @@ import * as _ from 'lodash'
   styleUrls: ['./user-type-list.component.css']
 })
 export class UserTypeListComponent implements OnInit {
+  searchString: string;
   showUserType: any = {}
   indexLength: number
   userTypeList: Observable<Array<any>> = of([])
+  menuData: any;
   constructor (
-    private _userService: UserFormService
-  ) { }
+    private _userService: UserFormService,
+    private _loginService: LoginService
+  ) {
+    this.menuData = this._loginService.getMenuPermission('Configuration', 'User Role');
+   }
 
   ngOnInit () {
     this.getUserTypeListData()
   }
 
+  searchUserType(){
+    
+  }
   getUserTypeListData = () => {
     this.userTypeList = this._userService.getUserTypeList().pipe(
       map((Data) => {

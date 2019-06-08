@@ -1,216 +1,330 @@
-<div id="sidebar" class="sidebar-wrapper sidebar">
-    <div class="sidebar-inner">
-        <div class="sidebar-logo">
-            <div class="peers ai-c fxw-nw">
-                <div class="peer peer-greed">
-                    <a class="sidebar-link td-n" href="javascript:void(0);">
-                        <div class="peers ai-c fxw-nw">
-                            <div class="peer">
-                                <div class="logo">
-                                    <img src="assets/static/images/logo.png" alt="">
-                                </div>
-                            </div>
-                            <div class="peer peer-greed">
-                                <h5 class="lh-1 mB-0 logo-text"></h5>
-                            </div>
+<!-- <main class="main-content bgc-grey"> -->
+<main class="main-content bgc-grey align-self-center">
+  <div id="mainContent">
+                        
+    <div id="mainpage">
+        <div class="page-header p-0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-8 right_saerch_side p-0">
+                        <div class="btn_header">
                         </div>
-                    </a>
-                </div>
-                <div class="peer">
-                    <div class="mobile-toggle sidebar-toggle">
-                        <a class="td-n"><i class="ti-arrow-circle-left"></i></a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class=" sidebar-content">
-            <ul class="sidebar-menu pos-r side_background">
-                <li class="nav-item dropdown">
-                    <div class="profile clearfix">
-                        <div class="profile_pic">
-                            <img src="assets/static/images/img.jpg" alt="..." class="img-circle profile_img">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row mb-3">
+                      <div class="col-lg-4">
+                        <div class="widget-flat card bdr-card-4">
+                            <div class="card-header">
+                              Finance
+                            </div>
+                            <div style="background:white" class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                              <!-- <canvas id="myChart2" style="display: block; width: 308px; height: 150px;" width="308" height="150" class="chartjs-render-monitor"></canvas>   -->
+                              <div id="chartContainer" style="height: 200px; width: 80%; margin-left:auto;margin-right:auto;"></div>
+                            </div>
+                            
+                            
                         </div>
-                        <div class="profile_info">
-                            <span>Welcome,</span>
-                            <h2>Lalit</h2>
+                   </div>
+                     <div class="col-lg-4">
+                        <div class="widget-flat card bdr-card-4">
+                            <div class="card-header">
+                              Assets
+                            </div>
+                            <div style="background:white" class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                              <!-- <canvas id="myChart3" width="308" height="150" class="chartjs-render-monitor" style="display: block; width: 308px; height: 150px;"></canvas>   -->
+                              <div id="chartContainerAssets" style="height: 200px; width: 80%; margin-left:auto;margin-right:auto;"></div>
+
+                            </div>
+                            
                         </div>
+                   </div>
+                     <div class="col-lg-4">
+                        <div class="widget-flat card bdr-card-4">
+                            <div class="card-header">
+                              Liabilities
+                            </div>
+                            <div style="background:white" class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                              <!-- <canvas id="myChart4" width="308" height="150" class="chartjs-render-monitor" style="display: block; width: 308px; height: 150px;"></canvas>   -->
+                              <div id="chartContainerLiabilities" style="height: 200px; width: 80%; margin-left:auto;margin-right:auto;"></div>
+                            
+                            </div>
+                            
+                        </div>
+                   </div>
+                    
+                </div>
+                 <div class="row mB-20">
+                     <div class="col-lg-7">
+                         <div class="row">
+                         
+                    <div class="col-lg-6 mb-2">
+                        <div class="widget-flat card bdr-card-4">
+                            <div class="card-header">
+                               Top 5 Debtors
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table-borderless table">
+                                    <tbody><tr>
+                                        <td>Ravi</td>
+
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Aman</td>
+
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Praveen</td>
+
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Badal</td>
+
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Manoj</td>
+
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                </tbody></table>
+                            </div>
+                              <div class="card-footer">
+                                <a href="JavaScript:Void(0)" class="text-right more_detail">More</a>
+                            </div>
+                        </div>
+                        <!-- end card-->
                     </div>
-                </li>
-<!--                 <li class="nav-item sidebar-dropdown">
-                    <a href="javascript:void(0);">
-                        <span class="icon-holder"> <i class="fab fa-creative-commons-by"></i></span>
-                        <span class="title">Common Master </span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" href="javascript:void(0);">Country</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">State</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">City</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Area</a></li>
-                    </ul>
-                </li> -->
-                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
-                                class="fas fa-exchange-alt"></i></span><span class="title">Transaction Master</span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeCategory()">Category</a>
-                        </li>
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeUnit()">Unit</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeComposite()">Composite
-                                Unit</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeTax()">Tax</a></li>
-                       <!--  <li><a class="sidebar-link" href="javascript:void(0);">Tax Process</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Discount</a></li> -->
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="itemMaster()">Item Master</a>
-                        </li>
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeRouting()">Routing</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeCustomer()">Customer</a>
-                        </li>
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeVendor()">Vendor</a></li>
-                           <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeAttribute()">Attribute</a></li>
-                           <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeBank()">Bank</a></li>
-                           <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeGroup()">General Ledger</a></li>
-                           <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeCreation()">Ledger </a></li>
+                    <div class="col-lg-6">
+                        <div class="widget-flat card bdr-card-4">
+                            <div class="card-header">
+                               Top 5 Creditors
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table-borderless table">
+                                    <tbody><tr>
+                                        <td>Ravi</td>
 
-                        <!--
-                        <li><a class="sidebar-link" href="javascript:void(0);">Coupon</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Loyalty</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Wallet</a></li> -->
-                    </ul>
-                </li>
-               <!--  <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
-                                class="far fa-money-bill-alt"></i></span><span class="title">Account</span>
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Aman</td>
 
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeVouture()">Voucher</a></li>
-                    </ul>
-                </li> -->
-              <!--   <li class="nav-item"><a class="sidebar-link" href="javascript:void(0);"><span class="icon-holder"><i
-                                class="fas fa-shopping-cart" aria-hidden="true"
-                                (click)="routePurchases()"></i></span><span class="title">Purchase</span></a></li> --> 
-                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
-                    class="fas fa-chart-line"></i></span><span class="title">Sales Tourism</span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" (click)="routeSaleTourism()">Sale</a></li>
-                        <li><a class="sidebar-link" (click)="routeSaleReturn()">Sale Return</a></li>
-                    </ul>
-                </li>
-                <!-- <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
-                    class="fas fa-chart-line"></i></span><span class="title">Sales Courier</span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" href="javascript:void(0);" (click)="routeSaleCourier()">Sale</a></li>
-                    </ul>
-                </li> -->
-                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
-                    class="fas fa-chart-line"></i></span><span class="title">Sales Courier Parcel</span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" (click)="routeSalesCourierParcel()">Sale</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
-                    class="fas fa-chart-line"></i></span><span class="title">Inventory</span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" (click)="routePurchase()">Purchase</a></li>
-                        <li><a class="sidebar-link" (click)="routeSalesChallan()">Sale Challan</a></li>
-                        <li><a class="sidebar-link" (click)="routeDirectSale()">Sale </a></li>
-                    </ul>
-                </li>
-                <li class="nav-item sidebar-dropdown">
-                    <a>
-                        <span class="icon-holder"><i class="fas fa-chart-line"></i></span>
-                        <span class="title">Report</span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" (click)="routeItemStockReport()">Item Stock</a></li>
-                        <li><a class="sidebar-link" (click)="routeProfitReport()" >Profit Report</a></li>
-                        <li><a class="sidebar-link" (click)="routeItemSaleByCategoryReport()" >Category Report</a></li>
-                        <li><a class="sidebar-link" (click)="routeLedgerSummary()" >Ledger Summary</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item sidebar-dropdown">
-                    <a>
-                        <span class="icon-holder"><i class="fas fa-chart-line"></i></span>
-                        <span class="title">User Configuration</span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" (click)="routeUser()">Users</a></li>
-                        <li><a class="sidebar-link" (click)="routeUserRights()" >User Rights</a></li>
-                        <li><a class="sidebar-link" (click)="routeUserTypes()" >User Types</a></li>
-                        <li><a class="side-link">Profile</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item sidebar-dropdown">
-                    <a>
-                        <span class="icon-holder"><i class="fas fa-chart-line"></i></span>
-                        <span class="title">Module Configuration</span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" (click)="routeOffice()">Office</a></li>
-                        <li><a class="sidebar-link" (click)="routeBranch()">Branch</a></li>
-                        <li><a class="sidebar-link" (click)="routeSettings()">Settings</a></li>
-                        <li><a class="sidebar-link" (click)="showProfile()">Organisation Profile</a></li>
-                    </ul>
-                </li>
-              <!--   <li class="nav-item"><a class="sidebar-link" href="javascript:void(0);"><span class="icon-holder"><i
-                                class="fab fa-delicious"></i></span><span class="title">Inventory</span></a></li>
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Praveen</td>
 
-                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
-                                class="fas fa-file"></i></span><span class="title">Reports </span></a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" href="javascript:void(0);">Purchase Transaction Report</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Purchase Item</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">GST Report</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Item-Purchase Summery</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Item Sale</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Item-Sale Summery</a></li>
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Badal</td>
 
-                        <li><a class="sidebar-link" href="javascript:void(0);">Ledger Summery</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Ledger Transaction</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Monthly Sale Register</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Sale Report</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Sale Item</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Stock Summery</a></li>
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Manoj</td>
 
-                    </ul>
-                </li>
-                <li class="nav-item sidebar-dropdown"><a href="javascript:void(0);"><span class="icon-holder"><i
-                                class="fas fa-cog"></i></span><span class="title">Settings </span></a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li><a class="sidebar-link" href="javascript:void(0);">Branch</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Coupan Generate</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Customer Dashbord</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Customer Detail</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Customer History</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Customer Point Setting</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Discount</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Ledger</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">LMS-Customer</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Offer</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Type_wise Rate</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Vendor</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Voucher</a></li>
-                        <li><a class="sidebar-link" href="javascript:void(0);">Wallet</a></li>
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                </tbody></table>
+                            </div>
+                             <div class="card-footer">
+                                <a href="JavaScript:Void(0)" class="text-right more_detail">More</a>
+                            </div>
+                        </div>
+                        <!-- end card-->
+                    </div>
+                    <div class="col-lg-6 mb-2">
+                        <div class="widget-flat card bdr-card-4">
+                            <div class="card-header">
+                               Active Inventory
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table-borderless table">
+                                    <tbody><tr>
+                                        <td>Ravi</td>
+                                        <td>25-06/2019</td>
+                                        <td>₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ravi</td>
+                                        <td>25-06/2019</td>
+                                        <td>₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ravi</td>
+                                        <td>25-06/2019</td>
+                                        <td>₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ravi</td>
+                                        <td>25-06/2019</td>
+                                        <td>₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ravi</td>
+                                        <td>25-06/2019</td>
+                                        <td>₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                            <td>Ravi</td>
+                                            <td>25-06/2019</td>
+                                            <td>₹2500.00</td>
+                                        </tr> 
+                                        
+                                </tbody></table>
+                            </div>
+                            <div class="card-footer">
+                                <a href="JavaScript:Void(0)" class="text-right more_detail">More</a>
+                            </div>
+                        </div>
+                        <!-- end card-->
+                    </div>
 
+                    <div class="col-lg-6">
+                        <div class="widget-flat card bdr-card-4">
+                            <div class="card-header row m-0">
+                                <div class="col-4">Overdues</div>
+                                <div class="col">
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input type="radio" class="custom-control-input" id="customRadio" name="example" value="customEx">
+                                        <label class="custom-control-label" for="customRadio">Sale</label>
+                                    </div>
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input type="radio" class="custom-control-input" id="customRadio2" name="example" value="customEx">
+                                        <label class="custom-control-label" for="customRadio2">Purchase</label>
+                                    </div>
 
-                    </ul>
-                </li>
-                <li class="nav-item"><a class="sidebar-link" href="javascript:void(0);"><span class="icon-holder"><i
-                                class="fas fa-file-alt"></i></span><span class="title">Gst Report</span></a></li>
-                <li class="nav-item"><a class="sidebar-link" href="javascript:void(0);"><span class="icon-holder"><i
-                                class="far fa-handshake"></i></span><span class="title">CRM</span></a></li>
- -->
+                                </div>
 
-            </ul>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table-borderless table table1">
+                                    <thead>
+                                        <tr>
+                                            <th>Bill No</th>
+                                            <th class="text-right">Days Exceed</th>
+                                            <th class="text-right">Amount</th>
+                                        </tr>
 
+                                    </thead>
+                                    <tbody><tr>
+                                        <td>101</td>
+                                        <td class="text-right">25</td>
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>101</td>
+                                        <td class="text-right">25</td>
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>101</td>
+                                        <td class="text-right">25</td>
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>101</td>
+                                        <td class="text-right">25</td>
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>101</td>
+                                        <td class="text-right">25</td>
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                </tbody></table>
+                            </div>
+                            <div class="card-footer">
+                                <a href="JavaScript:Void(0)" class="text-right more_detail">More</a>
+                            </div>
+                        </div>
+                        <!-- end card-->
+                    </div>
+                         </div>
+                     </div>
+                     <div class="col-lg-5">
+                         <div class="widget-flat card bdr-card-4">
+                            <div class="card-header">
+                              Cash Flow
+                            </div>
+                            <div style="background: white" class="card-body">
+                                    <div id="chartContainerForCashFlow" style="height: 300px; width: 100%;"></div>
+                              <!-- <canvas id="myChart6" width="400" height="320" style="display: block;"></canvas>   -->
+                            </div>
+                            
+                        </div>
+                     </div>
+                 </div>
+                <div class="row mB-20">
+                  
+                </div>
+                <div class="bdrs-3 mB-20">
+                    <div class="row">
+                       <div class="col-lg-3">
+                        <div class="widget-flat card bdr-card-4">
+                            <div class="card-header">
+                               Statutory Liabilities
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table-borderless table">
+                                    <tbody><tr>
+                                        <td>GST</td>
+
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>TDS</td>
+
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                </tbody></table>
+                            </div>
+                            <div class="card-footer">
+                                <a href="JavaScript:Void(0)" class="text-right more_detail">More</a>
+                            </div>
+                        </div>
+                        <!-- end card-->
+                    </div>
+                        <div class="col-lg-3">
+                        <div class="widget-flat card bdr-card-4">
+                            <div class="card-header">
+                               Cashflow
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table-borderless table">
+                                    <tbody><tr>
+                                        <td>Cash IN </td>
+
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Cash Out</td>
+
+                                        <td class="text-right">₹2500.00</td>
+                                    </tr>
+                                </tbody></table>
+                            </div>
+                            <div class="card-footer">
+                                <a href="JavaScript:Void(0)" class="text-right more_detail">More</a>
+                            </div>
+                        </div>
+                        <!-- end card-->
+                    </div>
+                    </div>
+
+                </div>
+                
+                </div>
         </div>
-        <!-- sidebar-menu  -->
     </div>
-    <div class="over-bar"></div>
-</div>
 
-<app-organisation-profile [openProfile]="showProfileStatus"
-(closeProfile)="closeProfile($event)"></app-organisation-profile>
+                    </div>
+  </main>

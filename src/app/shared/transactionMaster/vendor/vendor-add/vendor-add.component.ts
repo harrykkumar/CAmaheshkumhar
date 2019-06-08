@@ -123,6 +123,14 @@ export class VendorAddComponent implements OnDestroy {
   emailRequirdForSetting: boolean
 
   openModal () {
+    this.editFlg = true
+    this.editEmailFlg = true
+    this.getEmailvalid = true
+    this.getContactType()
+    this.emailTypeDataType()
+     this.validMobileFlag= false
+    this.mobileNoId =0
+    this.EmailId=0
     this.setDOADate()
     this.setDOBDate()
     this.searchCountryCodeForMobile(' ')
@@ -153,7 +161,6 @@ export class VendorAddComponent implements OnDestroy {
       this.bankClick = false
       this.addressClick = false
       this.emailAdressArray = []
-      this.addingPulsContact(0)
       this.emailPlusAddingArray(0)
       this.select2VendorValue(UIConstant.ZERO)
       this.select2CrDrValue(0)
@@ -188,8 +195,6 @@ export class VendorAddComponent implements OnDestroy {
   getVendorEditData (id) {
     this.submitClick = false
     $('#vendor_form').modal(UIConstant.MODEL_SHOW)
-
-    // this.addingMobileType()
     this.editvenderSubscribe = this._vendorServices.editvendor(id).subscribe(
       (Data) => {
         if (Data.Code === UIConstant.THOUSAND) {
@@ -203,20 +208,20 @@ export class VendorAddComponent implements OnDestroy {
 
           if (Data.Data && Data.Data.Emails.length > 0) {
             this.emailRequirdForSetting = false
-            this.emailAdressArray = []
-            this.emailAdressArray = Data.Data.Emails
+            this.emailArray = []
+            this.emailArray = Data.Data.Emails
 
           } else {
-            this.emailPlusAddingArray(0)
+            this.emailArray = []
           }
           if (Data.Data.ContactInfo.length > 0) {
             this.mobileRequirdForSetting = false
 
-            this.adressArray = []
-            this.adressArray = Data.Data.ContactInfo
+            this.mobileArray = []
+            this.mobileArray = Data.Data.ContactInfo
 
           } else {
-            this.addingPulsContact(0)
+            this.mobileArray = []
           }
 
           if (Data.Data && Data.Data.Banks.length > 0) {
@@ -228,7 +233,6 @@ export class VendorAddComponent implements OnDestroy {
             this.bankArray = []
           }
           if (Data.Data && Data.Data.LedgerDetails.length > 0) {
-            // this.id = Data.Data.LedgerDetails[0].id
             this.vendorForm.controls.vendorName.setValue(Data.Data.LedgerDetails[0].Name)
             this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
             this.select2VendorValue(Data.Data.LedgerDetails[0].TaxTypeId)
@@ -244,13 +248,23 @@ export class VendorAddComponent implements OnDestroy {
           if (Data.Data && Data.Data.ContactPersons.length > 0) {
             this.contactPersonId = Data.Data.ContactPersons[0].Id
             this.vendorForm.controls.contactPerson.setValue(Data.Data.ContactPersons[0].Name)
-            let DOA = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOA, this.clientDateFormat)
-            let DOB = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOB, this.clientDateFormat)
-      //    console.log(DOA,DOB ,Data.Data.ContactPersons[0].Doa ,Data.Data.ContactPersons,"date-customer")
-            this.vendorForm.controls.daoDate.setValue(DOA)
-            this.vendorForm.controls.dobDate.setValue(DOB)
+            if(Data.Data.ContactPersons[0].DOA !==null){
+              let DOA = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOA, this.clientDateFormat)
+               this.vendorForm.controls.daoDate.setValue(DOA)
+            }
+            else {
+              this.vendorForm.controls.daoDate.setValue('')
+            }
+            if(Data.Data.ContactPersons[0].DOA !==null){
+              let DOB = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOB, this.clientDateFormat)
+              this.vendorForm.controls.dobDate.setValue(DOB)
+            }
+            else{
+              this.vendorForm.controls.dobDate.setValue('')
+           
+
+            }
           }
-          // this.statusoriesId = Data.Data.Statutories[0].id
           if (Data.Data.LedgerDetails[0].IsMsmed === true) {
             this.isMsdm = true
             $('#msmed').prop('checked', true)
@@ -278,15 +292,13 @@ export class VendorAddComponent implements OnDestroy {
       'vendorName': [UIConstant.BLANK, Validators.required],
       'contactPerson': [UIConstant.BLANK, Validators.required],
       'registrationNo': [UIConstant.BLANK],
-      // "vendorCode": [UIConstant.BLANK],
       'gstNo': [UIConstant.BLANK],
       'panNo': [UIConstant.BLANK],
       'openingBlance': [UIConstant.BLANK],
-      // "dueOn": [UIConstant.BLANK],
       'daoDate': [UIConstant.BLANK],
       'dobDate': [UIConstant.BLANK],
-      'mobileNo': [UIConstant.BLANK]
-      //  'adressvalue': [UIConstant.BLANK]
+      'mobileNo': [UIConstant.BLANK],
+      'EmailAddress' :  [UIConstant.BLANK]
     })
   }
 
@@ -309,44 +321,29 @@ export class VendorAddComponent implements OnDestroy {
   }
 
   ngOnInit () {
-    //  this.cleckTab.addEventListener("click", this.changeActivetab());
     this.adressArray = []
     this.emailAdressArray = []
     this.mobileArray = []
     this.emailArray = []
     this.collectionOfAddress = []
-    // this.storeAddress = []
     this.bankArray = []
     this.stateList = []
     this.cityList = []
-
-    // this.add
-    // this.cate
-    // this.addressArray = []
     $('#rcma').prop('checked', false)
     this.isRcm = false
     $('#msmed').prop('checked', false)
     this.isMsdm = false
-    // this.bankArray = [];
-    // this.pulsAdress=0;
-    // this.
-
     jQuery(function ($) {
       flatpickr('.vendor-add', {
         maxDate: 'today'
       })
     })
     this.submitClick = false
-    // this.id = 0
     this.adressArray = []
     this.emailAdressArray = []
-    this.addingPulsContact(0)
     this.emailPlusAddingArray(0)
     this.select2VendorValue(UIConstant.ZERO)
     this.select2CrDrValue(0)
-    // this.getCountry(0)
-    this.mobileArray = []
-    this.emailArray = []
     this.formVendor()
     this.formBank()
     this.addTyperessForm()
@@ -360,8 +357,6 @@ export class VendorAddComponent implements OnDestroy {
   mobileErrormass: any
 
   gstNumberRegxValidation (gstNumber) {
-    //  /^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$ // working
-    //  /^([0-9]{2}[a-zA-Z]{4}([a-zA-Z]{1}|[0-9]{1})[0-9]{4}[a-zA-Z]{1}([a-zA-Z]|[0-9]){3}){0,15}$/
     let regxGST = /^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$/
     return regxGST.test(gstNumber)
   }
@@ -399,7 +394,6 @@ export class VendorAddComponent implements OnDestroy {
     }
   }
   validateMobile (mobile) {
-   // let l = this.codeLengthList.Length
     let regx = /\[0-9]/g
     return regx.test(mobile)
   }
@@ -408,20 +402,13 @@ export class VendorAddComponent implements OnDestroy {
   checkNumberByCountry (e) {
     this.mobileNo = e.target.value
     if (this.checkSelectCode) {
-      for (let i = 0; i < this.adressArray.length; i++) {
         if (this.validmobileLength === this.mobileNo.length) {
-          this.validMobileFlag = true
-          this.invalidMobilelength = true
-          document.getElementById('contactno' + i).className += ' successTextBoxBorder'
-          document.getElementById('contactno' + i).classList.remove('errorTextBoxBorder')
-        } else {
           this.validMobileFlag = false
-          this.invalidMobilelength = false
-          document.getElementById('contactno' + i).className += ' errorTextBoxBorder'
-
+        } else {
+          this.validMobileFlag = true
         }
-      }
     }
+
   }
   checkSelectCode: boolean = false
   onSelectCountry (index, addArrayIndex) {
@@ -434,94 +421,64 @@ export class VendorAddComponent implements OnDestroy {
 
   }
   mobileValueFlag: any = false
-  addingPulsContact (value) {
-    //   this.mobileError = false
-    let boolCheck = false
-    for (let i = 0; i < this.adressArray.length; i++) {
-      if ($('#sel1' + i).val() === '') {
-        $('#sel1' + i).val('1')
-      }
-      this.mobileNo = $('#contactno' + i).val()
-      // if (this.CountryCode !== 'Select') {
-      //   // if ($('#ctryPhoneCode' + i).val() !== '') {
-      //   //   // this.CountryCode = ' '
-      //   //   this.code = $('#ctryPhoneCode' + i).val()
-      //   //   console.log(this.code, "h")
-      //   // }
-      //   boolCheck = true
-      //   //   alert("j")
-      // } else {
-      //   this._toastrcustomservice.showError('Error', 'Select Country Code')
-      //   boolCheck = false
-      //   break
 
-      // }
-      if ($('#contactno' + i).val() !== '' && ($('#contactno' + i).val() !== undefined)) {
-
-        document.getElementById('contactno' + i).className += ' successTextBoxBorder'
-        document.getElementById('contactno' + i).classList.remove('errorTextBoxBorder')
-
-        if ($('#sel1' + i).val() > 0) {
-          boolCheck = true
-
-        } else {
-
-          boolCheck = false
-          break
-        }
-
-      } else {
-        $('#contactno' + i).focus()
-        document.getElementById('contactno' + i).className += ' errorTextBoxBorder'
-        boolCheck = false
-        break
-      }
-    }
-    if (boolCheck) {
-      this.adressArray.push({
-        Id: 0,
-        ContactNo: undefined,
-        ContactType: undefined,
-        CountryCode: undefined
-      })
-    }
-    if (this.adressArray.length === 0) {
-      this.adressArray.push({
-        Id: 0,
-        ContactNo: undefined,
-        ContactType: undefined,
-        CountryCode: undefined
-      })
-    }
-  }
   mobileArray: any[]
 
-  deleteArrayMobileType (i) {
-    if (this.adressArray.length > 1) {
-      this.adressArray.splice(i, 1)
-    } else if (i === 0) {
-      this.adressArray.splice(i, 1)
-      this.adressArray.push({
-        Id: 0,
-        ContactNo: undefined,
-        ContactType: undefined
-      })
+  deleteArrayMobileType (i,type) {
+    if(type ==='contact'){
+      if(this.mobileArray.length > 0){
+        this.mobileArray.splice(i,1)
+       }
     }
-  }
-
-  delteEmailArray (i) {
-    if (this.emailAdressArray.length > 1) {
-      this.emailAdressArray.splice(i, 1)
-    } else if (i === 0) {
-      this.emailAdressArray.splice(i, 1)
-      this.emailAdressArray.push({
-        Id: 0,
-        EmailAddress: undefined,
-        EmailType: undefined
-      })
+    if(type ==='email'){
+      if(this.emailArray.length > 0){
+        this.emailArray.splice(i,1)
+       }
     }
 
   }
+  editFlg: boolean = true
+  editRowItem (i,type,id) {
+    if(type ==='contact'){
+      if(this.editFlg){
+        this.editFlg = false
+        this.mobileNoId =id
+        this.contactType = this.mobileArray[i].ContactType
+        this.select_Mobile.setElementValue(this.mobileArray[i].ContactType)
+        this.contactTypeName = this.mobileArray[i].ContactTypeName
+        this.vendorForm.controls.mobileNo.setValue(this.mobileArray[i].ContactNo)
+        this.CountryCode = this.mobileArray[i].CountryCode
+        this.phoneCodeselect2.setElementValue(this.mobileArray[i].CodeId)
+        this.CodeId = this.mobileArray[i].CodeId
+        this.validMobileFlag = false
+        this.deleteArrayMobileType (i,'contact')
+      }
+      
+    
+    else{
+      this._toastrcustomservice.showWarning('', 'Save Editable Contact')
+
+    }
+  }
+    if(type ==='email'){
+      if(this.editEmailFlg){
+        this.editEmailFlg = false
+        this.EmailId = id
+        this.EmailType = this.emailArray[i].EmailType
+        this.select_email.setElementValue(this.emailArray[i].EmailType)
+        this.EmailAddressTypeName = this.emailArray[i].EmailTypeName
+        this.vendorForm.controls.EmailAddress.setValue(this.emailArray[i].EmailAddress)
+        this.deleteArrayMobileType (i,'email')
+      }
+      else{
+      this._toastrcustomservice.showWarning('', 'Save Editable Email')
+
+      }
+      
+
+    }
+  }
+
   emailArray: any[]
 
   validateEmail (email) {
@@ -636,6 +593,7 @@ export class VendorAddComponent implements OnDestroy {
     this.select2CrDrPlaceHolder = { placeholder: 'Select CR/Dr' }
     this.selectCrDr = [{ id: UIConstant.BLANK, text: 'Select CR/DR' }, { id: '1', text: 'CR' }, { id: '0', text: 'DR' }]
     this.valueCRDR = value
+    this.crDrId =   +this.selectCrDr[1].id
   }
 
   selectCRDRId (event) {
@@ -861,93 +819,30 @@ export class VendorAddComponent implements OnDestroy {
       this.isMsdm = false
     }
   }
-  // /* .......completed............................ */
 
-  /* Completed...........................*/
   getVendorDetail () {
-    this.subscribe = this._vendorServices.getVendor(4, '').subscribe(Data => {
+    this.subscribe = this._vendorServices.getVendor(4, '&Strsearch=' + '' + '&Page=' + 1 + '&Size=' + 20 + '').subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
         this._vendorServices.sendDataWithObservable(Data.Data)
       }
     })
   }
 
-  addingMobileType () {
-    //  if (this.mobileRequirdForSetting) {
-    // this.requiredValid = false;
-    this.mobileArray = []
-    if (this.adressArray.length > 0) {
-      for (let i = 0; i <= this.adressArray.length; i++) {
-        if ($('#sel1' + i).val() === '') {
-          $('#sel1' + i).val('1')
-        }
-        let mobile = $('#contactno' + i).val()
-
-        if ($('#sel1' + i).val() > 0 && $('#contactno' + i).val() !== '' && ($('#contactno' + i) !== undefined)) {
-          if (this.validMobileFlag) {
-            this.mobileArray.push({
-              Id: this.adressArray[i].Id !== 0 ? this.adressArray[i].Id : 0,
-              ContactType: $('#sel1' + i).val(),
-              ContactNo: $('#contactno' + i).val(),
-              CountryCode: $('#ctryPhoneCode' + i).val(),
-              ParentTypeId: 5
-            })
-              //  console.log( this.mobileArray,"ssssssssss")
-            this.mobileRequirdForSetting = false
-          } else {
-            this.mobileRequirdForSetting = true
-           // this._toastrcustomservice.showError('Error','Invalid mobile')
-          }
-
-        }
-      }
-
-     // }
-      // }
-    }
-
-  }
 
   requiredValid: boolean
-  fillEmailDetails () {
-    //  if (this.emailRequirdForSetting) {
-    this.emailArray = []
-    for (let i = 0; i <= this.emailAdressArray.length; i++) {
-      if ($('#sel1parmantent' + i).val() === '') {
-        $('#sel1parmantent' + i).val('1')
-      }
-      let email = $('#email' + i).val()
-      if ($('#sel1parmantent' + i).val() > 0 && $('#email' + i).val() !== '' && this.validateEmail(email) && ($('#email' + i) !== undefined)) {
-        this.emailArray.push({
-          Id: this.emailAdressArray[i].Id !== 0 ? this.emailAdressArray[i].Id : 0,
-          EmailType: $('#sel1parmantent' + i).val(),
-          EmailAddress: $('#email' + i).val(),
-          ParentTypeId: 5
-        })
-        this.emailRequirdForSetting = false
-      }
-      // }
-    }
-  }
+
 
   submitClick: boolean
   bankClick: boolean
   addVendor (value) {
-    // $('#vendorName').focus()
-    this.addingMobileType()
-    this.fillEmailDetails()
     this.checkGSTNumberValid()
     this.checkPANNumberValid()
-    //  this.addNewbankDetail()
-    //  this.addNewAdress()
-    // this.checkVendorRegiValidation()
-
+    this.addConatctDetails()
+    this.emailAddingArray()
     this.submitClick = true
     if (value === 'reset') {
-      this.deleteArrayMobileType(0)
-      this.delteEmailArray(0)
       this.formVendor()
-    } else if (this.vendorForm.valid && this.vendorId > UIConstant.ZERO) {
+    } else if (this.vendorForm.valid && !this.validMobileFlag && this.getEmailvalid && this.vendorId > UIConstant.ZERO) {
       if (!this.mobileRequirdForSetting) {
         if (!this.emailRequirdForSetting) {
           if (!this.validGSTNumber) {
@@ -960,6 +855,7 @@ export class VendorAddComponent implements OnDestroy {
                     this._sanariioservices.filter()
                     if (value === 'save') {
                       this.getVendorDetail()
+                      debugger
                       const dataToSend = { id: Data.Data, name: this.vendorForm.value.vendorName }
                       this._CommonService.closeVend({ ...dataToSend })
                       this._toastrcustomservice.showSuccess('Success', 'Save successfully')
@@ -975,7 +871,7 @@ export class VendorAddComponent implements OnDestroy {
                 })
               } else {
                // this.adressTab()
-                this._toastrcustomservice.showError('Error', 'Enter Address ')
+                this._toastrcustomservice.showError('Error', 'Enter Address Details ')
               }
             } else {
               this._toastrcustomservice.showError('Error', 'invalid PAN No. ')
@@ -987,32 +883,41 @@ export class VendorAddComponent implements OnDestroy {
           //   document.getElementById('email' + '0').className += ' errorTextBoxBorder'
           $('.emailfocu').focus()
           $('.mobilefocu').focus()
-          this._toastrcustomservice.showError('Error', ' Enter  Email ')
+          this._toastrcustomservice.showError('', ' Enter Email Details ')
 
         }
       } else {
         //   document.getElementById('email' + '0').className += ' errorTextBoxBorder'
         $('.emailfocu').focus()
         $('.mobilefocu').focus()
-        this._toastrcustomservice.showError('Error', ' Enter Valid mobile  ')
+        this._toastrcustomservice.showError('', ' Enter Contact Details ')
 
       }
     }
 
   }
+
+  private getopeinAmountValue () {
+    if (this.vendorForm.value.openingBlance > 0) {
+      return this.vendorForm.value.openingBlance
+    } else {
+      return 0
+    }
+  }
+
   GSTNumber: any
   PANNumber: any
   private addLedgerParmas () {
     // debugger
     let doa
     let dob
-    if (this.vendorForm.value.daoDate !== '') {
+    if (this.vendorForm.value.daoDate !== '' ) {
       doa = this._globalService.clientToSqlDateFormat(this.vendorForm.value.daoDate, this.clientDateFormat)
 
     } else {
       doa = ''
     }
-    if (this.vendorForm.value.dobDate !== '') {
+    if (this.vendorForm.value.dobDate !== '' ) {
       dob = this._globalService.clientToSqlDateFormat(this.vendorForm.value.dobDate, this.clientDateFormat)
 
     } else {
@@ -1023,7 +928,7 @@ export class VendorAddComponent implements OnDestroy {
         Id: this.id,
         Websites: [],
         GlId: 4,
-        openingBlance: this.vendorForm.value.openingBlance,
+        OpeningAmount: this.getopeinAmountValue(),
         Name: this.vendorForm.value.vendorName,
         TaxTypeID: this.vendorId,
         CrDr: this.crDrId,
@@ -1132,9 +1037,6 @@ export class VendorAddComponent implements OnDestroy {
     this.adressForm.controls.adressvalue.setValue(address.AddressValue)
     this.getCountry(address.CountryId)
     this.adressType(address.AddressType)
-    //  this.getStaeList(address.StateId,0);
-    // this.getCitylist(address.stateId,0)
-    // this.getCitylist(address.sityId,0)
 
   }
 
@@ -1159,7 +1061,6 @@ export class VendorAddComponent implements OnDestroy {
     this.adressArray = []
     this.collectionOfAddress = []
     this.emailPlusAddingArray(0)
-    this.addingPulsContact(0)
     $('#vendor_form').modal(UIConstant.MODEL_HIDE)
   }
   bankIndex: any
@@ -1257,15 +1158,49 @@ export class VendorAddComponent implements OnDestroy {
 
   }
   countryListWithCode: any
+  invalidMobilelength: boolean = false
+  CountryCode: any = 'select'
+  codeLengthList: any
+  validmobileLength: any
+  enableContactFlag: boolean
+
+
+
+
+
+  contactTypeData: any
+  getContactType (){
+    this.contactTypeData = [{id:'0',text:'Select'},
+                          {id:'1',text:'Work'},
+                          {id:'2',text:'Home'},
+                          {id:'3',text:'Mobile'},
+                          {id:'4',text:'Fax'},
+                          {id:'5',text:'Skype'},
+                          {id:'6',text:'YMessenger'},
+                          {id:'7',text:'Sip'},
+                          {id:'8',text:'Other'},
+
+  ]
+  }
+    emailTypeData: any
+    emailTypeDataType (){
+    this.emailTypeData =[{id:'0',text:'Select'},
+    {id:'1',text:'Persnal'},
+    {id:'2',text:'Work'},
+    {id:'3',text:'Home'},
+    {id:'4',text:'Other'}
+
+  ]
+  }
+
   searchCountryCodeForMobile (name) {
     this.subscribe = this._CommonService.searchCountryByName(name).subscribe(Data => {
-
-      if (Data.Code === 1000 && Data.Data.length > 0) {
+      if (Data.Code === UIConstant.THOUSAND && Data.Data.length > 0) {
         this.countryListWithCode = []
         let newdataList = [{ id: '0',text : 'select code',PhoneCode : '0' , Length: 0 }]
         Data.Data.forEach(element => {
           newdataList.push({
-            id : element.Id,
+            id : element.Phonecode,
             text : '+' + element.Phonecode + '-' + element.Name,
             PhoneCode : element.Phonecode,
             Length : element.Length
@@ -1273,26 +1208,140 @@ export class VendorAddComponent implements OnDestroy {
         })
         this.countryListWithCode = newdataList
         console.log(Data ,'code')
-        //   console.log(Data.Data, "country code phone")
       } else {
         this._toastrcustomservice.showError('Error', Data.Description)
 
       }
     })
   }
-  invalidMobilelength: boolean = false
-  CountryCode: any = 'select'
-  codeLengthList: any
-  validmobileLength: any
-  enableContactFlag: boolean
   onCountryCodeSelectionChange = (event) => {
     debugger
     if (event.data.length > 0) {
-      this.checkSelectCode = true
-      this.enableContactFlag = false
-      this.CountryCode = event.data[0].PhoneCode
-    //  this.CountryCode = this.codeLengthList.Phonecode
-      this.validmobileLength = event.data[0].Length
+      if(event.data[0].id !== 0){
+        this.checkSelectCode = true
+        this.enableContactFlag = false
+        this.CountryCode = '+' + event.data[0].PhoneCode
+        this.validmobileLength = event.data[0].Length
+        this.CountryCodeId =  event.data[0].PhoneCode
+      }
+      else{
+        this.enableContactFlag = true
+      }
+      
     }
   }
+  contactType: any
+  contactTypeName: any
+  CountryCodeId: any
+  onChangeContactType =(event) => {
+    if(event.data.length>0){
+      this.contactType = event.data[0].id
+      this.contactTypeName = event.data[0].text
+    }
+
+  }
+  EmailType: any
+  EmailAddress: any
+  EmailAddressTypeName: any
+  onChangeEmailType =(event) => {
+    if(event.data.length>0){
+      this.EmailType = event.data[0].id
+      this.EmailAddressTypeName = event.data[0].text
+    }
+
+  }
+  EmailId: any = 0
+
+  editEmailFlg: boolean= true
+  emailAddingArray () {
+    this.editEmailFlg = true
+    if(this.EmailType > 0 && this.getEmailvalid && this.vendorForm.value.EmailAddress !== ''){
+      this.emailRequirdForSetting = false
+    this.emailArray.push({
+      Id: this.EmailId ===0 ? 0 : this.EmailId,
+      EmailType:this.EmailType,
+      EmailTypeName: this.EmailAddressTypeName,
+      EmailAddress : this.vendorForm.value.EmailAddress,
+      ParentTypeId: 5
+    
+     })
+     this.clear('email')
+    }
+   
+  }
+  @ViewChild('select_mobiletype') select_Mobile : Select2Component
+@ViewChild('select_emailtype') select_email : Select2Component
+@ViewChild('phoneCode_select2') phoneCodeselect2: Select2Component
+
+  clear(type){
+    if(type === 'email'){
+      this.vendorForm.controls.EmailAddress.setValue('')
+      this.select_email.setElementValue(0)
+      this.EmailType ='0'
+
+    }
+    if(type ==='contact'){
+      this.vendorForm.controls.mobileNo.setValue('')
+      this.phoneCodeselect2.setElementValue(0)
+      this.select_Mobile.setElementValue(0)
+      this.select_email.setElementValue(0)
+      this.contactType ='0'
+      this.CountryCode =0
+      this.validMobileFlag =false
+    }
+  }
+  CodeId: any
+  mobileNoId: any
+ addConctFlag: boolean = false
+  addConatctDetails (){
+    this.addConctFlag= true
+    this.editFlg = true
+    this.validateContact()
+    if(this.contactType > 0  && this.CountryCode > 0 && !this.validMobileFlag && this.vendorForm.value.mobileNo !== ''){
+     
+       this.mobileRequirdForSetting = false
+      this.mobileArray.push({
+       Id: this.mobileNoId ===0 ? 0 :this.mobileNoId,
+       ContactType:this.contactType,
+       ContactTypeName: this.contactTypeName,
+       ContactNo : this.vendorForm.value.mobileNo,
+       CountryCode:this.CountryCode,
+       CodeId:this.CountryCodeId,
+       ParentTypeId: 5
+     
+      })
+      this.clear('contact')
+    }
+
+   
+   console.log(this.mobileArray,'this.adressArray')
+   }
+
+   invalidObj ={}
+validateContact (){
+  let isValid = 1
+  if (this.contactType !=='0') {
+    this.invalidObj['contactType'] = false
+  } else {
+    this.invalidObj['contactType'] = true
+    isValid = 0
+  }
+ 
+  if (this.CountryCode >0) {
+    this.invalidObj['CountryCode'] = false
+  } else {
+    this.invalidObj['CountryCode'] = true
+    isValid = 0
+  }
+
+
+  return !!isValid 
+}
+getEmailvalid: any
+checkvalidationEmail (event) {
+this.getEmailvalid =     this.validateEmail(event.target.value)
+return this.getEmailvalid
+}
+
+
 }
