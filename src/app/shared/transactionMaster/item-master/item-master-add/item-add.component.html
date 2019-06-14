@@ -115,7 +115,7 @@
                                         <label>MRP Rate</label>
                                         <input type="text" appIncludeDecimal
                                          class="form-control" placeholder="Enter MRP" name="MrpRate"
-                                            [(ngModel)]="MrpRate">
+                                        [(ngModel)]="MrpRate">
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label>Sale Rate</label>
@@ -127,8 +127,9 @@
                                         <label>Purchase Rate</label>
                                         <input type="text" appIncludeDecimal
                                          class="form-control" placeholder="Enter Purchase" name="PurchaseRate"
-                                         (input)="onPurchaseRateChange()"
-                                            [(ngModel)]="PurchaseRate">
+                                        [disabled]="PurchaseRate && isStkValue"
+                                         (ngModelChange)="onPurchaseRateChange()"
+                                        [(ngModel)]="PurchaseRate">
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label>Our Price</label>
@@ -141,14 +142,16 @@
                                         <label>Opening Stock</label>
                                         <input type="text" appIncludeDecimal
                                         class="form-control" placeholder="Enter Opening Stock" name="OpeningStock"
-                                        (input)="onOpeningStockChange()"                                           
+                                        [disabled]="OpeningStock && isStkValue"
+                                        (ngModelChange)="onOpeningStockChange()"                                           
                                         [(ngModel)]="OpeningStock">
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label>Opening Stock Value</label>
                                         <input type="text" appIncludeDecimal
                                         class="form-control" placeholder="Enter Opening Stock Value" name="OpeningStockvalue"
-                                        (input)="onOpeningStockValueChange()"                                                                                     
+                                        [disabled]="OpeningStockValue && isStkValue"
+                                        (ngModelChange)="onOpeningStockValueChange()"                                                                                     
                                         [(ngModel)]="OpeningStockValue">
                                     </div>
                                     <div class="form-group col-md-3">

@@ -98,7 +98,6 @@ export class CustomerAddComponent implements OnDestroy {
     this.adressArray = []
     this.emailAdressArray = []
     this.collectionOfAddress = []
-    this.getCustomerDetail()
     this.errormassage = ErrorConstant.REQUIRED
     this.adressType(1)
 
@@ -223,12 +222,12 @@ export class CustomerAddComponent implements OnDestroy {
           this.areaID = data.Data
           this.Areaname = this.areaForm.value.areaName
           //   this.saleService.closeAddress({ ...Send })
-          this._toastrcustomservice.showSuccess('Success', 'Area Added !')
+          this._toastrcustomservice.showSuccess('', 'Area Added !')
           this.areaForm.reset()
           this.closeAreaModel()
         }
         if (data.Code === 5000) {
-          this._toastrcustomservice.showError('Error', data.Description)
+          this._toastrcustomservice.showError('', data.Description)
           this.closeAreaModel()
 
         }
@@ -372,7 +371,7 @@ export class CustomerAddComponent implements OnDestroy {
     this.emailArray=[]
     this.adressArray = []
     this.emailAdressArray = []
-    this.emailMobileValidationRequired()
+    
     this.setDOBDate()
     this.setDOADate()
     if (this.coustomerForm) {
@@ -383,10 +382,8 @@ export class CustomerAddComponent implements OnDestroy {
       this.getCustomerEditData(this.id)
       this.adressType(0)
     } else {
+      this.emailMobileValidationRequired()
       this.id = UIConstant.ZERO
-
-      this.getCustomerDetail()
-
       $('#customer_form').modal(UIConstant.MODEL_SHOW)
       setTimeout(() => {
         this.ledgerName.nativeElement.focus()
@@ -668,16 +665,16 @@ export class CustomerAddComponent implements OnDestroy {
               if (!this.validPANFlag) {
                 if (!this.addressRequiredForLedger) {
                   this.subscribe = this._coustomerServices.addVendore(this.customerParams()).subscribe(Data => {
-                    if (Data.Message === 'Error on Server') {
-                      this._toastrcustomservice.showWarning('Warning', 'check your internet connection and try again later')
-                    }
+                    // if (Data.Message === 'Error on Server') {
+                    //   this._toastrcustomservice.showWarning('Warning', 'check your internet connection and try again later')
+                    // }
                     if (Data.Code === UIConstant.THOUSAND) {
                       if (value === 'save') {
-                        this.getCustomerDetail()
                         const dataToSend = { id: Data.Data, name: this.coustomerForm.value.customerName }
+                        this._CommonService.AddedItem()
                         this._CommonService.closeCust({ ...dataToSend })
                         $('#customer_form').modal(UIConstant.MODEL_HIDE)
-                        this._toastrcustomservice.showSuccess('Success', 'Saved Successfully')
+                        this._toastrcustomservice.showSuccess('', 'Saved Successfully')
                       } else {
                         this.id = 0
                         this.satuariesId = 0
@@ -689,8 +686,8 @@ export class CustomerAddComponent implements OnDestroy {
                         this.createCustomerForm()
                       }
                     }
-                    if (Data.Code === 1001) {
-                      this._toastrcustomservice.showInfo('Info', Data.Description)
+                    if (Data.Code === UIConstant.THOUSANDONE) {
+                      this._toastrcustomservice.showInfo('', Data.Description)
 
                     }
                   }, () => {
@@ -698,20 +695,20 @@ export class CustomerAddComponent implements OnDestroy {
                   })
                 } else {
 
-                  this._toastrcustomservice.showError('Error', ' Enter Address ')
+                  this._toastrcustomservice.showError('', ' Enter Address ')
                 }
               } else {
-                this._toastrcustomservice.showError('Error', 'invalid PAN No.')
+                this._toastrcustomservice.showError('', 'invalid PAN No.')
               }
             } else {
-              this._toastrcustomservice.showError('Error', 'invalid GST No.')
+              this._toastrcustomservice.showError('', 'invalid GST No.')
             }
 
           } else {
-            this._toastrcustomservice.showError('Error', ' Enter Email')
+            this._toastrcustomservice.showError('', ' Enter Email')
           }
         } else {
-          this._toastrcustomservice.showError('Error', '  Enter Valid Mobile No')
+          this._toastrcustomservice.showError('', '  Enter Contact Details')
         }
       }
     }
@@ -993,15 +990,7 @@ export class CustomerAddComponent implements OnDestroy {
 
   }
 
-  getCustomerDetail () {
-    this.coustomerDetails = []
-    this.subscribe = this._coustomerServices.getVendor(5, '').subscribe(Data => {
-      if (Data.Code === UIConstant.THOUSAND) {
-        this._coustomerServices.sendCustomerDataObservable(Data.Data)
 
-      }
-    })
-  }
 
   
   ngOnDestroy () {
@@ -1029,6 +1018,8 @@ export class CustomerAddComponent implements OnDestroy {
     this.addressTabDiv = true
 
     this.subscribe = this._coustomerServices.editvendor(id).subscribe(Data => {
+if(Data.Code === UIConstant.THOUSAND){
+     // this.emailMobileValidationRequired()
       //  console.log('edit customer data: ', Data)
       if (Data.Data && Data.Data.Statutories && Data.Data.Statutories.length > 0) {
         this.satuariesId = Data.Data.Statutories[0].Id
@@ -1079,7 +1070,8 @@ export class CustomerAddComponent implements OnDestroy {
         this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
       }
 
-      if (Data.Data.ContactInfo.length > 0) {
+      if (Data.Data.ContactInfo.length > 0) { 
+        
         this.mobileRequirdForSetting = false
         this.mobileArray = []
         this.mobileArray = Data.Data.ContactInfo
@@ -1119,6 +1111,7 @@ export class CustomerAddComponent implements OnDestroy {
         $('#cashdiscount').prop('checked', false)
         this.isDiscountValue = false
       }
+    }
     })
   }
 
@@ -1220,7 +1213,7 @@ export class CustomerAddComponent implements OnDestroy {
         this.countryListWithCode = newdataList
         console.log(Data ,'code')
       } else {
-        this._toastrcustomservice.showError('Error', Data.Description)
+        this._toastrcustomservice.showError('', Data.Description)
 
       }
     })

@@ -26,6 +26,8 @@ export class CommonService {
   private openAddAttributeSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openAddressAddSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openPurchaseAddSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openVoucherAddSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private newVoucherAdded = new Subject()
   private newInvoiceSub = new Subject()
   private newCatSub = new Subject()
   private newUnitSub = new Subject()
@@ -43,10 +45,11 @@ export class CommonService {
   private openAddledgerGroupSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openAddledgerCreationSub = new BehaviorSubject<AddCust>({ 'open': false })
 private sendDataForSearchSub= new BehaviorSubject<AddCust>({ 'open': false })
+private newRefreshSub = new Subject()
 public previousUrl: String;
 public currentUrl: String;
-  // validation reg ex
-  companyNameRegx = `^[A-Za-z0-9&-]+$`
+  //  validation reg ex
+  companyNameRegx = `^[A-Za-z0-9& -]+$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
   panRegx = `[A-Z]{5}[0-9]{4}[A-Z]{1}$`
   emailRegx = `^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|
@@ -127,7 +130,7 @@ public currentUrl: String;
 
   closeItemMaster (newItemMaster) {
     if (newItemMaster) {
-      this.openAddItemMasterSub.next({ 'open': false, 'name': newItemMaster.name, 'id': newItemMaster.id })
+      this.openAddItemMasterSub.next({ 'open': false, 'name': newItemMaster.name, 'id': newItemMaster.id, 'categoryId': newItemMaster.categoryId })
     } else {
       this.openAddItemMasterSub.next({ 'open': false })
     }
@@ -591,8 +594,9 @@ public currentUrl: String;
     return this.baseService.getRequest(ApiConstant.DIRECT_SALE_EDIT_GET_API + id)
   }
 
-  getReportItemStock () {
-    return this.baseService.getRequest(ApiConstant.REPORT_ITEM_STOCK)
+  getReportItemStock (data) {
+    const url = `${ApiConstant.REPORT_ITEM_STOCK}?CategoryId=${data.CategoryId}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&AttributeSearch=${data.AttributeSearch}&ItemId=${data.ItemId}&UnitId=${data.UnitId}&Page=${data.Page}&Size=${data.Size}`;
+    return this.baseService.getRequest(url)
   }
 
   postSaleChallanBillingAPI (input) {
@@ -727,6 +731,7 @@ public currentUrl: String;
         'id': LegerGroup.id,
         'type': LegerGroup.type,
         'parentId': LegerGroup.parentId,
+        'headId':LegerGroup.headId
       })
     } else {
       this.openAddledgerGroupSub.next({ 'open': false })
@@ -790,7 +795,15 @@ public currentUrl: String;
   
   getBalanceSheetList(date){
     return this.baseService.getRequest(ApiConstant.BALANCE_SHEET_API + date)
-    
+  }
+
+  getOpeningStkList(){
+    return this.baseService.getRequest(ApiConstant.OPENING_STK);
+  }
+  
+  
+  postOpeningStkList(data){
+    return this.baseService.postRequest(ApiConstant.OPENING_STK, data);
   }
 
   
@@ -817,4 +830,49 @@ public currentUrl: String;
       this.router.navigate(['dashboard'])
     }
   }
+  getSalePurchaseUtilityItems = () => {
+    return this.baseService.getRequest(ApiConstant.SALE_PURCHASE_ITEM_UTILITY)
+  }
+itemSalePurchaseReportDetails (type ,LedgerId,CategoryId,ItemId,FromDate,ToDate,BatchNo ,Pagenumber,Size) {
+  return this.baseService.getRequest(ApiConstant.REPORT_ITEM_SALE_PURCHASE + type + '&LedgerId='+LedgerId + '&CategoryId=' + CategoryId + '&ItemId=' + ItemId + '&FromDate=' + FromDate + '&ToDate=' + ToDate + '&BatchNo='+ BatchNo + '&Page='+ Pagenumber + '&Size='+ Size)
+
+}
+getSearchForStatus () {
+  return this.sendDataForSearchSub.asObservable()
+}
+searchByDateForItemSale (todate,fromDate,batchNo,categoryId,itemId ,ledgerId) {
+  this.sendDataForSearchSub.next({ 'open': true,'itemId':itemId ,'ledgerId':ledgerId , 'categoryId':categoryId , 'toDate': todate,'fromDate':fromDate,'batchNo':batchNo })
+}
+getSearchForPurchaseStatus () {
+  return this.sendDataForSearchSub.asObservable()
+}
+searchByDateForPurchaseItemSale (todate,fromDate,batchNo,categoryId,itemId ,ledgerId) {
+  this.sendDataForSearchSub.next({ 'open': true,'itemId':itemId ,'ledgerId':ledgerId , 'categoryId':categoryId , 'toDate': todate,'fromDate':fromDate,'batchNo':batchNo })
+}
+getProfitAndLossList(date){
+  return this.baseService.getRequest(ApiConstant.ACCOUNT_PROFIT_AND_LOSS_BY_DATE + date)
+}
+
+getTradingList(date){
+  return this.baseService.getRequest(ApiConstant.ACCOUNT_TRADING_BY_DATE + date)
+}
+
+openVoucher (editId) {
+  this.openVoucherAddSub.next({ 'open': true, 'editId': editId })
+}
+
+getVoucherStatus () {
+  return this.openVoucherAddSub.asObservable()
+}
+
+closeVoucher () {
+  this.openVoucherAddSub.next({ 'open': false })
+}
+AddedItem () {
+  this.newRefreshSub.next()
+}
+
+newRefreshItemStatus () {
+  return this.newRefreshSub.asObservable()
+}
 }

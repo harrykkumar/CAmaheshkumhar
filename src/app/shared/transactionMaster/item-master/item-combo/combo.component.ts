@@ -63,14 +63,11 @@ export class ComboComponent {
     private commonService: CommonService,
     private toastrService: ToastrCustomService) {
     this.industryId = +this.settings.industryId
-    this.attr$ = this.purchaseService.attributesData$.subscribe(
+    this.attr$ = this.comboService.attributesData$.subscribe(
       data => {
         // console.log('attribute data : ', data)
         if (data.attributeKeys && data.attributesData) {
           this.initAttribute()
-          data.attributesData.forEach(element => {
-            element.data.splice(1, 1)
-          })
           this.attributeKeys = data.attributeKeys
           this.attibutesData = data.attributesData
         }
@@ -192,7 +189,8 @@ export class ComboComponent {
           ParentTypeId: 21,
           GroupId: 0,
           name: evt.data[0].text,
-          id: 0
+          id: 0,
+          Sno: Sno
         }
       }
     }

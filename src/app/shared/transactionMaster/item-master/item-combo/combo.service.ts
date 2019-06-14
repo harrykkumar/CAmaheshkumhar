@@ -53,7 +53,7 @@ export class ComboService {
       attributeKeys.push(attribute.Name)
       obj['name'] = attribute.Name
       obj['len'] = attribute.AttributeValuesResponse.length - 1
-      obj['data'] = [{ id: '0', text: 'Select Attribute' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+      obj['data'] = [{ id: '0', text: 'Select Attribute' }]
       obj['attributeId'] = attribute.AttributeId
       obj['id'] = 0
       attributesData.push({ ...obj })

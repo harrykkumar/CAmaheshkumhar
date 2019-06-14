@@ -12,13 +12,31 @@
       <div class="modal-header primary-bg">
         <div class="container-fluid">
           <div class="row">
-            <div class="col-md-3 left_side_head">
+            <div class="col-md-4 left_side_head">
               <p class="heading_lead">
                 <i class="fas fa-shopping-cart" aria-hidden="true"></i>
                 Opening Stock(With Attribute)
               </p>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-5">
+              <form>
+                  <div id="custom-search-input" class="btn_header1">
+                      <div class="input-group col-md-12">
+                          <input type="text" id="searchInput"
+                          class="form-control input-lg"
+                          placeholder="Search"
+                          (input)="searchFilter()"
+                          />
+                          <span class="input-group-btn">
+                              <a>
+                                  <i class="fas fa-search"></i>
+                              </a>
+                          </span>
+                      </div>
+                  </div>
+              </form>
+          </div>
+            <div class="col-md-3">
               <div class="btn_header">
                 <a
                   class="btn btn-default waves-effect"
@@ -55,7 +73,7 @@
             <div class="table-responsive table-item-attribute">
               <table
                 class="table cat-table table-hover"
-                id="table"
+                id="item-attribute-table"
               >
                 <thead>
                   <tr class="default_row">
@@ -74,7 +92,7 @@
                           for="CheckAllItemAttribute"
                           ></label>
                     </div></th>
-                    <th *ngFor="let column of masterData?.Attributes">
+                    <th class="dynamic_fix" *ngFor="let column of masterData?.Attributes">
                       {{ column?.Name }}
                     </th>
                     <th>BarCode</th>
@@ -117,7 +135,6 @@
                       <input
                         type="text"
                         class="form-control"
-                        placeholder="Enter Bar Code"
                         name="barCode-{{ i }}"
                         [(ngModel)]="item.Barcode"
                         [disabled]="!item.Checked"
@@ -127,7 +144,6 @@
                       <input
                         type="text"
                         class="form-control"
-                        placeholder="Enter Client Bar Code"
                         name="client-barCode-{{ i }}"
                         [(ngModel)]="item.ClientBarCode"
                         [disabled]="!item.Checked"
@@ -137,7 +153,6 @@
                       <input
                         type="text"
                         class="form-control"
-                        placeholder="Enter Opening Stock Qty"
                         name="opening-stock-qty-{{ i }}"
                         (input)="onOpeningStockChange(i)" 
                         [(ngModel)]="item.Qty"
@@ -149,7 +164,6 @@
                       <input
                         type="text"
                         class="form-control"
-                        placeholder="Enter Opening Stock Value"
                         name="opening-stock-value-{{ i }}"
                         (input)="onOpeningStockValueChange(i)"                                                                                     
                         [(ngModel)]="item.QtyValue"
@@ -161,7 +175,6 @@
                       <input
                         type="text"
                         class="form-control"
-                        placeholder="Enter Purchase Rate"
                         name="purchase-rate-{{ i }}"
                         (input)="onPurchaseRateChange(i)"
                         [(ngModel)]="item.RatePurchase"
@@ -173,7 +186,6 @@
                       <input
                         type="text"
                         class="form-control"
-                        placeholder="Enter Sale Rate"
                         name="sale-rate-{{ i }}"
                         [(ngModel)]="item.RateSale"
                         [disabled]="!item.Checked"
@@ -183,7 +195,6 @@
                         <input
                           type="text"
                           class="form-control"
-                          placeholder="Enter Nrv Rate"
                           name="nrv-rate-{{ i }}"
                           [(ngModel)]="item.RateNrv"
                         [disabled]="!item.Checked"
@@ -193,7 +204,6 @@
                       <input
                         type="text"
                         class="form-control"
-                        placeholder="Enter Mrp Rate"
                         name="mrp-rate-{{ i }}"
                         [(ngModel)]="item.RateMrp"
                         [disabled]="!item.Checked"
@@ -204,7 +214,6 @@
                       <input
                         type="text"
                         class="form-control"
-                        placeholder="Enter OarPrice"
                         name="oar-price-{{ i }}"
                         [(ngModel)]="item.RateOur"
                         [disabled]="!item.Checked"
@@ -212,51 +221,6 @@
                     </td>
                   </tr>
                 </tbody>
-
-                <!-- <tfoot>
-                  <tr class="selected_row active">
-                    <td>
-                      <div class="action_btn">
-                        <button type="submit" class="btn btn-primary redAlert btn_add_more" (click)="validateItem();addItems()">+</button>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="input-group adw_select min_width_350">
-                        <select2 #item_select2 [data]="itemData" class="control_select " 
-                        (valueChanged)="onItemSelect($event)" autocomplete="true"
-                        [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.ItemId }"
-                          [options]="{placeholder: 'Select Item'}" [value]="itemValue" >
-                        </select2>
-                      </div>
-                    </td>
-                    <td *ngFor="let attribute of attibutesData; let i= index">
-                      <div class="input-group adw_select">
-                        <select2 #attr_select2 [disabled]="ItemId <= 0" id="attr{{i}}" [data]="attribute.data" class="control_select attr"
-                        (valueChanged)="onAttributeSelect($event,i)"
-                        autocomplete="true" [options]="{ placeholder: 'Select Attribute' }" 
-                        [value]="attributeValue" ></select2>
-                      </div>
-                    </td>
-                    <td>
-                        <div class="input-group adw_select">
-                          <select2 #unit_select2 [data]="subUnitsData" class="control_select"
-                          (valueChanged)="onUnitSelect($event)" autocomplete="true"
-                          [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.UnitId }"
-                          [options]="{ placeholder: 'Select Unit' }" [value]="subUnitsValue" ></select2>
-                        </div>
-                    </td>
-                    <td>
-                      <input type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
-                      (input)="validateItem()"
-                      [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Quantity }"
-                      name="quantity" [(ngModel)]="Quantity" (keyup.enter)="enterPressItem($event)" >
-                    </td>
-                    <td class="align-middle" >{{SaleRate}}</td>
-                    <td class="align-middle" >{{PurchaseRate}}</td>
-                    <td class="align-middle" >{{MrpRate}}</td>
-                  </tr>
-                </tfoot>
-                 -->
               </table>
             </div>
           </div>

@@ -41,6 +41,11 @@ export class LedgerGroupComponent implements OnInit {
         this.getLedgerGroupDetail()
       }
     )
+    this.lgroupListSub = this.commonService.newRefreshItemStatus().subscribe(
+      (obj) => {
+        this.getLedgerGroupDetail()
+      }
+    )
   }
 
   @ViewChild('searchData') searchData: ElementRef

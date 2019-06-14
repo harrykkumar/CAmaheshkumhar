@@ -1,0 +1,109 @@
+<main class="main-content bgc-grey">
+    <div id="mainContent">
+        <div class="page-header p-0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4 left_side_head">
+                        <p class="heading_lead c-grey-900 mb-0"><i class="fa fa-chart-line"></i>Purchase Item Report</p>
+                </div>
+                <div class="col-md-8 right_saerch_side p-0">
+                        <div class="mr-2">
+                            <form>
+                                    <div id="custom-search-input" class="btn_header1">
+                                        <div class="input-group col-md-12">
+                                            <input type="text" class="form-control input-lg" placeholder="Search"
+                                               />
+                                            <span class="input-group-btn">
+                                                <a>
+                                                    <i class="fas fa-search"></i>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                      <div class="btn_header">
+                        <a>
+                          <img src="assets/img/printer.png">
+                        </a>
+                        <a>
+                          <img src="assets/img/pdf.png"></a>
+                        <a>
+                          <img (click)="importExcelFile(saleTravelDetails)"  src="assets/img/excel.png"></a>
+                       <!--      <button   type="button" class="btn btn-primary waves-effect waves-light" (click)="openSaleDirect('')" >
+                          New invoice</button> -->
+                        <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        <app-item-stock-search [toShow]="toShowSearch" ></app-item-stock-search>
+        <div class="row animated-background">
+            <div class="col-md-12">
+                <div class="bgc-white bdrs-3 mB-20">
+                    <div class="table-responsive table_height">
+                        <table class="table cat-table cat-table fixTable2 table-hover">
+                            <thead>
+                                <tr>
+                                    <th >SNo</th>
+                                    
+                                    <th >Ledger Name</th>
+                                    <th >Bill No</th>
+                                    <th >Bill Date </th>
+                                    <th >Category</th>
+                                    <th >Item Name</th>
+                                     <th >Bar Code </th>
+                                    <th >HSN </th>
+                                    <th >ItemCode</th>
+                                     <th  *ngFor ="let label of Attributelabel; let i= index"  colspan="1" rowspan="1" class="attribute_header ">{{label.Name}}</th>
+                                    <th class="text-right" >Rate </th>
+                                    <th >BatchNo </th>
+                                    <th class="text-right"> Discount  </th>
+                                    <th class="text-right">Tax Amount  </th>
+                                    <th class="text-right">Sub Total Amount </th>
+                                    <th class="text-right" >Bill Amount  </th>
+
+                                </tr>      
+                            </thead>
+                            <tbody> 
+                              <tr *ngFor="let item of mainData; let i = index">
+                                <td>{{i+1}}</td>
+                                <td>{{item.LedgerName}}</td>
+                                <td>{{item.BillNo}}</td>
+                                <td>{{item.BillDate | dateFormat:clientDateFormat}}</td>
+                                <td>{{item.CategoryName}}</td>
+                                <td>{{item.itemName}}</td>
+                                <td>{{item.BarCode}}</td>
+                                <td>{{item.HsnNo}}</td>
+                                <td>{{item.ItemCode}}</td>
+                                <td *ngFor="let attributeValue  of item.attributeLabelValue; let a = index">{{item.attributeLabelValue[a] && item.attributeLabelValue[a]?.AttributeValueName }}
+                                </td>
+                                <td class="text-right">{{item.SaleRate}}</td>
+                                <td>{{item.BatchNo}}</td>
+                                <td class="text-right" >{{item.Discount}}</td>
+                                <td class="text-right">{{item.TaxAmount}}</td>
+                                <td class="text-right">{{item.SubTotalAmount}}</td>
+                                <td class="text-right">{{item.BillAmount}}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="9"></th>
+                                    <th  *ngFor ="let label of Attributelabel" ></th>
+                                    <th colspan="2"></th>
+                                    <th class="text-right font-weight-bold">{{totalDiscountAmt}}</th>
+                                    <th class="text-right font-weight-bold">{{totalTaxAmount}}</th>
+                                    <th class="text-right font-weight-bold">{{SubTotalAmount}}</th>
+                                    <th colspan="1"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                     
+                    </div>
+                </div>
+            </div>
+          </div>
+
+    </div>
+</main>

@@ -40,4 +40,8 @@ export class FormConstants {
   public static get ChargeForm (): number { 
     return 22
   }
+
+  public static get VoucherForm (): number { 
+    return 9
+  }
 }

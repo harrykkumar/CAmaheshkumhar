@@ -1,16 +1,9 @@
+<!--File is created Dolly Garg-->
 <div class="row">
     <div class="col-md-12">
         <div class="bgc-white bdrs-3 mB-20">
             <div class="table-responsive table_height1">
-                <!-- <app-table-custom #custom_table
-                    [header]="customHeader"
-                    [content]="customContent"
-                    [footer]="customFooter"
-                    [keys]="keys"
-                    [actionList]="actionList"
-                    [formName]="formName"
-                ></app-table-custom> -->
-                <table class="table {{class}} cat-table"> <!--class="table {{class}} table-fixed"-->
+                <table class="table {{class}} cat-table">
                     <thead>
                         <tr>
                             <th *ngFor="let title of customHeader;" [ngClass]="{'text-right': title.isRightAligned}" >{{title.text}}</th>
@@ -58,7 +51,8 @@
         </div>
     </div>
     <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-    (pageNoEmitter)="p = $event;getPurchaseList();"
-    (pageSizeEmitter)="itemsPerPage = $event;getPurchaseList();" ></app-pagination>
+        (pageNoEmitter)="p = $event;getPurchaseList();"
+        (pageSizeEmitter)="itemsPerPage = $event;getPurchaseList();" >
+    </app-pagination>
     </div>
 </div>

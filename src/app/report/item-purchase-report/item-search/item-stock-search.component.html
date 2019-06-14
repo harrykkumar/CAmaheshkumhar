@@ -1,0 +1,74 @@
+<div id="demo" class="collapse bgc-white" [ngStyle]="{'display': toShow ? 'block' : 'none'}" >
+    <div class="form-row bdrs-3 p-10 mB-5">
+      <div class="form-group col-md-3">
+                    <label for="bill_no">Vendors</label>
+                    <div class="input-group adw_select">
+                      <div class="input-group adw_select">
+                        <select2   
+                            #client_select2 id="client"  [data]="clientNameSelect2" 
+                            class="control_select" (valueChanged)="onChangeCustomer($event)" 
+                            autocomplete="true"   [options]="{ placeholder: 'Select Vendors' }"
+                            [value]="clientNameId" [ngClass]="{'errorSelecto': submitSave && invalidObj?.clientNameId }">
+                        </select2>
+                      </div>
+                  </div> 
+            </div>
+        <div class="form-group col-md-3">
+            <label for="bill_no">Category</label>
+            <div class="input-group adw_select">
+                <div class="input-group adw_select">
+                    <select2 [data]="categoryType" #cat_select2 class="control_select"
+                     (valueChanged)="selectedCategory($event)"
+                     [disabled]="toDisableCat"
+                     autocomplete="true"
+                     [options]="{ placeholder: 'Select Category' }"
+                     [value]="cateGoryValue"
+                     [ngClass]="{'errorSelecto': submitClick && invalidObj.CategoryId }"
+                    ></select2>
+                </div>
+            </div>
+        </div>
+
+ 
+        <div class="form-group col-md-3">
+            <label for="bill_no">Item</label>
+            <div class="input-group adw_select ">
+                <select2   #item_select2 [data]="itemCategoryType" class="control_select " (valueChanged)="onSelectItem($event)" autocomplete="true"
+                [options]="{ placeholder: 'Select Item' }" [value]="itemCategoryId" [ngClass]="{ 'errorSelecto is-invalid ': itemSubmit && invalidObj?.itemCategoryId }" ></select2>
+              </div>
+        </div>
+ 
+      
+        <div class="form-group col-md-2">
+            <label for="org_code"> Search</label>
+            <input type="text" class="form-control" id="org_code" [(ngModel)]="SearchText" placeholder="BatchNo">
+        </div>
+ 
+        <div class="form-group col-md-2">
+            <label class="fw-500">From Date</label>
+            <div class="timepicker-input input-icon form-group">
+                <div class="input-group">
+                    <div class="input-group-addon bgc-white bd bdwR-0" start-date><i class="fas fa-calendar-alt"></i></div>
+                    <input (change)="onChangeFromDate($event)" type="text" class="form-control start-date flatpickr" id="from-date" placeholder="from Date"  data-provide="datepicker" [(ngModel)]="fromDatevalue" name="fromDatevalue">
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-md-2">
+            <label class="fw-500">To Date</label>
+            <div class="timepicker-input input-icon form-group">
+                <div class="input-group">
+                    <div class="input-group-addon bgc-white bd bdwR-0" start-date><i class="fas fa-calendar-alt"></i></div>
+                    <input (change)="onChangeToDate($event)" type="text" class="form-control start-date flatpickr" id="to-date" placeholder="To Date"  data-provide="datepicker" [(ngModel)]="toDatevalue" name="toDatevalue">
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-md-1 pt-3">
+            <button type="button" (click)="searchItemButton()" class="btn btn-primary waves-effect waves-light">Search</button>
+
+        </div>
+        <div class="form-group col-md-1 pt-3">
+                <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect m-0">Reset</button>
+    
+            </div>
+    </div>
+</div>

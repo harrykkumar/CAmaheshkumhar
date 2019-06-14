@@ -46,7 +46,11 @@ export class SideMenuComponent {
   }
 
   navigateTo = (selectedMenu) => {
-    this._route.navigate([selectedMenu.path])
+    if (selectedMenu.path === "") {
+      this._route.navigate(['dashboard'])
+    } else {
+      this._route.navigate([selectedMenu.path])
+    }
   }
 
   initUpdatePermission = () => {

@@ -18,7 +18,7 @@ declare const flatpickr: any
   styleUrls: ['./org-branch-form.css']
 })
 export class OrganisationBranchComponent implements OnInit, OnChanges, AfterViewInit {
-  imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
+  imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [], imageType: 'logo'  }
   ImageFiles: any = []
   model: any = {}
   dummyData: any = {}

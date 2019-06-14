@@ -127,7 +127,9 @@ export class RoutingAddComponent {
     this.modalSub1.unsubscribe()
     this.modalSub2.unsubscribe()
     this.modalSub3.unsubscribe()
-    this.subscribe.unsubscribe()
+    if (this.subscribe) {
+      this.subscribe.unsubscribe()
+    }
   }
 
   openModal () {

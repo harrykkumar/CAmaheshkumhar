@@ -10,8 +10,7 @@ import { NgxBarcodeModule } from 'ngx-barcode'
 @NgModule({
   declarations: [ 
     ItemStockReportComponent,
-    ItemStockSearchComponent,
-    ItemStockReportComponent
+    ItemStockSearchComponent
   ],
   imports: [
     CommonModule,

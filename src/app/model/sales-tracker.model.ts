@@ -298,6 +298,12 @@ export interface AddCust {
   isOtherCharge?: any
   stateId?:any
   date?:any
+  toDate?:any
+  fromDate?:any
+  batchNo?:any
+  itemId?:any
+  imageType?:string
+  headId?:any
 }
 
 export interface ResponseSale {
@@ -492,6 +498,7 @@ export interface Image {
   safeUrls: string[]
   baseImages: number[]
   id?: number[]
+  imageType?:string
 }
 
 export interface ItemMasterAdd {
@@ -623,6 +630,7 @@ export class PurchaseAttribute {
   name: string
   id: number
   GroupId?: number
+  Sno: number
 }
 
 export class PurchaseTransaction {
@@ -650,8 +658,6 @@ export class PurchaseAdd {
   ConvertedAmount: number
   CurrencyRate: number
   TotalDiscount: number
-  Freight: number
-  FreightMode: number
   Id: number
   PartyId: number
   ReferralId: number
@@ -709,6 +715,7 @@ export class AdditionalCharges {
   taxTypeChargeName: string
   taxChargeRates: any
   itemTaxTrans: Array<ItemTaxTrans>
+  TaxableAmountCharge: number
 }
 
 export class ItemTaxTrans {
@@ -724,4 +731,5 @@ export class ItemTaxTrans {
   TaxRate: number
   ValueType: number
   TaxSlabName: string
+  Sno: number
 }

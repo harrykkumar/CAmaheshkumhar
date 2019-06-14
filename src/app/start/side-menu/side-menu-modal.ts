@@ -66,6 +66,26 @@ export const SIDE_MENU_MODEL = {
     path: 'ims/item',
     icon: ''
   },
+  'Opening Stock': {
+    path: 'opening-stk',
+    icon: ''
+  },
+  'Bank': {
+    path: 'ims/bank',
+    icon: ''
+  },
+  'General Ledger': {
+    path: 'account/ledgergroup',
+    icon: ''
+  },
+  'Ledger': {
+    path: 'account/ledgercreation',
+    icon: ''
+  },
+  'Item Category Summary': {
+    path: 'ims/report/item-category',
+    icon: ''
+  },
   'Sale-Travel': {
     path: 'ims/sale-travel/sale',
     icon: ''
@@ -91,14 +111,10 @@ export const SIDE_MENU_MODEL = {
     icon: ''
   },
   'Sale-Travel Return': {
-    path: '',
+    path: 'ims/sale-travel/sale-return',
     icon: ''
   },
   'Purchase Return': {
-    path: '',
-    icon: ''
-  },
-  'Item Category Summary': {
     path: '',
     icon: ''
   },
@@ -170,7 +186,7 @@ export const SIDE_MENU_MODEL = {
     icon: ''
   },
   'Sale-Travel-Return': {
-    path: '',
+    path: 'ims/sale-travel/sale-return',
     icon: ''
   },
   'Purchase-Challan': {
@@ -186,11 +202,11 @@ export const SIDE_MENU_MODEL = {
     icon: ''
   },
   'Item Sale ': {
-    path: '',
+    path: 'ims/report/sale-item',
     icon: ''
   },
   'Item Purchase': {
-    path: '',
+    path: 'ims/report/purchase-item',
     icon: ''
   },
   'Item Ledger Summary': {
@@ -219,7 +235,7 @@ export const SIDE_MENU_MODEL = {
     icon: ''
   },
   'Voucher Entry': {
-    path: '',
+    path: 'ims/voucher-entry',
     icon: ''
   },
   'Service': {
@@ -228,6 +244,14 @@ export const SIDE_MENU_MODEL = {
   },
   'Service Billing': {
     path: '',
+    icon: ''
+  } ,
+  'Profit and Loss': {
+    path: 'account/Profit-Loss',
+    icon: ''
+  } ,
+  'Trading': {
+    path: 'account/trading',
     icon: ''
   }
 }

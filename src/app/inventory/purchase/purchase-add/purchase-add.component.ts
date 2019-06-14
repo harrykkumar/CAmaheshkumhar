@@ -1,4 +1,4 @@
-/* File created by dolly */
+/* File created by Dolly Garg*/
 
 import { Component,
   ViewChild,
@@ -7,14 +7,11 @@ import { Component,
   Renderer2,
   ElementRef
  } from '@angular/core'
-// import * as _ from 'underscore'
-import { Subscription } from 'rxjs/Subscription'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { PurchaseService } from '../purchase.service'
-import { Subject, forkJoin } from 'rxjs';
-import { PurchaseAttribute, AddCust, PurchaseAdd, PurchaseTransaction,
-  PurchaseItem } from '../../../model/sales-tracker.model'
+import { Subject, forkJoin, throwError } from 'rxjs';
+import { PurchaseAttribute, AddCust, PurchaseAdd, PurchaseTransaction, PurchaseItem } from '../../../model/sales-tracker.model'
 import { CommonService } from '../../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../../commonServices/toastr.service'
 import { Settings } from '../../../shared/constants/settings.constant'
@@ -22,6 +19,7 @@ import { GlobalService } from '../../../commonServices/global.service'
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { AdditionalCharges, ItemTaxTrans } from '../../../model/sales-tracker.model';
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
+import { takeUntil, catchError, filter, map } from 'rxjs/operators';
 
 declare const flatpickr: any
 declare const $: any
@@ -32,26 +30,12 @@ declare const _: any
   styleUrls: ['./purchase-add.component.css']
 })
 export class PurchaseAddComponent {
-  modalSub: Subscription
+  onDestroy$ = new Subject()
   loading: boolean = true
   catLevel: number = 1
   categories: Array<{ placeholder: string, value: string, data: Array<Select2OptionData>, level: number }> = []
-  attr$: Subscription
-  item$: Subscription
-  vendorData$: Subscription
-  taxProcessesData$: Subscription
-  paymentModesData$: Subscription
-  organisationsData$: Subscription
-  godownsData$: Subscription
-  referralTypesData$: Subscription
-  category$: Subscription
 
-  referralsData$: Subscription
-  taxSlabsData$: Subscription
-  currencyData$: Subscription
-  addressData$: Subscription
-
-  attibutesData: Array<Select2OptionData>
+  attributesData: Array<Select2OptionData>
   taxProcessesData: Array<Select2OptionData>
   paymentModesData: Array<Select2OptionData>
   organisationsData: Array<Select2OptionData>
@@ -100,11 +84,11 @@ export class PurchaseAddComponent {
   defaultCurrency: string
   setupModules: any
   currencyValues: Array < { id: string, symbol: string } > = [{ id: '0', symbol: '%' }]
-  freightData: Array<Select2OptionData>
 
   LedgerChargeId: number
   LedgerName: string
   AmountCharge: number
+  TaxableAmountCharge: number
   TaxSlabChargeId: number
   TaxChargeName: string
   TaxAmountCharge: number
@@ -185,8 +169,6 @@ export class PurchaseAddComponent {
   ConvertedAmount: number
   CurrencyRate: number
   TotalDiscount: number
-  Freight: number
-  FreightMode: number
   Id: number
   PartyId: number
   ReferralId: number
@@ -255,21 +237,9 @@ export class PurchaseAddComponent {
   submitSave: boolean = false
   industryId: number = 0
 
-  newVendAdd$: Subscription
-  addressAdd$: Subscription
-  itemAdd$: Subscription
-  taxAdd$: Subscription
-  unitAdd$: Subscription
-  ledgerAdd$: Subscription
-  settingData$: Subscription
-  freightData$: Subscription
-  chargestData$: Subscription
-  subUnitsData$: Subscription
-  newLedgerCreationAdd$: Subscription
+
   formReadySub = new Subject<boolean>()
   fromReady$ = this.formReadySub.asObservable()
-  form$: Subscription
-
   invalidObj: any = {}
   previousBillNo: string = ''
   keepOpen: boolean = false
@@ -286,7 +256,7 @@ export class PurchaseAddComponent {
     private renderer: Renderer2,
     private gs: GlobalService) {
     this.getFormDependency()
-    this.modalSub = this.commonService.getPurchaseStatus().subscribe(
+    this.commonService.getPurchaseStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (status: AddCust) => {
         if (status.open) {
           if (status.editId !== '') {
@@ -304,10 +274,37 @@ export class PurchaseAddComponent {
         }
       }
     )
-
-    this.newLedgerCreationAdd$ = this.commonService.getledgerCretionStatus().subscribe(
+    this.commonService.getAttributeStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
-        // console.log(data)
+        if (data.id && data.name && data.AttributeId) {
+          let indexOfAttr = -1
+          for (let i = 0; i < this.attributesData.length; i++) { if (this.attributesData[i]['attributeId'] === data.AttributeId) { indexOfAttr = i; break; }}
+          if (indexOfAttr >= 0) {
+            let itemAttributeTrans = JSON.parse(JSON.stringify(this.itemAttributeTrans))
+            let newData = Object.assign([], this.attributesData[indexOfAttr]['data'])
+            newData.push({ id: +data.id, text: data.name });
+            this.attributesData[indexOfAttr]['data'] = Object.assign([], newData)
+            console.log('this.attributesData : ', this.attributesData)
+            setTimeout(() => {
+              this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
+                if (index === indexOfAttr) {
+                  attr.setElementValue(data.id)
+                  $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+                } else if (itemAttributeTrans[index].AttributeId) {
+                  attr.setElementValue(itemAttributeTrans[index].AttributeId)
+                  $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+                } else {
+                  $('#' + $('.attr')[index].id).addClass('errorSelecto')
+                }
+              })
+            }, 100)
+          }
+        }
+      }
+    )
+
+    this.commonService.getledgerCretionStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
+      data => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.chargesData)
           newData.push({ id: +data.id, text: data.name })
@@ -324,7 +321,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.category$ = this.commonService.getCategoryStatus().subscribe(
+    this.commonService.getCategoryStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let categoryId = data.id
@@ -335,7 +332,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.form$ = this.fromReady$.subscribe(
+    this.fromReady$.pipe(takeUntil(this.onDestroy$)).subscribe(
       (formReady) => {
         if (formReady) {
           this.loading = false
@@ -354,7 +351,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.vendorData$ = this.purchaseService.vendorData$.subscribe(
+    this.purchaseService.vendorData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.vendorData = data.data
@@ -362,21 +359,21 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.taxProcessesData$ = this.purchaseService.taxProcessesData$.subscribe(
+    this.purchaseService.taxProcessesData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.taxProcessesData = data.data
         }
       }
     )
-    this.paymentModesData$ = this.purchaseService.paymentModesData$.subscribe(
+    this.purchaseService.paymentModesData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.paymentModesData = data.data
         }
       }
     )
-    this.organisationsData$ = this.purchaseService.organisationsData$.subscribe(
+    this.purchaseService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.organisationsData = data.data
@@ -388,11 +385,10 @@ export class PurchaseAddComponent {
               this.getNewBillNo()
             }
           }
-          // console.log('organisationsData : ', this.organisationsData)
         }
       }
     )
-    this.godownsData$ = this.purchaseService.godownsData$.subscribe(
+    this.purchaseService.godownsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.godownsData = data.data
@@ -400,70 +396,66 @@ export class PurchaseAddComponent {
             this.GodownId = +this.godownsData[0].id
             this.godownValue = +this.godownsData[0].id
           }
-          // console.log('godownsData : ', this.godownsData)
         }
       }
     )
-    this.referralTypesData$ = this.purchaseService.referralTypesData$.subscribe(
+    this.purchaseService.referralTypesData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.referralTypesData = data.data
-          // console.log('referralTypesData : ', this.referralTypesData)
         }
       }
     )
-    this.attr$ = this.purchaseService.attributesData$.subscribe(
+    this.purchaseService.attributesData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.attributeKeys && data.attributesData) {
           this.initAttribute()
           this.attributeKeys = data.attributeKeys
-          this.attibutesData = data.attributesData
+          this.attributesData = data.attributesData
         }
       }
     )
 
-    this.item$ = this.purchaseService.itemData$.subscribe(
+    this.purchaseService.itemData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.itemData = Object.assign([], data.data)
         }
       }
     )
-    this.subUnitsData$ = this.purchaseService.subUnitsData$.subscribe(
+    this.purchaseService.subUnitsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.subUnitsData = data.data
-          // console.log('subUnitsData : ', this.subUnitsData)
         }
       }
     )
-    this.referralsData$ = this.purchaseService.referralData$.subscribe(
+    this.purchaseService.referralData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.referralData = data.data
-          // console.log('referralData : ', this.referralData)
         }
       }
     )
-    this.taxSlabsData$ = this.purchaseService.taxSlabsData$.subscribe(
+    this.purchaseService.taxSlabsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.taxSlabsData = data.data
-          // console.log('taxSlabsData : ', this.taxSlabsData)
         }
       }
     )
 
-    this.currencyData$ = this.purchaseService.currencyData$.subscribe(
+    this.purchaseService.currencyData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.currencyData = data.data
           this.defaultCurrency = this.currencyData[0].text
-          this.currencyValues[0] = { id: '0', symbol: '%' }
-          this.currencyValues[1] = { id: '1', symbol: this.defaultCurrency }
-          // console.log('currencyValues : ', this.currencyValues)
+          this.currencyValues = [
+            { id: '0', symbol: '%' },
+            { id: '1', symbol: this.defaultCurrency }
+          ]
+          console.log('currencyValues : ', this.currencyValues)
           this.convertToCurrencyData = [ ...this.currencyData ]
-          // console.log('currency data : ', this.convertToCurrencyData)
           if (this.currencyData.length >= 1) {
             this.CurrencyId = +this.currencyData[0].id
             this.currencyValue = +this.currencyData[0].id
@@ -474,15 +466,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.freightData$ = this.purchaseService.freightData$.subscribe(
-      data => {
-        if (data.data) {
-          this.freightData = data.data
-        }
-      }
-    )
-
-    this.chargestData$ = this.purchaseService.chargestData$.subscribe(
+    this.purchaseService.chargestData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.chargesData = data.data
@@ -491,7 +475,7 @@ export class PurchaseAddComponent {
     )
 
     let _self = this
-    this.addressData$ = this.purchaseService.addressData$.subscribe(
+    this.purchaseService.addressData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           _self.AddressData = Object.assign([], data.data)
@@ -506,7 +490,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.settingData$ = this.purchaseService.settingData$.subscribe(
+    this.purchaseService.settingData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
           this.settingData = data.data
@@ -515,7 +499,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.newVendAdd$ = this.commonService.getVendStatus().subscribe(
+    this.commonService.getVendStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.vendorData)
@@ -536,7 +520,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.addressAdd$ = this.commonService.getAddressStatus().subscribe(
+    this.commonService.getAddressStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.AddressData)
@@ -556,7 +540,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.unitAdd$ = this.commonService.getCompositeUnitStatus().subscribe(
+    this.commonService.getCompositeUnitStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.subUnitsData)
@@ -574,7 +558,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.unitAdd$ = this.commonService.getUnitStatus().subscribe(
+    this.commonService.getUnitStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.subUnitsData)
@@ -592,12 +576,17 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.itemAdd$ = this.commonService.getItemMasterStatus().subscribe(
+    this.commonService.getItemMasterStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
-        if (data.id && data.name) {
+        if (data.id && data.name && data.categoryId) {
           let newData = Object.assign([], this.itemData)
           newData.push({ id: data.id, text: data.name })
-          this.itemData = newData
+          this.itemData = Object.assign([], newData)
+          this.allItems.push({
+            Id: +data.id,
+            Name: data.name,
+            CategoryId: +data.categoryId
+          })
           this.ItemId = +data.id
           this.itemValue = data.id
           setTimeout(() => {
@@ -610,7 +599,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.ledgerAdd$ = this.commonService.getLedgerStatus().subscribe(
+    this.commonService.getLedgerStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.paymentLedgerselect2)
@@ -628,7 +617,7 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.taxAdd$ = this.commonService.getTaxStatus().subscribe(
+    this.commonService.getTaxStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.taxSlabsData)
@@ -660,13 +649,12 @@ export class PurchaseAddComponent {
 
   getEditData () {
     console.log('edit id : ', this.Id)
-    this.purchaseService.getPurchaseDetailById(this.Id).subscribe(
+    this.purchaseService.getPurchaseDetailById(this.Id).pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         console.log('edit data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           this.allAddressData = data.Data.AddressDetails
           this.purchaseService.createAddress(data.Data.AddressDetails)
-          // $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
           this.createForm(data.Data)
         } else {
           this.toastrService.showError(data.Message, '')
@@ -711,7 +699,8 @@ export class PurchaseAddComponent {
         ValueType: element.ValueType,
         TaxSlabName: element.TaxSlabName,
         TaxRateNameTax: element.TaxRateName,
-        id: element.Id
+        id: element.Id,
+        Sno: index + 1
       }
     })
 
@@ -745,6 +734,7 @@ export class PurchaseAddComponent {
       this.taxTypeChargeName = this.taxTypeChargeName
       this.taxChargeSlabType = element.TaxSlabType
       this.taxChargeRates = taxRates
+      this.TaxableAmountCharge = (+element.TaxTypeCharge === 0) ? this.AmountCharge : +this.TotalAmountCharge - this.TaxAmountCharge
       this.addCharge()
       if (this.AdditionalCharges[this.AdditionalCharges.length - 1]) {
         this.AdditionalCharges[this.AdditionalCharges.length - 1].Id = element.Id
@@ -765,10 +755,10 @@ export class PurchaseAddComponent {
         AttributeId:  element.AttributeId,
         ParentTypeId: FormConstants.PurchaseForm,
         name: element.AttributeName,
-        Id: element.Id
+        Id: element.Id,
+        Sno: index + 1
       }
     })
-
     // console.log('this.itemAttributesOthers : ', this.itemAttributesOthers)
   }
 
@@ -789,11 +779,13 @@ export class PurchaseAddComponent {
       })
       console.log('itemTaxTrans : ', itemTaxTrans)
       let itemAttributeTrans = []
-      itemAttributeTrans = this.itemAttributesOthers.filter((attr) => {
-        if (attr.ItemTransId === element.Id) {
-          return attr
-        }
-      })
+      if (this.itemAttributesOthers.length > 0) {
+        itemAttributeTrans = this.itemAttributesOthers.filter((attr) => {
+          if (attr.ItemTransId === element.Id) {
+            return attr
+          }
+        })
+      }
       if (+element.TaxType === 0) {
         this.taxTypeName = 'Exclusive'
       } else {
@@ -806,21 +798,21 @@ export class PurchaseAddComponent {
       this.categoryId = element.CategoryId
       this.ItemId = element.ItemId
       this.UnitId = element.UnitId
-      this.Length = element.Length
-      this.Height = element.Height
-      this.Width = element.Width
-      this.Quantity = element.Quantity
+      this.Length = +element.Length
+      this.Height = +element.Height
+      this.Width = +element.Width
+      this.Quantity = +element.Quantity
       this.SaleRate = element.SaleRate
       this.MrpRate = element.MrpRate
-      this.PurchaseRate = element.PurchaseRate
+      this.PurchaseRate = +element.PurchaseRate
       this.TaxSlabId = element.TaxSlabId
       this.TaxType = element.TaxType
       this.TaxAmount = element.TaxAmount
       this.DiscountType = element.DiscountType
       this.Discount = element.Discount
       this.DiscountAmt = element.DiscountAmt
-      this.ExpiryDate = element.ExpiryDate
-      this.MfdDate = element.MfdDate
+      this.ExpiryDate = (element.ExpiryDate) ? this.gs.utcToClientDateFormat(element.ExpiryDate, this.clientDateFormat) : ''
+      this.MfdDate = (element.MfdDate) ? this.gs.utcToClientDateFormat(element.MfdDate, this.clientDateFormat) : ''
       this.BatchNo = element.BatchNo
       this.Remark = element.Remark
       this.itemName = element.ItemName
@@ -833,6 +825,17 @@ export class PurchaseAddComponent {
       this.taxSlabType = element.TaxSlabType
       this.taxRates = taxRates
       this.editItemId = element.Id
+      this.AmountItem = (+element.TaxType === 0) ? this.calcTotal() : +this.SubTotal - this.TaxAmount
+      if (this.taxCalInclusiveType === 2) {
+        if ('' + this.DiscountType === '0') {
+          if (+this.Discount < 100 && +this.Discount > 0) {
+            this.DiscountAmt = +((+this.Discount / 100) * (this.AmountItem)).toFixed(this.noOfDecimalPoint)
+          } else if (+this.Discount === 100 || +this.Discount === 0 ) {
+            this.DiscountAmt = 0
+          }
+        }
+        this.AmountItem = this.AmountItem - this.DiscountAmt
+      }
       this.addItems()
       if (this.Items[this.Items.length - 1]) {
         this.Items[this.Items.length - 1].Id = element.Id
@@ -842,6 +845,17 @@ export class PurchaseAddComponent {
       }
     })
     console.log('items : ', this.Items)
+  }
+
+  calcTotal () {
+    const totalAmount = ((isNaN(+this.PurchaseRate) ? 0 : +this.PurchaseRate)
+      * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
+      * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+    )
+    - (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
+    return totalAmount
   }
 
   createTransaction (paymentDetails) {
@@ -878,8 +892,6 @@ export class PurchaseAddComponent {
     this.ConvertedAmount = +others.ConvertedAmount
     this.CurrencyRate = +others.CurrencyRate
     this.TotalDiscount = 0
-    this.Freight = +others.Freight
-    this.FreightMode = +others.FreightMode
     this.PartyId = +others.LedgerId
     this.ReferralId = others.ReferralId
     this.ReferralTypeId = others.ReferralTypeId
@@ -954,9 +966,9 @@ export class PurchaseAddComponent {
   noOfDecimalPoint: number = 0
   backDateEntry: boolean = false
   isBillNoManuall: boolean = false
-  freightAndOtherChangeCalc: string
+  taxCalInclusiveType: number = 2
   getSetUpModules (settings) {
-    // console.log('settings : ', settings)
+    console.log('settings : ', settings)
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
         this.catLevel = +element.val
@@ -970,16 +982,16 @@ export class PurchaseAddComponent {
       if (element.id === SetUpIds.unitType) {
         this.unitSettingType = +element.val
       }
-      if (element.id === SetUpIds.gstCalculationOnFreightOrOtherChange) {
-        this.freightAndOtherChangeCalc = 'Max'
-      }
       if (element.id === SetUpIds.backDateEntry) {
         this.backDateEntry = element.val
       }
       if (element.id === SetUpIds.purchaseBillNoManually) {
-        this.isBillNoManuall = element.val
+        this.isBillNoManuall = !!(+element.val)
+        console.log('isBillNoManuall : ', this.isBillNoManuall)
       }
-      // console.log('isBillNoManuall : ', this.isBillNoManuall)
+      if (element.id === SetUpIds.taxCalInclusive) {
+        this.taxCalInclusiveType = +element.val
+      }
     })
     this.createModels(this.catLevel)
   }
@@ -1041,11 +1053,8 @@ export class PurchaseAddComponent {
                 this.previousBillNo = data.Data[0].BillNo
               }
             } else {
-              if (!this.isBillNoManuall) {
-                this.BillNo = ''
-              } else {
-                this.previousBillNo = ''
-              }
+              this.previousBillNo = ''
+              this.BillNo = ''
             }
           } else {
             this.toastrService.showError(data.Message, '')
@@ -1055,107 +1064,18 @@ export class PurchaseAddComponent {
     }
   }
 
-  getSPUtilityData () {
-    let _self = this
-    this.commonService.getSPUtilityData(UIConstant.PURCHASE_TYPE).subscribe(
-      data => {
-        console.log('sputility data : ', data)
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-          if (data.Data.AttributeValueResponses.length > 0) {
-            _self.purchaseService.generateAttributes(data.Data)
-          }
-          if (data.Data.ItemCategorys.length > 0) {
-            _self.getCatagoryDetail(data.Data.ItemCategorys)
-          }
-          this.allItems = [ ...data.Data.Items ]
-          // console.log('allItems : ', this.allItems)
-          _self.purchaseService.createItems(data.Data.Items)
-          _self.purchaseService.createVendors(data.Data.Vendors)
-          _self.purchaseService.createTaxProcess(data.Data.TaxProcesses)
-          _self.purchaseService.createPaymentModes(data.Data.PaymentModes)
-          _self.purchaseService.createOrganisations(data.Data.Organizations)
-          _self.purchaseService.createGodowns(data.Data.Godowns)
-          _self.purchaseService.createReferralTypes(data.Data.ReferalTypes)
-          _self.purchaseService.createSubUnits(data.Data.SubUnits)
-          _self.purchaseService.createTaxSlabs(data.Data.TaxSlabs)
-          _self.purchaseService.createReferral(data.Data.Referals)
-          _self.purchaseService.createCurrencies(data.Data.Currencies)
-          _self.purchaseService.createFreightBy(data.Data.FreightModes)
-          _self.purchaseService.createCharges(data.Data.LedgerCharges)
-          _self.clientStateId = data.Data.ClientAddresses[0].StateId
-          if (!this.editMode) {
-            if (!this.isBillNoManuall) {
-              _self.setBillNo(data.Data.TransactionNoSetups)
-            }
-            _self.setBillDate()
-            _self.setPartyBillDate()
-            _self.setPayDate()
-            _self.setExpiryDate()
-            _self.setDueDate(0)
-            _self.setMfdDate()
-            setTimeout(() => {
-              if (this.vendorSelect2) {
-                this.vendorSelect2.selector.nativeElement.focus()
-              }
-              this.commonService.fixTableHF('cat-table')
-              this.loading = false
-            }, 1000)
-          }
-        } else {
-          throw new Error (data.Description)
-        }
-      },
-      (error) => {
-        console.log(error)
-        this.toastrService.showError(error, '')
-        this.loading = false
-      },
-      () => {
-        if (!this.editMode) {
-          this.loading = false
-        } else {
-          if (this.editMode) {
-            this.getEditData()
-          }
-        }
-      }
-    )
-  }
-
-  ngAfterViewInit () {
-    
-  }
-
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal () {
-    // this.loading = true
-    // this.categories = []
-    $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
-    // this.AddressData = []
-    // this.vendorData = []
-    // this.organisationsData = []
-    // this.currencyData = []
-    // this.godownsData = []
-    // this.allCategories = []
-    // this.allItems = []
-    // this.subUnitsData = []
-    // this.paymentModesData = []
-    // this. paymentLedgerselect2 = []
-    // this.referralData = []
-    // this.referralTypesData = []
-    // this.freightData = []
-    // this.attributeKeys = []
-    // this.itemAttributeTrans = []
+    setTimeout(() => {
+      $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
+    }, 100)
     this.industryId = +this.settings.industryId
     this.taxTypeData = [
       { id: '0', text: 'Exclusive' },
       { id: '1', text: 'Inclusive' }
     ]
-    // this.convertToCurrencyData = []
-    this.currencyValues = [{ id: '0', symbol: '%' }]
     this.initItem()
     this.initTransaction()
-    // this.initComp()
     this.initCharge()
 
     if (!this.editMode) {
@@ -1181,21 +1101,25 @@ export class PurchaseAddComponent {
       }
     }
   }
-
+  
   checkForExistence: any = []
   getFormDependency () {
-    this.commonService.getFormDependency(UIConstant.PURCHASE_TYPE).subscribe(
+    this.commonService.getFormDependency(UIConstant.PURCHASE_TYPE).pipe(takeUntil(this.onDestroy$), filter(data => {
+      if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
+    }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
       data => {
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-          data.Data.forEach((element) => {
+        console.log('form dependency : ', data)
+        if (data) {
+          data.forEach((element) => {
             if (element.IsIdentity) {
               element['FieldValue'] = this.Id
             }
           })
-          this.checkForExistence = data.Data
+          this.checkForExistence = data
           console.log('dependency : ', this.checkForExistence)
         }
-      }
+      },
+      (error) => { this.toastrService.showError(error, '') }
     )
   }
 
@@ -1213,7 +1137,7 @@ export class PurchaseAddComponent {
 
   getCatLevel () {
     let _self = this
-    this.commonService.getSettingById(SetUpIds.catLevel).subscribe(
+    this.commonService.getSettingById(SetUpIds.catLevel).pipe(takeUntil(this.onDestroy$)).subscribe(
       (data) => {
         if (data.Code === UIConstant.THOUSAND) {
           const setUpSettings = data.Data.SetupClients
@@ -1366,23 +1290,22 @@ export class PurchaseAddComponent {
     this.loading = false
   }
 
+  catStr: string = ''
   onSelectCategory (evt, levelNo) {
-    // console.log('evt on change of category : ', evt, 'level : ', levelNo)
+    console.log('evt on change of category : ', evt, 'level : ', levelNo)
     if (this.catLevel > 1) {
       if (+evt.value > 0) {
         if (levelNo === this.catLevel) {
           if (this.categoryId !== +evt.value) {
             this.categoryId = +evt.value
             this.categoryName = evt.data[0].text
-            // console.log('categoryname : ', this.categoryName)
-            // console.log('category id : ', this.categoryId)
             this.checkForItems(+evt.value)
             this.validateItem()
-            this.updateCategories(+evt.value)
           }
         } else {
           if (levelNo < this.catLevel) {
             let categoryId = +evt.value
+            this.categoryName = evt.data[0].text
             let newData = []
             this.categories[levelNo].data = [{ id: '0', text: 'Select Category' }]
             this.allCategories.forEach(category => {
@@ -1407,14 +1330,13 @@ export class PurchaseAddComponent {
       }
       if (+evt.value === 0) {
         this.getCatagoryDetail(this.allCategories)
+        this.checkForItems(+evt.value)
       }
     } else {
       if (levelNo === this.catLevel) {
         if (this.categoryId !== +evt.value) {
           this.categoryId = +evt.value
           this.categoryName = evt.data[0].text
-          // console.log('categoryname : ', this.categoryName)
-          // console.log('category id : ', this.categoryId)
           this.checkForItems(+evt.value)
           this.validateItem()
           this.updateCategories(+evt.value)
@@ -1425,12 +1347,27 @@ export class PurchaseAddComponent {
 
   checkForItems (categoryId) {
     let newItemsList = []
-    this.allItems.forEach(item => {
-      if (item.CategoryId === categoryId) {
-        newItemsList.push(item)
+    if (categoryId > 0) {
+      this.allItems.forEach(item => {
+        if (item.CategoryId === categoryId) {
+          newItemsList.push(item)
+        }
+      })
+      if (this.editItemId === -1) {
+        this.purchaseService.createItems(newItemsList)
+      } else {
+        let newData = [{ id: '0', text: 'Select Items' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+        newItemsList.forEach(item => {
+          newData.push({
+            id: item.Id,
+            text: item.Name
+          })
+        })
+        this.itemData = Object.assign([], newData)
       }
-    })
-    this.purchaseService.createItems(newItemsList)
+    } else if (categoryId === 0) {
+      this.purchaseService.createItems(this.allItems)
+    }
   }
 
   @ViewChild('item_select2') itemselect2: Select2Component
@@ -1462,8 +1399,8 @@ export class PurchaseAddComponent {
   }
 
   getItemDetail (id) {
-    this.purchaseService.getItemDetail(id).subscribe(data => {
-      // console.log('item detail : ', data)
+    this.purchaseService.getItemDetail(id).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+      console.log('item detail : ', data)
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.length > 0) {
           this.categoryName = data.Data[0].CategoryName
@@ -1515,7 +1452,8 @@ export class PurchaseAddComponent {
           AttributeId:  +evt.value,
           ParentTypeId: FormConstants.PurchaseForm,
           name: evt.data[0].text,
-          id: 0
+          id: 0,
+          Sno: Sno
         }
       }
     } else if (+evt.value === -1) {
@@ -1524,7 +1462,6 @@ export class PurchaseAddComponent {
         attrNameId: attributeId,
         attrValue: attributeId,
         disabledAddButton: true
-
       }
       let item = this.attrSelect2.find((attr: Select2Component, i: number, array: Select2Component[]) => {
         return i === index
@@ -1550,9 +1487,44 @@ export class PurchaseAddComponent {
     }
   }
 
+  getParentCatStr (id) {
+    let name = ''
+    this.allCategories.forEach(category => {
+      if (id === category.Id) {
+        name = category.Name
+      }
+    })
+    return name
+  }
+
+  getPattern (): string {
+    let childmostId = this.categoryId
+    let pattern = [this.categoryId]
+    this.catSelect2.forEach(() => {
+      let parent = this.getParentCat(childmostId)
+      if (parent !== 0) {
+        pattern.push(parent)
+        childmostId = parent
+      }
+    })
+    pattern = pattern.reverse()
+
+    let str = ''
+    this.catSelect2.forEach((cat: Select2Component, index: number) => {
+      if (index === (this.catLevel - 1)) {
+        str += this.getParentCatStr(pattern[index])
+      } else {
+        str += this.getParentCatStr(pattern[index]) + ' => '
+      }
+    })
+
+    return str
+  }
+
+   // console.log('id : ', id)
+  // console.log('level : ', level)
+   // console.log('parentMostCategory : ', parentMostCategory)
   getParentMostCat (id, level) {
-    // console.log('id : ', id)
-    // console.log('level : ', level)
     let parentMostCategory = 0
     while (level !== 0) {
       this.allCategories.forEach(category => {
@@ -1563,27 +1535,63 @@ export class PurchaseAddComponent {
         }
       })
     }
-    // console.log('parentMostCategory : ', parentMostCategory)
     this.parentMostCategory = parentMostCategory
   }
 
+  getParentCat (id) {
+    let parentId = 0
+    this.allCategories.forEach(category => {
+      if (id === category.Id) {
+        parentId = category.ParentId
+      }
+    })
+    return parentId
+  }
+// this.catSelect2.forEach((item: Select2Component, index: number) => {
+      //   if (index !== 0) {
+      //     this.updateCatArray(pattern[index - 1], index)
+      //   }
+      // })
+    //console.log('new cateogries : ', this.categories)
   @ViewChildren('cat_select2') catSelect2: QueryList<Select2Component>
   updateCategories (childmostId) {
-    let categoryId = childmostId
-    this.getParentMostCat(childmostId, this.catLevel)
-    categoryId = this.parentMostCategory
-    // console.log('category id : ', categoryId)
-    if (+this.categoryId !== +childmostId || this.editItemId !== -1) {
-      this.categoryId = +childmostId
-      this.catSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-        if (index === 0) {
-          item.setElementValue(categoryId)
-        } else if (index === (this.catLevel - 1)) {
-          item.setElementValue(+childmostId)
+    console.log('childmostId id : ', childmostId)
+    console.log('this.categoryId id : ', this.categoryId)
+    if (this.categoryId !== childmostId || this.editItemId !== -1) {
+      let pattern = [childmostId]
+      this.catSelect2.forEach(() => {
+        let parent = this.getParentCat(childmostId)
+        if (parent !== 0) {
+          pattern.push(parent)
+          childmostId = parent
         }
       })
-      let evt = { value: categoryId, data: [{ text: '' }] }
-      this.onSelectCategory(evt, 1)
+      pattern = pattern.reverse()
+      setTimeout(() => {
+        this.catSelect2.forEach((item: Select2Component, index: number) => {
+          item.setElementValue(pattern[index])
+        })
+      }, 100)
+    }
+  }
+
+  updateCatArray (id, levelNo) {
+    console.log('evt on updateCatArray of category : ', id, 'level : ', levelNo)
+    if (levelNo < this.catLevel) {
+      let categoryId = +id
+      let newData = []
+      this.categories[levelNo].data = [{ id: '0', text: 'Select Category' }]
+      this.allCategories.forEach(category => {
+        if (category.LevelNo === levelNo + 1 && category.ParentId === categoryId) {
+          newData.push({
+            text: category.Name,
+            id: category.Id
+          })
+        }
+      })
+      console.log('level no : ', levelNo, 'new data : ', newData)
+      this.categories[levelNo].data = newData
+      // this.categories = Object.assign([], this.categories)
     }
   }
 
@@ -1605,24 +1613,49 @@ export class PurchaseAddComponent {
       } else {
         this.DiscountAmt = isNaN(+this.Discount) ? 0 : +this.Discount
       }
-
       if (this.taxRates.length > 0 && total > 0) {
         let discountedAmount = total - this.DiscountAmt
         this.AmountItem = discountedAmount
-        if (this.TaxType === 1) {
-          let returnTax = this.purchaseService.taxCalCulationForInclusive(this.taxRates,
-            this.taxSlabType,
-            discountedAmount,
-            this.isOtherState, FormConstants.PurchaseForm, this.taxSlabName)
-          this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
-          this.appliedTaxRatesItem = returnTax.appliedTaxRates
-        } else if (this.TaxType === 0) {
+        if (this.TaxType === 0) {
           let returnTax = this.purchaseService.taxCalculation(this.taxRates,
             this.taxSlabType,
             discountedAmount,
             this.isOtherState, FormConstants.PurchaseForm, this.taxSlabName)
           this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
           this.appliedTaxRatesItem = returnTax.appliedTaxRates
+        } else {
+          if (this.taxCalInclusiveType === 1) {
+            let AmountItem = +(this.purchaseService.calcTaxableAmountType1(this.taxRates,
+              this.taxSlabType,
+              discountedAmount,
+              this.isOtherState)).toFixed(4)
+            this.AmountItem = AmountItem
+            let returnTax = this.purchaseService.taxCalCulationForInclusive(this.taxRates,
+              this.taxSlabType,
+              this.AmountItem,
+              this.isOtherState, FormConstants.PurchaseForm, this.taxSlabName)
+            this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
+            this.appliedTaxRatesItem = returnTax.appliedTaxRates
+          } else {
+            let AmountItem = +(this.purchaseService.calcTaxableAmountType2(this.taxRates,
+              this.taxSlabType,
+              total,
+              this.isOtherState)).toFixed(4)
+            if ('' + this.DiscountType === '0') {
+              if (+this.Discount < 100 && +this.Discount > 0) {
+                this.DiscountAmt = +((+this.Discount / 100) * (AmountItem)).toFixed(this.noOfDecimalPoint)
+              } else if (+this.Discount === 100 || +this.Discount === 0 ) {
+                this.DiscountAmt = 0
+              }
+            }
+            this.AmountItem = AmountItem - this.DiscountAmt
+            let returnTax = this.purchaseService.taxCalCulationForInclusiveType2(this.taxRates,
+              this.taxSlabType,
+              this.AmountItem,
+              this.isOtherState, FormConstants.PurchaseForm, this.taxSlabName)
+            this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
+            this.appliedTaxRatesItem = returnTax.appliedTaxRates
+          }
         }
       } else {
         if (this.editItemId === -1) {
@@ -1633,25 +1666,30 @@ export class PurchaseAddComponent {
       this.DiscountAmt = 0
       this.TaxAmount = 0
     }
-    // this.Freight = isNaN(+this.Freight) ? 0 : +this.Freight
-    console.log('tax taxChargeRates : ', this.taxChargeRates)
+    this.TaxableAmountCharge = +this.AmountCharge
     if (this.taxChargeRates.length > 0 && +this.AmountCharge > 0) {
-      if (this.TaxTypeCharge === 1) {
-        let returnTax = this.purchaseService.taxCalCulationForInclusive(this.taxChargeRates,
-          this.taxChargeSlabType,
-          +this.AmountCharge,
-          this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
-        this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
-        this.appliedTaxRatesCharge = returnTax.appliedTaxRates
-      } else if (this.TaxTypeCharge === 0) {
+      if (this.TaxTypeCharge === 0) {
         let returnTax = this.purchaseService.taxCalculation(this.taxChargeRates,
           this.taxChargeSlabType,
           +this.AmountCharge,
           this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
         this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
         this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+      } else {
+        if (this.TaxTypeCharge === 1) {
+          let AmountCharge = this.purchaseService.calcTaxableAmountType1 (this.taxChargeRates,
+            this.taxChargeSlabType, +this.AmountCharge, this.isOtherState)
+          console.log('amount charge : ', AmountCharge)
+          this.TaxableAmountCharge = +AmountCharge.toFixed(this.noOfDecimalPoint)
+          let returnTax = this.purchaseService.taxCalCulationForInclusive(this.taxChargeRates,
+            this.taxChargeSlabType,
+            +AmountCharge,
+            this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
+          this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
+          this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+        }
       }
-    }  else if (this.editChargeId === -1) {
+    } else if (this.editChargeId === -1) {
       this.TaxAmountCharge = 0
     }
     // console.log('TaxAmountCharge : ', this.TaxAmountCharge)
@@ -1665,21 +1703,12 @@ export class PurchaseAddComponent {
     this.SubTotal = +(this.calculateTotalOfRow()).toFixed(this.noOfDecimalPoint)
     if (+this.ItemId > 0 || +this.LedgerChargeId > 0) {
       this.calculateAllTotal()
-    } else {
-      this.backtrackCalc()
     }
     this.getBillSummary()
   }
 
   calculateTotalOfRow () {
-    const totalAmount = ((isNaN(+this.PurchaseRate) ? 0 : +this.PurchaseRate)
-      * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
-      * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
-      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
-      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
-    )
-     - (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
-     + ((this.TaxType === 0) ? (isNaN(+this.TaxAmount) ? 0 : +this.TaxAmount) : 0)
+    let totalAmount = this.AmountItem + (isNaN(+this.TaxAmount) ? 0 : +this.TaxAmount)
     return isNaN(totalAmount) ? 0 : totalAmount
   }
 
@@ -1692,37 +1721,6 @@ export class PurchaseAddComponent {
       this.Amount = +(this.BillAmount - paymentTotal).toFixed(this.noOfDecimalPoint)
     } else if (paymentTotal > this.BillAmount) {
       this.Amount = 0
-    }
-    // console.log('amount : ', this.Amount)
-  }
-
-  backtrackCalc () {
-    let totalDiscount = 0
-    let totalTax = 0
-    let totalQuantity = 0
-    let totalAmount = 0
-    for (let i = 0; i < this.Items.length; i++) {
-      totalDiscount = totalDiscount + +this.Items[i].DiscountAmt
-      totalTax = totalTax + +this.Items[i].TaxAmount
-      totalQuantity = totalQuantity + +this.Items[i].Quantity
-      totalAmount = +totalAmount + +this.Items[i].SubTotal
-    }
-    this.TotalDiscount = +totalDiscount.toFixed(this.noOfDecimalPoint)
-    this.TotalTaxAmount = +totalTax.toFixed(this.noOfDecimalPoint)
-    this.TotalQty = +totalQuantity.toFixed(this.noOfDecimalPoint)
-    this.SubTotalAmount = +totalAmount.toFixed(this.noOfDecimalPoint)
-    for (let i = 0; i < this.AdditionalCharges.length; i++) {
-      totalAmount = +totalAmount + +this.AdditionalCharges[i].TotalAmountCharge
-    }
-    if (!isNaN(totalAmount)) {
-      // totalAmount = totalAmount + +this.OtherCharge
-      // if (this.FreightMode === 1) {
-      //   totalAmount = totalAmount + +this.Freight
-      // }
-      // this.RoundOff = +(Math.round(totalAmount) - totalAmount).toFixed(this.noOfDecimalPoint)
-      this.CessAmount = 0
-      this.BillAmount = totalAmount
-      this.calculatePaymentAmount()
     }
   }
 
@@ -1806,8 +1804,6 @@ export class PurchaseAddComponent {
     if (this.isOtherState !== isOtherState) {
       this.isOtherState = isOtherState
       this.updateItemTax()
-      // this.updateChargeTax()
-      // this.getBillSummary()
     } else {
       this.loadingSummary = false
     }
@@ -1939,18 +1935,6 @@ export class PurchaseAddComponent {
     }
   }
 
-  // updateTax () {
-  //   this.ItemTaxTrans = []
-  //   this.Items.forEach(element => {
-  //     this.ItemTaxTrans = this.ItemTaxTrans.concat(element['itemTaxTrans'])
-  //   });
-  //   this.AdditionalCharges.forEach(element => {
-  //     this.ItemTaxTrans = this.ItemTaxTrans.concat(element['itemTaxTrans'])
-  //   })
-  //   console.log('updates itemtaxtrans : ', this.ItemTaxTrans)
-
-  // }
-
   onCurrencySelect (evt) {
     // console.log('selected currency : ', evt)
     if (evt.value > 0 && evt.data && evt.data.length > 0 && evt.data[0].text) {
@@ -1986,14 +1970,6 @@ export class PurchaseAddComponent {
     }
   }
 
-  @ViewChild('freight_By') freightBySelect2: Select2Component
-  onFreightSelect (evt) {
-    console.log(evt)
-    if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
-      this.FreightMode = +evt.value
-    }
-  }
-
   @ViewChild('payment_select2') paymentSelect2: Select2Component
   onPaymentModeSelect (event) {
     // console.log('payment method select: ', event)
@@ -2005,7 +1981,7 @@ export class PurchaseAddComponent {
         this.LedgerId = 0
         this.setpaymentLedgerSelect2(0)
       } else if (+event.value === 1) {
-        this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
+        this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
         this.BankLedgerName = 'Cash'
         this.LedgerId = 1
         this.paymentSelect2.setElementValue(this.LedgerId)
@@ -2020,16 +1996,14 @@ export class PurchaseAddComponent {
       let item = this.catSelect2.find((item: Select2Component, index: number, array: Select2Component[]) => {
         return index === 0
       })
-      item.selector.nativeElement.focus()
-    }, 10)
+      item.selector.nativeElement.focus({ preventScroll: false })
+    }, 100)
   }
 
   @ViewChild('savebutton') savebutton: ElementRef
   enterPressTrans (e: KeyboardEvent) {
     let paymentTotal = this.getPaymentTotal()
     if (this.BillAmount === paymentTotal) {
-      // const element = this.renderer.selectRootElement(this.savebutton.nativeElement, true)
-      // setTimeout(() => element.focus({ preventScroll: false }), 0)
       e.preventDefault()
       this.manipulateData()
     } else {
@@ -2043,7 +2017,7 @@ export class PurchaseAddComponent {
   setpaymentLedgerSelect2 (i) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this.commonService.getPaymentLedgerDetail(9).subscribe(data => {
+    this.commonService.getPaymentLedgerDetail(9).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       // console.log('PaymentModeData : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
@@ -2202,9 +2176,6 @@ export class PurchaseAddComponent {
       if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
        || (this.industryId === 3 && this.Length && this.Width && this.Height)
        || (this.industryId === 2 || this.industryId === 6)) {
-        // if (this.editMode) {
-        //   this.calculate()
-        // }
         this.addItem()
         this.clickItem = true
         console.log('items : ', this.Items)
@@ -2216,25 +2187,17 @@ export class PurchaseAddComponent {
           this.setExpiryDate()
           this.setMfdDate()
         }
-      } else {
-        // this.toastrService.showError('Please fill the required fields', '')
       }
-    } else {
-      // this.clickItem = false
-      // this.toastrService.showError('Please fill the required fields', '')
     }
   }
 
   addItem () {
     this.addItemBasedOnIndustry()
     this.ItemAttributeTrans = this.ItemAttributeTrans.concat(this.itemAttributeTrans)
-    // console.log('ItemAttributeTrans : ', this.ItemAttributeTrans)
     if (this.appliedTaxRatesItem.length > 0) {
       this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesItem)
     }
     console.log('ItemTaxTrans : ', this.ItemTaxTrans)
-    // console.log('Items : ', this.Items)
-    // this.getBillSummary()
   }
 
   addItemBasedOnIndustry () {
@@ -2244,6 +2207,14 @@ export class PurchaseAddComponent {
     } else if (this.Items.length > 0) {
       Sno = +this.Items[this.Items.length - 1].Sno + 1
     }
+    this.appliedTaxRatesItem.forEach(element => {
+      element['Sno'] = Sno
+      element['ItemTransTaxId'] = Sno
+    })
+    this.itemAttributeTrans.forEach(element => {
+      element['Sno'] = Sno
+      element['ItemTransId'] = Sno
+    })
     this.Items.push({
       Id: 0,
       Sno: Sno,
@@ -2271,7 +2242,7 @@ export class PurchaseAddComponent {
       BatchNo: this.BatchNo,
       Remark: this.Remark,
       itemName: this.itemName,
-      categoryName: this.categoryName,
+      categoryName: this.getPattern(),
       unitName: this.unitName,
       taxSlabName: this.taxSlabName,
       taxTypeName: this.taxTypeName,
@@ -2301,6 +2272,7 @@ export class PurchaseAddComponent {
       i = i - 1
       this.LedgerName = this.AdditionalCharges[i].LedgerName
       this.LedgerChargeId = this.AdditionalCharges[i].LedgerChargeId
+      this.alreadySelectCharge(this.LedgerChargeId, this.LedgerName, false)
       this.AmountCharge = this.AdditionalCharges[i].AmountCharge
       this.TaxSlabChargeId = this.AdditionalCharges[i].TaxSlabChargeId
       this.TaxChargeName = this.AdditionalCharges[i].TaxChargeName
@@ -2311,10 +2283,15 @@ export class PurchaseAddComponent {
       this.appliedTaxRatesCharge = this.AdditionalCharges[i].itemTaxTrans
       this.taxChargeRates = this.AdditionalCharges[i].taxChargeRates
       this.taxChargeSlabType = this.AdditionalCharges[i].taxChargeSlabType
-      this.taxSlabChargeSelect2.setElementValue(this.TaxSlabChargeId)
-      this.chargeSelect2.setElementValue(this.LedgerChargeId)
-      this.taxTypeChargeSelect2.setElementValue(this.TaxTypeCharge)
-      this.deleteItem(i, type)
+      let LedgerChargeId = this.LedgerChargeId
+      setTimeout(() => {
+        this.LedgerChargeId = LedgerChargeId
+        this.chargeSelect2.setElementValue(LedgerChargeId)
+        this.taxSlabChargeSelect2.setElementValue(this.TaxSlabChargeId)
+        this.taxTypeChargeSelect2.setElementValue(this.TaxTypeCharge)
+        this.deleteItem(i, type)
+        this.validateCharge()
+      }, 100)
     } else if (type === 'charge' && this.editChargeId !== -1) {
       this.toastrService.showInfo('', 'There is already one transaction to edit, please update it this first in order to edit others')
     }
@@ -2380,19 +2357,22 @@ export class PurchaseAddComponent {
       this.appliedTaxRatesItem = this.Items[i].itemTaxTrans
       this.taxRates = this.Items[i].taxRates
       this.unitSelect2.setElementValue(this.UnitId)
-      this.itemselect2.setElementValue(this.ItemId)
       this.taxSlabSelect2.setElementValue(this.TaxSlabId)
       this.taxTypeSelect2.setElementValue(this.TaxType)
-      console.log('attrSelect2 : ', this.attrSelect2)
       if (this.attrSelect2.length > 0) {
         this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-          console.log('attr : ', item)
           item.setElementValue(this.itemAttributeTrans[index].AttributeId)
         })
       }
-      console.log('before TaxAmount : ', this.Items[i].TaxAmount)
+      let ItemId = this.Items[i].ItemId
       this.updateCategories(this.categoryId)
-      this.deleteItem(i, type)
+      this.checkForItems(this.categoryId)
+      let _self = this
+      setTimeout(() => {
+        _self.itemselect2.setElementValue(ItemId)
+        _self.ItemId = ItemId
+        _self.deleteItem(i, type)
+      }, 1)
     } else if (type === 'items' && this.editItemId !== -1) {
       this.toastrService.showInfo('', 'There is already one item to edit, please update it this first in order to edit others')
     }
@@ -2402,34 +2382,20 @@ export class PurchaseAddComponent {
     if (forArr === 'trans') {
       this.PaymentDetail.splice(i,1)
       this.checkValidationForAmount()
-      // this.editTransId = -1
     }
     if (forArr === 'items') {
       this.Items.splice(i,1)
-      // this.clickItem = false
-      // this.editItemId = -1
       this.ItemAttributeTrans = []
-      // this.ItemTaxTrans = []
       this.Items.forEach(item => {
         this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
-        // this.ItemTaxTrans = this.ItemTaxTrans.concat([], item.itemTaxTrans)
       })
-      // this.AdditionalCharges.forEach(charge => {
-      //   this.ItemTaxTrans = this.ItemTaxTrans.concat([], charge.itemTaxTrans)
-      // })
       console.log('after TaxAmount : ', this.TaxAmount)
     }
     if (forArr === 'charge') {
-      this.alreadySelectCharge(this.AdditionalCharges[i].LedgerChargeId, this.AdditionalCharges[i].LedgerName, false)
+      if (this.chargesData[i].disabled) {
+        this.alreadySelectCharge(this.AdditionalCharges[i].LedgerChargeId, this.AdditionalCharges[i].LedgerName, false)
+      }
       this.AdditionalCharges.splice(i,1)
-      // this.editChargeId = -1
-      // this.ItemTaxTrans = []
-      // this.AdditionalCharges.forEach(charge => {
-      //   this.ItemTaxTrans = this.ItemTaxTrans.concat([], charge.itemTaxTrans)
-      // })
-      // this.Items.forEach(item => {
-      //   this.ItemTaxTrans = this.ItemTaxTrans.concat([], item.itemTaxTrans)
-      // })
     }
     this.calculate()
   }
@@ -2492,12 +2458,10 @@ export class PurchaseAddComponent {
     this.taxTypeName = 'Exclusive'
     this.itemAttributeTrans = []
     this.appliedTaxRatesItem = []
-    // console.log('catSelect2 : ', this.catSelect2)
     this.taxRates = []
     this.taxSlabType = 0
-    if (this.catSelect2.length > 0) {
+    if (this.catSelect2 && this.catSelect2.length > 0) {
       this.catSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-        // console.log('catSelect2 : ', item)
         item.setElementValue(0)
         item.selector.nativeElement.value = ''
       })
@@ -2511,10 +2475,8 @@ export class PurchaseAddComponent {
     this.AttributeId = 0
     this.ParentTypeId = 0
     this.name = ''
-    // console.log('attrSelect2 : ', this.attrSelect2)
-    if (this.attrSelect2.length > 0) {
+    if (this.attrSelect2 && this.attrSelect2.length > 0) {
       this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-        // console.log('attr : ', item)
         if ($('.attr') && $('.attr')[index]) {
           $('#' + $('.attr')[index].id).removeClass('errorSelecto')
         }
@@ -2529,6 +2491,7 @@ export class PurchaseAddComponent {
     this.LedgerChargeId = 0
     this.LedgerName = ''
     this.AmountCharge = 0
+    this.TaxTypeCharge = 0
     this.TaxSlabChargeId = 0
     this.TaxChargeName = ''
     this.TaxAmountCharge = 0
@@ -2543,6 +2506,9 @@ export class PurchaseAddComponent {
     }
     if (this.chargeSelect2) {
       this.chargeSelect2.setElementValue('')
+    }
+    if (this.taxTypeChargeSelect2) {
+      this.taxTypeChargeSelect2.setElementValue(0)
     }
     this.taxTypeChargeName = 'Exclusive'
   }
@@ -2569,72 +2535,16 @@ export class PurchaseAddComponent {
   }
 
   initComp () {
-    this.BillAmount = 0
     this.BillDate = ''
     this.PartyBillDate = ''
-    this.PartyBillNo = ''
-    this.BillNo = ''
-    this.AddressId = 0
-    this.ConvertedAmount = 0
-    this.CurrencyRate = 0
-    this.TotalDiscount = 0
-    this.Freight = 0
-    this.FreightMode = 1
-    this.PartyId = 0
-    this.ReferralId = 0
-    this.ReferralTypeId = 0
-    this.ReferralComission = 0
-    this.ReferralComissionTypeId = 0
-    this.ReverseCharge = 0
-    this.ReverseTax = 0
-    this.Cess = 0
-    this.CessAmount = 0
-    this.RoundOff = 0
-    this.RoundOffManual = 0
-    this.SubTotalAmount = 0
-    this.TotalTaxAmount = 0
-    this.TotalChallan = 0
-    this.VehicleNo = ''
-    this.LocationTo = ''
-    this.Drivername = ''
-    this.Transportation = ''
-    this.TotalQty = 0
-    this.OtherCharge = 0
     this.GodownId = 0
     this.CurrencyId = 0
     this.ConvertToCurrencyId = 0
     this.OrgId = 0
-    this.InterestRate = 0
-    this.InterestAmount = 0
-    this.InterestType = 0
-    this.DueDate = ''
-    this.OrderId = 0
-    this.Advanceamount = 0
-    this.NetAmount = 0
-    this.ReferralCommission = 0
-    this.ReferralCommissionTypeId = 0
-    this.CreditLimit = 0
-    this.CreditDays = 0
-    this.ItemAttributeTrans = []
-    this.PaymentDetail = []
-    this.Items = []
-    this.AdditionalCharges = []
-    this.ItemTaxTrans = []
-    this.clickTrans = false
-    this.clickItem = false
-    this.clickCharge = false
-    this.submitSave = false
-    this.isValidAmount = true
-    this.NetBillAmount = 0
-    this.TaxableValue = 0
-    this.billSummary = []
-    this.invalidObj = {}
-    // if (this.currencyData.length >= 1) {
-    //   this.CurrencyId = +this.currencyData[0].id
-    //   this.currencyValue = +this.currencyData[0].id
-    //   this.ConvertToCurrencyId = +this.convertToCurrencyData[0].id
-    //   this.convertToCurrencyValue = +this.convertToCurrencyData[0].id
-    // }
+    this.initItem()
+    this.initTransaction()
+    this.initAttribute()
+    this.initCharge()
     if (this.addressSelect2) {
       this.addressSelect2.setElementValue(0)
     }
@@ -2672,6 +2582,8 @@ export class PurchaseAddComponent {
     this.ReverseTax = 0
     this.Cess = 0
     this.CessAmount = 0
+    this.RoundOff = 0
+    this.RoundOffManual = 0
     this.SubTotalAmount = 0
     this.TotalTaxAmount = 0
     this.TotalChallan = 0
@@ -2792,8 +2704,6 @@ export class PurchaseAddComponent {
         ConvertedAmount: 0,
         CurrencyRate: 0,
         TotalDiscount: +this.TotalDiscount,
-        Freight: +this.Freight,
-        FreightMode: +this.FreightMode,
         PartyId: +this.PartyId,
         ReferralId: this.ReferralId,
         ReferralTypeId: this.ReferralTypeId,
@@ -2811,7 +2721,7 @@ export class PurchaseAddComponent {
         Drivername: this.Drivername,
         Transportation: this.Transportation,
         TotalQty: +this.TotalQty,
-        OtherCharge: +this.OtherCharge,
+        OtherCharge: 0,
         GodownId: +this.GodownId,
         CurrencyId: +this.CurrencyId,
         OrgId: +this.OrgId,
@@ -2892,7 +2802,7 @@ export class PurchaseAddComponent {
   checkForValidation () {
     if (this.PartyId || this.OrgId || this.BillDate || this.BillNo
       || this.PartyBillDate || this.PartyBillNo || this.CurrencyId
-      || this.GodownId || this.AddressId || this.FreightMode
+      || this.GodownId || this.AddressId
       || this.ItemId || this.UnitId || this.TaxSlabId
       || this.PurchaseRate
       || this.BatchNo || this.ExpiryDate || this.MfdDate
@@ -2951,12 +2861,6 @@ export class PurchaseAddComponent {
         this.invalidObj['AddressId'] = false
       } else {
         this.invalidObj['AddressId'] = true
-        isValid = 0
-      }
-      if (+this.FreightMode > 0) {
-        this.invalidObj['FreightMode'] = false
-      } else {
-        this.invalidObj['FreightMode'] = true
         isValid = 0
       }
       if (this.Items.length === 0 && this.submitSave) {
@@ -3176,123 +3080,129 @@ export class PurchaseAddComponent {
     this.submitSave = true
     let dataToSend = this.purchaseAddParams()
     let valid = 1
-    this.commonService.checkForExistence(this.checkForExistence, dataToSend).subscribe(
-      (data) => {
-        console.log('existence : ', data)
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-          data.Data.forEach(element => {
-            if (+element.Status === 1) {
-              this.invalidObj[element.FormKeyName] = true
-              valid = 0
-            }
-          })
-        }
-      },
-      (error) => {
-        console.log(error)
-      },
-      () => {
-        this.addItems()
-        this.addTransactions()
-        this.addCharge()
-        this.getBillSummary()
-        this.calculateAllTotal()
-        this.validateItem()
-        this.validateTransaction()
-        this.checkValidationForAmount()
-        if (valid) {
-          if (this.checkForValidation() && this.isValidAmount && this.validItem && this.validTransaction) {
-            this.purchaseService.postPurchase(this.purchaseAddParams()).subscribe(
-              data => {
-                console.log('data : ', data)
-                if (data.Code === UIConstant.THOUSAND && data.Data) {
-                  _self.toastrService.showSuccess('Saved Successfully', '')
-                  _self.commonService.newPurchaseAdd()
-                  if (!this.keepOpen) {
-                    _self.commonService.closePurchase()
-                  } else {
-                    _self.initItem()
-                    _self.initTransaction()
-                    _self.initCharge()
-                    _self.initComp()
-                    _self.initialiseExtras()
-                  }
-                } else if (data.Code === UIConstant.THOUSANDONE) {
-                  _self.toastrService.showError(data.Message, 'Please change Bill No.')
-                } else {
-                  _self.toastrService.showError(data.Description, '')
-                }
-              },
-              (error) => {
-                _self.toastrService.showError(error, '')
+    if (!this.editMode) {
+      this.commonService.checkForExistence(this.checkForExistence, dataToSend).subscribe(
+        (data) => {
+          console.log('existence : ', data)
+          if (data.Code === UIConstant.THOUSAND && data.Data) {
+            data.Data.forEach(element => {
+              if (+element.Status === 1) {
+                this.invalidObj[element.FormKeyName] = true
+                valid = 0
               }
-            )
+            })
           }
-        } else {
-          this.toastrService.showError('The following are not unique', '')
+        },
+        (error) => {
+          console.log(error)
+        },
+        () => {
+          this.addItems()
+          this.addTransactions()
+          this.addCharge()
+          this.getBillSummary()
+          this.calculateAllTotal()
+          this.validateItem()
+          this.validateTransaction()
+          this.checkValidationForAmount()
+          if (valid) {
+            if (this.checkForValidation() && this.isValidAmount && this.validItem && this.validTransaction) {
+              this.purchaseService.postPurchase(this.purchaseAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
+                data => {
+                  console.log('data : ', data)
+                  if (data.Code === UIConstant.THOUSAND && data.Data) {
+                    _self.toastrService.showSuccess('Saved Successfully', '')
+                    _self.commonService.newPurchaseAdd()
+                    if (!this.keepOpen) {
+                      _self.commonService.closePurchase()
+                    } else {
+                      _self.initItem()
+                      _self.initTransaction()
+                      _self.initCharge()
+                      _self.initComp()
+                      _self.initialiseExtras()
+                    }
+                  } else if (data.Code === UIConstant.THOUSANDONE) {
+                    _self.toastrService.showError(data.Message, 'Please change Bill No.')
+                  } else {
+                    _self.toastrService.showError(data.Description, '')
+                  }
+                },
+                (error) => {
+                  _self.toastrService.showError(error, '')
+                }
+              )
+            }
+          } else {
+            this.toastrService.showError('The following are not unique', '')
+          }
         }
+      )
+    } else {
+      this.addItems()
+      this.addTransactions()
+      this.addCharge()
+      this.getBillSummary()
+      this.calculateAllTotal()
+      this.validateItem()
+      this.validateTransaction()
+      this.checkValidationForAmount()
+      if (valid) {
+        if (this.checkForValidation() && this.isValidAmount && this.validItem && this.validTransaction) {
+          this.purchaseService.postPurchase(this.purchaseAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
+            data => {
+              console.log('data : ', data)
+              if (data.Code === UIConstant.THOUSAND && data.Data) {
+                _self.toastrService.showSuccess('Saved Successfully', '')
+                _self.commonService.newPurchaseAdd()
+                if (!this.keepOpen) {
+                  _self.commonService.closePurchase()
+                } else {
+                  _self.initItem()
+                  _self.initTransaction()
+                  _self.initCharge()
+                  _self.initComp()
+                  _self.initialiseExtras()
+                }
+              } else if (data.Code === UIConstant.THOUSANDONE) {
+                _self.toastrService.showError(data.Message, 'Please change Bill No.')
+              } else {
+                _self.toastrService.showError(data.Description, '')
+              }
+            },
+            (error) => {
+              _self.toastrService.showError(error, '')
+            }
+          )
+        }
+      } else {
+        this.toastrService.showError('The following are not unique', '')
       }
-    )
+    }
   }
 
   ngOnDestroy () {
-    this.unitAdd$.unsubscribe()
-    this.attr$.unsubscribe()
-    this.item$.unsubscribe()
-    this.vendorData$.unsubscribe()
-    this.taxProcessesData$.unsubscribe()
-    this.paymentModesData$.unsubscribe()
-    this.organisationsData$.unsubscribe()
-    this.godownsData$.unsubscribe()
-    this.referralTypesData$.unsubscribe()
-    this.referralsData$.unsubscribe()
-    this.taxSlabsData$.unsubscribe()
-    this.currencyData$.unsubscribe()
-    this.addressData$.unsubscribe()
-    this.newVendAdd$.unsubscribe()
-    this.addressAdd$.unsubscribe()
-    this.itemAdd$.unsubscribe()
-    this.taxAdd$.unsubscribe()
-    this.unitAdd$.unsubscribe()
-    this.ledgerAdd$.unsubscribe()
-    this.settingData$.unsubscribe()
-    this.freightData$.unsubscribe()
-    this.subUnitsData$.unsubscribe()
-    this.newLedgerCreationAdd$.unsubscribe()
+    this.onDestroy$.next()
+    this.onDestroy$.complete()
   }
 
   @ViewChild('loc_ref') locRef: ElementRef
-  moveToLoc () {
+  moveToCharge () {
     this.chargeSelect2.selector.nativeElement.focus({ preventScroll: false })
+  }
+
+  moveToPayment () {
+    this.paymentSelect2.selector.nativeElement.focus({ preventScroll: false })
   }
 
   validateCharge () {
     if (this.LedgerName || +this.LedgerChargeId > 0 || +this.AmountCharge > 0) {
       let isValid = 1
-      if (+this.LedgerChargeId > 0) {
-        this.invalidObj['LedgerChargeId'] = false
-      } else {
-        isValid = 0
-        this.invalidObj['LedgerChargeId'] = true
-      }
-      // if (+this.TaxSlabChargeId > 0) {
-      //   this.invalidObj['TaxSlabChargeId'] = false
-      // } else {
-      //   isValid = 0
-      //   this.invalidObj['TaxSlabChargeId'] = true
-      // }
-      if (+this.AmountCharge > 0) {
-        this.invalidObj['AmountCharge'] = false
-      } else {
-        isValid = 0
-        this.invalidObj['AmountCharge'] = true
-      }
+      if (+this.LedgerChargeId > 0) { this.invalidObj['LedgerChargeId'] = false } else { isValid = 0; this.invalidObj['LedgerChargeId'] = true; }
+      if (+this.AmountCharge > 0) { this.invalidObj['AmountCharge'] = false; } else { isValid = 0; this.invalidObj['AmountCharge'] = true; }
       this.validCharge = !!isValid
     } else {
-      this.validCharge = true
-      this.invalidObj['LedgerChargeId'] = false
-      this.invalidObj['TaxSlabChargeId'] = false
-      this.invalidObj['AmountCharge'] = false
+      this.validCharge = true; this.invalidObj['LedgerChargeId'] = false; this.invalidObj['TaxSlabChargeId'] = false; this.invalidObj['AmountCharge'] = false;
     }
     this.clickCharge = false
   }
@@ -3301,20 +3211,8 @@ export class PurchaseAddComponent {
     if (this.LedgerName && +this.LedgerChargeId > 0 && +this.AmountCharge > 0) {
       this.alreadySelectCharge(this.LedgerChargeId, this.LedgerName, true)
       this.addCustomCharge()
-      // this.getBillSummary()
       this.clickCharge = true
       this.initCharge()
-      // let newCharge = [...this.chargesData]
-      // this.AdditionalCharges.forEach(charge => {
-      //   if (charge.LedgerChargeId) {
-      //     let element = newCharge.filter(chargeD => +charge.LedgerChargeId === +chargeD.id)
-      //     if (element.length === 1) {
-      //       element[0]['disabled'] = true
-      //     }
-      //   }
-      // })
-      // this.chargesData = []
-      // this.chargesData = Object.assign([], newCharge)
       console.log('charge : ', this.AdditionalCharges)
     }
   }
@@ -3343,6 +3241,10 @@ export class PurchaseAddComponent {
     } else {
       index = +this.AdditionalCharges[this.AdditionalCharges.length - 1].Sno + 1
     }
+    this.appliedTaxRatesCharge.forEach(element => {
+      element['Sno'] = index
+      element['ItemTransTaxId'] = index
+    })
     this.AdditionalCharges.push({
       Id: 0,
       Sno: index,
@@ -3357,7 +3259,8 @@ export class PurchaseAddComponent {
       taxTypeChargeName: this.taxTypeChargeName,
       taxChargeSlabType: this.taxChargeSlabType,
       taxChargeRates: this.taxChargeRates,
-      itemTaxTrans: this.appliedTaxRatesCharge
+      itemTaxTrans: this.appliedTaxRatesCharge,
+      TaxableAmountCharge: this.TaxableAmountCharge
     })
     setTimeout(() => {
       this.commonService.fixTableHFL('charge-table')
@@ -3376,7 +3279,7 @@ export class PurchaseAddComponent {
       this.LedgerChargeId = +evt.value
       if (evt.value > 0) {
         this.LedgerName = evt.data[0].text
-        this.getTaxDetail(this.TaxSlabId)
+        // this.getTaxDetail(this.TaxSlabId)
       }
     }
     this.validateCharge()
@@ -3428,11 +3331,12 @@ export class PurchaseAddComponent {
       if (this.appliedTaxRatesCharge.length > 0) {
         this.appliedTaxRatesCharge.forEach((taxRate) => {
           taxRate['ItemTransTaxId'] = Sno
+          taxRate['Sno'] = Sno
         })
       }
       let charge = this.AdditionalCharges.find((charge) => charge.Sno === Sno)
       if (charge) {
-        charge.itemTaxTrans = this.appliedTaxRatesCharge
+        charge['itemTaxTrans'] = this.appliedTaxRatesCharge
       }
       console.log('tax rates applied : ', this.appliedTaxRatesCharge)
     } else if (parentType === FormConstants.PurchaseForm) {
@@ -3448,6 +3352,7 @@ export class PurchaseAddComponent {
       if (this.appliedTaxRatesItem.length > 0) {
         this.appliedTaxRatesItem.forEach((taxRate) => {
           taxRate['ItemTransTaxId'] = Sno
+          taxRate['Sno'] = Sno
         })
       }
       let item = this.Items.find((item) => item.Sno === Sno)
@@ -3488,7 +3393,7 @@ export class PurchaseAddComponent {
   getTaxDetail (TaxSlabId) {
     this.purchaseService.getSlabData(TaxSlabId).subscribe(
       data => {
-        // console.log('tax slab data : ', data)
+        console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
           this.taxRates = data.Data.TaxRates
@@ -3519,7 +3424,7 @@ export class PurchaseAddComponent {
   getBillSummary () {
     let taxableValue = 0
     let ItemTaxTrans = []
-    console.log('item tax trans before bill sumarry : ', ItemTaxTrans)
+    // console.log('item tax trans before bill sumarry : ', ItemTaxTrans)
     this.Items.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
       taxableValue += +element.AmountItem
@@ -3541,7 +3446,7 @@ export class PurchaseAddComponent {
       if (!this.creatingForm) {
         this.AdditionalChargesToShow.push({
           'LedgerName': this.LedgerName,
-          'AmountCharge': +this.AmountCharge
+          'TaxableAmountCharge': +this.TaxableAmountCharge
         })
       }
     }
@@ -3553,7 +3458,7 @@ export class PurchaseAddComponent {
     let groupOnId = _.groupBy(ItemTaxTrans, (tax) => {
       return tax.TaxRateId
     })
-    console.log(groupOnId)
+    // console.log(groupOnId)
     for (const rateId in groupOnId) {
       if (groupOnId.hasOwnProperty(rateId)) {
         const element = groupOnId[rateId];
@@ -3567,17 +3472,17 @@ export class PurchaseAddComponent {
         this.billSummary.push(obj)
       }
     }
-    console.log('bill summary : ', this.billSummary)
+    // console.log('bill summary : ', this.billSummary)
     this.loadingSummary = false
     this.calculateBillTotal()
   }
   calculateBillTotal () {
     this.BillAmount = 0
     this.billSummary.forEach(element => {
-      this.BillAmount += element.total
+      this.BillAmount += +element.total
     })
     this.AdditionalChargesToShow.forEach(charge => {
-      this.BillAmount += +charge.AmountCharge
+      this.BillAmount += +charge.TaxableAmountCharge
     })
     this.BillAmount += +this.TaxableValue
     let billAmount = this.BillAmount
@@ -3604,42 +3509,15 @@ export class PurchaseAddComponent {
       totalAmount = +totalAmount + +this.Items[i].SubTotal
     }
     if (!this.clickItem && this.ItemId > 0) {
-      if (+this.DiscountAmt > 0) {
-        totalDiscount += +this.DiscountAmt
-      }
-      if (+this.TaxAmount > 0) {
-        totalTax += +this.TaxAmount
-      }
-      if (+this.Quantity > 0) {
-        totalQuantity += +this.Quantity
-      }
-      if (+this.SubTotal > 0) {
-        totalAmount += +this.SubTotal
-      }
+      if (+this.DiscountAmt > 0) { totalDiscount += +this.DiscountAmt }
+      if (+this.TaxAmount > 0) { totalTax += +this.TaxAmount }
+      if (+this.Quantity > 0) { totalQuantity += +this.Quantity }
+      if (+this.SubTotal > 0) { totalAmount += +this.SubTotal }
     }
     this.TotalDiscount = +totalDiscount.toFixed(this.noOfDecimalPoint)
     this.TotalTaxAmount = +totalTax.toFixed(4)
     this.TotalQty = +totalQuantity.toFixed(this.noOfDecimalPoint)
     this.SubTotalAmount = +totalAmount.toFixed(this.noOfDecimalPoint)
-    // for (let i = 0; i < this.AdditionalCharges.length; i++) {
-    //   const element = this.AdditionalCharges[i];
-    //   totalAmount += element.TotalAmountCharge
-    // }
-    // if (!this.clickCharge && this.LedgerChargeId > 0 && +this.AmountCharge > 0) {
-    //   if (+this.TotalAmountCharge > 0) {
-    //     totalAmount += +this.TotalAmountCharge
-    //   }
-    // }
-    // console.log('totalAmount : ', totalAmount)
-    // if (!isNaN(totalAmount)) {
-    //   this.RoundOff = +(Math.round(totalAmount) - totalAmount).toFixed(this.noOfDecimalPoint)
-    //   if (this.RoundOffManual) {
-    //     totalAmount = totalAmount + this.RoundOffManual
-    //   }
-    //   this.CessAmount = 0
-    //   this.BillAmount = Math.round(totalAmount)
-    //   this.calculatePaymentAmount()
-    // }
   }
 
   enterPressCharge (evt: KeyboardEvent) {

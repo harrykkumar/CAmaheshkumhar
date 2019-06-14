@@ -7,3 +7,13 @@
 .table_challan {
    width: 2200px;
 }
+.name_size {
+   font-size: 19px;
+}
+.vl {
+   border-left: 2px solid #e0e0e054;
+   height: 500px;
+ }
+ .text-right {
+text-align: right
+ }

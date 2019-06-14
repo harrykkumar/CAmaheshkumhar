@@ -28,7 +28,7 @@ export class OrganisationProfileComponent implements OnInit {
   @ViewChild('keyPersonFormModel') keyPersonFormModel
   @ViewChild('orgProfileFormModel') orgProfileFormModel
   private unSubscribe$ = new Subject<void>()
-  imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
+  imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [], imageType: 'logo' }
   ImageFiles: any = []
   model: any = {}
   dummyData: any = {}

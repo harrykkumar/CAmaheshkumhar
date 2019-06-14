@@ -49,8 +49,12 @@ export class SetUpIds {
     return 4
   }
 
-  public static get single (): number {
+  public static get singleVal (): number {
     return 3
+  }
+
+  public static get singleId (): number {
+    return 5
   }
 
   public static get getBoolean (): number {
@@ -67,5 +71,9 @@ export class SetUpIds {
 
   public static get baseTypeStr (): number {
     return 2
+  }
+
+  public static get taxCalInclusive (): number {
+    return 66
   }
 }

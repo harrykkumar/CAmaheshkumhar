@@ -245,4 +245,15 @@ export class ApiConstant {
 
   public static get USER_PROFILE (): string { return this.BASE_URL + '/api/v1/UserProfile' }
 
+  public static get REPORT_ITEM_SALE_PURCHASE (): string { return this.BASE_URL + '/api/v1/ims/itemtractiondetails?Type=' }
+
+  public static get SALE_PURCHASE_ITEM_UTILITY (): string { return this.BASE_URL + '/api/v1/ims/SalePurchaseItemUtility' }
+  
+  public static get OPENING_STK (): string { return this.BASE_URL + '/api/v1/ims/itembarcodeOpening' }
+
+  public static get ACCOUNT_PROFIT_AND_LOSS_BY_DATE (): string { return this.BASE_URL + '/api/v1/account/pnl?OnDate=' }
+
+  public static get ACCOUNT_TRADING_BY_DATE (): string { return this.BASE_URL + '/api/v1/account/Trading?OnDate=' }
+
+  public static get OWNER_ORGANISATION_LIST (): string { return this.BASE_URL + '/api/v1/Owner/Organization' }
 }

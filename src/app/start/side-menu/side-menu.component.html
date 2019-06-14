@@ -1,65 +1,72 @@
 <div id="sidebar" class="sidebar-wrapper sidebar">
-    <div class="sidebar-inner">
-        <div class="sidebar-logo">
+  <div class="sidebar-inner">
+    <div class="sidebar-logo">
+      <div class="peers ai-c fxw-nw">
+        <div class="peer peer-greed">
+          <a class="sidebar-link td-n" href="javascript:void(0);">
             <div class="peers ai-c fxw-nw">
-                <div class="peer peer-greed">
-                    <a class="sidebar-link td-n" href="javascript:void(0);">
-                        <div class="peers ai-c fxw-nw">
-                            <div class="peer">
-                                <div class="logo">
-                                    <img src="assets/static/images/logo.png" alt="">
-                                </div>
-                            </div>
-                            <div class="peer peer-greed">
-                                <h5 class="lh-1 mB-0 logo-text"></h5>
-                            </div>
-                        </div>
-                    </a>
+              <div class="peer">
+                <div class="logo">
+                  <img src="assets/static/images/logo.png" alt="" />
                 </div>
-                <div class="peer">
-                    <div class="mobile-toggle sidebar-toggle">
-                        <a class="td-n"><i class="ti-arrow-circle-left"></i></a>
-                    </div>
-                </div>
+              </div>
+              <div class="peer peer-greed">
+                <h5 class="lh-1 mB-0 logo-text"></h5>
+              </div>
             </div>
+          </a>
         </div>
-        <div class=" sidebar-content">
-            <ul class="sidebar-menu pos-r side_background">
-                <li class="nav-item dropdown">
-                    <div class="profile clearfix">
-                        <div class="profile_pic">
-                            <img *ngIf="loggedinUserData?.ImageContents[0]?.FilePath;else defaultImage" class="img-circle profile_img"
-                            src="loggedinUserData?.ImageContents[0]?.FilePath"
-                             alt="loggedinUserData?.ImageContents[0]?.Name">
-                             <ng-template  #defaultImage>
-                              <img class="img-circle profile_img"
-                              src="https://randomuser.me/api/portraits/men/10.jpg">
-                             </ng-template>
-                        </div>
-                        <div class="profile_info">
-                            <span>Welcome,</span>
-                            <h2>{{loggedinUserData?.LoginUserDetailsinfo[0].Name}}</h2>
-                        </div>
-                    </div>
-                </li>
-
-                <li class="nav-item sidebar-dropdown" *ngFor="let menu of sideMenu">
-                    <a href="javascript:void(0);" *ngIf="menu?.subMenu?.length > 0">
-                        <span class="icon-holder">
-                            <i class="{{menu.icon}}"></i>
-                        </span>
-                        <span class="title">{{menu.Name}}</span>
-                    </a>
-                    <ul class="sidebar-submenu scrollable">
-                        <li *ngFor="let subMenu of menu?.subMenu">
-                            <a class="sidebar-link"
-                             (click)="navigateTo(subMenu)">{{subMenu?.Name}}
-                             </a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+        <div class="peer">
+          <div class="mobile-toggle sidebar-toggle">
+            <a class="td-n"><i class="ti-arrow-circle-left"></i></a>
+          </div>
         </div>
+      </div>
     </div>
-    <div class="over-bar"></div>
+    <div class=" sidebar-content">
+      <ul class="sidebar-menu pos-r side_background">
+        <li class="nav-item dropdown">
+          <div class="profile clearfix">
+            <div class="profile_pic">
+              <img
+                *ngIf="
+                  (loggedinUserData?.ImageContents)[0]?.FilePath;
+                  else defaultImage
+                "
+                class="img-circle profile_img"
+                src="loggedinUserData?.ImageContents[0]?.FilePath"
+                alt="loggedinUserData?.ImageContents[0]?.Name"
+              />
+              <ng-template #defaultImage>
+                <img
+                  class="img-circle profile_img"
+                  src="https://randomuser.me/api/portraits/men/10.jpg"
+                />
+              </ng-template>
+            </div>
+            <div class="profile_info">
+              <span>Welcome,</span>
+              <h2>{{ (loggedinUserData?.LoginUserDetailsinfo)[0].Name }}</h2>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item sidebar-dropdown" *ngFor="let menu of sideMenu">
+          <a href="javascript:void(0);" *ngIf="menu?.subMenu?.length > 0">
+            <span class="icon-holder">
+              <i class="{{ menu.icon }}"></i>
+            </span>
+            <span class="title">{{ menu.Name }}</span>
+          </a>
+          <ul class="sidebar-submenu scrollable">
+            <li *ngFor="let subMenu of menu?.subMenu">
+              <a class="sidebar-link" (click)="navigateTo(subMenu)"
+                >{{ subMenu?.Name }}
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="over-bar"></div>
 </div>

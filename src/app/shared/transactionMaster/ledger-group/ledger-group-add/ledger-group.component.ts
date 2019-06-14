@@ -79,14 +79,16 @@ export class LedgerGroupAddComponent {
 
   getLedgerGroupList () {
     this.ledgergroupPlaceHolder = { placeholder: 'Select Group' }
-    let newData = [{ id: '0', text: 'Select Group' }]
+    let newData = [{ id: '0', text: 'Select Group' ,headId :0}]
     this._commonservice.getLedgerGroupParentData('').subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.LgroupDetails = data.Data
+        console.log(this.LgroupDetails ,'head-group')
         data.Data.forEach(element => {
           newData.push({
             id: element.Id,
-            text: element.GlName
+            text: element.GlName,
+            headId:element.HeadId
           })
         })
         this.ledgerGroupData = newData
@@ -114,6 +116,7 @@ export class LedgerGroupAddComponent {
 
   select2PopuValue = false
   openModal () {
+    this.headId =0
     this.isledger = false
     this.isSelectParentGrp = true
     this.submitClick = false
@@ -186,9 +189,11 @@ export class LedgerGroupAddComponent {
   checkIsLedger (e) {
     this.isledger = e.target.checked === true ? true : false
   }
+  headId: any
   onChnageGroup (event) {
     if (event.value && event.data.length > 0) {
         this.parentId = +event.value
+        this.headId =event.data[0].headId
         this.checkValidation() 
     }
   }
@@ -200,7 +205,8 @@ export class LedgerGroupAddComponent {
     if (this.LedgerGroupForm.valid && this.parentId > 0) {
       this._commonservice.postLedgerGroupAPI(this.ledgerGroupParam()).subscribe(data => {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-              let toSend = { name: this.LedgerGroupForm.value.LedgerGroupName, id: data.Data }
+              let toSend = { name: this.LedgerGroupForm.value.LedgerGroupName, id: data.Data ,headId: this.headId }
+              this._commonservice.AddedItem()
               this._commonservice.closeledgerGroup({...toSend})
               this.getLedgerGroupList()
               _self.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)

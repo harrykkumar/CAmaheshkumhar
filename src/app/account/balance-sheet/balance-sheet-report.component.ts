@@ -6,7 +6,8 @@ import { UIConstant } from '../../shared/constants/ui-constant'
 declare const $: any
 import { CommonService } from '../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
-//balance-sheet-search.component
+import { Settings } from '../../shared/constants/settings.constant'
+
 @Component({
   selector: 'app-balance-sheet-report',
   templateUrl: './balance-sheet-report.component.html',
@@ -20,8 +21,10 @@ export class BalanceSheetReportComponent implements OnInit {
   totalBillAmount: number
   newDateSub: Subscription
   dateShow : any
-  constructor(public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+  clientDateFormat: any
+  constructor(public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     //  this.getSaleChallanDetail()
+    this.clientDateFormat = this._settings.dateFormat
     this.newDateSub = this._commonService.getsearchByDateForBalancesheetStatus().subscribe(
       (obj: any) => {
         this.getbalancesheetdata(obj.date)
@@ -34,6 +37,8 @@ export class BalanceSheetReportComponent implements OnInit {
   ngOnInit () {
     this._commonService.fixTableHF('cat-table')
    this.getbalancesheetdata(this.dateShow)
+   this.headervalue2 =0
+   this.headervalue1 =0
   }
 
   toShowSearch = false
@@ -59,9 +64,11 @@ export class BalanceSheetReportComponent implements OnInit {
     //indirect Expences
 this.mainData =[]
     this._commonService.getBalanceSheetList(date).subscribe(data => {
+      this.headervalue2 =0
+      this.headervalue1 =0
 if(data.Code === UIConstant.THOUSAND && data.Data.length  >0 ){
         this.mainData =  data.Data
-    
+  
 
         let getArrayList = data.Data
         let obj = {}
@@ -69,12 +76,12 @@ if(data.Code === UIConstant.THOUSAND && data.Data.length  >0 ){
           this.headervalue1 =  this.mainData.filter(
             getvalue => (getvalue.HeadId ===1) &&  (getvalue.LevelNo === 1)
           )
-          .map(getvalue => parseFloat(getvalue.Amount))
+          .map(getvalue => parseFloat(getvalue.Amount1))
           .reduce((sum, current) => sum + current, 0)
           this.headervalue2 =  this.mainData.filter(
             getvalue => (getvalue.HeadId ===2) &&  (getvalue.LevelNo === 1)
           )
-          .map(getvalue => parseFloat(getvalue.Amount))
+          .map(getvalue => parseFloat(getvalue.Amount1))
           .reduce((sum, current) => sum + current, 0)
     
         });

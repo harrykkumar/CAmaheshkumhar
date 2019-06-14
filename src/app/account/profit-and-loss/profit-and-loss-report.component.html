@@ -1,0 +1,218 @@
+<main class="main-content bgc-grey">
+    <div id="mainContent">
+        <div class="page-header p-0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4 left_side_head">
+                        <p class="heading_lead c-grey-900 mb-0"><i class="fa fa-chart-line"></i>Profit & Loss</p>
+                </div>
+                <div class="col-md-8 right_saerch_side p-0">
+                        <div class="mr-2">
+                            <form>
+                                    <div id="custom-search-input" class="btn_header1">
+                                        <div class="input-group col-md-12">
+                                            <input type="text" class="form-control input-lg" placeholder="Search"
+                                               />
+                                            <span class="input-group-btn">
+                                                <a>
+                                                    <i class="fas fa-search"></i>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                      <div class="btn_header">
+                        <a>
+                          <img src="assets/img/printer.png">
+                        </a>
+                        <a>
+                          <img src="assets/img/pdf.png"></a>
+                        <a>
+                          <img (click)="importExcelFile(saleTravelDetails)"  src="assets/img/excel.png"></a>
+                       <!--      <button   type="button" class="btn btn-primary waves-effect waves-light" (click)="openSaleDirect('')" >
+                          New invoice</button> -->
+                        <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        <app-balance-sheet-search [toShow]="toShowSearch" ></app-balance-sheet-search>
+
+        <!-- <app-search-report [toShow]="toShowSearch" ></app-search-report> -->
+        <!-- <div class="row animated-background">
+                <div class="col-md-12">
+                    <div class="bgc-white bdrs-3 mB-20">
+                        <div class="table-responsive table_height">
+                             <table  class="table cat-table table-hover"> 
+                                    <ng-container >
+                                            <th style="width:1px" > # </th>
+                                            <th  >Liabilities </th>
+                                            <th class="text-right" >Amount </th>
+                                            <th  > Assets</th>
+                                            <th class="text-right" >Amount </th>
+                                           
+                                            
+                                          </ng-container>
+                                      
+                              
+                                <tbody> 
+                                <ng-container *ngFor="let item of mainData; let i = index" > 
+                 <tr *ngIf="item.ItemId === 0"  id='accordionExample'  class="default_row"   [ngClass]="{
+                                    'category-bg':item.ItemId === 0,
+                                    'item-bg':item.ItemId !== 0,
+                                    'attribute-bg':item.AttributeId === 1
+                                  }">
+                                  <td  class="profile-pic1 collapsed new-clas"  data-target="#collapseThree33" data-toggle="collapse"
+                                  data-role="expander" >
+                                    <div class="edit1 ">                      
+                                        <a *ngIf="item.ItemId === 0 " (click)="collapsed1=!collapsed1;toggleCategory(i)" ><i class= " fas fa-minus-circle "></i></a>
+                                       
+                                    </div>
+                                  </td>
+                                    <td  [ngClass]="{
+                                        'pl-2':item.ItemId === 0,
+                                        'pl-4':item.ItemId !== 0,
+                                        'pl-5':item.AttributeId === 1
+                                      }" >{{item.Name}}</td>
+                                    <td>{{item.Quantity}}</td>
+                                    <td class="text-right">{{item.DiscountAmt}}</td>
+                                   
+                                    </tr>
+                  <tr *ngIf="item.ItemId !== 0 && item.AttributeId !== 1 && collapsed1" id='collapseThree33'   class="default_row "   [ngClass]="{
+                                      'category-bg':item.ItemId === 0,
+                                      'item-bg':item.ItemId !== 0,
+                                      'attribute-bg':item.AttributeId === 1
+                                    }">
+                                    <td class="profile-pic1" data-target="#collapseThreeAttribute" data-toggle="collapse"
+                                    data-role="expander" >
+                                      <div class="edit1">                      
+                                          <a *ngIf="item.ItemId !== 0 && item.AttributeId !== 1" (click)="toggleAttribute=!toggleAttribute" ><i class="fas fa-minus-circle"></i></a>
+                                         
+                                      </div>
+                                    </td>
+                                      <td  [ngClass]="{
+                                          'pl-2':item.ItemId === 0,
+                                          'pl-4':item.ItemId !== 0,
+                                          'pl-5':item.AttributeId === 1
+                                       
+                                        }" >{{item.Name}}</td>
+                                      <td>{{item.Quantity}}</td>
+                                      <td class="text-right">{{item.DiscountAmt}}</td>
+                                     
+                                      </tr>
+                   <tr *ngIf="item.AttributeId === 1 && toggleAttribute "  id='collapseThreeAttribute' data-parent="#accordionExample" class="default_row collapse"   [ngClass]="{
+                                        'attribute-bg':item.AttributeId === 1
+                                      }">
+                                      <td class="profile-pic1" >
+                                       
+                                      </td>
+                                        <td  [ngClass]="{
+                                            'pl-2':item.ItemId === 0,
+                                            'pl-4':item.ItemId !== 0,
+                                            'pl-5':item.AttributeId === 1
+                                          }" >{{item.Name}}</td>
+                                        <td>{{item.Quantity}}</td>
+                                        <td class="text-right">{{item.DiscountAmt}}</td>
+                                      
+                                        </tr>
+                                    </ng-container>
+                                
+                                </tbody>
+                            </table>  
+                            
+                            
+                        </div>
+                    </div>
+                </div>
+              </div> -->
+
+              <div class=" bgc-white mt-2 main-balance">
+                    <div class="row justify-content-center p-3  ">
+            <div class="balancesheet bgc-white col-md-10">  
+                   <div class="row text-center bs_head p-2">
+                        <div class="name text-center col-md-12 font-weight-bold name_size">Saniiro Technologies Pvt Ltd</div>
+                        <div class="name text-center col-md-12 font-weight-bold">Profit & Loss</div>
+                        <div class="text-center col-md-12 font-weight-bold">As on Date {{dateShow  }}</div>
+                        <!-- <div class="text-center col-md-12 font-weight-bold">As on Date {{dateShow | dateFormat:clientDateFormat }}</div> -->
+
+                    </div>
+                    <hr>
+                    <div class="row thead">
+                        <div class="col-4 font-weight-bold"> Particulars</div>
+                        <div class="col-2 amount_bs bdr_gray font-weight-bold">Amount  <span  style="padding-left: 23px;">Amount</span></div>
+                        <!-- <div class="col-2 amount_bs bdr_gray">Amount</div> -->
+
+                        <div class="col-4 font-weight-bold">Particulars</div>
+                        <div class="col-2 amount_bs font-weight-bold">Amount  <span  style="padding-left: 23px;">Amount</span></div>
+                        <!-- <div class="col-2 amount_bs bdr_gray">Amount</div> -->
+
+                    </div>
+            <hr>
+                    <div class="row tbody">
+                        <div class="col-md-6 p-0 bdr_gray">
+                            <div class="col-md-12">
+                                <div class="row" *ngFor = "let item of mainData; let i =index" >
+                                    <div class="col-md-8">
+                                        <div *ngIf='item.HeadId === 2 ' [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"  [ngStyle]="{'padding-left':item.HeadId === 2 && item.LevelNo ===2 ? '50px' : item.HeadId === 2 && item.LevelNo ===3 ? '100px' : '0px' }" class="panel-title"> 
+                                           <a  data-toggle="collapse">{{item.GlName}}</a>
+
+                                        </div>
+                                       
+                                    </div>
+                                    <div class="col-md-4">
+                                        <ng-container>
+                                                <div class='align-righ'   [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"   [ngStyle]="{'margin-left':item.HeadId === 2 && item.LevelNo ===1  ?  '80px' : '0px' }" *ngIf='item.HeadId === 2 && item.LevelNo === 1'  class="amount_bs">
+                                                        {{(item.Amount1).toFixed(2)}}
+                                                     </div>
+                                        </ng-container>
+                                        <ng-container>
+                                                <div class='align-righ'   *ngIf='item.HeadId === 2 && item.LevelNo !== 1'  class="amount_bs">
+                                                        {{(item.Amount).toFixed(2)}}
+                                                     </div>
+                                        </ng-container>
+                                   
+                                    </div>
+                                </div>
+                            </div>
+                          
+                        </div>
+                        <div class="col-md-6 p-0">
+                            <div class="col-md-12">
+                                <div class="row" *ngFor = "let item of mainData; let a =index" >
+                                    <div class="col-md-8">
+                                        <div   *ngIf= 'item.HeadId === 1'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    [ngStyle]="{'padding-left':item.HeadId === 1 && item.LevelNo ===2 ? '50px' : item.HeadId === 1 && item.LevelNo ===3 ? '100px' : '0px' }" class="panel-title"><a  data-toggle="collapse">{{item.GlName}}</a></div>
+                                  
+                                    </div>
+                              <div class="col-md-4">
+                                        <ng-container>
+                                                <div  class='align-righ'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"   [ngStyle]="{'margin-left':item.HeadId === 1 && item.LevelNo ===1  ?  '80px' : '0px' }"  *ngIf='item.HeadId === 1 && item.LevelNo === 1'  class="amount_bs">
+                                                        {{(item.Amount1).toFixed(2)}}
+                                                     </div>
+                                        </ng-container>
+                                        <ng-container>
+                                                <div class='align-righ'   *ngIf='item.HeadId === 1 && item.LevelNo !== 1'  class="amount_bs">
+                                                        {{(item.Amount).toFixed(2)}}
+                                                     </div>
+                                        </ng-container>
+                                   
+                                    </div>
+                                </div>
+                                
+                            </div>
+                         
+                        </div>
+                     </div>
+            <hr>
+            <div class="row tfoot">
+                    <div class="col-4 text-right font-weight-bold">Total</div>
+                    <div style="padding-left: 94px;" class="col-2 amount_bs bdr_gray font-weight-bold">{{(headervalue2).toFixed(2)}}</div>
+                    <div class="col-4 text-right font-weight-bold">Total</div>
+                    <div style="padding-left: 94px;" class="col-2 amount_bs font-weight-bold">{{(headervalue1).toFixed(2)}}</div>
+                </div>
+                </div>
+                    </div>
+                </div>
+    </div>
+</main>

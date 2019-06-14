@@ -48,7 +48,7 @@
                                        
                                         
                                         <div class="discount">
-                                                <input  style="width:158px" (input)="calculate();" type="text" class="form-control  width_70 mr-1" appIncludeDecimal name="openingblance"  placeholder="Opening Balance " formControlName="openingblance">
+                                                <input [attr.disabled]="disabledInputField? '':null"  style="width:158px" (input)="calculate();" type="number" class="form-control  width_70 mr-1" appIncludeDecimal name="openingblance"  placeholder="Opening Balance " formControlName="openingblance">
                                                 <div class="input-group">
                                                         <select2 #crdr_selecto2 [data]="selectCrDr" class="dropdown_width_100" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="select2CrDrPlaceHolder" [value]="valueCRDR"></select2>
                                                       </div>

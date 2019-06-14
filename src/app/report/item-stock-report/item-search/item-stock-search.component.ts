@@ -1,78 +1,154 @@
-import { Component, Input, OnInit } from '@angular/core'
+import { Component, Input, OnInit, AfterViewInit, SimpleChanges, OnChanges, Output, EventEmitter } from '@angular/core'
 import { Subscription } from 'rxjs'
-import { FormGroup } from '@angular/forms'
-import { SaleTravel, AddCust } from '../../../model/sales-tracker.model'
-import { UIConstant } from '../../../shared/constants/ui-constant'
 declare var $: any
 declare var flatpickr: any
 import { CommonService } from '../../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../../commonServices/toastr.service'
 import { GlobalService } from '../../../commonServices/global.service'
 import { Settings } from '../../../shared/constants/settings.constant'
+import { map } from 'rxjs/operators';
+import * as _ from 'lodash'
+
 @Component({
   selector: 'app-item-stock-search',
   templateUrl: './item-stock-search.component.html',
   styleUrls: ['./item-stock-search.component.css']
 })
-export class ItemStockSearchComponent implements OnInit {
+export class ItemStockSearchComponent implements OnInit, AfterViewInit, OnChanges {
+  model: any = {};
   @Input() toShow: boolean = false
+  @Input() getFilterParameters: any
+  @Output() searchByFilter = new EventEmitter();
+  allItems: Array<any> = [];
   clientDateFormat: any
   subscribe: Subscription
-  constructor (public _globalService: GlobalService,
-    public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+  masterData: any = {};
+  categoryOption: Select2Options;
+  itemOption: Select2Options;
+  attributeOption: Select2Options;
+  unitOption: { placeholder: string; };
+  loading: boolean
+  catLevel: any = 3
+  allCategories: any = []
+  searchdataList: any
+  categories: any
+  
+  constructor(public _globalService: GlobalService,
+    public _settings: Settings, public _commonService: CommonService,
+     public _toastrCustomService: ToastrCustomService) {
     this.clientDateFormat = this._settings.dateFormat
+    this.categoryOption = {
+      multiple: true,
+      placeholder: 'Select Categories'
+    };
+    this.itemOption = {
+      multiple: true,
+      placeholder: 'Select Items'
+    };
+    this.attributeOption = {
+      multiple: true,
+      placeholder: 'Select Items'
+    };
+    this.unitOption = {
+      placeholder: 'Select Unit'
+    };
+  }
+
+  ngAfterViewInit(){
     this.toDate()
     this.fromDate()
   }
-  fromDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#from-date', {
-        dateFormat: _self.clientDateFormat,
-        defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-      })
-    })
-    this.fromDatevalue = _self._globalService.getDefaultDate(_self.clientDateFormat)
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.toShow) {
+      this.resetValues()
+    }
+    if (this.getFilterParameters.pageNo || this.getFilterParameters.pageSize) {
+      this.model.pageNo = this.getFilterParameters.pageNo
+      this.model.pageSize = this.getFilterParameters.pageSize
+      this.search()
+    }
   }
-  fromDatevalue: string
-  toDateValue: string
-  toDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#to-date', {
-        dateFormat: _self.clientDateFormat,
-        defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-      })
-    })
-    this.toDateValue = _self._globalService.getDefaultDate(_self.clientDateFormat)
 
+  fromDate = () => {
+    $('#item-stock-from-date').flatpickr({
+      dateFormat: this.clientDateFormat,
+      onOpen: () => {
+        this.model.fromDatevalue = ''
+      }
+    })
   }
-  ngOnInit () {
+
+  toDate = () => {
+    $('#item-stock-to-date').flatpickr({
+      dateFormat: this.clientDateFormat,
+      onOpen: () => {
+        this.model.toDateValue = ''
+      }
+    })
+  }
+
+  getSalePurchaseUtilityItems = () => {
+    this._commonService.getSalePurchaseUtilityItems()
+    .pipe(
+      map((data: any) => {
+        const category =  _.map(data.Data.ItemCategorys, (element) => {
+          return {
+            id: element.Id,
+            text: element.Name
+          }
+        })
+        let attribute = [];
+        _.forEach(data.Data.AttributeValueResponses, (attributeType) => {
+          _.forEach(attributeType.AttributeValuesResponse, (attributeValue) => {
+            if(attributeValue.Id !== -1) {
+              const data = {
+                id: attributeValue.Id,
+                text: `${attributeValue.Name} ( ${attributeValue.AttributeName} ) `
+              }
+              attribute.push(data);
+            }
+          })
+        })
+        const items =  _.map(data.Data.Items, (element) => {
+          return {
+            id: element.Id,
+            text: element.Name,
+            CategoryId: element.CategoryId
+          }
+        })
+        const units =  _.map(data.Data.SubUnits, (element) => {
+          return {
+            id: element.Id,
+            text: element.Name
+          }
+        })
+        data.Data.ItemCategorys = [...category]
+        data.Data.AttributeValueResponses = [...attribute]
+        data.Data.Items = [...items]
+        this.allItems = [...items]
+        data.Data.SubUnits = [{ id: 0, text: 'Select Unit' }, ...units]
+        return data
+      }))
+    .subscribe((response) => {
+      this.masterData = { ...response.Data };
+    })
+  }
+
+  ngOnInit() {
     $(document).ready(function () {
       $('.table_challan').tableHeadFixer({
         head: true,
         foot: true
       })
     })
-    // this.getSaleChallanDetail()
+    this.getSalePurchaseUtilityItems();
   }
-  searchdataList: any
-  // tslint:disable-next-line: no-empty
-  searchItemButton (searchparam) {
-    // tslint:disable-next-line:no-multi-spaces
 
-  //  this.sub this._commonService.getSearchItemStock(searchparam).subscribe(data =>{
+  searchItemButton(searchparam) {
 
-  //   })
-    // this._commonService.getSearchItemStock(searchparam).subscribe(data =>  {
-    //   if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
-    //     this.searchdataList = data.Data
-
-    //   }
-    // })
   }
-  categories: any
+
   createModels(levels) {
     this.categories = []
     let obj = {
@@ -91,12 +167,10 @@ export class ItemStockSearchComponent implements OnInit {
       }
     }
   }
-  loading: boolean
-  catLevel: any = 3
-  allCategories: any = []
+
+  
   getCatagoryDetail(data) {
     if (data.length > 0) {
-      // console.log('category data : ', data)
       for (let i = 0; i < this.catLevel; i++) {
         this.categories[i].data = [{ id: '0', text: 'Select Category' }]
       }
@@ -113,83 +187,68 @@ export class ItemStockSearchComponent implements OnInit {
       }
       this.loading = false
     }
-
   }
 
-  // onSelectCategory(evt, levelNo) {
-  //   if (+evt.value > 0) {
-  //     if (levelNo === this.catLevel) {
-  //       if (this.categoryId !== +evt.value) {
-  //         this.categoryId = +evt.value
-  //         this.categoryName = evt.data[0].text
-  //         console.log('categoryname : ', this.categoryName)
-  //         console.log('category id : ', this.categoryId)
-  //         this.getItemByCategoryid(this.categoryId);
+  onCategoryChange = (event) => {
+    let dummyArray = [];
+    if(event.value.length > 0) {
+      const value = [...event.value];
+      this.model.selectedCategory = value.toString();
+      _.forEach(event.value, (category) => {
+       const data =  _.filter(this.allItems, {CategoryId : Number(category)});
+       dummyArray = [...dummyArray, ...data];
+      })
+      this.masterData.Items = [...dummyArray];
+    } else {
+      this.model.selectedCategory = "";
+    }
+  }
+  onItemChange = (event) => {
+    if(event.value.length > 0) {
+      const value = [...event.value];
+      this.model.selectedItem = value.toString();
+    } else {
+      this.model.selectedItem = ""
+    }
+  }
+  onAttributeChange = (event) => {
+    if(event.value.length > 0) {
+      const value = [...event.value];
+      this.model.selectedAttribute = value.toString();
+    } else {
+      this.model.selectedAttribute = ""
+    }
+  }
+  onUnitChange = (event) => {
+    if(event.value.length > 0) {
+      this.model.selectdUnit = [...event.value];
+    } else {
+      this.model.selectdUnit = ""
+    }
+  }
 
-  //         //this.validateItem()
-  //         this.updateCategories(+evt.value)
-  //       }
-  //     } else {
-  //       if (levelNo < this.catLevel) {
-  //         let categoryId = +evt.value
-  //         let newData = []
-  //         this.categories[levelNo].data = [{ id: '0', text: 'Select Category' }]
-  //         this.allCategories.forEach(category => {
-  //           if (category.LevelNo !== levelNo && category.LevelNo > levelNo) {
-  //             if (category.ParentId === categoryId) {
-  //               newData.push({
-  //                 text: category.Name,
-  //                 id: category.Id
-  //               })
-  //             }
-  //           } else {
-  //             this.categories[category.LevelNo - 1].data.push({
-  //               text: category.Name,
-  //               id: category.Id
-  //             })
-  //           }
-  //         })
-  //         this.categories[levelNo].data = Object.assign([], newData)
-  //         this.loading = false
-  //       }
-  //     }
-  //   } else if (+evt.value === 0) {
-  //     this.getCatagoryDetail(this.allCategories)
-  //   }
-  // }
-  // categoryId: any
-  // parentMostCategory: any
-  // @ViewChildren('cat_select2') catSelect2: QueryList<Select2Component>
+  search = () => {
+    if (this.model.fromDatevalue) {
+      this.model.formattedFromDatevalue = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
+    }
+    if (this.model.toDateValue) {
+      this.model.formattedToDateValue = this._globalService.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
+    }
+    this.searchByFilter.emit(this.model);
+  }
 
-  // updateCategories(childmostId) {
-  //   let categoryId = childmostId
-  //   this.getParentMostCat(childmostId, this.catLevel)
-  //   categoryId = this.parentMostCategory
-  //   if (+this.categoryId !== +childmostId || this.editItemId !== -1) {
-  //     this.categoryId = +childmostId
-  //     this.catSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-  //       if (index === 0) {
-  //         item.setElementValue(categoryId)
-  //       } else if (index === (this.catLevel - 1)) {
-  //         item.setElementValue(+childmostId)
-  //       }
-  //     })
-  //     let evt = { value: categoryId, data: [{ text: '' }] }
-  //     this.onSelectCategory(evt, 1)
-  //   }
-  // }
-  // getParentMostCat(id, level) {
-  //   let parentMostCategory = 0
-  //   while (level !== 0) {
-  //     this.allCategories.forEach(category => {
-  //       if (id === category.Id) {
-  //         parentMostCategory = category.Id
-  //         id = category.ParentId
-  //         level--
-  //       }
-  //     })
-  //   }
-  //   this.parentMostCategory = parentMostCategory
-  // }
-
+  resetValues() {
+    this.model.selectedCategory = ""
+    this.model.selectedItem = ""
+    this.model.selectedAttribute = ""
+    this.model.selectdUnit = ""
+    this.model.formattedFromDatevalue = ""
+    this.model.formattedToDateValue = ""
+    this.model.categoryValue = []
+    this.model.itemValue = []
+    this.model.attributeValue = []
+    this.model.unitValue = 0
+    this.model.fromDatevalue = ""
+    this.model.toDateValue = ""
+  }
 }

@@ -152,7 +152,7 @@ export class UIConstant {
     return 'sale'
   }
   public static get SALE_CHALLAN_TYPE (): string {
-    return 'saleChallan'
+    return 'SaleChallan'
   }
   public static get SALE_RETURN (): string {
     return 'saleReturn'
@@ -179,5 +179,9 @@ export class UIConstant {
   }
   public static get DECIMAL_FOUR_DIGIT (): number {
     return 4
+  }
+
+  public static get VOUCHER_TYPE (): string {
+    return 'Voucher'
   }
 }

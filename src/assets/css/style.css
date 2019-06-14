@@ -5816,7 +5816,9 @@ input[type=number]::-webkit-outer-spin-button {
 .fixTable1 {
     width: 3000px !important;
 }
-
+.fixTable2 {
+    width: 2500px !important;
+}
 #previous-bill-container {
     font-size: small;
     color: #33b5e5;
@@ -6053,4 +6055,8 @@ table.table1 th {
 }
 .cust_width_300 {
    width: 300px;
+}
+.dynamic_fix {
+    position: relative;
+    z-index: 9999;
 }

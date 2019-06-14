@@ -10,7 +10,7 @@
               </div>
               <div class="col-md-9">
                 <div class="btn_header">
-                  <a class="btn btn-default waves-effect" (click)="keepOpen=false;saveSaleChallan()">Save </a><a class="btn btn-info waves-effect" (click)="keepOpen=true;saveSaleChallan()">Save and New</a>
+                  <a  (keydown.enter)="pressF10ForSave($event)"  class="btn btn-default waves-effect" (click)="keepOpen=false;saveSaleChallan()">Save </a><a class="btn btn-info waves-effect" (click)="keepOpen=true;saveSaleChallan()">Save and New</a>
                   <button type="button" (click)="clearExtras()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">×</span> </button>
                 </div>
               </div>
@@ -117,9 +117,9 @@
                 <table  class="table editable_tbl item-table table-hover fixTable1" id="table">
                   <thead>
                     <tr class="default_row">
-                     <th></th>
+                     <!-- <th></th> -->
                         <th>#</th>
-                      <th *ngFor="let level of categories" >Category</th>
+                      <th [colSpan]="catLevel" >Category</th>
                       <th>Item</th>
                       <ng-container *ngIf="industryId === '2' " >
                        <th *ngFor="let column of attributesLabels ; ">
@@ -157,7 +157,7 @@
                   <tbody>
                     <tr  class="default_row" *ngFor="let item of localItemas; let i = index;">
                       
-                        <td></td>
+                        <!-- <td></td> -->
              <td class="profile-pic1" >
                                 <div class="edit1">
                                     <a *ngIf="localItemas.length > 0" (click)="deleteItem('items' ,i,item.Sno,item.Id,item,localItemas[i].LableAttributeVale)" ><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
@@ -205,7 +205,7 @@
                   </tbody>
                  <tfoot>
                   <tr  class="selected_row active">
-                    <td></td>
+                    <!-- <td></td> -->
                 <td>
                   <div class="action_btn">
                     <button type="submit" class="btn btn-primary  btn_add_more" (click)="addItems()">+</button>
@@ -231,19 +231,10 @@
               </div>
                 </td>
               <ng-container *ngIf="industryId === '2' " >
-                <!-- <td *ngFor="let dataAttribute of allAttributeData; let i= index">
-
-               <div class="input-group adw_select ">
-                <select2 #atrColour_id id="attr{{i}}" [data]="dataAttribute.item" class="control_select " 
-                (valueChanged)="onChangeAttribute($event ,i ,allAttributeData)" autocomplete="true"
-                [options]="{ placeholder: 'Select' }" 
-                [value]="allAttributeData[i].item"  >
-              </select2>
-               </div>
-                </td> -->
+         
                 <td *ngFor="let attribute of allAttributeData; let i= index">
                   <div class="input-group adw_select">
-                    <select2 #attr_select2 [disabled]="ItemId <= 0" id="attr{{i}}" [data]="attribute.data" class="control_select attr"
+                    <select2 #attr_select2  id="attr{{i}}" [data]="attribute.data" class="control_select attr"
                     (valueChanged)="onChangeAttribute($event,i, attribute)"
                     autocomplete="true" [options]="{ placeholder: 'Select' }" 
                     [value]="attributeValue" ></select2>
@@ -258,14 +249,14 @@
                 </td>
                <ng-container  *ngIf="industryId === '3' ">
                    <td>
-                  <input  type="number" (input)="calculate();"  class="form-control"   placeholder="Length"  name="Length" [(ngModel)]="Length">
+                  <input  type="number" (input)="calculate();"  class="form-control" appIncludeDecimal   placeholder="Length"  name="Length" [(ngModel)]="Length">
                 </td>
 
                  <td>
-                  <input  type="number" (input)="calculate();"   class="form-control"   placeholder="Height"  name="Height" [(ngModel)]="Height">
+                  <input  type="number" (input)="calculate();"   class="form-control"  appIncludeDecimal  placeholder="Height"  name="Height" [(ngModel)]="Height">
                 </td>
                  <td>
-                  <input  type="number" (input)="calculate();"   class="form-control"   placeholder="Width"  name="Width" [(ngModel)]="Width">
+                  <input  type="number" (input)="calculate();"   class="form-control" appIncludeDecimal  placeholder="Width"  name="Width" [(ngModel)]="Width">
                 </td>
                </ng-container>
 
@@ -317,10 +308,10 @@
                             </td>
                            <td>
                           <div class="input-group adw_select">
-                             <select2 [data]="taxTypeSelectData" #unit_select2 class="control_select"
+                             <select2 [data]="taxTypeSelectData" #taxtype_select2 class="control_select"
                              (valueChanged)="onChangeTaxTypeExclusiveInclusive($event)"
                             autocomplete="true" [options]="taxTypePlaceHolder"
-                             [value]="taxTypeId"  >
+                             [value]="TaxTypeId"  >
                             </select2>
                           </div>
                             </td>
@@ -331,18 +322,21 @@
                           <input  type="text"   class="form-control"   placeholder="Remark"  name="Remark" [(ngModel)]="Remark">
                         </td>
                 <td >
-                  <input   (keydown.enter)="enterPressItem($event)" type="number" readonly="true" class="form-control" placeholder="Total Amount" appIncludeDecimal name="TotalAmount" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.TotalAmount }" [(ngModel)]="TotalAmount">
+                  <input  (input)="validationForItemData()"  (keydown.enter)="enterPressItem($event)" type="number" readonly="true" class="form-control" placeholder="Total Amount" appIncludeDecimal name="TotalAmount" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.TotalAmount }" [(ngModel)]="TotalAmount">
                 </td>
               </tr>
                     <tr>
                       <td></td>
                      <td *ngFor="let item of categories" ></td>
-                      <td *ngFor="let column of attributesLabels" ></td>
+                     <td></td>
+                      <td  *ngFor="let column of attributesLabels"  ></td>
+                      <!-- <td colspan="1"   *ngIf="industryId === '2' " ></td> -->
                        <td colspan="3" *ngIf="industryId === '3' " ></td>
                       <td colspan="3" *ngIf="industryId === '5' " ></td>
                       <td colspan="2" *ngIf="industryId === '6' " ></td>
                       
-                      <td colspan="6"></td>
+                      <td  colspan="4"></td>
+
                       <td>
                           <input type="number"  disabled="true" class="form-control"
                           placeholder="Total Discount" name="TotalDiscount"

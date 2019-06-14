@@ -96,7 +96,9 @@ export class VendorAddComponent implements OnDestroy {
   get adAre () { return this.areaForm.controls }
   ngOnDestroy () {
     this.modalSub.unsubscribe()
-    this.editvenderSubscribe.unsubscribe()
+    if (this.editvenderSubscribe) {
+      this.editvenderSubscribe.unsubscribe()
+    }
   }
   setDOBDate () {
     let _self = this
@@ -137,16 +139,15 @@ export class VendorAddComponent implements OnDestroy {
     this.addressRequiredForLedger = false
     this.mobileRequirdForSetting = false
     this.emailRequirdForSetting = false
-    this.emailMobileValidationRequired()
+   
     if (this.vendorForm) {
       this.vendorForm.reset()
       this.bankForm.reset()
     }
     if (this.editMode) {
-
       this.getVendorEditData(this.id)
     } else {
-      this.getVendorDetail()
+      this.emailMobileValidationRequired()
       $('#vendor_form').modal(UIConstant.MODEL_SHOW)
       setTimeout(() => {
         this.ledgerName.nativeElement.focus()
@@ -198,7 +199,9 @@ export class VendorAddComponent implements OnDestroy {
     this.editvenderSubscribe = this._vendorServices.editvendor(id).subscribe(
       (Data) => {
         if (Data.Code === UIConstant.THOUSAND) {
+         // this.emailMobileValidationRequired()  
           if (Data.Data && Data.Data.Addresses.length > 0) {
+            
             this.addressRequiredForLedger = false
             this.collectionOfAddress = []
             this.collectionOfAddress = Data.Data.Addresses
@@ -216,7 +219,6 @@ export class VendorAddComponent implements OnDestroy {
           }
           if (Data.Data.ContactInfo.length > 0) {
             this.mobileRequirdForSetting = false
-
             this.mobileArray = []
             this.mobileArray = Data.Data.ContactInfo
 
@@ -718,12 +720,12 @@ export class VendorAddComponent implements OnDestroy {
           this.areaList = newData
           this.areNameId = data.Data
           this.areaID = data.Data
-          this._toastrcustomservice.showSuccess('Success', 'Area Added !')
+          this._toastrcustomservice.showSuccess('', 'Area Added !')
           this.areaForm.reset()
           this.closeAreaModel()
         }
         if (data.Code === 5000) {
-          this._toastrcustomservice.showError('Error', data.Description)
+          this._toastrcustomservice.showError('', data.Description)
           this.closeAreaModel()
 
         }
@@ -820,14 +822,6 @@ export class VendorAddComponent implements OnDestroy {
     }
   }
 
-  getVendorDetail () {
-    this.subscribe = this._vendorServices.getVendor(4, '&Strsearch=' + '' + '&Page=' + 1 + '&Size=' + 20 + '').subscribe(Data => {
-      if (Data.Code === UIConstant.THOUSAND) {
-        this._vendorServices.sendDataWithObservable(Data.Data)
-      }
-    })
-  }
-
 
   requiredValid: boolean
 
@@ -854,30 +848,30 @@ export class VendorAddComponent implements OnDestroy {
                     this._commonGaterSeterServices.setVendorName(Data.Data)
                     this._sanariioservices.filter()
                     if (value === 'save') {
-                      this.getVendorDetail()
                       debugger
                       const dataToSend = { id: Data.Data, name: this.vendorForm.value.vendorName }
                       this._CommonService.closeVend({ ...dataToSend })
-                      this._toastrcustomservice.showSuccess('Success', 'Save successfully')
+                      this._CommonService.AddedItem()
+                      this._toastrcustomservice.showSuccess('', 'Save successfully')
 
                       $('#vendor_form').modal(UIConstant.MODEL_HIDE)
                       this.formVendor()
                     }
                   }
                   if (Data.Code === 1001) {
-                    this._toastrcustomservice.showInfo('Info', Data.Description)
+                    this._toastrcustomservice.showInfo('', Data.Description)
 
                   }
                 })
               } else {
                // this.adressTab()
-                this._toastrcustomservice.showError('Error', 'Enter Address Details ')
+                this._toastrcustomservice.showError('', 'Enter Address Details ')
               }
             } else {
-              this._toastrcustomservice.showError('Error', 'invalid PAN No. ')
+              this._toastrcustomservice.showError('', 'invalid PAN No. ')
             }
           } else {
-            this._toastrcustomservice.showError('Error', 'invalid GST No. ')
+            this._toastrcustomservice.showError('', 'invalid GST No. ')
           }
         } else {
           //   document.getElementById('email' + '0').className += ' errorTextBoxBorder'
@@ -1209,7 +1203,7 @@ export class VendorAddComponent implements OnDestroy {
         this.countryListWithCode = newdataList
         console.log(Data ,'code')
       } else {
-        this._toastrcustomservice.showError('Error', Data.Description)
+        this._toastrcustomservice.showError('', Data.Description)
 
       }
     })

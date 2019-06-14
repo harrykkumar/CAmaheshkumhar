@@ -8,7 +8,7 @@
             <div class="modal-body">
                 <div class="card-body">
                     <div>
-                        <file-upload (uploadedImages)="onUploadImages($event)" ></file-upload>
+                        <file-upload [imageType]="imageType" (uploadedImages)="onUploadImages($event)" ></file-upload>
                         <div class="row" *ngIf="images.images" >
                             <div class="col-md-4" *ngFor="let image of images.images; let i = index;" >
                                 <div class="highlight_image">

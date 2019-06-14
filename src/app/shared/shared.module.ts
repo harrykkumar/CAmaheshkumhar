@@ -16,12 +16,19 @@ import { UserTypeFormComponent } from '../user/user-type-form/user-type-form.com
 import { Select2Module } from 'ng2-select2'
 import { OrganisationBranchComponent } from '../start/org-branch/org-branch-form/org-branch-form.component'
 import { PagingUtilityModule } from './pagination/pagination.module'
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @NgModule({
   imports: [
     FormsModule,
     CommonModule,
-    Select2Module
+    Select2Module,
+    ReactiveFormsModule,
+    MatSnackBarModule,
+    PagingUtilityModule,
+    NgxPaginationModule,
+    TableUtilityModule,
+    DynamicCategoryModule
   ],
   exports: [
     CommonModule,
@@ -41,7 +48,8 @@ import { PagingUtilityModule } from './pagination/pagination.module'
     FooterComponent,
     OrganisationProfileComponent,
     OrganisationBranchComponent,
-    PagingUtilityModule
+    PagingUtilityModule,
+    NgxPaginationModule
   ],
   declarations: [
     ControlMessageComponent,

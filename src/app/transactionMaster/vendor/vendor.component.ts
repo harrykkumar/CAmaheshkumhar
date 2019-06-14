@@ -17,6 +17,7 @@ declare const $: any
 })
 export class VendorComponent implements OnInit, OnDestroy {
   subscribe: Subscription
+  refreshPage:Subscription
   VendorDetailShow: Ledger[]
   deleteSub: Subscription
   getListvendoer: Subscription
@@ -39,7 +40,13 @@ export class VendorComponent implements OnInit, OnDestroy {
           this.deleteItem(obj.id)
         }
       }
-    )
+    ) 
+    this.refreshPage = this.commonService.newRefreshItemStatus().subscribe(
+      (obj) => {
+        this.getVendorDetail() 
+      }
+    ) 
+    
     this.getListvendoer = this.commonService.getVendStatus().subscribe(
       (obj) => {
         debugger

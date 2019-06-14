@@ -48,6 +48,12 @@ export class CustomerComponent implements OnInit {
         this.getCustomerDetail()
       }
     )
+    this.deleteSub = this.commonService.newRefreshItemStatus().subscribe(
+      (obj) => {  
+          this.getCustomerDetail()
+      }
+    )
+    
 
     this.formSearch()
   }

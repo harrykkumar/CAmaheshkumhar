@@ -1,4 +1,5 @@
-import { Component, ViewChild, ElementRef, OnInit, Input } from '@angular/core'
+/* File created by Dolly Garg */
+import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { Settings } from '../../../shared/constants/settings.constant'
 import { PurchaseService } from '../purchase.service'
@@ -129,7 +130,7 @@ export class PurchaseListComponent implements OnInit {
     )
     .subscribe(data => {
       // console.log('purchase data: ', data)
-      if (data.PurchaseTransactions.length > 0) {
+      if (data.PurchaseTransactions) {
         this.createTableData(data.PurchaseTransactions, data.PurchaseTransactionsSummary)
       } else {
       this.isSearching = false
@@ -141,10 +142,6 @@ export class PurchaseListComponent implements OnInit {
   }
 
   createTableData (data, summary) {
-    let totalQty = 0
-    let totalDiscount = 0
-    let totalTaxAmount = 0
-    let totalBillAmount = 0
     let customContent = [...data]
     customContent.forEach(element => {
       element.BillDate = this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)

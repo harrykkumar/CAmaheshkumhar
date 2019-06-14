@@ -41,7 +41,7 @@ export class LedgerCreationAddComponent implements OnDestroy {
   public selectyCoustmoreRegistration: Array<Select2OptionData>
   public stateListplaceHolder: Select2Options
   public countryListPlaceHolder: Select2Options
-  public ledgerGroupData: Array<Select2OptionData>
+
   satuariesId: number
   submitClick: boolean
   countryError: boolean
@@ -86,6 +86,7 @@ export class LedgerCreationAddComponent implements OnDestroy {
           this.ledgerGroupData = newData
           this.LedgerGroupValue = data.id
           this.parentId = data.id
+          this.headId = data.headId
         }
       }
      )
@@ -97,15 +98,18 @@ export class LedgerCreationAddComponent implements OnDestroy {
   }
   LgroupDetails:any
   getLedgerGroupList () {
+    this.ledgerGroupData =[]
     this.ledgergroupPlaceHolder = { placeholder: 'Select Group' }
-    let newData = [{ id: '0', text: 'Select Group' },{id:'-1',text:UIConstant.ADD_NEW_OPTION}]
+    let newData = [{ id: '0', text: 'Select Group' ,headId:'0'},{id:'-1',text:UIConstant.ADD_NEW_OPTION ,headId:'0'}]
     this._CommonService.getLedgerGroupParentData('').subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.LgroupDetails = data.Data
+        console.log( this.LgroupDetails ,'HeadId')
         data.Data.forEach(element => {
           newData.push({
             id: element.Id,
-            text: element.GlName
+            text: element.GlName,
+            headId:element.HeadId
           })
         })
       }
@@ -147,12 +151,19 @@ export class LedgerCreationAddComponent implements OnDestroy {
     }
   }
   parentId: any
+  headId: any
   onChnageGroup (event) {
     if (event.value && event.data.length > 0) {
       if(event.data[0].selected){
-  if(event.value !== '-1'){
+     if(event.value !== '-1'){
+       this.disabledInputField = false
         this.parentId = +event.value
+        this.headId = event.data[0].headId
+        this.select2CrDrValue()
         this.checkValidation()
+        this.openingStatus()
+        this.ledgerForm.controls.openingblance.setValue(0)
+
       }
       else{ 
         this.underGroupSelect2.selector.nativeElement.value = ''
@@ -210,8 +221,9 @@ export class LedgerCreationAddComponent implements OnDestroy {
 
   addressValue: any
   addTypeName: any
-
+  ledgerGroupData : any
   clearValidation () {
+    this.disabledInputField = true
     this.ledgerGroupData = []
     this.getLedgerGroupList()
     this.countryList = []
@@ -258,10 +270,12 @@ export class LedgerCreationAddComponent implements OnDestroy {
   mobileRequirdForSetting: boolean
   emailRequirdForSetting: boolean
   customerCustomRateFlag: boolean
-
+  disabledInputField:boolean = false
 
   currencyValues: any
   openModal () {
+    this.disabledInputField = true
+    this.headId =0
     this.openingStatus()
     this.showHideFlag = true
    this.requiredGST = true
@@ -274,15 +288,23 @@ export class LedgerCreationAddComponent implements OnDestroy {
       this.editLedgerData(this.id)
     }
       this.select2VendorValue(UIConstant.ZERO)
-      this.select2CrDrValue(0)
+      this.select2CrDrValue()
       this.getCountry(0)
     $('#ledger_creation_id').modal(UIConstant.MODEL_SHOW)
   }
 @ViewChild('ledgerName') ledgerName
 
   selectCRDRId (event) {
-    this.crDrId = event.value
-    this.calculate()
+    debugger
+    if(event.data[0].selected){
+      this.crDrId = +event.value
+      this.checkGlagLib = false
+      this.calculate()
+    }
+    
+   
+
+ 
   }
   selectCoustmoreId (event) {
     if(event.data.length > 0){
@@ -358,11 +380,19 @@ export class LedgerCreationAddComponent implements OnDestroy {
   select2CrDrPlaceHolder: Select2Options
   valueCRDR: any
   crDrId: number
-  select2CrDrValue (value) {
+  select2CrDrValue () {
     this.selectCrDr = []
     this.select2CrDrPlaceHolder = { placeholder: 'Select CR/Dr' }
     this.selectCrDr = [{ id: '1', text: 'CR' }, { id: '0', text: 'DR' }]
-    this.valueCRDR = value
+    if(this.headId===UIConstant.ONE){
+      this.valueCRDR = this.selectCrDr[1].id
+      this.crdrselecto2.setElementValue( this.valueCRDR)
+    }
+    else if(this.headId===UIConstant.TWO){
+      this.valueCRDR = this.selectCrDr[0].id
+      this.crdrselecto2.setElementValue( this.valueCRDR)
+    }
+    this.valueCRDR = this.selectCrDr[0].id
   }
 
   requiredValid: boolean
@@ -376,6 +406,7 @@ export class LedgerCreationAddComponent implements OnDestroy {
                     if (Data.Code === UIConstant.THOUSAND) {
                         const dataToSend = { id: Data.Data, name: this.ledgerForm.value.ledgerName }
                         this._CommonService.closeledgerCretion({ ...dataToSend })
+                        this._CommonService.AddedItem()
                         $('#ledger_creation_id').modal(UIConstant.MODEL_HIDE)
                         this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
                         this.clearValidation()
@@ -504,6 +535,8 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
        
       }
       if (Data.Data && Data.Data.LedgerDetails && Data.Data.LedgerDetails.length > 0) {
+        this.disabledInputField = false
+        this.headId = Data.Data.LedgerDetails[0].HeadId
         this.ledgerForm.controls.ledgerName.setValue(Data.Data.LedgerDetails[0].Name)
         this.geteditOpeningbal =Data.Data.LedgerDetails[0].OpeningBalance
         this.ledgerForm.controls.openingblance.setValue(Data.Data.LedgerDetails[0].OpeningBalance)
@@ -523,7 +556,7 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
         this.requiredGST = this.coustmoreRegistraionId === '1' ? true : false
        } 
         this.crdrselecto2.setElementValue(Data.Data.LedgerDetails[0].Crdr)
-        this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
+        this.crdrselecto2.setElementValue(Data.Data.LedgerDetails[0].Crdr)
       }
       if (Data.Data && Data.Data.LedgerDetails && Data.Data.Addresses.length > 0) {
         this.addressId =Data.Data.Addresses[0].Id
@@ -570,8 +603,11 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
       }
     })
  }
-
+ checkGlagLib: any
+ // CR =1 Dr= 0 //
  calculate (){
+   debugger
+if(this.headId > 0){
   let dataDr = 0
   let newdataCr = 0
   let tempOpeingbal;
@@ -584,24 +620,46 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
       let data = JSON.parse(this.ledgerForm.value.openingblance)
       tempOpeingbal =  data - editdata
     }
-  
   }
   else{
      tempOpeingbal =  JSON.parse(this.ledgerForm.value.openingblance)
   }
+  if(this.headId ===UIConstant.ONE){
+    let getTotalSum =0
+     getTotalSum = this.initilzedAssets + tempOpeingbal
+    let lastLib =0
+    if(this.crDrId > 0){ // 1 CR
+        newdataCr = this.initilzedAssets - tempOpeingbal
+        this.ledgerForm.controls.Assets.setValue(newdataCr)
+    }
+    else{ //0 DR
+       dataDr = this.initilzedAssets + tempOpeingbal
+       this.ledgerForm.controls.Assets.setValue(dataDr)
+    }
+  }
+  else if(this.headId ===UIConstant.TWO){
+    let getTotalSum =0
+     getTotalSum = this.initilzedLiabilities + tempOpeingbal
     if(this.crDrId > 0){
-      let labCr = this.initilzedLiabilities
-       newdataCr = labCr + tempOpeingbal
+       newdataCr = this.initilzedLiabilities + tempOpeingbal
       this.ledgerForm.controls.Liabilities.setValue(newdataCr)
     }
     else{
-      let labDr = this.initilzedAssets
-       dataDr = labDr + tempOpeingbal
-        this.ledgerForm.controls.Assets.setValue(dataDr)
+        dataDr = this.initilzedLiabilities - tempOpeingbal
+        this.ledgerForm.controls.Liabilities.setValue(dataDr)
     }
+  }
+    
     let diffcr_dr = this.ledgerForm.value.Liabilities - this.ledgerForm.value.Assets
      this.ledgerForm.controls.Difference.setValue(diffcr_dr)
+}
+else{
+  this._toastrcustomservice.showError('','Please Select Ledger Group')
+}
 
 }
  
+
+
+
 }

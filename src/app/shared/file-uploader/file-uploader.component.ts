@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core'
+import { Component, Output, EventEmitter, OnInit, Input } from '@angular/core'
 import { FileUploader } from 'ng2-file-upload'
 import { DomSanitizer } from '@angular/platform-browser'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
@@ -16,6 +16,7 @@ export class FileUploaderComponent implements OnInit {
   len: number = 0
   allowedMimeTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/jpe', 'image/bmp']
   @Output() uploadedImages = new EventEmitter<{'images': string[], 'queue': any[], 'safeUrls': string[], 'baseImages': number[], 'id': number[]}>()
+  @Input('imageType') imageType;
   public uploader: FileUploader = new FileUploader({
     isHTML5: true,
     allowedMimeType: this.allowedMimeTypes,
@@ -24,14 +25,10 @@ export class FileUploaderComponent implements OnInit {
   })
   constructor (private domSanitizer: DomSanitizer, private toastrService: ToastrCustomService) { }
 
-  onFileSelect (blob) {
-    // console.log('blob : ',blob)
-    // console.log('uploader.queue : ', this.uploader.queue)
+  onFileSelect(blob) {
     for (const key in blob) {
-      // console.log('blob[key] : ', blob[key])
       if (blob[key] instanceof File) {
         console.log(blob[key] instanceof Blob)
-        // console.log(blob[key].type)
         if (this.allowedMimeTypes.indexOf(blob[key].type) > -1) {
           this.len += 1
           this.blobToString(blob[key])
@@ -56,39 +53,41 @@ export class FileUploaderComponent implements OnInit {
     this.len = 0
   }
 
-  blobToString (blob) {
+  blobToString(blob) {
     let reader = new FileReader()
     reader.readAsDataURL(blob)
     let _self = this
     reader.onloadend = function () {
       let base64data = reader.result as string
-      // console.log('unsafe : ', base64data)
-      let base64Image = _self.domSanitizer.bypassSecurityTrustUrl(base64data)
-      // console.log('safe : ', base64Image)
-      _self.images.push(base64Image)
-      _self.safeUrls.push(base64data)
-      _self.baseImages.push(1)
-      _self.queue.push(blob.name)
-      _self.id.push(0)
-      if (_self.len === _self.images.length) {
-        // console.log(_self.images)
-        // console.log(_self.safeUrls)
-        // console.log(_self.queue)
-        // console.log(_self.baseImages)
-        let images = [..._self.images]
-        let safeUrls = [..._self.safeUrls]
-        let queue = [..._self.queue]
-        let baseImages = [..._self.baseImages]
-        let id = [..._self.id]
-        _self.images = []
-        _self.safeUrls = []
-        _self.queue = []
-        _self.baseImages = []
-        _self.id = []
-        _self.len = 0
-        _self.uploadedImages.emit({ 'images': images, 'queue': queue, 'safeUrls': safeUrls, 'baseImages': baseImages, 'id': id })
+      let img = new Image();
+      img.src = base64data
+      img.onload = () => {
+        if (_self.imageType === 'logo' && (img.width !== 450 || img.height !== 150)) {
+          _self.toastrService.showError('Image width and height should be 450×150', '')
+          return
+        } else {
+          let base64Image = _self.domSanitizer.bypassSecurityTrustUrl(base64data)
+          _self.images.push(base64Image)
+          _self.safeUrls.push(base64data)
+          _self.baseImages.push(1)
+          _self.queue.push(blob.name)
+          _self.id.push(0)
+          if (_self.len === _self.images.length) {
+            let images = [..._self.images]
+            let safeUrls = [..._self.safeUrls]
+            let queue = [..._self.queue]
+            let baseImages = [..._self.baseImages]
+            let id = [..._self.id]
+            _self.images = []
+            _self.safeUrls = []
+            _self.queue = []
+            _self.baseImages = []
+            _self.id = []
+            _self.len = 0
+            _self.uploadedImages.emit({ 'images': images, 'queue': queue, 'safeUrls': safeUrls, 'baseImages': baseImages, 'id': id })
+          }
+        }
       }
-      // console.log('images array : ', _self.images)
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, ViewChild, ViewChildren, QueryList } from '@angular/core'
+import { Component, Renderer2,ViewChild, ViewChildren, QueryList } from '@angular/core'
 import { Subscription } from 'rxjs'
 import { AddCust, ResponseSale } from '../../../../../model/sales-tracker.model'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
@@ -101,6 +101,7 @@ export class SalesChallanInvoiceComponent {
   modalOpen: Subscription
   // modalSub3:Subscription
   modalCategory: Subscription
+  itemAddSub :Subscription
   clickItem: boolean = false
   clickTrans: boolean = false
   isValidAmount: boolean = true
@@ -128,7 +129,7 @@ export class SalesChallanInvoiceComponent {
   editItemId: any
   clientDateFormat: string = ''
   industryId: any
-  constructor (private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
+  constructor (public renderer2: Renderer2,private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
     private _ledgerServices: VendorServices,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
@@ -163,14 +164,13 @@ export class SalesChallanInvoiceComponent {
     this.newAttributeADDModel3 = this._commonService.getAttributeStatus().subscribe(
       (Attri: AddCust) => {
         if (Attri.id > 0) {
-          let Atdata
+          
           if (this.attributesLabels.length > 0) {
-            for (let i = 0; i < this.attributesLabels.length; i++) {
-              Atdata = this.allAttributeData[i].item.filter(value => value.attributeId === Attri.AttributeId)
-              if (Atdata.length > 0) {
-                let newData = Object.assign([], this.allAttributeData[i].item)
+            for (let i = 0; i < this.attributesLabels.length; i++) { 
+              if (this.allAttributeData[i].attributeId === Attri.AttributeId) {
+                let newData = Object.assign([], this.allAttributeData[i].data)
                 newData.push({ id: Attri.id, text: Attri.name, AttributeId: Attri.AttributeId })
-                this.allAttributeData[i].item = newData
+                this.allAttributeData[i].data = newData
                 this.attrinuteSetDataId = Attri.id
               }
             }
@@ -178,6 +178,7 @@ export class SalesChallanInvoiceComponent {
         }
       }
     )
+
     // for new add customer
     this.newCustAddCutomer = this._commonService.getCustStatus().subscribe(
       (data: AddCust) => {
@@ -223,26 +224,44 @@ export class SalesChallanInvoiceComponent {
       }
 
     )
-    this.modalCategory = this._commonService.getCategoryStatus().subscribe(
+    this.itemAddSub = this._commonService.getItemMasterStatus().subscribe(
       (data: AddCust) => {
-        if (data.id && data.name && data.type) {
-          if (data.type === 'cat') {
-            let newData = Object.assign([], this.categoryType)
-            newData.push({ id: data.id, text: data.name })
-            this.categoryType = newData
-            this.cateGoryValue = +data.id
-            this.categoryId = +data.id
-            /// this.catSelect2.setElementValue(this.categoryId)
-          }
-          if (data.type === 'subCat' && data.parentId) {
-            let newData = Object.assign([], this.subCategoryType)
-            newData.push({ id: data.id, text: data.name })
-
-          }
+        console.log(data ,'Item_address')
+        if (data.id && data.name) {
+          let newData = Object.assign([], this.itemCategoryType)
+          newData.push({ id: data.id, text: data.name })
+          this.itemCategoryType = newData
+          this.itemCategoryId = +data.id
+          this.itemCategoryId = data.id
+          setTimeout(() => {
+            if (this.itemSelect2) {
+              const element = this.renderer2.selectRootElement(this.itemSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
+          setTimeout(() => {
+            this.categoryId = this.AlreadySelectCategoryId
+            this.categoryName = this.AlreadySelectCategoryName
+            this.updateCategories(this.AlreadySelectCategoryId)
+          },100)
         }
       }
     )
+    this.modalCategory = this._commonService.getCategoryStatus().subscribe(
+      (data: AddCust) => {
+        debugger
+        if (data.id && data.name) {
+          let categoryId = data.id
+          let categoryName = data.name
+          this.isAddNew = true
+          this.getAllCategories(categoryName, categoryId, this.isAddNew)
+        }
+     
+      }
+    )
+
   }
+  isAddNew: boolean
   attrinuteSetDataId: any
   ngOnInit () {
     this.Id = 0
@@ -254,10 +273,35 @@ export class SalesChallanInvoiceComponent {
     this.selectTax = []
   }
   @ViewChild('item_select2') itemSelect2: Select2Component
-  @ViewChild('atrColour_id') atrColorSelect2: Select2Component
+  @ViewChildren('atrColour_id') atrColorSelect2: QueryList<Select2Component>
   @ViewChild('atrSize_id') atrSizeSelect2: Select2Component
   @ViewChild('atrArticle_id') atrArticleSelect2: Select2Component
 
+  getAllCategories (categoryName, categoryId, isAddNew) {
+    this._commonService.getAllCategories().subscribe(
+      data => {
+        let levelNo = 0
+        if (data.Code === UIConstant.THOUSAND && data.Data && data.Data.length > 0) {
+          this.getCatagoryDetail(data.Data)
+          data.Data.forEach(category => {
+            if (+category.Id === +categoryId) {
+              levelNo = +category.LevelNo
+              return
+            }
+          })
+          this.categoryName = categoryName
+          this.categoryId = categoryId
+          this.catSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
+            if ((index + 1) === levelNo) {
+              item.setElementValue(this.categoryId)
+            }
+          })
+          let evt = { value: categoryId, data: [{ text: categoryName }] }
+          this.onSelectCategory(evt, levelNo)
+        }
+      }
+    )
+  }
   initComp () {
     this.initialiseItem()
     this.initialiseParams()
@@ -299,42 +343,13 @@ export class SalesChallanInvoiceComponent {
           }
 
         }
+        this.allAttributeData = []
+        this.attributesLabels = []
         if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
 
-          this.allAttributeData = []
-          this.allAttributeData = []
-          let newData = []
-          this.attributeColourPlaceHolder = { placeholder: 'Select' }
-          this.attributesLabels = []
-          for (let j = 0; j < data.Data.AttributeValueResponses.length; j++) {
-            newData.push({
-              Name: data.Data.AttributeValueResponses[j].Name,
-              AttributeId: data.Data.AttributeValueResponses[j].AttributeId
-            })
-          }
-
-          this.attributesLabels = newData
-          // console.log(this.attributesLabels ,'attrilabel')
-          for (let k = 0; k < this.attributesLabels.length; k++) {
-            for (let n = 0; n < data.Data.AttributeValueResponses.length; n++) {
-              if (this.attributesLabels[k].AttributeId === data.Data.AttributeValueResponses[n].AttributeId) {
-                let abs = data.Data.AttributeValueResponses[n].AttributeValues
-                for (let p = 0; p < data.Data.AttributeValueResponses[n].AttributeValuesResponse.length; p++) {
-                  abs.push({
-                    id: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].Id,
-                    text: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].Name,
-                    attributeId: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].AttributeId
-
-                  })
-                }
-                this.allAttributeData.push({
-                  item: abs
-                })
-              }
-
-            }
-          }
-
+          let AttributeDetails= this.CreateDynamicAttributes(data.Data)
+          this.attributesLabels = AttributeDetails.attributeKeys
+          this.allAttributeData = AttributeDetails.attributesData
         }
         if (this.Id !== 0 && this.editMode && !this.editRowFlag) {
           this.getSaleChllanEditData(this.Id)
@@ -386,7 +401,7 @@ export class SalesChallanInvoiceComponent {
         this.itemCategoryType = []
         this.allItemsData = []
         this.itemcategoryPlaceHolder = { placeholder: 'Select Item' }
-        console.log(data.Data,'itam-data')
+      //  console.log(data.Data,'itam-data')
         this.itemCategoryType  = [{ id: UIConstant.BLANK, text: 'Select  Item' }, { id: '-1', text: '+Add New' }]
         if (data.Data && data.Data.Items.length > 0) {
           this.allItemsData =  data.Data.Items
@@ -399,7 +414,7 @@ export class SalesChallanInvoiceComponent {
           })
         }
         this.itemCategoryType = this.itemCategoryType
-        console.log(this.itemCategoryType ,'iyem-data--')
+       // console.log(this.itemCategoryType ,'iyem-data--')
 
         // add Referals
         this.referals = []
@@ -492,19 +507,14 @@ export class SalesChallanInvoiceComponent {
   validAttribute: any
   AttrValueId: any
   onChangeAttribute (event, indexAttribute, attributeData) {
-    // debugger;
     let editAttributValue
     let attributeEdit = this.editAttributeData
-
-    // console.log(attributeEdit,'edit-attr-data')
-    // debugger;
-
     let editAttrId = 0
     if (event.data.length > 0) {
       if (event.data[0].id !== '-1') {
         if (event.data[0].text) {
           this.AttrValueId = event.data[0].id
-          this.existId = event.data[0].attributeId
+          this.existId = attributeData.attributeId
           if (attributeEdit !== undefined) {
             editAttributValue = this.editAttributeData.filter(value => value.AttributeValueId === this.existId)
             if (editAttributValue.length > 0) {
@@ -515,25 +525,45 @@ export class SalesChallanInvoiceComponent {
             }
 
           }
+          if( this.editItemId >0 &&this.editAttributeData.length ===0){
+            //this.trsnItemId =  this.editItemId
+            this.trsnItemId  = this.items.length + 1
+            for(let i=0; i < this.items.length; i ++){
+              if(this.trsnItemId === this.items[i].Sno){
+                this.trsnItemId =  this.trsnItemId + 1
+              }
+            }
+          }
+          if(this.editItemId ===0 && this.items.length >0){
+            this.trsnItemId = this.items.length + 1
+            for(let i=0; i < this.items.length; i ++){
+              if(this.trsnItemId === this.items[i].Sno){
+                this.trsnItemId =  this.trsnItemId + 1
+              }
+            }
 
+          }
           this.attributeName = event.data[0].text
           this.attributeIndex = indexAttribute
           this.itemAttribute(this.existId, this.attributeIndex, editAttrId)
         }
       } else {
         let data = {
-          addNewId: event.data[0].attributeId,
-          attrNameId: event.data[0].attributeId,
-          attrValue: event.data[0].attributeId,
+          addNewId:  attributeData.attributeId,
+          attrNameId:  attributeData.attributeId,
+          attrValue:  attributeData.attributeId,
           disabledAddButton: true
 
         }
-        this.atrColorSelect2.selector.nativeElement.value = ''
+        this.atrColorSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
+          item.selector.nativeElement.value = '' 
+        })
         this._commonService.openAttribute(data, true)
       }
     }
   }
   itemsAttribute: any
+
   itemAttribute (existid, attrIndex, AttrEditId) {
     if (this.itemsAttribute.length > 0) {
       let data = this.itemsAttribute.filter(s => s.existId === existid)
@@ -542,6 +572,7 @@ export class SalesChallanInvoiceComponent {
         let newArray = {
           Id: AttrEditId,
           Index: attrIndex,
+          Sno:this.trsnItemId,
           ItemId: this.itemCategoryId,
           ItemTransId: this.trsnItemId,
           AttributeName: this.attributeName,
@@ -554,6 +585,7 @@ export class SalesChallanInvoiceComponent {
         this.itemsAttribute.push({
           Id: AttrEditId,
           Index: attrIndex,
+          Sno:this.trsnItemId,
           ItemId: this.itemCategoryId,
           ItemTransId: this.trsnItemId,
           AttributeName: this.attributeName,
@@ -567,6 +599,7 @@ export class SalesChallanInvoiceComponent {
       this.itemsAttribute.push({
         Id: AttrEditId,
         Index: attrIndex,
+        Sno:this.trsnItemId,
         ItemId: this.itemCategoryId,
         ItemTransId: this.trsnItemId,
         AttributeName: this.attributeName,
@@ -881,7 +914,7 @@ export class SalesChallanInvoiceComponent {
     this._commonService.getLastBillNo(UIConstant.SALE_TYPE,dateChnage,orgNo).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.lastBillNo = data.Data[0].BillNo
-        console.log(this.lastBillNo ,'last-bill')
+      ///  console.log(this.lastBillNo ,'last-bill')
 
       }
     })
@@ -895,18 +928,22 @@ export class SalesChallanInvoiceComponent {
   localLabelData: any
 
   localAddAttribute () {
-    for (let i = 0; i < this.itemsAttribute.length; i++) {
-      this.sendAttributeData.push({
-        AttributeId: this.itemsAttribute[i].AttributeId,
-        AttributeName: this.itemsAttribute[i].AttributeName,
-        Index: this.itemsAttribute[i].Index,
-        Id: this.itemsAttribute[i].Id,
-        ItemId: this.itemsAttribute[i].ItemId,
-        AttributeValueId: this.itemsAttribute[i].AttributeValueId,
-        ItemTransId: this.itemsAttribute[i].ItemTransId,
-        existId: this.itemsAttribute[i].existId
-      })
+    if( this.itemsAttribute.length > 0){
+      for (let i = 0; i < this.itemsAttribute.length; i++) {
+        this.sendAttributeData.push({
+          AttributeId: this.itemsAttribute[i].AttributeId,
+          AttributeName: this.itemsAttribute[i].AttributeName,
+          Index: this.itemsAttribute[i].Index,
+          Sno: this.itemsAttribute[i].Sno,
+          Id: this.itemsAttribute[i].Id,
+          ItemId: this.itemsAttribute[i].ItemId,
+          AttributeValueId: this.itemsAttribute[i].AttributeValueId,
+          ItemTransId: this.itemsAttribute[i].ItemTransId,
+          existId: this.itemsAttribute[i].existId
+        })
+      }
     }
+
 
   }
   localItemas: any
@@ -914,7 +951,7 @@ export class SalesChallanInvoiceComponent {
 
   localItems () {
     let value = []
-
+debugger
     this.items.forEach(element => {
       this.localLabelData = []
       if (element.Id === 0 && (element.Sno === this.snoIndex)) {
@@ -923,7 +960,7 @@ export class SalesChallanInvoiceComponent {
             this.labeldata = this.sendAttributeData.filter(v => v.existId === label.AttributeId)
             value = []
             if (this.labeldata.length > 0) {
-              value = this.labeldata.filter(v => v.ItemTransId === element.Sno)
+              value = this.labeldata.filter(v => v.Sno === element.Sno)
 
             }
             this.localLabelData.push({
@@ -934,19 +971,32 @@ export class SalesChallanInvoiceComponent {
             })
           })
         }
+        else{
+          if(this.attributesLabels.length > 0 ){
+            this.attributesLabels.forEach(label => {
+              this.localLabelData.push({
+                AttributeId: 0,
+                Label: '',
+                AttributeValue: '0'
+    
+              })
+            })
+           }
+        }
 
         this.localItemas.push({
           Id: element.Id,
           Sno: element.Sno,
           CategoryName: element.CategoryName,
+          CategoryId:element.CategoryId,
           ItemName: element.ItemName,
           UnitName: element.UnitName,
           UnitId: element.UnitId,
           Length: element.Length,
           Height: element.Height,
           Width: element.Width,
-          ExpiryDate: element.ExpiryDate,
-          MfDate: element.MfDate,
+          ExpiryDate: element.ExpiryDateToshow,
+          MfdDate: element.MfDateToshow,
           BatchNo: element.BatchNo,
           ItemId: element.ItemId,
           Remark: element.Remark,
@@ -961,10 +1011,10 @@ export class SalesChallanInvoiceComponent {
         // debugger;
         if (this.sendAttributeData.length > 0) {
           this.attributesLabels.forEach(label => {
-            this.labeldata = this.sendAttributeData.filter(s => (s.AttributeValueId === label.AttributeId) && (s.ItemTransId === element.Id))
+            this.labeldata = this.sendAttributeData.filter(s => (s.AttributeValueId === label.AttributeId) && (s.Sno === element.Sno))
             value = []
             if (this.labeldata.length > 0) {
-              value = this.labeldata.filter(v => v.ItemTransId === element.Id)
+              value = this.labeldata.filter(v => v.Sno === element.Sno)
 
             }
             this.localLabelData.push({
@@ -979,13 +1029,14 @@ export class SalesChallanInvoiceComponent {
           Id: element.Id,
           Sno: element.Sno,
           CategoryName: element.CategoryName,
+          CategoryId:element.CategoryId,
           ItemName: element.ItemName,
           UnitName: element.UnitName,
           Length: element.Length,
           Height: element.Height,
           Width: element.Width,
-          ExpiryDate: element.ExpiryDate,
-          MfDate: element.MfDate,
+          ExpiryDate: element.ExpiryDateToshow,
+          MfdDate: element.MfDateToshow,
           BatchNo: element.BatchNo,
           UnitId: element.UnitId,
           ItemId: element.ItemId,
@@ -1000,13 +1051,11 @@ export class SalesChallanInvoiceComponent {
       }
     })
     this.editAttributeData = undefined
-    // console.log(this.localItemas,this.showAttributeData,this.localLabelData ,"localitem----")
+    console.log(this.localItemas,this.showAttributeData,this.localLabelData ,"localitem----")
   }
 
   addItems () {
     this.deleteEditflag = true
-    // debugger;
-    // this.itemAddRequiredFlag = false;
     if (this.editAlreadyItemDataFlag) {
       this.localItemas = []
 
@@ -1014,16 +1063,10 @@ export class SalesChallanInvoiceComponent {
       this.itemSubmit = true
 
     }
-    // this.localLabelData=[]
     if (this.validationForItemData()) {
       if (this.categoryId > 0 && this.itemCategoryId > 0 && this.Quantity) {
-        //  this.deleteEditflag = true;
         this.addItem()
-        // this.showItemAttributeArray =  this.sendAttributeData
-        //  this.itemsAttribute = []
         this.clickItem = true
-        // this.totalQty()
-        // this.totalRowCalculation()
         this.calculateAllTotal()
         this.calculateTotalOfRow()
         this.calTotalBillAmount()
@@ -1038,7 +1081,7 @@ export class SalesChallanInvoiceComponent {
   Height: any
   Width: any
   ExpiryDate: any
-  MfDate: any
+  MfdDate: any
   BatchNo: any
   lastItemFlag: boolean
   trsnItemId: any
@@ -1051,63 +1094,54 @@ export class SalesChallanInvoiceComponent {
     } else {
       this.ExpiryDateChngae = ''
     }
-    if (this.MfDate !== '') {
-      this.MFDateChngae = this._globalService.clientToSqlDateFormat(this.MfDate, this.clientDateFormat)
+    if (this.MfdDate !== '') {
+      this.MFDateChngae = this._globalService.clientToSqlDateFormat(this.MfdDate, this.clientDateFormat)
     } else {
       this.MFDateChngae = ''
     }
     if (this.items.length === 0) {
       this.snoIndex = 1
-      this.items.push({
-        Id: this.editItemId !== 0 ? this.editItemId : 0,
-        Sno: this.snoIndex,
-        CategoryName: this.categoryName,
-        ItemName: this.ItemName,
-        UnitName: this.UnitName,
-        Length: this.Length,
-        Height: this.Height,
-        Width: this.Width,
-        ExpiryDate: this.ExpiryDate,
-        MfDate: this.MfDate,
-        BatchNo: this.BatchNo,
-        UnitId: this.unitId,
-        ItemId: this.itemCategoryId,
-        Remark: this.Remark,
-        Quantity: +this.Quantity,
-        SaleRate: +this.Rate,
-        TotalAmount: +this.TotalAmount,
-        TransId: 0,
-        rowEditFlagValue: true
 
-      })
     } else {
-      this.snoIndex = +this.items[this.items.length - 1].Sno + 1
-      this.items.push({
-        Id: this.editItemId !== 0 ? this.editItemId : 0,
-        Sno: this.snoIndex,
-        CategoryName: this.categoryName,
-        ItemName: this.ItemName,
-        UnitName: this.UnitName,
-        UnitId: this.unitId,
-        Length: this.Length,
-        Height: this.Height,
-        Width: this.Width,
-        ExpiryDate: this.ExpiryDate,
-        MfDate: this.MfDate,
-        BatchNo: this.BatchNo,
-        ItemId: this.itemCategoryId,
-        Remark: this.Remark,
-        Quantity: +this.Quantity,
-        SaleRate: +this.Rate,
-        TotalAmount: +this.TotalAmount,
-        TransId: 0,
-        rowEditFlagValue: true
-      })
+      this.snoIndex = this.items.length + 1
+      for(let i=0; i < this.items.length; i ++){
+        if(this.snoIndex === this.items[i].Sno){
+          this.snoIndex =  this.snoIndex + 1
+        }
+      }
+
     }
+    debugger
+    this.items.push({
+      Id: this.editItemId !== 0 ? this.editItemId : 0,
+      Sno: this.snoIndex,
+      //CategoryName: this.categoryName,
+      CategoryId:this.categoryId,
+      CategoryName: this.getPattern(),
+      ItemName: this.ItemName,
+      UnitName: this.UnitName,
+      UnitId: this.unitId,
+      Length: this.Length,
+      Height: this.Height,
+      Width: this.Width,
+      ExpiryDate: this.ExpiryDateChngae,
+      ExpiryDateToshow: this.ExpiryDate,
+      MfDateToshow: this.MfdDate,
+      MfdDate: this.MFDateChngae,
+      BatchNo: this.BatchNo,
+      ItemId: this.itemCategoryId,
+      Remark: this.Remark,
+      Quantity: +this.Quantity,
+      SaleRate: +this.Rate,
+      TotalAmount: +this.TotalAmount,
+      TransId: 0,
+      rowEditFlagValue: true
+    })
     setTimeout(() => {
       this._commonService.fixTableHFL('item-table')
     }, 1)
-    this.trsnItemId = this.items[this.items.length - 1].Sno + 1
+    console.log(this.items,'recently add -item')
+    //this.trsnItemId = this.items[this.items.length - 1].Sno + 1
     this.localAddAttribute()
     this.localItems()
 
@@ -1127,7 +1161,7 @@ export class SalesChallanInvoiceComponent {
     this.RoundOff = 0
     this.BatchNo = ''
     this.ExpiryDate = ''
-    this.MfDate = ''
+    this.MfdDate = ''
     this.clickItem = false
     this.unitId = 0
     this.itemCategoryId = 0
@@ -1197,7 +1231,7 @@ export class SalesChallanInvoiceComponent {
     this.BatchNo = ''
     this.Height = 1
     this.ExpiryDate = ''
-    this.MfDate = ''
+    this.MfdDate = ''
     this.currencyValues = [{ id: 0, symbol: '%' }, { id: 1, symbol: '$' }]
 
     if (this.clientSelect2 && this.clientSelect2.selector.nativeElement.value) {
@@ -1337,7 +1371,10 @@ export class SalesChallanInvoiceComponent {
     let totalQty = 0
     let Rate = (isNaN(+this.Rate)) ? 0 : +this.Rate
     let Quantity = (isNaN(+this.Quantity)) ? 1 : +this.Quantity
-    this.TotalAmount = Rate * Quantity
+    let Height = (this.Height === 0 || this.Height === null) ? 1 : +this.Height
+    let Length = (this.Length === 0 || this.Length === null) ? 1 : +this.Length
+    let Width = (this.Width === 0 || this.Width === null) ? 1 : +this.Width
+    this.TotalAmount = Rate * Quantity * Height * Length * Width
     let totalAmount = this.TotalAmount
     return isNaN(totalAmount) ? 0 : totalAmount
 
@@ -1358,13 +1395,16 @@ export class SalesChallanInvoiceComponent {
     let totalQty = 0
     for (let i = 0; i < this.localItemas.length; i++) {
       totalBillAmt = totalBillAmt + (isNaN(+this.localItemas[i].SaleRate) ? 0 : +this.localItemas[i].SaleRate) *
-        (isNaN(+this.localItemas[i].Quantity) ? 1 : +this.localItemas[i].Quantity)
+        (isNaN(+this.localItemas[i].Quantity) ? 1 : +this.localItemas[i].Quantity) *
+        (isNaN(+this.localItemas[i].Height) ? 0 : +this.localItemas[i].Height) *
+        (isNaN(+this.localItemas[i].Width) ? 0 : +this.localItemas[i].Width) *
+        (isNaN(+this.localItemas[i].Length) ? 0 : +this.localItemas[i].Length)
       totalQty = totalQty + (isNaN(+this.localItemas[i].Quantity) ? 0 : +this.localItemas[i].Quantity)
     }
     if (!this.clickItem) {
 
       if (this.Rate !== '') {
-        totalBillAmt += +this.Rate * this.Quantity
+        totalBillAmt += +this.Rate * this.Quantity  * this.Length * this.Height * this.Width
       }
     }
     if (totalQty) {
@@ -1426,7 +1466,8 @@ export class SalesChallanInvoiceComponent {
     let totalOther = 0
     let netAmt = 0
     for (let i = 0; i < this.localItemas.length; i++) {
-      totalAmount = +totalAmount + +(this.localItemas[i].Quantity * this.localItemas[i].SaleRate)
+      totalAmount = +totalAmount + +(this.localItemas[i].Quantity * this.localItemas[i].SaleRate * 
+         this.localItemas[i].Height * this.localItemas[i].Length * this.localItemas[i].Width )
 
     }
 
@@ -1480,6 +1521,7 @@ export class SalesChallanInvoiceComponent {
     this.modalOpen.unsubscribe()
     this.newAttributeADDModel3.unsubscribe()
     this.modalCategory.unsubscribe()
+    this.itemAddSub.unsubscribe()
     this.newCustAddSub.unsubscribe()
     this.newCustAddCutomer.unsubscribe()
     this.newNewAddress.unsubscribe()
@@ -1616,6 +1658,28 @@ export class SalesChallanInvoiceComponent {
       this.invalidObj['Quantity'] = true
       isValidItem = 0
     }
+    if(this.industryId === '5' ){
+      if (this.BatchNo !=="") {
+        this.invalidObj['BatchNo'] = false
+      } else {
+        this.invalidObj['BatchNo'] = true
+        isValidItem = 0
+      }
+    }
+    if(this.industryId === '6' ){
+      if (this.BatchNo !=="") {
+        this.invalidObj['BatchNo'] = false
+      } else {
+        this.invalidObj['BatchNo'] = true
+        isValidItem = 0
+      }
+    }
+    // if (this.TotalAmount > 0) {
+    //   this.invalidObj['TotalAmount'] = false
+    // } else {
+    //   this.invalidObj['TotalAmount'] = true
+    //   isValidItem = 0
+    // }
 
     // }
     return !!isValidItem
@@ -1710,12 +1774,26 @@ export class SalesChallanInvoiceComponent {
                 })
               }
             }
+            let ExpiryDatevar;
+            let MFDatevar;
+            if(element.ExpiryDate !== null ){
+              ExpiryDatevar = this._globalService.utcToClientDateFormat(element.ExpiryDate, this.clientDateFormat)
 
-            const ExpiryDatevar = this._globalService.utcToClientDateFormat(element.ExpiryDate, this.clientDateFormat)
-            const MFDatevar = this._globalService.utcToClientDateFormat(element.ManufactureDate, this.clientDateFormat)
+           }
+           else{
+             ExpiryDatevar = ''
+
+           }
+           if(element.MfdDate !== null ){
+             MFDatevar  = this._globalService.utcToClientDateFormat(element.MfdDate, this.clientDateFormat)
+
+           }
+           else{
+             MFDatevar = ''
+
+           }
             this.localItemas.push({
-
-              Sno: 0,
+              Sno: element.Sno,
               Id: element.Id,
               CategoryName: element.CategoryName,
               CategoryId: element.CategoryId,
@@ -1725,7 +1803,7 @@ export class SalesChallanInvoiceComponent {
               Width: element.Width,
               Height: element.Height,
               ExpiryDate: ExpiryDatevar,
-              MfDate: MFDatevar,
+              MfdDate: MFDatevar,
               BatchNo: element.BatchNo,
               UnitName: element.UnitName,
               Quantity: element.Quantity,
@@ -1742,9 +1820,12 @@ export class SalesChallanInvoiceComponent {
           }
           )
           this.calculateAllTotal()
-          console.log(this.localItemas ,'item edit================')
+        //  console.log(this.localItemas ,'item edit================')
         }
 
+      }
+      if(data.Code === UIConstant.SERVERERROR){
+        this.toastrService.showError('',data.Description)
       }
 
     })
@@ -1758,7 +1839,7 @@ export class SalesChallanInvoiceComponent {
     this.submitSave = true
     if (this.deleteEditflag) {
 
-      // this.addItems()
+       this.addItems()
       this.calculateTotalOfRow()
       this.calculateAllTotal()
       if (this.checkValidation()) {
@@ -1809,6 +1890,10 @@ export class SalesChallanInvoiceComponent {
               } else {
                 _self.toastrService.showError(data.Code, data.Message)
               }
+              if(data.Code === UIConstant.SERVERERROR){
+                _self.toastrService.showError(data.Code, data.Message)
+                
+              }
             }
           )
 
@@ -1831,50 +1916,131 @@ export class SalesChallanInvoiceComponent {
   //     continue;
   //   }
   // }
-  deleteItem (a) {
-    // debugger;
+  deleteAttribute (attribute){
+  //  debugger
+    //console.log(this.sendAttributeData,'Attr')
+    if(this.sendAttributeData.length > 0){
+      this.sendAttributeData.forEach((element,index) => {
+        attribute.forEach((ele,i)=>{
+          if(ele.AttributeValue.length >0){
+            if( (element.Sno === ele.AttributeValue[0].Sno)){
+              this.sendAttributeData.splice(index ,1)
+            }
+          }
+        
+        })
+        
+      });
+    }
+  }
+  deleteItem (a ,attribute) {
     this.lastItemFlag = true
     this.items.splice(a, 1)
     this.localItemas.splice(a, 1)
     if (this.items.length === 0 && this.localItemas.length === 0) {
       this.lastItemFlag = false
     }
+    if(attribute.length >0){
+      this.deleteAttribute(attribute)
+    }
     this.calculateAllTotal()
     //  console.log( this.localItemas,'delete items')
 
+  }
+
+  EditAttributeDataValue (data){
+    if(data !== undefined ){
+      this.itemsAttribute =[]
+      if(this.items.length >0){
+        this.trsnItemId = this.items.length + 1
+        for(let i=0; i < this.items.length; i ++){
+          if(this.trsnItemId === this.items[i].Sno){
+            this.trsnItemId =  this.trsnItemId + 1
+          }
+        }
+      }
+      else{
+        this.trsnItemId =1
+      }
+      
+      data.forEach((element,index) => {
+        if(element.AttributeValue.length> 0){
+          this.itemsAttribute.push({
+            Id: element.AttributeValue[0].Id,
+            Index: element.AttributeValue[0].Index,
+            ItemId:element.AttributeValue[0].ItemId,
+            Sno:this.trsnItemId,
+            ItemTransId: this.trsnItemId,
+            AttributeName: element.AttributeValue[0].AttributeName,
+            existId: element.AttributeValue[0].AttributeValueId,
+            AttributeValueId: element.AttributeValue[0].AttributeValueId,
+            AttributeId: element.AttributeValue[0].AttributeId,
+            ParentTypeId: element.AttributeValue[0].ParentTypeId
+          })
+        }
+  
+      })
+      console.log( this.itemsAttribute ,'edit attr-data')
+
+    }
   }
   AttrColourEditId: any
   AttrSizeEditId: any
   AttrArticleEditId: any
   deleteEditflag: boolean = true
   editAttributeData: any
+  @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
+
   editRowItem (index, item, editId, attributeData) {
     this.editAttributeData = attributeData
     if (this.deleteEditflag) {
       this.editRowFlag = true
       this.deleteEditflag = false
-      this.editItemId = editId
+      this.editItemId = editId,
+      this.Length= item.Length,
+      this.Width= item.Width,
+      this.Height= item.Height,
+      this.ExpiryDate= item.ExpiryDate,
+      this.BatchNo = item.BatchNo,
+      this.MfdDate = item.MfdDate,
       this.Remark = item.Remark
+      this.categoryId = item.CategoryId
       this.Quantity = item.Quantity
       this.unitId = item.UnitId
       this.UnitName = item.UnitName
       this.ItemName = item.ItemName
       this.itemCategoryId = item.ItemId
-      this.categoryId = item.CategoryId
       this.Rate = item.SaleRate
-      this.TotalAmount = this.Quantity * this.Rate
-     // this.itemsAttribute =
+      this.TotalAmount = item.TotalAmount
+      this.updateCategories(this.categoryId)
       this.unitSelect2.setElementValue(item.UnitId)
-      this.itemSelect2.setElementValue(item.ItemId)
-      // if (this.editAttributeData.length > 0) {
-      //   debugger
-      //   this.editAttributeData.forEach((itm: Select2Component, inx: number, array: Select2Component[]) => {
-      //     console.log('attr : ', item)
-      //     let indexItm = this.allAttributeData[inx].item.findIndex(n => (n.id === itm.AttributeId))
-      //     this.atrColorSelect2.setElementValue(this.allAttributeData[inx].item[indexItm].id)
-      //   })
-      // }
-      this.deleteItem(index)
+      setTimeout(() => {
+        this.itemSelect2.setElementValue(+item.ItemId)
+      }, 10)
+  //this.onSelectCategory()
+      if (this.attrSelect2.length > 0) {
+        if(  this.editAttributeData !== undefined ){
+        this.editAttributeData.forEach( (value,inx  )=> {
+          if(value.AttributeValue.length > 0){
+            //console.log(this.editAttributeData ,'set attr')
+            this.attrSelect2.forEach((item2: Select2Component, indexi: number, array: Select2Component[]) => {
+              let flagReturn = false
+              let findIndex =  this.allAttributeData[indexi].data.findIndex(
+                element => ( element.id === JSON.parse(value.AttributeValue[0].AttributeId) )
+                  )
+              if(findIndex !== -1){
+                item2.setElementValue(this.allAttributeData[indexi].data[findIndex].id)   
+              }
+              flagReturn = true
+              return  flagReturn
+           })
+          }
+  
+        })
+      }
+      }
+      this.deleteItem(index,attributeData)
+      this.EditAttributeDataValue (this.editAttributeData)
     } else {
       this.toastrService.showWarning('Warning', 'First save item!')
     }
@@ -1925,25 +2091,70 @@ export class SalesChallanInvoiceComponent {
         this.categories[i].data = Object.assign([], this.categories[i].data)
       }
     }
-    console.log('dynamic categories : ', this.categories)
+   // console.log('dynamic categories : ', this.categories)
     this.loading = false
   }
+  getParentCatStr (id) {
+    let name = ''
+    this.allCategories.forEach(category => {
+      if (id === category.Id) {
+        name = category.Name
+      }
+    })
+    return name
+  }
+  getPattern (): string {
+    let childmostId = this.categoryId
+    let pattern = [this.categoryId]
+    this.catSelect2.forEach(() => {
+      let parent = this.getParentCat(childmostId)
+      if (parent !== 0) {
+        pattern.push(parent)
+        childmostId = parent
+      }
+    })
+    pattern = pattern.reverse()
+ 
+    let str = ''
+    this.catSelect2.forEach((cat: Select2Component, index: number) => {
+      if (index === (this.catLevel - 1)) {
+        str += this.getParentCatStr(pattern[index])
+      } else {
+        str += this.getParentCatStr(pattern[index]) + ' => '
+      }
+    })
+ 
+    return str
+  }
+  getParentCat (id) {
+    let parentId = 0
+    this.allCategories.forEach(category => {
+      if (id === category.Id) {
+        parentId = category.ParentId
+      }
+    })
+    return parentId
+  }
+  AlreadySelectCategoryId :any
+AlreadySelectCategoryName : any
   onSelectCategory (evt, levelNo) {
+    //console.log('evt on change of category : ', evt, 'level : ', levelNo)
     if (this.catLevel > 1) {
       if (+evt.value > 0) {
+        
         if (levelNo === this.catLevel) {
           if (this.categoryId !== +evt.value) {
             this.categoryId = +evt.value
             this.categoryName = evt.data[0].text
-            console.log('categoryname : ', this.categoryName)
-            console.log('category id : ', this.categoryId)
+            this.AlreadySelectCategoryId =+evt.value
+this.AlreadySelectCategoryName = evt.data[0].text
             this.getItemByCategoryid(+evt.value)
-
-            this.updateCategories(+evt.value)
+           // this.validateItem()
           }
         } else {
           if (levelNo < this.catLevel) {
             let categoryId = +evt.value
+            this.categoryName = evt.data[0].text
             let newData = []
             this.categories[levelNo].data = [{ id: '0', text: 'Select Category' }]
             this.allCategories.forEach(category => {
@@ -1968,15 +2179,17 @@ export class SalesChallanInvoiceComponent {
       }
       if (+evt.value === 0) {
         this.getCatagoryDetail(this.allCategories)
+        this.getItemByCategoryid(+evt.value)
       }
     } else {
       if (levelNo === this.catLevel) {
         if (this.categoryId !== +evt.value) {
           this.categoryId = +evt.value
           this.categoryName = evt.data[0].text
-          console.log('categoryname : ', this.categoryName)
-          console.log('category id : ', this.categoryId)
+          this.AlreadySelectCategoryId =+evt.value
+this.AlreadySelectCategoryName = evt.data[0].text
           this.getItemByCategoryid(+evt.value)
+         // this.validateItem()
           this.updateCategories(+evt.value)
         }
       }
@@ -1985,24 +2198,27 @@ export class SalesChallanInvoiceComponent {
 
   parentMostCategory: any
   @ViewChildren('cat_select2') catSelect2: QueryList<Select2Component>
-
   updateCategories (childmostId) {
-    let categoryId = childmostId
-    this.getParentMostCat(childmostId, this.catLevel)
-    categoryId = this.parentMostCategory
-    if (+this.categoryId !== +childmostId || this.editItemId !== -1) {
-      this.categoryId = +childmostId
-      this.catSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-        if (index === 0) {
-          item.setElementValue(categoryId)
-        } else if (index === (this.catLevel - 1)) {
-          item.setElementValue(+childmostId)
+    console.log('childmostId id : ', childmostId)
+    console.log('this.categoryId id : ', this.categoryId)
+    if (this.categoryId !== childmostId || this.editItemId !== -1) {
+      let pattern = [childmostId]
+      this.catSelect2.forEach(() => {
+        let parent = this.getParentCat(childmostId)
+        if (parent !== 0) {
+          pattern.push(parent)
+          childmostId = parent
         }
       })
-      let evt = { value: categoryId, data: [{ text: '' }] }
-      this.onSelectCategory(evt, 1)
+      pattern = pattern.reverse()
+      setTimeout(() => {
+        this.catSelect2.forEach((item: Select2Component, index: number) => {
+          item.setElementValue(pattern[index])
+        })
+      }, 100)
     }
   }
+  
   getParentMostCat (id, level) {
     let parentMostCategory = 0
     while (level !== 0) {
@@ -2083,4 +2299,44 @@ export class SalesChallanInvoiceComponent {
       item.selector.nativeElement.focus()
     }, 10)
   }
+  CreateDynamicAttributes (data) {
+    this.allAttributeData = []
+   this.attributesLabels = []
+    let obj = {}
+    let attributeKeys = []
+    let attributesData = []
+    data.AttributeValueResponses.forEach(attribute => {
+      attributeKeys.push({'label':attribute.Name ,'AttributeId':attribute.AttributeId})
+      obj['name'] = attribute.Name
+      obj['len'] = attribute.AttributeValuesResponse.length - 1
+      obj['data'] = [{ id: '0', text: 'Select' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+      obj['attributeId'] = attribute.AttributeId
+      obj['id'] = 0
+      attributesData.push({ ...obj })
+    })
+    let j = 0
+    let index = 0
+    for (let i = 0; i < data.AttributeValues.length; i++) {
+      const attr = data.AttributeValues[i]
+      let obj1 = {}
+      obj1['id'] = attr.Id
+      obj1['text'] = attr.Name
+      if (attributesData[j].len === index) {
+        j++
+        index = 0
+      }
+      index++
+      if (attributesData[j]) {
+        attributesData[j].data.push({ ...obj1 })
+      } else {
+        this.toastrService.showError('', 'Error on Serve')
+      }
+    }
+     let attibutesDataToSend = Object.assign([], attributesData)
+  
+     let  returnObject = { 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend }
+    // console.log(returnObject ,'atr----')
+     return returnObject
+  }
+
 }

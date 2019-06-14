@@ -14,11 +14,13 @@ export class ImageModalComponent implements OnDestroy {
   private modalOpen: Subscription
   images: Image
   imageAddedBefore: boolean = false
+  imageType: any;
   constructor (private itemMaster: ItemmasterServices) {
     this.images = { 'images': [], 'queue': [], 'safeUrls': [], 'baseImages': [], 'id': [] }
     this.modalOpen = this.itemMaster.getImageModalStatus().subscribe(
       data => {
         if (data.open) {
+          this.imageType = data.imageType
           this.openModal()
           if (data.images.length > 0) {
             this.imageAddedBefore = true

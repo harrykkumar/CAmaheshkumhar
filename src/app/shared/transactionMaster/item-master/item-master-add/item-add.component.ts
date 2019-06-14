@@ -22,7 +22,7 @@ export class ItemAddComponent {
   modalOpen: Subscription
   submitClick: boolean
   itemDetail: ItemModel[]
-
+  isStkValue = false;
   itemTpyePlaceHolder: Select2Options
   unitTypePlaceHolder: Select2Options
   categoryPlaceHolder: Select2Options
@@ -308,6 +308,7 @@ export class ItemAddComponent {
       this.addedImages.images.push(element.FilePath)
       this.addedImages.baseImages.push(0)
       this.addedImages.id.push(element.Id)
+      this.addedImages.safeUrls.push(element.FilePath)
     })
     this.createImageFiles()
     console.log('images : ', this.addedImages)
@@ -320,7 +321,7 @@ export class ItemAddComponent {
     this.TaxId = +this.itemDetails.TaxId
     this.ItemType = +this.itemDetails.ItemType
     this.PackingType = +this.itemDetails.PackingType
-    this.MrpRate = (isNaN(+this.itemDetails.MrpRate)) ? 0 : +this.itemDetails.MrpRate
+    this.MrpRate = (isNaN(+this.itemDetails.Mrprate)) ? 0 : +this.itemDetails.Mrprate
     this.SaleRate = (isNaN(+this.itemDetails.SaleRate)) ? 0 : +this.itemDetails.SaleRate
     this.OurPrice = (isNaN(+this.itemDetails.OurPrice)) ? 0 : +this.itemDetails.OurPrice
     // this.Nrv = (isNaN(+this.itemDetails.Nrv)) ? 0 : +this.itemDetails.Nrv
@@ -502,12 +503,12 @@ export class ItemAddComponent {
   }
 
   ngOnDestroy () {
-    this.modalOpen.unsubscribe()
-    this.newCategoryAddSub.unsubscribe()
-    this.newTaxAddSub.unsubscribe()
-    this.newUnitAddSub.unsubscribe()
-    this.barCodeExistSub.unsubscribe()
-    this.nameExistSub.unsubscribe()
+    // this.modalOpen.unsubscribe()
+    // this.newCategoryAddSub.unsubscribe()
+    // this.newTaxAddSub.unsubscribe()
+    // this.newUnitAddSub.unsubscribe()
+    // this.barCodeExistSub.unsubscribe()
+    // this.nameExistSub.unsubscribe()
   }
 
   createForm () {
@@ -574,7 +575,7 @@ export class ItemAddComponent {
         ImageFiles: this.ImageFiles,
         ItemTransactions: this.Items,
         ItemAttributeTrans: this.ItemAttributeTrans,
-        ItemAttributewithRate: this.ItemAttributewithRate
+        ItemAttributewithRate: this.prepareItemAttributeStkPayloadToSave(this.ItemAttributewithRate)
       } as ItemMasterAdd
     }
     return itemAddElement.obj
@@ -716,18 +717,18 @@ export class ItemAddComponent {
     this.selectBrand = []
     this._itemmasterServices.getBrandDetail().subscribe(data => {
       // console.log('brand types : ', data)
-      if (data && data.Data) {
-        this.selectBrand = [{ id: UIConstant.BLANK, text: 'SelectBrand' }]
-        if (data.Data.length > UIConstant.ZERO && data.Code === UIConstant.THOUSAND) {
-          let newData = []
+      if (data.Code === UIConstant.THOUSAND && data.Data) {
+        let newData = []
+        if (data.Data.length > 0) {
+          newData = [{ id: '0', text: 'SelectBrand' }]
           data.Data.forEach(element => {
             newData.push({
               id: element.Id,
               text: element.Name
             })
           })
-          this.selectBrand = newData
         }
+        this.selectBrand = newData
       }
     },
     (error) => {
@@ -775,7 +776,7 @@ export class ItemAddComponent {
           console.log('data : ', data)
           if (data.Code === UIConstant.THOUSAND) {
             if (value === 'save') {
-              const dataToSend = { id: data.Data, name: this.Name }
+              const dataToSend = { id: data.Data, name: this.Name, categoryId: this.CategoryId }
               const dataToSend1 = { id: this.UnitId, name: this.unitName }
               const dataToSend2 = { id: this.TaxId, name: this.taxName }
               const dataToSend3 = { id: this.CategoryId, name: this.categoryName }
@@ -1058,8 +1059,26 @@ export class ItemAddComponent {
       value: false,
       editMode: data.editMode
     };
-    if(data.type === 'save') {
+    if (data.type === 'save') {
       this.ItemAttributewithRate = [...data.data];
+      const filteredData = _.filter(data.data, (element) => {
+        if (element.Checked) {
+          return true;
+        }
+      })
+      if (filteredData.length > 0) {
+        this.OpeningStock = 0
+        this.OpeningStockValue = 0
+        _.forEach(filteredData, (element) => {
+          if (element.Qty && element.Checked) {
+            this.OpeningStock = this.OpeningStock + element.Qty
+          }
+          if (element.QtyValue && element.Checked) {
+            this.OpeningStockValue = this.OpeningStockValue + element.QtyValue
+          }
+          this.isStkValue = true;
+        })
+      }
     }
   }
 
@@ -1086,5 +1105,35 @@ export class ItemAddComponent {
         "AttributeNamestr": element.AttributeNamestr
       }
     })
+  }
+
+  prepareItemAttributeStkPayloadToSave = (dataToPost) => {
+    const Data = _.filter(dataToPost, (element) => {
+      if (element.Checked === true) {
+        return true
+      }
+    });
+    const data = _.map(Data, (element) => {
+      return {
+        "ID": element.ID ? element.ID : 0,
+        "ParentTypeId": element.ParentTypeId ? element.ParentTypeId : 0,
+        "AttributeId": element.AttributeId ? element.AttributeId : 0,
+        "Barcode": element.Barcode ? element.Barcode : 0,
+        "ClientBarCode": element.ClientBarCode ? element.ClientBarCode : 0,
+        "GroupId": element.GroupId,
+        "IsBaseGroup": element.IsBaseGroup ? element.IsBaseGroup : 0,
+        "ItemId": element.ItemId ? element.ItemId : 0,
+        "ItemTransId": element.ItemTransId ? element.ItemTransId : 0,
+        "Qty": element.Qty ? element.Qty : 0,
+        "QtyValue": element.QtyValue ? element.QtyValue : 0,
+        "RateMrp": element.RateMrp ? element.RateMrp : 0,
+        "RateNrv": element.RateNrv ? element.RateNrv : 0,
+        "RateOur": element.RateOur ? element.RateOur : 0,
+        "RatePurchase": element.RatePurchase ? element.RatePurchase : 0,
+        "RateSale": element.RateSale ? element.RateSale : 0,
+        "AttributeStr": element.AttributeStr ? element.AttributeStr : 0,
+      }
+    })
+    return data
   }
 }

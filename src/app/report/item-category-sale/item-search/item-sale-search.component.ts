@@ -1,8 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { Subscription } from 'rxjs'
-import { FormGroup } from '@angular/forms'
-import { SaleTravel, AddCust } from '../../../model/sales-tracker.model'
-import { UIConstant } from '../../../shared/constants/ui-constant'
 declare var $: any
 declare var flatpickr: any
 import { CommonService } from '../../../commonServices/commanmaster/common.services'

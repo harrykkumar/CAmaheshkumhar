@@ -54,7 +54,7 @@ export class ItemmasterServices {
   }
 
   openImageModal (addedImages: Image) {
-    this.openImageModalSub.next({ 'open': true, 'images': addedImages.images, 'queue': addedImages.queue, 'baseImages': addedImages.baseImages, 'id': addedImages.id })
+    this.openImageModalSub.next({ 'open': true, 'images': addedImages.images, 'queue': addedImages.queue, 'baseImages': addedImages.baseImages, 'id': addedImages.id, 'imageType': addedImages.imageType })
   }
 
   closeImageModal () {

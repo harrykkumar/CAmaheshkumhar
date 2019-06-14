@@ -14,6 +14,8 @@ import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 })
 export class BankComponent implements OnInit {
   subscribe: Subscription
+  deleteSub2: Subscription
+   
   bankDetailShow: any
   deleteSub: Subscription
   bankgetListSub: Subscription
@@ -34,6 +36,11 @@ export class BankComponent implements OnInit {
         if (obj.id && obj.type && obj.type === 'bank') {
           this.deleteItem(obj.id)
         }
+      }
+    )
+    this.deleteSub2 = this.commonService.newRefreshItemStatus().subscribe(
+      (obj) => {
+          this.getbankDetail()
       }
     )
     this.bankgetListSub = this.commonService.getLedgerStatus().subscribe(

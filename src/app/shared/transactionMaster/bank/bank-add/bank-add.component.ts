@@ -273,9 +273,11 @@ selectedCityId (event) {
           let toSend = { name: _self.bankForm.value.banName, id: data.Data }
           _self.toastrService.showSuccess('', 'Bank Added')
           if (type === 'save') {
+            this.commonService.AddedItem()
             _self.commonService.closeLedger(false,toSend)
             this.clearbank()
           } else {
+            this.commonService.AddedItem()
             _self.commonService.closeLedger(true,toSend)
             this.clearbank()
           }

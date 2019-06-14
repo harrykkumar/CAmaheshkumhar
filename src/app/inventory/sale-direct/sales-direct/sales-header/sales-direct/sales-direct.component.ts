@@ -13,6 +13,7 @@ import { GlobalService } from '../../../../../commonServices/global.service'
 import { Settings } from '../../../../../shared/constants/settings.constant'
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
 import { IfStmt } from '@angular/compiler';
+import { timeout } from 'q';
 declare const _: any
 declare var $: any
 declare var flatpickr: any
@@ -168,6 +169,7 @@ export class SalesDirectComponent {
   transactions: any
   AdditionalChargeData: any
   IsForOtherState: any;
+  isAddNew: boolean
   constructor (private _coustomerServices: VendorServices,private _formBuilder: FormBuilder,public renderer2: Renderer2, public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
     private _ledgerServices: VendorServices,
     private toastrService: ToastrCustomService,
@@ -190,6 +192,7 @@ export class SalesDirectComponent {
     this.totalTaxAmount = 0
     this.DiscountPerItem = 0
     this.totalBillAmount = 0
+    
     // this.getClientName(0)
 
     // for new add unit
@@ -213,7 +216,7 @@ export class SalesDirectComponent {
     this.newAttributeADDModel1 = this._commonService.getAttributeStatus().subscribe(
       (Attri: AddCust) => {
         if (Attri.id > 0) {
-          debugger
+          
           if (this.attributesLabels.length > 0) {
             for (let i = 0; i < this.attributesLabels.length; i++) { 
               if (this.allAttributeData[i].attributeId === Attri.AttributeId) {
@@ -230,7 +233,6 @@ export class SalesDirectComponent {
 
     this.newTaxSlabAddSub = this._commonService.getTaxStatus().subscribe(
       (data: AddCust) => {
-        //   console.log(data,"jkkk")
         if (data.id && data.name) {
           let newData = Object.assign([], this.taxSlabSelectoData)
           newData.push({ id: data.id, text: data.name })
@@ -248,19 +250,30 @@ export class SalesDirectComponent {
 
     this.itemAddSub = this._commonService.getItemMasterStatus().subscribe(
       (data: AddCust) => {
+        console.log(data ,'Item_address')
         if (data.id && data.name) {
+          
           let newData = Object.assign([], this.itemCategoryType)
           newData.push({ id: data.id, text: data.name })
           this.itemCategoryType = newData
           this.itemCategoryId = +data.id
           this.itemCategoryId = data.id
+         // this.categoryId = data.categoryId
+         
           setTimeout(() => {
             if (this.itemSelect2) {
               const element = this.renderer2.selectRootElement(this.itemSelect2.selector.nativeElement, true)
               element.focus({ preventScroll: false })
             }
           }, 2000)
+          setTimeout(() => {
+            this.categoryId = this.AlreadySelectCategoryId
+            this.categoryName = this.AlreadySelectCategoryName
+            this.updateCategories(this.AlreadySelectCategoryId)
+          },100)
+        
         }
+        
       }
     )
     // for new add bank
@@ -293,8 +306,11 @@ export class SalesDirectComponent {
           let newData = Object.assign([], this.stateList)
           newData.push({ id: data.id, text: data.name })
           this.stateList = newData
+          this.stateListShip  = newData
           this.stateValue = data.id
+          this.stateShippingValue = data.id
           this.stateId = +data.stateId
+          this.SupplyStateId = +data.stateId
           this.checkOtherStateForNewItemAdd(JSON.parse(this.stateId))
          
         }
@@ -334,24 +350,17 @@ export class SalesDirectComponent {
       }
 
     )
+
     this.modalCategory = this._commonService.getCategoryStatus().subscribe(
       (data: AddCust) => {
+        debugger
         if (data.id && data.name) {
-          let categoryId = data.id
+           this.categoryId = data.id
           let categoryName = data.name
-          this.getAllCategories(categoryName, categoryId, true)
+          this.isAddNew = true
+          this.getAllCategories(categoryName, this.categoryId, this.isAddNew)
         }
-        // if (data.id && data.name && data.type) {
-        //   if (data.type === 'cat') {
-        //     let newData = Object.assign([], this.categoryType)
-        //     newData.push({ id: data.id, text: data.name })
-        //     this.categoryType = newData
-        //     this.cateGoryValue = +data.id
-        //     this.categoryId = +data.id
-        //     this.getAllCategories(data.name, data.id, true)
-        //   }
-
-        // }
+     
       }
     )
   }
@@ -399,10 +408,9 @@ export class SalesDirectComponent {
   currencies: any
 
   getAllCategories (categoryName, categoryId, isAddNew) {
-
+    debugger
     this._commonService.getAllCategories().subscribe(
       data => {
-        // console.log('all categories : ', data)
         let levelNo = 0
         if (data.Code === UIConstant.THOUSAND && data.Data && data.Data.length > 0) {
           this.getCatagoryDetail(data.Data)
@@ -419,8 +427,6 @@ export class SalesDirectComponent {
               item.setElementValue(this.categoryId)
             }
           })
-          // this.updateCategories(categoryId)
-          // console.log('categoryname : ', this.categoryName)
           let evt = { value: categoryId, data: [{ text: categoryName }] }
           this.onSelectCategory(evt, levelNo)
         }
@@ -433,7 +439,6 @@ export class SalesDirectComponent {
       this.orgnazationPlaceHolder = { placeholder: 'Select Organization' }
       this.organizationData = [{ id: UIConstant.BLANK, text: 'Select  Organization' }]
       this.setupOrganization = data.Data.Organizations
-   //   if (data.Data.Organizations.length > 0) {
         data.Data.Organizations.forEach(ele => {
           this.organizationData.push({
             id: ele.Id,
@@ -447,47 +452,6 @@ export class SalesDirectComponent {
 
     }
   }
-  getSetAttributeSPUTility (data) {
-    this.allAttributeData = []
-      this.attributesLabels = []
-    if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
-
-let newData =[]
-       newData = Object.assign([], this.attributesLabels)
-      this.attributeColourPlaceHolder = { placeholder: 'Select' }
-      for (let j = 0; j < data.Data.AttributeValueResponses.length; j++) {
-        newData.push({
-          Name: data.Data.AttributeValueResponses[j].Name,
-          AttributeId: data.Data.AttributeValueResponses[j].AttributeId
-        })
-      }
-
-      this.attributesLabels = newData
-      for (let k = 0; k < this.attributesLabels.length; k++) {
-        for (let n = 0; n < data.Data.AttributeValueResponses.length; n++) {
-          if (this.attributesLabels[k].AttributeId === data.Data.AttributeValueResponses[n].AttributeId) {
-            let abs = data.Data.AttributeValueResponses[n].AttributeValues
-            for (let p = 0; p < data.Data.AttributeValueResponses[n].AttributeValuesResponse.length; p++) {
-              abs.push({
-                id: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].Id,
-                text: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].Name,
-                attributeId: data.Data.AttributeValueResponses[n].AttributeValuesResponse[p].AttributeId
-
-              })
-            }
-            this.allAttributeData.push({
-              item: abs
-            })
-          }
-
-        }
-      }
-      console.log(this.allAttributeData ,'old-atr----')
-    }
-  }
-  getAttributeSPUtilityData: any
-
-
 
   getSPUtilityDataBilling () {
     // SPUtility API; For get all data of API
@@ -511,10 +475,8 @@ let newData =[]
         this.allAttributeData = []
         this.attributesLabels = []
         if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
-          
-           this.getAttributeSPUtilityData = data
-          // this.getSetAttributeSPUTility(data)
-         let AttributeDetails= this.generateAttributes(data.Data)
+ 
+         let AttributeDetails= this.CreateDynamicAttributes(data.Data)
           this.attributesLabels = AttributeDetails.attributeKeys
           this.allAttributeData = AttributeDetails.attributesData
          }
@@ -549,9 +511,8 @@ let newData =[]
         }
         this.taxSlabSelectoData = newDataTaxSlab
 
-        let newDataTaxType = [{ id: '0', text: 'Exclusive' }, { id: '1', text: 'Inclusive' }]
-        this.taxTypeSelectData = newDataTaxType
-        this.taxTypeId =  this.taxTypeSelectData[0].id
+        this.getTaxTypeExcluInclusiv()
+    
 
         this.unitDataType = []
         this.unitPlaceHolder = { placeholder: 'Select Unit' }
@@ -616,7 +577,6 @@ let newData =[]
         this.itemCategoryType = []
         this.allItemsData = []
         this.itemcategoryPlaceHolder = { placeholder: 'Select Item' }
-      //  console.log(data.Data, 'itam-data')
         this.itemCategoryType = [{ id: UIConstant.BLANK, text: 'Select  Item' }, { id: '-1', text: '+Add New' }]
         if (data.Data && data.Data.Items.length > 0) {
           this.allItemsData = data.Data.Items
@@ -629,9 +589,6 @@ let newData =[]
           })
         }
         this.itemCategoryType = this.itemCategoryType
-      //  console.log(this.itemCategoryType, 'iyem-data--')
-
-        // add Referals
         this.referals = []
         this.referalsPlaceHolder = { placeholder: 'Select  Referals' }
         let newRefdata = []
@@ -696,6 +653,12 @@ let newData =[]
   get add () { return this.customerForm.controls }
   setCurrencyId: any
   officeAddressId: any
+  getTaxTypeExcluInclusiv () {
+    let newDataTaxType = [{ id: '0', text: 'Exclusive' }, { id: '1', text: 'Inclusive' }]
+    this.taxTypeSelectData = newDataTaxType
+    this.TaxTypeId =  this.taxTypeSelectData[0].id
+    this.taxTypeForItem.setElementValue(this.TaxTypeId)
+  }
 @ViewChild('charge_select2') chargeSelect2 : Select2Component
   onChangeCharge (event){
     if(event.data[0].selected){
@@ -860,7 +823,6 @@ alreadySelectCharge (chargeId,name,enableflag) {
                 this.trsnItemId =  this.trsnItemId + 1
               }
             }
-            //this.trsnItemId = this.items[this.items.length - 1].Sno + 1
 
           }
           this.attributeName = event.data[0].text
@@ -875,7 +837,7 @@ alreadySelectCharge (chargeId,name,enableflag) {
           disabledAddButton: true
 
         }
-        debugger
+        
         this.atrColorSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
           item.selector.nativeElement.value = ''
          
@@ -981,7 +943,6 @@ alreadySelectCharge (chargeId,name,enableflag) {
     }
   }
   taxSlabName: any
-  taxTypeId: any
   taxChargeId: any
   taxChargeName: any
   onChangeTaxCharge (event ){
@@ -1295,7 +1256,7 @@ stateShippingValue: any
 
         } else {
           this.disabledAddressFlag = false
-          this.SupplyStateId = event.data[0].stateId
+          this.SupplyStateId = event.data[0].id
           this.checkValidation()
         }
 
@@ -1425,7 +1386,7 @@ stateShippingValue: any
   showAttributeData: any
 
   localItems () {
-debugger
+
     let value = []
     this.items.forEach(element => {
       this.localLabelData = []
@@ -1496,6 +1457,7 @@ debugger
           TaxTypeName: element.TaxTypeName,
           IsForOtherState: element.IsForOtherState,
           baserate:element.baserate,
+          rowEditFlagValue:element.rowEditFlagValue,
         //  SubTotal: element.SubTotal,
           LableAttributeVale: this.localLabelData
 
@@ -1553,7 +1515,8 @@ debugger
           TotalAmount: +element.TotalAmount,
           IsForOtherState: element.IsForOtherState,
           LableAttributeVale: this.localLabelData,
-          baserate:element.baserate
+          baserate:element.baserate,
+          rowEditFlagValue:element.rowEditFlagValue
 
         })
       }
@@ -1586,6 +1549,7 @@ debugger
         this.calTotalBillAmount()
         this.clickItem = true
         this.initialiseItem()
+        this.getTaxTypeExcluInclusiv()
       }
 
     }
@@ -1603,7 +1567,6 @@ debugger
   addItem () {
     let sendForBillingSumItem =[] ;
     let taxItem ;
-    debugger
     if (this.ExpiryDate !=='') {
      this.ExpiryDateChngae = this._globalService.clientToSqlDateFormat(this.ExpiryDate, this.clientDateFormat)
 
@@ -1649,7 +1612,8 @@ debugger
       MfdDate: this.MFDateChngae,
       BatchNo: this.BatchNo,
       CategoryId: this.categoryId,
-      CategoryName: this.categoryName,
+      //CategoryName: this.categoryName,
+      CategoryName: this.getPattern(),
       ItemName: this.ItemName,
       UnitName: this.UnitName,
       UnitId: this.unitId,
@@ -1697,7 +1661,7 @@ debugger
   BatchNo: any
 
   initialiseItem () {
-    debugger
+    //debugger
     this.Remark = ''
     this.Rate = ''
     this.Discount = ''
@@ -1723,8 +1687,8 @@ debugger
     if (this.allCategories && this.allCategories.length > 0) {
       this.getCatagoryDetail(this.allCategories)
     }
-   
-  this.initAttribute()
+   this.DiscountType = '0'
+   this.initAttribute()
   }
   // tslint:disable-next-line:variable-name
   @ViewChild('referal_type') referal_typeSelect2: Select2Component
@@ -1749,7 +1713,6 @@ debugger
     this.BatchNo = ''
     this.Height = 1
     this.RoundOffManual = 0
-   // this.RoundOff = 0
     this.totalRate = 0
     this.totalDiscount = 0
     this.totalTaxAmount = 0
@@ -1800,15 +1763,12 @@ debugger
     this.ExpiryDate = ''
     this.MfdDate = ''
     this.AdditionalChargeData =[]
-
     this.currencyValues = [{ id: 0, symbol: '%' }]
 
     if (this.clientSelect2 && this.clientSelect2.selector.nativeElement.value) {
       this.clientSelect2.setElementValue('')
     }
-    // if (this.catSelect2 && this.catSelect2.selector.nativeElement.value) {
-    //   this.catSelect2.setElementValue('')
-    // }
+   
     if (this.itemSelect2 && this.itemSelect2.selector.nativeElement.value) {
       this.itemSelect2.setElementValue('')
     }
@@ -1929,8 +1889,7 @@ debugger
     this.organizationData = []
    this.stateList =[]
    this.stateListShip =[]
-   let newDataTaxType = [{ id: '0', text: 'Exclusive' }, { id: '1', text: 'Inclusive' }]
-        this.taxTypeSelectData = newDataTaxType
+
     //this.taxTypeId =  this.taxTypeSelectData[0].id
   //  this.AdditionalChargeData =[]
     this.getSPUtilityDataBilling()
@@ -2039,13 +1998,15 @@ taxCalculationForInclusive(taxArray,rateofitem,DiscountAmt){
           } )
           if(this.isInclusiveCaseBeforeDiscount ==='2'){
             DiscountAmt =0
+            let localDiscoutAmt = 0
             let value = (rateofitem/(100+sumOfAllRate)*100)  
             if (this.DiscountType === '0') {
-              this.DiscountAmt = (+this.Discount / 100) * (+value)
+              this.DiscountAmt = ((+this.Discount / 100) * (+value)).toFixed(this.decimalDigit)
+              localDiscoutAmt =  (+this.Discount / 100) * (+value)
             } else {
               this.DiscountAmt = (+this.Discount).toFixed(this.decimalDigit)
             }
-            baserate = value - this.DiscountAmt
+            baserate = value - localDiscoutAmt
             this.FinalAmount = baserate
             totalTaxAmt = (sumOfAllRate/100) * baserate 
           
@@ -2072,7 +2033,6 @@ taxCalculationForInclusive(taxArray,rateofitem,DiscountAmt){
   DiscountAmt: any
   disShowAmt: any = 0
   calculateTotalOfRow () {
-    
     let Rate = (isNaN(+this.Rate)) ? 0 : +this.Rate
     let Quantity = (isNaN(+this.Quantity)) ? 1 : +this.Quantity
     let Discount = (isNaN(+this.discountAmount)) ? 0 : +this.discountAmount
@@ -2150,13 +2110,15 @@ taxCalculationForInclusive(taxArray,rateofitem,DiscountAmt){
           sumOfAllRate = +sumOfAllRate + +element.TaxRate
           if(this.isInclusiveCaseBeforeDiscount ==='2'){
             DiscountAmt =0
+            let localDiscontAmt =0
             baserate = (dataTotalrate/(100+sumOfAllRate)*100) 
             if (this.DiscountType === '0') {
-              this.DiscountAmt = (+this.Discount / 100) * (+baserate)
+              this.DiscountAmt = ((+this.Discount / 100) * (+baserate)).toFixed(this.decimalDigit)
+              localDiscontAmt = (+this.Discount / 100) * (+baserate)
             } else {
               this.DiscountAmt = (+this.Discount).toFixed(this.decimalDigit)
             } 
-            withoutTax = baserate -  this.DiscountAmt  
+            withoutTax = baserate -  localDiscontAmt  
  
           } else if(this.isInclusiveCaseBeforeDiscount ==='1'){
             baserate =( ((dataTotalrate-DiscountAmt)/(100+sumOfAllRate))*100)  
@@ -2256,7 +2218,6 @@ return  taxPerItem
 
       this.netBillAmount = Math.round(totalAmount).toFixed(this.decimalDigit)
       this.subTotalBillAmount = Math.round(totalAmount).toFixed(this.decimalDigit)
-    //  console.log(this.subTotalBillAmount ,'sub1')
     }
 
 
@@ -2276,9 +2237,8 @@ return  taxPerItem
     let totalQty = 0
     let totalTax = 0
     let totalAmt = 0
-    //let totalRate = 0
     let TotalAmountCharge =0
-     let amountCharge =0
+    let amountCharge =0
 
     let totaltaxChargeAmt = 0
     for (let i = 0; i < this.localItemas.length; i++) {
@@ -2314,6 +2274,7 @@ return  taxPerItem
      // this.totalRate = (totalRate).toFixed(this.decimalDigit)
       this.TotalQuantity = totalQty
       this.totalTaxAmount = (totalTax).toFixed(this.decimalDigit)
+
       this.TotalChargeAmt = TotalAmountCharge
       this.calTotalBillAmount()
     }
@@ -2373,39 +2334,35 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
 
 
   calTotalBillAmount () {
-    
+    debugger
     let totalBillAmt = 0
     let toatltax =0
     if(this.localItemas.length > 0){
       for (let i = 0; i < this.localItemas.length; i++) {
         if(this.localItemas[i].TaxType === '1'){
+      if( this.localItemas[i].Id > 0 && this.localItemas[i].rowEditFlagValue ===undefined){
+        if(this.isInclusiveCaseBeforeDiscount === '2'){
+          totalBillAmt = totalBillAmt + 
+          + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) - 
+          (isNaN(+this.localItemas[i].DiscountAmt) ? 0 : +this.localItemas[i].DiscountAmt) +
+          (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
+          toatltax  = +toatltax + +this.localItemas[i].TaxAmount
+        }
+        else if(this.isInclusiveCaseBeforeDiscount === '1'){
           totalBillAmt = totalBillAmt + 
           + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) +
           (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
-          toatltax  = +toatltax + +this.localItemas[i].TaxAmount
-// if(this.editMode){
-//   if(this.isInclusiveCaseBeforeDiscount === '2'){
-//     totalBillAmt = totalBillAmt + 
-//     + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) - 
-//     (isNaN(+this.localItemas[i].DiscountAmt) ? 0 : +this.localItemas[i].DiscountAmt) +
-//     (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
-//     toatltax  = +toatltax + +this.localItemas[i].TaxAmount
-//   }
-//   else if(this.isInclusiveCaseBeforeDiscount === '1'){
-//     totalBillAmt = totalBillAmt + 
-//     + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) +
-//     (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
-//     toatltax  = +toatltax + +this.localItemas[i].TaxAmount  
-//   }
-  
-// }
+          toatltax  = +toatltax + +this.localItemas[i].TaxAmount  
+        }
         
-// else{
-//   totalBillAmt = totalBillAmt + 
-//   + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) +
-//   (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
-//   toatltax  = +toatltax + +this.localItemas[i].TaxAmount
-// }
+      }
+        
+      else{
+        totalBillAmt = totalBillAmt + 
+        + (isNaN(+this.localItemas[i].baserate) ? 0 : +this.localItemas[i].baserate) +
+        (isNaN(+this.localItemas[i].TaxAmount) ? 0 : +this.localItemas[i].TaxAmount) 
+        toatltax  = +toatltax + +this.localItemas[i].TaxAmount
+      }
          
         }
         else{
@@ -2427,12 +2384,10 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
         if(this.TaxTypeId  === '1'){
           if(this.isInclusiveCaseBeforeDiscount === '2'){
             totalBillAmt +=  +this.getBaseRateForItem + +this.totalRowTax 
-             //this.TaxAmount=  +this.totalRowTax
            toatltax = +this.totalRowTax
           }
           else{
             totalBillAmt +=  +this.getBaseRateForItem + +this.totalRowTax 
-            //this.TaxAmount=  +this.totalRowTax
           toatltax = +this.totalRowTax
           }
 
@@ -2448,12 +2403,11 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     }
 
     this.subTotalBillAmount = +(totalBillAmt).toFixed(this.decimalDigit)
+    console.log(this.subTotalBillAmount,'sub total')
     this.TaxableValue = (totalBillAmt - toatltax ).toFixed(this.decimalDigit)
      let  localNetAmt =  +(totalBillAmt + +this.TotalChargeAmt).toFixed(this.decimalDigit)
-   //c/onsole.log(localNetAmt ,'Amt')
 
     this.RoundOff =  +(Math.round(localNetAmt) - localNetAmt).toFixed(this.decimalDigit)
-//console.log(this.RoundOff,'rond')
     this.netBillAmount = localNetAmt +  this.RoundOff
     if(this.RoundOffManual){
       this.RoundOff = +this.RoundOffManual
@@ -2566,6 +2520,9 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     })
   }
   industryId: any
+  
+  @ViewChild('taxtype_select2') taxTypeForItem :Select2Component
+
   @ViewChild('custName') custName
   openCustomerDetails () {
 
@@ -2591,8 +2548,9 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     this.Amount = 0
     this.editChargeId =0
     this.textItemId =0
-    let data = JSON.stringify(this._settings.industryId)
-    this.industryId = JSON.parse(data)
+   let data = JSON.stringify(this._settings.industryId)
+   this.industryId = JSON.parse(data)  
+    console.log( this.industryId, this._settings.industryId ,'Ins---------')
     let datacatLevel = JSON.stringify(this._settings.catLevel)
     this.catLevel = JSON.parse(datacatLevel)
     console.log(this.catLevel ,'cat-level')
@@ -2708,6 +2666,12 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
       this.invalidObj['Quantity'] = true
       isValidItem = 0
     } 
+    if (this.TotalAmount > 0) {
+      this.invalidObj['TotalAmount'] = false
+    } else {
+      this.invalidObj['TotalAmount'] = true
+      isValidItem = 0
+    } 
      if (this.DiscountType === '0'||0) {
       if(this.Discount < 100){
         this.invalidObj['Discount'] = false
@@ -2718,11 +2682,16 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
       }
      
     } else {
-      if(this.Discount > 0){
+      if(0 < this.Discount ){
         this.invalidObj['Discount'] = false
       }
+      else{
+        this.invalidObj['Discount'] = true
+        isValidItem = 0
+      }
+    
      
-      isValidItem = 0
+      
     }
 
     return !!isValidItem
@@ -2845,9 +2814,13 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
           this.inventoryItemSales = data.Data.SaleTransactionses
           this.BillNo = this.inventoryItemSales[0].BillNo
           this.itemsAttribute = []
+          this.stateId = this.inventoryItemSales[0].AddressId
+          this.SupplyStateId = this.inventoryItemSales[0].SupplyState
+          //this.stateBillingSelect2Id.setElementValue( this.stateId)
+         // this.stateShippingSelect2Id.setElementValue(this.SupplyStateId)
           this.clientNameId = this.inventoryItemSales[0].LedgerId
-          this.BillingAddressName = this.inventoryItemSales[0].BillingAddressName
-          this.stateList = [{id: 1,text:this.BillingAddressName}]
+          this.stateList = [{ id: '0', text: this.inventoryItemSales[0].BillingAddressName }]
+          this.stateListShip = [{id:'0',text: this.inventoryItemSales[0].SupplyAddress}]
           this.getGSTByLedgerAddress(this.clientNameId)
           this.orgNameId = this.inventoryItemSales[0].OrgId
           this.LocationTo = this.inventoryItemSales[0].LocationTo
@@ -3145,20 +3118,20 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
   }
   deleteAttribute (attribute){
     debugger
-    console.log(this.sendAttributeData,'he')
+    console.log(this.sendAttributeData,'Attr')
     if(this.sendAttributeData.length > 0){
       this.sendAttributeData.forEach((element,index) => {
-        attribute.forEach((ele)=>{
-          if( (element.Sno === ele.AttributeValue[0].Sno)){
-            this.sendAttributeData.splice(index ,1)
+        attribute.forEach((ele,i)=>{
+          if(ele.AttributeValue.length >0){
+            if( (element.Sno === ele.AttributeValue[0].Sno)){
+              this.sendAttributeData.splice(index ,1)
+            }
           }
+        
         })
         
       });
     }
-
-    console.log(attribute,'ffff')
-     // this.sendAttributeData[a].ItemTransId
   }
   deleteItem (type, a,sno,id,detail,attribute) {
     
@@ -3259,18 +3232,21 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
       }
       
       data.forEach((element,index) => {
-        this.itemsAttribute.push({
-          Id: element.AttributeValue[0].Id,
-          Index: element.AttributeValue[0].Index,
-          ItemId:element.AttributeValue[0].ItemId,
-          Sno:this.trsnItemId,
-          ItemTransId: this.trsnItemId,
-          AttributeName: element.AttributeValue[0].AttributeName,
-          existId: element.AttributeValue[0].AttributeValueId,
-          AttributeValueId: element.AttributeValue[0].AttributeValueId,
-          AttributeId: element.AttributeValue[0].AttributeId,
-          ParentTypeId: element.AttributeValue[0].ParentTypeId
-        })
+        if(element.AttributeValue.length> 0){
+          this.itemsAttribute.push({
+            Id: element.AttributeValue[0].Id,
+            Index: element.AttributeValue[0].Index,
+            ItemId:element.AttributeValue[0].ItemId,
+            Sno:this.trsnItemId,
+            ItemTransId: this.trsnItemId,
+            AttributeName: element.AttributeValue[0].AttributeName,
+            existId: element.AttributeValue[0].AttributeValueId,
+            AttributeValueId: element.AttributeValue[0].AttributeValueId,
+            AttributeId: element.AttributeValue[0].AttributeId,
+            ParentTypeId: element.AttributeValue[0].ParentTypeId
+          })
+        }
+  
       })
       console.log( this.itemsAttribute ,'edit attr-data')
 
@@ -3284,13 +3260,11 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     if (type === 'items') {
 this.withoursaveEditFlag = false
       if (this.deleteEditflag) {
-        
         this.isCheckLedgerOfficeFlag = true
         this.taxRateForOtherStateFlag = this.items[index].IsForOtherState === false ? false : true
         this.IsForOtherState = this.taxRateForOtherStateFlag 
         this.deleteEditflag = false
         this.editItemId = editId
-        //this.snoIndex = item.Sno
         this.DiscountAmt = item.DiscountAmt
         this.Discount = item.Discount
         this.DiscountRate = item.DiscountRate
@@ -3300,6 +3274,7 @@ this.withoursaveEditFlag = false
         this.ChallanId = item.ChallanId
         this.Quantity = item.Quantity
         this.Rate = item.Rate
+       
         this.MrpRate = item.MrpRate,
           this.Length = item.Length,
           this.Width = item.Width,
@@ -3307,14 +3282,19 @@ this.withoursaveEditFlag = false
           this.unitId = item.UnitId
         this.UnitName = item.UnitName
         this.categoryId = item.CategoryId
+        this.updateCategories(this.categoryId)
+        console.log(this.categoryId ,item.ItemId, 'cat-id--itemId')
         this.itemCategoryId = +item.ItemId
         this.TotalAmount = item.TotalAmount
         this.categoryName =item.CategoryName
-        this.categoryId = item.CategoryId
         this.taxSalbName = item.TaxSlabName
+        setTimeout(() => {
+          this.itemSelect2.setElementValue(+item.ItemId)
+        }, 10)
         this.taxSelect2.setElementValue(item.TaxSlabId)
         this.unitSelect2.setElementValue(item.UnitId)
-        this.itemSelect2.setElementValue(+item.ItemId)
+       
+        this.taxTypeForItem.setElementValue(item.TaxType)
         this.PurchaseRate= item.PurchaseRate
         this.ExpiryDate= item.ExpiryDate
         this.MfdDate= item.MfdDate
@@ -3324,30 +3304,24 @@ this.withoursaveEditFlag = false
         this.taxSlabName= item.taxSlabName
         this.TaxTypeId= item.TaxType
         this.TaxTypeName= item.TaxTypeName
-        // if (this.attrSelect2 && this.attrSelect2.length > 0) {
-        //   debugger
-        //   this.attrSelect2.forEach((itemOfAttribute: Select2Component, indexAttr: number, array: Select2Component[]) => {
-        //     console.log('attr : ', itemOfAttribute)
-        //     itemOfAttribute.setElementValue(this.allAttributeData[indexAttr].AttributeId)
-        //   })
-        // }
         if (this.attrSelect2.length > 0) {
           if(  this.editAttributeData !== undefined ){
-          this.editAttributeData.forEach(inx => {
-          //  for(let i=0; i< this.attrSelect2.length; i++){
-              
-              this.attrSelect2.forEach((item2: Select2Component, indexi: number, array: Select2Component[]) => {
-                let findIndex =  this.allAttributeData[indexi].data.findIndex(
-                  element => ( element.id === inx.AttributeId)
-                    )
-                if(findIndex !== -1){
-                  item2.setElementValue(this.allAttributeData[indexi].data[findIndex].id)
-                  
-                }
-               
-             })
-           // }
-
+          this.editAttributeData.forEach( (value,inx  )=> {
+              console.log(this.editAttributeData ,'set attr')
+              if(value.AttributeValue.length > 0){
+                this.attrSelect2.forEach((item2: Select2Component, indexi: number, array: Select2Component[]) => {
+                  let flagReturn = false
+                  let findIndex =  this.allAttributeData[indexi].data.findIndex(
+                    element => ( element.id === JSON.parse(value.AttributeValue[0].AttributeId) )
+                      )
+                  if(findIndex !== -1){
+                    item2.setElementValue(this.allAttributeData[indexi].data[findIndex].id)   
+                  }
+                  flagReturn = true
+                  return  flagReturn
+               })
+              }
+         
           })
         }
         }
@@ -3758,7 +3732,9 @@ this.withoursaveEditFlag = false
     }
     return this.taxRateForOtherStateFlag
   }
-  categories: any
+
+  
+  categories: any 
   createModels (levels) {
     this.categories = []
     let obj = {
@@ -3801,29 +3777,27 @@ this.withoursaveEditFlag = false
         this.categories[i].data = Object.assign([], this.categories[i].data)
       }
     }
-   // console.log('dynamic categories : ', this.categories)
     this.loading = false
   }
+AlreadySelectCategoryId :any
+AlreadySelectCategoryName : any
   onSelectCategory (evt, levelNo) {
-
+    debugger
     if (this.catLevel > 1) {
       if (+evt.value > 0) {
         if (levelNo === this.catLevel) {
           if (this.categoryId !== +evt.value) {
             this.categoryId = +evt.value
+this.AlreadySelectCategoryId =+evt.value
+this.AlreadySelectCategoryName = evt.data[0].text
             this.categoryName = evt.data[0].text
-          //  console.log('categoryname : ', this.categoryName)
-          //  console.log('category id : ', this.categoryId)
+            console.log( this.categoryId , this.categoryName ,'1Cat----------------------->>>>>>>>>')
             this.getItemByCategoryid(+evt.value)
-
-            if (this.updatedFlag) {
-              this.updateCategories(+evt.value)
-
-            }
           }
         } else {
           if (levelNo < this.catLevel) {
             let categoryId = +evt.value
+            this.categoryName = evt.data[0].text
             let newData = []
             this.categories[levelNo].data = [{ id: '0', text: 'Select Category' }]
             this.allCategories.forEach(category => {
@@ -3850,43 +3824,85 @@ this.withoursaveEditFlag = false
         this.getCatagoryDetail(this.allCategories)
       }
     } else {
-
       if (levelNo === this.catLevel) {
         if (this.categoryId !== +evt.value) {
           this.categoryId = +evt.value
           this.categoryName = evt.data[0].text
-         // console.log('categoryname : ', this.categoryName)
-        //  console.log('category id : ', this.categoryId)
+          this.AlreadySelectCategoryId =+evt.value
+          this.AlreadySelectCategoryName = evt.data[0].text
+          console.log( this.categoryId , this.categoryName ,'2Cat----------------------->>>>>>>>>')
           this.getItemByCategoryid(+evt.value)
-          if (this.updatedFlag) {
-            this.updateCategories(+evt.value)
-
-          }
+          this.updateCategories(+evt.value)
         }
       }
     }
   }
-
+ 
+ 
   parentMostCategory: any
   @ViewChildren('cat_select2') catSelect2: QueryList<Select2Component>
-
   updateCategories (childmostId) {
-    let categoryId = childmostId
-    this.getParentMostCat(childmostId, this.catLevel)
-    categoryId = this.parentMostCategory
-    if (+this.categoryId !== +childmostId || this.editItemId !== -1) {
-      this.categoryId = +childmostId
-      this.catSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-        if (index === 0) {
-          item.setElementValue(categoryId)
-        } else if (index === (this.catLevel - 1)) {
-          item.setElementValue(+childmostId)
+    console.log('childmostId id : ', childmostId)
+    console.log('this.categoryId id : ', this.categoryId)
+    if (this.categoryId !== childmostId || this.editItemId !== -1) {
+      let pattern = [childmostId]
+      this.catSelect2.forEach(() => {
+        let parent = this.getParentCat(childmostId)
+        if (parent !== 0) {
+          pattern.push(parent)
+          childmostId = parent
         }
       })
-      let evt = { value: categoryId, data: [{ text: '' }] }
-      this.onSelectCategory(evt, 1)
+      pattern = pattern.reverse()
+      setTimeout(() => {
+        this.catSelect2.forEach((item: Select2Component, index: number) => {
+          item.setElementValue(pattern[index])
+        })
+      }, 100)
     }
   }
+  getParentCat (id) {
+    let parentId = 0
+    this.allCategories.forEach(category => {
+      if (id === category.Id) {
+        parentId = category.ParentId
+      }
+    })
+    return parentId
+  }
+  getPattern (): string {
+    let childmostId = this.categoryId
+    let pattern = [this.categoryId]
+    this.catSelect2.forEach(() => {
+      let parent = this.getParentCat(childmostId)
+      if (parent !== 0) {
+        pattern.push(parent)
+        childmostId = parent
+      }
+    })
+    pattern = pattern.reverse()
+ 
+    let str = ''
+    this.catSelect2.forEach((cat: Select2Component, index: number) => {
+      if (index === (this.catLevel - 1)) {
+        str += this.getParentCatStr(pattern[index])
+      } else {
+        str += this.getParentCatStr(pattern[index]) + ' => '
+      }
+    })
+ 
+    return str
+  }
+  getParentCatStr (id) {
+    let name = ''
+    this.allCategories.forEach(category => {
+      if (id === category.Id) {
+        name = category.Name
+      }
+    })
+    return name
+  }
+  
   getParentMostCat (id, level) {
     let parentMostCategory = 0
     while (level !== 0) {
@@ -4383,7 +4399,7 @@ showBillingSummery (data){
   }, 10)
 }
 
-generateAttributes (data) {
+CreateDynamicAttributes (data) {
   this.allAttributeData = []
       this.attributesLabels = []
   debugger
@@ -4414,7 +4430,7 @@ generateAttributes (data) {
     if (attributesData[j]) {
       attributesData[j].data.push({ ...obj1 })
     } else {
-      this.toastrService.showError('Not getting appropriate data', '')
+      this.toastrService.showError('', 'Error on Serve')
     }
   }
    let attibutesDataToSend = Object.assign([], attributesData)
@@ -4422,6 +4438,24 @@ generateAttributes (data) {
    let  returnObject = { 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend }
    console.log(returnObject ,'atr----')
    return returnObject
+}
+pressF10ForSave (e: KeyboardEvent){
+  $(function(){
+    //Yes! use keydown 'cus some keys is fired only in this trigger,
+    //such arrows keys
+    $("body").keydown(function(e){
+         //well you need keep on mind that your browser use some keys 
+         //to call some function, so we'll prevent this
+         e.preventDefault();
+         this.saveSaleChallan()
+         //now we caught the key code, yabadabadoo!!
+         var keyCode = e.keyCode || e.which;
+  
+         //your keyCode contains the key code, F1 to F12 
+         //is among 112 and 123. Just it.
+         console.log(keyCode , 'key-coede');       
+    });
+  });
 }
 
 }

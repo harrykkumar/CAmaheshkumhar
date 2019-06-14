@@ -19,6 +19,7 @@ declare var $: any
 export class LedgerCreationComponent implements OnInit {
   ledgerDetails: Ledger[]
   deleteSub: Subscription
+  upateListSub: Subscription
   subscribe: Subscription
   searchForm: FormGroup
   p: number = 1
@@ -40,6 +41,12 @@ export class LedgerCreationComponent implements OnInit {
         }
       }
     )
+    this.upateListSub = this.commonService.newRefreshItemStatus().subscribe(
+      (obj) => {
+          this.getLedgerDetail()
+      }
+    )
+    
 
     this.queryStr$ = this._coustomerServices.queryStr$.subscribe(
       (str) => {

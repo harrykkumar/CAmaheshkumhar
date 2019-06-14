@@ -44,7 +44,7 @@ export class MasterSettingComponent implements OnInit {
       Value: '',
       DefaultValue: '',
       BaseType: SetUpIds.baseTypeStr,
-      Type: SetUpIds.single,
+      Type: SetUpIds.singleVal,
       name: 'Date Format'
     }
   }
@@ -84,7 +84,7 @@ export class MasterSettingComponent implements OnInit {
             Value: typeof defaultDateFormat !== 'undefined' && defaultDateFormat.length > 0 ? defaultDateFormat[0].Value : '',
             DefaultValue: typeof defaultDateFormat !== 'undefined' && defaultDateFormat.length > 0 ? defaultDateFormat[0].Value : '',
             BaseType: 2,
-            Type: SetUpIds.single,
+            Type: SetUpIds.singleVal,
             name: 'Date Format',
             selected: false
           }
@@ -92,8 +92,9 @@ export class MasterSettingComponent implements OnInit {
         if (data.SetupMasters && data.SetupMasters.length > 0) {
           data.SetupMasters.forEach((element) => {
             let defaultValue = data.SetupClients.filter(setup => +setup.SetupId === +element.Id)
-            if (+element.Type === SetUpIds.single || +element.Type === SetUpIds.multiple) {
+            if (+element.Type === SetUpIds.singleVal || +element.Type === SetUpIds.singleId || +element.Type === SetUpIds.multiple) {
               let newData = data.SetupSettings.filter(setup => +setup.SetupId === +element.Id)
+              console.log(newData)
               if (+element.Type === SetUpIds.multiple) {
                 let defaultVal = typeof defaultValue !== 'undefined' && defaultValue.length === 1 ? defaultValue[0].DefaultValue : ''
                 let val = typeof defaultValue !== 'undefined' && defaultValue.length === 1 ? defaultValue[0].Value : ''
@@ -146,7 +147,7 @@ export class MasterSettingComponent implements OnInit {
         return newArray
       }))
       .subscribe(data => {
-        console.log('settings : ', data)
+        // console.log('settings : ', data)
         this.settings = data
       },
       (error) => {
@@ -160,7 +161,7 @@ export class MasterSettingComponent implements OnInit {
   }
 
   postFormValue () {
-    console.log(this.settings)
+    // console.log(this.settings)
     let isValid = true
     let _settings = JSON.parse(JSON.stringify(this.settings))
     let newSettings = []
@@ -174,7 +175,6 @@ export class MasterSettingComponent implements OnInit {
         else{
           setting.Value = setting.Value.join(',')
         }
-
       } else {
         setting.Value = setting.Value
         setting.DefaultValue = setting.Value
@@ -193,6 +193,10 @@ export class MasterSettingComponent implements OnInit {
         newSettings.push(setting)
       }
     }))
+    if (newSettings.length === 0) {
+      this.toastrService.showError('Select atleast 1 setting to save', '')
+      isValid = false
+    }
     if (isValid) {
       let obj = {'SetupClients': newSettings}
       console.log('obj: ', JSON.stringify(obj))

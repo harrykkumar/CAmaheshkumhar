@@ -1,13 +1,13 @@
 import { Component, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { Subscription, fromEvent } from 'rxjs';
+import { Subscription, fromEvent, throwError } from 'rxjs';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 import { PurchaseService } from '../purchase.service'
 import { Settings } from '../../../shared/constants/settings.constant'
 import { FormConstants } from 'src/app/shared/constants/forms.constant'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { map, filter, debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators';
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { PurchaseAddComponent } from '../purchase-add/purchase-add.component';
 
@@ -53,7 +53,6 @@ export class PurchaseMainComponent {
   ledgerinfos: any[]
   industryId: number
 
-  searchForm: FormGroup
   constructor (private route: ActivatedRoute,
      private commonService: CommonService,
       private purchaseService: PurchaseService,
@@ -82,16 +81,28 @@ export class PurchaseMainComponent {
 
   getPurchaseSetting () {
     let _self = this
-    this.commonService.getModuleSettings('purchase').subscribe(
+    this.commonService.getModuleSettings(UIConstant.PURCHASE_TYPE)
+    .pipe(
+      filter(data => {
+        if (data.Code === UIConstant.THOUSAND) {
+          return true
+        } else {
+          throw new Error(data.Description)
+        }
+      }),
+      catchError(error => {
+        return throwError(error)
+      }),
+      map(data => data.Data)
+    )
+    .subscribe(
       (data) => {
         // console.log('settings data : ', data)
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-          // console.log('purchase settings : ', data.Data)
-          _self.purchaseService.getAllSettings(data.Data)
-        }
+        _self.purchaseService.getAllSettings(data)
       },
       (error) => {
         console.log(error)
+        this.toastrService.showError(error, '')
       },
       () => {
       }
@@ -99,6 +110,7 @@ export class PurchaseMainComponent {
   }
 
   @ViewChild('searchData') searchData: ElementRef
+  searchForm: FormGroup
   private formSearch () {
     this.searchForm = this._formBuilder.group({
       'searchKey': [UIConstant.BLANK]
@@ -124,36 +136,45 @@ export class PurchaseMainComponent {
   @ViewChild('purchase_add') purchaseAdd: PurchaseAddComponent
   getSPUtilityData () {
     let _self = this
-    this.commonService.getSPUtilityData(UIConstant.PURCHASE_TYPE).subscribe(
+    this.commonService.getSPUtilityData(UIConstant.PURCHASE_TYPE)
+    .pipe(
+      filter(data => {
+        if (data.Code === UIConstant.THOUSAND) {
+          return true
+        } else {
+          throw new Error(data.Description)
+        }
+      }),
+      catchError(error => {
+        return throwError(error)
+      }),
+      map(data => data.Data)
+    ).subscribe(
       data => {
         console.log('sputility data : ', data)
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-          if (data.Data.AttributeValueResponses.length > 0) {
-            _self.purchaseService.generateAttributes(data.Data)
-          }
-          if (data.Data.ItemCategorys.length > 0) {
-            _self.purchaseAdd.getCatagoryDetail(data.Data.ItemCategorys)
-          }
-          _self.purchaseAdd.allItems = [ ...data.Data.Items ]
-          // console.log('allItems : ', this.allItems)
-          _self.purchaseService.createItems(data.Data.Items)
-          _self.purchaseService.createVendors(data.Data.Vendors)
-          _self.purchaseService.createTaxProcess(data.Data.TaxProcesses)
-          _self.purchaseService.createPaymentModes(data.Data.PaymentModes)
-          _self.purchaseService.createOrganisations(data.Data.Organizations)
-          _self.purchaseService.createGodowns(data.Data.Godowns)
-          _self.purchaseService.createReferralTypes(data.Data.ReferalTypes)
-          _self.purchaseService.createSubUnits(data.Data.SubUnits)
-          _self.purchaseService.createTaxSlabs(data.Data.TaxSlabs)
-          _self.purchaseService.createReferral(data.Data.Referals)
-          _self.purchaseService.createCurrencies(data.Data.Currencies)
-          _self.purchaseService.createFreightBy(data.Data.FreightModes)
-          _self.purchaseService.createCharges(data.Data.LedgerCharges)
-          _self.purchaseAdd.clientStateId = data.Data.ClientAddresses[0].StateId
-          _self.purchaseAdd.TransactionNoSetups = data.Data.TransactionNoSetups
-        } else {
-          throw new Error (data.Description)
+        if (data.AttributeValueResponses.length > 0) {
+          _self.purchaseService.generateAttributes(data)
         }
+        if (data.ItemCategorys.length > 0) {
+          _self.purchaseAdd.getCatagoryDetail(data.ItemCategorys)
+        }
+        _self.purchaseAdd.allItems = [ ...data.Items ]
+        // console.log('allItems : ', this.allItems)
+        _self.purchaseService.createItems(data.Items)
+        _self.purchaseService.createVendors(data.Vendors)
+        _self.purchaseService.createTaxProcess(data.TaxProcesses)
+        _self.purchaseService.createPaymentModes(data.PaymentModes)
+        _self.purchaseService.createOrganisations(data.Organizations)
+        _self.purchaseService.createGodowns(data.Godowns)
+        _self.purchaseService.createReferralTypes(data.ReferalTypes)
+        _self.purchaseService.createSubUnits(data.SubUnits)
+        _self.purchaseService.createTaxSlabs(data.TaxSlabs)
+        _self.purchaseService.createReferral(data.Referals)
+        _self.purchaseService.createCurrencies(data.Currencies)
+        _self.purchaseService.createFreightBy(data.FreightModes)
+        _self.purchaseService.createCharges(data.LedgerCharges)
+        _self.purchaseAdd.clientStateId = data.ClientAddresses[0].StateId
+        _self.purchaseAdd.TransactionNoSetups = data.TransactionNoSetups
       },
       (error) => {
         console.log(error)
@@ -332,13 +353,13 @@ export class PurchaseMainComponent {
     table.record{font-size:13px}</style></head><body>`)
     printWindow.document.write(divElements)
     printWindow.document.write('</body></html>')
-    // printWindow.document.close()
-    // printWindow.focus()
-    // $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
-    // setTimeout(function () {
-    //   printWindow.print()
-    //   printWindow.close()
-    // }, 100)
+    printWindow.document.close()
+    printWindow.focus()
+    $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
+    setTimeout(function () {
+      printWindow.print()
+      printWindow.close()
+    }, 100)
   }
   word: string = ''
   NumInWords (value) {

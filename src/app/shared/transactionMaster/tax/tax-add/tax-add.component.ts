@@ -88,7 +88,9 @@ export class TaxAddComponent {
 
   ngOnDestroy () {
     this.modalSub.unsubscribe()
-    this.subscribe.unsubscribe()
+    if (this.subscribe) {
+      this.subscribe.unsubscribe()
+    }
   }
   ngOnInit(){
 

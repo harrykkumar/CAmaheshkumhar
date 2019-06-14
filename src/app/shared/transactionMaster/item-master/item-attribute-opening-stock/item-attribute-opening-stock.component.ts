@@ -33,7 +33,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
     if (this.openModel && this.openModel.value === true) {
       this.getSPUtilityData();
     } else {
-      $('#item-attribute-opening-stock').modal('hide')
+      return;
     }
   }
 
@@ -103,6 +103,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
 
   triggerCloseModel = (data?) => {
     this.closeModel.emit(data);
+    $('#item-attribute-opening-stock').modal('hide')
   }
 
   generateGroupId = () => {
@@ -126,7 +127,9 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
         _.forEach(Data, (editElement) => {
           if (editElement.AttributeStr === generateElement.AttributeStr) {
             this.attribute[index] = { ...editElement, Checked: false };
-            this.attribute[index].AttributeNamestr = this.attribute[index].AttributeNamestr.split(',');
+            if(_.isString(editElement.AttributeNamestr)){
+              this.attribute[index].AttributeNamestr = this.attribute[index].AttributeNamestr.split(',');
+            }
           }
         });
       })
@@ -135,40 +138,10 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
     })
   }
 
-  preparePayloadToSave = (dataToMap) => {
-    const Data = _.filter(dataToMap, (element) => {
-      if (element.Checked === true) {
-        return true
-      }
-    });
-    const data = _.map(Data, (element) => {
-      return {
-        "ID": element.ID ? element.ID : 0,
-        "ParentTypeId": element.ParentTypeId ? element.ParentTypeId : 0,
-        "AttributeId": element.AttributeId ? element.AttributeId : 0,
-        "Barcode": element.Barcode ? element.Barcode : 0,
-        "ClientBarCode": element.ClientBarCode ? element.ClientBarCode : 0,
-        "GroupId": element.GroupId,
-        "IsBaseGroup": element.IsBaseGroup ? element.IsBaseGroup : 0,
-        "ItemId": element.ItemId ? element.ItemId : 0,
-        "ItemTransId": element.ItemTransId ? element.ItemTransId : 0,
-        "Qty": element.Qty ? element.Qty : 0,
-        "QtyValue": element.QtyValue ? element.QtyValue : 0,
-        "RateMrp": element.RateMrp ? element.RateMrp : 0,
-        "RateNrv": element.RateNrv ? element.RateNrv : 0,
-        "RateOur": element.RateOur ? element.RateOur : 0,
-        "RatePurchase": element.RatePurchase ? element.RatePurchase : 0,
-        "RateSale": element.RateSale ? element.RateSale : 0,
-        "AttributeStr": element.AttributeStr ? element.AttributeStr : 0,
-      }
-    })
-    return data
-  }
-
-  postFormData = (Data, type) => {
+  postFormData = (dataToPost, type) => {
     const data = {
       editMode: this.openModel.editMode,
-      data: this.preparePayloadToSave(Data),
+      data: dataToPost,
       type: type
     }
     this.triggerCloseModel(data);
@@ -217,5 +190,29 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
       }
     })
     return valid;
+  }
+
+
+  searchFilter = () => {
+    let input, filter, table, tr, tdArray, i, j, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("item-attribute-table");
+    tr = table.getElementsByTagName("tr");
+    loop1: for (i = 1; i < tr.length; i++) {
+      tdArray = tr[i].getElementsByTagName("td");
+      loop2: for (j = 2; j < (2 + this.masterData.Attributes.length); j++) {
+       const innerTd = tdArray[j];
+        if (innerTd) {
+          txtValue = innerTd.textContent || innerTd.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1 ) {
+            tr[i].style.display = "table-row";
+            break loop2;
+          } else {
+            tr[i].style.display = "none";
+          }
+        }     
+      }
+    }
   }
 }
