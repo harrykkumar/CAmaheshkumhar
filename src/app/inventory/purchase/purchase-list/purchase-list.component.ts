@@ -29,8 +29,8 @@ export class PurchaseListComponent implements OnInit {
   clientDateFormat: string
   p: number = 1
   itemsPerPage: number = 20
-  total: number = 0
   lastItemIndex: number = 0
+  total: number = 0
   isSearching: boolean = true
   @ViewChild('custom_table', { read: ElementRef }) customTable: ElementRef
   @ViewChild('paging_comp') pagingComp: PagingComponent

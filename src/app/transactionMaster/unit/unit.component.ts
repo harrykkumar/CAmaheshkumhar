@@ -108,7 +108,7 @@ export class UnitComponent implements OnInit, OnDestroy {
     return this._unitmasterServices.getUnitDetail('?Name=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage)
   }
 
-  private getUnitDetail () {
+  getUnitDetail () {
     if (!this.searchForm.value.searckKey) {
       this.searchForm.value.searckKey = ''
     }

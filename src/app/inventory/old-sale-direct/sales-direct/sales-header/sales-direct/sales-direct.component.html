@@ -87,7 +87,7 @@
                 <label for="E-way">Godown/Location</label>
               <div class="input-group adw_select">
                   <div class="input-group adw_select">
-                    <select2 [disabled]="Id !== 0" #godown_select2  id="godown" [data]="godownDataType" class="control_select" (valueChanged)="onChangeGodown($event)"  autocomplete="true"  [options]="godownPlaceHolder"  [value]="godownId" ></select2>
+                    <select2 [disabled]="Id !== 0" #godown_select2  id="godown" [data]="godownDataType" class="control_select" (valueChanged)="onChangeGodown($event)"  autocomplete="true"  [options]="{placeholder:'Select Godown'}"  [value]="godownId" ></select2>
                   </div>
                 </div>
               </div>
@@ -409,7 +409,7 @@
                   <div class="form-group col-md-4">
                     <label>Freight-By</label>
                     <div class="input-group ">
-                        <select2  #freight_By [data]="freightByData" class="control_select " (valueChanged)="onChangeFreight($event)" [options]="frightPlaceholder" autocomplete="true" [value]="freightByValue"  [ngClass]="{ 'errorSelecto is-invalid ': submitClick &&  catagoryError }"></select2>
+                        <select2  #freight_By [data]="freightByData" class="control_select " (valueChanged)="onChangeFreight($event)" [options]="frightPlaceholder" autocomplete="true" [value]="freightByValue"  ></select2>
                       </div>
                   </div>
                  

@@ -1,0 +1,83 @@
+<div
+  class="modal fade right"
+  id="common_menu_master"
+  data-backdrop="static"
+  data-keyboard="false"
+  role="dialog"
+  aria-labelledby="category_master"
+  aria-hidden="true"
+>
+  <div class="modal-dialog " role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">{{ formData?.CommonName }}</h4>
+        <button
+          type="button"
+          class="close"
+          (click)="closeForm(formUpdated)"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+     
+      <form #commonMenuForm="ngForm" novalidate>
+        <div class="modal-body">
+          <div class="card-body">
+            <div>
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label for="commonMenuName">{{ formData?.CommonName }}</label>
+                  <input
+                    #commonMenuNameModal
+                    id="commonMenuName"
+                    name="name"
+                    [(ngModel)]="commonMenu.Name"
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter {{ formData?.CommonName }}"
+                    required
+                  />
+                </div>
+                <div class="form-group col-md-12">
+                  <label>Short Name</label>
+                  <input
+                    name="commonMenuShortName"
+                    type="text"
+                    [(ngModel)]="commonMenu.ShortName"
+                    class="form-control"
+                    placeholder="Enter Short Name"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-primary waves-effect"
+            (click)="commonMenuForm?.form?.valid && submitFormData()"
+            [disabled]="commonMenuForm?.form?.invalid"
+            (keydown.enter)="commonMenuForm?.form?.valid && submitFormData()"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary waves-effect"
+            (click)="commonMenuForm?.form?.valid && submitFormData('AddNew')"
+            (keydown.enter)="
+              commonMenuForm?.form?.valid && submitFormData('AddNew')
+            "
+            [disabled]="commonMenuForm?.form?.invalid"
+          >
+            Save and Add New
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

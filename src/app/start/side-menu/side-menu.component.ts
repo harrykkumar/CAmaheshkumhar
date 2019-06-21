@@ -22,10 +22,11 @@ export class SideMenuComponent {
 
   initSideMenuData = () => {
     this.loggedinUserData = { ...this._loginService.userData }
-    if (this._loginService.userData.Modules[this._loginService.selectedUserModule['index']]) {
-      this.sideMenu = [...this.loggedinUserData.Modules[this._loginService.selectedUserModule['index']]['sideMenu']]
-    }
-    this.initMenuPath()
+    if (!_.isEmpty(this._loginService.userData) && !_.isEmpty(this._loginService.userData.Modules) && !_.isEmpty(this._loginService.selectedUserModule))
+      if (this._loginService.userData.Modules[this._loginService.selectedUserModule['index']]) {
+        this.sideMenu = [...this.loggedinUserData.Modules[this._loginService.selectedUserModule['index']]['sideMenu']]
+        this.initMenuPath()
+      }
   }
 
   initMenuPath = () => {
@@ -48,6 +49,8 @@ export class SideMenuComponent {
   navigateTo = (selectedMenu) => {
     if (selectedMenu.path === "") {
       this._route.navigate(['dashboard'])
+    } else if (selectedMenu.CommonCode > 0) {
+      this._route.navigate([`${selectedMenu.path}/${selectedMenu.CommonCode}`]);
     } else {
       this._route.navigate([selectedMenu.path])
     }

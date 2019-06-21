@@ -2039,7 +2039,7 @@ stateShippingValue: any
     this._commonService.closeSaleDirect()
   }
 
-  invalidObj: Object = {}
+  invalidObj:any
 
   checkValidation (): boolean {
     let isValid = 1

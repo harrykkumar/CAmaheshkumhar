@@ -46,7 +46,7 @@ export class SalesListComponent implements   OnInit   {
   }
 
   getSaleChallanDetail () {
-    this._commonService.getListSaleDirect().subscribe(data => {
+    this._commonService.getListSaleDirect('10').subscribe(data => {
       console.log('sales data: ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         this.totalDiscount = 0

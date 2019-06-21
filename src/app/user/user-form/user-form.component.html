@@ -556,7 +556,7 @@
                                     name="emailInput"
                                     #emailModel="ngModel"
                                     [(ngModel)]="emailDetail.selectedEmail"
-                                    [pattern]="_commonService.emailRegx"
+                                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"                                    
                                     [ngClass]="{
                                       'is-invalid':
                                       (emailDetailModel?.submitted &&

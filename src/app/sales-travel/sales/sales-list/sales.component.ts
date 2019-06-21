@@ -11,7 +11,6 @@ import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { ItemmasterServices } from '../../../commonServices/TransactionMaster/item-master.services';
 import { VendorServices } from '../../../commonServices/TransactionMaster/vendoer-master.services';
-import { Select2Component, Select2OptionData } from 'ng2-select2';
 declare const $: any
 @Component({
   selector: 'app-travel-invoice',
@@ -158,6 +157,7 @@ export class SalesComponent implements OnInit, OnDestroy {
       // console.log('supplier data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         this._saleTravelServices.createSupplierList(data.Data)
+        console.log('supplier list : ', data.Data)
       } else {
         throw new Error (data.Description)
       }

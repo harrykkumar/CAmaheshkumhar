@@ -109,13 +109,13 @@
               </table>
             </div>
         </div>
-        <app-pagination (lastValueEmitter)="lastItemIndex = $event;"
-          (pageNoEmitter)="p = $event;getSaleTraveDetail();"
-          (pageSizeEmitter)="itemsPerPage = $event;getSaleTraveDetail();" ></app-pagination>
       </div>
     </div>
   </div>
 </main>
+<app-pagination (lastValueEmitter)="lastItemIndex = $event;"
+          (pageNoEmitter)="p = $event;getSaleTraveDetail();"
+          (pageSizeEmitter)="itemsPerPage = $event;getSaleTraveDetail();" ></app-pagination>
 <app-sales-invoice></app-sales-invoice>
 <app-sales-import></app-sales-import>
 <app-sales-return></app-sales-return>

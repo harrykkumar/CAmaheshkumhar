@@ -31,6 +31,7 @@ export class OrganisationProfileComponent implements OnInit {
   imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [], imageType: 'logo' }
   ImageFiles: any = []
   model: any = {}
+  personalDetailModel:any = {}
   dummyData: any = {}
   emailDetail: any = {}
   mobileDetail: any = {}
@@ -92,7 +93,7 @@ export class OrganisationProfileComponent implements OnInit {
   }
 
   /* Function to initialise dropdown list data */
-  initDropDownData = () => {
+  initDropDownData = async () => {
     this.personalDetail.mobileArray = []
     this.personalDetail.emailArray = []
     this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }]
@@ -101,13 +102,13 @@ export class OrganisationProfileComponent implements OnInit {
     this.addressTypeList = this._orgService.getAddressTypeList()
     this.addressDetail.selectedAddressType = 2
     this.registrationTypeList = this._orgService.getRegistrationTypeList()
+    this.industryTypeList = await this._orgService.getIndustryTypeList()
+    this.branchTypeList = await this._orgService.getBranchTypeList()
+    this.countryList = await this._orgService.getCountryList()
+    this.accMethodList = await this._orgService.getAccountingMethod()
     this.personalDetail.selectedRegistrationType = 1
     this.getMobileCountryCodeList()
-    this.getIndustryTypeList()
     this.getKeyPersonTypeList()
-    this.getBranchTypeList()
-    this.getCountryList()
-    this.getAccountingMethod()
     this.getMobileTypeList()
     this.getEmailTypeList()
     this.initPersonalDetail()
@@ -123,15 +124,21 @@ export class OrganisationProfileComponent implements OnInit {
 
   /* Function invoke on industry type selection change and assign new value */
   onIndustryTypeSelectionChange = (event) => {
-    if (Number(event.value) >= UIConstant.ZERO) {
-      this.personalDetail.selectedIndustryType = Number(event.value)
+    if (event.data.length > 0) {
+      this.personalDetail.selectedIndustryType = event.data[0]
     }
   }
 
   /* Function invoke on registration type selection change and assign new value */
   onRegistrationTypeSelectionChange = (event) => {
-    if (Number(event.value) >= UIConstant.ZERO) {
-      this.personalDetail.selectedRegistrationType = Number(event.value)
+    if (event.data.length > 0) {
+      this.personalDetail.selectedRegistrationType = event.data[0]
+    }
+  }
+
+  onBranchTypeSelectionChange = (event) => {
+    if (event.data.length > 0) {
+      this.personalDetail.selectedBranchType = event.data[0]
     }
   }
 
@@ -195,32 +202,16 @@ export class OrganisationProfileComponent implements OnInit {
   /* Function invoke on accounting method type selection change  */
   onAccMethodTypeChange = (event) => {
     if (event.data.length > 0) {
-      this.statutoryDetail.accMethod = event.value
+      this.statutoryDetail.accMethod =  event.data[0]
     }
   }
 
-  onBranchTypeSelectionChange = (event) => {
-    if (event.data.length > 0) {
-      this.personalDetail.selectedBranchType = event.data[0]
-    }
-  }
 
   /* Function invoke on click of close profile icon
       will close the dialog box and reset data */
   emitCloseProfile () {
     $('#organisationModal').modal(UIConstant.MODEL_HIDE)
     this._commonService.navigateToPreviousUrl()
-  }
-
-  /* Function to get all the country list for dropdown */
-  getCountryList = () => {
-    this._orgService.getCountryList().
-      pipe(
-        takeUntil(this.unSubscribe$)
-      ).
-      subscribe((response: any) => {
-        this.countryList = [...response]
-      }, error => console.log(error))
   }
 
   /* Function to get all the state list */
@@ -268,16 +259,7 @@ export class OrganisationProfileComponent implements OnInit {
       }, error => console.log(error))
   }
 
-  /* Function to get all the industry type list  */
-  getIndustryTypeList = () => {
-    this._orgService.getIndustryTypeList().
-      pipe(
-        takeUntil(this.unSubscribe$)
-      ).
-      subscribe((response: any) => {
-        this.industryTypeList = [...response]
-      }, error => console.log(error))
-  }
+  
 
   /* Function to get all the key person type list */
   getKeyPersonTypeList = () => {
@@ -287,17 +269,6 @@ export class OrganisationProfileComponent implements OnInit {
       ).
       subscribe((response: any) => {
         this.keyPersonTypeList = [...response]
-      }, error => console.log(error))
-  }
-
-  /* Function to get all accounting method type list */
-  getAccountingMethod = () => {
-    this._orgService.getAccountingMethod().
-      pipe(
-        takeUntil(this.unSubscribe$)
-      ).
-      subscribe((response: any) => {
-        this.accMethodList = [...response]
       }, error => console.log(error))
   }
 
@@ -649,10 +620,10 @@ export class OrganisationProfileComponent implements OnInit {
       Id: this.personalDetail.id ? this.personalDetail.id : 0,
       Name: this.personalDetail.companyName,
       TypeId: this.personalDetail.selectedBranchType.id,
-      IndustryType: this.personalDetail.selectedIndustryType,
+      IndustryType: this.personalDetail.selectedIndustryType.id,
       RegistrationDate: this.personalDetail.registrationDate,
-      RegistrationType: this.personalDetail.selectedRegistrationType,
-      AccountingMethod: this.statutoryDetail.accMethod,
+      RegistrationType: this.personalDetail.selectedRegistrationType.id,
+      AccountingMethod: this.statutoryDetail.accMethod.id,
       Addresses: addressArray,
       ContactInfos: contactArray,
       Emails: emailArray,
@@ -747,9 +718,9 @@ export class OrganisationProfileComponent implements OnInit {
         panNo: statutory.PanNo,
         gstNo: statutory.GstinNo,
         cinNo: statutory.CinNo,
-        fassiNo: statutory.FssiNo,
-        accMethod: statutory.TinNo
+        fassiNo: statutory.FssiNo
       }
+      this.personalDetailModel.accMethodId = 0
     }
 
     const emailArray = _.map(profileData.Emails, (item) => {
@@ -772,21 +743,18 @@ export class OrganisationProfileComponent implements OnInit {
     })
     const orgData = profileData.OrganisationProfiles[0]
     if (orgData) {
-      //this.gloabservcise.utcToClientDateFormat
       let dateFormate= this._globalService.utcToClientDateFormat( orgData.RegistrationDate, this.clientDateFormat)
-
       this.personalDetail = {
         id: orgData.Id,
         mobileArray: [...mobileArray],
         emailArray: [...emailArray],
         companyName: orgData.Name,
-        selectedIndustryType: orgData.IndustryType ? orgData.IndustryType : UIConstant.ZERO,
-        selectedRegistrationType: orgData.GstnTypeId ? orgData.GstnTypeId : UIConstant.ZERO,
-        registrationDate:   dateFormate,
-        selectedBranchType: {
-          id: orgData.TypeId ? orgData.TypeId : 0
-        },
+        registrationDate:   dateFormate
       }
+
+      this.personalDetailModel.industryTypeId = orgData.IndustryType ? orgData.IndustryType : UIConstant.ZERO;
+      this.personalDetailModel.registrationTypeId = orgData.GstnTypeId ? orgData.GstnTypeId : UIConstant.ZERO;
+      this.personalDetailModel.branchTypeId = orgData.TypeId ? orgData.TypeId : UIConstant.ZERO;
     }
 
     this.keyPersonDetailArray = _.map(profileData.ContactPersonsBrief, (item) => {
@@ -823,22 +791,12 @@ export class OrganisationProfileComponent implements OnInit {
     if (this.personalDetail.mobileArray.length === 0) {
       valid = false
     }
-    // if (this.personalDetail.emailArray.length === 0) {
-    //   valid = false
-    // }
+    if (this.personalDetail.emailArray.length === 0) {
+      valid = false
+    }
     return valid
   }
 
-   /* Function to get all accounting method type list */
-   getBranchTypeList = () => {
-    this._orgService.getBranchTypeList().
-      pipe(
-        takeUntil(this.unSubscribe$)
-      ).
-      subscribe((response: any) => {
-        this.branchTypeList = [...response]
-      }, error => console.log(error))
-  }
 
   openImageModal () {
     this.itemMaster.openImageModal(this.imageList)

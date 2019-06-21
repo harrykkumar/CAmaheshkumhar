@@ -1,0 +1,1288 @@
+<!-- Created by Bharat -->
+<!-- orgProfileFormModel.form.valid &&  -->
+<div
+  class="modal fade"
+  id="companyOrganisationModal"
+  role="dialog"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div
+    class="modal-dialog large_form modal-full-height modal-top"
+    role="document"
+  >
+    <div class="modal-content bgcH-grey-100">
+      <form
+        #orgProfileFormModel="ngForm"
+        (ngSubmit)="
+        orgProfileFormModel.form.valid && validateForm() && saveOrgProfile()
+        "
+        novalidate
+      >
+        <!--Header-->
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-3 left_side_head">
+                <p class="heading_lead">
+                  <i class="far fa-building"></i>Company Profile
+                </p>
+              </div>
+              <div class="col-md-9">
+                <div class="btn_header">
+                  <button type="submit" class="btn btn-default waves-effect">
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                    (click)="emitCloseProfile(false)"
+                  >
+                    <span aria-hidden="true" class="white-text">×</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--Body-->
+        <div class="modal-body">
+          <div class="classic-tabs">
+            <ul class="nav tabs-cyan" role="tablist">
+              
+              <li class="nav-item">
+                <a
+                  class="nav-link waves-light active"
+                  id="activeTab"
+                  data-toggle="tab"
+                  href="#panel519"
+                  role="tab"
+                  >Personal Detail</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link waves-light"
+                  data-toggle="tab"
+                  href="#panel540"
+                  role="tab"
+                  >Key Persons
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link waves-light"
+                  data-toggle="tab"
+                  href="#address_org"
+                  role="tab"
+                  >Address</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link waves-light"
+                  data-toggle="tab"
+                  href="#panel529"
+                  role="tab"
+                  >Bank Detail</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link waves-light"
+                  data-toggle="tab"
+                  href="#panel539"
+                  role="tab"
+                  >Statutory Master Details</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link waves-light"
+                  data-toggle="tab"
+                  href="#paneImage"
+                  role="tab"
+                  >Images</a
+                >
+              </li>
+            </ul>
+            <div class="tab-content">
+              <!-- Personal Details Tab Section -->
+              <div
+                class="tab-pane fade in show active"
+                id="panel519"
+                role="tabpanel"
+              >
+                <div class="card">
+                  <div class="card-body">
+                    <div>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-row">
+                            <div class="form-group col-md-4">
+                              <label>Name of Comapany</label>
+                              <input
+                              #companyNameModel="ngModel"
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter Name"
+                              name="companyName"
+                              [(ngModel)]="personalDetail.companyName"
+                              [pattern]="_commonService.companyNameRegx"
+                              required
+                              [ngClass]="{
+                                'is-invalid':
+                                  (orgProfileFormModel?.submitted && (!personalDetail.companyName || companyNameModel.errors?.pattern))
+                              }"
+                              />
+                            </div>
+                            <div class="form-group col-md-4">
+                              <label>Type Of Industry</label>
+                              <div class="input-group adw_select">
+                                <div class="input-group adw_select">
+                                  <select2
+                                    [data]="industryTypeList"
+                                    class="control_select"
+                                    (valueChanged)="
+                                      onIndustryTypeSelectionChange($event)
+                                    "
+                                    autocomplete="true"
+                                    [value]="
+                                    personalDetailModel?.industryTypeId
+                                    "
+                                    [ngClass]="{
+                                      'errorSelecto':
+                                        orgProfileFormModel?.submitted &&
+                                        !personalDetail.selectedIndustryType
+                                    }"
+                                  >
+                                  </select2>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group col-md-4">
+                              <label for="bill_no">Registration Type</label>
+                              <div class="input-group adw_select">
+                                <div class="input-group adw_select">
+                                  <select2
+                                    [data]="registrationTypeList"
+                                    class="control_select"
+                                    (valueChanged)="
+                                      onRegistrationTypeSelectionChange($event)
+                                    "
+                                    autocomplete="true"
+                                    [value]="
+                                    personalDetailModel?.registrationTypeId
+                                    "
+                                    [ngClass]="{
+                                      'errorSelecto':
+                                        orgProfileFormModel?.submitted &&
+                                        !personalDetail.selectedRegistrationType
+                                    }"
+                                  >
+                                  </select2>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group col-md-4">
+                              <label for="bill_no">Type</label>
+                              <div class="input-group adw_select">
+                                <div class="input-group adw_select">
+                                  <select2
+                                    [data]="branchTypeList"
+                                    class="control_select"
+                                    (valueChanged)="
+                                      onBranchTypeSelectionChange($event)
+                                    "
+                                    autocomplete="true"
+                                    [value]="
+                                    personalDetailModel?.branchTypeId
+                                    "
+                                    [ngClass]="{
+                                      'errorSelecto':
+                                      orgProfileFormModel?.submitted &&
+                                        personalDetail?.selectedBranchType
+                                          ?.id === '0'
+                                    }"
+                                  >
+                                  </select2>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- <div class="form-group col-md-3">
+                              <label class="fw-500">Date Of Registration</label>
+                              <div
+                                class="timepicker-input input-icon form-group"
+                              >
+                                <div class="input-group">
+                                  <div
+                                    class="input-group-addon bgc-white bd bdwR-0"
+                                    start-date
+                                  >
+                                    <i class="fas fa-calendar-alt"></i>
+                                  </div>
+                                  <input
+                                    class="form-control start-date flatpickr dor"
+                                    placeholder="Enter Reg. Date"
+                                    data-provide="datepicker"
+                                    name="regDate"
+                                    [(ngModel)]="
+                                      personalDetail.registrationDate
+                                    "
+                                    [ngClass]="{
+                                      'is-invalid':
+                                        orgProfileFormModel?.submitted &&
+                                        !personalDetail.registrationDate
+                                    }"
+                                    required
+                                  />
+                                </div>
+                              </div>
+                            </div> -->
+                            <div class="form-group col-md-4">
+                                <label class="fw-500">Book Start Date</label>
+                                <div
+                                  class="timepicker-input input-icon form-group"
+                                >
+                                  <div class="input-group">
+                                    <div
+                                      class="input-group-addon bgc-white bd bdwR-0"
+                                      start-date
+                                    >
+                                      <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                    <input
+                                      class="form-control start-date flatpickr dor"
+                                      placeholder="Enter Book Start Date"
+                                      data-provide="datepicker"
+                                      name="bookStartDate"
+                                      [(ngModel)]="
+                                        personalDetail.bookStartDate
+                                      "
+                                      [ngClass]="{
+                                        'is-invalid':
+                                          orgProfileFormModel?.submitted &&
+                                          !personalDetail.bookStartDate
+                                      }"
+                                      required
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="form-group col-md-4">
+                                  <label>Financial Year</label>
+                                  <div class="input-group adw_select">
+                                    <div class="input-group adw_select">
+                                      <select2
+                                        [data]="finYearIdList"
+                                        class="control_select"
+                                        (valueChanged)="
+                                          onFinYearIdSelectionChange($event)
+                                        "
+                                        autocomplete="true"
+                                        [value]="
+                                        personalDetailModel?.finYearId
+                                        "
+                                        [ngClass]="{
+                                          'errorSelecto':
+                                            orgProfileFormModel?.submitted &&
+                                            !personalDetail.selectedFinYearId
+                                        }"
+                                      >
+                                      </select2>
+                                    </div>
+                                  </div>
+                                </div>
+                          </div>
+                          <div class="form-row">
+                            <div class="col-lg-6">
+                              <div class="card">
+                                <form
+                                  #mobileDetailModel="ngForm"
+                                  (ngSubmit)="
+                                    mobileDetailModel.form.valid &&
+                                      validateMobileDetail() &&
+                                      addNewMobileDetail()
+                                  "
+                                  novalidate
+                                >
+                                  <table
+                                    class="table editable_tbl"
+                                    style="width: 100%"
+                                  >
+                                    <thead>
+                                      <tr>
+                                        <th>#</th>
+                                        <th>Contact Type</th>
+                                        <th>Contact Number</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr
+                                        *ngFor="
+                                          let item of personalDetail?.mobileArray;
+                                          let i = index
+                                        "
+                                        class="default_row"
+                                      >
+                                        <td class="profile-pic1">
+                                          <div class="edit1">
+                                            <a>
+                                              <i
+                                                class="fas fa-pen fa-1x"
+                                                (click)="editMobileDetail(i)"
+                                              ></i>
+                                            </a>
+                                            <a>
+                                              <i
+                                                aria-hidden="true"
+                                                class="fa fa-trash fa-1x"
+                                                (click)="removeMobileDetail(i)"
+                                              ></i>
+                                            </a>
+                                          </div>
+                                        </td>
+                                        <td>
+                                          {{
+                                            mobileTypeList[
+                                              (item?.selectedMobileType)
+                                            ]
+                                          }}
+                                        </td>
+                                        <td>
+                                          +{{
+                                            item?.selectedMobileCountryCode?.id
+                                          }}-{{ item?.mobileNo }}
+                                        </td>
+                                      </tr>
+                                      <tr class="selected_row">
+                                        <td>
+                                          <button
+                                            type="submit"
+                                            id="btn_add_contact"
+                                            class="btn btn-primary btn_add_more"
+                                          >
+                                            +
+                                          </button>
+                                        </td>
+                                        <td>
+                                          <select
+                                            class="form-control"
+                                            name="mobileType"
+                                            [(ngModel)]="
+                                              mobileDetail.selectedMobileType
+                                            "
+                                            [ngClass]="{
+                                              'is-invalid':
+                                                mobileDetailModel?.submitted &&
+                                                !mobileDetail?.selectedMobileType
+                                            }"
+                                            required
+                                          >
+                                            <option
+                                              *ngFor="
+                                                let item of mobileTypeList;
+                                                let i = index
+                                              "
+                                              [value]="i + 1"
+                                            >
+                                              {{ item }}</option
+                                            >
+                                          </select>
+                                        </td>
+                                        <td>
+                                          <div class="mobile_code">
+                                            <select2
+                                            [data]="mobileCountryCodeList"
+                                            style="width:120px !important;"
+                                            class="control_select"
+                                            (valueChanged)="
+                                              onCountryCodeSelectionChange(
+                                                $event
+                                              )
+                                            "
+                                            autocomplete="true"
+                                            [value]="
+                                              mobileDetail
+                                                .selectedMobileCountryCode?.id
+                                            "
+                                            [ngClass]="{
+                                              'errorSelecto':
+                                                (mobileDetailModel?.submitted &&
+                                                  mobileDetail
+                                                    ?.selectedMobileCountryCode
+                                                    ?.id === '0') ||
+                                                (orgProfileFormModel?.submitted &&
+                                                  personalDetail?.mobileArray
+                                                    ?.length === 0)
+                                            }"
+                                            >
+                                            </select2>
+                                            <input
+                                            [disabled]="
+                                            mobileDetail
+                                              ?.selectedMobileCountryCode
+                                              ?.id === '0'"
+                                          type="text"
+                                          class="form-control code_text"
+                                          (keypress)="
+                                            _commonService.isNumber($event)
+                                          "
+                                          name="mobileInput"
+                                          [(ngModel)]="
+                                            mobileDetail.mobileNo
+                                          "
+                                          #mobileNoModel="ngModel"
+                                          [ngClass]="{
+                                            'is-invalid':
+                                              (mobileDetailModel?.submitted &&
+                                                mobileNoModel.invalid) ||
+                                              (orgProfileFormModel?.submitted &&
+                                                personalDetail?.mobileArray
+                                                  ?.length === 0)
+                                          }"
+                                          required
+                                          [minlength]="
+                                            mobileDetail
+                                              ?.selectedMobileCountryCode
+                                              ?.contactLength
+                                          "
+                                          [maxlength]="
+                                            mobileDetail
+                                              ?.selectedMobileCountryCode
+                                              ?.contactLength
+                                          "
+                                            />
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </form>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="card">
+                                <form
+                                  #emailDetailModel="ngForm"
+                                  (ngSubmit)="emailDetailModel.form.valid && addNewEmailDetail()
+                                  "
+                                  novalidate
+                                >
+                                  <table
+                                    class="table editable_tbl"
+                                    style="width: 100%"
+                                  >
+                                    <thead>
+                                      <tr>
+                                        <th>#</th>
+                                        <th>Email Type</th>
+                                        <th>Email Id</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr class="default_row"
+                                        *ngFor="
+                                          let item of personalDetail?.emailArray;
+                                          let i = index
+                                        "
+                                        class="default_row"
+                                      >
+                                        <td class="profile-pic1">
+                                          <div class="edit1">
+                                            <a>
+                                              <i
+                                                class="fas fa-pen fa-1x"
+                                                (click)="editEmailDetail(i)"
+                                              ></i>
+                                            </a>
+                                            <a>
+                                              <i
+                                                aria-hidden="true"
+                                                class="fa fa-trash fa-1x"
+                                                (click)="removeEmailDetail(i)"
+                                              ></i>
+                                            </a>
+                                          </div>
+                                        </td>
+                                        <td>
+                                          {{
+                                            emailTypeList[
+                                              item.selectedEmailType
+                                            ]
+                                          }}
+                                        </td>
+                                        <td>{{ item.selectedEmail }}</td>
+                                      </tr>
+                                      <tr class="selected_row ">
+                                        <td>
+                                          <button
+                                            type="submit"
+                                            id="btn_add_email"
+                                            class="btn btn-primary btn_add_more"
+                                          >
+                                            +
+                                          </button>
+                                        </td>
+                                        <td>
+                                          <select
+                                            class="form-control"
+                                            name="emailType"
+                                            [(ngModel)]="
+                                              emailDetail.selectedEmailType
+                                            "
+                                            [ngClass]="{
+                                              'is-invalid':
+                                                emailDetailModel?.submitted &&
+                                                !emailDetail?.selectedEmailType
+                                            }"
+                                            required
+                                          >
+                                            <option
+                                              *ngFor="
+                                                let item of emailTypeList;
+                                                let i = index
+                                              "
+                                              [value]="i"
+                                            >
+                                              {{ item }}</option
+                                            >
+                                          </select>
+                                        </td>
+                                        <td>
+                                          <input
+                                          type="text"
+                                          class="form-control"
+                                          name="emailInput"
+                                          #emailModel="ngModel"
+                                          [(ngModel)]="
+                                            emailDetail.selectedEmail
+                                          "
+                                          pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"                                          
+                                          [ngClass]="{
+                                            'is-invalid':
+                                              (emailDetailModel?.submitted &&
+                                                (!emailDetail.selectedEmail || emailModel?.errors?.pattern)) ||
+                                              (orgProfileFormModel?.submitted &&
+                                                personalDetail?.emailArray
+                                                  ?.length === 0)
+                                          }"
+                                          required
+                                          />
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Address Tab Section  -->
+              <div class="tab-pane fade" id="address_org" role="tabpanel">
+                <div class="card ">
+                  <div class="card-body ">
+                    <form
+                      #addressFormModel="ngForm"
+                      (ngSubmit)="
+                        addressFormModel.form.valid &&
+                          validateAddressDetail() &&
+                          addNewAddress()
+                      "
+                      novalidate
+                    >
+                      <div class="form row">
+                        <div class="form-group col-md-3 ">
+                          <label>Country</label>
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2
+                                [data]="countryList"
+                                class="control_select"
+                                (valueChanged)="
+                                  onCountrySelectionChange($event)
+                                "
+                                autocomplete="true"
+                                [value]="model.countryCodeId"
+                                [ngClass]="{
+                                  'errorSelecto':
+                                    addressFormModel?.submitted &&
+                                    addressDetail?.selectedCountry?.id === '0'
+                                }"
+                              >
+                              </select2>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-3 ">
+                          <label>State</label>
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2
+                                [data]="stateList"
+                                class="control_select"
+                                (valueChanged)="onStateSelectionChange($event)"
+                                autocomplete="true"
+                                [value]="model.stateCodeId"
+                                [ngClass]="{
+                                  'errorSelecto':
+                                    addressFormModel?.submitted &&
+                                    addressDetail?.selectedState?.id === '0'
+                                }"
+                              >
+                              </select2>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-3 ">
+                          <label>City</label>
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2
+                                [data]="cityList"
+                                class="control_select"
+                                (valueChanged)="onCitySelectionChange($event)"
+                                autocomplete="true"
+                                [value]="model.cityCodeId"
+                                [ngClass]="{
+                                  'errorSelecto':
+                                    addressFormModel?.submitted &&
+                                    addressDetail?.selectedCity?.id === '0'
+                                }"
+                              >
+                              </select2>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-3 ">
+                          <label>Area</label>
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2
+                                [data]="areaList"
+                                class="control_select"
+                                (valueChanged)="onAreaSelectionChange($event)"
+                                autocomplete="true"
+                                [value]="model.areaId"
+                              ></select2>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-4 ">
+                          <label>Address Type</label>
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2
+                                [data]="addressTypeList"
+                                class="control_select"
+                                (valueChanged)="onAddressTypeChange($event)"
+                                autocomplete="true"
+                                [value]="addressDetail.selectedAddressType"
+                                [ngClass]="{
+                                  'errorSelecto':
+                                    addressFormModel?.submitted &&
+                                    !addressDetail.selectedAddressType
+                                }"
+                              >
+                              </select2>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-2">
+                          <label>Post Code</label>
+                          <input
+                            type="number"
+                            name="postalCodeName"
+                            [(ngModel)]="addressDetail.postalCode"
+                            class="form-control"
+                            placeholder="Post Code"
+                          />
+                        </div>
+                        <div class="form-group col-md-7 ">
+                          <label>Address</label>
+                          <textarea
+                            class="form-control "
+                            placeholder="Enter Address"
+                            name="address"
+                            [(ngModel)]="addressDetail.address"
+                            [ngClass]="{
+                              'is-invalid':
+                                addressFormModel?.submitted &&
+                                !addressDetail?.address
+                            }"
+                            required
+                          ></textarea>
+                        </div>
+                      </div>
+                      <div class="row align-items-center mt-3">
+                        <div
+                          class="col-md-3"
+                          *ngFor="let item of addressDetailArray; let i = index"
+                        >
+                          <div class="card addredd_book p-3">
+                            <h5>{{ item.selectedAddressType }}</h5>
+                            <p>
+                              <span>Post Code : </span
+                              ><span> {{ item.postalCode }}</span>
+                            </p>
+                            <p>
+                              <span>Address : </span
+                              ><span> {{ item.address }}</span>
+                            </p>
+                            <p>
+                              <span>Area : </span
+                              ><span> {{ item?.selectedArea?.text }}</span>
+                            </p>
+                            <p>
+                              <span>City : </span
+                              ><span>{{ item.selectedCity.text }}</span>
+                            </p>
+                            <p>
+                              <span>State: </span
+                              ><span>{{ item.selectedState.text }} </span>
+                            </p>
+                            <p>
+                              <span>Country : </span
+                              ><span>{{ item.selectedCountry.text }}</span>
+                            </p>
+                            <div class="edit editAddress">
+                              <a
+                                ><i
+                                  (click)="editAddress(i)"
+                                  class="far fa-edit"
+                                ></i>
+                              </a>
+                              <a>
+                                <i
+                                  (click)="removeAdress(i)"
+                                  class="fas fa-times"
+                                ></i>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                        <button class="col-md-3 p-0" type="submit">
+                          <div class="card addredd_book p-3">
+                            <a class="add_btn pt-4">
+                              <i class="fas fa-plus-circle"></i
+                            ></a>
+                            <h6>Add New Address</h6>
+                          </div>
+                        </button>
+                        <div class="col-md-3"></div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bank Tab Section -->
+              <div class="tab-pane fade" id="panel529" role="tabpanel">
+                <div class="card">
+                  <div class="card-body">
+                    <div>
+                      <form
+                        #bankFormModel="ngForm"
+                        (ngSubmit)="
+                          bankFormModel.form.valid && addNewbankDetail()
+                        "
+                        novalidate
+                      >
+                        <div class="form row" id="new_bank">
+                          <div class="form-group col-md-3">
+                            <label>Bank Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter Bank Name"
+                              name="bankName"
+                              #bankNameModel="ngModel"
+                              [(ngModel)]="bankDetail.name"
+                              [ngClass]="{
+                                'is-invalid':
+                                  bankFormModel?.submitted &&
+                                  bankNameModel?.invalid
+                              }"
+                              required
+                            />
+                          </div>
+                          <div class="form-group col-md-2">
+                            <label>Account Number</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter Account Number"
+                              name="accountNo"
+                              #accNoModel="ngModel"
+                              [(ngModel)]="bankDetail.accountNumber"
+                              [ngClass]="{
+                                'is-invalid':
+                                  bankFormModel?.submitted &&
+                                  accNoModel?.invalid
+                              }"
+                              required
+                            />
+                          </div>
+                          <div class="form-group col-md-2">
+                            <label>IFSC Code</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter IFSC Code"
+                              name="ifsc"
+                              #ifscModel="ngModel"
+                              [(ngModel)]="bankDetail.ifscCode"
+                              [ngClass]="{
+                                'is-invalid':
+                                  bankFormModel?.submitted && ifscModel?.invalid
+                              }"
+                              required
+                            />
+                          </div>
+                          <div class="form-group col-md-2">
+                            <label>Branch</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter Branch"
+                              name="branch"
+                              #branchModel="ngModel"
+                              [(ngModel)]="bankDetail.branch"
+                              [ngClass]="{
+                                'is-invalid':
+                                  bankFormModel?.submitted &&
+                                  branchModel?.invalid
+                              }"
+                              required
+                            />
+                          </div>
+                          <div class="form-group col-md-2">
+                            <label>MICR No</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter MICR Number"
+                              name="micr"
+                              #micrModel="ngModel"
+                              [(ngModel)]="bankDetail.micrNo"
+                            />
+                          </div>
+
+                          <!-- <div class="form-group col-md-1">
+                                <button type="submit" id="btn_add" class="btn btn-primary btn_add">+</button>
+                              </div> -->
+                        </div>
+                        <div class="row align-items-center mt-3">
+                          <div
+                            class="profile-pic col-md-3"
+                            *ngFor="let item of bankDetailArray; let i = index"
+                          >
+                            <div class="card addredd_book p-3">
+                              <h5>{{ item.name }}</h5>
+                              <p>
+                                <span>Account Number </span
+                                ><span
+                                  ><strong>{{
+                                    item?.accountNumber
+                                  }}</strong></span
+                                >
+                              </p>
+                              <p>
+                                <span>Branch : </span
+                                ><span
+                                  ><strong>{{ item?.branch }}</strong></span
+                                >
+                              </p>
+                              <p>
+                                <span>IFSC Code : </span
+                                ><span
+                                  ><strong>{{ item?.ifscCode }}</strong></span
+                                >
+                              </p>
+                              <p>
+                                <span>MICR No : </span
+                                ><span
+                                  ><strong>{{ item?.micrNo }}</strong></span
+                                >
+                              </p>
+                              <div class="edit">
+                                <a
+                                  ><i
+                                    (click)="editBankData(i)"
+                                    class="far fa-edit"
+                                  ></i>
+                                </a>
+                                <a>
+                                  <i
+                                    (click)="removeBankDetail(i)"
+                                    class="fas fa-times"
+                                  ></i>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                          <button class="col-md-3 p-0" type="submit">
+                            <div class="card addredd_book p-3">
+                              <a class="add_btn pt-4">
+                                <i class="fas fa-plus-circle"></i
+                              ></a>
+                              <h6>Add Bank</h6>
+                            </div>
+                          </button>
+                          <!-- <div class="col-md-3" type="submit" >
+                                  <div class="card addredd_book p-3">
+                                    <a class="add_btn pt-4">
+                                      <i class="fas fa-plus-circle"></i></a>
+                                    <h6>Add Bank</h6>
+                                  </div>
+                                </div> -->
+                          <div class="col-md-3"></div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Statutory Master Tab Section -->
+              <div class="tab-pane fade" id="panel539" role="tabpanel">
+                <div class="card">
+                  <div class="card-body">
+                    <div>
+                      <div class="form row">
+                        <div class="form-group col-md-4">
+                          <label>TIN Number</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Enter TIN Number"
+                            name="tinNo"
+                            [(ngModel)]="statutoryDetail.tinNo"
+                          />
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>PAN Number</label>
+                          <input
+                          type="text"
+                          #statPanModel="ngModel"
+                          class="form-control"
+                          placeholder="Enter PAN Number"
+                          name="panNo"
+                          [(ngModel)]="statutoryDetail.panNo"
+                          [pattern]="_commonService.panRegx"
+                          [ngClass]="{
+                            'is-invalid':
+                              (orgProfileFormModel?.submitted && statPanModel?.errors?.pattern)
+                          }"
+                          />
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>GSTIN Number</label>
+                          <input
+                          #gstInModel="ngModel"
+                          type="text"
+                          class="form-control"
+                          placeholder="Enter GSTIN Number"
+                          name="gstNo"
+                          [(ngModel)]="statutoryDetail.gstNo"
+                          [pattern]="_commonService.gstInRegx"
+                          [ngClass]="{
+                            'is-invalid':
+                              (orgProfileFormModel?.submitted && gstInModel?.errors?.pattern)
+                          }"
+                          />
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>CIN No.</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Enter CIN Number"
+                            name="cinNo"
+                            [(ngModel)]="statutoryDetail.cinNo"
+                          />
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>FASSI No.</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Enter FASSI Number"
+                            name="fassiNo"
+                            [(ngModel)]="statutoryDetail.fassiNo"
+                          />
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>Accounting Method</label>
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2
+                                [data]="accMethodList"
+                                class="control_select"
+                                (valueChanged)="onAccMethodTypeChange($event)"
+                                autocomplete="true"
+                                [value]="personalDetailModel?.accMethodId"
+                              >
+                              </select2>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Key Person Tab Section -->
+              <div class="tab-pane fade" id="panel540" role="tabpanel">
+                <div class="card">
+                  <div class="card-body">
+                    <div>
+                      <form
+                        #keyPersonFormModel="ngForm"
+                        (ngSubmit)="
+                          keyPersonFormModel.form.valid &&
+                            validateKeyPersonDetail() &&
+                            addNewKeyPerson()
+                        "
+                        novalidate
+                      >
+                        <div class="form row">
+                          <div class="form-group col-md-4">
+                            <label>Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter Name"
+                              name="keyPerson"
+                              [(ngModel)]="keyPersonDetail.keyPerson"
+                              [ngClass]="{
+                                'is-invalid':
+                                  keyPersonFormModel?.submitted &&
+                                  !keyPersonDetail?.keyPerson
+                              }"
+                              required
+                            />
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label>Type</label>
+                            <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                <select2
+                                  [data]="keyPersonTypeList"
+                                  class="control_select"
+                                  (valueChanged)="
+                                    onKeyPersonTypeSelectionChange($event)
+                                  "
+                                  autocomplete="true"
+                                  [value]="
+                                    keyPersonDetail?.selectedKeyPersonType?.id
+                                  "
+                                  [ngClass]="{
+                                    'errorSelecto':
+                                      keyPersonFormModel?.submitted &&
+                                      keyPersonDetail?.selectedKeyPersonType
+                                        ?.id === '0'
+                                  }"
+                                >
+                                </select2>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="form-group col-md-4"
+                            style="max-width: 437px;"
+                          >
+                            <label>Contact No.</label>
+                            <div class="d-inline-flex">
+                              <select2
+                                style="width: 240px !important"
+                                [data]="mobileCountryCodeList"
+                                class="control_select col-md-4 pr-0"
+                                (valueChanged)="
+                                  onKeyPersonMobileCountryCodeChange($event)
+                                "
+                                autocomplete="true"
+                                [value]="
+                                  keyPersonDetail?.keyPersonMobileCountryCode
+                                    ?.id
+                                "
+                                [ngClass]="{
+                                  'errorSelecto':
+                                    keyPersonFormModel?.submitted &&
+                                    keyPersonDetail?.keyPersonMobileCountryCode
+                                      ?.id === '0'
+                                }"
+                              >
+                              </select2>
+                              <input
+                                type="number"
+                                class="form-control"
+                                placeholder="Enter Key Person Contact Number"
+                                name="contactNo"
+                                [(ngModel)]="keyPersonDetail.contactNo"
+                                [ngClass]="{
+                                  'is-invalid':
+                                    keyPersonFormModel?.submitted &&
+                                    !keyPersonDetail?.contactNo
+                                }"
+                                required
+                              />
+                            </div>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label> Pan No. </label>
+                            <input
+                              type="text"
+                              #keyPersonPanNo="ngModel"
+                              class="form-control"
+                              placeholder="Enter Pan Card Number"
+                              name="panNo"
+                              [(ngModel)]="keyPersonDetail.panNo"
+                              [pattern]="_commonService.panRegx"
+                              [ngClass]="{
+                                'is-invalid':
+                                  keyPersonFormModel?.submitted &&
+                                  (!keyPersonDetail?.panNo || keyPersonPanNo?.errors?.pattern)
+                              }"
+                              required
+                            />
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label>Email Address</label>
+                            <input
+                              type="email"
+                              class="form-control"
+                              #keyPersonEmailModel="ngModel"
+                              placeholder="Enter Email"
+                              name="keyPersonEmail"
+                              [(ngModel)]="keyPersonDetail.email"
+                              pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+                              [ngClass]="{
+                                'is-invalid':
+                                  keyPersonFormModel?.submitted &&
+                                   (!keyPersonDetail?.email || keyPersonEmailModel?.errors?.pattern)
+                              }"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div class="row align-items-center mt-3">
+                          <ng-container
+                            *ngFor="
+                              let item of keyPersonDetailArray;
+                              let i = index
+                            "
+                          >
+                            <div
+                              class="profile-pic col-md-3"
+                              *ngIf="item?.isActive !== false"
+                            >
+                              <div class="card addredd_book p-3">
+                                <h5>{{ item.keyPerson }}</h5>
+                                <p>
+                                  <span>Contact Number </span
+                                  ><span
+                                    ><strong>{{
+                                      item?.contactNo
+                                    }}</strong></span
+                                  >
+                                </p>
+                                <p>
+                                  <span>Type : </span
+                                  ><span
+                                    ><strong>{{
+                                      item?.selectedKeyPersonType?.text
+                                    }}</strong></span
+                                  >
+                                </p>
+                                <p>
+                                  <span>Pan No : </span
+                                  ><span
+                                    ><strong>{{ item?.panNo }}</strong></span
+                                  >
+                                </p>
+                                <div class="edit">
+                                  <a
+                                    ><i
+                                      (click)="editKeyPerson(i)"
+                                      class="far fa-edit"
+                                    ></i>
+                                  </a>
+                                  <a>
+                                    <i
+                                      (click)="removeKeyPerson(i)"
+                                      class="fas fa-times"
+                                    ></i>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </ng-container>
+                          <button class="col-md-3 p-0" type="submit">
+                            <div class="card addredd_book p-3">
+                              <a class="add_btn pt-4">
+                                <i class="fas fa-plus-circle"></i
+                              ></a>
+                              <h6>Add Key Person</h6>
+                            </div>
+                          </button>
+                          <div class="col-md-3"></div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="paneImage" role="tabpanel">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="card mt-2">
+                      <div class="left_item row p-3">
+                        <div class="col-lg-4">
+                          <div class="custom-file-upload mB-20">
+                            <a (click)="openImageModal()" class="custom-file-upload"
+                              ><i class="fas fa-upload"></i> Image Upload (Height -150px, Width - 450px)
+                            </a>
+                          </div>
+                        </div>
+                        <div class="col-lg-4">
+                          <div
+                            class="toast mB-5"
+                            *ngFor="let item of imageList?.queue; let i = index"
+                          >
+                            <div class="toast-header">
+                              <strong class="mr-auto">{{ item }}</strong>
+                              <button
+                                type="button"
+                                class="ml-2 mb-1 close"
+                                data-dismiss="toast"
+                                (click)="removeImage(i)"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

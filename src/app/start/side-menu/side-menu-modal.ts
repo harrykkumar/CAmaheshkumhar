@@ -171,6 +171,10 @@ export const SIDE_MENU_MODEL = {
     path: 'settings/setup',
     icon: ''
   },
+  'Customer-Type': {
+    path: 'common-menu',
+    icon: ''
+  },
 
   /* Non working */
   'Account': {

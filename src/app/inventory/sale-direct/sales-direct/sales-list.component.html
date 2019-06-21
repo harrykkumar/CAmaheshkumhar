@@ -8,13 +8,14 @@
                     </div>
                     <div class="col-md-8 right_saerch_side p-0">
                         <div class="mr-2">
-                            <form >
+                            <form [formGroup]="searchForm">
                                 <div id="custom-search-input" class="btn_header1">
                                     <div class="input-group col-md-12">
                                         <input type="text" 
                                         class="form-control input-lg"
                                         placeholder="Search"
-                                       
+                                        formControlName="searckKey"
+                                        #searchData
                                         />
                                         <span class="input-group-btn">
                                             <a>
@@ -32,7 +33,7 @@
                         <a>
                           <img src="assets/img/pdf.png"></a>
                         <a>
-                          <img (click)="importExcelFile(saleTravelDetails)"  src="assets/img/excel.png"></a>
+                          <img   src="assets/img/excel.png"></a>
                             <button   type="button" class="btn btn-primary waves-effect waves-light" (click)="openSaleDirect('')" >
                           New invoice</button>
                         <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a>
@@ -62,8 +63,8 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <tr *ngFor="let item of saleDirectDetails; let i=index">
-                                <td>{{i+1}}</td>                             
+                                <tr *ngFor="let item of saleDirectDetails | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index">
+                                <td>{{lastItemIndex + i + 1}}</td>                            
                                 <td>{{item.LedgerName}} </td>
                                 <td>{{item.BillNo}}</td>
                                 <td >{{item.BillDate | date: shortDate }}</td>
@@ -106,7 +107,10 @@
                 </div>
             </div>
           </div>
-
+          <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+          (pageNoEmitter)="p = $event;getSaleDetail();"
+          (pageSizeEmitter)="itemsPerPage = $event;getSaleDetail();" >
+          </app-pagination>
     </div>
 </main>
 <!-- <app-sales-challan-invoice></app-sales-challan-invoice> -->

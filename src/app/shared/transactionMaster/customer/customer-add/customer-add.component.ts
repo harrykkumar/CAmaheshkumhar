@@ -1317,22 +1317,22 @@ if(Data.Code === UIConstant.THOUSAND){
    
    console.log(this.mobileArray,'this.adressArray')
    }
-
-   invalidObj ={}
+   invalidObj:any ={}
+   invalidObjCont: any ={}
 validateContact (){
 debugger
   let isValid = 1
   if (this.contactType !=='0') {
-    this.invalidObj['contactType'] = false
+    this.invalidObjCont['contactType'] = false
   } else {
-    this.invalidObj['contactType'] = true
+    this.invalidObjCont['contactType'] = true
     isValid = 0
   }
  
   if (this.CountryCode >0) {
-    this.invalidObj['CountryCode'] = false
+    this.invalidObjCont['CountryCode'] = false
   } else {
-    this.invalidObj['CountryCode'] = true
+    this.invalidObjCont['CountryCode'] = true
     isValid = 0
   }
 

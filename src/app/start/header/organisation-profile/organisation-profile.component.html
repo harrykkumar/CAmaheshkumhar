@@ -151,7 +151,7 @@
                                     "
                                     autocomplete="true"
                                     [value]="
-                                      personalDetail.selectedIndustryType
+                                    personalDetailModel?.industryTypeId
                                     "
                                     [ngClass]="{
                                       'errorSelecto':
@@ -175,7 +175,7 @@
                                     "
                                     autocomplete="true"
                                     [value]="
-                                      personalDetail.selectedRegistrationType
+                                    personalDetailModel?.registrationTypeId
                                     "
                                     [ngClass]="{
                                       'errorSelecto':
@@ -199,7 +199,7 @@
                                     "
                                     autocomplete="true"
                                     [value]="
-                                      personalDetail?.selectedBranchType?.id
+                                    personalDetailModel?.branchTypeId
                                     "
                                     [ngClass]="{
                                       'errorSelecto':
@@ -308,7 +308,7 @@
                                         <td>
                                           <button
                                             type="submit"
-                                            id="btn_add"
+                                            id="btn_add_contact"
                                             class="btn btn-primary btn_add_more"
                                           >
                                             +
@@ -415,8 +415,7 @@
                               <div class="card">
                                 <form
                                   #emailDetailModel="ngForm"
-                                  (ngSubmit)="
-                                      addNewEmailDetail()
+                                  (ngSubmit)="emailDetailModel.form.valid && addNewEmailDetail()
                                   "
                                   novalidate
                                 >
@@ -469,7 +468,7 @@
                                         <td>
                                           <button
                                             type="submit"
-                                            id="btn_add"
+                                            id="btn_add_email"
                                             class="btn btn-primary btn_add_more"
                                           >
                                             +
@@ -509,7 +508,7 @@
                                           [(ngModel)]="
                                             emailDetail.selectedEmail
                                           "
-                                         
+                                          pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"                                          
                                           [ngClass]="{
                                             'is-invalid':
                                               (emailDetailModel?.submitted &&
@@ -978,7 +977,7 @@
                                 class="control_select"
                                 (valueChanged)="onAccMethodTypeChange($event)"
                                 autocomplete="true"
-                                [value]="statutoryDetail.accMethod"
+                                [value]="personalDetailModel?.accMethodId"
                               >
                               </select2>
                             </div>
@@ -1110,13 +1109,15 @@
                             <input
                               type="email"
                               class="form-control"
+                              #keyPersonEmailModel="ngModel"
                               placeholder="Enter Email"
                               name="keyPersonEmail"
                               [(ngModel)]="keyPersonDetail.email"
+                              pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
                               [ngClass]="{
                                 'is-invalid':
                                   keyPersonFormModel?.submitted &&
-                                  !keyPersonDetail?.email
+                                   (!keyPersonDetail?.email || keyPersonEmailModel?.errors?.pattern)
                               }"
                               required
                             />

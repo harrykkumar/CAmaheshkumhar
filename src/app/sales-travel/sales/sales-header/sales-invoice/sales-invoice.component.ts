@@ -127,6 +127,7 @@ export class SalesInvoiceComponent {
     this.supplierList$ = this._saleTravelServices.supplierList$.subscribe(
       (data) => {
         this.suplierNameSelect2 = Object.assign([], data)
+        console.log('supplier : ', this.suplierNameSelect2)
       }
     )
 

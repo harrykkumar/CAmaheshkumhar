@@ -2,6 +2,7 @@ import { LoginService } from './../../commonServices/login/login.services';
 import { Component } from '@angular/core'
 import { TokenService } from '../../commonServices/token.service'
 import { Router } from '@angular/router';
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 declare const $: any
 @Component({
   selector: 'app-header',
@@ -23,10 +24,6 @@ export class HeaderComponent {
   public siderbarMenu () {
     $('.app').toggleClass('is-collapsed')
     $('.sidebar').toggleClass('page-container')
-  }
-
-  logOut () {
-    this._tokenServices.destroyToken()
   }
 
   /* Function to navigate branch list page */

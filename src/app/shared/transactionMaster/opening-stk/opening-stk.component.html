@@ -256,12 +256,9 @@
             </div>
           </div>
         </div>
-      </div>{{isProgress}}
+      </div>
       <div class="modal-body">
-          <span *ngIf="isProgress"><img
-            src="assets/img/spinner-blue-circle.gif"
-            style="width: 50px;height: 50px;position: absolute;left: 46%;top: 80%;"
-          /></span>
+         
         <form>
           <div class="bgc-white bdrs-3 pb-3 mB-20">
             <div *ngIf="isAttribute" class="form-group col-md-12">
@@ -280,7 +277,12 @@
                 </div>
               </div>
             </div>
-
+            <!-- <div>
+              <span ><img [hidden]="!isLoading"
+                src="assets/img/spinner-blue-circle.gif"
+                style="width: 50px;height: 50px;position: absolute;left: 46%;top: 80%;"
+              /></span>
+            </div> -->
             <div class="table-responsive table-item-attribute">
               <table
                 class="table cat-table table-hover"

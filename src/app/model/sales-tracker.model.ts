@@ -545,6 +545,7 @@ export interface PurchaseItem {
   SaleRate: number
   MrpRate: number
   PurchaseRate: number
+  TotalRate: number
   TaxSlabId: number
   TaxType: number
   TaxAmount: number
@@ -652,6 +653,7 @@ export class PurchaseAdd {
   Items: Array<PurchaseItem>
   BillAmount: number
   BillDate: string
+  CurrentDate: string
   PartyBillDate: string
   PartyBillNo: string
   BillNo: string

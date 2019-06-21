@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnDestroy, Renderer2 } from '@angular/core'
+import { Component, ViewChild, OnDestroy, Renderer2, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { Subscription } from 'rxjs/Subscription'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
@@ -39,6 +39,7 @@ export class CompositeUnitAddComponent implements OnDestroy {
   editMode: boolean = false
   UnitQty: FormControl
   UnitName: FormControl
+  keepOpen: boolean = false
   constructor (private _compositeUnitserivices: CompositeUnitService,
     private _formBuilder: FormBuilder,
     private _unitMasterServices: UnitMasterServices,
@@ -104,12 +105,13 @@ export class CompositeUnitAddComponent implements OnDestroy {
   }
 
   createCompositeForm () {
-    this.UnitQty = new FormControl(0, [Validators.required])
+    this.UnitQty = new FormControl(1, [Validators.required])
     this.UnitName = new FormControl('', Validators.required)
     this.compositeForm = this._formBuilder.group({
       UnitQty: this.UnitQty,
       UnitName: this.UnitName
     })
+    // console.log(this.compositeForm.controls.UnitQty.value)
   }
 
   openModal () {
@@ -167,18 +169,21 @@ export class CompositeUnitAddComponent implements OnDestroy {
       if ((+this.secondaryUnitId !== +this.primaryUnitId)) {
         this._compositeUnitserivices.addSubUnitId(this.subUnitParams()).subscribe(data => {
           if (data.Code === UIConstant.THOUSAND && data.Data) {
-            const datatoSend = { id: data.Data, name: this.compositeForm.value.UnitName }
-            this.commonService.newCompositeUnitAdd()
-            this.toastrService.showSuccess('', 'Saved successfully')
-            this.commonService.closeCompositeUnit(datatoSend)
-          }
-          if(data.Code === UIConstant.THOUSANDONE){
+            if (this.keepOpen) {
+              this.initialiseExtras()
+              this.toastrService.showSuccess('', 'Saved successfully')
+            } else {
+              const datatoSend = { id: data.Data, name: this.compositeForm.value.UnitName }
+              this.commonService.newCompositeUnitAdd()
+              this.toastrService.showSuccess('', 'Saved successfully')
+              this.commonService.closeCompositeUnit(datatoSend)
+            }
+          } else if(data.Code === UIConstant.THOUSANDONE){
             this.toastrService.showInfo('', data.Description)
-
-          }
-          if(data.Code === UIConstant.SERVERERROR){
+          } else if(data.Code === UIConstant.SERVERERROR){
             this.toastrService.showInfo('', data.Description)
-
+          } else {
+            this.toastrService.showInfo('', data.Description)
           }
         })
       } else {
@@ -201,13 +206,13 @@ export class CompositeUnitAddComponent implements OnDestroy {
   }
 
   select2Validation () {
-    if (+this.primaryUnitId > UIConstant.ZERO) {
+    if (+this.primaryUnitId > 0) {
       this.primearyIdError = false
     } else {
       this.primearyIdError = true
       this.errorMassage = ErrorConstant.REQUIRED
     }
-    if (+this.secondaryUnitId > UIConstant.ZERO) {
+    if (+this.secondaryUnitId > 0) {
       this.secondaryUnitIdError = false
     } else {
       this.secondaryUnitIdError = true
@@ -269,6 +274,16 @@ export class CompositeUnitAddComponent implements OnDestroy {
       }
       this.select2Validation()
     }
+  }
+
+  @ViewChild('first') first: ElementRef
+  initialiseExtras () {
+    this.compositeForm.controls.UnitQty.setValue(1)
+    this.compositeForm.controls.UnitName.setValue('')
+    setTimeout(() => {
+      const element = this.first.nativeElement
+      element.focus({ preventScroll: false })
+    }, 100)
   }
 
   crossButton () {

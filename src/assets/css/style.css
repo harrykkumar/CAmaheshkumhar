@@ -211,13 +211,10 @@ p.heading_lead {
     display: -webkit-inline-box;
 }
 
-input.form-control.start-date {
-    border-left: none;
-}
-
 .input-group-addon.bgc-white.bd.bdwR-0 {
     box-shadow: none !important;
     border: 1px solid #ccc !important;
+    border-right: none !important;
     padding: 6px 6px 0px;
 }
 
@@ -2081,12 +2078,7 @@ span#inputGroupFileAddon01 {
     height: calc(100vh - 40vh);
 }
 
-.main-content {
-    padding: 60px 15px 0px !important;
-}
-/*.enquiry::-webkit-scrollbar {
-    display: none;
-}*/
+
 .custom-control-label:before {
     background-color: #ffffff;
     border: 1.3px solid #33b5e5 !important;
@@ -2949,7 +2941,7 @@ table#mytable {
 }
 
 .main-content {
-    padding: 85px 20px 20px;
+    padding: 60px 15px 0px !important;
     min-height: calc(100vh - 88px)
 }
 
@@ -5159,9 +5151,9 @@ input[type=number]::-webkit-outer-spin-button {
 .discount_text {
     width: 60%;
 }
-
 .discount_type {
-    width: 30%;
+    width: 45%;
+    border-left: none;
     padding: 0px;
 }
 
@@ -5819,6 +5811,15 @@ input[type=number]::-webkit-outer-spin-button {
 .fixTable2 {
     width: 2500px !important;
 }
+.fixTable3 {
+    width: 2300px !important;
+}
+.fixTable4 {
+    width: 2000px !important;
+}
+.fixTable5 {
+    width: 1600px !important;
+}
 #previous-bill-container {
     font-size: small;
     color: #33b5e5;
@@ -6059,4 +6060,31 @@ table.table1 th {
 .dynamic_fix {
     position: relative;
     z-index: 9999;
+}
+.balancesheet {
+    border: 1px solid #ccc;
+    background: #fff;
+}
+.main-balance .tbody {
+    max-height: calc(100vh - 325px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.main-balance .thead {
+    font-weight: 600;
+    background: #e4ebef;
+    padding: 5px 0;
+}
+.main-balance .tfoot {
+    font-weight: 600;
+    background: #e4ebef;
+    padding: 5px 0;
+}
+.amount_bs {
+    text-align: right;
+}
+.main-content2 {
+    padding: 60px 15px 0px !important;
+    min-height: calc(100vh - 54px);
 }

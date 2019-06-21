@@ -1,16 +1,10 @@
 /* File created by Dolly Garg*/
 
-import { Component,
-  ViewChild,
-  QueryList,
-  ViewChildren,
-  Renderer2,
-  ElementRef
- } from '@angular/core'
+import { Component, ViewChild, QueryList, ViewChildren, Renderer2,ElementRef } from '@angular/core'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { PurchaseService } from '../purchase.service'
-import { Subject, forkJoin, throwError } from 'rxjs';
+import { Subject, forkJoin, throwError, Subscription } from 'rxjs';
 import { PurchaseAttribute, AddCust, PurchaseAdd, PurchaseTransaction, PurchaseItem } from '../../../model/sales-tracker.model'
 import { CommonService } from '../../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../../commonServices/toastr.service'
@@ -141,6 +135,7 @@ export class PurchaseAddComponent {
   SaleRate: number
   MrpRate: number
   PurchaseRate: number
+  TotalRate: number
   TaxSlabId: number
   TaxType: number
   TaxAmount: number
@@ -163,6 +158,7 @@ export class PurchaseAddComponent {
   attributeKeys: any = []
   BillAmount: number
   BillDate: string
+  CurrentDate: string
   PartyBillDate: string
   PartyBillNo: string
   BillNo: string
@@ -454,7 +450,7 @@ export class PurchaseAddComponent {
             { id: '0', symbol: '%' },
             { id: '1', symbol: this.defaultCurrency }
           ]
-          console.log('currencyValues : ', this.currencyValues)
+          // console.log('currencyValues : ', this.currencyValues)
           this.convertToCurrencyData = [ ...this.currencyData ]
           if (this.currencyData.length >= 1) {
             this.CurrencyId = +this.currencyData[0].id
@@ -805,6 +801,7 @@ export class PurchaseAddComponent {
       this.SaleRate = element.SaleRate
       this.MrpRate = element.MrpRate
       this.PurchaseRate = +element.PurchaseRate
+      this.TotalRate = +element.Total
       this.TaxSlabId = element.TaxSlabId
       this.TaxType = element.TaxType
       this.TaxAmount = element.TaxAmount
@@ -879,12 +876,9 @@ export class PurchaseAddComponent {
 
   other: any = {}
   createOther (others) {
-    // this.setBillDate()
-    // this.setPartyBillDate()
     this.BillNo = others.BillNo
     this.ReferralCommissionTypeId = others.ReferralCommissionTypeId
     this.ReferralCommission = +others.ReferralCommission
-    // this.BillAmount = +others.BillAmount
     this.BillDate = this.gs.utcToClientDateFormat(others.BillDate, this.clientDateFormat)
     this.PartyBillDate = this.gs.utcToClientDateFormat(others.PartyBillDate, this.clientDateFormat)
     this.DueDate = this.gs.utcToClientDateFormat(others.DueDate, this.clientDateFormat)
@@ -987,7 +981,7 @@ export class PurchaseAddComponent {
       }
       if (element.id === SetUpIds.purchaseBillNoManually) {
         this.isBillNoManuall = !!(+element.val)
-        console.log('isBillNoManuall : ', this.isBillNoManuall)
+        // console.log('isBillNoManuall : ', this.isBillNoManuall)
       }
       if (element.id === SetUpIds.taxCalInclusive) {
         this.taxCalInclusiveType = +element.val
@@ -1066,9 +1060,7 @@ export class PurchaseAddComponent {
 
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal () {
-    setTimeout(() => {
-      $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
-    }, 100)
+    $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
     this.industryId = +this.settings.industryId
     this.taxTypeData = [
       { id: '0', text: 'Exclusive' },
@@ -1082,6 +1074,7 @@ export class PurchaseAddComponent {
       if (!this.isBillNoManuall) {
         this.setBillNo(this.TransactionNoSetups)
       }
+      this.setCurrentDate(this.TransactionNoSetups)
       this.setBillDate()
       this.setPartyBillDate()
       this.setPayDate()
@@ -1108,7 +1101,7 @@ export class PurchaseAddComponent {
       if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
     }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
       data => {
-        console.log('form dependency : ', data)
+        // console.log('form dependency : ', data)
         if (data) {
           data.forEach((element) => {
             if (element.IsIdentity) {
@@ -1116,7 +1109,7 @@ export class PurchaseAddComponent {
             }
           })
           this.checkForExistence = data
-          console.log('dependency : ', this.checkForExistence)
+          // console.log('dependency : ', this.checkForExistence)
         }
       },
       (error) => { this.toastrService.showError(error, '') }
@@ -1132,6 +1125,20 @@ export class PurchaseAddComponent {
   setBillNo (setups) {
     if (setups && setups.length > 0) {
       this.BillNo = setups[0].BillNo
+    }
+  }
+
+  setCurrentDate (setups) {
+    if (setups && setups.length > 0) {
+      this.CurrentDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
+      let _self = this
+      jQuery(function ($) {
+        flatpickr('#current-date1', {
+          minDate: 'today',
+          dateFormat: _self.clientDateFormat,
+          defaultDate: [_self.gs.utcToClientDateFormat(_self.CurrentDate, _self.clientDateFormat)]
+        })
+      })
     }
   }
 
@@ -1292,7 +1299,7 @@ export class PurchaseAddComponent {
 
   catStr: string = ''
   onSelectCategory (evt, levelNo) {
-    console.log('evt on change of category : ', evt, 'level : ', levelNo)
+    // console.log('evt on change of category : ', evt, 'level : ', levelNo)
     if (this.catLevel > 1) {
       if (+evt.value > 0) {
         if (levelNo === this.catLevel) {
@@ -1331,6 +1338,7 @@ export class PurchaseAddComponent {
       if (+evt.value === 0) {
         this.getCatagoryDetail(this.allCategories)
         this.checkForItems(+evt.value)
+        this.categoryId = 0
       }
     } else {
       if (levelNo === this.catLevel) {
@@ -1603,18 +1611,24 @@ export class PurchaseAddComponent {
     * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
     * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
     * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+    this.TotalRate = +total.toFixed(this.noOfDecimalPoint)
     if (this.validDiscount) {
       if ('' + this.DiscountType === '0') {
-        if (+this.Discount < 100 && +this.Discount > 0) {
+        if (+this.Discount <= 100 && +this.Discount >= 0) {
           this.DiscountAmt = +((+this.Discount / 100) * (total)).toFixed(this.noOfDecimalPoint)
-        } else if (+this.Discount === 100 || +this.Discount === 0 ) {
+        } else {
           this.DiscountAmt = 0
         }
       } else {
         this.DiscountAmt = isNaN(+this.Discount) ? 0 : +this.Discount
       }
       if (this.taxRates.length > 0 && total > 0) {
-        let discountedAmount = total - this.DiscountAmt
+        let discountedAmount = 0
+        if (this.DiscountAmt === total) {
+          discountedAmount = total
+        } else {
+          discountedAmount = total - this.DiscountAmt
+        }
         this.AmountItem = discountedAmount
         if (this.TaxType === 0) {
           let returnTax = this.purchaseService.taxCalculation(this.taxRates,
@@ -1726,11 +1740,9 @@ export class PurchaseAddComponent {
 
   @ViewChild('unit_select2') unitSelect2: Select2Component
   onUnitSelect (evt) {
-    // console.log('on evt select : ', evt)
     if (evt.value && evt.data.length > 0) {
       if (+evt.value === -1) {
         this.unitSelect2.selector.nativeElement.value = ''
-        // console.log(this.unitSettingType)
         if (+this.unitSettingType === 1) {
           this.commonService.openUnit('')
         }
@@ -2231,6 +2243,7 @@ export class PurchaseAddComponent {
       SaleRate: +this.SaleRate,
       MrpRate: +this.MrpRate,
       PurchaseRate: +this.PurchaseRate,
+      TotalRate: +this.TotalRate,
       TaxSlabId: +this.TaxSlabId,
       TaxType: +this.TaxType,
       TaxAmount: +this.TaxAmount,
@@ -2418,6 +2431,7 @@ export class PurchaseAddComponent {
     this.Width = 1
     this.Quantity = 1
     this.SaleRate = 0
+    this.TotalRate = 0
     this.MrpRate = 0
     this.PurchaseRate = 0
     this.DiscountType = 0
@@ -2467,6 +2481,9 @@ export class PurchaseAddComponent {
       })
     }
     this.initAttribute()
+    setTimeout(() => {
+      this.commonService.fixTableHFL('item-table')
+    }, 1)
   }
 
   initAttribute () {
@@ -2673,10 +2690,23 @@ export class PurchaseAddComponent {
     this.setDueDate(0)
     this.setMfdDate()
     this.getNewBillNo()
+    this.getNewCurrentDate()
+  }
+
+  getNewCurrentDate () {
+    this.purchaseService.getCurrentDate().subscribe(
+      data => {
+        console.log('current date : ', data)
+        if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+          this.setCurrentDate(data.Data)
+        }
+      }
+    )
   }
 
   private purchaseAddParams (): PurchaseAdd {
     let BillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
+    let CurrentDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
     let PartyBillDate = this.gs.clientToSqlDateFormat(this.PartyBillDate, this.clientDateFormat)
     let DueDate = this.gs.clientToSqlDateFormat(this.DueDate, this.clientDateFormat)
     let Items = JSON.parse(JSON.stringify(this.Items))
@@ -2698,6 +2728,7 @@ export class PurchaseAddComponent {
         Items: Items,
         BillAmount: this.BillAmount,
         BillDate: BillDate,
+        CurrentDate: CurrentDate,
         PartyBillDate: PartyBillDate,
         PartyBillNo: this.PartyBillNo,
         BillNo: this.BillNo,
@@ -2952,7 +2983,7 @@ export class PurchaseAddComponent {
     if (+this.ItemId > 0) {
       let isValid = 1
       if (+this.DiscountType === 0) {
-        this.validDiscount = (+this.Discount >= 0 && +this.Discount < 100) ? true : false
+        this.validDiscount = (+this.Discount >= 0 && +this.Discount <= 100) ? true : false
       } else {
         this.validDiscount = true
       }
@@ -3486,11 +3517,11 @@ export class PurchaseAddComponent {
     })
     this.BillAmount += +this.TaxableValue
     let billAmount = this.BillAmount
-    if (this.RoundOffManual) {
+    if (+this.RoundOffManual > 0 || +this.RoundOffManual < 0) {
       billAmount = billAmount + this.RoundOffManual
       this.BillAmount = billAmount
     } else {
-      this.RoundOff = +(Math.round(billAmount) - billAmount).toFixed(this.noOfDecimalPoint)
+      this.RoundOff = +(Math.round(billAmount) - billAmount).toFixed(4)
       this.BillAmount = Math.round(billAmount)
     }
     this.CessAmount = 0
@@ -3525,5 +3556,14 @@ export class PurchaseAddComponent {
     setTimeout(() => {
       this.chargeSelect2.selector.nativeElement.focus()
     }, 10)
+  }
+
+  getPurchaseRate () {
+    if (+this.Quantity > 0 && +this.TotalRate > 0) {
+      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      this.PurchaseRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
+    }
   }
 }

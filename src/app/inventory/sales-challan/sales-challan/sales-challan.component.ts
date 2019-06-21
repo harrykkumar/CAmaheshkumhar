@@ -1,13 +1,15 @@
-import { Component , OnInit} from '@angular/core'
-import { Subscription } from 'rxjs'
-import { FormGroup } from '@angular/forms'
+
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
+import { Subscription ,fromEvent} from 'rxjs'
+import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { SaleTravel } from '../../../model/sales-tracker.model'
-// import { SaleTravelServices } from '../../sales/sale-travel.services'
 import { UIConstant } from '../../../shared/constants/ui-constant'
 declare const $: any
+import { VendorServices } from '../../../commonServices/TransactionMaster/vendoer-master.services'
 import { CommonService } from '../../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../../commonServices/toastr.service'
-
+import { PagingComponent } from '../../../shared/pagination/pagination.component'
+import { FormGroup, FormBuilder } from '@angular/forms'
 @Component({
   selector: 'app-sales-challan',
   templateUrl: './sales-challan.component.html',
@@ -17,6 +19,7 @@ export class SalesChallanComponent  implements   OnInit  {
   arrayBuffer: any
   file: any
   sheetname: any
+  itemsPerPage: number = 20
   masterData: any
   subcribe: Subscription
   saleTravelDetails: SaleTravel[]
@@ -42,9 +45,7 @@ export class SalesChallanComponent  implements   OnInit  {
   orgImageData: any[]
   orgWebData: any[]
   orgImage: string
-
   totalTaxAmount: any
-  // bar code variable
   elementType = 'svg'
   value = '0123456789012'
   format = 'CODE128'
@@ -64,7 +65,14 @@ export class SalesChallanComponent  implements   OnInit  {
   marginBottom = 10
   marginLeft = 10
   marginRight = 10
-
+  refreshingpage:Subscription
+  queryStr$: Subscription
+  total: number = 0
+  searchForm: FormGroup
+  isSearching: boolean = false
+  queryStr: string = ''
+  lastItemIndex: number = 0
+  p: number = 1
   codeList: string[] = [
     '', 'CODE128',
     'CODE128A', 'CODE128B', 'CODE128C',
@@ -75,7 +83,8 @@ export class SalesChallanComponent  implements   OnInit  {
     'pharmacode',
     'codabar'
   ]
-  constructor (public _commonService : CommonService ,public _toastrCustomService :ToastrCustomService) {
+  constructor (private _formBuilder : FormBuilder,private _coustomerServices: VendorServices,public _commonService : CommonService ,public _toastrCustomService :ToastrCustomService) {
+    this.formSearch()
     this.itemIdCollection =[]
     this.generateBillFlagEnable = true
     this.getSaleChallanDetail()
@@ -93,8 +102,26 @@ export class SalesChallanComponent  implements   OnInit  {
    });
       }
     )
+    this.queryStr$ = this._coustomerServices.queryStr$.subscribe(
+      (str) => {
+        console.log(str)
+        this.queryStr = str
+        this.p = 1
+        this.getSaleChallanDetail()
+      }
+    )
+    this.refreshingpage = this._commonService.newRefreshItemStatus().subscribe(
+      (obj) => {  
+          this.getSaleChallanDetail()
+      }
+    )
   }
-
+  @ViewChild('paging_comp') pagingComp: PagingComponent
+  private formSearch () {
+    this.searchForm = this._formBuilder.group({
+      'searckKey': [UIConstant.BLANK]
+    })
+  }
   onOpenInvoice (id) {
     this._commonService.openInvoice(id)
   }
@@ -112,12 +139,19 @@ export class SalesChallanComponent  implements   OnInit  {
   totalDiscount: number
   totaltax: number
   totalBillAmount: number
+  @ViewChild('searchData') searchData: ElementRef
+
   getSaleChallanDetail () {
-    this._commonService.getAllDataOfSaleChallan().subscribe(data => {
+    if (!this.searchForm.value.searckKey) {
+      this.searchForm.value.searckKey = ''
+    }
+    this._commonService.getAllDataOfSaleChallan('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
       console.log('sales data: ', data)
         this.totalBillAmount = 0
         this.saleTravelDetails = data.Data
+        this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
+
         for(let i=0; i < data.Data.length; i++){
          if(data.Data[i].SaleId === 0){
            this.generateBillFlagEnable = true
@@ -125,26 +159,46 @@ export class SalesChallanComponent  implements   OnInit  {
           this.allChallanNos= []
          }
         }
-        //if(this.saleTravelDetails)
-
-        // if (data.Data.length > 0) {
-        //   data.Data.forEach(element => {
-        //     this.totalBillAmount = +(this.totalBillAmount + element.BillAmount).toFixed(2)
-        //   })
-        // }
       }
     })
   }
 ngOnInit() {
-            $(document).ready(function () {
-
-     $('.table_challan').tableHeadFixer({
-       head: true,
-       foot: true,
-      
-
-     });
-   });
+  this._commonService.fixTableHF('table_challan')
+   fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+    map((event: any) => {
+      return event.target.value
+    }),
+    filter(res => res.length > 1 || res.length === 0),
+    debounceTime(1000),
+    distinctUntilChanged()
+    ).subscribe((text: string) => {
+      this.isSearching = true
+      this.searchGetCall(text).subscribe((data) => {
+        console.log('search data : ', data)
+        setTimeout(() => {
+          this.isSearching = false
+        }, 100)
+        this.saleTravelDetails = data.Data
+        this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
+      },(err) => {
+        setTimeout(() => {
+          this.isSearching = false
+        }, 100)
+        console.log('error',err)
+      },
+      () => {
+        setTimeout(() => {
+          this.isSearching = false
+        }, 100)
+      })
+    })
+}
+searchGetCall (term: string) {
+  if (!term) {
+    term = ''
+  }
+  this.pagingComp.setPage(1)
+  return this._commonService.getAllDataOfSaleChallan( '?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
 }
   deleteItem (i, forArr) {
     if (forArr === 'trans') {

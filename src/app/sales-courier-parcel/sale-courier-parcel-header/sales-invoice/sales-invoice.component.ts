@@ -86,7 +86,7 @@ export class SalesInvoiceComponent {
   editItemId: number
   clientDateFormat: string = ''
   validItem: boolean = true
-
+  invalidObj
   destinationsList$: Subscription
   sendersList$: Subscription
   parcelByList$: Subscription
@@ -954,7 +954,6 @@ export class SalesInvoiceComponent {
     }
   }
 
-  invalidObj = {}
   checkValidation (): boolean {
     let isValid = 1
     if (+this.TotalBox) {

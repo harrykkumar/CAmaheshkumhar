@@ -1,5 +1,9 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component } from '@angular/core'
 import { SettingsService } from '../settings.service';
+import { Router } from '@angular/router';
+import * as _ from 'lodash'
+
 
 @Component({
   selector: 'app-settings-main',
@@ -7,9 +11,20 @@ import { SettingsService } from '../settings.service';
   styleUrls: ['./settings-main.component.css']
 })
 export class SettingsMainComponent {
-  constructor (private settingsService: SettingsService) {}
+  title = 'Master Settings'
+  showHeader: boolean = false;
+  constructor(private settingsService: SettingsService,
+    private router: Router,
+    public loginService: LoginService) {
+    if (_.includes(this.router.url, 'organization')) {
+      this.showHeader = true;
+    }
+    if (_.isEmpty(this.loginService.selectedOrganization)) {
+      this.loginService.selectedOrganization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
+    }
+  }
 
-  saveForm () {
+  saveForm() {
     this.settingsService.saveForm()
   }
 }

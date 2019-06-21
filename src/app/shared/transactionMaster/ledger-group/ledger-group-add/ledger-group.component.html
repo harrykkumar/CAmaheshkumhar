@@ -34,7 +34,7 @@
                                             #under_group_select2 class="control_select"
                                             (valueChanged)="onChnageGroup($event)"
                                             autocomplete="true"
-                                            [options]="catagoriesPlaceHolder"
+                                            [options]="{placeholder:'Select Group'}"
                                             [value]="LedgerGroupValue"
                                             [ngClass]="{'errorSelecto': submitClick && isSelectParentGrp }"
                                             ></select2>

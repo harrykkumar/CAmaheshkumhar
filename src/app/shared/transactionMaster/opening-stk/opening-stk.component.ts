@@ -7,13 +7,16 @@ declare const $: any
 import * as _ from 'lodash'
 import { Router } from '@angular/router';
 import { UIConstant } from '../../constants/ui-constant';
+import { Subject } from 'rxjs';
 @Component({
   selector: 'app-opening-stk',
   templateUrl: './opening-stk.component.html',
   styleUrls: ['./opening-stk.component.css']
 })
 export class OpeningStkComponent implements OnInit {
- public isProgress: boolean;
+  allChecked: boolean = false;
+  isProgress: boolean;
+  isLoading: boolean;
   isAttribute = false
   itemWithAttributeList:Array<any> = []
   dummyItemWithAttributeList:Array<any> = []
@@ -48,21 +51,22 @@ export class OpeningStkComponent implements OnInit {
   }
 
   onAttributeCombinationChange = (event) => {
-    const dataList = _.map(event.data, 'data')
-    if (dataList.length > 0) {
-      this.mapItemAttributeList(dataList);
-    } else {
-      this.itemWithAttributeList = [...this.dummyItemDetails]
-    }
+        this.isLoading = true;
+        const dataList = _.map(event.data, 'data')
+        if (dataList.length > 0) {
+          this.mapItemAttributeList(dataList);
+        } else {
+          this.itemWithAttributeList = [...this.dummyItemDetails]
+        }
   }
 
+
   mapItemAttributeList = async (Data) => {
-    this.isProgress = true
     this.itemWithAttributeList = []
     const data = await this.generateItemAttributeCombination(Data);
     if (data) {
       this.itemWithAttributeList = JSON.parse(JSON.stringify(this.dummyItemWithAttributeList));
-      this.isProgress = false;
+      // this.isLoading = false;
     }
   }
   
@@ -105,7 +109,7 @@ export class OpeningStkComponent implements OnInit {
         _.forEach(this.masterItemData.Data.ItemDetails, (editElement) => {
           if ((generateElement.ItemId === editElement.ItemId) && (editElement.AttributeIdStr === generateElement.AttributeIdStr)) {
             this.dummyItemWithAttributeList[index] = { ...editElement };
-            if (this.dummyItemWithAttributeList[index].AttributeNamestr) {
+            if (_.isString(this.dummyItemWithAttributeList[index].AttributeNamestr)) {
               this.dummyItemWithAttributeList[index].AttributeNamestr = this.dummyItemWithAttributeList[index].AttributeNamestr.split(',')
             }
           }
@@ -255,8 +259,8 @@ export class OpeningStkComponent implements OnInit {
   }
 
   cancelForm = () => {
-  //  this.selectedAttributeCombination = [0]
-   this.itemWithAttributeList = [...this.dummyItemDetails]
+    $('#opening-stk').modal('hide')
+    this.itemWithAttributeList = [...this.dummyItemDetails]
   }
 
   onPurchaseRateChange = (index) => {
@@ -349,5 +353,9 @@ export class OpeningStkComponent implements OnInit {
      }
      this.cancelForm()
     })
+   }
+
+   toggleSearch(){
+     
    }
 }

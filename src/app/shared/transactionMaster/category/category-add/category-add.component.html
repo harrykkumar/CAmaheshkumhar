@@ -53,7 +53,12 @@
                 <button type="button"
                  (keydown.enter)="saveAndUpdateCategory()"
                  class="btn btn-primary waves-effect"
-                 (click)="saveAndUpdateCategory()">Save
+                 (click)="keepOpen=false;saveAndUpdateCategory()">Save
+                </button>
+                <button type="button"
+                 (keydown.enter)="saveAndUpdateCategory()"
+                 class="btn btn-primary waves-effect"
+                 (click)="keepOpen=true;saveAndUpdateCategory()">Save with Add New
                 </button>
             </div>
         </div>

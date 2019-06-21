@@ -1,4 +1,5 @@
-<div class="modal animated" id="item_form" role="dialog" aria-labelledby="item_form" aria-hidden="true">
+<div class="modal animated" id="item_form" role="dialog" aria-labelledby="item_form" aria-hidden="true"
+     data-backdrop="static" data-keyboard="false" >
     <div class="modal-dialog large_form modal-full-height modal-top" role="document">
         <div class="modal-content bgcH-grey-100">
             <!--Header-->
@@ -10,10 +11,10 @@
                         </div>
                         <div class="col-md-9">
                             <div class="btn_header">
-                                <button type="button" class="btn btn_close waves-effect" (click)="modeOfForm=reset;addNewItemMaster('reset')">Reset</button>
+                                <button type="button" class="btn btn_close waves-effect" (click)="modeOfForm='reset';addNewItemMaster('reset')">Reset</button>
                                 <button class="btn btn-default waves-effect" (click)="addNewItemMaster('save')">Save
                                 </button>
-                                <button class="btn btn-info waves-effect" (click)="modeOfForm=reset;addNewItemMaster('repeat')">Save
+                                <button class="btn btn-info waves-effect" (click)="modeOfForm='reset';addNewItemMaster('repeat')">Save
                                 With add New</button>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeItemMaster" ><span
                                 aria-hidden="true" class="white-text">×</span> </button>
@@ -56,7 +57,10 @@
                                             class="form-control" placeholder="Enter Item Name"
                                             name="name"
                                             [(ngModel)]="Name"
-                                            [ngClass]="{'errorSelecto': ( submitClick && invalidObj.Name ) || existsCodes.name, 'loading': pendingCheck1 }" (input)="checkForValidation()" >
+                                            [ngClass]="{'errorSelecto': ( submitClick && invalidObj.Name ) || existsCodes.name, 'loading': pendingCheck1 }"
+                                            (input)="checkForValidation();"
+                                            (ngModelChange)="getItemNameStatus()"
+                                            >
                                             <span [ngClass]="{'spinner_tick': !pendingCheck1}" *ngIf="Name.length > 0 && !pendingCheck1" >
                                                 <i class="fas fa-check hideMe" *ngIf="!existsCodes.name"></i>
                                                 <i *ngIf="existsCodes.name" class="fas fa-times hideMe"></i>
@@ -66,9 +70,9 @@
                                     <div class="form-group col-md-3">
                                         <label for="p_code">HSN/SAC Code</label>
                                         <input type="text" class="form-control"
-                                         id="p_code" placeholder="Enter HSN/SAC Code"
-                                         name="HsnNo"
-                                        [(ngModel)]="HsnNo" 
+                                        id="p_code" placeholder="Enter HSN/SAC Code"
+                                        name="HsnNo"
+                                        [(ngModel)]="HsnNo"
                                         [ngClass]="{'errorSelecto': submitClick && invalidObj.HsnNo }" 
                                         (input)="checkForValidation()"
                                         >
@@ -80,7 +84,9 @@
                                         <input type="text" 
                                         [disabled]="isBarCode" 
                                             class="form-control" #barcode id="barcode" placeholder="Enter Bar Code" name="BarCode"
-                                            [(ngModel)]="BarCode" [ngClass]="{'errorSelecto': (submitClick && invalidObj.BarCode) || existsCodes.barcode, 'loading': pendingCheck}" 
+                                            [(ngModel)]="BarCode"
+                                            [ngClass]="{'errorSelecto': (submitClick && invalidObj.BarCode) || existsCodes.barcode, 'loading': pendingCheck}"
+                                            (ngModelChange)="getBarStatus()"
                                             (input)="checkForValidation()" >
                                             <span [ngClass]="{'spinner_tick': !pendingCheck}" *ngIf="BarCode.length > 0 && !pendingCheck" >
                                                 <i class="fas fa-check hideMe" id="check-code" *ngIf="!existsCodes.barcode"></i>
@@ -93,14 +99,17 @@
                                         <input type="text"
                                         [disabled]="isItemCode"
                                         class="form-control" id="p_code" placeholder="Enter Item Code" name="ItemCode"
-                                            [(ngModel)]="ItemCode" [ngClass]="{'errorSelecto': submitClick && invalidObj.ItemCode }" (input)="checkForValidation()"  >
+                                        [(ngModel)]="ItemCode"
+                                        [ngClass]="{'errorSelecto': submitClick && invalidObj.ItemCode }"
+                                        (input)="checkForValidation()">
                                     </div>
+                                    <div class="col-md-3" ></div>
                                     <div class="form-group col-md-3">
                                         <label for="bill_no">Inventory Maintain</label>
                                         <div class="input-group adw_select">
                                             <select2 [data]="selectItemTpye" 
-                                             #itemtype_select2 class="control_select" (valueChanged)="selectedItemType($event)"
-                                                autocomplete="true" [options]="itemTpyePlaceHolder" [value]="itemDetailValue"></select2>
+                                            #itemtype_select2 class="control_select" (valueChanged)="selectedItemType($event)"
+                                            autocomplete="true" [options]="itemTpyePlaceHolder" [value]="itemDetailValue"></select2>
                                         </div>
                                     </div>
                                     <div class="form-group col-md-3">
@@ -108,51 +117,8 @@
                                         <div class="input-group adw_select">
                                             <select2 [data]="selectPackingType"
                                             #packingtype_select2 class="control_select" (valueChanged)="selectedPackingType($event)"
-                                                autocomplete="true" [options]="packingTypePlaceHolder" [value]="packingTypeValue"></select2>
+                                            autocomplete="true" [options]="packingTypePlaceHolder" [value]="packingTypeValue"></select2>
                                         </div>
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <label>MRP Rate</label>
-                                        <input type="text" appIncludeDecimal
-                                         class="form-control" placeholder="Enter MRP" name="MrpRate"
-                                        [(ngModel)]="MrpRate">
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Sale Rate</label>
-                                        <input type="text" appIncludeDecimal
-                                         class="form-control" placeholder="Enter Sale Rate" name="SaleRate"
-                                            [(ngModel)]="SaleRate">
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Purchase Rate</label>
-                                        <input type="text" appIncludeDecimal
-                                         class="form-control" placeholder="Enter Purchase" name="PurchaseRate"
-                                        [disabled]="PurchaseRate && isStkValue"
-                                         (ngModelChange)="onPurchaseRateChange()"
-                                        [(ngModel)]="PurchaseRate">
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Our Price</label>
-                                        <input type="text" appIncludeDecimal 
-                                        class="form-control" placeholder="Enter Our Price" name="OurPrice"
-                                            [(ngModel)]="OurPrice">
-                                    </div>
-
-                                    <div class="form-group col-md-3">
-                                        <label>Opening Stock</label>
-                                        <input type="text" appIncludeDecimal
-                                        class="form-control" placeholder="Enter Opening Stock" name="OpeningStock"
-                                        [disabled]="OpeningStock && isStkValue"
-                                        (ngModelChange)="onOpeningStockChange()"                                           
-                                        [(ngModel)]="OpeningStock">
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Opening Stock Value</label>
-                                        <input type="text" appIncludeDecimal
-                                        class="form-control" placeholder="Enter Opening Stock Value" name="OpeningStockvalue"
-                                        [disabled]="OpeningStockValue && isStkValue"
-                                        (ngModelChange)="onOpeningStockValueChange()"                                                                                     
-                                        [(ngModel)]="OpeningStockValue">
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label for="bill_no">Unit</label>
@@ -176,21 +142,54 @@
                                                 ></select2>
                                         </div>
                                     </div>
+                                    <!--[disabled]="OpeningStock && isStkValue"-->
+                                    <div class="form-group col-md-3">
+                                        <label>Opening Stock</label>
+                                        <input type="text" appIncludeDecimal
+                                        class="form-control" placeholder="Enter Opening Stock" name="OpeningStock"
+                                        (input)="onOpeningStockChange()"
+                                        [(ngModel)]="OpeningStock">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Opening Stock Value</label>
+                                        <input type="text" appIncludeDecimal
+                                        class="form-control" placeholder="Enter Opening Stock Value" name="OpeningStockvalue"
+                                        (input)="onOpeningStockValueChange()"
+                                        [disabled]="OpeningStock <= 0"
+                                        [(ngModel)]="OpeningStockValue">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Average Rate</label>
+                                        <input type="text" appIncludeDecimal
+                                         class="form-control" placeholder="Enter Purchase" name="PurchaseRate"
+                                        (input)="onPurchaseRateChange()"
+                                        [(ngModel)]="PurchaseRate">
+                                    </div>
+                                    <div class="col-md-3" ></div>
+                                    <div class="form-group col-md-3">
+                                        <label>MRP Rate</label>
+                                        <input type="text" appIncludeDecimal
+                                         class="form-control" placeholder="Enter MRP" name="MrpRate"
+                                        [(ngModel)]="MrpRate">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Sale Rate</label>
+                                        <input type="text" appIncludeDecimal
+                                         class="form-control" placeholder="Enter Sale Rate" name="SaleRate"
+                                            [(ngModel)]="SaleRate">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Our Price</label>
+                                        <input type="text" appIncludeDecimal 
+                                        class="form-control" placeholder="Enter Our Price" name="OurPrice"
+                                            [(ngModel)]="OurPrice">
+                                    </div>
                                     <!-- <div class="form-group col-md-4">
                                         <label>Net Realizable Value(NRV)</label>
                                         <input type="text" appIncludeDecimal
                                         class="form-control" placeholder="Enter Net Refer Value"
                                             autocomplete="true" [(ngModel)]="Nrv" name="Nrv" >
                                     </div> -->
-                                    <div class="form-group col-md-3">
-                                        <label for="bill_no">Brand Master</label>
-                                        <select2 [data]="selectBrand" #brand_select2
-                                            [options]="options"
-                                            [width]="300"
-                                            [value]="selectedBrands"
-                                            (valueChanged)="onBrandSelect($event)"
-                                        ></select2>
-                                    </div>
                                     <div class="form-group col-md-3">
                                         <label for="bill_no">Min. Stock Level</label>
                                         <input type="text" appIncludeDecimal 
@@ -207,6 +206,15 @@
                                         <label>Re Order Qty Level</label>
                                         <input type="text" appIncludeDecimal class="form-control" name="ReOrderQty" placeholder="Enter Re Order Qty"
                                             [(ngModel)]="ReOrderQty">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="bill_no">Brand Master</label>
+                                        <select2 [data]="selectBrand" #brand_select2
+                                            [options]="options"
+                                            [width]="300"
+                                            [value]="selectedBrands"
+                                            (valueChanged)="onBrandSelect($event)"
+                                        ></select2>
                                     </div>
                                     <div class="form-group col-md-9 pt-4">
                                         <div class="custom-control custom-checkbox my-1 mr-sm-2">

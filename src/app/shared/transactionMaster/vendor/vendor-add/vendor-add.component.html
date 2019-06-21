@@ -1,4 +1,4 @@
-<div class="modal fade" id="vendor_form" role="dialog" aria-labelledby="vendor_form" aria-hidden="true">
+<div class="modal fade" id="vendor_form" role="dialog" aria-labelledby="vendor_form" data-backdrop="static" data-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <form [formGroup]="vendorForm" class="modal-dialog large_form modal-full-height modal-top" role="document">
           <!-- <div class="modal-dialog large_form modal-full-height modal-top" role="document"> -->
           <div class="modal-content bgcH-grey-100">
@@ -172,7 +172,7 @@
                                                           style="width:120px !important;"
                                                           class="control_select "
                                                           (valueChanged)="onChangeContactType($event )"
-                                                          autocomplete="true" [ngClass]="{ 'errorSelecto is-invalid':  invalidObj?.contactType && (submitClick || addConctFlag ) }"
+                                                          autocomplete="true" [ngClass]="{ 'errorSelecto is-invalid':  invalidObjCont?.contactType && (submitClick || addConctFlag ) }"
                                                         >
                                                         </select2>
                                              
@@ -241,7 +241,7 @@
                                           style="width:120px !important;"
                                           class="control_select "
                                           (valueChanged)="onChangeEmailType($event )"
-                                          autocomplete="true" [ngClass]="{ 'errorSelecto is-invalid':  invalidObj?.contactType && (submitClick || addConctFlag ) }"
+                                          autocomplete="true" [ngClass]="{ 'errorSelecto is-invalid':  invalidObjCont?.contactType && (submitClick || addConctFlag ) }"
                                         >
                                         </select2>
                                         <td>
@@ -421,7 +421,7 @@
           <div class="modal-content">
             <div class="modal-header close_popup">
               <h4 class="modal-title w-100 c-grey-900" id="myModalLabel">Area</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" (click)="close()">&times;</span> </button>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" >&times;</span> </button>
             </div>
             <form [formGroup]="areaForm">
               <div class="modal-body">

@@ -76,4 +76,16 @@ export class SetUpIds {
   public static get taxCalInclusive (): number {
     return 66
   }
+
+  public static get paymentAutoVoucher (): number {
+    return 68
+  }
+
+  public static get receiptAutoVoucher (): number {
+    return 69
+  }
+
+  public static get billSettlementType (): number {
+    return 70
+  }
 }

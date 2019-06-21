@@ -64,6 +64,7 @@ export class FileUploaderComponent implements OnInit {
       img.onload = () => {
         if (_self.imageType === 'logo' && (img.width !== 450 || img.height !== 150)) {
           _self.toastrService.showError('Image width and height should be 450×150', '')
+          _self.len -= 1
           return
         } else {
           let base64Image = _self.domSanitizer.bypassSecurityTrustUrl(base64data)

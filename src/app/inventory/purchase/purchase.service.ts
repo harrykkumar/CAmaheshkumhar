@@ -173,7 +173,7 @@ export class PurchaseService {
   }
 
   createSubUnits (array) {
-    let newData = [{ id: '0', text: 'Select Sub Units' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+    let newData = [{ id: '0', text: 'Select Units' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     array.forEach(data => {
       newData.push({
         id: data.Id,
@@ -592,15 +592,8 @@ export class PurchaseService {
     this.queryStrSub.next(str)
   }
 
-  removeByAttr (arr, attr, value) {
-    var i = arr.length;
-    while(i--){
-      if( arr[i] 
-          && arr[i].hasOwnProperty(attr) 
-          && (arguments.length > 2 && arr[i][attr] === value ) ){ 
-          arr.splice(i,1);
-      }
-    }
-    return arr;
+  getCurrentDate (): Observable<ResponseSale> {
+    return this.baseService.getRequest(ApiConstant.GET_CURRENT_DATE)
   }
+
 }

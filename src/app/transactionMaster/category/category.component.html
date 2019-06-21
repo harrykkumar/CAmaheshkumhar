@@ -11,7 +11,7 @@
                             <div class="mr-2">
                                 <form [formGroup]="searchForm">
                                     <div class="row">
-                                        <div class="col-md-6 pr-0" >
+                                        <div *ngIf="catLevel > 1" class="col-md-6 pr-0" >
                                             <div class="input-group adw_select custom-search-input">
                                                 <select2 [data]="categoryLevels" 
                                                 #catlevel_select2 class="control_select"
@@ -20,9 +20,9 @@
                                                 [value]="catLevelValue"></select2>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div [ngClass]="{'col-md-12': catLevel === 1, 'col-md-6': catLevel > 1}" [ngStyle]="{'margin-right': catLevel === 1 ? '20px': '0px'}" >
                                             <div class="input-group custom-search-input">
-                                                <input type="text" 
+                                                <input type="text"
                                                 class="form-control input-lg"
                                                 placeholder="Search Category"
                                                 formControlName="searckKey"
@@ -59,7 +59,7 @@
                                 <tr>
                                     <th width="10%">Sr No.</th>
                                     <th>Category Name</th>
-                                    <th>Under Category</th>
+                                    <th *ngIf="catLevel > 1" >Under Category</th>
                                     <th width="10%">Action</th>
                                 </tr>
                             </thead>
@@ -71,7 +71,7 @@
                                     [attr.data-categoryDetail]="i">
                                     <td>{{lastItemIndex + i + 1}}</td>
                                     <td>{{item.Name}}</td>
-                                    <td>{{item.UnderCategory}}</td>
+                                    <td *ngIf="catLevel > 1" >{{item.UnderCategory}}</td>
                                     <td>
                                         <a data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn" >
                                         <i class="fa fa-edit fa-1x" aria-hidden="true"

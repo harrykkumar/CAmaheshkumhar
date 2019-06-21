@@ -21,6 +21,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
   imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [], imageType: 'logo'  }
   ImageFiles: any = []
   model: any = {}
+  personalDetailModel:any = {}
   dummyData: any = {}
   @ViewChild('mobileDetailModel') mobileDetailModel
   @ViewChild('emailDetailModel') emailDetailModel
@@ -106,7 +107,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
   }
 
   /* Function to initialise form fields dropdown list */
-  initDropDownData = () => {
+  initDropDownData = async () => {
     this.personalDetail.mobileArray = []
     this.personalDetail.emailArray = []
     this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }]
@@ -115,15 +116,15 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
     this.addressTypeList = this._orgService.getAddressTypeList()
     this.addressDetail.selectedAddressType = 2
     this.registrationTypeList = this._orgService.getRegistrationTypeList()
+    this.industryTypeList = await this._orgService.getIndustryTypeList()
+    this.branchTypeList = await this._orgService.getBranchTypeList()
+    this.countryList = await this._orgService.getCountryList()
+    this.accMethodList = await this._orgService.getAccountingMethod()
     this.personalDetail.selectedRegistrationType = 1
     this.getMobileTypeList()
     this.getMobileCountryCodeList()
     this.getEmailTypeList()
-    this.getIndustryTypeList()
     this.getKeyPersonTypeList()
-    this.getCountryList()
-    this.getAccountingMethod()
-    this.getBranchTypeList()
     if (this.modalData.mode === 'EDIT') {
       this.getFormData()
     }
@@ -186,8 +187,8 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
 
   /* Function invoke on industry type selection change and assign new value */
   onIndustryTypeSelectionChange = (event) => {
-    if (Number(event.value) >= UIConstant.ZERO) {
-      this.personalDetail.selectedIndustryType = Number(event.value)
+    if (event.data.length > 0) {
+      this.personalDetail.selectedIndustryType = event.data[0]
     }
   }
 
@@ -199,8 +200,8 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
 
   /* Function invoke on registration type selection change and assign new value */
   onRegistrationTypeSelectionChange = (event) => {
-    if (Number(event.value) >= UIConstant.ZERO) {
-      this.personalDetail.selectedRegistrationType = Number(event.value)
+    if (event.data.length > 0) {
+      this.personalDetail.selectedRegistrationType = event.data[0]
     }
   }
 
@@ -271,7 +272,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
   /* Function invoke on accounting method type selection change  */
   onAccMethodTypeChange = (event) => {
     if (event.data.length > 0) {
-      this.statutoryDetail.accMethod = event.value
+      this.statutoryDetail.accMethod = event.data[0]
     }
   }
 
@@ -348,16 +349,6 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
       }, error => console.log(error))
   }
 
-  /* Function to get all the country list for dropdown */
-  getCountryList = () => {
-    this._orgService.getCountryList().
-      pipe(
-        takeUntil(this.unSubscribe$)
-      ).
-      subscribe((response: any) => {
-        this.countryList = [...response]
-      }, error => console.log(error))
-  }
 
   /* Function to get all the state list */
   getStateList = (countryCode) => {
@@ -401,39 +392,6 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
           this.model.areaId = this.dummyData.areaId
           this.dummyData.areaId = null
         }
-      }, error => console.log(error))
-  }
-
-  /* Function to get all the industry type list  */
-  getIndustryTypeList = () => {
-    this._orgService.getIndustryTypeList().
-      pipe(
-        takeUntil(this.unSubscribe$)
-      ).
-      subscribe((response: any) => {
-        this.industryTypeList = [...response]
-      }, error => console.log(error))
-  }
-
-  /* Function to get all accounting method type list */
-  getAccountingMethod = () => {
-    this._orgService.getAccountingMethod().
-      pipe(
-        takeUntil(this.unSubscribe$)
-      ).
-      subscribe((response: any) => {
-        this.accMethodList = [...response]
-      }, error => console.log(error))
-  }
-
-  /* Function to get all accounting method type list */
-  getBranchTypeList = () => {
-    this._orgService.getBranchTypeList().
-      pipe(
-        takeUntil(this.unSubscribe$)
-      ).
-      subscribe((response: any) => {
-        this.branchTypeList = [...response]
       }, error => console.log(error))
   }
 
@@ -572,9 +530,9 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
         panNo: statutory.PanNo,
         gstNo: statutory.GstinNo,
         cinNo: statutory.CinNo,
-        fassiNo: statutory.FssiNo,
-        accMethod: statutory.TinNo
+        fassiNo: statutory.FssiNo
       }
+      this.personalDetailModel.accMethodId = 0
     }
 
     const emailArray = _.map(branchData.Emails, (item) => {
@@ -602,16 +560,14 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
         mobileArray: [...mobileArray],
         emailArray: [...emailArray],
         companyName: orgData.Name,
-        selectedIndustryType: orgData.IndustryType ? orgData.IndustryType : UIConstant.ZERO,
-        selectedRegistrationType: orgData.GstnTypeId ? orgData.GstnTypeId : UIConstant.ZERO,
         registrationDate: orgData.RegistrationDate,
-        selectedBranchType: {
-          id: orgData.TypeId ? orgData.TypeId : 0
-        },
         orgCode: orgData.Code,
         userName: orgData.UserName,
         userPassword: orgData.Password
       }
+      this.personalDetailModel.industryTypeId = orgData.IndustryType ? orgData.IndustryType : UIConstant.ZERO;
+      this.personalDetailModel.registrationTypeId = orgData.GstnTypeId ? orgData.GstnTypeId : UIConstant.ZERO;
+      this.personalDetailModel.branchTypeId = orgData.TypeId ? orgData.TypeId : UIConstant.ZERO;
     }
 
     this.keyPersonDetailArray = _.map(branchData.ContactPersonsBrief, (item) => {
@@ -739,13 +695,13 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
       TypeId: this.personalDetail.selectedBranchType.id,
       UserName: this.personalDetail.userName,
       Password: this.personalDetail.userPassword,
-      GstinTypeId: this.personalDetail.selectedRegistrationType,
+      GstinTypeId: this.personalDetail.selectedRegistrationType.id,
       AddBy: 2,
       // Code: this.personalDetail.orgCode,
-      IndustryId: this.personalDetail.selectedIndustryType,
+      IndustryId: this.personalDetail.selectedIndustryType.id,
       RegistrationDate: this.personalDetail.registrationDate,
-      RegistrationType: this.personalDetail.selectedRegistrationType,
-      AccountingMethod: this.statutoryDetail.accMethod,
+      RegistrationType: this.personalDetail.selectedRegistrationType.id,
+      AccountingMethod: this.statutoryDetail.accMethod.id,
       Addresses: addressArray,
       ContactInfos: contactArray,
       Emails: emailArray,

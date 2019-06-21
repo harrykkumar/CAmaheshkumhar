@@ -299,7 +299,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
       if (response.Code === UIConstant.THOUSAND) {
         this.toastrService.showSuccess('Success', 'Saved Successfully')
         this.postPermissionArray = []
-        await this._loginService.getUserDetails()
+        await this._loginService.getUserDetails(this._loginService.selectedOrganization.Id)
         this._loginService.permissionUpdated.next(true)
       }
     }, error => console.log(error))

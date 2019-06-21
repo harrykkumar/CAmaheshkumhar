@@ -8,13 +8,14 @@
                     </div>
                     <div class="col-md-8 right_saerch_side p-0">
                         <div class="mr-2">
-                            <form >
+                            <form [formGroup]="searchForm">
                                 <div id="custom-search-input" class="btn_header1">
                                     <div class="input-group col-md-12">
                                         <input type="text" 
                                         class="form-control input-lg"
                                         placeholder="Search"
-                                       
+                                        formControlName="searckKey"
+                                        #searchData
                                         />
                                         <span class="input-group-btn">
                                             <a>
@@ -61,15 +62,17 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <tr *ngFor="let item of saleTravelDetails; let i=index">
+                                <tr *ngFor="let item of saleTravelDetails | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index">
                                 <td>
                              <div *ngIf="item.SaleId === 0" class="custom-control custom-checkbox mb-3">
                               <input (change)="getBillingId(item,$event,i)"  type="checkbox" class="custom-control-input" id="selectChallanForBill{{i}}" name="example1">
                               <label class="custom-control-label" for="selectChallanForBill{{i}}"></label>
                             </div>
                                  </td>
+
                                 <!-- <td>{{item.OrgId}}-{{item.LedgerId}} </td> -->
-                                <td>{{i+1}}</td>                                <td>{{item.LedgerName}} </td>
+                              <td>{{lastItemIndex + i + 1}}</td>                     
+                                <td>{{item.LedgerName}} </td>
                                 <td>{{item.ChallanNo}}</td>
                                 <td >{{item.OnDate | date: shortDate }}</td>
                                 <td class="text-right">{{item.TotalQty}}</td>
@@ -99,6 +102,10 @@
                 </div>
             </div>
           </div>
+          <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+          (pageNoEmitter)="p = $event;getSaleChallanDetail();"
+          (pageSizeEmitter)="itemsPerPage = $event;getSaleChallanDetail();" >
+          </app-pagination>
     </div>
 </main>
 <app-sales-challan-invoice></app-sales-challan-invoice>
@@ -115,7 +122,7 @@
           </div>
           <div style="width:59%;  float:left">
             <h1 align="center" style="margin-bottom:3px;text-align:right;">
-              {{ledgerinfos && ledgerinfos[0]?.OfficeName }}
+              <!-- {{ledgerinfos && ledgerinfos[0]?.OfficeName }} -->
           </h1>
             <p align="center" style="font-size:14px; margin:0px;text-align:right;">
               {{orgAddress && orgAddress[0]?.AddressValue}}
@@ -319,7 +326,7 @@
                             float: right; text-align:right; font-size: 14px;
                             padding: 13px;">
                    
-              <h3>For,  {{ledgerinfos && ledgerinfos[0]?.OfficeName }} </h3>
+              <!-- <h3>For,  {{ledgerinfos && ledgerinfos[0]?.OfficeName }} </h3> -->
               <h4 style="    margin-bottom: 0px;">
                             Authorised Signatory
                         </h4>

@@ -20,7 +20,7 @@
                             </div>
                             <div class="form-group col-md-12">
                                 <label>Unit-Qty</label>
-                                <input type="text" class="form-control" placeholder="Enter unit Qty" formControlName="UnitQty" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.UnitQty.errors }" >
+                                <input type="text" #first class="form-control" appIncludeDecimal placeholder="Enter unit Qty" formControlName="UnitQty" [ngClass]="{ 'errorTextBoxBorder is-invalid': (submitClick && (f.UnitQty.errors) || f.UnitQty.value <= 0) }" >
                             </div>
                             <div class="form-group col-md-12">
                                 <label>Main-Unit</label>
@@ -38,7 +38,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary waves-effect" (click)="onSaveComposite()">Save</button>
+                <button type="button" class="btn btn-primary waves-effect" (click)="keepOpen=false;onSaveComposite()">Save</button>
+                <button type="button" class="btn btn-primary waves-effect" (click)="keepOpen=true;onSaveComposite()">Save With Add New</button>
             </div>
         </div>
     </div>

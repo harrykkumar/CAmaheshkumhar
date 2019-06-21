@@ -1,330 +1,202 @@
 <div class="modal fade" id="voucher_modal" role="dialog" aria-labelledby="exampleModalLabel"
   aria-hidden="true" data-backdrop="static" data-keyboard="false" >
-  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
-    <div class="modal-content bgcH-grey-100">
-      <div class="modal-header primary-bg">
-        <div class="container-fluid">
-          <div class="row">
-            <div class="col-md-3 left_side_head">
-              <p class="heading_lead">
-                <i class="fas fa-shopping-cart" aria-hidden="true"></i>Voucher</p>
-            </div>
-            <div class="col-md-9">
-              <div class="btn_header">
-                <a class="btn btn-default waves-effect" #savebutton >Save </a>
-                <a class="btn btn-info waves-effect" >Save and New</a>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true" class="white-text" (click)="closeForm()" >×</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- <div *ngIf="loading" class="modal-content" >
-        <div class="modal-body" style="height:inherit;" >
-          <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
-        </div>
-      </div> -->
-      <div class="modal-body" >
-            <div class="form-row">
-        <div class="col-md-12" >
-            <div class="classic-tabs">
-            <ul class="nav tabs-cyan" role="tablist">
-                <li class="nav-item"><a class="nav-link waves-light active" data-toggle="tab" role="tab">Personal Detail</a></li>
-                <li class="nav-item"><a class="nav-link waves-light" data-toggle="tab" role="tab">Key Persons </a></li>
-                <li class="nav-item"><a class="nav-link waves-light" data-toggle="tab" role="tab">Address</a></li>
-            </ul>
-            </div>
-        </div>
-            <div class="col-lg-7">
-                <div class="form-row bdrs-3 p-10 mB-5">
-                    <!-- <div class="col-md-12 form-group" >
-                        <label class="text-center m-auto d-block">Organisation</label>
-                        <div class="input-group adw_select">
-                            <div class="input-group adw_select">
-                                <select2 id="org"
-                                    [data]="" class="control_select"
-                                    autocomplete="true"
-                                    (valueChange)="DateType = +$event.value"
-                                    [options]="{placeholder: 'Select Vendor'}"
-                                    [value]="dateValue">
-                                </select2>
+    <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+        <div class="modal-content bgcH-grey-100">
+            <div class="modal-header primary-bg">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-3 left_side_head">
+                            <p class="heading_lead">
+                                <i class="fas fa-shopping-cart" aria-hidden="true"></i>Voucher
+                            </p>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="btn_header">
+                                <a class="btn btn-default waves-effect" #savebutton (click)="manipulateData()" >Save </a>
+                                <a class="btn btn-info waves-effect" >Save and New</a>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true" class="white-text" (click)="closeForm()" >×</span>
+                                </button>
                             </div>
                         </div>
-                    </div> -->
-                    <div class="form-group col-md-4">
-                        <label>Voucher Number</label>
-                        <input type="text" class="form-control" placeholder="Enter Personal Mobile">
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label class="fw-500">Voucher Date</label>
-                        <div class="timepicker-input input-icon form-group">
-                            <div class="input-group">
-                                <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                                <input type="text" class="form-control start-date" placeholder="Enter Reg. Date" data-provide="datepicker">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="bill_no">CR/DR</label>
-                        <div class="input-group adw_select">
-                            <input type="text" class="form-control" placeholder="Search By Sub Category">
-                            <div class="input-group-btn">
-                                <div class="btn-group" role="group">
-                                    <div class="dropdown dropdown-lg">
-                                        <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu select_dropdown">
-
-                                            <li class="pX-20 pY-5 ta-c bdT"><span>CR</span></li>
-                                            <li class="pX-20 pY-5 ta-c bdT"><span>DR</span></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label>Ledger</label>
-                        <div class="input-group adw_select">
-                            <input type="text" class="form-control" placeholder="Search By Item">
-                            <div class="input-group-btn">
-                                <div class="btn-group" role="group">
-                                    <div class="dropdown dropdown-lg">
-                                        <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu select_dropdown">
-                                            <li class="pX-20 pY-5 ta-c bdT bgc-grey"><a data-toggle="modal" data-target="#item_master"><i class="fa fa-plus pR-10"></i><span class="fsz-sm fw-600 c-grey-900">Add New</span></a></li>
-                                            <li class="pX-20 pY-5 ta-c bdT"><span>Journal</span></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label>Amount</label>
-                        <input type="text" class="form-control" placeholder="Amount">
-                    </div>
-
-                    <div class="form-group col-md-4">
-                        <label for="bill_no">CR/DR</label>
-                        <div class="input-group adw_select">
-                            <input type="text" class="form-control" placeholder="Search By Sub Category">
-                            <div class="input-group-btn">
-                                <div class="btn-group" role="group">
-                                    <div class="dropdown dropdown-lg">
-                                        <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu select_dropdown">
-
-                                            <li class="pX-20 pY-5 ta-c bdT"><span>CR</span></li>
-                                            <li class="pX-20 pY-5 ta-c bdT"><span>DR</span></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group col-md-4">
-                        <label for="bill_no">Ledger</label>
-                        <div class="input-group adw_select">
-                            <input type="text" class="form-control" placeholder="Search By Item">
-                            <div class="input-group-btn">
-                                <div class="btn-group" role="group">
-                                    <div class="dropdown dropdown-lg">
-                                        <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu select_dropdown">
-                                            <li class="pX-20 pY-5 ta-c bdT bgc-grey"><a data-toggle="modal" data-target="#item_master"><i class="fa fa-plus pR-10"></i><span class="fsz-sm fw-600 c-grey-900">Add New</span></a></li>
-                                            <li class="pX-20 pY-5 ta-c bdT"><span>Journal</span></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-2">
-                        <label>Amount</label>
-                        <input type="text" class="form-control" placeholder="Amount">
-                    </div>
-                    <div class="form-group col-md-2">
-                        <button type="button" class="btn btn-primary waves-effect waves-light mt-4">Add</button>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label>Reference Number</label>
-                        <input type="text" class="form-control" placeholder="Reference Number">
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="voucher1" class="active">Narration</label>
-                        <input type="text" class="form-control" id="voucher1" placeholder="Narration">
-                    </div>
-                </div>
-
-                <div class="bgc-white bdrs-3">
-                    <div class="table-responsive">
-
-
-
-                        <table class="table record_data table-striped table-bordered dt-responsive nowrap" id="fixTable">
-                            <thead>
-                                <tr>
-                                    <th>SNO</th>
-                                    <th>Ledger</th>
-                                    <th>Voucher Type</th>
-                                    <th>Amount</th>
-                                    <th>Transaction</th>
-                                    <th>Narration</th>
-
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                <tr>
-                                    <td>1</td>
-                                    <td>10021 </td>
-                                    <td>Bill </td>
-                                    <td class="text-right">1000.00
-                                    </td>
-                                    <td class="text-right">4500.00</td>
-                                    <td>This is system genertaed  voucher</td>
-
-
-
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>10021 </td>
-                                    <td>Bill </td>
-                                    <td class="text-right">1000.00
-                                    </td>
-                                    <td class="text-right">4500.00</td>
-                                    <td>This is system genertaed  voucher</td>
-
-
-
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>10021 </td>
-                                    <td>Bill </td>
-                                    <td class="text-right">1000.00
-                                    </td>
-                                    <td class="text-right">4500.00</td>
-                                    <td>This is system genertaed  voucher</td>
-
-
-
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>10021 </td>
-                                    <td>Bill </td>
-                                    <td class="text-right">1000.00
-                                    </td>
-                                    <td class="text-right">4500.00</td>
-                                    <td>This is system genertaed  voucher</td>
-
-
-
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>10021 </td>
-                                    <td>Bill </td>
-                                    <td class="text-right">1000.00
-                                    </td>
-                                    <td class="text-right">4500.00</td>
-                                    <td>This is system genertaed  voucher</td>
-
-
-
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>10021 </td>
-                                    <td>Bill </td>
-                                    <td class="text-right">1000.00
-                                    </td>
-                                    <td class="text-right">4500.00</td>
-                                    <td>This is system genertaed  voucher</td>
-
-
-
-                                </tr>
-
-
-                            </tbody>
-
-                        </table>
                     </div>
                 </div>
             </div>
-
-            <div class="col-lg-5">
-                <div class="bgc-white bdrs-3">
-                    <div class="table-responsive">
-                        <table class="table record_data table-striped table-bordered dt-responsive nowrap" style="width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="customCheck12" name="example1">
-                                            <label class="custom-control-label" for="customCheck12"></label>
-                                        </div>
-
-                                    </th>
-                                    <th>Bill Number</th>
-                                    <th>Date</th>
-                                    <th class="text-right">Transaction</th>
-                                    <th class="text-right">Amount</th>
-                                    <th class="text-right">Paid Amt</th>
-                                    <th class="text-right">Due Amt</th>
-
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                <tr>
-                                    <td>
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="customCheck123" name="example1">
-                                            <label class="custom-control-label" for="customCheck123"></label>
-                                        </div>
-                                    </td>
-                                    <td>1</td>
-                                    <td>21.12.2001 </td>
-                                    <td class="text-right">1000.00</td>
-                                    <td class="text-right">1000.00</td>
-                                    <td class="text-right">1000.00</td>
-                                    <td class="text-right">1000.00</td>
-
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="customCheck123" name="example1">
-                                            <label class="custom-control-label" for="customCheck123"></label>
-                                        </div>
-                                    </td>
-                                    <td>1</td>
-                                    <td>21.12.2001 </td>
-                                    <td class="text-right">1000.00</td>
-                                    <td class="text-right">1000.00</td>
-                                    <td class="text-right">1000.00</td>
-                                    <td class="text-right">1000.00</td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
+            <div class="modal-body" >
+                <div class="form-row">
+                    <div class="col-md-12" >
+                        <div class="classic-tabs">
+                            <ul class="nav tabs-cyan" role="tablist">
+                                <li class="nav-item"><a class="nav-link waves-light" [ngClass]="{'active': tabId === 1}" data-toggle="tab" role="tab" (click)="tabId=1;initParams();getSPUitilityData();getNewBillNo();ledgerPlaceholder={placeholder: 'Select Party'};" >Payment</a></li>
+                                <li class="nav-item"><a class="nav-link waves-light" [ngClass]="{'active': tabId === 2}" data-toggle="tab" role="tab" (click)="tabId=2;initParams();getSPUitilityData();getNewBillNo();ledgerPlaceholder={placeholder: 'Select Vendor'};" >Receipt</a></li>
+                            </ul>
+                        </div>
                     </div>
+                    <div *ngIf="loading">
+                        <div style="height:inherit;" >
+                            <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+                        </div>
+                    </div>
+                    <ng-container *ngIf="!loading && (tabId === 1 || tabId === 2)" >
+                        <div class="col-lg-6">
+                            <div class="form-row bdrs-3 p-10 mB-5">
+                                <div class="col-md-4 form-group" >
+                                    <label>Organisation Name</label>
+                                    <div class="input-group adw_select">
+                                        <div class="input-group adw_select">
+                                        <select2 #organisation_select2  id="organisation"
+                                            [data]="organisationsData"
+                                            class="control_select"
+                                            (valueChanged)="onChangeOrganisationId($event)"
+                                            autocomplete="true"
+                                            [options]="{placeholder: 'Select Organisation'}"
+                                            [value]="organisationVlue">
+                                        </select2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label><span *ngIf="tabId === 1" >Payment</span><span *ngIf="tabId === 2" >Receipt</span> VoucherNo.</label>
+                                    <a *ngIf="tabs[tabId - 1].voucherNoManual && previousVoucherNo" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
+                                        <span class="tooltiptext">Last Voucher No. used is - {{previousVoucherNo}}</span>
+                                    </a>
+                                    <input type="text" placeholder="Voucher Number"
+                                    class="form-control" name="VoucherNo"
+                                    [readonly]="!tabs[tabId - 1].voucherNoManual"
+                                    [(ngModel)]="VoucherNo">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="fw-500">Voucher Date</label>
+                                    <div class="timepicker-input input-icon">
+                                        <div class="input-group">
+                                            <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
+                                            <input readonly="true" type="text"
+                                            class="form-control start-date flatpickr"
+                                            id="voucher-date"
+                                            placeholder="Voucher Date"
+                                            (input)="getNewBillNo();"
+                                            data-provide="datepicker" [(ngModel)]="VoucherDate"
+                                            name="VoucherDate">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label *ngIf="tabId === 2" >Party</label>
+                                    <label *ngIf="tabId === 1" >Vendor</label>
+                                    <div class="input-group adw_select">
+                                        <div class="input-group adw_select">
+                                        <select2 #party_select2 id="vendor" 
+                                            [data]="ledgerData" class="control_select"
+                                            (valueChanged)="PartyId=+$event.value;getVoucherList()"
+                                            autocomplete="true"
+                                            [options]="ledgerPlaceholder"
+                                            [value]="ledgerValue">
+                                        </select2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                </div>
+                                <div class="form-group col-md-4" >
+                                    <fieldset id="group">
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input type="radio" class="custom-control-input" id="customRadio" name="group" [checked]="autoBill === true" (change)="autoBill = ($event.target.checked) ? true : false; updateAmount();" >
+                                            <label class="custom-control-label" for="customRadio">Auto Billing</label>
+                                        </div>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input type="radio" class="custom-control-input" id="customRadio10" name="group" [checked]="autoBill === false" (change)="autoBill = ($event.target.checked) ? false : true; updateAmount();" >
+                                            <label class="custom-control-label" for="customRadio10">Manual Billing</label>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Pay Modes</label>
+                                    <div class="input-group adw_select">
+                                        <select2 name="Paymode" #payment_select2 [data]="paymentModesData" id="PayModeId"
+                                        class="control_select"
+                                        (valueChanged)="onPaymentModeSelect($event)"
+                                        autocomplete="true" [options]="{placeholder: 'Select Payment Modes'}"
+                                        [ngClass]="{'errorSelecto': invalidObj?.PayModeId}"
+                                        [value]="paymode" ></select2>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Ledger</label>
+                                    <div class="input-group adw_select">
+                                        <select2 name="LedgerId" #ledger_select2 [data]="paymentLedgerselect2" id="LedgerId"
+                                        class="control_select" (valueChanged)="onPaymentLedgerSelect($event)"
+                                        autocomplete="true" [options]="{placeholder: 'Select Ledger'}"
+                                        [ngClass]="{'errorSelecto': invalidObj?.LedgerId}"
+                                        [value]="ledger" ></select2>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Amount</label>
+                                    <input type="text" appIncludeDecimal name="Amount" class="form-control"
+                                    id="Amount" [(ngModel)]="Amount" placeholder="Enter Amount"
+                                    (input)="checkForValidation();updateAmount()" [disabled]="!autoBill" >
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label>Narration</label>
+                                    <input name="Narration" class="form-control"
+                                    [ngClass]="{'errorSelecto': invalidObj?.ChequeNo}"
+                                    (input)="checkForValidation()"
+                                    id="Narration" [(ngModel)]="Narration" placeholder="Enter Narration" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6" >
+                            <div class="bgc-white bdrs-3">
+                                <div class="table-responsive">
+                                    <table class="table record_data table-striped table-bordered dt-responsive nowrap" id="fixTable">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="custom-control custom-checkbox" *ngIf="voucherList.length > 0">
+                                                        <input type="checkbox" class="custom-control-input" id="selectall" name="selectorunselect" [(ngModel)]="selectAll" (change)="toggleSelect($event)">
+                                                        <label class="custom-control-label" for="selectall"></label>
+                                                    </div>
+                                                </th>
+                                                <th>SNO</th>
+                                                <th>Bill No</th>
+                                                <th>Bill Date</th>
+                                                <th>Bill Amount</th>
+                                                <th>Paid Amount</th>
+                                                <th>Due Amount</th>
+                                                <th>Pay Now</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let voucher of voucherList;let i = index;" >
+                                                <td class="align-middle" >
+                                                    <div class="custom-control custom-checkbox" >
+                                                        <input type="checkbox" id="row{{i}}" class="custom-control-input item-container" [(ngModel)]="voucher.selected" name="checkbox-cont" (ngModelChange)="onVoucherToggle(i,$event)" />
+                                                        <label class="custom-control-label" for="row{{i}}"></label>
+                                                    </div>
+                                                </td>
+                                                <td>{{ i + 1 }}</td>
+                                                <td>{{ voucher.BillNo  }}</td>
+                                                <td>{{ voucher.BillDate | dateFormat: clientDateFormat  }}</td>
+                                                <td class="text-right">{{ voucher.BillAmount }}</td>
+                                                <td class="text-right">{{ voucher.PaidAmount}}</td>
+                                                <td class="text-right">{{ voucher.Balance }}</td>
+                                                <td><input [disabled]="autoBill || billSettlementType > 1"
+                                                    (input)="updateAmount()"
+                                                    type="text" appIncludeDecimal name="PaymentAmount" class="form-control"
+                                                    id="PaymentAmount{{i}}" [(ngModel)]="voucher.PaymentAmount" placeholder="Enter Amount To Pay"></td>
+                                            </tr>
+                                            <tr *ngIf="advancePayment > 0" >
+                                                <td class="text-right" colspan="7" >Advance Payment</td>
+                                                <td><input type="text" class="form-control" readonly="true" [(ngModel)]="advancePayment" /></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
                 </div>
             </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>

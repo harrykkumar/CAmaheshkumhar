@@ -61,7 +61,8 @@ export class LoginComponent {
           }
           if (data.Data != null) {
             this.tokenService.saveToken(data.Data.Token)
-            this.mapModules()
+            // this.mapModules()
+            this.mapOrganizations();
           } else {
             this.invalidUser = true
             this.errorMessage = ErrorConstant.INVALID_USER
@@ -92,17 +93,19 @@ export class LoginComponent {
     this.invalidUser = false
   }
 
-  mapModules = async () => {
-    await this._loginService.getUserDetails()
-    if (this._loginService.userData.Modules.length === 1) {
-      this._loginService.selectedUserModule = { ...this._loginService.userData.Modules[0] }
-      this._loginService.selectedUserModule['index'] = 0
-      localStorage.setItem('SELECTED_MODULE', JSON.stringify(this._loginService.selectedUserModule))
-      this._loginService.moduleSelected.next(true)
-      this._route.navigate(['dashboard'])
-    } else {
-      this._route.navigate(['modules'])
-    }
+ async mapOrganizations(){
+   await this._loginService.getUserOrganization();
+   if(this._loginService.userOrganizations.length === 0){
+    this._route.navigate(['no-organization'])
+   } else if(this._loginService.userOrganizations.length === 1) {
+    this._loginService.selectedOrganization = { ...this._loginService.userOrganizations[0] }
+    const token = await this._loginService.extendJwtToken({ OrgId : this._loginService.selectedOrganization.Id})
+    this.tokenService.saveToken(token)
+    localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
+    this._loginService.mapModules(this._loginService.selectedOrganization);
+   } else {
+     this._route.navigate(['organizations']);
+   }
   }
 
 }

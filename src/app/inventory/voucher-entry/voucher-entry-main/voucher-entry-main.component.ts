@@ -7,6 +7,7 @@ import { takeUntil, filter, catchError, map } from 'rxjs/operators';
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
 import { VoucherEntryServie } from '../voucher-entry.service';
 import { PurchaseService } from '../../purchase/purchase.service';
+import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 
 @Component({
   selector: 'voucher-entry-main',
@@ -21,9 +22,10 @@ export class VoucherEntryMainComponent implements OnInit {
     private route: ActivatedRoute,
     private commonService: CommonService,
     private voucherService: VoucherEntryServie,
-    private purchaseService: PurchaseService) {
+    private purchaseService: PurchaseService,
+    private toastrService: ToastrCustomService) {
     this.formSearch()
-    this.getOrgList()
+    this.getVoucherSetting()
   }
 
   ngOnInit () {
@@ -47,15 +49,39 @@ export class VoucherEntryMainComponent implements OnInit {
   openVoucher () {
     this.commonService.openVoucher('')
   }
-
-  getOrgList () {
-    this.voucherService.getOwnerOrgList().pipe(takeUntil(this.onDestroy$), filter(data => {
-      if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
-    }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
-      data => {
-        console.log('org : ', data)
-        this.purchaseService.createOrganisations(data)
+  getVoucherSetting () {
+    let _self = this
+    this.commonService.getModuleSettings(UIConstant.VOUCHER_TYPE)
+    .pipe(
+      takeUntil(this.onDestroy$),
+      filter(data => {
+        if (data.Code === UIConstant.THOUSAND) {
+          return true
+        } else {
+          throw new Error(data.Description)
+        }
+      }),
+      catchError(error => {
+        return throwError(error)
+      }),
+      map(data => data.Data)
+    )
+    .subscribe(
+      (data) => {
+        // console.log('settings data : ', data)
+        _self.purchaseService.getAllSettings(data)
+      },
+      (error) => {
+        console.log(error)
+        this.toastrService.showError(error, '')
+      },
+      () => {
       }
     )
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroy$.next()
+    this.onDestroy$.complete()
   }
 }

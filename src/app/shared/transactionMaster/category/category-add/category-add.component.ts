@@ -33,6 +33,7 @@ export class CategoryAddComponent {
   catDetails: any = []
   loading: boolean = true
   catOrSubCatSub: Subscription
+  keepOpen: boolean = false
   public selectCategory: Array<Select2OptionData>
 
   constructor (private _catagoryservices: CategoryServices,
@@ -225,17 +226,22 @@ export class CategoryAddComponent {
               _self.saleService.closeCategory(toSend)
             }
           } else {
-            _self.saleService.categoryAdded()
-            _self.toastrService.showSuccess('Success', 'Saved Successfully')
-            let toSend = { name: _self.categoryForm.value.CategoryName, id: data.Data,
-              level: _self.categoryForm.value.level + 1 }
-            this.saleService.closeCategory(toSend)
-            _self.clearCategoryvalidation()
+            if (this.keepOpen) {
+              _self.toastrService.showSuccess('Success', 'Saved Successfully')
+              this.initialiseExtras()
+            } else {
+              _self.saleService.categoryAdded()
+              _self.toastrService.showSuccess('Success', 'Saved Successfully')
+              let toSend = { name: _self.categoryForm.value.CategoryName, id: data.Data,
+                level: _self.categoryForm.value.level + 1 }
+              this.saleService.closeCategory(toSend)
+              _self.clearCategoryvalidation()
+            }
           }
         } else if (data.Code === UIConstant.THOUSANDONE) {
-          this.toastrService.showError(data.Message, '')
+          this.toastrService.showError(data.Description, '')
         } else {
-          _self.toastrService.showError('', data.Message)
+          _self.toastrService.showError('', data.Description)
         }
       })
     }
@@ -277,5 +283,16 @@ export class CategoryAddComponent {
         }
       }
     )
+  }
+
+  initialiseExtras () {
+    this.categoryForm.controls.ShortName.setValue('')
+    this.categoryForm.controls.CategoryName.setValue('')
+    setTimeout(() => {
+      if (this.catname) {
+        const element = this.renderer.selectRootElement(this.catname.nativeElement, true)
+        element.focus({ preventScroll: false })
+      }
+    }, 10)
   }
 }

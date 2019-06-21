@@ -173,11 +173,19 @@ const routes: Routes = [
         path: 'ims/voucher-entry',
         loadChildren: '../inventory/voucher-entry/voucher-entry.module#VoucherEntryModule',
         pathMatch: 'full'
+      },
+      {
+        path: 'common-menu/:code',
+        loadChildren: '../start/common-menu/common-menu.module#CommonMenuModule'
+      },
+      {
+        path: 'owner/company',
+        loadChildren: '../start/company-profile/company-profile.module#CompanyProfileListModule'
       }
     ]
   }
 ]
-
+  
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]

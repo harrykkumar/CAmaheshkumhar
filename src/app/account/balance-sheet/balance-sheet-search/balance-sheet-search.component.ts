@@ -24,7 +24,7 @@ export class BalanceSheetSearchComponent implements OnInit {
   }
  
   fromDatevalue: string
-  toDateValue: string
+  toDateValue: string =''
   toDate () {
     let _self = this
     jQuery(function ($) {

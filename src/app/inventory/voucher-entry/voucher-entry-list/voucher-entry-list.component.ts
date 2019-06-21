@@ -47,9 +47,25 @@ export class VoucherEntryListComponent implements OnInit {
     private gs: GlobalService,
     private toastrService: ToastrCustomService
     ) {
+      this.onTextEnteredSub = this.voucherService.search$.subscribe(
+        (text: string) => {
+          if (text.length > 0) {
+            this.searchKey = text
+            this.searchForStr(text)
+          }
+        }
+      )
+      this.queryStr$ = this.voucherService.queryStr$.subscribe(
+        (str) => {
+          console.log(str)
+          this.queryStr = str
+          this.p = 1
+          this.getLedgerSummaryData()
+        }
+      )
     this.clientDateFormat = this.settings.dateFormat
     let today = this.gs.convertToSqlFormat(new Date())
-    console.log(today)
+    // console.log(today)
     this.data = {
       FromDate: today,
       ToDate: today,
@@ -83,7 +99,7 @@ export class VoucherEntryListComponent implements OnInit {
       term = ''
     }
     this.pagingComp.setPage(1)
-    return this.voucherService.getLedgerSummaryData(`?FromDate=${this.data.FromDate}&ToDate=${this.data.ToDate}` + this.queryStr)
+    return this.voucherService.getLedgerSummaryData(`?Type=${this.data.Type}&FromDate=${this.data.FromDate}&ToDate=${this.data.ToDate}` + this.queryStr)
   }
 
   ngOnInit () {
@@ -101,7 +117,7 @@ export class VoucherEntryListComponent implements OnInit {
       this.searchKey = ''
     }
     this.isSearching = true
-    this.voucherService.getLedgerSummaryData(`?FromDate=${this.data.FromDate}&ToDate=${this.data.ToDate}&Page=${this.p}&Size=${this.itemsPerPage}` + this.queryStr)
+    this.voucherService.getLedgerSummaryData(`?Type=${this.data.Type}&FromDate=${this.data.FromDate}&ToDate=${this.data.ToDate}&Page=${this.p}&Size=${this.itemsPerPage}` + this.queryStr)
     .pipe(
       filter(data => {
         if (data.Code === UIConstant.THOUSAND) {

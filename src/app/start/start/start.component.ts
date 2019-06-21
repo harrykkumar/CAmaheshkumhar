@@ -1,3 +1,4 @@
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { LoginService } from './../../commonServices/login/login.services';
 import { Component, OnInit } from '@angular/core'
 
@@ -7,13 +8,12 @@ import { Component, OnInit } from '@angular/core'
   styleUrls: ['./start.component.css']
 })
 export class StartComponent implements OnInit {
-
-  // tslint:disable-next-line:no-empty
   constructor (
-    public _loginService: LoginService
-  ) {}
+    public _loginService: LoginService,
+    public commonService: CommonService
+  ) {
+  }
 
-  // tslint:disable-next-line:no-empty
   ngOnInit () {
   }
 

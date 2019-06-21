@@ -52,7 +52,6 @@ export class PurchaseMainComponent {
   printData1: any = []
   ledgerinfos: any[]
   industryId: number
-
   constructor (private route: ActivatedRoute,
      private commonService: CommonService,
       private purchaseService: PurchaseService,

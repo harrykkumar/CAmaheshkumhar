@@ -1,3 +1,4 @@
+import { CompanyProfileComponent } from './../start/company-profile/company-profile.component';
 import { FooterComponent } from './../start/footer/footer.component';
 import { OrganisationProfileComponent } from './../start/header/organisation-profile/organisation-profile.component';
 import { HeaderComponent } from './../start/header/header.component';
@@ -49,7 +50,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
     OrganisationProfileComponent,
     OrganisationBranchComponent,
     PagingUtilityModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    CompanyProfileComponent
   ],
   declarations: [
     ControlMessageComponent,
@@ -61,7 +63,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
     HeaderComponent,
     FooterComponent,
     OrganisationProfileComponent,
-    OrganisationBranchComponent
+    OrganisationBranchComponent,
+    CompanyProfileComponent
   ]
 })
 export class SharedModule {

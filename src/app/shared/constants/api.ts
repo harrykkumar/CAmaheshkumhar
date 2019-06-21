@@ -256,4 +256,27 @@ export class ApiConstant {
   public static get ACCOUNT_TRADING_BY_DATE (): string { return this.BASE_URL + '/api/v1/account/Trading?OnDate=' }
 
   public static get OWNER_ORGANISATION_LIST (): string { return this.BASE_URL + '/api/v1/Owner/Organization' }
+
+  public static get TRANSACTIONNO_VOUCHER (): string { return this.BASE_URL + '/api/v1/setting/transactionno' }
+
+  public static get GET_VOUCHER_LIST (): string { return this.BASE_URL + '/api/v1/ims/OutStanding' }
+
+  public static get POST_VOUCHER (): string { return this.BASE_URL + '/api/v1/ims/receiptpaymentvoucher' }
+
+  public static get GET_CURRENT_DATE (): string { return this.BASE_URL + '/api/v1/CurrentDate' }
+  
+  public static get COMMON_MENU_CODE (): string { return this.BASE_URL + '/api/v1/setting/commoncode' }
+
+  public static get COMMON_MASTER_MENU (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster' }
+  
+  public static get FIN_YEAR (): string { return this.BASE_URL + '/api/v1/FinancialYear' }
+
+  public static get ORG_COMPANY_DETAILS (): string { return this.BASE_URL + '/api/v1/Owner/OrganizationDetails' }
+  
+  public static get USER_ORGANIZATION (): string { return this.BASE_URL + '/api/v1/authentication/userorganization' }
+
+  public static get EXTENDJWT (): string { return this.BASE_URL + '/api/v1/authentication/ExtendJwt' }
+
+  public static get GET_VOUCHER_TYPE (): string { return this.BASE_URL + '/api/v1/account/VoucherType' }
+
 }

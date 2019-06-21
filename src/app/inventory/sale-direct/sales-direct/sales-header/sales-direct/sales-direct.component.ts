@@ -14,6 +14,7 @@ import { Settings } from '../../../../../shared/constants/settings.constant'
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
 import { IfStmt } from '@angular/compiler';
 import { timeout } from 'q';
+import {SaleCommonService} from '../../saleCommon.service';
 declare const _: any
 declare var $: any
 declare var flatpickr: any
@@ -47,7 +48,7 @@ export class SalesDirectComponent {
   TotalWeight: number
   TotalKg: number
   Rate: any
-  Discount: any
+  Discount: number
   Description: string
   Quantity: any
   UnitPrice: number
@@ -170,7 +171,7 @@ export class SalesDirectComponent {
   AdditionalChargeData: any
   IsForOtherState: any;
   isAddNew: boolean
-  constructor (private _coustomerServices: VendorServices,private _formBuilder: FormBuilder,public renderer2: Renderer2, public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
+  constructor ( private _coustomerServices: VendorServices,private _formBuilder: FormBuilder,private renderer2: Renderer2, public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
     private _ledgerServices: VendorServices,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
@@ -257,7 +258,6 @@ export class SalesDirectComponent {
           newData.push({ id: data.id, text: data.name })
           this.itemCategoryType = newData
           this.itemCategoryId = +data.id
-          this.itemCategoryId = data.id
          // this.categoryId = data.categoryId
          
           setTimeout(() => {
@@ -311,7 +311,8 @@ export class SalesDirectComponent {
           this.stateShippingValue = data.id
           this.stateId = +data.stateId
           this.SupplyStateId = +data.stateId
-          this.checkOtherStateForNewItemAdd(JSON.parse(this.stateId))
+          debugger
+          this.checkOtherStateForNewItemAdd(JSON.parse(data.stateId))
          
         }
       }
@@ -435,21 +436,21 @@ export class SalesDirectComponent {
   }
   getOrgnization(data){
     if (data.Data && data.Data.Organizations && data.Data.Organizations.length > 0) {
+      this.setupOrganization = data
       this.organizationData = []
+      let newTempOrg =[]
       this.orgnazationPlaceHolder = { placeholder: 'Select Organization' }
-      this.organizationData = [{ id: UIConstant.BLANK, text: 'Select  Organization' }]
-      this.setupOrganization = data.Data.Organizations
+      newTempOrg = [{ id: UIConstant.BLANK, text: 'Select  Organization' }]
         data.Data.Organizations.forEach(ele => {
-          this.organizationData.push({
+          newTempOrg.push({
             id: ele.Id,
             text: ele.Name
           })
         })
-        this.orgnizationSelect2.setElementValue(this.orgNameId)
+        this.organizationData = newTempOrg
         this.orgNameId = this.organizationData[1].id
-        return this.orgNameId
-      //}
-
+        this.orgnizationSelect2.setElementValue(this.orgNameId)
+        
     }
   }
 
@@ -626,7 +627,7 @@ export class SalesDirectComponent {
         if (data.Data && data.Data.ItemCategorys.length > 0) {
           this.getCatagoryDetail(data.Data.ItemCategorys)
         }
-        if(data.Data){
+        if(data.Data && data.Data.LedgerCharges.length >0){
           this.additionChargeLedger = []
           let newAdditionCharge =[]
           this.ledgerChargePlaceHolder = { placeholder: 'Select  Charge' }
@@ -1215,7 +1216,7 @@ stateShippingValue: any
       }
     }
   }
-  AddressForGst: any
+  stateIdForBill:any
   disabledAddressFlag: boolean = false
   selectStatelist (event) {
     if (event.data.length > 0) {
@@ -1229,13 +1230,13 @@ stateShippingValue: any
           this.ledgerStateId = event.data[0].stateId
           if( this.ledgerStateId >0){
             
-            this.AddressForGst = this.ledgerStateId 
+            debugger
             this.checkOtherStateForNewItemAdd(this.ledgerStateId)
           }
 
           this.onChangeSlabTax('item',this.taxSlabId,'')
           this.calculate()
-          this.stateId = event.value
+          this.stateIdForBill = event.data[0].id
           this.stateError = false
           this.checkValidation()
 
@@ -1277,11 +1278,7 @@ stateShippingValue: any
       (data: ResponseSale) => {
         if (data.Code === UIConstant.THOUSAND && data.Data.SetupModules.length > 0) {
           _self.setupModules = data.Data.SetupModules[0]
-          _self.setBillDate()
-          _self.setPayDate()
-          this.setExpiryDate()
-          this.setMFDate()
-          _self.setDueDate()
+        
           let currencies = data.Data.SetupSettings
           _self.currenciesSelect2 = []
           _self.currencyPlaceholder = { placeholder: 'Select Currency' }
@@ -1329,8 +1326,14 @@ stateShippingValue: any
   orgNameId: any
   OrgId: any
   onChangeOrganizationId (e) {
+    debugger
+    let dateChnage
     if (e.data.length > 0) {
-      let dateChnage = this._globalService.clientToSqlDateFormat(this.InvoiceDate, this.clientDateFormat)
+      if (this.InvoiceDate !== '') {
+        dateChnage = this._globalService.clientToSqlDateFormat(this.InvoiceDate, this.clientDateFormat)
+      } else {
+        dateChnage = ''
+      }
       if (e.data[0].id !== '') {
         this.orgNameId = e.value
         this.checkValidation()
@@ -1426,7 +1429,6 @@ stateShippingValue: any
           Sno: element.Sno,
           TransType: element.TransType,
           TransId: element.TransId,
-          // ChallanId: element.ChallanId,
           Length: element.Length,
           Height: element.Height,
           Width: element.Width,
@@ -1434,8 +1436,6 @@ stateShippingValue: any
           PurchaseRate: element.PurchaseRate,
           ExpiryDate: element.ExpiryDateToshow,
           MfdDate: element.MfDateToshow,
-          //ExpiryDate: element.ExpiryDate,
-        //  MfdDate: element.MfDate,
           BatchNo: element.BatchNo,
           CategoryId: element.CategoryId,
           CategoryName: element.CategoryName,
@@ -1458,7 +1458,7 @@ stateShippingValue: any
           IsForOtherState: element.IsForOtherState,
           baserate:element.baserate,
           rowEditFlagValue:element.rowEditFlagValue,
-        //  SubTotal: element.SubTotal,
+          ReversetotalAmount:element.ReversetotalAmount,
           LableAttributeVale: this.localLabelData
 
         })
@@ -1492,8 +1492,6 @@ stateShippingValue: any
           PurchaseRate: element.PurchaseRate,
           ExpiryDate: element.ExpiryDateToshow,
           MfdDate: element.MfDateToshow,
-          //ExpiryDate: element.ExpiryDate,
-        //  MfdDate: element.MfDate,
           BatchNo: element.BatchNo,
           CategoryId: element.CategoryId,
           CategoryName: element.CategoryName,
@@ -1513,6 +1511,7 @@ stateShippingValue: any
           TaxTypeName: element.TaxTypeName,
           TaxAmount: +element.TaxAmount,
           TotalAmount: +element.TotalAmount,
+          ReversetotalAmount:element.ReversetotalAmount,
           IsForOtherState: element.IsForOtherState,
           LableAttributeVale: this.localLabelData,
           baserate:element.baserate,
@@ -1630,6 +1629,7 @@ stateShippingValue: any
       TaxTypeName: this.TaxTypeName,
       TaxAmount: +this.TaxAmount,
       TotalAmount: +this.TotalAmount,
+      ReversetotalAmount:+this.ReversetotalAmount,
       baserate:+this.getBaseRateForItem,
       rowEditFlagValue: true,
       IsForOtherState: this.taxRateForOtherStateFlag
@@ -1659,14 +1659,15 @@ stateShippingValue: any
   AttrId: any
 
   BatchNo: any
-
+  ReversetotalAmount: number
   initialiseItem () {
     //debugger
     this.Remark = ''
     this.Rate = ''
-    this.Discount = ''
+    this.Discount = 0
     this.Quantity = 1
     this.TotalAmount = 0
+    this.ReversetotalAmount = 0
     this.clickItem = false
     this.TaxAmount = 0
     this.DiscountAmt = 0
@@ -1747,7 +1748,7 @@ stateShippingValue: any
     this.LocationTo = ''
     this.TotalFreight = 0
     this.TotalQuantity = 0
-    this.EwayBillNo = '0'
+    this.EwayBillNo = ''
     this.ParcelBy = ''
     this.OtherCharge = 0
     this.Customduty = 0
@@ -1856,6 +1857,20 @@ stateShippingValue: any
       })
     })
   }
+  CurrentDate: any
+  setCurrentDate () {
+    let _self = this
+    jQuery(function ($) {
+      flatpickr('#Current-date', {
+        dateFormat: _self.clientDateFormat,
+        defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
+
+
+      })
+    })
+    this.CurrentDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
+
+  }
 
   setBillDate () {
     let _self = this
@@ -1887,12 +1902,9 @@ stateShippingValue: any
     this.clientNameId = ''
     this.clientNameSelect2 = []
     this.organizationData = []
-   this.stateList =[]
-   this.stateListShip =[]
-
-    //this.taxTypeId =  this.taxTypeSelectData[0].id
-  //  this.AdditionalChargeData =[]
-    this.getSPUtilityDataBilling()
+    this.stateList =[]
+    this.stateListShip =[]
+    this.getOrgnization(this.setupOrganization)
     this.RoundOff = 0
     this.RoundOffManual = 0
     this.inilizeAdditionCharge()
@@ -1912,7 +1924,6 @@ stateShippingValue: any
   }
 
   calculate () {
-
     if ('' + this.DiscountType === '0') {
       if (this.Discount && this.Rate) {
         this.discountAmount = (+this.Discount / 100) * (+this.Rate)
@@ -1924,17 +1935,30 @@ stateShippingValue: any
 
     }
    this.TotalAmount = +this.calculateTotalOfRow()
-    //console.log( this.TotalAmount, 'k--------------')
+   this.ReversetotalAmount = +this.reversetotalCalcution()
     this.calculationAdditionCharge()
     this.calculateForTotalAmount()
     this.calculateAllTotal()
     this.calTotalBillAmount()
-
-
   }
+  reversetotalCalcution ( ){
+    debugger
+    this.ReversetotalAmount  = 0
+    let Rate = (isNaN(+this.Rate)) ? 0 : +this.Rate
+    let Quantity = (isNaN(+this.Quantity)) ? 1 : +this.Quantity
+    let Height = (this.Height === 0 || this.Height === null) ? 1 : +this.Height
+    let Length = (this.Length === 0 || this.Length === null) ? 1 : +this.Length
+    let Width = (this.Width === 0 || this.Width === null) ? 1 : +this.Width
+    this.ReversetotalAmount = ( Rate *  Quantity * Height * Length * Width )
 
+    return isNaN(this.ReversetotalAmount) ? 0 : this.ReversetotalAmount
+  }
+  getReverseSaleRate (){
+    let Quantity = (isNaN(+this.Quantity)) ? 1 : +this.Quantity
+    this.Rate = this.ReversetotalAmount / Quantity
+    this.calculate()
+  }
   calculationAdditionCharge (){
-     
     this.TaxAmountCharge =0
     this.TotalAmountCharge =0
   let AmountCharge= 0
@@ -2033,6 +2057,7 @@ taxCalculationForInclusive(taxArray,rateofitem,DiscountAmt){
   DiscountAmt: any
   disShowAmt: any = 0
   calculateTotalOfRow () {
+    debugger
     let Rate = (isNaN(+this.Rate)) ? 0 : +this.Rate
     let Quantity = (isNaN(+this.Quantity)) ? 1 : +this.Quantity
     let Discount = (isNaN(+this.discountAmount)) ? 0 : +this.discountAmount
@@ -2055,9 +2080,16 @@ taxCalculationForInclusive(taxArray,rateofitem,DiscountAmt){
     }
   else{
     this.FinalAmount=0
-    this.FinalAmount = (Rate * Quantity * Length * Width * Height) - this.DiscountAmt
+    let finlAmt =0
+    if(this.DiscountType === '0' &&  this.Discount === 100 ){
+       finlAmt = (Rate * Quantity * Length * Width * Height) 
+    }
+    else{
+      finlAmt = (Rate * Quantity * Length * Width * Height) - this.DiscountAmt 
+      this.FinalAmount = (Rate * Quantity * Length * Width * Height) - this.DiscountAmt
+    }
     if(this.allTaxRateForItem.length>0){
-      this.TaxAmount =  this.taxCalculationForExclusive(this.allTaxRateForItem,this.FinalAmount) 
+      this.TaxAmount =  this.taxCalculationForExclusive(this.allTaxRateForItem,finlAmt) 
 
     }
 
@@ -2073,7 +2105,6 @@ taxCalculationForInclusive(taxArray,rateofitem,DiscountAmt){
   ExclusiveForTaxItem(TaxArray,totalrate,itemTrsnId){
     if (TaxArray.length > 0) {
       this.taxDetailsPerItem =[]
-     // console.log(TaxArray ,'tax on item')
       TaxArray.forEach(ele => {
             let taxCal= 0
              if (ele.TaxType === 0) {
@@ -2164,7 +2195,7 @@ taxCalculationForItem (itemTrsnId) {
     } else {
       this.DiscountAmt = (Discount).toFixed(this.decimalDigit)
     }
-let taxPerItem;
+let taxPerItem =[];
    let totalAmt =0
    if(this.allTaxRateForItem.length>0){
     if(this.TaxTypeId === '1'){
@@ -2185,7 +2216,7 @@ taxCalculationForCharge (chargetranSnoId){
 let AmountCharge = 0
    AmountCharge = (isNaN(+this.AmountCharge)) ? 0 : +this.AmountCharge
  if(AmountCharge >0){
-  let taxPerItem;
+  let taxPerItem =[];
    if (this.allTaxRateForCharge.length > 0) {
     if(this.taxTypeChargeId === '1'){
      taxPerItem = this.InclusiveForTaxItem(this.allTaxRateForCharge,AmountCharge,chargetranSnoId,0)
@@ -2271,10 +2302,8 @@ return  taxPerItem
       }
 
       this.totalDiscount = (totalDiscount).toFixed(this.decimalDigit)
-     // this.totalRate = (totalRate).toFixed(this.decimalDigit)
       this.TotalQuantity = totalQty
       this.totalTaxAmount = (totalTax).toFixed(this.decimalDigit)
-
       this.TotalChargeAmt = TotalAmountCharge
       this.calTotalBillAmount()
     }
@@ -2282,12 +2311,9 @@ return  taxPerItem
   }
 
 removeBillSummery (y,type,tranIsSNO){
-  // editSno:data.Id,
-  
   let indexofRow;
 for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  ){
   if(type ==='charge'){
-    //( this.taxSlabSummery,'sunnry')
     indexofRow =  this.taxSlabSummery.findIndex(
       objectModified => (objectModified.ParentTypeTaxId === 22 &&  objectModified.ItemTransTaxId === tranIsSNO  )
     )
@@ -2447,11 +2473,6 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
 
   }
 
-  // add more items
-  identify (index, item) {
-    item.Sno = index + 1
-    return item.Sno - 1
-  }
 
   getPaymentTotal (): number {
     let paymentTotal = 0
@@ -2506,6 +2527,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
   creditDays: any
   ledgerStateId: any
   getGSTByLedgerAddress (ledgerId) {
+    debugger
     this.subscribe = this._commonService.ledgerGetGSTByAddress(ledgerId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.LedgerDetails.length > 0) {
@@ -2514,6 +2536,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
         }
         if (data.Data.AddressDetails.length > 0) {
           this.ledgerStateId = data.Data.AddressDetails[0].StateId
+          debugger
            this.checkOtherStateForNewItemAdd(this.ledgerStateId)
         }
       }
@@ -2579,6 +2602,12 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     setTimeout(() => {
       this.clientSelect2.selector.nativeElement.focus()
     }, 1000)
+    this.setBillDate()
+    this.setPayDate()
+    this.setExpiryDate()
+    this.setMFDate()
+    this.setDueDate()
+    this.setCurrentDate()
   }
 
   closeModal () {
@@ -2591,38 +2620,38 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     this._commonService.closeSaleDirect()
   }
 
-  invalidObj: Object = {}
+  invalidObj2: any = {}
 
   checkValidation (): boolean {
     let isValid = 1
     if (this.clientNameId) {
-      this.invalidObj['clientNameId'] = false
+      this.invalidObj2['clientNameId'] = false
     } else {
-      this.invalidObj['clientNameId'] = true
+      this.invalidObj2['clientNameId'] = true
       isValid = 0
     }
     if (this.orgNameId) {
-      this.invalidObj['orgNameId'] = false
+      this.invalidObj2['orgNameId'] = false
     } else {
-      this.invalidObj['orgNameId'] = true
+      this.invalidObj2['orgNameId'] = true
       isValid = 0
     }
     if (this.BillNo) {
-      this.invalidObj['BillNo'] = false
+      this.invalidObj2['BillNo'] = false
     } else {
-      this.invalidObj['BillNo'] = true
+      this.invalidObj2['BillNo'] = true
       isValid = 0
     }
     if (this.InvoiceDate) {
-      this.invalidObj['InvoiceDate'] = false
+      this.invalidObj2['InvoiceDate'] = false
     } else {
-      this.invalidObj['InvoiceDate'] = true
+      this.invalidObj2['InvoiceDate'] = true
       isValid = 0
     }
 
     return !!isValid
   }
-
+  invalidObj:any ={}
   validationForItemData () {
     let isValidItem = 1
     if (this.itemCategoryId) {
@@ -2673,7 +2702,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
       isValidItem = 0
     } 
      if (this.DiscountType === '0'||0) {
-      if(this.Discount < 100){
+      if(this.Discount <= 100){
         this.invalidObj['Discount'] = false
       }
       else{
@@ -2974,20 +3003,19 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
               baserate:element.EffectiveRate,
               TotalAmount: element.SubTotalAmount,
               attributeData: this.seteditAttributeData,
-              LableAttributeVale: this.localLabelData
+              LableAttributeVale: this.localLabelData,
+              ReversetotalAmount:element.Total
 
             })
 
           })
-          console.log(data.Data.ItemTransactions , this.localItemas, 'get-item edit')
+          console.log(data.Data.ItemTransactions , this.localItemas, 'get-item edit---->>')
           if (this.stateId === 0) {
-             this.caseSaleCheckOtherState(this.stateId)
+             this.caseSaleCheckOtherState(0)
             this.isCaseSaleFlag = false
           } else {
-            this.AddressForGst =this.stateId
-             this.checkOtherStateForNewItemAdd(this.stateId)
-           // this.stateBillingSelect2Id.setElementValue(this.stateId)
-           // this.stateShippingSelect2Id.setElementValue(this.SupplyStateId)
+            debugger
+             this.checkOtherStateForNewItemAdd(this.inventoryItemSales[0].AddressId)
           }
           this.calculateAllTotal()
         }
@@ -3019,6 +3047,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
   DueDateChngae: any
   SupplyStateId: any
   itemTaxData:any
+  CurrentDateChngae: any
   saveSaleChallan () {
 
     this.submitSave = true
@@ -3039,6 +3068,11 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
             this.DueDateChngae = this._globalService.clientToSqlDateFormat(this.DueDate, this.clientDateFormat)
           } else {
             this.DueDateChngae = ''
+          }
+          if (this.CurrentDate !== '') {
+            this.CurrentDateChngae = this._globalService.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+          } else {
+            this.CurrentDateChngae = ''
           }
           let obj = {}
           obj['Id'] = this.Id
@@ -3064,7 +3098,6 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
             obj['SubTotalAmounts'] = this.subTotalBillAmount,
             obj['TotalTaxAmount'] = this.totalTaxAmount,
             obj['TotalChallan'] = this.totalChallan,
-            obj['SupplyState'] = this.SupplyStateId,
             obj['Drivername'] = this.Drivername,
             obj['Transportation'] = this.Transportation,
             obj['TotalQty'] = this.TotalQuantity,
@@ -3080,7 +3113,8 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
           obj['VehicleNo'] = this.VehicleNo
           obj['Advanceamount'] = 0
           obj['NetAmount'] = this.netBillAmount
-          obj['AddressId'] = this.stateId
+          obj['AddressId'] = this.stateIdForBill
+          obj['SupplyState'] = this.SupplyStateId,
           obj['ConvertedCurrencyId'] = 0
           obj['PaymentDetail'] = this.transactions
           obj['Items'] = this.items
@@ -3088,6 +3122,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
           obj['CustomerTypes'] = this.caseSaleCustomerDetails
           obj['AdditionalCharges'] = this.AdditionalChargeData
           obj['ItemTaxTrans'] = this.taxSlabSummery
+          obj['CurrentDate'] = this.CurrentDateChngae
           let _self = this
 
           console.log('sale-direct-request : ', JSON.stringify(obj))
@@ -3098,6 +3133,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
                 _self._commonService.newSaleAdded()
                 if (!_self.keepOpen) {
                   _self._commonService.closeSaleDirect()
+                  this._commonService.AddedItem()
                 } else {
                   _self.initComp()
                   _self.clearExtras()
@@ -3180,10 +3216,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
       }
       if(id === 0){
         this.removeBillSummery(a,'charge',sno)
-
       }
-      
-
     }
 
   }
@@ -3210,7 +3243,6 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     if (this.attrSelect2 && this.attrSelect2.length > 0) {
       this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
         if ($('.attr') && $('.attr')[index]) {
-          //$('#' + $('.attr')[index].id).removeClass('errorSelecto')
         }
         item.setElementValue(0)
       })
@@ -3274,7 +3306,7 @@ this.withoursaveEditFlag = false
         this.ChallanId = item.ChallanId
         this.Quantity = item.Quantity
         this.Rate = item.Rate
-       
+       this.ReversetotalAmount =item.ReversetotalAmount
         this.MrpRate = item.MrpRate,
           this.Length = item.Length,
           this.Width = item.Width,
@@ -3290,10 +3322,9 @@ this.withoursaveEditFlag = false
         this.taxSalbName = item.TaxSlabName
         setTimeout(() => {
           this.itemSelect2.setElementValue(+item.ItemId)
-        }, 10)
+        }, 1)
         this.taxSelect2.setElementValue(item.TaxSlabId)
         this.unitSelect2.setElementValue(item.UnitId)
-       
         this.taxTypeForItem.setElementValue(item.TaxType)
         this.PurchaseRate= item.PurchaseRate
         this.ExpiryDate= item.ExpiryDate
@@ -3394,50 +3425,51 @@ this.withoursaveEditFlag = false
   snoForChargeId : any
   taxslabChargeName: any
   @ViewChildren('atrColour_id') atrColorSelect2: QueryList<Select2Component>
+  invalidObj3: any ={}
   validateTransaction () {
     if (this.Paymode || +this.PayModeId > 0 || +this.LedgerId > 0 || this.ledgerName || +this.Amount > 0 || this.ChequeNo) {
       let isValid = 1
       if (+this.PayModeId > 0) {
-        this.invalidObj['PayModeId'] = false
+        this.invalidObj3['PayModeId'] = false
       } else {
         isValid = 0
-        this.invalidObj['PayModeId'] = true
+        this.invalidObj3['PayModeId'] = true
       }
       if (+this.LedgerId > 0) {
-        this.invalidObj['LedgerId'] = false
+        this.invalidObj3['LedgerId'] = false
       } else {
         isValid = 0
-        this.invalidObj['LedgerId'] = true
+        this.invalidObj3['LedgerId'] = true
       }
       if (this.ledgerName) {
         this.invalidObj['ledgerName'] = false
       } else {
         isValid = 0
-        this.invalidObj['ledgerName'] = true
+        this.invalidObj3['ledgerName'] = true
       }
       if (+this.Amount > 0) {
-        this.invalidObj['Amount'] = false
+        this.invalidObj3['Amount'] = false
       } else {
         isValid = 0
-        this.invalidObj['Amount'] = true
+        this.invalidObj3['Amount'] = true
       }
       if (this.PayDate) {
-        this.invalidObj['PayDate'] = false
+        this.invalidObj3['PayDate'] = false
       } else {
         isValid = 0
-        this.invalidObj['PayDate'] = true
+        this.invalidObj3['PayDate'] = true
       }
       if (+this.PayModeId === 3) {
         if (this.ChequeNo) {
-          this.invalidObj['ChequeNo'] = false
+          this.invalidObj3['ChequeNo'] = false
           this.ChequeNoFlag = false
         } else {
           isValid = 0
-          this.invalidObj['ChequeNo'] = true
+          this.invalidObj3['ChequeNo'] = true
           this.ChequeNoFlag = true
         }
       } else {
-        this.invalidObj['ChequeNo'] = false
+        this.invalidObj3['ChequeNo'] = false
         this.ChequeNoFlag = false
       }
       this.validTransaction = !!isValid
@@ -3668,7 +3700,6 @@ this.withoursaveEditFlag = false
           })
 
         }
-      //  console.log(this.backDateEntry, 'setupSetting-module')
       }
     })
   }
@@ -3724,6 +3755,7 @@ this.withoursaveEditFlag = false
     return this.taxRateForOtherStateFlag
   }
   checkOtherStateForNewItemAdd (addressID) {
+    debugger
     console.log(this.officeAddressId,addressID,'address org-stateid')
     if (this.officeAddressId === addressID) {
       this.taxRateForOtherStateFlag = false
@@ -3788,8 +3820,8 @@ AlreadySelectCategoryName : any
         if (levelNo === this.catLevel) {
           if (this.categoryId !== +evt.value) {
             this.categoryId = +evt.value
-this.AlreadySelectCategoryId =+evt.value
-this.AlreadySelectCategoryName = evt.data[0].text
+        this.AlreadySelectCategoryId =+evt.value
+        this.AlreadySelectCategoryName = evt.data[0].text
             this.categoryName = evt.data[0].text
             console.log( this.categoryId , this.categoryName ,'1Cat----------------------->>>>>>>>>')
             this.getItemByCategoryid(+evt.value)
@@ -3918,7 +3950,13 @@ this.AlreadySelectCategoryName = evt.data[0].text
   }
 
   updateLastBillNo (date, orgNo) {
-    let dateChnage = this._globalService.clientToSqlDateFormat(date, this.clientDateFormat)
+    let dateChnage
+    if (date !== '') {
+      dateChnage = this._globalService.clientToSqlDateFormat(date, this.clientDateFormat)
+    } else {
+      dateChnage = ''
+    }
+    
     this._commonService.getLastBillNo(UIConstant.SALE_TYPE, dateChnage, orgNo).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.lastBillNo = data.Data[0].BillNo
@@ -4210,18 +4248,20 @@ validChargeLedger : boolean
 validChargeAmount: boolean
 
 
+invalidObj4: any = {}
+
 validationCharge () {
 let isValid = 1
 if (this.additionChargeId>0) {
-  this.invalidObj['additionChargeId'] = false
+  this.invalidObj4['additionChargeId'] = false
 } else {
-  this.invalidObj['additionChargeId'] = true
+  this.invalidObj4['additionChargeId'] = true
   isValid = 0
 }
 if (this.AmountCharge>0) {
-  this.invalidObj['AmountCharge'] = false
+  this.invalidObj4['AmountCharge'] = false
 } else {
-  this.invalidObj['AmountCharge'] = true
+  this.invalidObj4['AmountCharge'] = true
   isValid = 0
 }
 
@@ -4310,6 +4350,7 @@ ParentTypeTaxId: any
 getBillingSummery(data) {
   if(data.length> 0){
   data.forEach(item=>{
+    if(item.taxItems.length > 0){
     let taxDetails = item.taxItems.filter(s=>s.itemTransSno === item.Sno)
     if(item.type ==='items' && taxDetails.length >0){
       this.ParentTypeTaxId = 6
@@ -4359,7 +4400,7 @@ getBillingSummery(data) {
 
     })
     }
-
+  }
   })
 }
   console.log( this.taxSlabSummery,"summery")
@@ -4401,16 +4442,15 @@ showBillingSummery (data){
 
 CreateDynamicAttributes (data) {
   this.allAttributeData = []
-      this.attributesLabels = []
-  debugger
+  this.attributesLabels = []
   let obj = {}
   let attributeKeys = []
   let attributesData = []
   data.AttributeValueResponses.forEach(attribute => {
     attributeKeys.push({'label':attribute.Name ,'AttributeId':attribute.AttributeId})
     obj['name'] = attribute.Name
-    obj['len'] = attribute.AttributeValuesResponse.length - 1
-    obj['data'] = [{ id: '0', text: 'Select' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+    obj['len'] = attribute.AttributeValuesResponse.length
+    obj['data'] = [{ id: '0', text: 'Select ' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     obj['attributeId'] = attribute.AttributeId
     obj['id'] = 0
     attributesData.push({ ...obj })
@@ -4430,29 +4470,20 @@ CreateDynamicAttributes (data) {
     if (attributesData[j]) {
       attributesData[j].data.push({ ...obj1 })
     } else {
-      this.toastrService.showError('', 'Error on Serve')
+      this.toastrService.showError('Server on error', '')
     }
   }
    let attibutesDataToSend = Object.assign([], attributesData)
-
    let  returnObject = { 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend }
    console.log(returnObject ,'atr----')
    return returnObject
 }
 pressF10ForSave (e: KeyboardEvent){
   $(function(){
-    //Yes! use keydown 'cus some keys is fired only in this trigger,
-    //such arrows keys
     $("body").keydown(function(e){
-         //well you need keep on mind that your browser use some keys 
-         //to call some function, so we'll prevent this
          e.preventDefault();
          this.saveSaleChallan()
-         //now we caught the key code, yabadabadoo!!
          var keyCode = e.keyCode || e.which;
-  
-         //your keyCode contains the key code, F1 to F12 
-         //is among 112 and 123. Just it.
          console.log(keyCode , 'key-coede');       
     });
   });

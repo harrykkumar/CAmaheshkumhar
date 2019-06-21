@@ -29,8 +29,14 @@ export class AuthService implements CanActivate {
   }
 
   authenticateApp = async () => {
-    if (this._validUser.getToken() && _.isEmpty(this._loginService.selectedUserModule)) {
-      await this._loginService.getUserDetails()
+    if (_.isEmpty(this._loginService.selectedOrganization)) {
+      this._loginService.selectedOrganization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
+      if (this._validUser.getToken() && _.isEmpty(this._loginService.selectedOrganization)) {
+        this._router.navigate(['organizations']);
+      }
+    }
+    if (this._validUser.getToken() && !_.isEmpty(this._loginService.selectedOrganization) &&  _.isEmpty(this._loginService.selectedUserModule)) {
+      await this._loginService.getUserDetails(this._loginService.selectedOrganization.Id)
       this._loginService.selectedUserModule = JSON.parse(localStorage.getItem('SELECTED_MODULE'))
       this._loginService.moduleSelected.next(true)
     }
@@ -41,4 +47,3 @@ export class AuthService implements CanActivate {
     ).toPromise()
   }
 }
-// this.toastrService.showWarning('', 'Please check you internet connectivity')

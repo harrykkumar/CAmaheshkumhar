@@ -1,3 +1,4 @@
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 // File created by dolly garg
 import { Component, OnInit } from '@angular/core';
 import { SettingsService } from '../settings.service';
@@ -9,6 +10,9 @@ import { Currencies } from '../currency';
 import { SetUpIds } from '../../shared/constants/setupIds.constant';
 import { DateFormats } from '../data-format';
 import { Subscription } from 'rxjs/Subscription';
+import { LoginService } from 'src/app/commonServices/login/login.services';
+import * as _ from 'lodash'
+
 
 @Component({
   selector: 'app-setting-master',
@@ -20,7 +24,10 @@ export class MasterSettingComponent implements OnInit {
   dateFormat: any
   options: Select2Options
   saveSub$: Subscription
-  constructor (private settingsService: SettingsService, private toastrService: ToastrCustomService) {
+  constructor (private settingsService: SettingsService,
+     private toastrService: ToastrCustomService,
+     private _loginService: LoginService,
+     private _commonService: CommonService) {
     this.saveSub$ = this.settingsService.saveSub$.subscribe(
       (obj) => {
         this.postFormValue()
@@ -157,6 +164,8 @@ export class MasterSettingComponent implements OnInit {
   }
 
   ngOnInit () {
+    if (_.isEmpty(this._loginService.selectedUserModule)) {
+    }
     this.getFormFields()
   }
 
@@ -205,6 +214,9 @@ export class MasterSettingComponent implements OnInit {
           console.log(data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             this.toastrService.showSuccess('Saved Successfully', '')
+            if (_.isEmpty(this._loginService.selectedUserModule)) {
+              this._loginService.mapModules(this._loginService.selectedOrganization);
+            }
           } else {
             throw new Error(data.Description)
           }

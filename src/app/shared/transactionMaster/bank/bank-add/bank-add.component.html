@@ -37,7 +37,7 @@
                     <div class="discount">
                             <input type="number " class="form-control " placeholder="Opening Balance" name="CrDrRate" appIncludeDecimal formControlName="openingbalance">
                                 <div class="input-group">
-                                  <select2 #crdr_selecto2 [data]="selectCrDr" class="dropdown_width_100" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="select2CrDrPlaceHolder" [value]="valueCRDR"></select2>
+                                  <select2 #crdr_selecto2 [data]="selectCrDr" class="dropdown_width_100" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="{placeholder:'Select CR DR'}" [value]="valueCRDR"></select2>
                                 </div>
                       </div>
                    </div>
@@ -68,19 +68,21 @@
                          <div class="form-group col-md-6">
                       <label for="bill_no">Country</label>
                       <div class="input-group adw_select">
-                          <select2  #country_selecto [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)" autocomplete="true" [options]="countryListPlaceHolder" [value]="countryValue" [ngClass]="{ 'errorSelecto is-invalid': addressClick && countryError  }"></select2>
+                          <select2  #country_selecto [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)" autocomplete="true" [options]="{placeholder:'Select Country'}" [value]="countryValue"></select2>
                       </div>
                   </div>
                     <div class="form-group col-md-6">
                       <label for="bill_no">State</label>
                       <div class="input-group adw_select">
-                          <select2 #state_select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)" autocomplete="true" [options]="stateListplaceHolder" [value]="stateValue" [ngClass]="{ 'errorSelecto is-invalid': addressClick &&  stateError  }"></select2>
+                          <select2 #state_select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)" autocomplete="true" [options]="{
+                              placeholder: 'Select State'
+                          }" [value]="stateValue" ></select2>
                       </div>
                   </div>
                          <div class="form-group col-md-6">
                       <label for="bill_no">City</label>
                       <div class="input-group adw_select">
-                          <select2 #city_select2 [data]="cityList" class="control_select" autocomplete="true" (valueChanged)="selectedCityId($event)" [value]="cityValue" [ngClass]="{ 'errorSelecto is-invalid':  addressClick && cityError  }"></select2>
+                          <select2 #city_select2 [data]="cityList" [options]="{placeholder: 'Select City'}" class="control_select" autocomplete="true" (valueChanged)="selectedCityId($event)" [value]="cityValue" ></select2>
                       </div>
                   </div>
                 <div class="col-md-6">

@@ -8,7 +8,7 @@
                             #client_select2 id="client"  [data]="clientNameSelect2" 
                             class="control_select" (valueChanged)="onChangeCustomer($event)" 
                             autocomplete="true"   [options]="{ placeholder: 'Select Vendors' }"
-                            [value]="clientNameId" [ngClass]="{'errorSelecto': submitSave && invalidObj?.clientNameId }">
+                             >
                         </select2>
                       </div>
                   </div> 
@@ -19,11 +19,8 @@
                 <div class="input-group adw_select">
                     <select2 [data]="categoryType" #cat_select2 class="control_select"
                      (valueChanged)="selectedCategory($event)"
-                     [disabled]="toDisableCat"
-                     autocomplete="true"
                      [options]="{ placeholder: 'Select Category' }"
-                     [value]="cateGoryValue"
-                     [ngClass]="{'errorSelecto': submitClick && invalidObj.CategoryId }"
+                     
                     ></select2>
                 </div>
             </div>
@@ -34,7 +31,7 @@
             <label for="bill_no">Item</label>
             <div class="input-group adw_select ">
                 <select2   #item_select2 [data]="itemCategoryType" class="control_select " (valueChanged)="onSelectItem($event)" autocomplete="true"
-                [options]="{ placeholder: 'Select Item' }" [value]="itemCategoryId" [ngClass]="{ 'errorSelecto is-invalid ': itemSubmit && invalidObj?.itemCategoryId }" ></select2>
+                [options]="{ placeholder: 'Select Item' }"  ></select2>
               </div>
         </div>
  
@@ -58,7 +55,7 @@
             <div class="timepicker-input input-icon form-group">
                 <div class="input-group">
                     <div class="input-group-addon bgc-white bd bdwR-0" start-date><i class="fas fa-calendar-alt"></i></div>
-                    <input (change)="onChangeToDate($event)" type="text" class="form-control start-date flatpickr" id="to-date" placeholder="To Date"  data-provide="datepicker" [(ngModel)]="toDatevalue" name="toDatevalue">
+                    <input (change)="onChangeToDate($event)" type="text" class="form-control start-date flatpickr" id="to-date" placeholder="To Date"  data-provide="datepicker" [(ngModel)]="toDateValue" name="toDatevalue">
                 </div>
             </div>
         </div>

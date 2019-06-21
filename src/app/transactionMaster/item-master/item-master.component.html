@@ -84,11 +84,12 @@
                     </table>
                 </div>
             </div>
-            <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-                (pageNoEmitter)="p = $event;getItemMasterDetail();"
-                (pageSizeEmitter)="itemsPerPage = $event;getItemMasterDetail();" ></app-pagination>
+           
         </div>
     </div>
     </div>
 </main>
+<app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+(pageNoEmitter)="p = $event;getItemMasterDetail();"
+(pageSizeEmitter)="itemsPerPage = $event;getItemMasterDetail();" ></app-pagination>
 <app-item-import></app-item-import>

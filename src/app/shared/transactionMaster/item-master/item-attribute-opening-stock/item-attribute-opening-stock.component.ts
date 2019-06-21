@@ -16,6 +16,7 @@ import * as _ from 'lodash'
 export class ItemAttributeOpeningStockComponent implements OnInit {
   masterData: any;
   attribute: Array<any> = [];
+  allChecked: boolean = false;
   @Input('toggleValue') openModel;
   @Output() closeModel = new EventEmitter<any>()
   editAttributeData: any[];

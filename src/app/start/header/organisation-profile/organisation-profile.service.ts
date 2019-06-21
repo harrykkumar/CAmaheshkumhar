@@ -26,9 +26,25 @@ export class OrganisationProfileService {
     return this._baseService.postRequest(ApiConstant.ORG_PROFILE_URL, data)
   }
 
+   /* Funtion to update the saveCompanyProfile  data  */
+   saveCompanyProfile = (data) => {
+    return this._baseService.postRequest(ApiConstant.OWNER_ORGANISATION_LIST, data)
+  }
+
   /* Funtion to get organisation profile data  */
   getOrgProfile = () => {
     return this._baseService.getRequest(ApiConstant.ORG_PROFILE_URL)
+  }
+
+  /* Funtion to get  getCompanyProfile data  */
+  getCompanyProfile = () => {
+    return this._baseService.getRequest(ApiConstant.OWNER_ORGANISATION_LIST)
+  }
+
+  
+  /* Funtion to get  getCompanyProfile data  */
+  getCompanyProfileDetails = (id?) => {
+    return this._baseService.getRequest(`${ApiConstant.ORG_COMPANY_DETAILS}?Id=${id}`)
   }
 
   /* Funtion to update the branch data  */
@@ -108,7 +124,7 @@ export class OrganisationProfileService {
           })
           return [{ id: UIConstant.ZERO, text: 'Select Country' }, ...countryList]
         })
-      )
+      ).toPromise();
   }
 
   /* Function to get all the state list */
@@ -167,9 +183,9 @@ export class OrganisationProfileService {
               text: element.CommonDesc
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Type Of Industry' }, ...industryList]
+          return [{ id: UIConstant.ZERO, text: 'Select Industry' }, ...industryList]
         })
-      )
+      ).toPromise();
   }
 
    /* Function to get all the key person type list */
@@ -201,12 +217,27 @@ export class OrganisationProfileService {
           })
           return [{ id: UIConstant.ZERO, text: 'Select Accounting Method' }, ...accMethodList]
         })
-      )
+      ).toPromise();
+  }
+
+  getFinYearIdList = () => {
+    return this._commonService.getFinYearIdList().
+      pipe(
+        map((data: any) => {
+          const list = _.map(data.Data, (element) => {
+            return {
+              id: element.Id,
+              text: element.FinYear
+            }
+          })
+          return [{ id: UIConstant.ZERO, text: 'Select Fin Year' }, ...list]
+        })
+      ).toPromise();
   }
 
    /* Function to get all registration type list */
   getRegistrationTypeList = () => {
-    return [{ id: UIConstant.ZERO, text: 'Select registration type' },
+    return [{ id: UIConstant.ZERO, text: 'Select Registration Type' },
     { id: '1', text: 'Regular' },
     { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' },
     { id: '4', text: 'UnRegistered' }, { id: '5', text: 'E-Commerce Operator' }]
@@ -225,7 +256,7 @@ export class OrganisationProfileService {
           })
           return [{ id: UIConstant.ZERO, text: 'Select Type' }, ...branchType]
         })
-      )
+      ).toPromise();
   }
 
   /* Function to allow the regex pattern keys for company Name */

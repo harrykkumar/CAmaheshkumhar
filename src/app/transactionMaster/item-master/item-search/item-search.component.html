@@ -7,12 +7,10 @@
                     <div class="input-group adw_select">
                         <select2 [data]="categoryType" #cat_select2 class="control_select"
                             (valueChanged)="selectedCategory($event)"
-                            [disabled]="toDisableCat"
                             tabindex="1"
                             autocomplete="true" [options]="categoryPlaceHolder"
                             [value]="cateGoryValue"
                             [width]="500"
-                            [ngClass]="{'errorSelecto': submitClick && invalidObj.CategoryId }"
                         ></select2>
                     </div>
                 </div>
@@ -39,7 +37,6 @@
                     <select2 [data]="selectTax" #tax_select2 class="control_select" (valueChanged)="selectedTax($event)"
                         autocomplete="true"
                             [options]="taxTypePlaceHolder" [value]="taxValue"
-                        [ngClass]="{'errorSelecto': submitClick && invalidObj.TaxId }"
                         ></select2>
                 </div>
             </div>
@@ -50,7 +47,6 @@
                         <select2 [data]="selectUnitType" #unit_select2 class="control_select"
                         (valueChanged)="selectedUnitTpye($event)"
                         autocomplete="true" [options]="unitTypePlaceHolder" [value]="unitTypeValue"
-                        [ngClass]="{'errorSelecto': submitClick && invalidObj.UnitId }"
                         ></select2>
                     </div>
                 </div>

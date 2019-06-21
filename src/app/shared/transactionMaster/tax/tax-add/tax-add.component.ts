@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, ViewChild, Renderer2 } from '@angular/core'
+import { Component, Output, EventEmitter, ViewChild, Renderer2, ElementRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms'
 import { Subscription } from 'rxjs/Subscription'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
@@ -37,6 +37,7 @@ export class TaxAddComponent {
   editMode: boolean
   public selectTaxTpye: Array<Select2OptionData>
   modalSub: Subscription
+  keepOpen: boolean = false
   constructor (public toastrCustomService: ToastrCustomService , private _taxMasterServices: TaxMasterService,
     private _formBuilder: FormBuilder,
     private _commonGetSetServices: CommonSetGraterServices,
@@ -112,7 +113,7 @@ export class TaxAddComponent {
       this.id = UIConstant.ZERO
       this.taxForm.reset()
       this.type = UIConstant.ZERO
-    
+      this.taxboxDivVisibale = true
     }
   
     this.addPulsSign = []
@@ -133,7 +134,6 @@ export class TaxAddComponent {
       this.addPulsSign = []
       this.taxboxDivVisibale = false
       this.plusValue = 0
-      this.taxboxDivVisibale = false
       this.submitClick = false
       this.id = UIConstant.ZERO
      // this.type = UIConstant.ZERO
@@ -158,7 +158,6 @@ export class TaxAddComponent {
   taxErrormass: any
   taxType: any
   getTaxEditData (id) {
-    debugger
     this.taxboxDivVisibale = true
     this.subscribe = this._taxMasterServices.editTax(id).subscribe(Data => {
       //console.log('tax edit : ', Data)
@@ -187,8 +186,7 @@ export class TaxAddComponent {
         this.taxForm.controls.slab.setValue(Data.Data.TaxSlabs[0].Slab)
         this.type = Data.Data.TaxSlabs[0].Type
         this.getSelectTaxType(this.type)
-      //  this.taxType = Data.Data.taxSlabs
-        // this.selectTaxTpye = [{ id: Data.Data.taxSlabs[0].type, text: Data.Data.taxSlabs[0].typeName }, { id: '1', text: 'GST' }, { id: '2', text: 'VAT' },{ id: '3', text: 'Other' }]
+        this.texboxDiv()
       }
     })
   }
@@ -298,6 +296,7 @@ taxTypeName:any
     }
   }
 
+  @ViewChild('first') first: ElementRef
   addTax () {
     this.submitClick = true
     this.getTaxFormValue()
@@ -308,26 +307,33 @@ taxTypeName:any
         this._taxMasterServices.addTax(this.taxParams()).subscribe(Data => {
         //  console.log('tax add : ', Data)
           if (Data.Code === UIConstant.THOUSAND) {
-            $('#add_tax').modal(UIConstant.MODEL_HIDE)
-            this._commonGetSetServices.setTax(Data.Data)
-            const dataToSend = { id: Data.Data, name: this.taxForm.value.slab }
-            this.commonService.newTaxAdded()
-            this.commonService.closeTax(dataToSend)
-            this.toastrCustomService.showSuccess('Success','Saved Successfully!')
-            this.selectTaxTpye = [{ id: '1', text: 'GST' }, { id: '2', text: 'VAT' },{ id: '3', text: 'Other' }]
-
+            if (this.keepOpen) {
+              this.toastrCustomService.showSuccess('Success','Saved Successfully!')
+              this.taxForm.reset()
+              setTimeout(() => {
+                const element = this.first.nativeElement
+                element.focus({ preventScroll: false })
+              }, 1000)
+              this.taxboxDivVisibale = false
+              this.addPulsSign = []
+              this.texboxDiv()
+            } else {
+              this._commonGetSetServices.setTax(Data.Data)
+              const dataToSend = { id: Data.Data, name: this.taxForm.value.slab }
+              this.commonService.newTaxAdded()
+              this.commonService.closeTax(dataToSend)
+              this.toastrCustomService.showSuccess('Success','Saved Successfully!')
+              this.selectTaxTpye = [{ id: '1', text: 'GST' }, { id: '2', text: 'VAT' },{ id: '3', text: 'Other' }]
+            }
           }
           if(Data.Code ===UIConstant.THOUSANDONE){
             this.toastrCustomService.showInfo('Info',Data.Description)
-
           }
         })
-
       } else {
         this.toastrCustomService.showWarning('Warning','fill tax name & tax rate!')
       }
     }
-
   }
 
   private taxParams (): TaxModule {
@@ -357,7 +363,6 @@ taxTypeName:any
 
   texboxDiv () {
     if (this.taxboxDivVisibale === true) {
-
       this.taxboxDivVisibale = false
     } else {
       this.taxboxDivVisibale = true

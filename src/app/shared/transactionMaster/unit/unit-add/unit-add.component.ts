@@ -21,6 +21,7 @@ export class UnitAddComponent {
   submitClick: boolean
   modalSub: Subscription
   editMode: boolean = false
+  keepOpen: boolean = false
   constructor (public toastrCustomService: ToastrCustomService,
     private _unitmasterServices: UnitMasterServices,
     private _formBuilder: FormBuilder,
@@ -113,16 +114,32 @@ export class UnitAddComponent {
     if (this.unitForm.valid) {
       this._unitmasterServices.addUnit(this.unitParmas()).subscribe(data => {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-          this.commonService.newUnitAdded()
-          this.toastrCustomService.showSuccess('Success','Saved Successfully')
-          const datatoSend = { id: data.Data, name: this.unitForm.value.UnitName }
-          this.commonService.closeUnit(datatoSend)
+          if (this.keepOpen) {
+            this.initialiseExtras()
+            this.toastrCustomService.showSuccess('Success','Saved Successfully')
+          } else {
+            this.commonService.newUnitAdded()
+            this.toastrCustomService.showSuccess('Success','Saved Successfully')
+            const datatoSend = { id: data.Data, name: this.unitForm.value.UnitName }
+            this.commonService.closeUnit(datatoSend)
+          }
         } else {
           this.toastrCustomService.showError('', data.Message)
         }
       })
     }
   }
+
+  initialiseExtras () {
+    this.unitForm.controls.UnitName.setValue('')
+    setTimeout(() => {
+      if (this.first) {
+        const element = this.renderer.selectRootElement(this.first.nativeElement, true)
+        element.focus({ preventScroll: false })
+      }
+    }, 10)
+  }
+
   closeButton () {
     this.unitForm.reset()
   }

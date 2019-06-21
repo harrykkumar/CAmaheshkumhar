@@ -27,7 +27,7 @@
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="tax_slab">Tax Slab</label>
-                                    <input type="text" class="form-control" id="tax_slab" placeholder="Enter Slab-Name"
+                                    <input type="text" #first class="form-control" id="tax_slab" placeholder="Enter Slab-Name"
                                         formControlName="slab"
                                         (keydown.enter)="texboxDiv()"
                                         [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.slab.errors }">
@@ -50,7 +50,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr *ngFor="let item of addPulsSign let i = index">
+                                        <tr *ngFor="let item of addPulsSign; let i = index">
                                             <td width="5%">
                                                 <button type="submit" id="btn_add" class="btn btn-primary btn_add_more"
                                                     (click)="addPulsFuctionality(1)">+</button></td>
@@ -93,7 +93,8 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn_close waves-effect" data-dismiss="modal"
                     (click)="clearValidation()">Close</button>
-                <button type="button" class="btn btn-primary waves-effect" (click)="addTax()">Save</button>
+                <button type="button" class="btn btn-primary waves-effect" (click)="keepOpen=false;addTax()">Save</button>
+                <button type="button" class="btn btn-primary waves-effect" (click)="keepOpen=true;addTax()">Save With Add New</button>
             </div>
         </div>
     </div>

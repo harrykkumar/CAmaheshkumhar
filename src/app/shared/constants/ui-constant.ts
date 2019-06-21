@@ -184,4 +184,12 @@ export class UIConstant {
   public static get VOUCHER_TYPE (): string {
     return 'Voucher'
   }
+
+  public static get PAYMENT_TYPE (): string {
+    return 'payment'
+  }
+
+  public static get RECEIPT_TYPE (): string {
+    return 'receipt'
+  }
 }

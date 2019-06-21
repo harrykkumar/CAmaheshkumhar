@@ -147,7 +147,7 @@ export class SalesSearchComponent {
       })
     ).subscribe(data => {
       console.log('Supplier data : ', data)
-      this.saleService.createSupplierList([...data])
+      // this.saleService.createSupplierList([...data])
       }
     )
   }

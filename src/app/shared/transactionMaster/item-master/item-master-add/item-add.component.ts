@@ -436,6 +436,49 @@ export class ItemAddComponent {
     }
   }
 
+  getBarStatus () {
+    this.pendingCheck = true
+    console.log('search text : ', this.HsnNo)
+    this._itemmasterServices.searchEntries(this.HsnNo).subscribe((data) => {
+      if (data.Code === UIConstant.THOUSAND) {
+        console.log('search data : ', data)
+        setTimeout(() => {
+          this.pendingCheck = false
+          this.existsCodes.barcode = data.Data[0].Status
+          if (this.existsCodes.barcode) {
+            $('.fas fa-check').addClass('hideMe')
+          // this.toastrService.showError('Oops', 'Bar Code is already taken')
+          } else {
+            $('.fas fa-times').addClass('hideMe')
+          }
+        }, 1000)
+      } else {
+        this.toastrService.showError('', data.Description)
+        this.pendingCheck = false
+      }
+    })
+  }
+
+  getItemNameStatus () {
+    this.pendingCheck1 = true
+    this._itemmasterServices.searchItemName(this.Name).subscribe((data) => {
+      if (data.Code === UIConstant.THOUSAND) {
+        console.log('search data : ', data)
+        setTimeout(() => {
+          this.pendingCheck1 = false
+          this.existsCodes.name = data.Data.Status
+          if (this.existsCodes.name) {
+            $('.fas fa-check').addClass('hideMe')
+          } else {
+            $('.fas fa-times').addClass('hideMe')
+          }
+        }, 1000)
+      } else {
+        this.toastrService.showError('', data.Description)
+      }
+    })
+  }
+
   @ViewChild('brand_select2') brandSelect2: Select2Component
   initComp () {
     if (this.modeOfForm === 'new') {
@@ -457,6 +500,7 @@ export class ItemAddComponent {
     this.pendingCheck = false
     this.unitSettingType = 0
     this.combo = []
+    this.ImageFiles = []
     this.createForm()
     if (this.catSelect2) {
       this.catSelect2.setElementValue(this.CategoryId)
@@ -493,6 +537,39 @@ export class ItemAddComponent {
       itemsShowLimit: 3,
       allowSearchFilter: true
     }
+  }
+
+  initialiseExtras () {
+    if (this.modeOfForm === 'new') {
+      this.loading = true
+    }
+    this.invalidObj = {}
+    this.submitClick = false
+    this.isBarCode = false
+    this.isItemCode = false
+    this.pendingCheck1 = false
+    this.existsCodes = {}
+    this.pendingCheck = false
+    this.unitSettingType = 0
+    this.combo = []
+    this.getBarCodeSetting()
+    this.Name = ''
+    this.HsnNo = ''
+    this.MrpRate = 0
+    this.SaleRate = 0
+    this.OurPrice = 0
+    this.MinStock = 0
+    this.MaxStock = 0
+    this.ReOrderQty = 0
+    this.BarCode = ''
+    this.PurchaseRate = 0
+    this.OpeningStock = 0
+    this.OpeningStockValue = 0
+    this.IsNotDiscountable = false
+    this.IsVolumeDiscountApply = false
+    this.IsTradeDiscountApply = false
+    this.ImageFiles = []
+    this.addedImages = { images: [], queue: [], safeUrls: [], baseImages: [] }
   }
 
   closeModal () {
@@ -786,15 +863,16 @@ export class ItemAddComponent {
               this.commonService.closeUnit(dataToSend1)
               this.commonService.closeTax(dataToSend2)
               this.commonService.closeCategory(dataToSend3)
+              this.initComp()
             } else {
               this.Id = UIConstant.ZERO
               this.submitClick = false
               this.loading = false
               this.toastrService.showSuccess('Success','Saved Successfully')
+              this.initialiseExtras()
             }
-            this.initComp()
           } else {
-            this.toastrService.showError('Oops', data.Message)
+            this.toastrService.showError('', data.Message)
           }
         })
       }
@@ -859,14 +937,6 @@ export class ItemAddComponent {
           const setUpSettings = data.Data.SetupSettings
           console.log('setUpSettings : ', setUpSettings)
           setUpSettings.forEach(setting => {
-            // if (+setting.SetupId === 32) {
-            //   _self.isBarCode = true
-              // console.log('isBarCode : ', _self.isBarCode)
-            // }
-            // if (+setting.SetupId === 64) {
-            //   _self.isItemCode = true
-            //   console.log('isItemCode : ', _self.isItemCode)
-            // }
             if (+setting.SetupId === 56) {
               _self.unitSettingType = +setting.Val
             }
@@ -877,79 +947,13 @@ export class ItemAddComponent {
         console.log(error)
       },
       () => {
-        // if (_self.isBarCode) {
-        //   _self._itemmasterServices.getBarCode('ForBarCode').subscribe(
-        //     (data: any) => {
-        // console.log('bar code : ', data)
-        //       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0 && data.Data[0].BarCode) {
-        //         this.BarCode = data.Data[0].BarCode
-        //       }
-        //     }
-        //   )
-        // }
       }
     )
   }
 
-  // searchForBarCode (barcode: string) {
-  //   if (!this.pendingCheck) {
-  //     this.barCodeSub.next(barcode)
-  //     this.pendingCheck = true
-  //     this.existsCodes.barcode = false
-  //     $('.fas fa-check').removeClass('hideMe')
-  //     $('.fas fa-times').removeClass('hideMe')
-  //     this._itemmasterServices.searchEntries(barcode).subscribe(
-  //     (data) => {
-  //       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
-  //         this.pendingCheck = false
-  //         console.log('on call of exist bar code api : ', data)
-  //         setTimeout(() => {
-  //           this.existsCodes.barcode = data.Data[0].Status
-  //           if (this.existsCodes.barcode) {
-  //             $('.fas fa-check').addClass('hideMe')
-  //             this.toastrService.showError('Oops', 'Bar Code is already taken')
-  //           } else {
-  //             $('.fas fa-times').addClass('hideMe')
-  //           }
-  //         }, 1)
-  //       } else {
-  //         this.toastrService.showError(data.Message, '')
-  //       }
-  //     }
-  //   )
-  //   }
-  // }
-
-  // searchForItemName (name: string) {
-  //   if (!this.pendingCheck1) {
-  //     this.nameSub.next(name)
-  //     this.pendingCheck1 = true
-  //     this._itemmasterServices.searchItemName(name).subscribe(
-  //       (data) => {
-  //         console.log('search for name data : ', data)
-  //         console.log('item name search : ', data)
-  //         if (data.Code === UIConstant.THOUSAND) {
-  //           this.pendingCheck1 = false
-  //           setTimeout(() => {
-  //             this.existsCodes.name = data.Data.Status
-  //             if (this.existsCodes.name) {
-  //               $('.fas fa-check').addClass('hideMe')
-  //             } else {
-  //               $('.fas fa-times').addClass('hideMe')
-  //             }
-  //           }, 1)
-  //         } else {
-  //           this.toastrService.showError(data.Message, '')
-  //         }
-  //       }
-  //     )
-  //   }
-  // }
-
   public exampleData: Array<Select2OptionData>
   public options: Select2Options
   public value: string[]
-  // public current: string
 
   ngOnInit () {
     this.options = {
@@ -1024,26 +1028,41 @@ export class ItemAddComponent {
   }
 
   onPurchaseRateChange = () => {
-    if(this.OpeningStock && this.PurchaseRate) {
-      this.OpeningStockValue = this.OpeningStock*this.PurchaseRate;
-    } else if(this.OpeningStockValue && this.PurchaseRate) {
-      this.OpeningStock = this.OpeningStockValue/this.PurchaseRate
+    if(+this.OpeningStock > 0 && +this.PurchaseRate > 0) {
+      this.OpeningStockValue = +(+this.OpeningStock * +this.PurchaseRate).toFixed(3)
+    } else {
+      this.OpeningStockValue = 0
+    }
+    if(+this.OpeningStockValue > 0 && +this.PurchaseRate > 0) {
+      this.OpeningStock = +(+this.OpeningStockValue / +this.PurchaseRate).toFixed(3)
+    } else {
+      this.OpeningStock = 0
     }
   }
 
   onOpeningStockChange = () => {
-    if(this.PurchaseRate && this.OpeningStock) {
-      this.OpeningStockValue = this.OpeningStock*this.PurchaseRate;
-    } else if(this.OpeningStockValue && this.OpeningStock) {
-      this.PurchaseRate = this.OpeningStockValue/this.OpeningStock
+    if(+this.PurchaseRate > 0 && +this.OpeningStock > 0) {
+      this.OpeningStockValue = +(+this.OpeningStock * +this.PurchaseRate).toFixed(3)
+    } else {
+      this.OpeningStockValue = 0
     }
+    if(+this.OpeningStockValue > 0 && +this.OpeningStock > 0) {
+      this.PurchaseRate = +(+this.OpeningStockValue / +this.OpeningStock).toFixed(3)
+    } else {
+      this.PurchaseRate = 0
+    } 
   }
 
   onOpeningStockValueChange = () => {
-    if(this.OpeningStock && this.OpeningStockValue) {
-      this.PurchaseRate = this.OpeningStockValue/this.OpeningStock
-    } else if(this.PurchaseRate && this.OpeningStockValue) {
-      this.OpeningStock = this.OpeningStockValue/this.PurchaseRate
+    if(+this.OpeningStock > 0 && +this.OpeningStockValue > 0) {
+      this.PurchaseRate = +(+this.OpeningStockValue / +this.OpeningStock).toFixed(3)
+    } else {
+      this.PurchaseRate = 0
+    }
+    if(+this.PurchaseRate > 0 && +this.OpeningStockValue > 0) {
+      this.OpeningStock = +(+this.OpeningStockValue / +this.PurchaseRate).toFixed(3)
+    } else {
+      this.OpeningStock = 0
     }
   }
 
