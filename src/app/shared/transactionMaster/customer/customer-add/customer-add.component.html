@@ -14,14 +14,14 @@
                     </div>
                     <div class="col-md-9">
                       <div class="btn_header">
-                        <button type="button" class="btn btn_close waves-effect" (click)="addCoustmore('reset')">Reset</button>
-                        <a class="btn btn-default waves-effect" (click)="addCoustmore('save')">Save
+                        <button type="button" class="btn btn_close waves-effect" (click)="saveCustomer('reset')">Reset</button>
+                        <a class="btn btn-default waves-effect" (click)="saveCustomer('save')">Save
                         </a>
-                        <a class="btn btn-blue-grey waves-effect" *ngIf="!isAddNew" (click)="addCoustmore('reset')">Deactive
+                        <a class="btn btn-blue-grey waves-effect" *ngIf="!isAddNew" (click)="saveCustomer('reset')">Deactive
                         </a>
-                        <a class="btn btn-info waves-effect" *ngIf="!isAddNew" (click)="addCoustmore('new')">Save
+                        <a class="btn btn-info waves-effect" *ngIf="!isAddNew" (click)="saveCustomer('new')">Save
                           With add New</a>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="clearValidation"><span aria-hidden="true" class="white-text">×</span> </button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="clearValidation()"><span aria-hidden="true" class="white-text">×</span> </button>
                       </div>
                     </div>
                   </div>
@@ -31,7 +31,7 @@
                 <div class="classic-tabs">
                   <ul class="nav tabs-cyan" role="tablist">
                     <li class="nav-item" (click)="customerTab()">
-                      <a class="nav-link waves-light active" data-toggle="tab" href="#customer1" role="tab">Customer Detail</a>
+                      <a class="nav-link waves-light active" data-toggle="tab"  href="#customer1" role="tab">Customer Detail</a>
                     </li>
                     <li class="nav-item" (click)="adressTab()">
                       <a class="nav-link waves-light " data-toggle="tab" href="#customer2" role="tab">Address</a>
@@ -68,29 +68,27 @@
                             </div>
                             <div class="form-group col-md-3">
                               <label class="fw-500">DOA</label>
-                              <div class="timepicker-input input-icon ">
-                                <div class="input-group">
-                                  <div class="input-group-addon bgc-white bd bdwR-0" start-date><i class="fas fa-calendar-alt"></i></div>
-                                  <input id="flatpickr_doa" class="form-control flatpickr customer-add" placeholder="Enter Date" data-provide="datepicker" formControlName="doa">
-                                </div>
-                              </div>
+                              <datepicker-popup [disableInput]="editMode"
+                              [toSetDate]="DateOfAnniry" [isBackDate]="true" [setMaxDate]='futureDateAn'
+                              (dateInFormat)="DateOfAnniry = $event;" ></datepicker-popup>
+                              
+
                             </div>
                             <div class="form-group col-md-3">
                               <label class="fw-500">DOB</label>
-                              <div class="timepicker-input input-icon">
-                                <div class="input-group">
-                                  <div class="input-group-addon bgc-white bd bdwR-0" start-date><i class="fas fa-calendar-alt"></i></div>
-                                  <input id="flatpickr_dob" class="form-control flatpickr customer-add" placeholder="Enter Reg. Date" data-provide="datepicker" formControlName="dob">
-                                </div>
-                              </div>
+                              
+                              <datepicker-popup [disableInput]="editMode"
+                              [toSetDate]="DateOfBirth" [isBackDate]="true" [setMaxDate]='futureDateB'
+                              (dateInFormat)="DateOfBirth = $event;" ></datepicker-popup>
+              
                             </div>
                             <div class="form-group col-md-3">
                               <label for="org_code">GSTIN No</label>
-                              <input style="text-transform:uppercase" type="text" class="form-control" id="org_code" placeholder=" GSTIN No" formControlName="gstin">
+                              <input (input) ="onInputCheckGstNumber($event)"  style="text-transform:uppercase" [ngClass]="{ 'errorTextBoxBorder is-invalid': validGSTNumber }" type="text" class="form-control" id="org_code" placeholder=" GSTIN No" formControlName="gstin">
                             </div>
                             <div class="form-group col-md-3">
                               <label for="org_code">PAN No</label>
-                              <input style="text-transform:uppercase" type="text" class="form-control" id="org_code" placeholder=" PAN No." formControlName="panNo">
+                              <input (input) ="onInputCheckPANNumber($event)" style="text-transform:uppercase"  [ngClass]="{ 'errorTextBoxBorder is-invalid': validPANFlag }" type="text" class="form-control" id="org_code" placeholder=" PAN No." formControlName="panNo">
                             </div>
                             <div class="form-group col-md-3">
                               <label>Opening Balance</label>
@@ -129,6 +127,7 @@
                                 Discount</label>
                             </div>
                           </div>
+                          <!-- <button class="btn btn-primary" (click)="confirm()"></button> -->
                           <div class="form-row">
                             <div class="col-lg-6">
                               <div class="card">
@@ -175,7 +174,7 @@
                                                           style="width:120px !important;"
                                                           class="control_select "
                                                           (valueChanged)="onChangeContactType($event )"
-                                                          autocomplete="true" [ngClass]="{ 'errorSelecto is-invalid':  invalidObjCont?.contactType && (submitClick || addConctFlag ) }"
+                                                          autocomplete="true" 
                                                         >
                                                         </select2>
                                              
@@ -186,7 +185,7 @@
                                                           style="width:120px !important;"
                                                           class="control_select "
                                                           (valueChanged)="
-                                                     onCountryCodeSelectionChange( $event )"
+                                                           onCountryCodeSelectionChange( $event )"
                                                          
                                                           autocomplete="true"
                                                         >
@@ -195,7 +194,7 @@
                                                       </div>
                                                 </td>
                                                 <td width="50%">
-                                                  <input [attr.disabled]="enableContactFlag?'':null"  formControlName="mobileNo" (keyup)="checkNumberByCountry($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': validMobileFlag  }" type="number" class="form-control" >
+                                                  <input (keydown.enter)="pressEnterMobileAdd($event)" [attr.disabled]="enableContactFlag?'':null"  formControlName="mobileNo" (keyup)="checkNumberByCountry($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': validMobileFlag  }" type="number" class="form-control" >
                                                 </td>
                                                 <!-- <td width="5%" (click)="deleteArrayMobileType(i)" class="align-middle"><a><i class="fa fa-trash delete_icon" aria-hidden="true"></i></a></td> -->
                                               </tr>
@@ -245,11 +244,11 @@
                                         style="width:120px !important;"
                                         class="control_select "
                                         (valueChanged)="onChangeEmailType($event )"
-                                        autocomplete="true" [ngClass]="{ 'errorSelecto is-invalid':  invalidObjCont?.contactType && (submitClick || addConctFlag ) }"
+                                        autocomplete="true" 
                                       >
                                       </select2>
                                       <td>
-                                        <input (keyup)="checkvalidationEmail($event)" type="email" class="form-control" formControlName='EmailAddress' [ngClass]="{ 'errorTextBoxBorder is-invalid': !getEmailvalid  }"  ></td>
+                                        <input (keydown.enter)='pressEnterEmailadd($event)'  type="email" class="form-control" formControlName='EmailAddress' [ngClass]="{ 'errorTextBoxBorder is-invalid': !getEmailvalid  }"  ></td>
                                       <!-- <td width="5%" (click)="delteEmailArray(i)" class="align-middle"><a><i class="fa fa-trash delete_icon" aria-hidden="true"></i></a></td> -->
                                     </tr>
                                   </tfoot>
@@ -338,13 +337,15 @@
                                   </div>
                                 </div>
                               </div>
-                              <div class="col-md-3" (click)="addNewAdress()">
-                                <div class="card addredd_book p-3">
+                              <!-- <button type="submit" class="btn btn-primary btn_add_more" (click)="addNewAdress()"></button></td> -->
+
+                              <button class="col-md-3 addAddress_btn" (click)="addNewAdress()">
+                                <div class=" addredd_book p-3">
                                   <a class="add_btn pt-4">
                                     <i class="fas fa-plus-circle"></i></a>
                                   <h6>ADD ADDRESS </h6>
                                 </div>
-                              </div>
+                              </button>
                               <div class="col-md-3"></div>
                             </div>
                           </div>

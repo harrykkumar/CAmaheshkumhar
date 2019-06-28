@@ -38,26 +38,13 @@ export class ItemSaleSearchComponent implements OnInit {
   }
   fromDate () {
     let _self = this
-    jQuery(function ($) {
-      flatpickr('#from-date', {
-        dateFormat: _self.clientDateFormat,
-        defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-      })
-    })
-    this.fromDatevalue = _self._globalService.getDefaultDate(_self.clientDateFormat)
+    this.fromDatevalue = ''
 
   }
   fromDatevalue: string
   toDateValue: string
   toDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#to-date', {
-        dateFormat: _self.clientDateFormat,
-        defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-      })
-    })
-    this.toDateValue = _self._globalService.getDefaultDate(_self.clientDateFormat)
+    this.toDateValue = ''
 
   }
   ngOnInit () {
@@ -126,6 +113,18 @@ export class ItemSaleSearchComponent implements OnInit {
     }
     SearchText :any =''
   searchItemButton () {
+    if(this.toDateValue !==''){
+      this.toDateChngae = this._globalService.clientToSqlDateFormat(this.toDateValue, this.clientDateFormat)
+     }
+     else{
+       this.toDateChngae =''
+     }
+     if(this.fromDatevalue !==''){
+       this.fromDateChange = this._globalService.clientToSqlDateFormat(this.fromDatevalue, this.clientDateFormat)
+      }
+      else{
+        this.fromDateChange =''
+      }
     this._commonService.searchByDateForItemSale( this.toDateChngae ,this.fromDateChange,this.SearchText ,this.categoryId ,this.itemId, this.ledgerId)
 
   }
@@ -198,13 +197,13 @@ searchResetButton () {
   this.itemSelect2.setElementValue('')
   this.catSelect2.setElementValue('')
   this.clientSelect2.setElementValue('')
-  this.toDateChngae = ''
-  this.fromDateChange=''
+  this.toDateValue=''
+  this.fromDatevalue=''
   this.SearchText =''
   this.categoryId=''
   this.itemId=''
   this.ledgerId=0
-  this._commonService.searchByDateForItemSale( this.toDateChngae ,this.fromDateChange,this.SearchText ,this.categoryId ,this.itemId, this.ledgerId)
+  this._commonService.searchByDateForItemSale( this.toDateValue ,this.fromDatevalue,this.SearchText ,this.categoryId ,this.itemId, this.ledgerId)
   
 }
 

@@ -47,14 +47,14 @@ export class VendorComponent implements OnInit, OnDestroy {
       }
     ) 
     
-    this.getListvendoer = this.commonService.getVendStatus().subscribe(
-      (obj) => {
-        debugger
-        if (obj) {
-          this.getVendorDetail()
-        }
-      }
-    )
+    // this.getListvendoer = this.commonService.getVendStatus().subscribe(
+    //   (obj) => {
+    //     debugger
+    //     if (obj) {
+    //       this.getVendorDetail()
+    //     }
+    //   }
+    // )
     this.queryStr$ = this._vendorServices.queryStr$.subscribe(
       (str) => {
         console.log(str)
@@ -131,9 +131,10 @@ export class VendorComponent implements OnInit, OnDestroy {
   }
   getVendorDetail () {
     debugger
-    if (!this.searchForm.value.searckKey) {
-      this.searchForm.value.searckKey = ''
-    }
+      if (!this.searchForm.value.searckKey) {
+        this.searchForm.value.searckKey = ''
+      }
+    
     this.subscribe = this._vendorServices.getVendor(4, '&Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
         this.VendorDetailShow = Data.Data

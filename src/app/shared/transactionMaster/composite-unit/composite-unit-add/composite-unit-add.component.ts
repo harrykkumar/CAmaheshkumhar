@@ -195,7 +195,7 @@ export class CompositeUnitAddComponent implements OnDestroy {
     const subUnitElement = {
       subUnitObj: {
         Id: this.id ? this.id : 0,
-        Name: this.compositeForm.value.UnitName,
+        Name: this.compositeForm.value.UnitName.trim(),
         MainUnitId: this.primaryUnitId,
         SubUnitId: this.secondaryUnitId,
         PrimaryUnitQty: 1,

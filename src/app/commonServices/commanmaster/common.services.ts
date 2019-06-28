@@ -5,6 +5,8 @@ import { BaseServices } from '../base-services'
 import { ApiConstant } from '../../shared/constants/api'
 import { Router, NavigationEnd } from '@angular/router'
 import { map } from 'rxjs/operators';
+
+
 declare const $: any
 @Injectable({
   providedIn: 'root'
@@ -49,14 +51,18 @@ export class CommonService {
   private newRefreshSub = new Subject()
   public previousUrl: String;
   public currentUrl: String;
+  private openConfirmationeSubJect = new BehaviorSubject<AddCust>({ 'open': false })
+  private sendDataForSearchBalanceSheetSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private sendDataForSearcProfitLossSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private sendDataForSearcTradingSub = new BehaviorSubject<AddCust>({ 'open': false })
+
   //  validation reg ex
-  companyNameRegx = `^[A-Za-z0-9& -]+$`
+  companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
   panRegx = `[A-Z]{5}[0-9]{4}[A-Z]{1}$`
   gstInRegx = `^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$`
 
   constructor(private router: Router, private baseService: BaseServices) {
-
     this.setPreviousUrl();
   }
 
@@ -536,7 +542,7 @@ export class CommonService {
 
   /* Function to get industry type list ----b */
   getIndustryType = () => {
-    return this.baseService.getRequest(ApiConstant.INDUSTRY_TYPE_LIST_URL)
+    return this.baseService.getRequest(ApiConstant.ORG_INDUSTRY)
   }
 
   /* Function to get key person type type list ----b */
@@ -551,6 +557,10 @@ export class CommonService {
 
   getFinYearIdList = () => {
     return this.baseService.getRequest(ApiConstant.FIN_YEAR)
+  }
+
+  getFinSessionList() {
+    return this.baseService.getRequest(ApiConstant.FIN_SESSION)
   }
 
   openSaleDirect(editId) {
@@ -570,7 +580,7 @@ export class CommonService {
   getListSaleDirect(queryParams) {
     return this.baseService.getRequest(ApiConstant.SALE_DIRECT_BILLING_API + queryParams)
   }
-  
+
   openPrint(id, type, isViewPrint) {
     this.openPrintAddSub.next({ 'open': true, 'id': id, 'type': type, 'isViewPrint': isViewPrint })
   }
@@ -794,8 +804,8 @@ export class CommonService {
     return this.baseService.getRequest(`${ApiConstant.LEDGER_DETAIL_URL}`)
   }
 
-  getBalanceSheetList(date) {
-    return this.baseService.getRequest(ApiConstant.BALANCE_SHEET_API + date)
+  getBalanceSheetList(todate, fromdate) {
+    return this.baseService.getRequest(ApiConstant.BALANCE_SHEET_API + '?OnDate=' + fromdate + '&ToDate=' + todate)
   }
 
   getOpeningStkList() {
@@ -809,11 +819,24 @@ export class CommonService {
 
 
   getsearchByDateForBalancesheetStatus() {
-    return this.sendDataForSearchSub.asObservable()
+    return this.sendDataForSearchBalanceSheetSub.asObservable()
   }
-  searchByDateForBalancesheet(date) {
-    this.sendDataForSearchSub.next({ 'open': true, 'date': date })
+  searchByDateForBalancesheet(todate, fromdate) {
+    this.sendDataForSearchBalanceSheetSub.next({ 'open': true, 'toDate': todate, 'fromDate': fromdate })
   }
+  getsearchByDateForProfitLossStatus() {
+    return this.sendDataForSearcProfitLossSub
+  }
+  searchByDateForProfitLoss(todate, fromdate) {
+    this.sendDataForSearcProfitLossSub.next({ 'open': true, 'toDate': todate, 'fromDate': fromdate })
+  }
+  getsearchByDateForTradingStatus() {
+    return this.sendDataForSearcTradingSub
+  }
+  searchByDateForTrading(todate, fromdate) {
+    this.sendDataForSearcTradingSub.next({ 'open': true, 'toDate': todate, 'fromDate': fromdate })
+  }
+
   setPreviousUrl = () => {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
@@ -850,12 +873,12 @@ export class CommonService {
   searchByDateForPurchaseItemSale(todate, fromDate, batchNo, categoryId, itemId, ledgerId) {
     this.sendDataForSearchSub.next({ 'open': true, 'itemId': itemId, 'ledgerId': ledgerId, 'categoryId': categoryId, 'toDate': todate, 'fromDate': fromDate, 'batchNo': batchNo })
   }
-  getProfitAndLossList(date) {
-    return this.baseService.getRequest(ApiConstant.ACCOUNT_PROFIT_AND_LOSS_BY_DATE + date)
+  getProfitAndLossList(todate, fromdate) {
+    return this.baseService.getRequest(ApiConstant.ACCOUNT_PROFIT_AND_LOSS_BY_DATE + '?OnDate=' + fromdate + '&ToDate=' + todate)
   }
 
-  getTradingList(date) {
-    return this.baseService.getRequest(ApiConstant.ACCOUNT_TRADING_BY_DATE + date)
+  getTradingList(todate, fromdate) {
+    return this.baseService.getRequest(ApiConstant.ACCOUNT_TRADING_BY_DATE + '?OnDate=' + fromdate + '&ToDate=' + todate)
   }
 
   openVoucher(editId) {
@@ -884,7 +907,7 @@ export class CommonService {
   getNewVoucherAddedStatus() {
     return this.newVoucherAdded.asObservable()
   }
-  
+
   getCurrentDate() {
     return this.baseService.getRequest(ApiConstant.GET_CURRENT_DATE)
   }
@@ -897,16 +920,46 @@ export class CommonService {
     })).toPromise();
   }
 
-  getCommonMenuDataList(code, id?){
+  getCommonMenuDataList(code, id?) {
     const url = `${ApiConstant.COMMON_MASTER_MENU}?CommonCode=${code}&Id=${id}`
     return this.baseService.getRequest(url);
   }
 
-  postCommonMenuFormData(data){
+  postCommonMenuFormData(data) {
     return this.baseService.postRequest(ApiConstant.COMMON_MASTER_MENU, data);
   }
 
-  deleteCommonMenu(code, id){
+  deleteCommonMenu(code, id) {
     return this.baseService.deleteRequest(`${ApiConstant.COMMON_MASTER_MENU}?CommonCode=${code}&Id=${id}`);
   }
+
+  getTransationNumberList(data) {
+    data.FinYearId = data.FinYearId ? data.FinYearId : 0
+    data.OrgId = data.OrgId ? data.OrgId : 0
+    return this.baseService.getRequest(`${ApiConstant.TRANSACTIONNO_VOUCHER}?FinYearId=${data.FinYearId}&OrgId=${data.OrgId}`)
+  }
+
+  postTransactionNumberList(data) {
+    return this.baseService.postRequest(ApiConstant.TRANSACTIONNO_VOUCHER, data);
+  }
+  name: any
+  openConfirmation( type, title) {
+    this.openConfirmationeSubJect.next({ 'open': true, 'title': title, 'name':type })
+    this.name = type
+  }
+
+  closeConfirmation(resData) {
+    if (resData) {
+      this.openConfirmationeSubJect.next({ 'open': false, 'name':this.name ,  'type': resData.type })
+    } else {
+      this.openConfirmationeSubJect.next({ 'open': false })
+    }
+  }
+
+  getConfirmationStatus() {
+    return this.openConfirmationeSubJect.asObservable()
+  }
+
+  
+  
 }

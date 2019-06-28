@@ -27,8 +27,10 @@
                     <div class="col-md-12" >
                         <div class="classic-tabs">
                             <ul class="nav tabs-cyan" role="tablist">
-                                <li class="nav-item"><a class="nav-link waves-light" [ngClass]="{'active': tabId === 1}" data-toggle="tab" role="tab" (click)="tabId=1;initParams();getSPUitilityData();getNewBillNo();ledgerPlaceholder={placeholder: 'Select Party'};" >Payment</a></li>
-                                <li class="nav-item"><a class="nav-link waves-light" [ngClass]="{'active': tabId === 2}" data-toggle="tab" role="tab" (click)="tabId=2;initParams();getSPUitilityData();getNewBillNo();ledgerPlaceholder={placeholder: 'Select Vendor'};" >Receipt</a></li>
+                                <li class="nav-item"><a class="nav-link waves-light" [ngClass]="{'active': tabId === 1}" data-toggle="tab" role="tab" (click)="onTabClick(1)" >Payment</a></li>
+                                <li class="nav-item"><a class="nav-link waves-light" [ngClass]="{'active': tabId === 2}" data-toggle="tab" role="tab" (click)="onTabClick(2)" >Receipt</a></li>
+                                <li class="nav-item"><a class="nav-link waves-light" [ngClass]="{'active': tabId === 3}" data-toggle="tab" role="tab" (click)="onTabClick(3)" >Contra</a></li>
+                                <li class="nav-item"><a class="nav-link waves-light" [ngClass]="{'active': tabId === 4}" data-toggle="tab" role="tab" (click)="onTabClick(4)" >Journal</a></li>
                             </ul>
                         </div>
                     </div>
@@ -57,28 +59,22 @@
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label><span *ngIf="tabId === 1" >Payment</span><span *ngIf="tabId === 2" >Receipt</span> VoucherNo.</label>
-                                    <a *ngIf="tabs[tabId - 1].voucherNoManual && previousVoucherNo" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
+                                    <a *ngIf="voucherService.tabs[tabId - 1].voucherNoManual && previousVoucherNo"
+                                     class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
                                         <span class="tooltiptext">Last Voucher No. used is - {{previousVoucherNo}}</span>
                                     </a>
                                     <input type="text" placeholder="Voucher Number"
                                     class="form-control" name="VoucherNo"
-                                    [readonly]="!tabs[tabId - 1].voucherNoManual"
+                                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual"
                                     [(ngModel)]="VoucherNo">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="fw-500">Voucher Date</label>
-                                    <div class="timepicker-input input-icon">
-                                        <div class="input-group">
-                                            <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                                            <input readonly="true" type="text"
-                                            class="form-control start-date flatpickr"
-                                            id="voucher-date"
-                                            placeholder="Voucher Date"
-                                            (input)="getNewBillNo();"
-                                            data-provide="datepicker" [(ngModel)]="VoucherDate"
-                                            name="VoucherDate">
-                                        </div>
-                                    </div>
+                                    <datepicker-popup
+                                        [toSetDate]="VoucherDate" [isBackDate]="backDateEntry"
+                                        (opened)="dateStatus = $event"
+                                        (dateInFormat)="VoucherDate = $event; getNewBillNo()" >
+                                    </datepicker-popup>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label *ngIf="tabId === 2" >Party</label>
@@ -141,6 +137,7 @@
                                     <input name="Narration" class="form-control"
                                     [ngClass]="{'errorSelecto': invalidObj?.ChequeNo}"
                                     (input)="checkForValidation()"
+                                    (keydown.enter)="manipulateData()"
                                     id="Narration" [(ngModel)]="Narration" placeholder="Enter Narration" />
                                 </div>
                             </div>
@@ -191,6 +188,176 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="!loading && tabId === 3" >
+                        <div class="col-lg-8">
+                            <div class="form-row bdrs-3 p-10 mB-5">
+                                <div class="col-md-4 form-group" >
+                                    <label>Organisation Name</label>
+                                    <div class="input-group adw_select">
+                                        <div class="input-group adw_select">
+                                            <select2 #organisation_select2  id="organisation"
+                                            [data]="organisationsData"
+                                            class="control_select"
+                                            (valueChanged)="onChangeOrganisationId($event)"
+                                            autocomplete="true"
+                                            [options]="{placeholder: 'Select Organisation'}"
+                                            [value]="organisationVlue">
+                                            </select2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Contra VoucherNo.</label>
+                                    <a *ngIf="voucherService.tabs[tabId - 1].voucherNoManual && previousVoucherNo" class="tooltip1 info_tooltip">
+                                        <i class="fas fa-info"></i>
+                                        <span class="tooltiptext">Last Voucher No. used is - {{previousVoucherNo}}</span>
+                                    </a>
+                                    <input type="text" placeholder="Voucher Number"
+                                    class="form-control" name="VoucherNo"
+                                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual"
+                                    [(ngModel)]="VoucherNo">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="fw-500">Voucher Date</label>
+                                    <datepicker-popup
+                                        [toSetDate]="VoucherDate"
+                                        (opened)="dateStatus = $event"
+                                        (dateInFormat)="VoucherDate = $event; getNewBillNo()" >
+                                    </datepicker-popup>
+                                </div>
+                                <ng-container *ngFor="let voucherData of voucherDatas;let i = index;" >
+                                    <div class="form-group col-md-2">
+                                        <label class="pt-4">Transfer 
+                                        <span *ngIf="voucherData.Type === 0" >From</span>
+                                        <span *ngIf="voucherData.Type === 1" >To</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Type</label>
+                                        <div class="input-group adw_select">
+                                            <select2 name="crdr" [data]="transferData" id="crdr"
+                                            class="control_select" (valueChanged)="voucherData.Type = +$event.value;setToOther(i)"
+                                            autocomplete="true" [options]="{placeholder: 'Select Type'}"
+                                            [ngClass]="{'errorSelecto': invalidObj?.crdr}"
+                                            [value]="voucherData.default" [disabled]="i === 1" ></select2>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Ledger</label>
+                                        <div class="input-group adw_select">
+                                        <select2 name="LedgerId" #ledger_select2 [data]="voucherData.data" id="LedgerId"
+                                        class="control_select" (valueChanged)="voucherData.LedgerId = +$event.value"
+                                        autocomplete="true" [options]="{placeholder: 'Select Ledger'}"
+                                        [ngClass]="{'errorSelecto': invalidObj?.LedgerId}"
+                                        [value]="0"
+                                        ></select2>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Amount</label>
+                                        <input type="text" appIncludeDecimal name="Amount" class="form-control"
+                                        id="Amount" [(ngModel)]="voucherData.Amount" placeholder="Enter Amount"
+                                        (input)="voucherDatas[1].Amount = voucherData.Amount"
+                                        [disabled]="i === 1"
+                                        >
+                                    </div>
+                                </ng-container>
+                                <div class="form-group col-md-12">
+                                    <label>Narration</label>
+                                    <input name="Narration" class="form-control"
+                                    [ngClass]="{'errorSelecto': invalidObj?.Narration}"
+                                    (input)="checkForValidation()"
+                                    (keydown.enter)="manipulateData()"
+                                    id="Narration" [(ngModel)]="Narration" placeholder="Enter Narration" />
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="!loading && tabId === 4" >
+                        <div class="col-lg-8">
+                            <div class="form-row bdrs-3 p-10 mB-5">
+                                <div class="col-md-4 form-group" >
+                                    <label>Organisation Name</label>
+                                    <div class="input-group adw_select">
+                                        <div class="input-group adw_select">
+                                            <select2 #organisation_select2  id="organisation"
+                                            [data]="organisationsData"
+                                            class="control_select"
+                                            (valueChanged)="onChangeOrganisationId($event)"
+                                            autocomplete="true"
+                                            [options]="{placeholder: 'Select Organisation'}"
+                                            [value]="organisationVlue">
+                                            </select2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Journal VoucherNo.</label>
+                                    <a *ngIf="voucherService.tabs[tabId - 1].voucherNoManual && previousVoucherNo" class="tooltip1 info_tooltip">
+                                        <i class="fas fa-info"></i>
+                                        <span class="tooltiptext">Last Voucher No. used is - {{previousVoucherNo}}</span>
+                                    </a>
+                                    <input type="text" placeholder="Voucher Number"
+                                    class="form-control" name="VoucherNo"
+                                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual"
+                                    [(ngModel)]="VoucherNo">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="fw-500">Voucher Date</label>
+                                    <datepicker-popup
+                                        [toSetDate]="VoucherDate"
+                                        (opened)="dateStatus = $event"
+                                        (dateInFormat)="VoucherDate = $event; getNewBillNo()" >
+                                    </datepicker-popup>
+                                </div>
+                                <ng-container *ngFor="let voucherData of voucherDataJ;let i = index;" >
+                                    <div class="form-group col-md-2">
+                                        <label>Type</label>
+                                        <div class="input-group adw_select">
+                                            <select2 name="crdr" [data]="transferData" id="crdr"
+                                            #first
+                                            class="control_select" (valueChanged)="voucherData.Type = +$event.value;"
+                                            autocomplete="true" [options]="{placeholder: 'Select Type'}"
+                                            [ngClass]="{'errorSelecto': invalidObj?.crdr}"
+                                            [value]="voucherData.default" ></select2>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Ledger</label>
+                                        <div class="input-group adw_select">
+                                        <select2 name="LedgerId" #ledger_select2 [data]="voucherData.data" id="LedgerId"
+                                            class="control_select" (valueChanged)="voucherData.LedgerId = +$event.value;"
+                                            autocomplete="true" [options]="{placeholder: 'Select Ledger'}"
+                                            [ngClass]="{'errorSelecto': invalidObj?.LedgerId}"
+                                            [value]="0"
+                                        ></select2>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Amount</label>
+                                        <input type="text" appIncludeDecimal name="Amount" class="form-control"
+                                        (keyup.enter)="addItems()"
+                                        id="Amount" [(ngModel)]="voucherData.Amount" placeholder="Enter Amount"
+                                        >
+                                    </div>
+                                    <div class="form-group col-md-2 btn_Action">
+                                        <button type="submit" class="btn btn-primary btn_add_more mr-2" (click)="addItems()" >+</button>
+                                        <a *ngIf="voucherDataJ.length > 1" (click)="deleteItem(i)" >
+                                            <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </ng-container>
+                                <div class="form-group col-lg-12">
+                                    <label>Narration</label>
+                                    <input name="Narration" class="form-control"
+                                    [ngClass]="{'errorSelecto': invalidObj?.Narration}"
+                                    (input)="submitSave=false;checkForValidation()"
+                                    (keydown.enter)="manipulateData()"
+                                    id="Narration" [(ngModel)]="Narration" placeholder="Enter Narration" />
                                 </div>
                             </div>
                         </div>

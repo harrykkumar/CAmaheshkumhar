@@ -1,0 +1,182 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0">
+              <i class="fa fa-chart-line"></i>Sample Approval
+            </p>
+          </div>
+          <div class="col-md-8 right_saerch_side p-0">
+            <div class="mr-2">
+              <form>
+                <div id="custom-search-input" class="btn_header1">
+                  <div class="input-group col-md-12">
+                    <input
+                      type="text"
+                      class="form-control input-lg"
+                      placeholder="Search"
+                    />
+                    <span class="input-group-btn">
+                      <a>
+                        <i class="fas fa-search"></i>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="btn_header">
+              <a>
+                <img src="assets/img/printer.png" />
+              </a>
+              <a> <img src="assets/img/pdf.png"/></a>
+
+              <a>
+                <img
+                  src="assets/img/excel.png"
+              />
+            </a>
+              <a
+                class="btn btn-info"
+                data-toggle="collapse"
+                data-target="#sample_approval_search_form"
+                ><i class="fas fa-search"></i>Search</a>
+                <a
+                class="btn btn-info"
+                (click)="addSampleApproval()"
+                ><i class="fas fa-search"></i>Add Sample Approval</a>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sample_approval_search_form" class="card collapse">
+      <div class="card-body ">
+        <form
+          #SampleApprovalSearchForm="ngForm"
+          (ngSubmit)="SampleApprovalSearchForm.form.valid && getSampleApprovalListData()"
+          novalidate
+        >
+          <div class="form row">
+            <div class="form-group col-md-4 ">
+              <label>Style Number</label>
+              <input
+              type="text"
+              class="form-control"
+              placeholder="Enter Style Number"
+              name="styleNo"
+              [(ngModel)]="model.styleNo"
+              />
+            </div>
+            <div class="form-group col-md-4 ">
+              <label>Status</label>
+              <input
+              type="text"
+              class="form-control"
+              placeholder="Enter Status"
+              name="status"
+              [(ngModel)]="model.status"
+              />
+            </div>
+            
+            <div class="form-group col-md-2 pt-3">
+              <button
+                type="submit"
+                class="btn btn-primary waves-effect waves-light"
+              >
+                Search
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="row animated-background">
+      <div class="col-md-12">
+        <div class="bgc-white bdrs-3 mB-20">
+          <div class="table-responsive table_height">
+            <table class="table cat-table cat-table table-hover">
+              <thead>
+                <tr>
+                  <th rowspan="2" colspan="1">SNo.</th>
+                  <th rowspan="2" colspan="1">Style/Sample No.</th>
+                  <th rowspan="2" colspan="1">Sample Date</th>
+                  <th rowspan="2" colspan="1">Reference</th>
+                  <th rowspan="2" colspan="1">Estimate Date</th>
+                  <th rowspan="2" colspan="1">Shipment No.</th>
+                  <th rowspan="2" colspan="1">Shipment By</th>
+                  <th rowspan="2" colspan="1">Remark</th>
+                  <th rowspan="2" colspan="1">Approved</th>
+                  <th rowspan="2" colspan="1">Approval Date</th>
+                  <th rowspan="2" colspan="1">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                *ngFor="let item of sampleApprovalListDate
+                 | paginate: { itemsPerPage: pageSize, currentPage: pageNo, totalItems: totalItemSize } ;
+                 let i = index;">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.SampleNo }}</td>
+                  <td>{{ item.SampleDate }}</td>
+                  <td>{{ item.Reference }}</td>
+                  <td>{{ item.ExpectedReplyDate }}</td>
+                  <td>{{ item.ShipmentNo }}</td>
+                  <td>{{ item.ShipmentBy }}</td>
+                  <td class="text-right">{{ item.Remark }}</td>
+                  <td class="text-right">
+                      <div class="form-group">
+                          <select class="form-control" id="approval" name="approveType"
+                             [(ngModel)]="item.Status">
+                            <option value="true" >Yes</option>
+                            <option value="false">No</option>
+                          </select>
+                        </div>
+                  </td>
+                  <td class="text-right"> 
+                    <datepicker-popup
+                    [toSetDate]="item.ApprovedOn"
+                    (dateInFormat)="item.ApprovedOn = $event;"
+                  ></datepicker-popup></td>
+                  <td>
+                      <a data-toggle="tooltip" data-placement="top" title="Approve" class="actionBtn" >
+                          <i class="far fa-paper-plane fa-1x" aria-hidden="true"
+                          (click)="onApprove(item)">
+                          </i></a>
+                      <a data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn" >
+                      <i class="fa fa-edit fa-1x" aria-hidden="true"
+                      (click)="addSampleApproval(item)">
+                      </i></a>
+                      <a data-toggle="tooltip" class="actionBtn" data-placement="bottom" title="Delete"
+                       (click)="deleteSampleApproval(item)"><i
+                      class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                  </td>
+                </tr>
+              </tbody>
+              <!-- <tfoot>
+                <tr *ngFor="let item of ledgerSummary?.LedgerStatementsSummary">
+                    <th colspan="5"></th>
+                    <th class="text-right font-weight-bold">{{item.Dr}}</th>
+                    <th class="text-right font-weight-bold">{{item.Cr}}</th>
+                </tr>
+            </tfoot> -->
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-pagination
+      #sample_approval_paging
+      (lastValueEmitter)="onLastValueChange($event)"
+      (pageNoEmitter)="onPageNoChange($event)"
+      (pageSizeEmitter)="onPageSizeChange($event)"
+    ></app-pagination>
+  </div>
+</main>
+
+<app-add-sample-approval #sampleApprovalForm (triggerCloseModal)="onModalClosed($event)"></app-add-sample-approval>

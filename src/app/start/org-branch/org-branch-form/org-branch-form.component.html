@@ -29,7 +29,7 @@
               </div>
               <div class="col-md-9">
                 <div class="btn_header">
-                  <button type="submit" class="btn btn-default waves-effect">
+                  <button type="submit" class="btn btn-default waves-effect" (click)="removeActiveClass()">
                     Save
                   </button>
                   <button
@@ -55,8 +55,10 @@
                 <a
                   id="activeTab"
                   class="nav-link waves-light active"
+                  (keydown.Tab)="focuOnTabOut('organizationName', 'id')"                           
                   data-toggle="tab"
                   href="#branch1"
+                  [ngClass]="{'tab-Invalid': (branchFormModel?.submitted && branchFormModel?.invalid)}"
                   role="tab"
                   >Personal Detail</a
                 >
@@ -64,24 +66,29 @@
               <li class="nav-item">
                 <a
                   class="nav-link waves-light"
+                  (keydown.Tab)="focuOnTabOut('keyPersonName', 'id')"                       
                   data-toggle="tab"
                   href="#branch2"
                   role="tab"
+                  [ngClass]="{'tab-Invalid': (branchFormModel?.submitted && keyPersonDetailArray.length === 0)}"
                   >Key Person</a
                 >
               </li>
               <li class="nav-item">
                 <a
                   class="nav-link waves-light"
+                  (keydown.Tab)="focuOnTabOut('countrySelect', 'ref')"                       
                   data-toggle="tab"
                   href="#branch3"
                   role="tab"
+                  [ngClass]="{'tab-Invalid': branchFormModel?.submitted && addressDetailArray.length === 0}"
                   >Address</a
                 >
               </li>
               <li class="nav-item">
                 <a
                   class="nav-link waves-light"
+                  (keydown.Tab)="focuOnTabOut('bankNameId', 'id')"                       
                   data-toggle="tab"
                   href="#branch4"
                   role="tab"
@@ -91,15 +98,18 @@
               <li class="nav-item">
                 <a
                   class="nav-link waves-light"
+                  (keydown.Tab)="focuOnTabOut('tinNoId', 'id')"                       
                   data-toggle="tab"
                   href="#branch5"
                   role="tab"
+                  [ngClass]="{'tab-Invalid': branchFormModel?.submitted && (gstInModel?.errors?.pattern || gstInModel?.errors?.required || statPanModel?.errors?.pattern) }"
                   >Statutory Master Details</a
                 >
               </li>
               <li class="nav-item">
                 <a
                   class="nav-link waves-light"
+                  (keydown.Tab)="focuOnTabOut('imageUploadId', 'id')"                       
                   data-toggle="tab"
                   href="#paneImage"
                   role="tab"
@@ -125,6 +135,7 @@
                               <label>Name</label>
                               <input
                                 (keypress)="_orgService.validateCompanyName($event)"
+                                id="organizationName"
                                 #companyNameModel="ngModel"
                                 type="text"
                                 class="form-control"
@@ -140,43 +151,19 @@
                                 [pattern]="_commonService.companyNameRegx"
                               />
                             </div>
-                            <!-- <div class="form-group col-md-3">
-                              <label>Code</label>
-                              <input
-                                type="text"
-                                #orgCodeModel="ngModel"
-                                class="form-control"
-                                placeholder="Enter Code"
-                                name="orgCodeInput"
-                                [(ngModel)]="personalDetail.orgCode"
-                                [ngClass]="{
-                                  'is-invalid':
-                                    (branchFormModel?.submitted ||
-                                      orgCodeModel.touched) &&
-                                    orgCodeModel.invalid
-                                }"
-                                required
-                              />
-                            </div> -->
                             <div class="form-group col-md-3">
                               <label>Type Of Industry</label>
                               <div class="input-group adw_select">
                                 <div class="input-group adw_select">
                                   <select2
+                                    #industryTypeSelect
                                     [data]="industryTypeList"
                                     class="control_select"
-                                    (valueChanged)="
-                                      onIndustryTypeSelectionChange($event)
-                                    "
+                                    (valueChanged)="onIndustryTypeSelectionChange($event)"
                                     autocomplete="true"
-                                    [value]="
-                                    personalDetailModel?.industryTypeId
-                                    "
-                                    [ngClass]="{
-                                      'errorSelecto':
-                                        branchFormModel?.submitted &&
-                                        !personalDetail.selectedIndustryType
-                                    }"
+                                    [value]="personalDetailModel?.industryTypeId"
+                                    [ngClass]="{'errorSelecto':branchFormModel?.submitted &&
+                                       (!personalDetail?.selectedIndustryType?.id || personalDetail?.selectedIndustryType?.id === '0')}"
                                   >
                                   </select2>
                                 </div>
@@ -187,6 +174,7 @@
                               <div class="input-group adw_select">
                                 <div class="input-group adw_select">
                                   <select2
+                                    #registrationTypeSelect
                                     [data]="registrationTypeList"
                                     class="control_select"
                                     (valueChanged)="
@@ -196,11 +184,8 @@
                                     [value]="
                                     personalDetailModel?.registrationTypeId
                                     "
-                                    [ngClass]="{
-                                      'errorSelecto':
-                                        branchFormModel?.submitted &&
-                                        !personalDetail.selectedRegistrationType
-                                    }"
+                                    [ngClass]="{'errorSelecto': branchFormModel?.submitted &&
+                                    (!personalDetail?.selectedRegistrationType?.id || personalDetail?.selectedRegistrationType?.id === '0')}"
                                   >
                                   </select2>
                                 </div>
@@ -211,6 +196,7 @@
                               <div class="input-group adw_select">
                                 <div class="input-group adw_select">
                                   <select2
+                                    #branchTypeSelect
                                     [data]="branchTypeList"
                                     class="control_select"
                                     (valueChanged)="
@@ -222,9 +208,10 @@
                                     "
                                     [ngClass]="{
                                       'errorSelecto':
-                                        branchFormModel?.submitted &&
+                                      branchFormModel?.submitted &&
+                                      (!personalDetail?.selectedBranchType?.id ||
                                         personalDetail?.selectedBranchType
-                                          ?.id === '0'
+                                          ?.id === '0')
                                     }"
                                   >
                                   </select2>
@@ -236,7 +223,7 @@
                               <div
                                 class="timepicker-input input-icon form-group"
                               >
-                                <div class="input-group">
+                                <!-- <div class="input-group">
                                   <div
                                     class="input-group-addon bgc-white bd bdwR-0"
                                     start-date
@@ -258,7 +245,13 @@
                                     }"
                                     required
                                   />
-                                </div>
+                                </div> -->
+                                <datepicker-popup [toSetDate]="personalDetail.registrationDate"
+                                (dateInFormat)="personalDetail.registrationDate = $event;"
+                                [class]="branchFormModel?.submitted &&
+                                !personalDetail.registrationDate"
+                                required
+                              ></datepicker-popup>
                               </div>
                             </div>
                             <div class="form-group col-md-3">
@@ -401,6 +394,7 @@
                                         <td>
                                           <div class="mobile_code">
                                             <select2
+                                              #mobileCountryCodeSelect
                                               [data]="mobileCountryCodeList"
                                               style="width:120px !important;"
                                               class="control_select"
@@ -417,9 +411,10 @@
                                               [ngClass]="{
                                                 'errorSelecto':
                                                   (mobileDetailModel?.submitted &&
+                                                  (!mobileDetail?.selectedMobileCountryCode?.id ||
                                                     mobileDetail
                                                       ?.selectedMobileCountryCode
-                                                      ?.id === '0') ||
+                                                      ?.id === '0')) ||
                                                   (branchFormModel?.submitted &&
                                                     personalDetail?.mobileArray
                                                       ?.length === 0)
@@ -437,6 +432,7 @@
                                               (keypress)="
                                                 _commonService.isNumber($event)
                                               "
+                                              (blur)="onMobileNoChange(mobileNoModel)"
                                               name="mobileInput"
                                               [(ngModel)]="
                                                 mobileDetail.mobileNo
@@ -444,7 +440,7 @@
                                               #mobileNoModel="ngModel"
                                               [ngClass]="{
                                                 'is-invalid':
-                                                  (mobileDetailModel?.submitted &&
+                                                  (
                                                     mobileNoModel.invalid) ||
                                                   (branchFormModel?.submitted &&
                                                     personalDetail?.mobileArray
@@ -566,15 +562,14 @@
                                             class="form-control"
                                             name="emailInput"
                                             #emailModel="ngModel"
-                                            [(ngModel)]="
-                                              emailDetail.selectedEmail
-                                            "
+                                           (keydown.Tab)="onTabOut('#branch2')"
+                                           (blur)="onEmailChange(emailModel)"
+                                            [(ngModel)]="emailDetail.selectedEmail"
                                          pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
                                             
                                             [ngClass]="{
                                               'is-invalid':
-                                              (emailDetailModel?.submitted &&
-                                              (!emailDetail.selectedEmail || emailModel?.errors?.pattern)) ||
+                                              (emailModel.dirty && !emailModel.valid) ||
                                                 (branchFormModel?.submitted &&
                                                   personalDetail?.emailArray
                                                     ?.length === 0)
@@ -613,9 +608,10 @@
                       >
                         <div class="form row">
                           <div class="form-group col-md-4">
-                            <label>Name</label>
+                            <label>Key Person Name</label>
                             <input
                               type="text"
+                              id="keyPersonName"
                               class="form-control"
                               placeholder="Enter Name"
                               name="keyPerson"
@@ -633,6 +629,7 @@
                             <div class="input-group adw_select">
                               <div class="input-group adw_select">
                                 <select2
+                                  #keyPersonSelect
                                   [data]="keyPersonTypeList"
                                   class="control_select"
                                   (valueChanged)="
@@ -640,13 +637,11 @@
                                   "
                                   autocomplete="true"
                                   [value]="
-                                    keyPersonDetail?.selectedKeyPersonType?.id
+                                  personalDetailModel?.keyPersonValue
                                   "
-                                  [ngClass]="{
-                                    'errorSelecto':
-                                      keyPersonFormModel?.submitted &&
-                                      keyPersonDetail?.selectedKeyPersonType
-                                        ?.id === '0'
+                                  [ngClass]="{'errorSelecto':keyPersonFormModel?.submitted &&
+                                      (!keyPersonDetail?.selectedKeyPersonType?.id || 
+                                      keyPersonDetail?.selectedKeyPersonType?.id === '0')
                                   }"
                                 ></select2>
                               </div>
@@ -659,6 +654,7 @@
                             <label>Contact No. </label>
                             <div class="d-inline-flex">
                               <select2
+                                #contactNoSelect
                                 style="width: 240px !important"
                                 [data]="mobileCountryCodeList"
                                 class="control_select col-md-4 pr-0"
@@ -666,24 +662,14 @@
                                   onKeyPersonMobileCountryCodeChange($event)
                                 "
                                 autocomplete="true"
-                                [value]="
-                                  keyPersonDetail?.keyPersonMobileCountryCode
-                                    ?.id
-                                "
-                                [ngClass]="{
-                                  'errorSelecto':
-                                    keyPersonFormModel?.submitted &&
-                                    keyPersonDetail?.keyPersonMobileCountryCode
-                                      ?.id === '0'
-                                }"
-                              >
+                                [value]="personalDetailModel?.contactCodeValue"
+                                [ngClass]="{'errorSelecto':keyPersonFormModel?.submitted && 
+                                  (!keyPersonDetail?.keyPersonMobileCountryCode?.id ||
+                                   keyPersonDetail?.keyPersonMobileCountryCode?.id === '0')}">
                               </select2>
                               <input
                                 type="text"
-                                [disabled]="
-                                  keyPersonDetail?.keyPersonMobileCountryCode
-                                    ?.id === '0'
-                                "
+                                [disabled]="keyPersonDetail?.keyPersonMobileCountryCode?.id === '0'"
                                 class="form-control"
                                 placeholder="Enter Contact Number"
                                 name="contactNo"
@@ -715,7 +701,7 @@
                               class="form-control"
                               placeholder="Enter Pan Card Number"
                               name="panNo"
-                              [(ngModel)]="keyPersonDetail.panNo"
+                              [ngModel]="keyPersonDetail.panNo | uppercase" (ngModelChange)="keyPersonDetail.panNo=$event"                              
                               [pattern]="_commonService.panRegx"
                               [ngClass]="{
                                 'is-invalid':
@@ -794,7 +780,9 @@
                               </div>
                             </div>
                           </ng-container>
-                          <button class="col-md-3 p-0" type="submit">
+                          <button class="col-md-3 p-0 border-0"
+                          (keydown.Tab)="onTabOut('#branch3')"                          
+                           type="submit">
                             <div class="card addredd_book p-3">
                               <a class="add_btn pt-4">
                                 <i class="fas fa-plus-circle"></i
@@ -830,6 +818,8 @@
                           <div class="input-group adw_select">
                             <div class="input-group adw_select">
                               <select2
+                                 #countrySelect 
+                                id="countrySelectId"
                                 [data]="countryList"
                                 class="control_select"
                                 (valueChanged)="
@@ -840,7 +830,7 @@
                                 [ngClass]="{
                                   'errorSelecto':
                                     addressFormModel?.submitted &&
-                                    addressDetail.selectedCountry?.id === '0'
+                                    (!addressDetail?.selectedCountry?.id || addressDetail?.selectedCountry?.id === '0')
                                 }"
                               >
                               </select2>
@@ -852,6 +842,7 @@
                           <div class="input-group adw_select">
                             <div class="input-group adw_select">
                               <select2
+                                #stateSelect
                                 [data]="stateList"
                                 class="control_select"
                                 (valueChanged)="onStateSelectionChange($event)"
@@ -860,7 +851,7 @@
                                 [ngClass]="{
                                   'errorSelecto':
                                     addressFormModel?.submitted &&
-                                    addressDetail?.selectedState?.id === '0'
+                                    (!addressDetail?.selectedState?.id || addressDetail?.selectedState?.id === '0')
                                 }"
                               ></select2>
                             </div>
@@ -871,6 +862,7 @@
                           <div class="input-group adw_select">
                             <div class="input-group adw_select">
                               <select2
+                                #citySelect
                                 [data]="cityList"
                                 class="control_select"
                                 (valueChanged)="onCitySelectionChange($event)"
@@ -879,7 +871,7 @@
                                 [ngClass]="{
                                   'errorSelecto':
                                     addressFormModel?.submitted &&
-                                    addressDetail.selectedCity?.id === '0'
+                                    (!addressDetail?.selectedCity?.id || addressDetail?.selectedCity?.id === '0')
                                 }"
                               ></select2>
                             </div>
@@ -890,6 +882,7 @@
                           <div class="input-group adw_select">
                             <div class="input-group adw_select">
                               <select2
+                                #areaSelect
                                 [data]="areaList"
                                 class="control_select"
                                 (valueChanged)="onAreaSelectionChange($event)"
@@ -904,6 +897,7 @@
                           <div class="input-group adw_select">
                             <div class="input-group adw_select">
                               <select2
+                                #addressTypeSelect
                                 [data]="addressTypeList"
                                 class="control_select"
                                 (valueChanged)="onAddressTypeChange($event)"
@@ -946,7 +940,7 @@
                       </div>
                       <div class="row align-items-center mt-3">
                         <div
-                          class="col-md-3"
+                          class="profile-pic col-md-3"
                           *ngFor="let item of addressDetailArray; let i = index"
                         >
                           <div class="card addredd_book p-3">
@@ -991,12 +985,15 @@
                             </div>
                           </div>
                         </div>
-                        <button class="col-md-3 p-0" type="submit">
+                        <button class="col-md-3 p-0 border-0"
+                        (keydown.Tab)="onTabOut('#branch4')"
+                        type="submit">
                           <div class="card addredd_book p-3">
                             <a class="add_btn pt-4">
                               <i class="fas fa-plus-circle"></i
                             ></a>
-                            <h6>Add New Address</h6>
+                            <h6 class="text-danger" *ngIf="(branchFormModel?.submitted && addressDetailArray.length === 0);else other_content">!Add atleast 1 Address</h6>
+                            <ng-template #other_content><h6>Add New Address</h6></ng-template>
                           </div>
                         </button>
                         <div class="col-md-3"></div>
@@ -1026,6 +1023,7 @@
                               type="text"
                               class="form-control"
                               placeholder="Enter Bank Name"
+                              id="bankNameId"
                               name="bankName"
                               #bankNameModel="ngModel"
                               [(ngModel)]="bankDetail.name"
@@ -1167,7 +1165,9 @@
                               </div>
                             </div>
                           </div>
-                          <button class="col-md-3 p-0" type="submit">
+                          <button class="col-md-3 p-0 border-0" 
+                          (keydown.Tab)="onTabOut('#branch5')"      
+                          type="submit">
                             <div class="card addredd_book p-3">
                               <a class="add_btn pt-4">
                                 <i class="fas fa-plus-circle"></i
@@ -1201,6 +1201,7 @@
                           <label>TIN Number</label>
                           <input
                             type="text"
+                            id="tinNoId"
                             class="form-control"
                             placeholder="Enter TIN Number"
                             name="tinNo"
@@ -1215,7 +1216,7 @@
                             class="form-control"
                             placeholder="Enter PAN Number"
                             name="panNo"
-                            [(ngModel)]="statutoryDetail.panNo"
+                            [ngModel]="statutoryDetail.panNo | uppercase" (ngModelChange)="statutoryDetail.panNo=$event"
                             [pattern]="_commonService.panRegx"
                             [ngClass]="{
                               'is-invalid':
@@ -1237,6 +1238,7 @@
                                 (branchFormModel?.submitted && gstInModel.errors?.pattern)
                             }"
                             [pattern]="_commonService.gstInRegx"
+                            [required]="personalDetail?.selectedRegistrationType?.id === '1'"
                           />
                         </div>
                         <div class="form-group col-md-4">
@@ -1264,6 +1266,8 @@
                           <div class="input-group adw_select">
                             <div class="input-group adw_select">
                               <select2
+                                #accMethodSelect
+                                (keydown.Tab)="onTabOut('#paneImage')"
                                 [data]="accMethodList"
                                 class="control_select"
                                 (valueChanged)="onAccMethodTypeChange($event)"
@@ -1290,23 +1294,24 @@
                         <div class="col-lg-4">
                           <div class="custom-file-upload mB-20">
                             <a (click)="openImageModal()" class="custom-file-upload">
-                              <i class="fas fa-upload"></i> Image Upload </a>
+                              <i class="fas fa-upload"></i> Image Upload (Height -150px, Width - 450px) </a>
                           </div>
                         </div>
-                        <div class="col-lg-4">
-                          <div class="toast mB-5" *ngFor="let item of imageList?.queue;let i = index;">
-                            <div class="toast-header">
-                              <strong class="mr-auto">{{item}}</strong>
-                              <button
-                                type="button"
-                                class="ml-2 mb-1 close"
-                                data-dismiss="toast"
-                                (click)="removeImage(i)"
-                              >
-                                ×
-                              </button>
+                        <div class="col-lg-3">
+                          <div *ngIf="ImageFiles && ImageFiles.length > 0">
+                            <div class="toast mB-5" *ngFor="let image of ImageFiles;let i = index;" >
+                                <div class="toast-header">
+                                    <strong class="mr-auto">{{image.Name}}</strong>
+                                    <button type="button" class="image-cross-icon ml-2 mb-1 close"
+                                    (click)="removeImage(i)" >&times;</button>
+                                </div>
                             </div>
-                          </div>
+                        </div>
+                        </div>
+                        <div class="col-lg-5">
+                          <div *ngIf="ImageFiles && ImageFiles.length > 0">
+                            <img id="center-img" [src]="ImageFiles[0].BaseString" (click)="openImageModal()" />
+                            </div>
                         </div>
                       </div>
                     </div>
@@ -1321,3 +1326,4 @@
     </div>
   </div>
 </div>
+<app-add-new-city #addNewCityRef (addCityClosed) = "addCityClosed($event)"></app-add-new-city>

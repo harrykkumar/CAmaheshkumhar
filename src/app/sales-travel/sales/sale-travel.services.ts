@@ -14,6 +14,8 @@ export class SaleTravelServices {
   public routeList$ = this.routeListSub.asObservable()
   private clientListSub = new Subject<Array<Select2OptionData>>()
   public clientList$ = this.clientListSub.asObservable()
+  private salesPrintData = new BehaviorSubject<any>({})
+  salesPrint = this.salesPrintData.asObservable()
   constructor (private _basesService: BaseServices) { }
 
   public importExportSale (params: any): Observable<any> {
@@ -36,9 +38,6 @@ export class SaleTravelServices {
   printScreenForSale (id) {
     return this._basesService.getRequest(ApiConstant.SALE_PRINT_DETAILS_DATA + id)
   }
-
-  private salesPrintData = new BehaviorSubject<any>({})
-  salesPrint = this.salesPrintData.asObservable()
 
   sendSalesPrintData (e) {
     this.salesPrintData.next(e)
@@ -67,7 +66,6 @@ export class SaleTravelServices {
         text: element.Name
       })
     });
-    console.log('router list update : ', newData)
     this.routeListSub.next(newData)
   }
 

@@ -15,7 +15,7 @@
                       <a class="btn btn_close waves-effect" (click)="addVendor('reset')">Reset</a>
                       <a class="btn btn-default waves-effect" (click)="addVendor('save')"> Save
                       </a>
-                      <a *ngIf="!isAddNew" class="btn btn-info waves-effect" (click)="addVendor('addnew')">Save
+                      <a *ngIf="!isAddNew" class="btn btn-info waves-effect" (click)="addVendor('new')">Save
                         With add New</a>
                       <button type="button" (click)="crossButton()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">×</span> </button>
                     </div>
@@ -60,40 +60,31 @@
                                 </div>
                               </div>
                             </div>
-                            <!-- <div class="form-group col-md-3">
-                                                  <label>Registration Number (Optional)</label>
-                                                  <input type="text" class="form-control" placeholder="Enter Registration Number" formControlName="registrationNo">
-                                              </div> -->
-                            <!-- <div class="form-group col-md-3">
-                                                  <label>Vendor Code</label>
-                                                  <input type="text" class="form-control" placeholder="Enter Vendor Code" formControlName="vendorCode">
-                                              </div> -->
                             <div class="form-group col-md-3">
                               <label class="fw-500">DOA</label>
-                              <div class="timepicker-input input-icon ">
-                                <div class="input-group">
-                                  <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                                  <input id="flatpickr_doa" class="form-control start-date vendor-add" placeholder="Enter Reg. Date" formControlName="daoDate">
-                                </div>
-                              </div>
+                              <datepicker-popup [disableInput]="editMode"
+                              [toSetDate]="DateOfAnniry" [isBackDate]="true" [setMaxDate]='futureDateAn'
+                              (dateInFormat)="DateOfAnniry = $event;" ></datepicker-popup>
+                              
+
                             </div>
                             <div class="form-group col-md-3">
                               <label class="fw-500">DOB</label>
-                              <div class="timepicker-input input-icon">
-                                <div class="input-group">
-                                  <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                                  <input id="flatpickr_dob" class="form-control start-date vendor-add" placeholder="Enter Reg. Date" formControlName="dobDate">
-                                </div>
-                              </div>
+                              
+                              <datepicker-popup [disableInput]="editMode"
+                              [toSetDate]="DateOfBirth" [isBackDate]="true" [setMaxDate]='futureDateB'
+                              (dateInFormat)="DateOfBirth = $event;" ></datepicker-popup>
+              
                             </div>
+                           
                             <div class="form-group col-md-3">
                               <label>GSTIN No</label>
-                              <input style="text-transform:uppercase" type="text" class="form-control" placeholder="Enter GSTIN No
-                                                      " formControlName="gstNo" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.gstNo.errors }">
+                              <input (input) ="onInputCheckGstNumber($event)" style="text-transform:uppercase" type="text" class="form-control" placeholder="Enter GSTIN No
+                                                      " formControlName="gstNo" [ngClass]="{ 'errorTextBoxBorder is-invalid': validGSTNumber }">
                             </div>
                             <div class="form-group col-md-3">
                               <label>PAN No</label>
-                              <input style="text-transform:uppercase" id="panno" type="text" class="form-control" placeholder=" PAN No." formControlName="panNo" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.panNo.errors }">
+                              <input (input) ="onInputCheckPANNumber($event)" style="text-transform:uppercase" id="panno" type="text" class="form-control" placeholder=" PAN No." formControlName="panNo" [ngClass]="{ 'errorTextBoxBorder is-invalid': validPANFlag }">
                             </div>
                             <div class="form-group col-md-3">
                               <label>Opening Balance</label>
@@ -172,7 +163,7 @@
                                                           style="width:120px !important;"
                                                           class="control_select "
                                                           (valueChanged)="onChangeContactType($event )"
-                                                          autocomplete="true" [ngClass]="{ 'errorSelecto is-invalid':  invalidObjCont?.contactType && (submitClick || addConctFlag ) }"
+                                                          autocomplete="true"
                                                         >
                                                         </select2>
                                              
@@ -192,7 +183,7 @@
                                                       </div>
                                                 </td>
                                                 <td width="50%">
-                                                  <input [attr.disabled]="enableContactFlag?'':null"  formControlName="mobileNo" (keyup)="checkNumberByCountry($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': validMobileFlag  }" type="number" class="form-control" >
+                                                  <input (keydown.enter)="pressEnterMobileAdd($event)" [attr.disabled]="enableContactFlag?'':null"  formControlName="mobileNo" (keyup)="checkNumberByCountry($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': validMobileFlag  }" type="number" class="form-control" >
                                                 </td>
                                                 <!-- <td width="5%" (click)="deleteArrayMobileType(i)" class="align-middle"><a><i class="fa fa-trash delete_icon" aria-hidden="true"></i></a></td> -->
                                               </tr>
@@ -241,11 +232,11 @@
                                           style="width:120px !important;"
                                           class="control_select "
                                           (valueChanged)="onChangeEmailType($event )"
-                                          autocomplete="true" [ngClass]="{ 'errorSelecto is-invalid':  invalidObjCont?.contactType && (submitClick || addConctFlag ) }"
+                                          autocomplete="true" 
                                         >
                                         </select2>
                                         <td>
-                                          <input (keyup)="checkvalidationEmail($event)" type="email" class="form-control" formControlName='EmailAddress' [ngClass]="{ 'errorTextBoxBorder is-invalid': !getEmailvalid  }"  ></td>
+                                          <input (keydown.enter)="pressEnterEmailadd($event)" type="email" class="form-control" formControlName='EmailAddress' [ngClass]="{ 'errorTextBoxBorder is-invalid': !getEmailvalid  }"  ></td>
                                         <!-- <td width="5%" (click)="delteEmailArray(i)" class="align-middle"><a><i class="fa fa-trash delete_icon" aria-hidden="true"></i></a></td> -->
                                       </tr>
                                     </tfoot>
@@ -256,9 +247,6 @@
                         </div>
                       </div>
                     </div>
-                 
-                  <!--/.Panel 1-->
-                  <!--Panel 2-->
                    <div class="tab-pane fade" id="vendor3" role="tabpanel">
                     <form [formGroup]="bankForm">
                       <div class="card">
@@ -302,13 +290,13 @@
                                 </div>
                               </div>
                             </div>
-                            <div class="col-md-3" (click)="addNewbankDetail()">
-                              <div class="card addredd_book p-3">
-                                <a class="add_btn pt-4">
-                                  <i class="fas fa-plus-circle"></i></a>
-                                <h6>Add Bank</h6>
-                              </div>
-                            </div>
+                            <button class="col-md-3 addAddress_btn" (click)="addNewbankDetail()">
+                                <div class=" addredd_book p-3">
+                                  <a class="add_btn pt-4">
+                                    <i class="fas fa-plus-circle"></i></a>
+                                  <h6>ADD BANK </h6>
+                                </div>
+                              </button>
                             <div class="col-md-3"></div>
                           </div>
                         </div>
@@ -383,25 +371,13 @@
                                   </div>
                                 </div>
                               </div>
-                              <!--  <div class="profile-pic col-md-3"  *ngFor="let item of collectionOfAddress let i = index">
-                                                          <div class="card addredd_book p-3">
-                                                              <a class="text-right" (click)="removeAdressIndexArray(i)">
-                                                                  <i class="fas fa-times"></i></a>
-                                                                   <h5>{{item.addressType}}</h5>
-                                                          <p><span>Address : </span><span> {{item.addressValue}}</span></p>
-                                                          <p><span>City : </span><span>{{item.cityName}}</span></p>
-                                                          <p><span>State: </span><span>{{item.statename}} </span></p>
-                                                          <p><span>Country : </span><span>{{item.countryName}}</span></p>
-                                                              
-                                                          </div>
-                                                      </div> -->
-                              <div class="col-md-3" (click)="addNewAdress()">
-                                <div class="card addredd_book p-3">
-                                  <a class="add_btn pt-4">
-                                    <i class="fas fa-plus-circle"></i></a>
-                                  <h6>Add New Address</h6>
-                                </div>
-                              </div>
+                              <button class="col-md-3 addAddress_btn" (click)="addNewAdress()">
+                                  <div class=" addredd_book p-3">
+                                    <a class="add_btn pt-4">
+                                      <i class="fas fa-plus-circle"></i></a>
+                                    <h6>ADD ADDRESS </h6>
+                                  </div>
+                                </button>
                               <div class="col-md-3"></div>
                             </div>
                           </div>

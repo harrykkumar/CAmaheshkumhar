@@ -12,6 +12,7 @@ import { DateFormats } from '../data-format';
 import { Subscription } from 'rxjs/Subscription';
 import { LoginService } from 'src/app/commonServices/login/login.services';
 import * as _ from 'lodash'
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -27,7 +28,8 @@ export class MasterSettingComponent implements OnInit {
   constructor (private settingsService: SettingsService,
      private toastrService: ToastrCustomService,
      private _loginService: LoginService,
-     private _commonService: CommonService) {
+     private _commonService: CommonService,
+     private router: Router) {
     this.saveSub$ = this.settingsService.saveSub$.subscribe(
       (obj) => {
         this.postFormValue()
@@ -164,8 +166,6 @@ export class MasterSettingComponent implements OnInit {
   }
 
   ngOnInit () {
-    if (_.isEmpty(this._loginService.selectedUserModule)) {
-    }
     this.getFormFields()
   }
 
@@ -214,8 +214,8 @@ export class MasterSettingComponent implements OnInit {
           console.log(data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             this.toastrService.showSuccess('Saved Successfully', '')
-            if (_.isEmpty(this._loginService.selectedUserModule)) {
-              this._loginService.mapModules(this._loginService.selectedOrganization);
+            if (_.includes(this.router.url, 'organization')) {
+              this.router.navigate(['organization/transaction-number']);
             }
           } else {
             throw new Error(data.Description)

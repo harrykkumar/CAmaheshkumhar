@@ -40,4 +40,16 @@ export class Settings {
   set industryId (industryId: number) {
     window.localStorage['industryId'] = industryId
   }
+
+  get moduleSettings (): string {
+    if (window.localStorage['moduleSettings']) {
+      return window.localStorage['moduleSettings']
+    } else {
+      return ''
+    }
+  }
+
+  set moduleSettings (moduleSettings: string) {
+    window.localStorage['moduleSettings'] = moduleSettings
+  }
 }

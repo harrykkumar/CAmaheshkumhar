@@ -37,6 +37,11 @@ const routes: Routes = [
     loadChildren: './settings/settings.module#SettingsModule',
     canActivate: [ValidateTokenService]
   },
+  {
+    path: 'organization/transaction-number',
+    loadChildren: './shared/transaction-number/transaction-number.module#TransactionNumberModule',
+    canActivate: [ValidateTokenService]
+  },
 ]
 
 @NgModule({

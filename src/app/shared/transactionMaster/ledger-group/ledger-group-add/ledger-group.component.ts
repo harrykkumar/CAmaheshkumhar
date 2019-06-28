@@ -33,6 +33,7 @@ export class LedgerGroupAddComponent {
   catLevel: number = 1
   LgroupDetails: any = []
   loading: boolean = true
+  editID: any
   catOrSubCatSub: Subscription
   public ledgerGroupData: Array<Select2OptionData>
 
@@ -51,10 +52,14 @@ export class LedgerGroupAddComponent {
           } else {
             this.ItemAdd = false
             if (data.editId === '') {
+              this.Id=0
+              this.editID =0
               this.editMode = false
             } else {
               this.editMode = true
               this.Id = data.editId
+              this.editID =data.editId
+
             }
           }
           this.getLedgerGroupList()
@@ -198,27 +203,46 @@ export class LedgerGroupAddComponent {
     }
   }
 
-  saveUpdateLedgerGroup () {
+  saveUpdateLedgerGroup (value) {
     this.submitClick = true
     let _self = this
     this.checkValidation()
     if (this.LedgerGroupForm.valid && this.parentId > 0) {
       this._commonservice.postLedgerGroupAPI(this.ledgerGroupParam()).subscribe(data => {
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-              let toSend = { name: this.LedgerGroupForm.value.LedgerGroupName, id: data.Data ,headId: this.headId }
-              this._commonservice.AddedItem()
-              this._commonservice.closeledgerGroup({...toSend})
-              this.getLedgerGroupList()
-              _self.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
-              this.LedgerGroupForm.controls.LedgerGroupName.setValue('')
-              this.LedgerGroupForm.controls.ShortName.setValue('')
-              this.isledger = false
-              setTimeout(() => {
-                if (this.GLname) {
-                  const element = this.renderer.selectRootElement(this.GLname.nativeElement, true)
-                  element.focus({ preventScroll: false })
-                }
-              }, 1000)
+        if (data.Code === UIConstant.THOUSAND ) {
+          if(value ==='save'){
+            let toSend = { name: this.LedgerGroupForm.value.LedgerGroupName, id: data.Data ,headId: this.headId }
+            this._commonservice.AddedItem()
+            this._commonservice.closeledgerGroup({...toSend})
+            this.getLedgerGroupList()
+            let saveName= this.editID ===0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+            _self.toastrService.showSuccess('', saveName)
+            this.LedgerGroupForm.controls.LedgerGroupName.setValue('')
+            this.LedgerGroupForm.controls.ShortName.setValue('')
+            this.isledger = false
+            setTimeout(() => {
+              if (this.GLname) {
+                const element = this.renderer.selectRootElement(this.GLname.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 1000)
+          }
+          else{
+            this._commonservice.AddedItem()
+            this.getLedgerGroupList()
+            _self.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
+            this.LedgerGroupForm.controls.LedgerGroupName.setValue('')
+            this.LedgerGroupForm.controls.ShortName.setValue('')
+            this.isledger = false
+            setTimeout(() => {
+              if (this.GLname) {
+                const element = this.renderer.selectRootElement(this.GLname.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 1000)
+            this.clearCategoryvalidation()
+          }
+
         } else if (data.Code === UIConstant.THOUSANDONE) {
           this.toastrService.showError(data.Message, '')
         } else {

@@ -101,7 +101,8 @@ export class ItemMasterComponent implements OnInit, OnDestroy {
       term = ''
     }
     this.pagingComp.setPage(1)
-    return this._itemmasterServices.getItemMasterDetail('?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
+    const queryStr = this.queryStr ? this.queryStr : ''
+    return this._itemmasterServices.getItemMasterDetail('?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + queryStr)
   }
 
   deleteItem (id) {
@@ -125,7 +126,8 @@ export class ItemMasterComponent implements OnInit, OnDestroy {
     if (!this.searchForm.value.searckKey) {
       this.searchForm.value.searckKey = ''
     }
-    this._itemmasterServices.getItemMasterDetail('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
+    const queryStr = this.queryStr ? this.queryStr : ''
+    this._itemmasterServices.getItemMasterDetail('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + queryStr).subscribe(data => {
       console.log('item master : ', data)
       if (data.Code === UIConstant.THOUSAND) {
         this.itemDetail = data.Data

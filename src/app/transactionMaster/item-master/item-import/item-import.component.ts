@@ -376,6 +376,7 @@ export class ItemImportComponent implements OnDestroy {
     this.itemImportKeys = []
     this.masterKeys = []
     this.itemImport = []
+    this.masterData = []
     $('.fixTable').tableHeadFixer({
       'thead': false,
       'left': 1
@@ -421,6 +422,7 @@ export class ItemImportComponent implements OnDestroy {
             this.commonService.closeItemImport()
           }
           if (value === 'reset') {
+            this.commonService.onAddItemMaster()
             this.modeOfForm = 'reset'
             this.initComp()
           }
@@ -509,7 +511,7 @@ export class ItemImportComponent implements OnDestroy {
         // this.masterTableArray = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
         masterTableArray = XLSX.utils.sheet_to_json(worksheet, { raw: true })
       }
-      this.masterTableArray = this.masterTableArray.splice(0, masterTableArray.length)
+      this.masterTableArray = masterTableArray.splice(0, masterTableArray.length)
       // console.log('masterTableArray : ', this.masterTableArray)
       // check validation
       if (this.masterTableArray.length > 0) {

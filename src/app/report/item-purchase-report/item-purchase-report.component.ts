@@ -79,7 +79,7 @@ export class ItemPurchaseReportComponent implements OnInit {
           let AttributeDetails
         data.Data.ItemTransactionSalePurchases.forEach(mainItm => {
         
-          debugger
+          
           let itemAttributeDetailTrans = data.Data.ItemAttributesDetailsTrans.filter(
             getValue => getValue.GroupId === mainItm.Groupid)
        

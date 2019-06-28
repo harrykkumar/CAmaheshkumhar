@@ -1,3 +1,4 @@
+import { AddNewCityComponent } from './../../../shared/components/add-new-city/add-new-city.component';
 import { ItemmasterServices } from 'src/app/commonServices/TransactionMaster/item-master.services';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 /* Created by Bharat */
@@ -21,6 +22,7 @@ import { Settings } from '../../../shared/constants/settings.constant'
   styleUrls: ['./organisation-profile.component.css']
 })
 export class OrganisationProfileComponent implements OnInit {
+  @ViewChild('addNewCityRef') addNewCityRefModel  : AddNewCityComponent
   @ViewChild('mobileDetailModel') mobileDetailModel
   @ViewChild('emailDetailModel') emailDetailModel
   @ViewChild('bankFormModel') bankFormModel
@@ -97,9 +99,13 @@ export class OrganisationProfileComponent implements OnInit {
     this.personalDetail.mobileArray = []
     this.personalDetail.emailArray = []
     this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }]
-    this.cityList = [{ id: UIConstant.ZERO, text: 'Select City' }]
-    this.areaList = [{ id: UIConstant.ZERO, text: 'Select Area' }]
-    this.addressTypeList = this._orgService.getAddressTypeList()
+    this.cityList = [{ id: 0, text: 'Select City' },
+    { id: -1, text: '+Add New' }]
+    this.areaList = [
+      { id: UIConstant.BLANK, text: 'Select Area' },
+      { id: UIConstant.ZERO, text: '+Add New' }
+    ]
+    this.addressTypeList = await this._orgService.getAddressTypeList()
     this.addressDetail.selectedAddressType = 2
     this.registrationTypeList = this._orgService.getRegistrationTypeList()
     this.industryTypeList = await this._orgService.getIndustryTypeList()
@@ -108,7 +114,6 @@ export class OrganisationProfileComponent implements OnInit {
     this.accMethodList = await this._orgService.getAccountingMethod()
     this.personalDetail.selectedRegistrationType = 1
     this.getMobileCountryCodeList()
-    this.getKeyPersonTypeList()
     this.getMobileTypeList()
     this.getEmailTypeList()
     this.initPersonalDetail()
@@ -139,6 +144,7 @@ export class OrganisationProfileComponent implements OnInit {
   onBranchTypeSelectionChange = (event) => {
     if (event.data.length > 0) {
       this.personalDetail.selectedBranchType = event.data[0]
+      this.getKeyPersonTypeList(Number(event.value))
     }
   }
 
@@ -162,19 +168,32 @@ export class OrganisationProfileComponent implements OnInit {
     if (this.addressDetail.selectedState && this.addressDetail.selectedState.id > UIConstant.ZERO) {
       this.getCityList(this.addressDetail.selectedState.id)
     } else {
-      this.cityList = [{ id: UIConstant.ZERO, text: 'Select City' }]
+      this.cityList = [{ id: 0, text: 'Select City' },
+      { id: -1, text: '+Add New' }]
     }
   }
 
   /* Function invoke on city dropdown selection change and assign new value */
   onCitySelectionChange = (event) => {
+    if(Number(event.value) === -1) {
+      const data = {
+        countryList: !_.isEmpty(this.countryList) ?  [...this.countryList] : [],
+        stateList: !_.isEmpty(this.stateList)  ? [...this.stateList] : [],
+        countryId: !_.isEmpty(this.addressDetail.selectedCountry) ? this.addressDetail.selectedCountry.id : 0,
+        stateId: !_.isEmpty(this.addressDetail.selectedState) ? this.addressDetail.selectedState.id : 0
+      }
+      this.addNewCityRefModel.openModal(data);
+    }
     if (event.data.length > 0) {
       this.addressDetail.selectedCity = event.data[0]
     }
     if (this.addressDetail.selectedCity && this.addressDetail.selectedCity.id > UIConstant.ZERO) {
       this.getAreaList(this.addressDetail.selectedCity.id)
     } else {
-      this.areaList = [{ id: UIConstant.ZERO, text: 'Select Area' }]
+      this.areaList = [
+        { id: UIConstant.BLANK, text: 'Select Area' },
+      { id: UIConstant.ZERO, text: '+Add New' }
+      ]
     }
   }
 
@@ -236,7 +255,8 @@ export class OrganisationProfileComponent implements OnInit {
         takeUntil(this.unSubscribe$)
       ).
       subscribe((response: any) => {
-        this.cityList = [{ id: UIConstant.ZERO, text: 'Select City' }, ...response]
+        this.cityList = [{ id: 0, text: 'Select City' },
+        { id: -1, text: '+Add New' }, ...response]
         if(this.dummyData.cityCodeId) {
           this.model.cityCodeId = this.dummyData.cityCodeId
           this.dummyData.cityCodeId = null
@@ -251,7 +271,10 @@ export class OrganisationProfileComponent implements OnInit {
         takeUntil(this.unSubscribe$)
       ).
       subscribe((response: any) => {
-        this.areaList = [{ id: UIConstant.ZERO, text: 'Select Area' }, ...response]
+        this.areaList = [
+          { id: UIConstant.BLANK, text: 'Select Area' },
+      { id: UIConstant.ZERO, text: '+Add New' }
+      , ...response]
         if (this.dummyData.areaId) {
           this.model.areaId = this.dummyData.areaId
           this.dummyData.areaId = null
@@ -262,8 +285,8 @@ export class OrganisationProfileComponent implements OnInit {
   
 
   /* Function to get all the key person type list */
-  getKeyPersonTypeList = () => {
-    this._orgService.getKeyPersonTypeList().
+  getKeyPersonTypeList = (organizationTypeId) => {
+    this._orgService.getKeyPersonTypeList(organizationTypeId).
       pipe(
         takeUntil(this.unSubscribe$)
       ).
@@ -823,5 +846,26 @@ export class OrganisationProfileComponent implements OnInit {
       ImageFiles.push(obj)
     }
     this.ImageFiles = ImageFiles
+  }
+
+  onMobileNoChange(control){
+    if(control.valid){
+      this.addNewMobileDetail();
+    }
+  }
+  onEmailChange(control){
+    if (control.valid) {
+      this.addNewEmailDetail();
+    }
+  }
+
+  addCityClosed(selectedIds?) {
+    if (!_.isEmpty(selectedIds) && selectedIds.cityId > 0) {
+      this.model.countryCodeId = selectedIds.countryId
+      this.dummyData.stateCodeId = selectedIds.stateId
+      this.dummyData.cityCodeId = selectedIds.cityId;
+    } else {
+      this.model.cityCodeId = 0
+    }
   }
 }

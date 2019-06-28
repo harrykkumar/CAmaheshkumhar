@@ -23,43 +23,19 @@ export class PurchaseMainComponent {
   keepOpen: boolean = true
   toShowSearch: boolean = false
   data$: Subscription
-
-  salesItemDatails: any = []
-  salesSummuryItemDatails: any
-  totalRefundPanelty: any
-  totalReIssueCharge: any
-  totalmiscellanouseChange: any
-  customerAddress: any[]
-  orgAddress: any[]
-  CONST_CUSTOMER_TYPE: any = 'Customer'
-  customerMobileData: any[]
-  customerEmailData: any[]
-  orgMobileData: any[]
-  orgEmailData: any[]
-  orgImageData: any[]
-  orgWebData: any[]
-  CONST_CONTCT_TYPE: any = 'ContactNo'
-  CONST_EMAIL_TYPE: any = 'Email'
-  CONST_ORG_TYPE: any = 'Org'
-  CONST_IMAGE_TYPE: any = 'Image'
   orgImage: string
-  CONST_WEB_TYPE: any = 'WEB'
-  totalTaxAmount: any
   clientDateFormat: string
-  netAmount: number
-  _saleTravelServices: any
-  salesData: any[]
   printData1: any = []
-  ledgerinfos: any[]
   industryId: number
+  loading = true
   constructor (private route: ActivatedRoute,
      private commonService: CommonService,
       private purchaseService: PurchaseService,
       private settings: Settings,
       private toastrService: ToastrCustomService,
       private _formBuilder: FormBuilder) {
+        this.loading = true
         this.getSPUtilityData()
-        this.getPurchaseSetting()
     this.data$ = this.commonService.getActionClickedStatus().subscribe(
       (action: any) => {
         if (action.type === FormConstants.Edit && action.formname === FormConstants.Purchase) {
@@ -76,36 +52,6 @@ export class PurchaseMainComponent {
 
   ngAfterContentInit() {
     this.purchaseAdd.initComp()
-  }
-
-  getPurchaseSetting () {
-    let _self = this
-    this.commonService.getModuleSettings(UIConstant.PURCHASE_TYPE)
-    .pipe(
-      filter(data => {
-        if (data.Code === UIConstant.THOUSAND) {
-          return true
-        } else {
-          throw new Error(data.Description)
-        }
-      }),
-      catchError(error => {
-        return throwError(error)
-      }),
-      map(data => data.Data)
-    )
-    .subscribe(
-      (data) => {
-        // console.log('settings data : ', data)
-        _self.purchaseService.getAllSettings(data)
-      },
-      (error) => {
-        console.log(error)
-        this.toastrService.showError(error, '')
-      },
-      () => {
-      }
-    )
   }
 
   @ViewChild('searchData') searchData: ElementRef
@@ -134,6 +80,7 @@ export class PurchaseMainComponent {
   }
   @ViewChild('purchase_add') purchaseAdd: PurchaseAddComponent
   getSPUtilityData () {
+    this.loading = true
     let _self = this
     this.commonService.getSPUtilityData(UIConstant.PURCHASE_TYPE)
     .pipe(
@@ -177,9 +124,13 @@ export class PurchaseMainComponent {
       },
       (error) => {
         console.log(error)
+        this.loading = false
         this.toastrService.showError(error, '')
       },
       () => {
+        setTimeout(() => {
+          this.loading = false
+        }, 1)
       }
     )
   }
@@ -200,7 +151,7 @@ export class PurchaseMainComponent {
 
   attributeKeys: any = []
   onPrintButton (id, htmlID) {
-    this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
+    // this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
     this.word = ''
     let _self = this
     _self.printData1 = []
@@ -221,7 +172,7 @@ export class PurchaseMainComponent {
           _self.printData1[index] = JSON.parse(JSON.stringify(data.Data))
         })
         console.log('print : ', _self.printData1)
-        _self.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
+        _self.orgImage = (data.Data.ImageContents && data.Data.ImageContents.length > 0) ? data.Data.ImageContents[0].FilePath : ''
         setTimeout(function () {
           // $('#' + htmlID).modal(UIConstant.MODEL_SHOW)
           _self.printComponent(htmlID)

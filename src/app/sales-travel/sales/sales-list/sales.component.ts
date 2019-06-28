@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
-import { Subscription, fromEvent } from 'rxjs'
+import { Subscription, fromEvent, throwError } from 'rxjs';
 import { SaleTravelServices } from '../sale-travel.services'
 import { Settings } from 'src/app/shared/constants/settings.constant'
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
@@ -11,6 +11,7 @@ import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { ItemmasterServices } from '../../../commonServices/TransactionMaster/item-master.services';
 import { VendorServices } from '../../../commonServices/TransactionMaster/vendoer-master.services';
+import { catchError } from 'rxjs/internal/operators/catchError';
 declare const $: any
 @Component({
   selector: 'app-travel-invoice',
@@ -52,7 +53,7 @@ export class SalesComponent implements OnInit, OnDestroy {
   itemsPerPage: number = 20
   total: number = 0
   lastItemIndex: number = 0
-  isSearching: boolean = false
+  isSearching: boolean = true
   queryStr$: Subscription
   queryStr: string = ''
   constructor (private _saleTravelServices: SaleTravelServices,
@@ -157,7 +158,7 @@ export class SalesComponent implements OnInit, OnDestroy {
       // console.log('supplier data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         this._saleTravelServices.createSupplierList(data.Data)
-        console.log('supplier list : ', data.Data)
+        // console.log('supplier list : ', data.Data)
       } else {
         throw new Error (data.Description)
       }
@@ -197,20 +198,30 @@ export class SalesComponent implements OnInit, OnDestroy {
   totaltax: number
   totalBillAmount: number
   getSaleTraveDetail () {
-    this.commonService.getSaleDetail('?StrSearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND && data.Data) {
-        console.log('sales data: ', data)
-        this.saleTravelDetails = data.Data.TravelDetails
+    this.isSearching = true
+    this.commonService.getSaleDetail('?StrSearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
+    .pipe(
+      filter(data => {
+        if (data.Code === UIConstant.THOUSAND) {
+          return true
+        } else {
+          throw new Error(data.Description)
+        }
+      }),
+      catchError(error => {
+        return throwError(error)
+      }),
+      map(data => data.Data)
+    ).subscribe(data => {
+      console.log('sales data: ', data)
+        this.saleTravelDetails = data.TravelDetails
         this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
-        if (data.Data.TravelSummary.length > 0) {
-          this.totalDiscount = +(+data.Data.TravelSummary[0].Discount).toFixed(2)
-          this.totaltax = +(+data.Data.TravelSummary[0].TaxAmount).toFixed(2)
-          this.totalBillAmount = +(+data.Data.TravelSummary[0].BillAmount).toFixed(2)
+        if (data.TravelSummary.length > 0) {
+          this.totalDiscount = +(+data.TravelSummary[0].Discount).toFixed(2)
+          this.totaltax = +(+data.TravelSummary[0].TaxAmount).toFixed(2)
+          this.totalBillAmount = +(+data.TravelSummary[0].BillAmount).toFixed(2)
           this.isSearching = false
         }
-      } else {
-        throw new Error(data.Description)
-      }
     },
     (error) => {
       this.toastrService.showError(error, '')
@@ -219,7 +230,7 @@ export class SalesComponent implements OnInit, OnDestroy {
   }
 
   onPrintButton (id, htmlID) {
-    this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
+    // this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
     this.word = ''
     let _self = this
     _self._saleTravelServices.printScreenForSale(id).subscribe(data => {
@@ -366,17 +377,15 @@ export class SalesComponent implements OnInit, OnDestroy {
               })
             }
           }
-          _self.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
         }
-
+        _self.orgImage = (data.Data.ImageContents && data.Data.ImageContents.length > 0) ? data.Data.ImageContents[0].FilePath : ''
         setTimeout(function () {
-          // _self.printComponent(htmlID);
           _self.printComponent(htmlID)
         }, 0)
       }
     }
     )
-    $('#sales_print_id').modal(UIConstant.MODEL_SHOW)
+    // $('#sales_print_id').modal(UIConstant.MODEL_SHOW)
   }
 
   printComponent (cmpName) {

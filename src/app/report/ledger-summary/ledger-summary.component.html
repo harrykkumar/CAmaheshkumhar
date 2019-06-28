@@ -76,39 +76,15 @@
             <div class="form-group col-md-3 ">
               <label class="fw-500">From</label>
               <div class="timepicker-input input-icon form-group">
-                <div class="input-group">
-                  <div class="input-group-addon bgc-white bd bdwR-0" start-date>
-                    <i class="fas fa-calendar-alt"></i>
-                  </div>
-                  <input
-                    type="text"
-                    class="form-control start-date flatpickr"
-                    id="ledger-from-date"
-                    placeholder=" From Date"
-                    data-provide="datepicker"
-                    [(ngModel)]="model.fromDatevalue"
-                    name="fromDatevalue"
-                  />
-                </div>
+                <datepicker-popup [toSetDate]="model.fromDatevalue" 
+                (dateInFormat)="model.fromDatevalue = $event;"></datepicker-popup>
               </div>
             </div>
             <div class="form-group col-md-3">
               <label class="fw-500">To</label>
               <div class="timepicker-input input-icon form-group">
-                <div class="input-group">
-                  <div class="input-group-addon bgc-white bd bdwR-0" start-date>
-                    <i class="fas fa-calendar-alt"></i>
-                  </div>
-                  <input
-                    type="text"
-                    class="form-control start-date flatpickr"
-                    id="ledger-to-date"
-                    placeholder="To Date"
-                    data-provide="datepicker"
-                    [(ngModel)]="model.toDateValue"
-                    name="toDatevalue"
-                  />
-                </div>
+                <datepicker-popup [toSetDate]="model.toDateValue" 
+                (dateInFormat)="model.toDateValue = $event;"></datepicker-popup>
               </div>
             </div>
             <div class="form-group col-md-2 pt-3">

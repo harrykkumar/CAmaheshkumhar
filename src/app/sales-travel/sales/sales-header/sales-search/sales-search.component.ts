@@ -14,8 +14,7 @@ import { CommonService } from '../../../../commonServices/commanmaster/common.se
 import { Settings } from '../../../../shared/constants/settings.constant';
 import { SaleTravelServices } from '../../sale-travel.services';
 import { ItemmasterServices } from '../../../../commonServices/TransactionMaster/item-master.services';
-declare const $: any
-declare const flatpickr: any
+import { DatepickerComponent } from '../../../../shared/datepicker/datepicker.component';
 @Component({
   selector: 'app-sales-search',
   templateUrl: './sales-search.component.html',
@@ -32,12 +31,11 @@ export class SalesSearchComponent {
   LedgerId: number = 0
   BillStatus: number = 0
   newCustAddSub: Subscription
-  @ViewChild('fromdate') fromdate: ElementRef
+  @ViewChild('fromdate') fromdate: DatepickerComponent
   ngOnChanges (changes: SimpleChanges): void {
     if (changes.toShow && changes.toShow.currentValue) {
       setTimeout(() => {
-        const element = this.fromdate.nativeElement
-        element.focus({ preventScroll: false })
+        this.fromdate.toggleView()
       }, 10)
     }
   }
@@ -68,8 +66,6 @@ export class SalesSearchComponent {
       { id: '2', text: 'Return' }
     ]
     this.createForm()
-    this.setFromDate()
-    this.setToDate()
     this.getLedgerList()
     this.getItemDetail()
     this.getSupplierList()
@@ -113,7 +109,7 @@ export class SalesSearchComponent {
         return newData
       })
     ).subscribe(data => {
-      console.log('Party data : ', data)
+      // console.log('Party data : ', data)
       this.saleService.setLedgerList([...data])
       this.ledgerListSelect2 = Object.assign([], data)
       }
@@ -146,7 +142,7 @@ export class SalesSearchComponent {
         return newData
       })
     ).subscribe(data => {
-      console.log('Supplier data : ', data)
+      // console.log('Supplier data : ', data)
       // this.saleService.createSupplierList([...data])
       }
     )
@@ -156,27 +152,9 @@ export class SalesSearchComponent {
     this._itemServices.getItemMasterDetail('').subscribe(data => {
       // console.log('router data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
-        console.log('route list : ', data.Data)
+        // console.log('route list : ', data.Data)
         this.saleService.createRouteList([...data.Data])
       }
-    })
-  }
-
-  setFromDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#from-date', {
-        dateFormat: _self.settings.dateFormat
-      })
-    })
-  }
-
-  setToDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#to-date', {
-        dateFormat: _self.settings.dateFormat
-      })
     })
   }
 
@@ -252,5 +230,13 @@ export class SalesSearchComponent {
     '&ToAmount=' + 0 + 
     '&LedgerId=' + this.LedgerId
     this.saleService.setSearchQueryParamsStr(queryStr)
+  }
+
+  setToDate (evt) {
+    this.searchForm.controls.ToDate.setValue(evt)
+  }
+
+  setFromDate (evt) {
+    this.searchForm.controls.FromDate.setValue(evt)
   }
 }

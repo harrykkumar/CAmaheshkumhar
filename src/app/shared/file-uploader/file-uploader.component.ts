@@ -28,7 +28,7 @@ export class FileUploaderComponent implements OnInit {
   onFileSelect(blob) {
     for (const key in blob) {
       if (blob[key] instanceof File) {
-        console.log(blob[key] instanceof Blob)
+        // console.log(blob[key] instanceof Blob)
         if (this.allowedMimeTypes.indexOf(blob[key].type) > -1) {
           this.len += 1
           this.blobToString(blob[key])
@@ -67,8 +67,10 @@ export class FileUploaderComponent implements OnInit {
           _self.len -= 1
           return
         } else {
-          let base64Image = _self.domSanitizer.bypassSecurityTrustUrl(base64data)
-          _self.images.push(base64Image)
+          let base64Image = _self.domSanitizer.bypassSecurityTrustUrl(base64data) as any
+          let toPushBase64Image = base64Image.changingThisBreaksApplicationSecurity || base64Image
+          console.log('base64Image : ', toPushBase64Image)
+          _self.images.push(toPushBase64Image)
           _self.safeUrls.push(base64data)
           _self.baseImages.push(1)
           _self.queue.push(blob.name)

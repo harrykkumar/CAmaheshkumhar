@@ -111,6 +111,7 @@ export class SalesReturnComponent {
   validTransaction: boolean = true
   selectedItems: any = []
   clientDateFormat: string = ''
+  backDateEntry: boolean
   constructor (private _saleTravelServices: SaleTravelServices,
     private _ledgerServices: VendorServices,
     private _itemServices: ItemmasterServices,
@@ -380,8 +381,6 @@ export class SalesReturnComponent {
           console.log('items : ', this.items)
           this.calSaleReturn()
           this.initialiseItem()
-          this.setTravelDate()
-          this.setReturnDate()
         }
       } else {
         this.calculate()
@@ -389,8 +388,6 @@ export class SalesReturnComponent {
         console.log('items : ', this.items)
         this.calSaleReturn()
         this.initialiseItem()
-        this.setTravelDate()
-        this.setReturnDate()
       }
     }
   }
@@ -674,11 +671,10 @@ export class SalesReturnComponent {
       (data: ResponseSale) => {
         if (data.Code === UIConstant.THOUSAND) {
           _self.setupModules = data.Data.SetupModules[0]
+          _self.backDateEntry = !!(_self.setupModules.IsBackDateEntryAllow)
           console.log('set up modules : ', _self.setupModules)
           _self.ReturnBillNo = _self.setupModules.BillNo
           _self.setPayDate()
-          _self.setTravelDate()
-          _self.setReturnDate()
           _self.setReturnBillDate()
           _self.isDataAvailable = true
           _self.editMode = false
@@ -995,10 +991,7 @@ export class SalesReturnComponent {
             if (data.Code === UIConstant.THOUSAND) {
               _self.toastrService.showSuccess('success', 'sales added')
               _self.initComp()
-              if (!this.keepOpen) {
-                _self.initialiseExtras()
-                _self.commonService.closeSaleReturn()
-              }
+              _self.commonService.closeSaleReturn()
             } else {
               _self.toastrService.showError('error', data.Description)
             }
@@ -1161,7 +1154,7 @@ export class SalesReturnComponent {
   }
 
   validateTransaction () {
-    if (this.Paymode || +this.PayModeId > 0 || +this.LedgerId > 0 || this.ledgerName || this.Amount > 0 || this.ChequeNo) {
+    if (this.Paymode || +this.PayModeId > 0 || +this.LedgerId > 0) {
       let isValid = 1
       if (+this.PayModeId > 0) {
         this.invalidObj['PayModeId'] = false
@@ -1315,84 +1308,12 @@ export class SalesReturnComponent {
     this.setupModules = {}
   }
 
-  setTravelDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#travel-date', {
-        minDate: 'today',
-        dateFormat: _self.clientDateFormat
-      })
-    })
-  }
-
   setPayDate () {
-    let _self = this
-    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
-      jQuery(function ($) {
-        flatpickr('#pay-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#pay-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    }
-    this.PayDate = _self.gs.getDefaultDate(_self.clientDateFormat)
-  }
-
-  setReturnDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#return-travel-date', {
-        minDate: 'today',
-        dateFormat: _self.clientDateFormat
-      })
-    })
-  }
-
-  setBillDate () {
-    let _self = this
-    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          dateFormat: _self.clientDateFormat
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat
-        })
-      })
-    }
+    this.PayDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
 
   setReturnBillDate () {
-    let _self = this
-    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
-      jQuery(function ($) {
-        flatpickr('#return-bill-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#return-bill-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    }
-    this.ReturnBillDate = _self.gs.getDefaultDate(_self.clientDateFormat)
+    this.ReturnBillDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
 
   calculatePaymentAmount () {
@@ -1417,7 +1338,7 @@ export class SalesReturnComponent {
     this.addTransactions()
     let paymentTotal = this.getPaymentTotal()
     if (this.totalBillAmount === paymentTotal) {
-      // this.manipulateData()
+      this.manipulateData()
     } else {
       setTimeout(() => {
         this.paymodeSelect2.selector.nativeElement.focus({ preventScroll: false })

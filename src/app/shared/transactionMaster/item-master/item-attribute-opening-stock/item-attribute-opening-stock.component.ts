@@ -32,6 +32,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.openModel && this.openModel.value === true) {
+      this.triggerModelOpen();
       this.getSPUtilityData();
     } else {
       return;
@@ -49,7 +50,6 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
           if (this.openModel.editMode === true) {
             await this.initFormData(this.openModel.data);
           }
-          this.triggerModelOpen();
         }
       },
       (error) => {

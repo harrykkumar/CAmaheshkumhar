@@ -227,9 +227,11 @@ export class SalesChallanInvoiceComponent {
           if (status.editId === UIConstant.BLANK) {
             this.editMode = false
             this.Id = 0
+            this.MainEditID =0
            // this.editRowFlag = false
           } else {
             this.editMode = true
+            this.MainEditID = status.editId
             this.Id = status.editId
             this.editRowFlag = false
           }
@@ -266,7 +268,7 @@ export class SalesChallanInvoiceComponent {
     )
     this.modalCategory = this._commonService.getCategoryStatus().subscribe(
       (data: AddCust) => {
-        debugger
+        
         if (data.id && data.name) {
           let categoryId = data.id
           let categoryName = data.name
@@ -291,6 +293,7 @@ export class SalesChallanInvoiceComponent {
     )
 
   }
+  MainEditID: any
   ledgerChargeValue: any
   isAddNew: boolean
   attrinuteSetDataId: any
@@ -300,7 +303,7 @@ export class SalesChallanInvoiceComponent {
     this.editItemId = 0
     this.getFreightValueData()
     this.initComp()
-    this.setSupplyDate()
+    //this.setSupplyDate()
     this.selectTax = []
   }
   @ViewChild('item_select2') itemSelect2: Select2Component
@@ -378,10 +381,13 @@ export class SalesChallanInvoiceComponent {
         this.allAttributeData = []
         this.attributesLabels = []
         if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
-
+          
+        // if(this.industryId ==='2'){
           let AttributeDetails= this.CreateDynamicAttributes(data.Data)
           this.attributesLabels = AttributeDetails.attributeKeys
           this.allAttributeData = AttributeDetails.attributesData
+       //  }
+       
         }
         if (this.Id !== 0 && this.editMode && !this.editRowFlag) {
           this.itemTableDisabledFlag =false
@@ -528,6 +534,7 @@ export class SalesChallanInvoiceComponent {
   }
  
   getOrgnization(data){
+    
     if (data.Data && data.Data.Organizations && data.Data.Organizations.length > 0) {
       this.setupOrganization = data
       this.organizationData = []
@@ -727,7 +734,7 @@ export class SalesChallanInvoiceComponent {
 
   CommissionTypeId: any
   getCommisionTypeValue () {
-    // debugger;
+    // ;
     this.CommissionType = []
     this.CommissionType = [{ id: '1', text: '%' }, { id: '2', text: '$' }]
     this.CommissionTypeId = this.CommissionType[0].id
@@ -777,8 +784,10 @@ export class SalesChallanInvoiceComponent {
   }
   clientNameId: any
   itemTableDisabledFlag: boolean
+
   @ViewChild('client_select2') clientSelect2: Select2Component
   @ViewChild('unit_select2') unitSelect2: Select2Component
+
   onSelected2clientId (event) {
     if (event.data.length > 0) {
       this.stateList = []
@@ -802,33 +811,36 @@ export class SalesChallanInvoiceComponent {
   stateError: boolean
   addressStateId: any
   getAddressOfCustomerByID (customerId, parentTypeId) {
+    
     this.subscribe = this._commonService.getAddressByIdOfCustomer(customerId, parentTypeId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         this.stateList = []
         this.stateListplaceHolder = { placeholder: 'Select Address' }
-        this.stateList = [{ id: '0', text: 'select Address' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+        this.stateList = [{ id: '', text: 'Select Address' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
         if (data.Data && data.Data.length > 0) {
-          data.Data.forEach(element => {
-            this.stateList.push({
-              id: element.Id, 
-              stateId: element.StateId,
-              text: ((element.AddressTypeName ? (element.AddressTypeName + '-') : '') + (element.AddressValue ? (element.AddressValue + ' , ') : '') + (element.AreaName ? element.AreaName + ' , ' : '') + element.CityName + ' , ' + element.StateName + ' , ' + element.CountryName)
-
-            })
-            this.stateId = this.stateList[2].id
-            this.stateValue = this.stateList[2].id
-            this.checkValidation()
-            return this.stateValue
-          })
-        } else {
-          this.stateId = 0
-          this.checkValidation()
-        }
+         let localId = this.getBillingAddressList(data)
+         this.stateSelect2Id.setElementValue(localId)
+          let  localEvent ={value:this.stateList[2].id,data:[{id:this.stateList[2].id,text:this.stateList[2].text,stateId:this.stateList[2].stateId}]}
+          this.selectStatelist(localEvent)
+         
+        } 
 
       }
     })
   }
+  getBillingAddressList(data){
+    data.Data.forEach(element => {
+      this.stateList.push({
+        id: element.Id,
+        stateId: element.StateId,
+        text: ((element.AddressTypeName ? (element.AddressTypeName + '-') : '') + (element.AddressValue ? (element.AddressValue + ' , ') : '') + (element.AreaName ? element.AreaName + ' , ' : '') + element.CityName + ' , ' + element.StateName + ' , ' + element.CountryName)
+      })
+    })
+    this.checkValidation()
 
+    this.stateValue = this.stateList[2].id
+    return this.stateValue
+  }
   updatedFlag: any
   newdataCatItem: any
   getItemByCategoryid (categoryId) {
@@ -944,35 +956,14 @@ export class SalesChallanInvoiceComponent {
           _self.currenciesSelect2 = newData
           _self.isDataAvailable = true
         }
-
-        if (data.Data && data.Data.SetupOrganization && data.Data.SetupOrganization.length > 0) {
-          this.organizationData = []
-          this.orgnazationPlaceHolder = { placeholder: 'Select Organization' }
-          this.organizationData = [{ id: UIConstant.BLANK, text: 'Select  Organization' }]
-          _self.setupOrganization = data.Data.SetupOrganization
-          // console.log(  data.Data.SetupOrganization  ,"organizationData4")
-          data.Data.SetupOrganization.forEach(ele => {
-            this.organizationData.push({
-              id: ele.Id,
-              text: ele.Name
-            })
-          })
-          this.orgnizationSelect2.setElementValue(this.orgNameId)
-          this.orgNameId = this.organizationData[1].id
-          return this.orgNameId
-
-        }
-
       }
     )
   }
 
   changeBillDate (eDate) {
-// debugger
-    let _self = this
     let dateChnage = this._globalService.clientToSqlDateFormat(eDate, this.clientDateFormat)
     this.subscribe = this._commonService.getsettingforOrgnizationData(this.orgNameId, UIConstant.SALE_TYPE, dateChnage).subscribe(data => {
-      if (data.Code === 1000 && data.Data.length > 0) {
+      if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.BillNo = data.Data[0].BillNo
         if (this.isManualBillNoEntry) {
           this.BillNo = ''
@@ -1061,7 +1052,7 @@ export class SalesChallanInvoiceComponent {
 
   localItems () {
     let value = []
-debugger
+
     this.items.forEach(element => {
       this.localLabelData = []
       if (element.Id === 0 && (element.Sno === this.snoIndex)) {
@@ -1120,7 +1111,7 @@ debugger
 
         })
       } else if (this.editItemId > 0 && element.rowEditFlagValue && (element.Sno === this.snoIndex)) {
-        // debugger;
+        // ;
         if (this.sendAttributeData.length > 0) {
           this.attributesLabels.forEach(label => {
             this.labeldata = this.sendAttributeData.filter(s => (s.AttributeValueId === label.AttributeId) && (s.Sno === element.Sno))
@@ -1227,7 +1218,7 @@ debugger
       }
 
     }
-    debugger
+    
     this.items.push({
       Id: this.editItemId !== 0 ? this.editItemId : 0,
       Sno: this.snoIndex,
@@ -1328,7 +1319,6 @@ debugger
     this.isValidAmount = true
     this.deleteEditflag = true
     this.InvoiceDate = ''
-    this.SupplyDate = ''
     this.CurrencyId = ''
     this.categoryId = ''
     this.itemCategoryId = ''
@@ -1394,93 +1384,25 @@ debugger
     }
 
   }
-  setTravelDate () {
 
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#travel-date', {
-        minDate: 'today',
-        dateFormat: _self.clientDateFormat,
-        enableTime: true
-      })
-    })
-  }
 
-  setPayDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#pay-date', {
-        minDate: 'today',
-        dateFormat: _self.clientDateFormat
-      })
-    })
-  }
   setExpiryDate () {
-    let _self = this
-
-    jQuery(function ($) {
-      flatpickr('#Expiry-date', {
-        dateFormat: _self.clientDateFormat
-
-      })
-    })
+       this.ExpiryDate =''
   }
   setMFDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#MF-date', {
-        dateFormat: _self.clientDateFormat
-
-      })
-    })
+          this.MfdDate =''    
+  }
+  CurrentDate: any
+  setCurrentDate () {
+    this.CurrentDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
   setBillDate () {
-
-    let _self = this
-    if (this.backDateEntry) {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-        }
-        )
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-        })
-      })
-    }
-    this.InvoiceDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
-
+    this.InvoiceDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
-
   setSupplyDate () {
-    let _self = this
-    if (this.backDateEntry) {
-      jQuery(function ($) {
-        flatpickr('#supply-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#supply-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    }
-    this.SupplyDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
-
+    this.SupplyDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
+  
 
   clearExtras () {
     this.setupModules = {}
@@ -1513,7 +1435,7 @@ debugger
   netBillAmount: any
 
   calculate () {
-debugger
+
     this.TotalAmount = +this.calculateTotalOfRow()
    this.ReversetotalAmount = +this.reversetotalCalcution()
 
@@ -1526,7 +1448,7 @@ debugger
 
 
   reversetotalCalcution ( ){
-    debugger
+    
     this.ReversetotalAmount  = 0
     let Rate = (isNaN(+this.Rate)) ? 0 : +this.Rate
     let Quantity = (isNaN(+this.Quantity)) ? 1 : +this.Quantity
@@ -1691,13 +1613,11 @@ debugger
     this.getCurrency()
     this.SPUtilityData()
     this.editItemId = 0
-    this.setSupplyDate()
     this.initComp()
     this.getModuleSettingData()
+
     this.setSupplyDate()
     this.setBillDate()
-    this.setPayDate()
-    this.setTravelDate()
     this.setExpiryDate()
     this.setMFDate()   
     this.setCurrentDate()
@@ -1852,9 +1772,7 @@ debugger
   ArticleCode: any
   editAlreadyItemDataFlag: boolean
   editSaleData (id) {
-    // debugger
     this._commonService.saleEditChallan(id).subscribe(data => {
-      // debugger
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         console.log(JSON.stringify(data) ,'editdata---')
         if (data.Data && data.Data.InventoryTransactionSales.length > 0) {
@@ -1868,7 +1786,19 @@ debugger
           this.clientSelect2.setElementValue(this.inventoryItemSales[0].LedgerId)
           this.BillNo = this.inventoryItemSales[0].BillNo
           this.InvoiceDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].BillDate, this.clientDateFormat)
+          if(this.inventoryItemSales[0].CurrentDate !== null ){
+            this.CurrentDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].CurrentDate, this.clientDateFormat)
+         }
+         else{
+          this.CurrentDate = ''
+         }
+         if(this.inventoryItemSales[0].SupplyDate	 !== null ){
           this.SupplyDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].SupplyDate, this.clientDateFormat)
+        }
+        else{
+          this.SupplyDate = ''
+        }
+          // this.SupplyDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].SupplyDate, this.clientDateFormat)
           this.EwayBillNo = this.inventoryItemSales[0].EwayBillNo
           this.LocationTo = this.inventoryItemSales[0].LocationTo
           this.VehicleNo = this.inventoryItemSales[0].VehicleNo
@@ -1999,7 +1929,6 @@ debugger
 
     })
   }
-  CurrentDate: any
   editAttributeDataSet: any
   InvoiceDateChngae: any
   sendAttributeData: any
@@ -2050,7 +1979,9 @@ debugger
           this._commonService.postSaleChallan(obj).subscribe(
             (data: any) => {
               if (data.Code === UIConstant.THOUSAND) {
-                _self.toastrService.showSuccess('', 'Saved Successfully')
+                let saveName = this.MainEditID ===0 ? UIConstant.SAVED_SUCCESSFULLY :UIConstant.UPDATE_SUCCESSFULLY
+
+                _self.toastrService.showSuccess('',saveName )
                 _self._commonService.newSaleAdded()
                 this._commonService.AddedItem()
                 if (!_self.keepOpen) {
@@ -2111,12 +2042,12 @@ debugger
       this.AdditionalChargeData.splice(a, 1)
       this.calculateAllTotal()
       this.alreadySelectCharge(GetData.LedgerChargeId, GetData.LedgerName,false)
-      if(GetData.Id>0 && GetData.Sno ===1 ){
+      if(GetData.Id>0 && GetData.Sno >0 ){
         this.removeBillSummery('charge',GetData.Id)
       }
-      if(GetData.Id>0 && GetData.Sno >1 ){
-        this.removeBillSummery('charge',GetData.Sno)
-      }
+      // if(GetData.Id>0 && GetData.Sno >1 ){
+      //   this.removeBillSummery('charge',GetData.Sno)
+      // }
       if(GetData.Id === 0){
         this.removeBillSummery('charge',GetData.Sno)
 
@@ -2743,11 +2674,17 @@ createChargeArray () {
   let index;
   let taxForChargeSlab;
   if (this.AdditionalChargeData.length === 0) {
-     index =2
+     index =1
     taxForChargeSlab = this.taxCalculationForCharge(index)
 
   } else {
-     index = +this.AdditionalChargeData[this.AdditionalChargeData.length - 1].Sno + 1
+    index = this.AdditionalChargeData.length + 1
+    for(let i=0; i < this.AdditionalChargeData.length; i ++){
+      if(index === this.AdditionalChargeData[i].Sno){
+        index=  index + 1
+      }
+    }
+    // index = +this.AdditionalChargeData[this.AdditionalChargeData.length - 1].Sno + 1
    taxForChargeSlab = this.taxCalculationForCharge(index)
 
   }
@@ -2943,7 +2880,7 @@ showBillingSummery (data){
 }
 taxRateForOtherStateFlag: any
 checkOtherStateForNewItemAdd (addressID) {
-  debugger
+  
   console.log(this.officeAddressId,addressID,'address org-stateid')
   if (this.officeAddressId === addressID) {
     this.taxRateForOtherStateFlag = false
@@ -2958,7 +2895,7 @@ allTaxRateForItem: any
 allTaxRateForCharge: any
 alltaxVATTax: any
 onChangeSlabTax (type,slabId,SalbName) {
-debugger
+
   if (slabId > 0 && slabId !== '' && slabId !== undefined && slabId !== null) {
     this.subscribe = this._commonService.onChangeSlabGetTaxRate(slabId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
@@ -3054,7 +2991,7 @@ enterDownCharge (evt: KeyboardEvent) {
 }
 FinalAmount: number
 calculationAdditionCharge (){
-  debugger
+  
   this.TaxAmountCharge =0
   this.TotalAmountCharge =0
 let AmountCharge= 0
@@ -3148,16 +3085,5 @@ taxCalculationForExclusive(taxArray,rateItem){
         returmTaxAmount = +(totalTaxAmt).toFixed(this.decimalDigitData)  
         return returmTaxAmount
  }
- setCurrentDate () {
-  let _self = this
-  jQuery(function ($) {
-    flatpickr('#Current-date', {
-      dateFormat: _self.clientDateFormat,
-      defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
 
-    })
-  })
-  this.CurrentDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
-
-}
 }

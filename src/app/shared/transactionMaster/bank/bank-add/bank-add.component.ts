@@ -31,6 +31,7 @@ export class BankAddComponent {
   public cityList: Array<Select2OptionData>
   public stateListplaceHolder: Select2Options
   public countryListPlaceHolder: Select2Options
+  editID : any
   constructor (private _formBuilder: FormBuilder,
       private _bankServices: BankPopUpServices,
       private _customerServices: VendorServices,
@@ -45,10 +46,13 @@ export class BankAddComponent {
           if (data.editId === '') {
             this.editData = false
             this.Id = 0
+            this.editID =0
             
           } else {
             this.editData = true
             this.Id = data.editId
+            this.editID =data.editId
+
           }
             
           this.submitClick = false
@@ -271,7 +275,8 @@ selectedCityId (event) {
         console.log(data)
         if (data.Code === UIConstant.THOUSAND) {
           let toSend = { name: _self.bankForm.value.banName, id: data.Data }
-          _self.toastrService.showSuccess('', 'Bank Added')
+          let saveNameFlag = this.editID === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+          _self.toastrService.showSuccess('', saveNameFlag)
           if (type === 'save') {
             this.commonService.AddedItem()
             _self.commonService.closeLedger(false,toSend)

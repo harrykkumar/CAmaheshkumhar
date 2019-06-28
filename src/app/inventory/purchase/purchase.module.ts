@@ -9,7 +9,6 @@ import { Select2Module } from 'ng2-select2'
 import { SharedModule } from 'src/app/shared/shared.module'
 import { PagingUtilityModule } from 'src/app/shared/pagination/pagination.module'
 import { NgxPaginationModule } from 'ngx-pagination'
-
 @NgModule({
   declarations: [
     PurchaseAddComponent,

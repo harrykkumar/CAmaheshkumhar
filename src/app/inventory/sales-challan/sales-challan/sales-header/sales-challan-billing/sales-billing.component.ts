@@ -146,7 +146,7 @@ export class SalesChallanBillingComponent {
   clientDateFormat: string = ''
   InterestRateType: any
   industryId: any
-  transactions: TravelPayments[]
+  transactions: any
   constructor (public renderer2: Renderer2,public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
     private _ledgerServices: VendorServices,
     private toastrService: ToastrCustomService,
@@ -262,9 +262,11 @@ export class SalesChallanBillingComponent {
           if (status.editId === UIConstant.BLANK) {
             this.editMode = false
             this.Id = 0
+            this.MainEditID=0
           } else {
             this.editMode = true
             this.Id = status.data
+            this.MainEditID=status.data
             this.ChallanIds = status.data
             this.allChallanNos = status.challanNos
           }
@@ -317,6 +319,7 @@ export class SalesChallanBillingComponent {
       }
     )
   }
+  MainEditID: any
   isAddNew: boolean
   ledgerBank: any
   ledgerChargeValue: any
@@ -1739,82 +1742,26 @@ debugger
     }
 
   }
-  // cat_select2
-  // item_select2
+
   setDueDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#due-date', {
-        dateFormat: _self.clientDateFormat,
-        defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-      })
-    })
-    this.DueDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
-
+    this.DueDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
-
   setPayDate () {
     let _self = this
-    if (this.backDateEntry) {
-      jQuery(function ($) {
-        flatpickr('#pay-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#pay-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-        })
-      })
-    }
     this.PayDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
-
   }
   setExpiryDate () {
-    let _self = this
-
-    jQuery(function ($) {
-      flatpickr('#Expiry-date', {
-        dateFormat: _self.clientDateFormat
-
-      })
-    })
+       this.ExpiryDate =''
   }
   setMFDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#MF-date', {
-        dateFormat: _self.clientDateFormat
-
-      })
-    })
+          this.MfdDate =''    
   }
-
+  CurrentDate: any
+  setCurrentDate () {
+    this.CurrentDate = this._globalService.getDefaultDate(this.clientDateFormat)
+  }
   setBillDate () {
-    let _self = this
-    if (this.backDateEntry) {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          dateFormat: _self.clientDateFormat
-
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat
-
-        })
-      })
-    }
+    this.InvoiceDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
   getOrgnization(data){
     if (data.Data && data.Data.Organizations && data.Data.Organizations.length > 0) {
@@ -2519,26 +2466,39 @@ taxCalculationForExclusive(taxArray,rateItem){
           this.RoundOffManual = this.inventoryItemSales[0].RoundOff
           this.orgnizationSelect2.setElementValue(this.inventoryItemSales[0].OrgId)
           this.clientSelect2.setElementValue(this.inventoryItemSales[0].LedgerId)
+          this.CurrentDate = this.inventoryItemSales[0].CurrentDate
+          if(this.inventoryItemSales[0].CurrentDate !== null ){
+            this.CurrentDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].CurrentDate, this.clientDateFormat)
+         }
+         else{
+          this.CurrentDate = ''
+         }
+         if(this.inventoryItemSales[0].DueDate	 !== null ){
+          this.DueDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].DueDate, this.clientDateFormat)
+        }
+        else{
+          this.DueDate = ''
+        }
           this.InvoiceDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].BillDate, this.clientDateFormat)
           console.log(this.InvoiceDate, 'billdate')
           this.EwayBillNo = this.inventoryItemSales[0].EwayBillNo
 
-          this.Commission = this.inventoryItemSales[0].Commission
-          this.TotalQuantity = this.inventoryItemSales.filter(item1 => item1.TotalQty)
-            .map(item1 => parseFloat(item1.TotalQty))
-            .reduce((sum, current) => sum + current, 0)
+          // this.Commission = this.inventoryItemSales[0].Commission
+          // this.TotalQuantity = this.inventoryItemSales.filter(item1 => item1.TotalQty)
+          //   .map(item1 => parseFloat(item1.TotalQty))
+          //   .reduce((sum, current) => sum + current, 0)
 
-          this.OtherCharge = this.inventoryItemSales.filter(item1 => item1.OtherCharge)
-            .map(item1 => parseFloat(item1.OtherCharge))
-            .reduce((sum, current) => sum + current, 0)
-          data.Data.InventoryTransactionSales.forEach(ele => {
-            if (ele.FreightMode === 0) {
+          // this.OtherCharge = this.inventoryItemSales.filter(item1 => item1.OtherCharge)
+          //   .map(item1 => parseFloat(item1.OtherCharge))
+          //   .reduce((sum, current) => sum + current, 0)
+          // data.Data.InventoryTransactionSales.forEach(ele => {
+          //   if (ele.FreightMode === 0) {
 
-              this.TotalFreight = data.Data.InventoryTransactionSales.filter(item1 => ele.Freight)
-                .map(item2 => parseFloat(item2.Freight))
-                .reduce((sum, current) => sum + current, 0)
-            }
-          })
+          //     this.TotalFreight = data.Data.InventoryTransactionSales.filter(item1 => ele.Freight)
+          //       .map(item2 => parseFloat(item2.Freight))
+          //       .reduce((sum, current) => sum + current, 0)
+          //   }
+          // })
 
           // [].reduce( (previousValue, currentValue) => previousValue + currentValue, 0);
           let newDataUnit = Object.assign([], this.unitDataType)
@@ -2550,6 +2510,29 @@ taxCalculationForExclusive(taxArray,rateItem){
 
         } else {
           this.inventoryItemSales = []
+        }
+        if (data.Data && data.Data.PaymentDetails && data.Data.PaymentDetails.length > 0) {
+          this.transactions = []
+          data.Data.PaymentDetails.forEach(ele => {
+
+            let payDate = this._globalService.utcToClientDateFormat(ele.PayDate, this.clientDateFormat)
+            this.transactions.push({
+              Sno: 1,
+              Id: ele.Id,
+              Paymode: ele.Paymode,
+              PayModeId: ele.PayModeId,
+              LedgerId: ele.LedgerId,
+              ledgerName: ele.BankLedgerName,
+              Amount: ele.Amount,
+              PayDate: payDate,
+              PayShowDate:payDate,
+              ChequeNo: ele.ChequeNo,
+              ParentTypeId: ele.ParentTypeId
+            })
+          })
+        } else {
+          this.transactions = []
+
         }
         if (data.Data && data.Data.AdditionalChargeDetails && data.Data.AdditionalChargeDetails.length > 0) {
           this.AdditionalChargeData=[]
@@ -2661,7 +2644,7 @@ taxCalculationForExclusive(taxArray,rateItem){
            // const MFDatevar = this._globalService.utcToClientDateFormat(element.MfdDate, this.clientDateFormat)
 
             this.localItemas.push({
-              Sno: 0,
+              Sno: element.Sno,
               Id: element.Id,
               CategoryName: element.CategoryName,
               CategoryId: element.CategoryId,
@@ -2718,12 +2701,11 @@ taxCalculationForExclusive(taxArray,rateItem){
   InvoiceDateChngae: any
   DueDateChngae: any
   saveSaleChallan () {
-    // debugger;
     this.submitSave = true
     if (this.deleteEditflag) {
-
       this.addItems()
       this.addTransactions()
+      this.addAdditionCharge()
       if (this.checkValidation()) {
         console.log(JSON.stringify(this.items), 'Request')
         if (this.items.length !== 0) {
@@ -2789,7 +2771,9 @@ taxCalculationForExclusive(taxArray,rateItem){
           this._commonService.postSaleChallanBillingAPI(obj).subscribe(
             (data: any) => {
               if (data.Code === UIConstant.THOUSAND) {
-                _self.toastrService.showSuccess(UIConstant.SUCCESS, UIConstant.SAVED_SUCCESSFULLY)
+                let saveName = this.MainEditID ===0 ? UIConstant.SAVED_SUCCESSFULLY :UIConstant.UPDATE_SUCCESSFULLY
+
+                _self.toastrService.showSuccess('', saveName)
                 _self._commonService.newSaleAdded()
                 if (!_self.keepOpen) {
                   _self._commonService.closeChallanBill()
@@ -2838,6 +2822,13 @@ taxCalculationForExclusive(taxArray,rateItem){
         this.disabledAddressFlag = false
       }
       this.calculateAllTotal()
+      if(itemDetails.Id>0 && itemDetails.Sno >0){
+        this.removeBillSummery(index,'charge',itemDetails.Id)
+      }
+    
+      if(itemDetails.Id === 0){
+        this.removeBillSummery(index,'charge',itemDetails.Sno)
+      }
     }
     if (type === 'trans') {
       this.transactions.splice(index, 1)
@@ -2851,12 +2842,10 @@ taxCalculationForExclusive(taxArray,rateItem){
       this.unBilledAmount()
       this.calculateAllTotal()
       this.alreadySelectCharge(+itemDetails.LedgerChargeId, itemDetails.LedgerName,false)
-      if(itemDetails.Id>0 && itemDetails.Sno ===1 ){
+      if(itemDetails.Id>0 && itemDetails.Sno >0){
         this.removeBillSummery(index,'charge',itemDetails.Id)
       }
-      if(itemDetails.Id>0 && itemDetails.Sno >1 ){
-        this.removeBillSummery(index,'charge',itemDetails.Sno)
-      }
+    
       if(itemDetails.Id === 0){
         this.removeBillSummery(index,'charge',itemDetails.Sno)
       }
@@ -2954,7 +2943,10 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
         this.TaxAmount = item.TaxAmount
         this.DiscountType = item.DiscountType
         this.Remark = item.Remark
-        this.ChallanId = item.ChallanId
+        this.ChallanId = item.ChallanId 
+           this.ExpiryDate= item.ExpiryDate
+        this.MfdDate= item.MfdDate
+        this.BatchNo = item.BatchNo
         this.Quantity = item.Quantity
       this.ReversetotalAmount =item.ReversetotalAmount
         this.Rate = item.Rate
@@ -3033,7 +3025,8 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
           this.LedgerId = this.transactions[index].LedgerId
           this.ledgerName = this.transactions[index].ledgerName
           this.Amount = this.transactions[index].Amount
-          this.PayDate = this._globalService.utcToClientDateFormat(this.transactions[index].PayDate, this.clientDateFormat)
+          this.PayDate = this.transactions[index].PayShowDate
+          this.PayShowDate =  this.transactions[index].PayShowDate
           this.ChequeNo = this.transactions[index].ChequeNo
           this.paymodeSelect2.setElementValue(this.PayModeId)
           this.ledgerSelect2.setElementValue(this.LedgerId)
@@ -3258,35 +3251,31 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     }
   }
   addTransaction () {
+    let index ;
     this.payDateVar = this._globalService.clientToSqlDateFormat(this.PayDate, this.clientDateFormat)
-    console.log(this.payDateVar, this.PayDate, 'date')
-
+    //console.log(this.payDateVar, this.PayDate, 'date')
     if (this.transactions.length === 0) {
-      this.transactions.push({
-        Id: 0,
-        Sno: 1,
-        Paymode: this.Paymode,
-        PayModeId: this.PayModeId,
-        LedgerId: this.LedgerId,
-        ledgerName: this.ledgerName,
-        Amount: this.Amount,
-        PayDate: this.payDateVar,
-        ChequeNo: this.ChequeNo
-      })
+      index =1
     } else {
-      let index = +this.transactions[this.transactions.length - 1].Sno + 1
-      this.transactions.push({
-        Id: 0,
-        Sno: index,
-        Paymode: this.Paymode,
-        PayModeId: this.PayModeId,
-        LedgerId: this.LedgerId,
-        ledgerName: this.ledgerName,
-        Amount: this.Amount,
-        PayDate: this.payDateVar,
-        ChequeNo: this.ChequeNo
-      })
+      index = this.transactions.length + 1
+      for(let i=0; i < this.transactions.length; i ++){
+        if(index === this.transactions[i].Sno){
+          index =  index + 1
+        }
+      }
     }
+    this.transactions.push({
+      Id: this.editTransId === 0 ? 0 : this.editTransId,
+      Sno: index,
+      Paymode: this.Paymode,
+      PayModeId: this.PayModeId,
+      LedgerId: this.LedgerId,
+      ledgerName: this.ledgerName,
+      Amount: this.Amount,
+      PayShowDate:this.PayDate,
+      PayDate: this.payDateVar,
+      ChequeNo: this.ChequeNo
+    })
     setTimeout(() => {
       this._commonService.fixTableHFL('pay_table')
     }, 1)
@@ -3295,6 +3284,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     }
     this.unBilledAmount()
   }
+  PayShowDate: any
   applyCustomRateOnItemFlag: any
   localItemRate: any
   backDateEntry: boolean = false
@@ -3728,11 +3718,17 @@ createChargeArray () {
   let index;
   let taxForChargeSlab;
   if (this.AdditionalChargeData.length === 0) {
-     index =2
+     index =1
     taxForChargeSlab = this.taxCalculationForCharge(index)
 
   } else {
-     index = +this.AdditionalChargeData[this.AdditionalChargeData.length - 1].Sno + 1
+    index= this.AdditionalChargeData.length + 1
+    for(let i=0; i < this.AdditionalChargeData.length; i ++){
+      if(index === this.AdditionalChargeData[i].Sno){
+        index=  index + 1
+      }
+    }
+   //  index = +this.AdditionalChargeData[this.AdditionalChargeData.length - 1].Sno + 1
     taxForChargeSlab = this.taxCalculationForCharge(index)
 
   }

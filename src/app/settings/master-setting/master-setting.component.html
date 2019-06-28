@@ -26,11 +26,11 @@
             <fieldset id="group{{i}}">
               <div class="custom-control custom-radio custom-control-inline">
                 <input type="radio" class="custom-control-input" id="customRadio{{i}}" name="group{{i}}" [checked]="+setting.Value === 1" (change)="setting.Value = ($event.target.checked) ? 1 : 0" >
-                <label class="custom-control-label" for="customRadio{{i}}">True</label>
+                <label class="custom-control-label" for="customRadio{{i}}">Yes</label>
               </div>
               <div class="custom-control custom-radio custom-control-inline">
                 <input type="radio" class="custom-control-input" id="customRadio10{{i}}" name="group{{i}}" [checked]="+setting.Value === 0" (change)="setting.Value = ($event.target.checked) ? 0 : 1" >
-                <label class="custom-control-label" for="customRadio10{{i}}">False</label>
+                <label class="custom-control-label" for="customRadio10{{i}}">No</label>
               </div>
             </fieldset>
           </td>

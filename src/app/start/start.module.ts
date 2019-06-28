@@ -1,4 +1,3 @@
-import { ModalDirective } from './../shared/directives/modal.directive';
 import { BankSearchComponent } from './../transactionMaster/bank/bank-search/bank-search.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { NgModule } from '@angular/core'
@@ -21,7 +20,6 @@ import { LoyalityComponent } from '../transactionMaster/loyality/loyality.compon
 import { OfferComponent } from '../transactionMaster/offer/offer.component'
 import { TaxProcessComponent } from '../transactionMaster/tax-process/tax-process.component'
 import { DeleteModule } from '../shared/transactionMaster/delete-modal/delete-modal.module'
-import { ImageModalModule } from '../shared/transactionMaster/images-modal/image-modal.module'
 import { CategoryAddModule } from '../shared/transactionMaster/category/category-add/category-add.module'
 import { UnitAddModule } from '../shared/transactionMaster/unit/unit-add/unit-add.module'
 import { AddressAddModule } from '../shared/transactionMaster/address/address-add/address-add.module'
@@ -32,6 +30,8 @@ import { PrintModule } from '../transactionMaster/print/print-add/print.module'
 import { BankModule } from '../transactionMaster/bank/bank.module'
 import {LedgerGroupAddModule} from '../shared/transactionMaster/ledger-group/ledger-group-add/ledger-group.module'
 import {LedgerCreationAddModule} from '../shared/transactionMaster/ledger-creation/ledger-creation-add/ledger-creation.module'
+import { ConfirmationModule } from '../shared/transactionMaster/confirmation-modal/confirmation-modal.module';
+
 @NgModule({
   declarations: [
     SideMenuComponent,
@@ -41,14 +41,13 @@ import {LedgerCreationAddModule} from '../shared/transactionMaster/ledger-creati
     LoyalityComponent,
     OfferComponent,
     TaxProcessComponent,
-    BankSearchComponent,
-    ModalDirective
+    BankSearchComponent
   ],
 
   imports: [
     CommonModule,
     HttpClientModule,
-// tslint:disable-next-line: deprecation
+// /tslint:disable-next-line: deprecation
     HttpModule,
     Select2Module,
     FormsModule,
@@ -61,7 +60,6 @@ import {LedgerCreationAddModule} from '../shared/transactionMaster/ledger-creati
     ItemAddModule,
     TaxAddModule,
     DeleteModule,
-    ImageModalModule,
     CategoryAddModule,
     UnitAddModule,
     TaxAddModule,
@@ -71,7 +69,8 @@ import {LedgerCreationAddModule} from '../shared/transactionMaster/ledger-creati
     BankModule,
     LedgerGroupAddModule,
     LedgerCreationAddModule,
-    SharedModule
+    SharedModule,
+    ConfirmationModule
   ],
   bootstrap: []
 })

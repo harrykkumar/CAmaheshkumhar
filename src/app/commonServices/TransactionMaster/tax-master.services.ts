@@ -22,6 +22,12 @@ export class TaxMasterService {
     return this._basesService.postRequest(ApiConstant.GET_TAX_DETAIL_URL, params)
   }
   editTax (id) {
-    return this._basesService.getRequest(ApiConstant.EDIT_TAX_BY_ID_URL + id)
+    return this._basesService.getRequest(ApiConstant.EDIT_TAX_BY_ID_URL + id )
+  }
+  getTaxSalbName(uid){
+    return this._basesService.getRequest(ApiConstant.GET_TAX_SLAB_NAME_URL+uid);
+  }
+  getTaxTypeName(){
+    return this._basesService.getRequest(ApiConstant.GET_TAXTYPE_NAME);
   }
 }

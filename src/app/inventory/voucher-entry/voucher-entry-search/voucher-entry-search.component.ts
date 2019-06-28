@@ -7,7 +7,7 @@ import { DependencyCheck } from "src/app/shared/validators/dependencyCheck";
 import { UIConstant } from "src/app/shared/constants/ui-constant";
 import { VoucherEntryServie } from '../voucher-entry.service';
 import { Settings } from '../../../shared/constants/settings.constant';
-declare const flatpickr: any
+import { DatepickerComponent } from '../../../shared/datepicker/datepicker.component';
 @Component({
   selector: 'voucher-entry-search',
   templateUrl: './voucher-entry-search.component.html'
@@ -21,12 +21,11 @@ export class VoucherEntrySearchComponent {
   Type: number = 0
   voucherTypeData: Array<Select2OptionData> = []
   isValid: boolean = true
-  @ViewChild('first') first: ElementRef
+  @ViewChild('first') first: DatepickerComponent
   ngOnChanges (changes: SimpleChanges): void {
     if (changes.toShow && changes.toShow.currentValue) {
       setTimeout(() => {
-        const element = this.first.nativeElement
-        element.focus({ preventScroll: false })
+        this.first.toggleView()
       }, 10)
     }
   }
@@ -38,8 +37,6 @@ export class VoucherEntrySearchComponent {
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
   ngOnInit () {
     this.createForm()
-    this.setFromDate()
-    this.setToDate()
     this.getVoucherTypeList()
     this.getLedgerList()
   }
@@ -87,25 +84,8 @@ export class VoucherEntrySearchComponent {
           })
         }
         this.ledgerData = Object.assign([], newData)
+        this.voucherEntryServie.allLedgerList(newData)
       }
-    })
-  }
-
-  setFromDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#from-date', {
-        dateFormat: _self.settings.dateFormat
-      })
-    })
-  }
-
-  setToDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#to-date', {
-        dateFormat: _self.settings.dateFormat
-      })
     })
   }
 
@@ -152,5 +132,13 @@ export class VoucherEntrySearchComponent {
     '&ToAmount=' + 0 + 
     '&LedgerId=' + this.LedgerId 
    this.voucherEntryServie.setSearchQueryParamsStr(queryStr)
+  }
+
+  setToDate (evt) {
+    this.searchForm.controls.ToDate.setValue(evt)
+  }
+
+  setFromDate (evt) {
+    this.searchForm.controls.FromDate.setValue(evt)
   }
 }

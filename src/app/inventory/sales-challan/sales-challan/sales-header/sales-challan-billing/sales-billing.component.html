@@ -38,19 +38,26 @@
                </div>
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label class="fw-500">Bill Date</label>
-                <div class="timepicker-input input-icon ">
-                  <div class="input-group">
-                    <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                    <input [disabled]="!backDateEntry" (input)="checkValidation()" type="text" class="form-control start-date flatpickr" (ngModelChange)="changeBillDate($event)" id="bill-date" placeholder="Bill Date" [ngClass]="{'errorSelecto': submitSave && invalidObjmain?.InvoiceDate }" data-provide="datepicker" [(ngModel)]="InvoiceDate" name="InvoiceDate">
-                  </div>
-                </div>
+                <datepicker-popup [disableInput]="editMode"
+                [toSetDate]="InvoiceDate" [isBackDate]="backDateEntry"
+                (dateInFormat)="InvoiceDate = $event;"
+                [class]="submitSave && invalidObj?.InvoiceDate" >
+                </datepicker-popup>
               </div>
                <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label>Bill Number</label> <label style="font-size: 12px;
-      color: #2ea7d5; padding-left: 4px" *ngIf="isManualBillNoEntry && lastBillNo" id="previous-bill-container" > ( Last BillNo. is -{{lastBillNo}} )</label>
+                color: #2ea7d5; padding-left: 4px" *ngIf="isManualBillNoEntry && lastBillNo" id="previous-bill-container" > ( Last BillNo. is -{{lastBillNo}} )</label>
                 <input  type="text" placeholder="Bill Number" (input)="checkValidation()" [disabled]="!isManualBillNoEntry" [ngClass]="{'errorSelecto': submitSave && invalidObjmain?.BillNo }" class="form-control" name="BillNo" [(ngModel)]="BillNo">
               </div>
-      
+              <div class="form-group col-md-4 col-lg-2 col-xl-2">
+                  <label class="fw-500">Current Date</label>
+              
+                  <datepicker-popup [disableInput]="editMode"
+                  [toSetDate]="CurrentDate" 
+                  (dateInFormat)="CurrentDate = $event;"
+                  [class]="submitSave && invalidObj?.CurrentDate" >
+                  </datepicker-popup>
+                </div>
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label for="E-way">E-way Number</label>
                 <input  type="text" class="form-control" id="e-way" placeholder="E-way No." (input)="checkValidation()" class="form-control" name="EwayBillNo" [(ngModel)]="EwayBillNo">
@@ -67,12 +74,10 @@
                  </div>
             <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label class="fw-500">Due Date</label>
-                <div class="timepicker-input input-icon ">
-                  <div class="input-group">
-                    <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                    <input  (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="due-date" placeholder="Due Date"  data-provide="datepicker" [(ngModel)]="DueDate" name="DueDate">
-                  </div>
-                </div>
+                <datepicker-popup [disableInput]="editMode"
+                [toSetDate]="DueDate" 
+                (dateInFormat)="DueDate = $event;" >
+                </datepicker-popup>
               </div>
     
                  <div class="form-group col-md-4 col-xl-2">
@@ -109,8 +114,8 @@
                 <table class="table editable_tbl item-table table-hover fixTable4" id="table">
                   <thead>
                     <tr class="default_row">
-                      <th></th>
-                      <th>#</th>
+                      <th class="cust_width_80"></th>
+                      <th class="cust_width_80">#</th>
                       <th [colSpan]="catLevel" >Category</th>
                       <th>Item</th>
                       <ng-container *ngIf="industryId === '2' " >
@@ -142,7 +147,7 @@
                       <th>Tax Slab</th>
                       <th>Tax Type</th>
                       <th>Tax Amount</th>
-                      <th >Remark</th>
+                      <th class="cust_width_200">Remark</th>
                       <th>Total Amount</th>
                     </tr>
                   </thead>
@@ -255,10 +260,18 @@
                </ng-container>
                   <ng-container *ngIf="industryId === '5' " >
                   <td>
-                  <input  (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="MF-date" placeholder="MF Date"  data-provide="datepicker" [(ngModel)]="MfdDate" name="MfdDate">
+                      <datepicker-popup 
+                      [toSetDate]="MfdDate" 
+                      (dateInFormat)="MfdDate = $event;" >
+                      </datepicker-popup>
+                  <!-- <input  (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="MF-date" placeholder="MF Date"  data-provide="datepicker" [(ngModel)]="MfdDate" name="MfdDate"> -->
                 </td>
                   <td>
-                     <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate">
+                      <datepicker-popup 
+                      [toSetDate]="ExpiryDate" 
+                      (dateInFormat)="ExpiryDate = $event;" >
+                      </datepicker-popup>
+                     <!-- <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate"> -->
                 </td>
                    <td>
                   <input  type="text" (input)="checkValidation()"  class="form-control"   placeholder="BatchNo"  name="BatchNo" [(ngModel)]="BatchNo">
@@ -269,8 +282,11 @@
                   <input  type="text"  (input)="checkValidation()"  class="form-control"   placeholder="BatchNo"  name="BatchNo" [(ngModel)]="BatchNo">
                 </td>
                 <td>
-                     
-                     <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate">
+                    <datepicker-popup 
+                    [toSetDate]="ExpiryDate" 
+                    (dateInFormat)="ExpiryDate = $event;" >
+                    </datepicker-popup>
+                     <!-- <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate"> -->
                 </td>
                   </ng-container>
                      <td>
@@ -318,29 +334,33 @@
                   <input  (keydown.enter)="enterPressItem($event)" type="number" readonly="true" class="form-control" placeholder="Total Amount" appIncludeDecimal name="TotalAmount"  [(ngModel)]="TotalAmount">
                 </td>
               </tr>
-                    <tr>
-                     <td></td>
-                     <td *ngFor="let item of categories" ></td>
-                      <td *ngFor="let column of attributesLabels" ></td>
-                       <td colspan="3" *ngIf="industryId === 3" ></td>
-                      <td colspan="3" *ngIf="industryId === 5" ></td>
-                      <td colspan="2" *ngIf="industryId === 6" ></td>
-                      <td colspan="7"></td>
-                      <td>
-                          <input type="number"  disabled="true"  class="form-control"
-                          placeholder="Total Discount" name="TotalDiscount" 
-                          [(ngModel)]="totalDiscount">
-                      </td>
-                      <td colspan="2"></td>
-                      <td>
-                        <input type="number"  disabled="true"  class="form-control"
-                        placeholder="Total Tax Amount" name="totalTaxAmount" 
-                        [(ngModel)]="totalTaxAmount"></td>
-                        <td></td>
-                      <td>
-                         <input type="number"  disabled="true" class="form-control" placeholder="Total Gross Amount" appIncludeDecimal name="subTotalBillAmount"  [(ngModel)]="subTotalBillAmount">
-                      </td>
-                    </tr>
+              <tr>
+                  <td></td>
+                 <td *ngFor="let item of categories" ></td>
+                 <td></td>
+                 <ng-container *ngIf="industryId === '2' " >
+                    <td  *ngFor="let column of attributesLabels"  ></td>
+
+                 </ng-container>
+                   <td colspan="3" *ngIf="industryId === '3' " ></td>
+                  <td colspan="3" *ngIf="industryId === '5' " ></td>
+                  <td colspan="2" *ngIf="industryId === '6' " ></td>
+                  <td  colspan="6"></td>
+                  <td>
+                      <input type="number"  disabled="true" class="form-control text-right"
+                      placeholder="Total Discount" name="TotalDiscount"
+                      [(ngModel)]="totalDiscount">
+                  </td>
+                  <td colspan="2"></td>
+                  <td> 
+                    <input type="number" disabled="true" class="form-control text-right"
+                    placeholder="Total Tax Amount" name="totalTaxAmount"
+                    [(ngModel)]="totalTaxAmount"></td>
+                    <td colspan="1"></td>
+                  <td>
+                     <input type="number"  disabled="true" class="form-control text-right" placeholder="Total Gross Amount" appIncludeDecimal name="subTotalBillAmount"  [(ngModel)]="subTotalBillAmount">
+                  </td>
+                </tr>
                   </tfoot>
                 </table>
               </div>
@@ -353,7 +373,7 @@
                   <table class="table editable_tbl charge_table" id="fixTable">
                     <thead>
                       <tr>
-                        <th  >#</th>
+                        <th class="cust_width_80">#</th>
                         <th >Charge</th>
                         <th >Amount</th>
                         <th >Tax</th>
@@ -527,7 +547,7 @@
                   <table class="table editable_tbl table-hover pay_table" id="fixTable">
                     <thead>
                       <tr class="default_row">
-                        <th>#</th>
+                        <th class="cust_width_80">#</th>
                         <th>Payment Mode</th>
                         <th>Bank</th>
                         <th>Amount</th>
@@ -562,7 +582,7 @@
                         </td>
                         <td>
                           <div class="input-group adw_select">
-                            {{transaction.PayDate}}
+                            {{transaction.PayShowDate}}
                           </div>
                         </td>
                         <td>
@@ -598,7 +618,14 @@
                           </div>
                         </td>
                         <td><input (input)="validateTransaction()" type="text" appIncludeDecimal name="Amount" class="form-control" id="Amount" [(ngModel)]="Amount"  [ngClass]="{'errorSelecto': invalidObjPay?.Amount && (submitSave || !clickTrans) }" placeholder="Enter Amount"></td>
-                        <td><input (input)="validateTransaction()" type="text" name="PayDate" id="pay-date" class="form-control flatpickr" [(ngModel)]="PayDate"  [ngClass]="{'errorSelecto': invalidObjPay?.PayDate && (submitSave || !clickTrans) }" placeholder="Select Date"></td>
+                        <td>
+                            <datepicker-popup 
+                            [toSetDate]="PayDate" 
+                            [isBackDate]="backDateEntry"
+                            (dateInFormat)="PayDate = $event;" >
+                            </datepicker-popup>
+                          <!-- <input (input)="validateTransaction()" type="text" name="PayDate" id="pay-date" class="form-control flatpickr" [(ngModel)]="PayDate"  [ngClass]="{'errorSelecto': invalidObjPay?.PayDate && (submitSave || !clickTrans) }" placeholder="Select Date"> -->
+                        </td>
                         <td><input (input)="validateTransaction()" type="text" (keyup.enter)="enterPaymentSave($event)" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo"  [ngClass]="{'errorSelecto': invalidObjPay?.ChequeNo && (submitSave || !clickTrans) }" ></td>
                       </tr>
                     </tbody>

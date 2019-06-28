@@ -6,8 +6,9 @@ import { UIConstant } from '../../shared/constants/ui-constant'
 declare const $: any
 import { CommonService } from '../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
+import { LoginService } from './../../commonServices/login/login.services';
+import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { Settings } from '../../shared/constants/settings.constant'
-
 @Component({
   selector: 'app-profit-and-loss-report',
   templateUrl: './profit-and-loss-report.component.html',
@@ -20,26 +21,51 @@ export class ProfitAndLossReportComponent implements OnInit {
   totaltax: number
   totalBillAmount: number
   newDateSub: Subscription
-  dateShow : any
+  toDateShow: any
+  fromDateShow: any
   clientDateFormat: any
-  constructor(public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
-    this.clientDateFormat = this._settings.dateFormat
+  constructor(public _loginService: LoginService, public _settings: Settings, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
 
-    //  this.getSaleChallanDetail()
-    this.newDateSub = this._commonService.getsearchByDateForBalancesheetStatus().subscribe(
+    this.newDateSub = this._commonService.getsearchByDateForProfitLossStatus().subscribe(
       (obj: any) => {
-        this.getbalancesheetdata(obj.date)
-         this.dateShow = obj.date
+        this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
+        this.getModuleSettingData()
+        this.getbalancesheetdata(obj.toDate, obj.fromDate)
+        this.toDateShow = obj.toDate
+        this.fromDateShow = obj.fromDate
       }
     )
 
   }
+  loggedinUserData: any
+  ngOnInit() {
+    this.onload()
+    this.getbalancesheetdata(this.toDateShow, this.fromDateShow)
 
-  ngOnInit () {
+
+  }
+  decimalDigit: any
+  onload() {
+    this.headervalue2 = 0
+    this.headervalue1 = 0
+    this.headervalue1First = 0
+    this.headervalue2First = 0
+    this.loggedinUserData = this._loginService.userData
+    this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
     this._commonService.fixTableHF('cat-table')
-   this.getbalancesheetdata(this.dateShow)
-   this.headervalue2 =0
-   this.headervalue1 =0
+  }
+  getModuleSettingValue: any
+  getModuleSettingData() {
+    if (this.getModuleSettingValue.settings.length > 0) {
+      this.getModuleSettingValue.settings.forEach(ele => {
+        if (ele.id === SetUpIds.noOfDecimalPoint) {
+          this.decimalDigit = JSON.parse(ele.val)
+        }
+        if (ele.id === SetUpIds.dateFormat) {
+          this.clientDateFormat = ele.val[0].Val
+        }
+      })
+    }
   }
 
   toShowSearch = false
@@ -56,40 +82,34 @@ export class ProfitAndLossReportComponent implements OnInit {
   labelLength: any
   mainData: any
   AttributeValues: any
-  headervalue1 : any
+  headervalue1: any
   headervalue2: any
-  getbalancesheetdata (date) {
-    debugger
+  headervalue1First: any = 0
+  headervalue2First: any = 0
 
+  getbalancesheetdata(todate, fromdate) {
+    this.mainData = []
+    this._commonService.getProfitAndLossList(todate, fromdate).subscribe(data => {
+      this.headervalue2 = 0
+      this.headervalue1 = 0
+      if (data.Code === UIConstant.THOUSAND) {
+        if (data.Data && data.Data.ProfitLosses && data.Data.ProfitLosses.length > 0) {
+          this.mainData = data.Data.ProfitLosses
+        }
+        if (data.Data && data.Data.ProfitLossSummary.length > 0) {
+          data.Data.ProfitLossSummary.forEach(element => {
+            if (element.HeadId === 1) {
+              this.headervalue1 = element.Amount1
+              this.headervalue1First = element.Amount
+            }
+            else if (element.HeadId === 2) {
+              this.headervalue2 = element.Amount1
+              this.headervalue2First = element.Amount
 
-    //indirect Expences
-this.mainData =[]
-    this._commonService.getProfitAndLossList(date).subscribe(data => {
-      this.headervalue2 =0
-      this.headervalue1 =0
-if(data.Code === UIConstant.THOUSAND && data.Data.length  >0 ){
-        this.mainData =  data.Data
-    
-
-        let getArrayList = data.Data
-        let obj = {}
-        getArrayList.forEach(element => {
-          this.headervalue1 =  this.mainData.filter(
-            getvalue => (getvalue.HeadId ===1) &&  (getvalue.LevelNo === 1)
-          )
-          .map(getvalue => parseFloat(getvalue.Amount1))
-          .reduce((sum, current) => sum + current, 0)
-          this.headervalue2 =  this.mainData.filter(
-            getvalue => (getvalue.HeadId ===2) &&  (getvalue.LevelNo === 1)
-          )
-          .map(getvalue => parseFloat(getvalue.Amount1))
-          .reduce((sum, current) => sum + current, 0)
-    
-        });
-        console.log(this.headervalue1,this.headervalue2 ,'add')
-
-
-}
+            }
+          });
+        }
+      }
     })
 
   }

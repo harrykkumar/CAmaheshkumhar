@@ -42,8 +42,10 @@
                                     <label for="bill_no">Category</label>
                                     <div class="input-group adw_select">
                                         <div class="input-group adw_select">
-                                            <select2 [data]="categoryType" #cat_select2 class="control_select" (valueChanged)="selectCategory($event)"
-                                            autocomplete="true" [options]="categoryPlaceholder" [value]="catValue"></select2>
+                                            <select2 [data]="categoryType" #cat_select2 class="control_select"
+                                            (valueChanged)="selectCategory($event)"
+                                            autocomplete="true" [options]="categoryPlaceholder" 
+                                            [value]="catValue"></select2>
                                         </div>
                                     </div>
                                 </div>

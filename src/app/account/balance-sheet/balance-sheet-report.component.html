@@ -130,18 +130,18 @@
                     <div class="row justify-content-center">
             <div class="balancesheet bgc-white col-md-11">  
                    <div class="row text-center bs_head p-2">
-                        <div  class="name text-center col-md-12 name_size font-weight-bold">Saniiro Technologies Pvt Ltd</div>
+                        <div  class="name text-center col-md-12 name_size font-weight-bold"> {{ (loggedinUserData?.LoginUserDetailsinfo)[0]?.OfficeName }}</div>
                         <div class="name text-center col-md-12 font-weight-bold">Balance Sheet</div>
                         <!-- <div class="text-center col-md-12 font-weight-bold">As on Date {{dateShow | dateFormat:clientDateFormat }}</div> -->
 
-                        <div class="text-center col-md-12 font-weight-bold">As on Date {{dateShow }}</div>
+                        <div class="text-center col-md-12 font-weight-bold">As to  Date From  {{fromDateShow | dateFormat:clientDateFormat }} To {{toDateShow | dateFormat:clientDateFormat }}</div>
                     </div>
                  
                     <div class="row thead">
-                        <div class="col-4 font-weight-bold "> Liabilities</div>
+                        <div class="col-3 font-weight-bold "> Liabilities</div>
                         <div class="col amount_bs bdr_gray font-weight-bold">Amount  </div>
                         <div class="col amount_bs bdr_gray font-weight-bold">Amount  </div>
-                        <div class="col-4 font-weight-bold">Assets</div>
+                        <div class="col-3 font-weight-bold">Assets</div>
                         <div class="col amount_bs font-weight-bold">Amount </div>
                         <div class="col amount_bs font-weight-bold">Amount </div>
                     </div>
@@ -150,7 +150,7 @@
                         <div class="col-md-6 p-0 bdr_gray">
                             <div class="col-md-12">
                                 <div class="row" *ngFor = "let item of mainData; let i =index" >
-                                    <div class="col-md-8">
+                                    <div class="col-md-6">
                                         <div *ngIf='item.HeadId === 2 '  [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"  [ngStyle]="{'padding-left':item.HeadId === 2 && item.LevelNo ===2 ? '50px' : item.HeadId === 2 && item.LevelNo ===3 ? '100px' : '0px' }" class="panel-title"> 
                                            <a  data-toggle="collapse">{{item.GlName}}</a>
 
@@ -161,14 +161,14 @@
                                         <ng-container>
                                             <div    *ngIf='item.HeadId === 2 && item.LevelNo !== 1'  class="amount_bs">
                                              
-                                                    {{(item.Amount).toFixed(2)}}
+                                                    {{(item.Amount).toFixed(decimalDigit)}}
                                                  </div>
                                     </ng-container>
                                     </div>
                                     <div class="col">
                                             <ng-container>
                                                     <div   [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'" *ngIf='item.HeadId === 2 && item.LevelNo === 1'  class="amount_bs">
-                                                            {{(item.Amount1).toFixed(2)}}
+                                                            {{(item.Amount1).toFixed(decimalDigit)}}
                                                          </div>
                                             </ng-container>
                                            
@@ -183,21 +183,21 @@
                         <div class="col-md-6 p-0">
                             <div class="col-md-12">
                                 <div class="row" *ngFor = "let item of mainData; let a =index" >
-                                    <div class="col-md-8">
+                                    <div class="col-md-6">
                                         <div   *ngIf= 'item.HeadId === 1'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    [ngStyle]="{'padding-left':item.HeadId === 1 && item.LevelNo ===2 ? '50px' : item.HeadId === 1 && item.LevelNo ===3 ? '100px' : '0px' }" class="panel-title"><a  data-toggle="collapse">{{item.GlName}}</a></div>
                                   
                                     </div>
                                     <div class="col">
                                         <ng-container>
                                             <div    *ngIf='item.HeadId === 1 && item.LevelNo !== 1'  class="amount_bs">
-                                                    {{(item.Amount).toFixed(2)}}
+                                                    {{(item.Amount).toFixed(decimalDigit)}}
                                                  </div>
                                     </ng-container>
                                     </div>
                                     <div class="col">
                                             <ng-container>
                                                     <div  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"   *ngIf='item.HeadId === 1 && item.LevelNo === 1'  class="amount_bs">
-                                                            {{(item.Amount1).toFixed(2)}}
+                                                            {{(item.Amount1).toFixed(decimalDigit)}}
                                                          </div>
                                             </ng-container>
                                            
@@ -210,11 +210,15 @@
                          
                         </div>
                      </div>
-                        <div class="row tfoot">
-                        <div class="col-4 text-right font-weight-bold">Total</div>
-                        <div  class="col-2 amount_bs bdr_gray font-weight-bold">{{(headervalue2).toFixed(2)}}</div>
-                        <div class="col-4 text-right font-weight-bold">Total</div>
-                        <div class="col-2 amount_bs font-weight-bold">{{(headervalue1).toFixed(2)}}</div>
+                 <div class="row tfoot">
+                        <div class="col-3 text-right font-weight-bold">Total</div>
+                        <div  class="col amount_bs bdr_gray font-weight-bold">{{( headervalue2First).toFixed(decimalDigit)}}</div>
+
+                        <div  class="col amount_bs bdr_gray font-weight-bold">{{(headervalue2).toFixed(decimalDigit)}}</div>
+                        <div class="col-3 text-right font-weight-bold">Total</div>
+                        <div class="col amount_bs font-weight-bold">{{(headervalue1First).toFixed(decimalDigit)}}</div>
+
+                        <div class="col amount_bs font-weight-bold">{{(headervalue1).toFixed(decimalDigit)}}</div>
                     </div>
                 </div>
                     </div>

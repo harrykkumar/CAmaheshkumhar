@@ -7,6 +7,8 @@ declare const $: any
 import { CommonService } from '../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { Settings } from '../../shared/constants/settings.constant'
+import { LoginService } from './../../commonServices/login/login.services';
+import {SetUpIds} from 'src/app/shared/constants/setupIds.constant'
 
 @Component({
   selector: 'app-balance-sheet-report',
@@ -20,27 +22,62 @@ export class BalanceSheetReportComponent implements OnInit {
   totaltax: number
   totalBillAmount: number
   newDateSub: Subscription
-  dateShow : any
+  newDatefromDate: Subscription
+  toDateShow : any
+  fromDateShow : any
   clientDateFormat: any
-  constructor(public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+  constructor( public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     //  this.getSaleChallanDetail()
-    this.clientDateFormat = this._settings.dateFormat
+  
     this.newDateSub = this._commonService.getsearchByDateForBalancesheetStatus().subscribe(
       (obj: any) => {
-        this.getbalancesheetdata(obj.date)
-         this.dateShow = obj.date
+        console.log(obj ,"blnc----------")
+        this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
+        this.getModuleSettingData()
+        this.toDateShow = obj.toDate
+        this.fromDateShow = obj.fromDate
+        this.getbalancesheetdata(obj.toDate ,obj.fromDate)
+      
+     
+ 
+
       }
     )
 
   }
-
+  decimalDigit:any
+  loggedinUserData: any
   ngOnInit () {
-    this._commonService.fixTableHF('cat-table')
-   this.getbalancesheetdata(this.dateShow)
-   this.headervalue2 =0
-   this.headervalue1 =0
-  }
+    this.onload()
+  //  this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
+   // this.getModuleSettingData()
+   // this.getbalancesheetdata(this.toDateShow,this.fromDateShow)
+ 
 
+  }
+  onload(){
+    this.headervalue2 =0
+    this.headervalue1 =0
+    this.headervalue1First=0
+    this.headervalue2First=0
+    this.loggedinUserData = this._loginService.userData
+    this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
+    this._commonService.fixTableHF('cat-table')
+  }
+  getModuleSettingValue:any
+  getModuleSettingData () {
+        if ( this.getModuleSettingValue.settings.length > 0) {
+          this.getModuleSettingValue.settings.forEach(ele => {
+             if (ele.id=== SetUpIds.noOfDecimalPoint) {
+              this.decimalDigit = JSON.parse(ele.val)
+             }
+             if (ele.id=== SetUpIds.dateFormat) {
+              this.clientDateFormat =  ele.val[0].Val
+              console.log(this.clientDateFormat)
+             }
+   })
+  }
+  }
   toShowSearch = false
 
   toggleSearch() {
@@ -57,38 +94,32 @@ export class BalanceSheetReportComponent implements OnInit {
   AttributeValues: any
   headervalue1 : any
   headervalue2: any
-  getbalancesheetdata (date) {
-    debugger
-
-
-    //indirect Expences
-this.mainData =[]
-    this._commonService.getBalanceSheetList(date).subscribe(data => {
+  BalanceSheetSummary: any
+  headervalue1First:any =0
+  headervalue2First:any=0
+  getbalancesheetdata (todate,fromdate) {
+   this.mainData =[]
+    this._commonService.getBalanceSheetList(todate,fromdate).subscribe(data => {
       this.headervalue2 =0
       this.headervalue1 =0
-if(data.Code === UIConstant.THOUSAND && data.Data.length  >0 ){
-        this.mainData =  data.Data
-  
-
-        let getArrayList = data.Data
-        let obj = {}
-        getArrayList.forEach(element => {
-          this.headervalue1 =  this.mainData.filter(
-            getvalue => (getvalue.HeadId ===1) &&  (getvalue.LevelNo === 1)
-          )
-          .map(getvalue => parseFloat(getvalue.Amount1))
-          .reduce((sum, current) => sum + current, 0)
-          this.headervalue2 =  this.mainData.filter(
-            getvalue => (getvalue.HeadId ===2) &&  (getvalue.LevelNo === 1)
-          )
-          .map(getvalue => parseFloat(getvalue.Amount1))
-          .reduce((sum, current) => sum + current, 0)
-    
-        });
-        console.log(this.headervalue1,this.headervalue2 ,'add')
-
-
-}
+      if(data.Code === UIConstant.THOUSAND ){
+        if(data.Data && data.Data.BalanceSheets && data.Data.BalanceSheets.length >0){
+          this.mainData =  data.Data.BalanceSheets
+        }
+        if(data.Data && data.Data.BalanceSheetSummary.length>0){
+          data.Data.BalanceSheetSummary.forEach(element => {
+            if(element.HeadId ===1){
+             this.headervalue1 =element.Amount1
+             this.headervalue1First =element.Amount
+            }
+            else if(element.HeadId ===2){
+              this.headervalue2 =element.Amount1
+              this.headervalue2First =element.Amount
+ 
+             }
+          });
+        }
+      }
     })
 
   }

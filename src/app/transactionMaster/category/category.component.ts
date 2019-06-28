@@ -11,6 +11,7 @@ import { fromEvent } from 'rxjs'
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { PagingComponent } from '../../shared/pagination/pagination.component'
 import { Settings } from '../../shared/constants/settings.constant'
+import { SetUpIds } from '../../shared/constants/setupIds.constant';
 
 declare const $: any
 @Component({
@@ -49,7 +50,7 @@ export class CategoryComponent implements OnInit {
     private toastrService: ToastrCustomService,
     private settings: Settings
     ) {
-    this.catLevel = this.settings.catLevel
+    this.getCatLevel()
     this.newCatSub = this.commonService.newCatStatus().subscribe(
       (obj) => {
         this.Id = UIConstant.ZERO
@@ -66,9 +67,19 @@ export class CategoryComponent implements OnInit {
       }
     )
     this.formSearch()
-    if (this.catLevel > 1) {
-      this.createLevels()
-    }
+  }
+
+  
+  getCatLevel () {
+    let settings = JSON.parse(this.settings.moduleSettings).settings
+    settings.forEach(element => {
+      if (element.id === SetUpIds.catLevel) {
+        this.catLevel = +element.val
+        if (this.catLevel > 1) {
+          this.createLevels()
+        }
+      }
+    })
   }
 
   deleteItem (id) {

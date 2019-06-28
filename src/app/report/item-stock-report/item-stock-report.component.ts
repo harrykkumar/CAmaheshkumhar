@@ -54,7 +54,7 @@ export class ItemStockReportComponent implements OnInit {
   labelLength: any
   mainData: any
   AttributeValues: any
-
+  ClosingStock :any
   getSaleChallanDetail (data) {
     this._commonService.getReportItemStock(data).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
@@ -105,6 +105,24 @@ export class ItemStockReportComponent implements OnInit {
             ItemstockdetailsSaleReturn = []
             ItemstockdetailsSaleReturn.push({ CurrentStock: 0 })
           }
+          let ClosingStock = data.Data.ItemsClosingStock.filter(s => (s.ItemId === mainItm.Id && s.GroupId === mainItm.GroupId))
+          if (ClosingStock.length === 0) {
+            ClosingStock = []
+            ClosingStock.push({ CurrentStock: 0 })
+          }
+          let ItemsDeadStock = data.Data.ItemsDeadStock.filter(s => (s.ItemId === mainItm.Id && s.GroupId === mainItm.GroupId))
+          if (ItemsDeadStock.length === 0) {
+            ItemsDeadStock = []
+            ItemsDeadStock.push({ CurrentStock: 0 })
+          }
+          let ItemsWestageStock = data.Data.ItemsWestageStock.filter(s => (s.ItemId === mainItm.Id && s.GroupId === mainItm.GroupId))
+          if (ItemsWestageStock.length === 0) {
+            ItemsWestageStock = []
+            ItemsWestageStock.push({ CurrentStock: 0 })
+          }
+          // ItemsDeadStock: []
+          // ItemsWestageStock: []
+
           let ItemBarCodeTransactions = data.Data.ItemBarCodeTransactions.filter(s => (s.ItemId === mainItm.Id && s.GroupId === mainItm.GroupId))
           if (ItemBarCodeTransactions.length === 0) {
             ItemBarCodeTransactions = []
@@ -122,7 +140,10 @@ export class ItemStockReportComponent implements OnInit {
             purchaseReturn: ItemstockdetailsPurchaseReturn,
             sale: ItemstockdetailsSale,
             barcode: ItemBarCodeTransactions,
-            saleReturn: ItemstockdetailsSaleReturn
+            saleReturn: ItemstockdetailsSaleReturn,
+            ClosingStock:ClosingStock,
+            ItemsWestageStock:ItemsWestageStock,
+            ItemsDeadStock:ItemsDeadStock,
 
           })
         })

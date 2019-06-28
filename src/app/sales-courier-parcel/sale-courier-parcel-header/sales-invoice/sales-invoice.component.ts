@@ -91,6 +91,8 @@ export class SalesInvoiceComponent {
   sendersList$: Subscription
   parcelByList$: Subscription
   recieversList$: Subscription
+
+  backDateEntry: boolean
   constructor (private saleService: SalesCourierParcelServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
@@ -123,7 +125,7 @@ export class SalesInvoiceComponent {
     )
     this.recieversList$ = this.saleService.recieversList$.subscribe(
       (data: Array<any>) => {
-        console.log('old reciever : ', data)
+        // console.log('old reciever : ', data)
         data.splice(1, 0, { id: '-1', text: UIConstant.ADD_NEW_OPTION })
         this.RecieverSelect2 = Object.assign([], data)
       }
@@ -335,6 +337,7 @@ export class SalesInvoiceComponent {
         console.log('set up modules : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data.SetupModules.length > 0) {
           _self.setupModules = data.Data.SetupModules[0]
+          _self.backDateEntry = !!(_self.setupModules.IsBackDateEntryAllow)
           if (!_self.editMode) {
             if (!_self.setupModules.IsBillNoManual) {
               _self.BillNo = _self.setupModules.BillNo
@@ -509,45 +512,11 @@ export class SalesInvoiceComponent {
   }
 
   setPayDate () {
-    let _self = this
-    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
-      jQuery(function ($) {
-        flatpickr('#pay-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.InvoiceDate]
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#pay-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.InvoiceDate]
-        })
-      })
-    }
     this.PayDate = this.InvoiceDate
   }
 
   setBillDate () {
-    let _self = this
-    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    }
-    this.InvoiceDate = _self.gs.getDefaultDate(_self.clientDateFormat)
+    this.InvoiceDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
 
   clearExtras () {

@@ -1,0 +1,117 @@
+<div
+  class="modal fade right"
+  id="add_new_area"
+  data-backdrop="static"
+  data-keyboard="false"
+  role="dialog"
+  aria-labelledby="category_master"
+  aria-hidden="true"
+>
+  <div class="modal-dialog " role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add New Area</h4>
+        <button
+          type="button"
+          class="close"
+          (click)="closeForm()"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+     
+      <form #addAreaForm="ngForm" novalidate>
+        <div class="modal-body">
+          <div class="card-body">
+            <div>
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label for="commonMenuName">Country</label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2
+                        [data]="countryList"
+                        class="control_select"
+                        (valueChanged)="onCountrySelectionChange($event)"
+                        autocomplete="true"
+                        [value]="model.countryValue"
+                      >
+                      </select2>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <label>State</label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2
+                        [data]="stateList"
+                        class="control_select"
+                        (valueChanged)="onStateSelectionChange($event)"
+                        autocomplete="true"
+                        [value]="model.stateValue"
+                      >
+                      </select2>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <label>City</label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2
+                        [data]="cityList"
+                        class="control_select"
+                        (valueChanged)="onCitySelectionChange($event)"
+                        autocomplete="true"
+                        [value]="model.cityValue"
+                      >
+                      </select2>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <label>Area</label>
+                  <input
+                    name="areaShortName"
+                    type="text"
+                    [(ngModel)]="model.areaName"
+                    class="form-control"
+                    placeholder="Enter Area"
+                    [disabled]="!model?.selectedStateId || !model?.selectedCountryId || !model?.selectedCityId"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-primary waves-effect"
+            (click)="addAreaForm?.form?.valid && saveArea()"
+            [disabled]="addAreaForm?.form?.invalid"
+            (keydown.enter)="addAreaForm?.form?.valid && saveArea()"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary waves-effect"
+            (click)="addAreaForm?.form?.valid && saveArea('AddNew')"
+            (keydown.enter)="
+            addAreaForm?.form?.valid && saveArea('AddNew')
+            "
+            [disabled]="addAreaForm?.form?.invalid"
+          >
+            Save and Add New
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

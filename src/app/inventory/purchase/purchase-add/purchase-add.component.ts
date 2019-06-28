@@ -15,7 +15,6 @@ import { AdditionalCharges, ItemTaxTrans } from '../../../model/sales-tracker.mo
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
 import { takeUntil, catchError, filter, map } from 'rxjs/operators';
 
-declare const flatpickr: any
 declare const $: any
 declare const _: any
 @Component({
@@ -236,6 +235,7 @@ export class PurchaseAddComponent {
 
   formReadySub = new Subject<boolean>()
   fromReady$ = this.formReadySub.asObservable()
+  settings$: Subscription
   invalidObj: any = {}
   previousBillNo: string = ''
   keepOpen: boolean = false
@@ -341,7 +341,6 @@ export class PurchaseAddComponent {
             this.convertToSelect2.setElementValue(this.ConvertToCurrencyId)
             this.referralSelect2.setElementValue(this.ReferralId)
             this.referraltypeSelect2.setElementValue(this.ReferralTypeId)
-            this.setDueDate(this.CreditDays)
           }
         }
       }
@@ -486,14 +485,15 @@ export class PurchaseAddComponent {
       }
     )
 
-    this.purchaseService.settingData$.pipe(takeUntil(this.onDestroy$)).subscribe(
-      data => {
-        if (data.data) {
-          this.settingData = data.data
-          this.getSetUpModules(this.settingData)
-        }
-      }
-    )
+    // this.settings$ = this.purchaseService.settingData1$.subscribe(
+    //   data => {
+    //     if (data.data) {
+    //       this.settingData = data.data
+    //       console.log('this.settingData : ', this.settingData)
+    //       this.getSetUpModules(this.settingData)
+    //     }
+    //   }
+    // )
 
     this.commonService.getVendStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
@@ -505,7 +505,6 @@ export class PurchaseAddComponent {
           this.vendorValue = data.id
           this.CreditLimit = 0
           this.CreditDays = 0
-          this.setDueDate(this.CreditDays)
           setTimeout(() => {
             if (this.vendorSelect2) {
               const element = this.renderer.selectRootElement(this.vendorSelect2.selector.nativeElement, true)
@@ -677,6 +676,12 @@ export class PurchaseAddComponent {
     this.createAdditionalCharges(data.AdditionalChargeDetails)
     this.createTransaction(data.PaymentDetails)
     this.loading = false
+    setTimeout(() => {
+      if (this.vendorSelect2) {
+        this.vendorSelect2.selector.nativeElement.focus({ preventScroll: false })
+      }
+      this.commonService.fixTableHF('cat-table')
+    }, 1000)
     this.getBillSummary()
     this.creatingForm = false
   }
@@ -882,6 +887,7 @@ export class PurchaseAddComponent {
     this.BillDate = this.gs.utcToClientDateFormat(others.BillDate, this.clientDateFormat)
     this.PartyBillDate = this.gs.utcToClientDateFormat(others.PartyBillDate, this.clientDateFormat)
     this.DueDate = this.gs.utcToClientDateFormat(others.DueDate, this.clientDateFormat)
+    this.CurrentDate = this.gs.utcToClientDateFormat(others.CurrentDate, this.clientDateFormat)
     this.PartyBillNo = others.PartyBillNo
     this.ConvertedAmount = +others.ConvertedAmount
     this.CurrencyRate = +others.CurrencyRate
@@ -919,9 +925,6 @@ export class PurchaseAddComponent {
     this.defaultCurrency = others.Currency
     // console.log('currency values : ', this.currencyValues)
     this.setPayDate()
-    this.setExpiryDate()
-    this.setDueDate(0)
-    this.setMfdDate()
     this.other = others
     this.formReadySub.next(true)
   }
@@ -968,7 +971,7 @@ export class PurchaseAddComponent {
         this.catLevel = +element.val
       }
       if (element.id === SetUpIds.dateFormat) {
-        this.clientDateFormat = element.val
+        this.clientDateFormat = element.val[0].Val
       }
       if (element.id === SetUpIds.noOfDecimalPoint) {
         this.noOfDecimalPoint = +element.val
@@ -977,7 +980,8 @@ export class PurchaseAddComponent {
         this.unitSettingType = +element.val
       }
       if (element.id === SetUpIds.backDateEntry) {
-        this.backDateEntry = element.val
+        this.backDateEntry = !!(+element.val)
+        console.log('backDateEntry : ', this.backDateEntry)
       }
       if (element.id === SetUpIds.purchaseBillNoManually) {
         this.isBillNoManuall = !!(+element.val)
@@ -1021,18 +1025,18 @@ export class PurchaseAddComponent {
         }
         if (data.Data.LedgerDetails && data.Data.LedgerDetails.length > 0) {
           const LedgerDetails = data.Data.LedgerDetails[0]
+          console.log('LedgerDetails : ', LedgerDetails)
           this.CreditLimit = LedgerDetails.CreditLimit
           this.CreditDays = LedgerDetails.CreditDays
-          this.setDueDate(this.CreditDays)
         }
       }
     })
   }
 
   getNewBillNo () {
-    if (this.BillDate) {
-      this.setPayDate()
-    }
+    // if (this.BillDate) {
+    //   this.setPayDate()
+    // }
     if (+this.OrgId > 0 && this.BillDate) {
       let newBillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
       let type = (this.isBillNoManuall) ? 2 : 1
@@ -1078,13 +1082,10 @@ export class PurchaseAddComponent {
       this.setBillDate()
       this.setPartyBillDate()
       this.setPayDate()
-      this.setExpiryDate()
-      this.setDueDate(0)
-      this.setMfdDate()
       this.loading = false
       setTimeout(() => {
         if (this.vendorSelect2) {
-          this.vendorSelect2.selector.nativeElement.focus()
+          this.vendorSelect2.selector.nativeElement.focus({ preventScroll: false })
         }
         this.commonService.fixTableHF('cat-table')
       }, 1000)
@@ -1131,14 +1132,6 @@ export class PurchaseAddComponent {
   setCurrentDate (setups) {
     if (setups && setups.length > 0) {
       this.CurrentDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
-      let _self = this
-      jQuery(function ($) {
-        flatpickr('#current-date1', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.utcToClientDateFormat(_self.CurrentDate, _self.clientDateFormat)]
-        })
-      })
     }
   }
 
@@ -1156,97 +1149,15 @@ export class PurchaseAddComponent {
 
   unitSettingType: number = 1
   setPayDate () {
-    let _self = this
-    if (this.backDateEntry) {
-      jQuery(function ($) {
-        flatpickr('#pay-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.BillDate]
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#pay-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.BillDate]
-        })
-      })
-    }
-    _self.PayDate = _self.BillDate
+    this.PayDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
 
   setBillDate () {
-    let _self = this
-    if (this.backDateEntry) {
-      jQuery(function ($) {
-        flatpickr('#bill-date1', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#bill-date1', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    }
-    this.BillDate = _self.gs.getDefaultDate(_self.clientDateFormat)
+    this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
 
   setPartyBillDate () {
-    let _self = this
-    if (this.backDateEntry) {
-      jQuery(function ($) {
-        flatpickr('#party-bill-date1', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#party-bill-date1', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    }
-    this.PartyBillDate = _self.gs.getDefaultDate(_self.clientDateFormat)
-  }
-
-  setDueDate (creditDays) {
-    let _self = this
-    const date = _self.gs.setDueDate(creditDays, _self.clientDateFormat)
-    jQuery(function ($) {
-      flatpickr('#due-date1', {
-        dateFormat: _self.clientDateFormat,
-        defaultDate: [date]
-      })
-    })
-    this.DueDate = date
-  }
-
-  setExpiryDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#expiry-date', {
-        minDate: 'today',
-        dateFormat: _self.clientDateFormat
-      })
-    })
-  }
-
-  setMfdDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#mfd-date', {
-        dateFormat: _self.clientDateFormat
-      })
-    })
+    this.PartyBillDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
 
   createModels (levels) {
@@ -1771,6 +1682,7 @@ export class PurchaseAddComponent {
     }
   }
 
+  newDate: string = ''
   @ViewChild('godown_select2') godownSelect2: Select2Component
   onGodownSelect (evt) {
     // console.log(evt)
@@ -2091,6 +2003,7 @@ export class PurchaseAddComponent {
     let paymentTotal = this.getPaymentTotal()
     paymentTotal = (isNaN(+paymentTotal)) ? 0 : +paymentTotal
     this.BillAmount = (isNaN(+this.BillAmount)) ? 0 : +this.BillAmount
+    console.log('this.BillAmount : ', this.BillAmount)
     if (this.BillAmount !== 0) {
       if (paymentTotal > this.BillAmount) {
         this.toastrService.showError('Error', 'Payment can\'t be more than bill amount')
@@ -2123,14 +2036,15 @@ export class PurchaseAddComponent {
   }
 
   addTransactions () {
-    if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount && this.PayDate) {
+    //  && this.PayDate
+    if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
       if ((+this.PayModeId === 3 && this.ChequeNo) || (+this.PayModeId === 1)) {
         if (this.checkValidationForAmount()) {
           this.addTransaction()
           this.clickTrans = true
           this.initialiseTransaction()
           // console.log('transactions : ', this.PaymentDetail)
-          this.setPayDate()
+          // this.setPayDate()
           this.calculatePaymentAmount()
         }
       } else {
@@ -2196,8 +2110,8 @@ export class PurchaseAddComponent {
         }
         this.initItem()
         if (this.industryId === 5) {
-          this.setExpiryDate()
-          this.setMfdDate()
+          // this.setExpiryDate()
+          // this.setMfdDate()
         }
       }
     }
@@ -2441,8 +2355,8 @@ export class PurchaseAddComponent {
     this.taxSlabName = ''
     this.TaxType = 0
     this.TaxAmount = 0
-    this.ExpiryDate = ''
-    this.MfdDate = ''
+    this.ExpiryDate = this.gs.getDefaultDate(this.clientDateFormat)
+    this.MfdDate = this.gs.getDefaultDate(this.clientDateFormat)
     this.BatchNo = ''
     this.Remark = ''
     this.categoryId = 0
@@ -2580,6 +2494,7 @@ export class PurchaseAddComponent {
     if (this.currencySelect2) {
       this.currencySelect2.setElementValue(0)
     }
+    this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
   }
 
   initialiseExtras () {
@@ -2686,9 +2601,9 @@ export class PurchaseAddComponent {
     this.setBillDate()
     this.setPartyBillDate()
     this.setPayDate()
-    this.setExpiryDate()
-    this.setDueDate(0)
-    this.setMfdDate()
+    // this.setExpiryDate()
+    // this.setDueDate(0)
+    // this.setMfdDate()
     this.getNewBillNo()
     this.getNewCurrentDate()
   }
@@ -3212,11 +3127,6 @@ export class PurchaseAddComponent {
     }
   }
 
-  ngOnDestroy () {
-    this.onDestroy$.next()
-    this.onDestroy$.complete()
-  }
-
   @ViewChild('loc_ref') locRef: ElementRef
   moveToCharge () {
     this.chargeSelect2.selector.nativeElement.focus({ preventScroll: false })
@@ -3565,5 +3475,17 @@ export class PurchaseAddComponent {
       * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
       this.PurchaseRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
     }
+  }
+
+  // payDate: string = 'today'
+  billDateChange (evt) {
+    console.log(evt)
+    this.BillDate = evt
+    this.PayDate = evt
+  }
+
+  ngOnDestroy () {
+    this.onDestroy$.next()
+    this.onDestroy$.complete()
   }
 }

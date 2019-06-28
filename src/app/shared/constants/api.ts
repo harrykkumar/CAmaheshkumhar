@@ -241,7 +241,7 @@ export class ApiConstant {
 
   public static get LEDGER_SUMMARY (): string { return this.BASE_URL + '/api/v1/account/LedgerSummary' }
 
-  public static get BALANCE_SHEET_API (): string { return this.BASE_URL + '/api/v1/account/Balancesheet?OnDate=' }
+  public static get BALANCE_SHEET_API (): string { return this.BASE_URL + '/api/v1/account/Balancesheet' }
 
   public static get USER_PROFILE (): string { return this.BASE_URL + '/api/v1/UserProfile' }
 
@@ -251,9 +251,9 @@ export class ApiConstant {
   
   public static get OPENING_STK (): string { return this.BASE_URL + '/api/v1/ims/itembarcodeOpening' }
 
-  public static get ACCOUNT_PROFIT_AND_LOSS_BY_DATE (): string { return this.BASE_URL + '/api/v1/account/pnl?OnDate=' }
+  public static get ACCOUNT_PROFIT_AND_LOSS_BY_DATE (): string { return this.BASE_URL + '/api/v1/account/pnl' }
 
-  public static get ACCOUNT_TRADING_BY_DATE (): string { return this.BASE_URL + '/api/v1/account/Trading?OnDate=' }
+  public static get ACCOUNT_TRADING_BY_DATE (): string { return this.BASE_URL + '/api/v1/account/Trading' }
 
   public static get OWNER_ORGANISATION_LIST (): string { return this.BASE_URL + '/api/v1/Owner/Organization' }
 
@@ -278,5 +278,31 @@ export class ApiConstant {
   public static get EXTENDJWT (): string { return this.BASE_URL + '/api/v1/authentication/ExtendJwt' }
 
   public static get GET_VOUCHER_TYPE (): string { return this.BASE_URL + '/api/v1/account/VoucherType' }
+  
+  public static get FIN_SESSION (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=164' }
+
+  public static get POST_VOUCHER_CONTRA_JOURNAL (): string { return this.BASE_URL + '/api/v1/account/JournalContraVoucher' }
+
+  public static get SUB_INDUSTRY (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster1?CommonId' }
+
+  public static get PAYMENT_RECEIPT_PRINT (): string { return this.BASE_URL + '/api/v1/ims/receiptprint' }
+
+  public static get MODULE_SETTING_ON_TOP (): string { return this.BASE_URL + '/api/v1/setting/setupsetting?ModuleId=' }
+  
+  public static get SAMPLING_GET (): string { return this.BASE_URL + '/api/v1/manufacture/sampling' }
+  
+  public static get SAMPLE_STYLE (): string { return this.BASE_URL + '/api/v1/manufacture/style' }
+ 
+
+  public static get GET_TAXTYPE_NAME (): string { return this.BASE_URL + '/api/v1/TaxTitle' }
+
+  public static get GET_TAX_SLAB_NAME_URL (): string { return this.BASE_URL + '/api/v1/tax?Uid=' }
+
+  // api/v1/TaxTitle
+  public static get ORG_INDUSTRY (): string { return this.BASE_URL + '/api/v1/common/industry' }
+
+  public static get CITY_ADD (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster2' }
+
+  public static get AREA_ADD (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster3' }
 
 }

@@ -17,7 +17,7 @@
                                     <label>Under Group</label>
                                     <div class="input-group adw_select">
                                         <div class="input-group adw_select">
-                                            <select2 id='under_group_select2' [data]="ledgerGroupData"
+                                            <select2  [data]="ledgerGroupData"
                                             #under_group_select2 class="control_select"
                                             (valueChanged)="onChnageGroup($event)"
                                             autocomplete="true"
@@ -142,8 +142,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" (click)='clearValidation()' class="btn btn_close waves-effect" data-dismiss="modal">Close</button>
-                <button type="button"(click)="saveLedgerCreation()"  class="btn btn-primary waves-effect">Save changes</button>
+                <!-- <button type="button" (click)='clearValidation()' class="btn btn_close waves-effect" data-dismiss="modal">Close</button> -->
+                <button type="button"(click)="saveLedgerCreation('save')"  class="btn btn-primary waves-effect">Save </button>
+                <button type="button"(click)="saveLedgerCreation('new')"  class="btn btn-primary waves-effect">Add New & Save </button>
+
             </div>
         </div>
     </div>

@@ -24,7 +24,6 @@ export class TaxAddComponent {
   type: any
   deafaultValue = ''
   taxrates: any[]
-  addPulsSign: any
   plusValue: number
   taxForm: FormGroup
   errorMassage: string
@@ -35,27 +34,27 @@ export class TaxAddComponent {
   taxboxDivVisibale: boolean
   selectTaxTypePlaceHolde: Select2Options
   editMode: boolean
-  public selectTaxTpye: Array<Select2OptionData>
+   selectTaxTpye: any
   modalSub: Subscription
   keepOpen: boolean = false
-  constructor (public toastrCustomService: ToastrCustomService , private _taxMasterServices: TaxMasterService,
+  constructor(public toastrCustomService: ToastrCustomService, private _taxMasterServices: TaxMasterService,
     private _formBuilder: FormBuilder,
     private _commonGetSetServices: CommonSetGraterServices,
     private commonService: CommonService,
     private renderer: Renderer2
-    ) {
-  //  this.selectTaxTpye = [{ id: '1', text: 'GST' }, { id: '2', text: 'VAT' },{ id: '3', text: 'Other' }]
+  ) {
 
-    this.formTax()
-   // this.getSelectTaxType(0)
     this.modalSub = this.commonService.getTaxStatus().subscribe(
       (data: AddCust) => {
         if (data.open) {
           if (data.editId === '') {
             this.editMode = false
+            this.id =0
+            this.editMainID =0
           } else {
             this.editMode = true
             this.id = data.editId
+            this.editMainID =data.editId
           }
           this.openModal()
         } else {
@@ -64,294 +63,327 @@ export class TaxAddComponent {
       }
     )
   }
-
-  currencies: Array<any> = []
-  getAvailableCurrency () {
+  currencies: any = []
+editMainID :any
+  getAvailableCurrency() {
     let _self = this
     this.commonService.setupSettingByType(UIConstant.SALE_TYPE).subscribe(Settings => {
-      _self.currencies = []
-      if (Settings.Code === UIConstant.THOUSAND) {
-        let currencies = Settings.Data.SetupSettings
-        currencies.forEach(element => {
-          if (+element.SetupId === SetUpIds.currency && +element.Type === SetUpIds.multiple) {
-            _self.currencies.push({
-              cuyId:1,
-              id: element.Id,
-              val: element.Val
-            })
-          }
-        })
-         // console.log('currencies available : ', _self.currencies)
-      }
+      _self.currencies = [{ id: '0', text: '%' }]
+
+      // if (Settings.Code === UIConstant.THOUSAND) {
+      //   let currencies = Settings.Data.SetupSettings
+      //   currencies.forEach(element => {
+      //     if (+element.SetupId === SetUpIds.currency && +element.Type === SetUpIds.multiple) {
+      //       _self.currencies.push({
+      //         id: element.Id,
+      //         text: element.Val
+      //       })
+
+      //     }
+      //   })
+      // }
+
     }
     )
   }
 
-  ngOnDestroy () {
+  ngOnDestroy() {
     this.modalSub.unsubscribe()
     if (this.subscribe) {
       this.subscribe.unsubscribe()
     }
   }
-  ngOnInit(){
-
-      //this.getSelectTaxType(0)
+  ngOnInit() {
+    this.getTaxName()
   }
-
-
-  get f () { return this.taxForm.controls }
-
-  openModal () {
-
-   // this.currencies =[{id:0 , val:'%'}]
-    if (this.taxForm.valid) {
-      this.taxForm.reset()
-    }
+ 
+  getTaxName(){
+    this.selectTaxTpye =[]
+    let localdata=[]
+    this.subscribe = this._taxMasterServices.getTaxTypeName().subscribe(Data => {
+      if(Data.Code===UIConstant.THOUSAND){
+          Data.Data.forEach(element => {
+            if(element.UnderId === 0){
+              localdata.push({
+              id:element.UId,
+              text:element.Name,
+              uid:element.UId,
+              })
+            }
+          });
+      }
+      this.selectTaxTpye =  localdata
+    })
+    
+  }
+  openModal() {
+    this.EditFlag =true
+    this.getTaxName()
+    this.clearForm()
+    this.slab = ''
+    this.isForOtherState = false
+    this.taxrRateId = 0
+    this.currencies = [{ id: 0, text: '%' }]
     if (this.editMode) {
       this.getTaxEditData(this.id)
     } else {
+      this.taxrates = []
       this.id = UIConstant.ZERO
-      this.taxForm.reset()
-      this.type = UIConstant.ZERO
       this.taxboxDivVisibale = true
     }
-  
-    this.addPulsSign = []
     this.taxboxDivVisibale = false
     this.plusValue = 0
     this.getAvailableCurrency()
     this.taxboxDivVisibale = false
     this.submitClick = false
-   //
     $('#add_tax').modal(UIConstant.MODEL_SHOW)
-      this.getSelectTaxType(0)
+    setTimeout(() => {
+      this.taxtypeSelect2.selector.nativeElement.focus()
+    }, 500)
   }
+  taxTypeList: any
+  getTypeOfTax(addEditModeFlg,selectedTaxId) {
+    if(addEditModeFlg){
+      this.taxTypeList =[]
+      this.subscribe = this._taxMasterServices.getTaxSalbName(selectedTaxId).subscribe(Data => {
+        if (Data.Code === UIConstant.THOUSAND) {
+          Data.Data.TaxRates.forEach(element => {
+            if (selectedTaxId === element.UnderId) {
+              this.taxTypeList.push({
+                Name: element.Name,
+                TaxTitleId: element.TaxTitleId,
+                Id: element.Id,
+                taxrate:0,
+                isForOtherState:element.IsForOtherState,
+                ValueType:element.ValueType
+      
+              })
+            }
+           
+          });
+          console.log(Data, 'get-tax-->')
+        }
+        if(Data.Code ===UIConstant.SERVERERROR){
+          this.toastrCustomService.showError('',Data.Description)
+        }
+      })
+    }
 
+  }
   @ViewChild('taxtype_select2') taxtypeSelect2: Select2Component
-  closeModal () {
+  closeModal() {
     if ($('#add_tax').length > 0) {
       this.clearValidation()
-      this.addPulsSign = []
+      this.taxrates = []
       this.taxboxDivVisibale = false
       this.plusValue = 0
       this.submitClick = false
       this.id = UIConstant.ZERO
-     // this.type = UIConstant.ZERO
       $('#add_tax').modal(UIConstant.MODEL_HIDE)
     }
   }
-  clearValidation () {
-    this.taxForm.reset()
+  clearValidation() {
+    this.slab = ''
     this.type = UIConstant.ZERO
-    this.getSelectTaxType(0)
+    this.clearForm()
   }
-  private formTax () {
-    this.taxForm = this._formBuilder.group({
-      'slab': [UIConstant.BLANK, Validators.required],
-      'taxRateName': [UIConstant.BLANK],
-      'taxRate': [UIConstant.BLANK]
-    })
-  }
+
 
   taxErrMsg: any
   taxErrorFlag: any
   taxErrormass: any
   taxType: any
-  getTaxEditData (id) {
+  getTaxEditData(id) {
+    this.EditFlag = false
     this.taxboxDivVisibale = true
     this.subscribe = this._taxMasterServices.editTax(id).subscribe(Data => {
-      //console.log('tax edit : ', Data)
-      if (Data.Data && Data.Data.TaxRates.length > 0) {
-        this.addPulsSign = []
-        for (let i = 0 ; i < Data.Data.TaxRates.length; i++) {
-        
-          this.addPulsSign.push({
-            id: Data.Data.TaxRates[i].Id,
-            name: Data.Data.TaxRates[i].Name,
-            taxRate: Data.Data.TaxRates[i].TaxRate,
-            valueType: Data.Data.TaxRates[i].ValueType,
-            isForOtherState: Data.Data.TaxRates[i].IsForOtherState
-          })
-          if (this.addPulsSign[i].isForOtherState === true) {
-           $('#customCheck' + i).prop('checked', true)
-          } else {
-            $('#customCheck' + i).prop('checked', false)
-          }
+      if (Data.Code === UIConstant.THOUSAND) {
+        setTimeout(() => {
+          const element = this.first.nativeElement.focus()
+          element.focus({ preventScroll: false })
+        }, 500)
+        console.log('tax-response :-' ,JSON.stringify(Data))
+        if (Data.Data && Data.Data.TaxRates.length > 0) {
+          this.taxTypeList = []
+          for (let i = 0; i < Data.Data.TaxRates.length; i++) {
+            this.taxTypeList.push({
+              Id: Data.Data.TaxRates[i].Id,
+              TaxTitleId: Data.Data.TaxRates[i].TaxTitleId,
+              Name: Data.Data.TaxRates[i].Name,
+              taxrate: Data.Data.TaxRates[i].TaxRate,
+              ValueType: Data.Data.TaxRates[i].ValueType,
+              CurrencyName: Data.Data.TaxRates[i].ValueType ,
+              isForOtherState: Data.Data.TaxRates[i].IsForOtherState
+            })
+            
+            if (this.taxTypeList[i].isForOtherState === true) {
+              $('#customCheck' + i).prop('checked', true)
+            } else {
+              $('#customCheck' + i).prop('checked', false)
+            }
 
-        }
-      } else {
-        this.addPulsSign = []
-      }
-      if (Data.Data && Data.Data.TaxSlabs.length > 0) {
-        this.taxForm.controls.slab.setValue(Data.Data.TaxSlabs[0].Slab)
-        this.type = Data.Data.TaxSlabs[0].Type
-        this.getSelectTaxType(this.type)
-        this.texboxDiv()
-      }
-    })
-  }
-taxTypeId:any
-taxTypeName:any
-  getSelectTaxType (value) {
-    let data;
-    this.selectTaxTpye = []
-    this.selectTaxTypePlaceHolde = { placeholder: 'Select Tax Type' }
-    this.selectTaxTpye = [{ id: '1', text: 'GST' }, { id: '2', text: 'VAT' },{ id: '3', text: 'Other' }]
-
-    this.type = this.selectTaxTpye[0].id
-    this.deafaultValue = this.selectTaxTpye[0].id
-
-    if(value > 0){
-       data = this.selectTaxTpye.filter(s=> JSON.parse(s.id) === value)
-      //console.log(data ,'jjj')
-    this.deafaultValue = data[0].id
-
-    }
-    // this.deafaultValue = this.selectTaxTpye[0].id
-
-   // this.taxTypeName = this.s.electTaxTpye[0].text
-  }
-  addPulsFuctionality () {
-    this.taxErrMsg = $('#taxErrMsg')
-    this.taxErrMsg.text('')
-    let boolCheck = false
-
-    if (this.addPulsSign.length > 0) {
-      for (let i = 0; i < this.addPulsSign.length; i++) {
-        if ($('#taxrateName' + i).val() !== '') {
-         // document.getElementById('taxRate' + i).className += ' successTextBoxBorder'
-         // document.getElementById('taxRate' + i).classList.remove('errorTextBoxBorder')
-
-          if ($('#taxRate' + i).val() > 0) {
-            boolCheck = true
-            this.taxErrorFlag = false
-          } else {
-            this.taxErrorFlag = true
-            boolCheck = false
-            break
           }
         } else {
-          $('#taxrateName' + i).focus()
-          this.taxErrorFlag = true
-          document.getElementById('taxRate' + i).className += ' errorTextBoxBorder'
-          boolCheck = false
-          break
+          this.taxTypeList = []
+        }
+        if (Data.Data && Data.Data.TaxSlabs.length > 0) {
+          this.slab = Data.Data.TaxSlabs[0].Slab
+          this.TypeUid = Data.Data.TaxSlabs[0].Type
+           this.deafaultValue =Data.Data.TaxSlabs[0].Type
+          this.taxtypeSelect2.setElementValue(this.deafaultValue)
         }
       }
-    }
-    if (boolCheck) {
-      this.addPulsSign.push({
-        id: 0,
-        Rate: undefined,
-        Name: undefined,
-        ValueType: undefined,
-        Isforotherstate: undefined
-      })
-    }
-    if (this.addPulsSign.length === 0) {
-      this.addPulsSign.push({
-        id: 0,
-        Rate: undefined,
-        Name: undefined,
-        ValueType: undefined,
-        Isforotherstate: undefined
-      })
-    }
-  }
+      if (Data.Code === UIConstant.SERVERERROR) {
+        this.toastrCustomService.showError('', Data.Description)
+      }
 
-  selectedTaxType (event) {
-    if (event.value && event.data.length >0) {
-      this.type = event.value
-     // this.select2Error = false
+    })
+  }
+  taxTypeId: any
+  taxTypeName: any
+ 
+  EditFlag:any
+  TypeUid:any
+  selectedTaxType(event) {
+    if (event.value && event.data.length > 0) {
+      this.type = +event.value
+      this.TypeUid = +event.data[0].uid
+     // alert(this.TypeUid)
+      if(this.editMode && !this.EditFlag){
+        this.getTypeOfTax(false,this.TypeUid)
+      }
+      else{
+        this.getTypeOfTax(true,this.TypeUid)
+
+      }
     }
 
   }
   taxId: any
-  getTaxFormValue () {
-    // debugger;
-    this.taxrates = []
-    for (let i = 0; i < this.addPulsSign.length; i++) {
-     if ($('#exampleFormControlSelect1' + i).val() === '') {
-          $('#exampleFormControlSelect1' + i).val("0")
-        }
-      if ($('#taxrateName' + i).val() !== UIConstant.BLANK && $('#taxRate' + i).val() >= 0) {
-        if (($('#customCheck' + i).prop('checked') === true)) {
-          this.taxrates.push({
-            Id: this.addPulsSign[i].id !== 0 ? this.addPulsSign[i].id : 0,
-            Rate: $('#taxRate' + i).val(),
-            Name: $('#taxrateName' + i).val(),
-            ValueType: $('#exampleFormControlSelect1' + i).val(),
-            IsotherState: UIConstant.ONE
-          })
-        } else {
-          this.taxrates.push({
-            Id: this.addPulsSign[i].id !== 0 ? this.addPulsSign[i].id : 0,
-            Rate: $('#taxRate' + i).val(),
-            Name: $('#taxrateName' + i).val(),
-            ValueType: $('#exampleFormControlSelect1' + i).val(),
-            IsotherState: UIConstant.ZERO
-          })
-        }
+  CurrencyName: any
+  CurrencyId: any
+  isForOtherState: any
+
+  onSelectCurrency(event) {
+
+    if (event.data.length > 0) {
+      if (event.data && event.data[0].text) {
+        this.CurrencyId = event.value
+        this.CurrencyName = event.data[0].text
       }
     }
+
+  }
+  slab: any
+  taxrate: any
+  taxName: any
+  CurrencyType: any
+  invalidObjCont: any = {}
+  requiredValueFalg:any
+  validateTaxRates() {
+    let isValid = 1
+    this.taxTypeList.forEach((element,index )=> {
+      if ( this.taxTypeList[index].taxrate > 0) {
+        this.taxTypeList[index]['taxrateFlag'] = false
+      } else {
+       this.taxTypeList[index]['taxrateFlag'] = true
+        isValid = 0
+      }
+    });
+
+    return !!isValid
+  }
+  invalidObjSlab: any = {}
+  checkValidation() {
+    
+    let isValid3 = 1
+    if (this.slab !== '' && this.slab.length > 3 ) {
+      this.invalidObjSlab['slab'] = false
+    } else {
+      this.invalidObjSlab['slab'] = true
+      isValid3 = 0
+    }
+
+    return !!isValid3
   }
 
   @ViewChild('first') first: ElementRef
-  addTax () {
+  addTax() {
     this.submitClick = true
-    this.getTaxFormValue()
+    this.addtaxrates()
+    this.checkValidation()
     this.select2Validation()
-    if (this.taxForm.valid && JSON.parse(this.type) > UIConstant.ZERO) {
-      if (this.taxrates.length > UIConstant.ZERO) {
+    if (JSON.parse(this.type) > UIConstant.ZERO) {
+   //   if (this.taxrates.length > UIConstant.ZERO) {
 
         this._taxMasterServices.addTax(this.taxParams()).subscribe(Data => {
-        //  console.log('tax add : ', Data)
           if (Data.Code === UIConstant.THOUSAND) {
             if (this.keepOpen) {
-              this.toastrCustomService.showSuccess('Success','Saved Successfully!')
-              this.taxForm.reset()
-              setTimeout(() => {
-                const element = this.first.nativeElement
-                element.focus({ preventScroll: false })
-              }, 1000)
-              this.taxboxDivVisibale = false
-              this.addPulsSign = []
-              this.texboxDiv()
+              let savename = this.editMainID===0 ? UIConstant.SAVED_SUCCESSFULLY :UIConstant.UPDATE_SUCCESSFULLY
+
+              this.toastrCustomService.showSuccess('', savename)
+              this.commonService.newTaxAdded()
+              this.taxTypeList = []
+               this.getTypeOfTax(true,this.TypeUid)
+               this.clearForm()
+               this.id =0
+              // setTimeout(() => {
+              //   const element = this.first.nativeElement
+              //   element.focus({ preventScroll: false })
+              // }, 1000)
+             
+              
             } else {
+              // setTimeout(() => {
+              //   const element = this.first.nativeElement.focus()
+              //   element.focus({ preventScroll: false })
+              // }, 1000)
               this._commonGetSetServices.setTax(Data.Data)
-              const dataToSend = { id: Data.Data, name: this.taxForm.value.slab }
+              const dataToSend = { id: Data.Data, name: this.slab }
               this.commonService.newTaxAdded()
               this.commonService.closeTax(dataToSend)
-              this.toastrCustomService.showSuccess('Success','Saved Successfully!')
-              this.selectTaxTpye = [{ id: '1', text: 'GST' }, { id: '2', text: 'VAT' },{ id: '3', text: 'Other' }]
+              let savename = this.editMainID===0 ? UIConstant.SAVED_SUCCESSFULLY :UIConstant.UPDATE_SUCCESSFULLY
+
+              this.toastrCustomService.showSuccess('',savename)
+            //  this.selectTaxTpye = [{ id: '1', text: 'GST' }, { id: '2', text: 'VAT' }, { id: '3', text: 'Other' }]
             }
           }
-          if(Data.Code ===UIConstant.THOUSANDONE){
-            this.toastrCustomService.showInfo('Info',Data.Description)
+          if (Data.Code === UIConstant.THOUSANDONE) {
+            this.toastrCustomService.showInfo('', Data.Description)
+          }
+          if (Data.Code === UIConstant.SERVERERROR) {
+            this.toastrCustomService.showInfo('', Data.Description)
+          }
+          if(Data.Code === UIConstant.REQUIRED_5020){
+            this.toastrCustomService.showError('', Data.Data)
+            
           }
         })
-      } else {
-        this.toastrCustomService.showWarning('Warning','fill tax name & tax rate!')
-      }
+    //  } 
+     // else {
+        //this.toastrCustomService.showWarning('', 'Please Enter Rate!')
+       // this.CheckButton.nativeElement.focus()
+
+     // }
     }
   }
 
-  private taxParams (): TaxModule {
-    // debugger;
+  private taxParams(): TaxModule {
     const taxElement = {
       taxObj: {
-        Id: this.id,
-        Slab: this.taxForm.value.slab,
-        Type: this.type,
+        Id: this.id ===0 ? 0 : this.editMainID,
+        Slab: this.slab,
+        Type: this.TypeUid,
         taxrates: this.taxrates
       } as TaxModule
     }
+    console.log(JSON.stringify( taxElement.taxObj) ,'tax-Request')
     return taxElement.taxObj
   }
 
-    /* select2 validation */
+  /* select2 validation */
 
-  select2Validation () {
+  select2Validation() {
     if (this.type > UIConstant.ZERO) {
       this.select2Error = false
     } else {
@@ -359,30 +391,107 @@ taxTypeName:any
       this.errorMassage = ErrorConstant.REQUIRED
     }
   }
-    /* ...................completed................. */
-
-  texboxDiv () {
+  /* ...................completed................. */
+  currencyValues: any
+  texboxDiv() {
     if (this.taxboxDivVisibale === true) {
       this.taxboxDivVisibale = false
     } else {
       this.taxboxDivVisibale = true
-      this.addPulsFuctionality()
+      //this.addPulsFuctionality()
     }
-  }
-  deleteTaxArray (i) {
-    if (this.addPulsSign.length > 1) {
-      this.addPulsSign.splice(i, 1)
-    } else if (i === 0) {
-      this.addPulsSign.splice(i, 1)
-      this.addPulsSign.push({
-        id: 0,
-        Rate: undefined,
-        Name: undefined,
-        ValueType: undefined,
-        Isforotherstate: undefined
-      })
-    }
-    this.taxErrorFlag = false
   }
 
+  deleteArrayMobileType(i) {
+    if (this.taxrates.length > 0) {
+      this.taxrates.splice(i, 1)
+    }
+  }
+  ParentTypeId: 5
+  CodeId: any
+  editFlg: boolean = true
+
+  editRowItem(i, item) {
+    this.checkBoxYes = false
+    if (this.editFlg) {
+      this.editFlg = false
+      this.taxrRateId = this.taxrates[i].Id
+      this.taxrate = this.taxrates[i].Rate
+      this.taxName = this.taxrates[i].Name
+      this.CurrencyName = this.taxrates[i].CurrencyName
+      this.CurrencyId = this.taxrates[i].ValueType
+      this.isForOtherState = this.taxrates[i].IsotherState
+      this.deleteArrayMobileType(i)
+    }
+    else {
+      this.toastrCustomService.showWarning('', 'First edit Tax')
+    }
+  }
+  saveTaxRate: boolean = false
+  taxrRateId: any
+  addConctFlag: boolean = false
+  addtaxrates() {
+    this.taxrates=[]
+    this.saveTaxRate = true
+    this.editFlg = true
+   if(this.validateTaxRates()) {
+    this.taxTypeList.forEach(element => {
+      if(element.taxrate>0){
+        this.taxrates.push({
+          Id: element.Id,
+          Rate: element.taxrate,
+          Name: element.Name,
+          TaxTitleId:element.TaxTitleId,
+          ValueType:  this.CurrencyId,
+          IsotherState: element.isForOtherState
+        })
+      }
+
+    });
+   }
+
+
+
+      
+        this.isForOtherState = true
+
+  }
+  checkBoxYes: boolean
+  selectKeyChecked(event) {
+    if ((event.keyCode ? event.keyCode : event.which) == 13) {
+      if (event.target.checked) {
+        this.isForOtherState = false
+      }
+      else {
+        this.isForOtherState = true
+      }
+
+    }
+
+  }
+
+  clearForm() {
+    this.taxrate = 0
+    this.slab = ''
+    //this.isForOtherState = true
+
+  }
+  @ViewChild('checkBtn_focs') CheckButton
+  // enterPressItem(e: KeyboardEvent) {
+  //   this.addtaxrates()
+  //   setTimeout(() => {
+  //     this.CheckButton.nativeElement.focus()
+  //   }, 10)
+
+  // }
+
+
+
+  SaveOnF10(event) {
+    if ((event.keyCode ? event.keyCode : event.which) == 121) {
+     // this.addTax()
+
+    }
+
+  }
 }

@@ -13,6 +13,7 @@ import { SalesCourierParcelServices } from '../../sale-courier-parcel.services';
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
 import { AddCust } from '../../../model/sales-tracker.model';
 import { Subscription } from 'rxjs/Subscription';
+import { DatepickerComponent } from '../../../shared/datepicker/datepicker.component';
 declare const $: any
 declare const flatpickr: any
 @Component({
@@ -55,12 +56,11 @@ export class SalesSearchComponent {
   BillStatus: number = 0
   newCustAddSub: Subscription
   newVendAddSub: Subscription
-  @ViewChild('fromdate') fromdate: ElementRef
+  @ViewChild('fromdate') fromdate: DatepickerComponent
   ngOnChanges (changes: SimpleChanges): void {
     if (changes.toShow && changes.toShow.currentValue) {
       setTimeout(() => {
-        const element = this.fromdate.nativeElement
-        element.focus({ preventScroll: false })
+        this.fromdate.toggleView()
       }, 10)
     }
   }
@@ -99,8 +99,6 @@ export class SalesSearchComponent {
       { id: '2', text: 'Return' }
     ]
     this.createForm()
-    this.setFromDate()
-    this.setToDate()
     this.getSenderList()
     this.getRecieverList()
     this.getParcelByList()
@@ -145,7 +143,7 @@ export class SalesSearchComponent {
         return newData
       })
     ).subscribe(data => {
-      console.log('sender data : ', data)
+      // console.log('sender data : ', data)
       this.saleService.setSendersList([...data])
       this.senderListSelect2 = Object.assign([], data)
       }
@@ -178,7 +176,7 @@ export class SalesSearchComponent {
         return newData
       })
     ).subscribe(data => {
-      console.log('Reciever data : ', data)
+      // console.log('Reciever data : ', data)
       this.saleService.setRecieversList([...data])
       this.recieverListSelect2 = Object.assign([], data)
       }
@@ -217,7 +215,7 @@ export class SalesSearchComponent {
         return newData
       })
     ).subscribe(data => {
-      console.log('Destination data : ', data)
+      // console.log('Destination data : ', data)
       this.saleService.setDestinationsList(data)
       this.destinationListSelect2 = Object.assign([], data)
       this.countryListSelect2 = Object.assign([], newData1)
@@ -327,25 +325,6 @@ export class SalesSearchComponent {
         this.CityId = +evt.value
       }
     }
-  }
-
-  
-  setFromDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#from-date', {
-        dateFormat: _self.settings.dateFormat
-      })
-    })
-  }
-
-  setToDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#to-date', {
-        dateFormat: _self.settings.dateFormat
-      })
-    })
   }
 
   search () {
@@ -469,5 +448,13 @@ export class SalesSearchComponent {
     '&LedgerId=' + this.LedgerId + 
     '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
     this.saleService.setSearchQueryParamsStr(queryStr)
+  }
+
+  setToDate (evt) {
+    this.searchForm.controls.ToDate.setValue(evt)
+  }
+
+  setFromDate (evt) {
+    this.searchForm.controls.FromDate.setValue(evt)
   }
 }

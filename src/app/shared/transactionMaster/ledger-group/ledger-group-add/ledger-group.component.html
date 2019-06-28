@@ -56,10 +56,11 @@
             </div>
             <div class="modal-footer">
                 <button type="button"
-                 (keydown.enter)="saveUpdateLedgerGroup()"
                  class="btn btn-primary waves-effect"
-                 (click)="saveUpdateLedgerGroup()">Save
-                changes</button>
+                 (click)="saveUpdateLedgerGroup('save')">Save </button>
+                 <button type="button"
+                 class="btn btn-primary waves-effect"
+                 (click)="saveUpdateLedgerGroup('new')">Add New & Save </button>
             </div>
         </div>
     </div>

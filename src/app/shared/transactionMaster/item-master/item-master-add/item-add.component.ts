@@ -5,13 +5,14 @@ import { ItemmasterServices } from '../../../../commonServices/TransactionMaster
 import { UIConstant } from '../../../constants/ui-constant'
 import { ItemModel, Image, AddCust, ItemMasterAdd, ComboItem } from '../../../../model/sales-tracker.model'
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
-import { CategoryServices } from '../../../../commonServices/TransactionMaster/category.services'
 import { UnitMasterServices } from 'src/app/commonServices/TransactionMaster/unit-mater.services'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { ComboComponent } from '../item-combo/combo.component'
 declare const $: any
 import * as _ from 'lodash'
+import { Settings } from '../../../constants/settings.constant';
+import { SetUpIds } from 'src/app/shared/constants/setupIds.constant';
 
 @Component({
   selector: 'app-item-add',
@@ -82,13 +83,8 @@ export class ItemAddComponent {
   ImageFiles: any = []
   isBarCode: boolean = false
   isItemCode: boolean = false
-  // barCodeSub = new Subject<string>()
   barCodeExistSub: Subscription
   nameExistSub: Subscription
-  // barCode$ = this.barCodeSub.asObservable()
-  // nameSub = new Subject<string>()
-  // nameExistSub: Subscription
-  // name$ = this.nameSub.asObservable()
   pendingCheck1 = false
   existsCodes: any = {}
   pendingCheck: boolean = false
@@ -109,9 +105,9 @@ export class ItemAddComponent {
   constructor (private _itemmasterServices: ItemmasterServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
-    private _catagoryservices: CategoryServices,
     private unitMasterService: UnitMasterServices,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private settings: Settings
     ) {
     this.addedImages = { images: [], queue: [], safeUrls: [], baseImages: [] }
     this.modalOpen = this.commonService.getItemMasterStatus().subscribe(
@@ -243,9 +239,7 @@ export class ItemAddComponent {
       (data) => {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           console.log('edit data : ', data)
-          if (data.Code === UIConstant.THOUSAND && data.Data) {
-            this.createFormData(data.Data)
-          }
+          this.createFormData(data.Data)
         }
       }
     )
@@ -335,6 +329,19 @@ export class ItemAddComponent {
     this.IsNotDiscountable = this.itemDetails.IsNotDiscountable
     this.IsVolumeDiscountApply = this.itemDetails.IsVolumeDiscountApply
     this.IsTradeDiscountApply = this.itemDetails.IsTradeDiscountApply
+    this.loading = false
+    if (this.editMode) {
+      setTimeout(() => {
+        this.itemTypeSelect2.setElementValue(this.itemDetails.ItemType)
+        this.packingTypeSelect2.setElementValue(this.itemDetails.PackingType)
+        this.catSelect2.setElementValue(this.itemDetails.CategoryId)
+        this.unitSelect2.setElementValue(this.itemDetails.UnitId)
+        this.taxSelect2.setElementValue(this.itemDetails.TaxId)
+        if (this.itemDetails.BrandIds) {
+          this.selectedBrands = this.itemDetails.BrandIds.split(',')
+        }
+      }, 1000)
+    }
   }
 
   @ViewChild('itemname') itemname: ElementRef
@@ -357,13 +364,14 @@ export class ItemAddComponent {
           const element = this.renderer.selectRootElement(this.catSelect2.selector.nativeElement, true)
           element.focus({ preventScroll: false })
         }
-        fromEvent(this.itemname.nativeElement, 'keyup').pipe(
-          map((event: any) => {
-            return event.target.value
-          }),
-          filter(res => res.length > 0),
-          debounceTime(1000),
-          distinctUntilChanged()
+        if (this.itemname && this.itemname.nativeElement.value.trim()) {
+          fromEvent(this.itemname.nativeElement, 'keyup').pipe(
+            map((event: any) => {
+              return event.target.value.trim()
+            }),
+            filter(res => res.length > 0),
+            debounceTime(1000),
+            distinctUntilChanged()
           ).subscribe((text: string) => {
             this.pendingCheck1 = true
             this.nameExistSub = this._itemmasterServices.searchItemName(text).subscribe((data) => {
@@ -381,26 +389,27 @@ export class ItemAddComponent {
               } else {
                 this.toastrService.showError('', data.Description)
               }
-            },(err) => {
+            }, (err) => {
               setTimeout(() => {
                 this.pendingCheck1 = false
               }, 100)
-              console.log('error',err)
+              console.log('error', err)
             },
-            () => {
-              // setTimeout(() => {
-              //   this.pendingCheck1 = false
-              // }, 1000)
-            })
+              () => {
+                // setTimeout(() => {
+                //   this.pendingCheck1 = false
+                // }, 1000)
+              })
           })
-
-        fromEvent(this.barcode.nativeElement, 'keyup').pipe(
-          map((event: any) => {
-            return event.target.value
-          }),
-          filter(res => res.length > 0),
-          debounceTime(1000),
-          distinctUntilChanged()
+        }
+        if (this.barcode && this.barcode.nativeElement.value.trim()) {
+          fromEvent(this.barcode.nativeElement, 'keyup').pipe(
+            map((event: any) => {
+              return event.target.value.tim()
+            }),
+            filter(res => res.length > 0),
+            debounceTime(1000),
+            distinctUntilChanged()
           ).subscribe((text: string) => {
             this.pendingCheck = true
             console.log('search text : ', text)
@@ -412,7 +421,7 @@ export class ItemAddComponent {
                   this.existsCodes.barcode = data.Data[0].Status
                   if (this.existsCodes.barcode) {
                     $('.fas fa-check').addClass('hideMe')
-                  // this.toastrService.showError('Oops', 'Bar Code is already taken')
+                    // this.toastrService.showError('Oops', 'Bar Code is already taken')
                   } else {
                     $('.fas fa-times').addClass('hideMe')
                   }
@@ -420,26 +429,28 @@ export class ItemAddComponent {
               } else {
                 this.toastrService.showError('', data.Description)
               }
-            },(err) => {
+            }, (err) => {
               setTimeout(() => {
                 this.pendingCheck = false
               }, 100)
-              console.log('error',err)
+              console.log('error', err)
             },
-            () => {
-              // setTimeout(() => {
-              //   this.pendingCheck = false
-              // }, 1000)
-            })
+              () => {
+                // setTimeout(() => {
+                //   this.pendingCheck = false
+                // }, 1000)
+              })
           })
+        }
       }, 1000)
     }
   }
 
   getBarStatus () {
+   if (this.HsnNo.trim()) {
     this.pendingCheck = true
     console.log('search text : ', this.HsnNo)
-    this._itemmasterServices.searchEntries(this.HsnNo).subscribe((data) => {
+    this._itemmasterServices.searchEntries(this.HsnNo.trim()).subscribe((data) => {
       if (data.Code === UIConstant.THOUSAND) {
         console.log('search data : ', data)
         setTimeout(() => {
@@ -457,26 +468,29 @@ export class ItemAddComponent {
         this.pendingCheck = false
       }
     })
+   }
   }
 
   getItemNameStatus () {
-    this.pendingCheck1 = true
-    this._itemmasterServices.searchItemName(this.Name).subscribe((data) => {
-      if (data.Code === UIConstant.THOUSAND) {
-        console.log('search data : ', data)
-        setTimeout(() => {
-          this.pendingCheck1 = false
-          this.existsCodes.name = data.Data.Status
-          if (this.existsCodes.name) {
-            $('.fas fa-check').addClass('hideMe')
-          } else {
-            $('.fas fa-times').addClass('hideMe')
-          }
-        }, 1000)
-      } else {
-        this.toastrService.showError('', data.Description)
-      }
-    })
+    if (this.Name.trim()) {
+      this.pendingCheck1 = true
+      this._itemmasterServices.searchItemName(this.Name.trim()).subscribe((data) => {
+        if (data.Code === UIConstant.THOUSAND) {
+          console.log('search data : ', data)
+          setTimeout(() => {
+            this.pendingCheck1 = false
+            this.existsCodes.name = data.Data.Status
+            if (this.existsCodes.name) {
+              $('.fas fa-check').addClass('hideMe')
+            } else {
+              $('.fas fa-times').addClass('hideMe')
+            }
+          }, 1000)
+        } else {
+          this.toastrService.showError('', data.Description)
+        }
+      })
+    }
   }
 
   @ViewChild('brand_select2') brandSelect2: Select2Component
@@ -492,7 +506,6 @@ export class ItemAddComponent {
       this.cateGoryValue = ''
     }
     this.taxValue = ''
-    this.unitTypeValue = ''
     this.packingTypeValue = 1
     this.itemDetailValue = 1
     this.pendingCheck1 = false
@@ -518,9 +531,7 @@ export class ItemAddComponent {
       this.packingTypeSelect2.setElementValue('1')
     }
     if (this.modeOfForm === 'new') {
-      this.getItemCodeSetting()
-      this.getBarCodeSetting()
-      this.getSetting()
+      this.getSetting(JSON.parse(this.settings.moduleSettings).settings)
       this.getUnitTypeDetail(0)
       this.getItemDetail(0)
       this.getTaxtDetail(0)
@@ -545,12 +556,9 @@ export class ItemAddComponent {
     }
     this.invalidObj = {}
     this.submitClick = false
-    this.isBarCode = false
-    this.isItemCode = false
     this.pendingCheck1 = false
     this.existsCodes = {}
     this.pendingCheck = false
-    this.unitSettingType = 0
     this.combo = []
     this.getBarCodeSetting()
     this.Name = ''
@@ -677,21 +685,10 @@ export class ItemAddComponent {
     },
     (error) => {
       console.log(error)
+      this.loading = false
     },
     () => {
       this.loading = false
-      if (this.editMode) {
-        setTimeout(() => {
-          this.itemTypeSelect2.setElementValue(this.itemDetails.ItemType)
-          this.packingTypeSelect2.setElementValue(this.itemDetails.PackingType)
-          this.catSelect2.setElementValue(this.itemDetails.CategoryId)
-          this.unitSelect2.setElementValue(this.itemDetails.UnitId)
-          this.taxSelect2.setElementValue(this.itemDetails.TaxId)
-          if (this.itemDetails.BrandIds) {
-            this.selectedBrands = this.itemDetails.BrandIds.split(',')
-          }
-        }, 1000)
-      }
     })
   }
 
@@ -835,6 +832,7 @@ export class ItemAddComponent {
 
   closeItemMaster () {
     this.commonService.closeItemMaster('')
+    this.initComp()
   }
   addNewItemMaster (value) {
     this.submitClick = true
@@ -843,7 +841,8 @@ export class ItemAddComponent {
       this.submitClick = false
       this.loading = false
     }
-    if (this.checkForValidation() && !this.existsCodes.barcode && !this.existsCodes.name && !this.pendingCheck && !this.pendingCheck1) {
+    if (this.checkForValidation() && !this.existsCodes.barcode && !this.existsCodes.name &&
+      !this.pendingCheck && !this.pendingCheck1) {
       if (value === 'reset') {
         this.initComp()
         this.submitClick = false
@@ -865,6 +864,13 @@ export class ItemAddComponent {
               this.commonService.closeCategory(dataToSend3)
               this.initComp()
             } else {
+              setTimeout(() => {
+                if (this.itemname) {
+                  const element = this.renderer.selectRootElement(this.itemname.nativeElement, true)
+                  element.focus({ preventScroll: false })
+                }
+              }, 600)
+              this.commonService.onAddItemMaster()
               this.Id = UIConstant.ZERO
               this.submitClick = false
               this.loading = false
@@ -902,25 +908,25 @@ export class ItemAddComponent {
       this.invalidObj['TaxId'] = true
       isValid = 0
     }
-    if (this.Name) {
+    if (this.Name && this.Name.trim()) {
       this.invalidObj['Name'] = false
     } else {
       this.invalidObj['Name'] = true
       isValid = 0
     }
-    if (this.ItemCode) {
+    if (this.ItemCode && this.ItemCode.trim()) {
       this.invalidObj['ItemCode'] = false
     } else {
       this.invalidObj['ItemCode'] = true
       isValid = 0
     }
-    if (this.HsnNo) {
+    if (this.HsnNo && this.HsnNo.trim()) {
       this.invalidObj['HsnNo'] = false
     } else {
       this.invalidObj['HsnNo'] = true
       isValid = 0
     }
-    if (this.BarCode) {
+    if (this.BarCode && this.BarCode.trim()) {
       this.invalidObj['BarCode'] = false
     } else {
       this.invalidObj['BarCode'] = true
@@ -929,26 +935,23 @@ export class ItemAddComponent {
     return !!isValid
   }
 
-  getSetting () {
-    let _self = this
-    this._catagoryservices.getCategoryLevel().subscribe(
-      (data) => {
-        if (data.Code === UIConstant.THOUSAND && data.Data.SetupSettings.length > 0) {
-          const setUpSettings = data.Data.SetupSettings
-          console.log('setUpSettings : ', setUpSettings)
-          setUpSettings.forEach(setting => {
-            if (+setting.SetupId === 56) {
-              _self.unitSettingType = +setting.Val
-            }
-          })
-        }
-      },
-      (error) => {
-        console.log(error)
-      },
-      () => {
+  getSetting (settings) {
+    // console.log('settings : ', settings)
+    settings.forEach(element => {
+      if (element.id === SetUpIds.unitType) {
+        this.unitSettingType = +element.val
+        console.log('this.unitSettingType : ', this.unitSettingType)
       }
-    )
+      if (element.id === SetUpIds.autoGneratedItemCode) {
+        this.isItemCode = !!(+element.val)
+        console.log('this.isItemCode : ', this.isItemCode)
+      }
+      if (element.id === SetUpIds.autoGeneratedBarcode) {
+        this.isBarCode = !!(+element.val)
+        console.log('this.isBarCode : ', this.isBarCode)
+        this.getBarCodeSetting()
+      }
+    })
   }
 
   public exampleData: Array<Select2OptionData>
@@ -990,41 +993,17 @@ export class ItemAddComponent {
   }
 
   getBarCodeSetting () {
-    this._itemmasterServices.getBarCodeSetting().subscribe(
-      data => {
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-          console.log('BAR CODE SETTING : ', data)
-          this.isBarCode = !!(+data.Data.SetupClients[0].Val)
+    if (this.isBarCode) {
+      this._itemmasterServices.getBarCode('ForBarCode').subscribe(
+        (data: any) => {
+          console.log('bar code : ', data)
+          if (data.Code === UIConstant.THOUSAND && data.Data.length > 0 && data.Data[0].BarCode) {
+            this.BarCode = data.Data[0].BarCode
+            this.ItemCode = this.BarCode
+          }
         }
-      },
-      (error) => {
-        console.log(error)
-      },
-      () => {
-        if (this.isBarCode) {
-          this._itemmasterServices.getBarCode('ForBarCode').subscribe(
-            (data: any) => {
-              console.log('bar code : ', data)
-              if (data.Code === UIConstant.THOUSAND && data.Data.length > 0 && data.Data[0].BarCode) {
-                this.BarCode = data.Data[0].BarCode
-                this.ItemCode = this.BarCode
-              }
-            }
-          )
-        }
-      }
-    )
-  }
-
-  getItemCodeSetting () {
-    this._itemmasterServices.getItemCodeSetting().subscribe(
-      data => {
-        if (data.Code === UIConstant.THOUSAND) {
-          console.log('ITEM CODE SETTING : ', data)
-          this.isItemCode = !!(+data.Data.SetupClients[0].Val)
-        }
-      }
-    )
+      )
+    }
   }
 
   onPurchaseRateChange = () => {
@@ -1067,6 +1046,7 @@ export class ItemAddComponent {
   }
 
   openItemStockAttributeModel = () => {
+    this.loading = true
     this.itemAttributeOpeningStockOpen = {
       data: this.ItemAttributewithRate,
       value: true,
@@ -1074,6 +1054,7 @@ export class ItemAddComponent {
     };
   }
   itemAttributeOpeningStockOpenClosed(data) {
+    this.loading = false;
     this.itemAttributeOpeningStockOpen = {
       value: false,
       editMode: data.editMode

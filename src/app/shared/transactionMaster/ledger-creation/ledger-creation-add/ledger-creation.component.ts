@@ -47,6 +47,7 @@ export class LedgerCreationAddComponent implements OnDestroy {
   countryError: boolean
   ledgerForm: FormGroup
   stateId: any
+  editID:any
   cityId: any
   clientDateFormat: any
   isAddNew: boolean = false
@@ -64,13 +65,15 @@ export class LedgerCreationAddComponent implements OnDestroy {
           if (data.editId === '') {
             this.editMode = false
             this.id  = 0
+            this.editID =0
             this.isChangeOtherFlagValue =data.isOtherCharge
           } else {
             this.id = data.editId
+            this.editID =data.editId
             this.editMode = true
             this.isChangeOtherFlagValue = data.isOtherCharge
           }
-          this.getLedgerGroupList()
+          
           this.openModal()
         } else {
           this.closeModal()
@@ -234,7 +237,6 @@ export class LedgerCreationAddComponent implements OnDestroy {
     this.submitClick =false
     this.selectyCoustmoreRegistration =[]
     this.select2VendorValue(0)
-    $('#ledger_creation_id').modal(UIConstant.MODEL_HIDE)
   }
  // get add () { return this.adressForm.controls }
 
@@ -274,6 +276,7 @@ export class LedgerCreationAddComponent implements OnDestroy {
 
   currencyValues: any
   openModal () {
+    this.getLedgerGroupList()
     this.disabledInputField = true
     this.headId =0
     this.openingStatus()
@@ -397,19 +400,29 @@ export class LedgerCreationAddComponent implements OnDestroy {
 
   requiredValid: boolean
   /* ...................adding customer........................... */
-  saveLedgerCreation () {
+  saveLedgerCreation (value) {
     this.submitClick = true
     this.checkGSTNumberValid()
     this.checkPANNumberValid()
       if (this.ledgerForm.valid && this.parentId > 0  && !this.requiredGST && !this.validPANFlag) {
                   this.subscribe = this._coustomerServices.addVendore(this.LedgerParams()).subscribe(Data => {
                     if (Data.Code === UIConstant.THOUSAND) {
+                      if(value ==='save'){
                         const dataToSend = { id: Data.Data, name: this.ledgerForm.value.ledgerName }
                         this._CommonService.closeledgerCretion({ ...dataToSend })
                         this._CommonService.AddedItem()
                         $('#ledger_creation_id').modal(UIConstant.MODEL_HIDE)
+                        let saveName =this.editID ===0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+                        this._toastrcustomservice.showSuccess('', saveName)
+                       //this.clearValidation()
+                      }else{
+                        // const dataToSend = { id: Data.Data, name: this.ledgerForm.value.ledgerName }
+                        // this._CommonService.closeledgerCretion({ ...dataToSend })
+                        this._CommonService.AddedItem()
                         this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
-                        this.clearValidation()
+                      }
+                      this.clearValidation()
+                        
                     }
                     if (Data.Code === UIConstant.THOUSANDONE) {
                       this._toastrcustomservice.showInfo('', Data.Description)
@@ -544,9 +557,9 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
         this.crDrId = Data.Data.LedgerDetails[0].Crdr
         this.parentId =Data.Data.LedgerDetails[0].GlId
         setTimeout(() => {
-          this.LedgerGroupValue = Data.Data.LedgerDetails[0].GlId
+        // this.LedgerGroupValue = Data.Data.LedgerDetails[0].GlId
          this.underGroupSelect2.setElementValue(Data.Data.LedgerDetails[0].GlId)
-        }, 100)
+        }, 1000);
         this.customeRegistTypeSelect2.setElementValue(Data.Data.LedgerDetails[0].TaxTypeId)
         this.coustmoreRegistraionId = JSON.stringify( Data.Data.LedgerDetails[0].TaxTypeId)
        if(this.coustmoreRegistraionId === '0') {
@@ -558,7 +571,7 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
         this.crdrselecto2.setElementValue(Data.Data.LedgerDetails[0].Crdr)
         this.crdrselecto2.setElementValue(Data.Data.LedgerDetails[0].Crdr)
       }
-      if (Data.Data && Data.Data.LedgerDetails && Data.Data.Addresses.length > 0) {
+      if (Data.Data && Data.Data.Addresses && Data.Data.Addresses.length > 0) {
         this.addressId =Data.Data.Addresses[0].Id
      this.ledgerForm.controls.address.setValue(Data.Data.Addresses[0].AddressValue)
         this.getCountry(Data.Data.Addresses[0].CountryId)
@@ -566,7 +579,7 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
           this.countryValue = Data.Data.Addresses[0].CountryId
           this.countrySelect2.setElementValue(Data.Data.Addresses[0].CountryId)
           
-        }, 100);
+        }, 1000);
       setTimeout(() => {
        this.getStaeList(Data.Data.Addresses[0].CountryId,Data.Data.Addresses[0].StateId)
        this.stateValue = Data.Data.Addresses[0].StateId
@@ -606,7 +619,7 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
  checkGlagLib: any
  // CR =1 Dr= 0 //
  calculate (){
-   debugger
+   
 if(this.headId > 0){
   let dataDr = 0
   let newdataCr = 0

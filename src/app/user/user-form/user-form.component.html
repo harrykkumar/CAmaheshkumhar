@@ -37,7 +37,11 @@
                   <button type="submit" class="btn btn-default waves-effect">
                     Save
                   </button>
-                  <button type="submit" (click)="setAddNew()" class="btn btn-default waves-effect">
+                  <button
+                    type="submit"
+                    (click)="setAddNew()"
+                    class="btn btn-default waves-effect"
+                  >
                     Save With Add New
                   </button>
                   <button
@@ -62,8 +66,10 @@
               <div class="card-body">
                 <div>
                   <div class="form-row">
-                    <div *ngIf="userType === 'SA' || userType === 'Admin'"
-                     class="form-group col-md-4">
+                    <div
+                      *ngIf="userType === 'SA' || userType === 'Admin'"
+                      class="form-group col-md-4"
+                    >
                       <label>Client</label>
                       <div class="input-group adw_select">
                         <div class="input-group adw_select">
@@ -75,7 +81,7 @@
                             autocomplete="true"
                             [value]="model?.clientId"
                             [ngClass]="{
-                              'errorSelecto':
+                              errorSelecto:
                                 userFormModel?.submitted &&
                                 user?.selectedClient?.id === '0'
                             }"
@@ -84,8 +90,10 @@
                         </div>
                       </div>
                     </div>
-                    <div  *ngIf="userType === 'SA' || userType === 'Admin'"
-                    class="form-group col-md-4">
+                    <div
+                      *ngIf="userType === 'SA' || userType === 'Admin'"
+                      class="form-group col-md-4"
+                    >
                       <label>Branch</label>
                       <div class="input-group adw_select">
                         <div class="input-group adw_select">
@@ -96,7 +104,7 @@
                             autocomplete="true"
                             [value]="model?.branchId"
                             [ngClass]="{
-                              'errorSelecto':
+                              errorSelecto:
                                 userFormModel?.submitted &&
                                 user?.selectedBranch?.id === '0'
                             }"
@@ -105,8 +113,10 @@
                         </div>
                       </div>
                     </div>
-                    <div *ngIf="userType === 'SA' || userType === 'Admin'"
-                     class="form-group col-md-4">
+                    <div
+                      *ngIf="userType === 'SA' || userType === 'Admin'"
+                      class="form-group col-md-4"
+                    >
                       <label>Office</label>
                       <div class="input-group adw_select">
                         <div class="input-group adw_select">
@@ -117,7 +127,7 @@
                             autocomplete="true"
                             [value]="model?.officeId"
                             [ngClass]="{
-                              'errorSelecto':
+                              errorSelecto:
                                 userFormModel?.submitted &&
                                 user?.selectedOffice?.id === '0'
                             }"
@@ -137,7 +147,7 @@
                             autocomplete="true"
                             [value]="model?.userTypeId"
                             [ngClass]="{
-                              'errorSelecto':
+                              errorSelecto:
                                 userFormModel?.submitted &&
                                 user?.selectedUserType?.id === '0'
                             }"
@@ -157,7 +167,7 @@
                             autocomplete="true"
                             [value]="model?.underTypeId"
                             [ngClass]="{
-                              'errorSelecto':
+                              errorSelecto:
                                 userFormModel?.submitted &&
                                 user?.selectedUnderType?.id === '0'
                             }"
@@ -177,7 +187,7 @@
                             autocomplete="true"
                             [value]="model?.underUserId"
                             [ngClass]="{
-                              'errorSelecto':
+                              errorSelecto:
                                 userFormModel?.submitted &&
                                 user?.selectedUnderUser?.id === '0'
                             }"
@@ -198,7 +208,7 @@
                         placeholder="Enter Name"
                         [ngClass]="{
                           'is-invalid':
-                          userFormModel.submitted && nameModel.invalid
+                            userFormModel.submitted && nameModel.invalid
                         }"
                         required
                       />
@@ -215,7 +225,7 @@
                         placeholder="Enter User Name"
                         [ngClass]="{
                           'is-invalid':
-                          userFormModel.submitted && userNameModel.invalid
+                            userFormModel.submitted && userNameModel.invalid
                         }"
                         required
                       />
@@ -232,7 +242,7 @@
                         placeholder="Enter Password"
                         [ngClass]="{
                           'is-invalid':
-                          userFormModel.submitted && passwordModel.invalid
+                            userFormModel.submitted && passwordModel.invalid
                         }"
                         required
                       />
@@ -242,21 +252,31 @@
                   <div class="form-row">
                     <div class="form-group col-md-4">
                       <label class="fw-500">InTime</label>
-                          <input
-                            class="form-control timepicker"
-                            placeholder="Enter Time"
-                            name="inTimeInput"
-                            [(ngModel)]="user.inTime"
-                          />
+                      <input
+                        class="form-control"
+                        [owlDateTimeTrigger]="dt4"
+                        name="inTimeInput"
+                        [(ngModel)]="user.inTime"
+                        [owlDateTime]="dt4"
+                      />
+                      <owl-date-time
+                        [pickerType]="'timer'"
+                        #dt4
+                      ></owl-date-time>
                     </div>
                     <div class="form-group col-md-4">
                       <label class="fw-500">Out Time</label>
-                          <input
-                            class="form-control timepicker"
-                            placeholder="Enter Time"
-                            name="outTimeInput"
-                            [(ngModel)]="user.outTime"
-                          />
+                      <input
+                        class="form-control"
+                        [owlDateTimeTrigger]="dt3"
+                        name="outTimeInput"
+                        [(ngModel)]="user.outTime"
+                        [owlDateTime]="dt3"
+                      />
+                      <owl-date-time
+                        [pickerType]="'timer'"
+                        #dt3
+                      ></owl-date-time>
                     </div>
                     <div
                       class="form-group col-md-3 custom-control custom-checkbox mt-4 pt-1 mr-4"
@@ -336,7 +356,8 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <tr class="default_row"
+                              <tr
+                                class="default_row"
                                 *ngFor="
                                   let item of user?.mobileArray;
                                   let i = index
@@ -421,7 +442,7 @@
                                           ?.id
                                       "
                                       [ngClass]="{
-                                        'errorSelecto':
+                                        errorSelecto:
                                           (mobileDetailModel?.submitted &&
                                             mobileDetail
                                               ?.selectedMobileCountryCode
@@ -487,7 +508,8 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <tr class="default_row"
+                              <tr
+                                class="default_row"
                                 *ngFor="
                                   let item of user?.emailArray;
                                   let i = index
@@ -556,16 +578,16 @@
                                     name="emailInput"
                                     #emailModel="ngModel"
                                     [(ngModel)]="emailDetail.selectedEmail"
-                                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"                                    
+                                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
                                     [ngClass]="{
                                       'is-invalid':
-                                      (emailDetailModel?.submitted &&
-                                      (!emailDetail.selectedEmail || emailModel?.errors?.pattern)) ||
+                                        (emailDetailModel?.submitted &&
+                                          (!emailDetail.selectedEmail ||
+                                            emailModel?.errors?.pattern)) ||
                                         (userFormModel?.submitted &&
                                           user?.emailArray?.length === 0)
                                     }"
                                     required
-                                    
                                   />
                                 </td>
                               </tr>
@@ -580,7 +602,6 @@
             </div>
           </div>
         </div>
-        
       </form>
     </div>
   </div>

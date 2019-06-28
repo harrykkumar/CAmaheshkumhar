@@ -81,12 +81,13 @@
                   <th class="text-right" rowspan="2" colspan="1">Opening</th>
                   <th class="text-right" rowspan="2" colspan="1">Purchase</th>
                   <th class="text-right" rowspan="2" colspan="1">Sale</th>
-                  <th class="text-right" rowspan="2" colspan="1">
-                    Purchase Return
-                  </th>
-                  <th class="text-right" rowspan="2" colspan="1">
-                    Sale Return
-                  </th>
+                  <th class="text-right" rowspan="2" colspan="1">Purchase Return</th>
+                  <th class="text-right" rowspan="2" colspan="1">Sale Return</th>
+                  <th class="text-right" rowspan="2" colspan="1">Closing Stock </th>
+                  <th class="text-right" rowspan="2" colspan="1"> Dead Stock </th>
+                  <th class="text-right" rowspan="2" colspan="1"> Westage Stock </th>
+
+
                 </tr>
               </thead>
               <tbody>
@@ -126,6 +127,15 @@
                   <td class="text-right">
                     {{ item?.saleReturn[0] && item?.saleReturn[0]?.CurrentStock }}
                   </td>
+                  <td class="text-right">
+                    {{ item?.ClosingStock[0] && item?.ClosingStock[0]?.CurrentStock }}
+                  </td>
+                  <td class="text-right">
+                    {{ item?.ItemsDeadStock[0] && item?.ItemsDeadStock[0]?.CurrentStock }}
+                  </td>
+                  <td class="text-right">
+                    {{ item?.ItemsWestageStock[0] && item?.ItemsWestageStock[0]?.CurrentStock }}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -134,10 +144,11 @@
       </div>
     </div>
 
-    <app-pagination
+    
+  </div>
+</main>
+<app-pagination
       (lastValueEmitter)="onLastValueChange($event)"
       (pageNoEmitter)="onPageNoChange($event)"
       (pageSizeEmitter)="onPageSizeChange($event)"
     ></app-pagination>
-  </div>
-</main>

@@ -1,22 +1,21 @@
+<body class="modal" id="sale_Direct_print_id">
 
-<body  class="modal" id="sale_Direct_print_id">
- 
     <header class="clearfix">
         <div id="logo">
-              <img src="{{orgImageData}}" style="width: 58%;max-height: 120px;">
+            <img src="{{orgImageData}}">
         </div>
         <div id="company">
             <h2 class="name"> {{ClientInfos && ClientInfos[0]?.OfficeName }}</h2>
             <div>
-             {{orgAddress && orgAddress[0]?.AddressValue}}
-              {{orgAddress && orgAddress[0]?.AreaName}}
-              {{orgAddress && orgAddress[0]?.CityName}}
-              {{orgAddress && orgAddress[0]?.StateName}}
-              {{orgAddress && orgAddress[0]?.CountryName }}</div>
+                {{orgAddress && orgAddress[0]?.AddressValue}}
+                {{orgAddress && orgAddress[0]?.AreaName}}
+                {{orgAddress && orgAddress[0]?.CityName}}
+                {{orgAddress && orgAddress[0]?.StateName}}
+                {{orgAddress && orgAddress[0]?.CountryName }}</div>
             <div>{{EmailsOrg && EmailsOrg[0]?.EmailAddress }} </div>
             <!-- <div>{{EmailsOrg && EmailsOrg[1]?.EmailAddress }} </div> -->
             <div>{{ContactOrgInfo && ContactOrgInfo[0]?.ContactNo }} </div>
-            <div><a > {{website && website[0]?.Name}}</a></div>
+            <div><a> {{website && website[0]?.Name}}</a></div>
         </div>
 
     </header>
@@ -24,315 +23,339 @@
         <h4 style="text-align:center; margin:0;padding:0;">Tax-Invoice</h4>
     </div>
     <main>
-            <div id="details" class="clearfix">
-                    <div class="row1">
-                        <div class="col1">
-                            <table>
-                                <tbody>
-                              <tr>
-                                 <td style="width:25%;">Invoice No. :</td>
-                                 <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillNo }}</strong></td>
-                                </tr>
-                                <tr>
-                                    <td style="width:25%;">Invoice Date : </td>
-                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillDate | dateFormat :clientDateFormat}}</strong></td>
-                                </tr>
-                                <tr>
-                                 <td style="width:25%;">Due Date : </td>
-                                        <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.DueDate | dateFormat :clientDateFormat}}</strong></td>
-                                    </tr> 
-                                    <tr>
-                                            <td style="width:25%;">E-way BillNo : </td>
-                                                   <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.EwayBillNo | dateFormat :clientDateFormat}}</strong></td>
-                                               </tr> 
-                            </tbody></table>
-                        </div>
-                        <div class="col1">
-                            <table>
-                                <tbody>
-                          <ng-container *ngIf='CustomerTypes && CustomerTypes.length === 0'>
+        <div id="details" class="clearfix">
+            <div class="row1">
+                <div class="col1">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td style="width:25%;">Invoice No. :</td>
+                                <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillNo }}</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:25%;">Invoice Date : </td>
+                                <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillDate | dateFormat :clientDateFormat}}</strong>
+                                </td>
+                            </tr>
+                            <!-- <tr>
+                                <td style="width:25%;">Due Date : </td>
+                                <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.DueDate | dateFormat :clientDateFormat}}</strong>
+                                </td>
+                            </tr> -->
+                            <tr>
+                                <td style="width:25%;">E-way BillNo : </td>
+                                <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.EwayBillNo }}</strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col1">
+                    <table>
+                        <tbody>
+                            <ng-container *ngIf='CustomerTypes && CustomerTypes.length === 0'>
                                 <tr>
                                     <td style="width:25%;">Driver Name :</td>
-                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.Drivername }}</strong></td>
+                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.Drivername }}</strong>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="width:25%;">Transportation : </td>
-                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.Transportation }}</strong></td>
+                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.Transportation }}</strong>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="width:25%;">Vehicle No : </td>
-                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.VehicleNo }}</strong></td>
+                                    <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.VehicleNo }}</strong>
+                                    </td>
                                 </tr>
                             </ng-container>
-                              
-                            </tbody></table>
-                        </div>
-                        </div>
-                          
-                        </div>
 
-     
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+
         <div id="details" class="clearfix">
-                <div class="row1">
-                        <div class="col1">
-                                <div class=" header1">
-                                        <h4 style="text-align:center; margin:0;padding:0;">Bill To</h4>
-                                        </div>
-                            <table>
-                                <tbody><tr>
-                                    <td>Name :</td>
-                                    <td *ngIf='CustomerTypes && CustomerTypes.length === 0'><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.LedgerName}}</strong></td>
-                                    <td *ngIf='CustomerTypes && CustomerTypes.length > 0'><strong>{{CustomerTypes && CustomerTypes[0]?.Name}}</strong></td>
+            <div class="row1">
+                <div class="col1">
+                    <div class=" header1">
+                        <h4 style="text-align:center; margin:0;padding:0;">Bill To</h4>
+                    </div>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>Name :</td>
+                                <td *ngIf='CustomerTypes && CustomerTypes.length === 0'>
+                                    <strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.LedgerName}}</strong>
+                                </td>
+                                <td *ngIf='CustomerTypes && CustomerTypes.length > 0'>
+                                    <strong>{{CustomerTypes && CustomerTypes[0]?.Name}}</strong></td>
 
-                                </tr>
-                                <!-- <tr>
+                            </tr>
+                            <!-- <tr>
                                     <td>Mobile No :</td>
                                     <td><strong>{{ContactCustInfo && ContactCustInfo[0]?.ContactNo}}{{CustomerTypes && CustomerTypes[0]?.CountryCode}}{{CustomerTypes && CustomerTypes[0]?.MobileNo}}</strong></td>
                                 </tr> -->
-                                <tr>
-                                    <td>Address : </td>
-                                    <td><strong>{{CustomerTypes && CustomerTypes[0]?.Address}}{{customerAddress && customerAddress[0]?.AddressValue}} {{customerAddress && customerAddress[0]?.AreaName}}
-                                            {{customerAddress && customerAddress[0]?.CityName}} </strong></td>
-                                </tr>
-                                <tr>
-                                        <td>State : </td>
-                                        <td><strong> {{customerAddress && customerAddress[0]?.StateName}} {{customerAddress && customerAddress[0]?.CountryName }}</strong></td>
-                                    </tr>
-                                <tr>
-                                  <td>GST No : </td>
-                                        <td><strong>{{ClientInfos && ClientInfos[0]?.GstinNo }}</strong></td>
-                                    </tr>
-                                    <tr>
-                                            <td>State Code : </td>
-                                            <td><strong> {{InventoryTransactionSales && InventoryTransactionSales[0]?.StateCode}}</strong></td>
-                                        </tr>
-                                  
-                            </tbody></table>
-                        </div>
-                        <div class="col1">
-                                <div class=" header1">
-                                        <h4 style="text-align:center; margin:0;padding:0;">Shipping To</h4>
-                                        </div>
-                            <table>
-                                <tbody>
-                                    <tr>
-                                    <td>State Name :</td>
-                                    <td><strong>{{customerAddress && customerAddress[0]?.StateName}}</strong></td>
-                                </tr>
-                              
-                                    <!-- <tr>
+                            <tr>
+                                <td>Address : </td>
+                                <td><strong>{{CustomerTypes && CustomerTypes[0]?.Address}}{{customerAddress && customerAddress[0]?.AddressValue}}
+                                        {{customerAddress && customerAddress[0]?.AreaName}}
+                                        {{customerAddress && customerAddress[0]?.CityName}} </strong></td>
+                            </tr>
+                            <tr>
+                                <td>State : </td>
+                                <td><strong> {{customerAddress && customerAddress[0]?.StateName}}
+                                        {{customerAddress && customerAddress[0]?.CountryName }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>GST No : </td>
+                                <td><strong>{{ClientInfos && ClientInfos[0]?.GstinNo }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>State Code : </td>
+                                <td><strong>
+                                        {{InventoryTransactionSales && InventoryTransactionSales[0]?.StateCode}}</strong>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col1">
+                    <div class=" header1">
+                        <h4 style="text-align:center; margin:0;padding:0;">Shipping To</h4>
+                    </div>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>State Name :</td>
+                                <td><strong>{{customerAddress && customerAddress[0]?.StateName}}</strong></td>
+                            </tr>
+
+                            <!-- <tr>
                                             <td>Email :</td>
                                             <td><strong>{{Emails && Emails[0]?.EmailAddress}}{{CustomerTypes && CustomerTypes[0]?.Email}}</strong></td>
                                         </tr> -->
-                                        <tr>
-                                                <td>Address : </td>
-                                                <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.SupplyAddress}} </strong></td>
-                                            </tr>
-                                        <tr>
-                                            <td>State Code : </td>
-                                            <td><strong> {{InventoryTransactionSales && InventoryTransactionSales[0]?.StateCode}}</strong></td>
-                                        </tr>
-                            </tbody></table>
-                        </div>
-                        </div>
+                            <tr>
+                                <td>Address : </td>
+                                <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.SupplyAddress}}
+                                    </strong></td>
+                            </tr>
+                            <tr>
+                                <td>State Code : </td>
+                                <td><strong>
+                                        {{InventoryTransactionSales && InventoryTransactionSales[0]?.StateCode}}</strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             <div id="invoice">
 
             </div>
         </div>
         <div class="table_summery">
             <div class="tbl_fix_height">
-        <table border="0" class="table1" cellspacing="0" cellpadding="0">
-            <thead>
-                <tr>
-                    <th>S.N.</th>
-                    <th class="desc" style="width:15%;">Category</th>
-                    <th class="desc" style="width:15%;">Item Name</th>
-                    <th *ngIf="industryId === '2' " class="desc">Item Description</th>
-                    <th class="desc" style="width:15%;">HSN</th>
-                    <th  *ngIf="industryId === '3' "  class="desc">Length x Height x Width</th> 
-                     <ng-container *ngIf="industryId === '5' " >
-                      <th>Batch No</th>
-                      <th>Expiry Date</th>
-                    </ng-container>  
-                    <ng-container *ngIf="industryId === '6' " >
-                      <th>Batch No</th>
-                      <th>Expiry Date</th>
-                    </ng-container>  
-                    <th class="qty">Qty</th>
-                    <th class="desc">Unit</th>
-                    <th style="text-align:right">Rate</th>
-                    <th class="total">Amount</th> 
-                 
-
-                  
-
-
-                </tr>
-            </thead>
-            <tbody>
-               <tr *ngFor="let item of ItemTransactionactions; let i=index">
-                  <td>{{1+i}}</td>
-                  <td>{{ item.CategoryName}}</td>
-                  <td>{{ item.ItemName}}<br> {{item.Remark}}</td>
-                  <td *ngIf="industryId === '2' "  >{{itemAttbute && itemAttbute[i*3]?.attr}} ,{{itemAttbute && itemAttbute[i*3 + 1]?.attr}},
-                    ,{{itemAttbute && itemAttbute[i*3 + 2]?.attr}}
-                  </td>
-                  <td>{{ item.HsnNo}}</td>
-                  <td  *ngIf="industryId === '3' " >{{ item.Length}}x{{ item.Height}}x{{ item.Width}}</td>
-                  <ng-container *ngIf="industryId === '5' " >
-                    <td>{{item.BatchNo}}</td>
-                    <td>{{item.ExpiryDate}}</td> 
-                   </ng-container>
-                    <ng-container *ngIf="industryId === '6' " >
-                    <td>{{item.BatchNo  | dateFormat:clientDateFormat}}</td>
-                    <td>{{item.ExpiryDate  | dateFormat:clientDateFormat}}</td> 
-                    </ng-container>
-                  <td style="text-align:right">{{item.Quantity}}</td>
-                  <td>{{ item.UnitName}}</td>
-                  <td style="text-align:right">{{(item.SaleRate).toFixed(dicimalDigitFormat)}}</td>
-                 <!--  <td>{{ item.DiscountAmt}}</td>
-                  <td>{{ item.TaxAmount}}</td> -->
-                  <td style="text-align:right">{{(item.SubTotalAmount).toFixed(dicimalDigitFormat)}}</td>
-
-                   
-                </tr>
-               </tbody>
-        </table>
-    </div>
-        <div class="clearfix">
-
-            <div class="row1">
-            
-                <div class="col1 bank_detail">
-                    <table>
-                            <tr>
-                                    <td style="width:25%;">Bank Name</td>
-                                    <td><strong>{{ClientInfos && ClientInfos[0]?.BankName}}</strong></td>
-                                </tr>
-                        <tr>
-                            <td style="width:25%;">Bank A/c No</td>
-                            <td><strong>{{ClientInfos && ClientInfos[0]?.AcNo}}</strong></td>
-                        </tr>
-                        <tr>
-                            <td style="width:25%;">IFSC Code</td>
-                            <td><strong>{{ClientInfos && ClientInfos[0]?.IfscCode}}</strong></td>
-                        </tr>
-                        <tr>
-                            <td style="width:25%;">Branch</td>
-                            <td><strong>{{ClientInfos && ClientInfos[0]?.BranchName}}</strong></td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="col1">
-                    <table class="tbl_footer">
-                        <tr>
-                            <td>Sub Total Amount :</td>
-                            <td ><strong>{{subTotalAmount}} </strong></td>
-                        </tr>
-                        <tr>
-                            <td >Discount :</td>
-                            <td ><strong>{{totalDiscountAmt}} </strong></td>
-                        </tr>
-                        <tr>
-                            <td>Total Tax :</td>
-                            <td ><strong>{{InventoryTransactionSales && (InventoryTransactionSales[0]?.TaxAmount).toFixed(dicimalDigitFormat) }} </strong></td>
-                        </tr>
-                        <tr>
-                            <td >Fright :</td>
-                            <td ><strong>{{InventoryTransactionSales && (InventoryTransactionSales[0]?.Freight).toFixed(dicimalDigitFormat) }}</strong></td>
-                        </tr>
-                        <tr>
-                            <td >Other Charge :</td>
-                            <td ><strong>{{InventoryTransactionSales && (InventoryTransactionSales[0]?.OtherCharge).toFixed(dicimalDigitFormat) }} </strong> </td>
-                        </tr>
-                        <tr>
-                            <td >Bill Amonut :</td>
-                            <td ><strong> {{billAmount}}  {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong></td>
-                        </tr>
-                    <!-- <tr>
-                    <td >Total Amount In Words :</td>
-                    <td ><strong>{{word}} {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong></td>
-                </tr> -->
-                       
-                        
-                    </table>
-                </div>
-            </div>
-            <div class="row1 total_word">
-                    <div class="col1">Total Amount In Words :</div>
-                    <div class="col1" style="text-align:right;"><strong>{{word}} {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong></div>
-                </div>
-        </div>
-        </div>
-        <div class="table_summery">
                 <table border="0" class="table1" cellspacing="0" cellpadding="0">
                     <thead>
                         <tr>
-                            <th colspan="6">
-                                <h4 style=" margin:0;padding:0;"> Payment Details</h4>
-                            </th>
-                        </tr>
-                        <tr> 
-                            <th>S.no</th> 
-                            <th>Paymode</th>
-                            <th>Pay Through </th>
-                            <th>Cheque/DD No.</th>
-                            <th>Date</th>
-                            <th style="text-align:right">Amount</th>
+                            <th>S.N.</th>
+                            <th class="desc" style="width:15%;">Category</th>
+                            <th class="desc" style="width:15%;">Item Name</th>
+                            <th *ngIf="industryId === '2' " class="desc">Item Description</th>
+                            <th class="desc" style="width:15%;">HSN</th>
+                            <th *ngIf="industryId === '3' " class="desc">Length x Height x Width</th>
+                            <ng-container *ngIf="industryId === '5' ">
+                                <th>Batch No</th>
+                                <th>Expiry Date</th>
+                                <th>MF Date</th>
+
+                            </ng-container>
+                            <ng-container *ngIf="industryId === '6' ">
+                                <th>Batch No</th>
+                                <th>Expiry Date</th>
+                            </ng-container>
+                            <th class="qty">Qty</th>
+                            <th class="desc">Unit</th>
+                            <th style="text-align:right">Rate</th>
+                            <th class="total">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let item of paymentModeData; let i =index" >
-                            <td>{{i+1}}</td>
-                            <td>{{item.Paymode}}</td>
-                            <td>{{item.BankLedgerName}}</td>
-                            <td>{{item.ChequeNo}}</td>
-                            <td>{{item.PayDate | dateFormat:clientDateFormat}}</td>
-                            <td style="text-align:right">{{(item.Amount).toFixed(dicimalDigitFormat)}}</td>
+                        <tr *ngFor="let item of ItemTransactionactions; let i=index">
+                            <td>{{1+i}}</td>
+                            <td>{{ item.CategoryName}}</td>
+                            <td>{{ item.ItemName}}<br> {{item.Remark}}</td>
+                            <td *ngIf="industryId === '2' ">
+                                {{itemAttbute && itemAttbute[i*3]?.attr}}
+                                ,{{itemAttbute && itemAttbute[i*3 + 1]?.attr}},
+                                ,{{itemAttbute && itemAttbute[i*3 + 2]?.attr}}
+                            </td>
+                            <td>{{ item.HsnNo}}</td>
+                            <td *ngIf="industryId === '3' ">{{ item.Length}}x{{ item.Height}}x{{ item.Width}}</td>
+                            <ng-container *ngIf="industryId === '5' ">
+                                <td>{{item.BatchNo}}</td>
+                                <td>{{item.ExpiryDate | dateFormat:clientDateFormat}}</td>
+                                <td>{{item.MfdDate | dateFormat:clientDateFormat}}</td>
+
+                            </ng-container>
+                            <ng-container *ngIf="industryId === '6' ">
+                                <td>{{item.BatchNo }}</td>
+                                <td>{{item.ExpiryDate  | dateFormat:clientDateFormat}}</td>
+                            </ng-container>
+                            <td style="text-align:right">{{item.Quantity}}</td>
+                            <td>{{ item.UnitName}}</td>
+                            <td style="text-align:right">{{(item.SaleRate).toFixed(dicimalDigitFormat)}}</td>
+                            <!--  <td>{{ item.DiscountAmt}}</td>
+                  <td>{{ item.TaxAmount}}</td> -->
+                            <td style="text-align:right">{{(item.SubTotalAmount).toFixed(dicimalDigitFormat)}}</td>
+
+
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class=" table_summery invoice border-top border-bottom">
-                <div style="clear:both"></div><!-- style="max-height:500px;min-height: 500px"-->
-                <!-- <div class="mainT"> -->
-                        <h4 style=" padding-left:358px" > GST  Details</h4>
-                        <table border="0" class="table1" cellspacing="0" cellpadding="0">
-                               
-                   <thead>
-                        
-                  <tr>
-                    <th style="width:10%;">HSN</th>
-                    <th style="width:12%;">Taxable Value</th>
-                    <th style="width:8%;">Rate</th>
-                    <th *ngFor="let key of headerKeys;" >{{key}}</th>
-                    <th style="text-align:right;">Total</th>
-                  </tr>
-                   </thead>
-                       
-                      <tbody id="main-con">
-                      <tr *ngFor="let item of hsnToSHow;">
+            <div class="clearfix">
+
+                <div class="row1">
+
+                    <div class="col1 bank_detail">
+                        <table>
+                            <tr>
+                                <td style="width:25%;">Bank Name</td>
+                                <td><strong>{{ClientInfos && ClientInfos[0]?.BankName}}</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="width:25%;">Bank A/c No</td>
+                                <td><strong>{{ClientInfos && ClientInfos[0]?.AcNo}}</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="width:25%;">IFSC Code</td>
+                                <td><strong>{{ClientInfos && ClientInfos[0]?.IfscCode}}</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="width:25%;">Branch</td>
+                                <td><strong>{{ClientInfos && ClientInfos[0]?.BranchName}}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col1">
+                        <table class="tbl_footer">
+                            <tr>
+                                <td>Sub Total Amount :</td>
+                                <td><strong>{{subTotalAmount}} </strong></td>
+                            </tr>
+                            <tr>
+                                <td>Discount :</td>
+                                <td><strong>{{totalDiscountAmt}} </strong></td>
+                            </tr>
+
+                            <tr *ngFor="let charge of getAddtionalCharge; let i=index">
+                                <td>{{charge.LedgerName}}</td>
+                                <td><strong>{{(charge.TotalAmountCharge).toFixed(dicimalDigitFormat) }} </strong></td>
+                            </tr>
+                            <tr>
+                                <td>Total Tax :</td>
+                                <td><strong>{{InventoryTransactionSales && (InventoryTransactionSales[0]?.TaxAmount).toFixed(dicimalDigitFormat) }}
+                                    </strong></td>
+                            </tr>
+                            <tr>
+                                <td>Bill Amonut :</td>
+                                <td><strong> {{billAmount}}
+                                        {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong>
+                                </td>
+                            </tr>
+                            <!-- <tr>
+                    <td >Total Amount In Words :</td>
+                    <td ><strong>{{word}} {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong></td>
+                </tr> -->
+
+
+                        </table>
+                    </div>
+                </div>
+                <div class="row1 total_word">
+                    <div class="col1">Total Amount In Words :</div>
+                    <div class="col1" style="text-align:right;"><strong>{{word}}
+                            {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong></div>
+                </div>
+            </div>
+        </div>
+        <div class="table_summery">
+            <table border="0" class="table1" cellspacing="0" cellpadding="0">
+                <thead>
+                    <tr>
+                        <th colspan="6">
+                            <h4 style=" margin:0;padding:0;"> Payment Details</h4>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>S.no</th>
+                        <th>Paymode</th>
+                        <th>Pay Through </th>
+                        <th>Cheque/DD No.</th>
+                        <th>Date</th>
+                        <th style="text-align:right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of paymentModeData; let i =index">
+                        <td>{{i+1}}</td>
+                        <td>{{item.Paymode}}</td>
+                        <td>{{item.BankLedgerName}}</td>
+                        <td>{{item.ChequeNo}}</td>
+                        <td>{{item.PayDate | dateFormat:clientDateFormat}}</td>
+                        <td style="text-align:right">{{(item.Amount).toFixed(dicimalDigitFormat)}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class=" table_summery invoice border-top border-bottom">
+            <div style="clear:both"></div><!-- style="max-height:500px;min-height: 500px"-->
+            <!-- <div class="mainT"> -->
+            <h4 style=" padding-left:358px"> GST Details</h4>
+            <table border="0" class="table1" cellspacing="0" cellpadding="0">
+
+                <thead>
+
+                    <tr>
+                        <th style="width:10%;">HSN</th>
+                        <th style="width:12%;">Taxable Value</th>
+                        <th style="width:8%;">Rate</th>
+                        <th *ngFor="let key of headerKeys;">{{key}}</th>
+                        <th style="text-align:right;">Total</th>
+                    </tr>
+                </thead>
+
+                <tbody id="main-con">
+                    <tr *ngFor="let item of hsnToSHow;">
                         <td>{{item.HsnNo}}</td>
-                        <td style="text-align:right;" >{{item.TaxableAmount}}</td>
-                        <td style="text-align:right;" >{{item.totalTaxRate}}</td>
-                        <ng-container *ngFor="let col of headerKeys" >
-                          <td>
-                            <ng-container style="text-align:right;" *ngIf="item.AppliedTaxes[col]"  >
-                              {{item.AppliedTaxes[col]}}
-                            </ng-container>
-                            <ng-container *ngIf="!item.AppliedTaxes[col]"  >
-                              -
-                            </ng-container>
-                          </td>
+                        <td style="text-align:right;">{{item.TaxableAmount}}</td>
+                        <td style="text-align:right;">{{item.totalTaxRate}}</td>
+                        <ng-container *ngFor="let col of headerKeys">
+                            <td>
+                                <ng-container style="text-align:right;" *ngIf="item.AppliedTaxes[col]">
+                                    {{item.AppliedTaxes[col]}}
+                                </ng-container>
+                                <ng-container *ngIf="!item.AppliedTaxes[col]">
+                                    -
+                                </ng-container>
+                            </td>
                         </ng-container>
                         <td style="text-align:right;">{{item.TotalAmount}}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                <!-- </div> -->
-                <div style="clear:both"></div>
-              </div>
-            <!-- <div class="table_summery">
+                    </tr>
+                </tbody>
+            </table>
+            <!-- </div> -->
+            <div style="clear:both"></div>
+        </div>
+        <!-- <div class="table_summery">
                 <table class="record" width="100%" cellspacing="0" cellpadding="3">
                   <tbody id="main-con">
                     <tr>
@@ -361,31 +384,31 @@
                   </tbody>
                 </table>
               </div>    -->
-             
-          
+
+
     </main>
     <div class="terms_section">
-            <div class="row">
-                    <p><strong> Term & Condition</strong></p>
-                </div>
-                <ul   style="margin:0;">
-                    <li *ngFor="let term of TermsConditions; let i= index">{{term.Terms}}</li>
-                </ul>
+        <div class="row">
+            <p><strong> Term & Condition</strong></p>
+        </div>
+        <ul style="margin:0;">
+            <li *ngFor="let term of TermsConditions; let i= index">{{term.Terms}}</li>
+        </ul>
     </div>
     <footer>
-        
-           
+
+
         <div class="row1">
             <div class="col1">
                 <div class="row">
-                        <h3  style="text-align: right;"   class="name-footer">For : {{ClientInfos && ClientInfos[0]?.OfficeName }}</h3>
+                    <h3 style="text-align: right;" class="name-footer">For :
+                        {{ClientInfos && ClientInfos[0]?.OfficeName }}</h3>
                 </div>
-               
+
             </div>
-            <div  style="text-align: right;" class="col1">Authorised Signatory</div>
-            
+            <div style="text-align: right;" class="col1">Authorised Signatory</div>
+
         </div>
     </footer>
 
 </body>
-

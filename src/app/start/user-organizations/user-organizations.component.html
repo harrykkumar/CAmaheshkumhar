@@ -1,7 +1,12 @@
 <!-- header -->
 <div class="header navbar">
   <div class="header-container">
-    <ul class="nav-right">
+    <ul class="nav-left">
+      <li>
+      <h2 class="c-grey-900">Organization</h2>
+      </li>
+    </ul>
+      <ul class="nav-right">
       <!-- <li style="padding-top: 15px;">
         <div>
           {{ (loggedinUserData?.LoginUserDetailsinfo)[0]?.OfficeName }} ({{
@@ -60,25 +65,60 @@
   </div>
 </div>
 <!-- header -->
-
-
-
 <main class="main-content bgc-grey">
   <div id="mainContent">
     <div class="container-fluid">
-      <h4 class="c-grey-900">Organization</h4>
+      <!-- <h4 class="c-grey-900">Organization</h4> -->
       <div class="row justify-content-md-center align-self-center h-100">
-        <div class="col-md-3" *ngFor="let organization of organizationList; let i = index">
-          <a (click)="navigateTo('dashboard', organization, i)">
-            <div class="highlight_box">
-              <!-- <img [src]="organization?.src" class="mx-auto d-block" /> -->
-              <h3>{{ organization?.Name }}</h3>
-              <h4>{{ organization?.FinancialYear }}</h4>
-            </div>
-          </a>
+        <div class="col-md-8 ml-0 pl-0">
+          <div>
+              <div class="col-md-12" *ngFor="let organization of organizationList; let i = index">
+                  <div>
+                    <div class="highlight_box2">
+                      <div class="row">
+                        <div class="col-md-1 grid_left border-right">
+                         <a (click)="navigateTo('dashboard', organization, i)"><i class="far fa-building"></i></a>
+                        </div>
+                        <a (click)="navigateTo('dashboard', organization, i)"
+                             class="col-md-6 border-right">
+                            <h3>{{ organization?.Name }}</h3>
+                            <h4>{{ organization?.FinancialYear }}</h4>
+                        </a>
+                        <div class="col-md-4">
+                          </div>
+                        <a class="col-md-1 grid_right text-right" (click)="editCompany(organization)">
+                            <i class="far fa-edit"></i>
+                        </a>
+                      </div>                     
+                    </div>
+                  </div>
+                </div>
+          </div>
         </div>
+        <div class="col-md-4">
+          <div class="right_card">
+            <div class="create-head border-bottom">
+                <a  (click)="addNewCompany()"  class="waves-effect waves-light create_org_btn pb-2">
+                  <i class="far fa-calendar-plus"></i> Create Organization</a>
+            </div>
+            <div class="org_card_body pt-2">
+                <div class="component component--list-block"> 
+                  <ul> 
+                    <li class="featured">Scales from 10-10k</li>
+                     <li class="featured">3,000+ apps and integrations</li> 
+                     <li class="featured">Deeply customizable workflows</li> 
+                     <li class="featured">Mobile app</li>
+                      <li class="featured">Rich APIs</li> 
+                      <li class="featured">Deep developer tool integrations</li>
+                     </ul> 
+                    </div>
+            </div>
+          </div>
+        </div>
+       
       </div>
     </div>
   </div>
 </main>
 <app-footer></app-footer>
+<app-company-profile [modalData]="modalData" (closeModal)="closeModal($event)"></app-company-profile>

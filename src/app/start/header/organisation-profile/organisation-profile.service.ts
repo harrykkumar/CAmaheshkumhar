@@ -1,3 +1,4 @@
+import { filter } from 'rxjs/operators';
 /* Created by Bharat */
 
 import { CommonService } from './../../../commonServices/commanmaster/common.services'
@@ -14,7 +15,7 @@ import { UIConstant } from 'src/app/shared/constants/ui-constant'
 })
 
 export class OrganisationProfileService {
-
+  totalIndustryList: Array<any> = []
   constructor (
     private _baseService: BaseServices,
     private _commonService: CommonService,
@@ -106,9 +107,18 @@ export class OrganisationProfileService {
 
   /* Function to get all address type list */
   getAddressTypeList = () => {
-    return [{ id: UIConstant.ZERO, text: 'Select Address Type' },
-    { id: '1', text: 'Personal' }, { id: '2', text: 'Work' },
-    { id: '3', text: 'Postal' }, { id: '4', text: 'Other' }]
+    return this._vendorService.getCommonValues('166').
+      pipe(
+        map((data: any) => {
+          const list = _.map(data.Data, (element) => {
+            return {
+              id: element.Id,
+              text: element.CommonDesc
+            }
+          })
+          return [{ id: UIConstant.ZERO, text: 'Select Address Type' }, ...list]
+        })
+      ).toPromise();
   }
 
    /* Function to get all the country list for dropdown */
@@ -177,10 +187,11 @@ export class OrganisationProfileService {
     return this._commonService.getIndustryType().
       pipe(
         map((data: any) => {
-          const industryList = _.map(data.Data, (element) => {
+          this.totalIndustryList = [...data.Data];
+          const industryList = _.map(_.filter(data.Data, {UnderId : 0}), (element) => {
             return {
               id: element.UId,
-              text: element.CommonDesc
+              text: element.Name
             }
           })
           return [{ id: UIConstant.ZERO, text: 'Select Industry' }, ...industryList]
@@ -188,12 +199,22 @@ export class OrganisationProfileService {
       ).toPromise();
   }
 
+  getSubIndustryTypeList = (industryId) => {
+    const subIndustryList = _.map(_.filter(this.totalIndustryList, { UnderId: industryId }), (element) => {
+      return {
+        id: element.UId,
+        text: element.Name
+      }
+    })
+    return [{ id: UIConstant.ZERO, text: 'Select Sub Industry' }, ...subIndustryList]
+  }
+
    /* Function to get all the key person type list */
-  getKeyPersonTypeList = () => {
+  getKeyPersonTypeList = (organizationTypeId) => {
     return this._commonService.getPersonType().
       pipe(
         map((data: any) => {
-          const keyPersonTypeList = _.map(data.Data, (element) => {
+          const keyPersonTypeList = _.map(_.filter(data.Data, { UId: organizationTypeId }), (element) => {
             return {
               id: element.Id,
               text: element.CommonDesc
@@ -230,10 +251,27 @@ export class OrganisationProfileService {
               text: element.FinYear
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Fin Year' }, ...list]
+          return [{ id: UIConstant.ZERO, text: 'Select Financial Year' }, ...list]
         })
       ).toPromise();
   }
+
+  getFinSessionList = () => {
+    return this._commonService.getFinSessionList().
+      pipe(
+        map((data: any) => {
+          const list = _.map(data.Data, (element) => {
+            return {
+              id: element.Id,
+              text: element.CommonDesc,
+              shortName: element.ShortName
+            }
+          })
+          return [{ id: UIConstant.ZERO, text: 'Select Financial-Year Cycle' }, ...list]
+        })
+      ).toPromise();
+  }
+
 
    /* Function to get all registration type list */
   getRegistrationTypeList = () => {
@@ -254,7 +292,7 @@ export class OrganisationProfileService {
               text: element.CommonDesc
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Type' }, ...branchType]
+          return [{ id: UIConstant.ZERO, text: 'Select Type of Organization' }, ...branchType]
         })
       ).toPromise();
   }
@@ -275,5 +313,13 @@ export class OrganisationProfileService {
       valid = true
     }
     return valid
+  }
+
+  addNewCity(data){
+    return this._baseService.postRequest(ApiConstant.CITY_ADD, data)
+  }
+
+  addNewArea(data){
+    return this._baseService.postRequest(ApiConstant.AREA_ADD, data)
   }
 }

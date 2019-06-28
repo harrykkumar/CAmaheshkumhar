@@ -66,7 +66,7 @@
         <div *ngIf="showHeader" class="row">
               <div class="right_saerch_side p-0">
                   <div class="btn_header">
-                    <button type="button" class="btn btn-primary waves-effect waves-light" (click)="saveForm()" >Save</button>
+                    <button type="button" class="btn btn-primary waves-effect waves-light" (click)="saveForm()" >{{showHeader ? 'Save & Next' : 'Save'}}</button>
                   </div>
                 </div>
         </div>

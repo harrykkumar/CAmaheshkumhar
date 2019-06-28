@@ -175,6 +175,10 @@ export const SIDE_MENU_MODEL = {
     path: 'common-menu',
     icon: ''
   },
+  'TransactionNo': {
+    path: 'transaction-number',
+    icon: ''
+  },
 
   /* Non working */
   'Account': {

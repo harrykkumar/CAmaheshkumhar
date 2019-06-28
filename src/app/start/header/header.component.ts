@@ -25,12 +25,4 @@ export class HeaderComponent {
     $('.app').toggleClass('is-collapsed')
     $('.sidebar').toggleClass('page-container')
   }
-
-  /* Function to navigate branch list page */
-  navigateTo = (path) => {
-    if (path === 'modules') {
-      this._loginService.moduleSelected.next(false)
-    }
-    this.router.navigate([path])
-  }
 }

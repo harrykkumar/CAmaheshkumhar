@@ -12,6 +12,7 @@ import * as _ from 'lodash'
 })
 export class UserOrganizationsComponent implements OnInit {
   loggedinUserData: any = {}
+  modalData: { open: boolean; editId?: number };
   organizationList: any = []
   constructor(private router: Router,
     public _loginService: LoginService,
@@ -24,6 +25,7 @@ export class UserOrganizationsComponent implements OnInit {
 
   navigateTo = async (path, selectedOrganization, index) => {
     const token = await this._loginService.extendJwtToken({ OrgId : selectedOrganization.Id})
+    console.log(token)
     this.tokenService.saveToken(token)
     this._loginService.selectedOrganization = selectedOrganization
     localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
@@ -36,6 +38,36 @@ export class UserOrganizationsComponent implements OnInit {
       this.organizationList = [...this._loginService.userOrganizations];
     } else {
       this.organizationList = [...this._loginService.userOrganizations];
+    }
+  }
+
+  addNewCompany = () => {
+    this.modalData = {
+      open: true
+    }
+    // this.router.navigate(['new-organization']);
+  }
+
+  editCompany = (item) => {
+    this.modalData = {
+      open: true,
+      editId: item.Id
+    }
+  }
+
+  closeModal = async (data) => {
+    if(!data || (!_.isEmpty(this.modalData) && Number(data) === this.modalData.editId)){
+      this.modalData = {
+        open: false
+      }
+    } else if (data) {
+      const Id = Number(data)
+      const token = await this._loginService.extendJwtToken({ OrgId: Id })
+      this.tokenService.saveToken(token)
+      await this._loginService.getUserOrganization()
+      this._loginService.selectedOrganization = _.find(this._loginService.userOrganizations, { Id: Id });
+      localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
+      this.router.navigate(['organization/settings/setup']);
     }
   }
 }

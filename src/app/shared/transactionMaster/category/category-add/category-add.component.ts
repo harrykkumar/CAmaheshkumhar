@@ -8,6 +8,8 @@ import { CategoryServices } from '../../../../commonServices/TransactionMaster/c
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { ItemmasterServices } from 'src/app/commonServices/TransactionMaster/item-master.services'
 import { CommonService } from '../../../../commonServices/commanmaster/common.services'
+import { Settings } from '../../../constants/settings.constant';
+import { SetUpIds } from '../../../constants/setupIds.constant';
 declare var $: any
 @Component({
   selector: 'app-category-add',
@@ -33,17 +35,18 @@ export class CategoryAddComponent {
   catDetails: any = []
   loading: boolean = true
   catOrSubCatSub: Subscription
-  keepOpen: boolean = false
+  keepOpen: boolean
   public selectCategory: Array<Select2OptionData>
 
   constructor (private _catagoryservices: CategoryServices,
     private _formBuilder: FormBuilder,
-    private saleService: CommonService,
+    private commonService: CommonService,
     private toastrService: ToastrCustomService,
     private itemService: ItemmasterServices,
+    private settings: Settings,
     private renderer: Renderer2) {
     this.formCategory()
-    this.modalSub = this.saleService.getCategoryStatus().subscribe(
+    this.modalSub = this.commonService.getCategoryStatus().subscribe(
       (data: AddCust) => {
         if (data.open) {
           if (+data.type === 1) {
@@ -66,7 +69,7 @@ export class CategoryAddComponent {
       }
     )
 
-    this.catOrSubCatSub = this.saleService.getNewCatOrSubCatStatus().subscribe(
+    this.catOrSubCatSub = this.commonService.getNewCatOrSubCatStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.selectCategory)
@@ -91,7 +94,7 @@ export class CategoryAddComponent {
             text: element.Name
           })
         })
-        this.selectCategory = newData
+        this.selectCategory = Object.assign([], newData)
         // console.log('available categories : ', this.selectCategory)
       }
     },
@@ -154,9 +157,12 @@ export class CategoryAddComponent {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.categoryForm.controls.CategoryName.setValue(data.Data[0].Name)
         this.categoryForm.controls.ShortName.setValue(data.Data[0].ShortName)
+        this.categoryForm.controls.CategoryName.markAsDirty()
         setTimeout(() => {
           // console.log('_self.catSelect2 : ', _self.catSelect2)
-          _self.catSelect2.setElementValue(data.Data[0].ParentId)
+          if (_self.catSelect2) {
+            _self.catSelect2.setElementValue(data.Data[0].ParentId)
+          }
           this.parentId = data.Data[0].ParentId
           // console.log('parent id : ', this.parentId)
           if (this.catname) {
@@ -197,7 +203,7 @@ export class CategoryAddComponent {
     let _self = this
     if (this.categoryForm.valid) {
       this._catagoryservices.saveAndUpdateCategory(this.CategoryParams()).subscribe(data => {
-        // console.log('added category: ', data)
+        console.log('added category: ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           if (this.addForItem) {
             if (!this.toEmitName) {
@@ -208,7 +214,7 @@ export class CategoryAddComponent {
             console.log('to emit name : ', this.toEmitName)
             if (this.categoryForm.value.level < this.catLevel) {
               let toSend = { name: _self.toEmitName, id: data.Data }
-              this.saleService.onCatOrSubCatAdded(toSend)
+              this.commonService.onCatOrSubCatAdded(toSend)
               this.categoryForm.controls.level.setValue(this.categoryForm.value.level + 1)
               this.categoryForm.controls.CategoryName.setValue('')
               this.categoryForm.controls.ShortName.setValue('')
@@ -220,21 +226,23 @@ export class CategoryAddComponent {
               }, 1000)
             }
             if (this.categoryForm.value.level === this.catLevel) {
-              _self.saleService.categoryAdded()
+              _self.commonService.categoryAdded()
               let toSend = { name: _self.toEmitName, id: data.Data }
               _self.clearCategoryvalidation()
-              _self.saleService.closeCategory(toSend)
+              _self.commonService.closeCategory(toSend)
             }
           } else {
             if (this.keepOpen) {
               _self.toastrService.showSuccess('Success', 'Saved Successfully')
+              this.getCategoryList()
               this.initialiseExtras()
+              _self.commonService.categoryAdded()
             } else {
-              _self.saleService.categoryAdded()
+              _self.commonService.categoryAdded()
               _self.toastrService.showSuccess('Success', 'Saved Successfully')
               let toSend = { name: _self.categoryForm.value.CategoryName, id: data.Data,
                 level: _self.categoryForm.value.level + 1 }
-              this.saleService.closeCategory(toSend)
+              this.commonService.closeCategory(toSend)
               _self.clearCategoryvalidation()
             }
           }
@@ -244,6 +252,8 @@ export class CategoryAddComponent {
           _self.toastrService.showError('', data.Description)
         }
       })
+    } else {
+      this.toastrService.showError('', 'Form is Invalid')
     }
   }
 
@@ -251,7 +261,7 @@ export class CategoryAddComponent {
     const categoryElement = {
       categoryObj: {
         ParentId: this.parentId > 0 ? this.parentId : 0,
-        CategoryName: this.categoryForm.value.CategoryName,
+        CategoryName: this.categoryForm.value.CategoryName.trim(),
         Id: this.Id ? this.Id : 0,
         ShortName: this.categoryForm.value.ShortName
       } as SaveCategoryModel
@@ -265,24 +275,16 @@ export class CategoryAddComponent {
     this.toEmitName = ''
     this.submitClick = false
     this.selectCategory = []
+    this.commonService.closeCategory('')
   }
 
   getCatLevel () {
-    let _self = this
-    this._catagoryservices.getCategoryLevel().subscribe(
-      (data) => {
-        if (data.Code === UIConstant.THOUSAND && data.Data.SetupSettings.length > 0) {
-          const setUpSettings = data.Data.SetupSettings
-          setUpSettings.forEach(setting => {
-            if (+setting.SetupId === 1) {
-              _self.catLevel = +setting.Val
-              console.log('setting catl level : ', _self.catLevel)
-              return
-            }
-          })
-        }
+    let settings = JSON.parse(this.settings.moduleSettings).settings
+    settings.forEach(element => {
+      if (element.id === SetUpIds.catLevel) {
+        this.catLevel = +element.val
       }
-    )
+    })
   }
 
   initialiseExtras () {

@@ -3,31 +3,23 @@
         <div class="form-row p-10">
             <div class="col-md-2 form-group" >
                 <div class="timepicker-input input-icon">
-                    <div class="input-group">
-                        <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                        <input readonly="true" type="text"
-                            #first
-                            class="form-control start-date flatpickr"
-                            id="from-date"
-                            placeholder="From Date"
-                            [ngClass]="{'errorSelecto': f.FromDate?.errors?.isValidDate }"
-                            data-provide="datepicker" formControlName="FromDate"
-                            name="fromdate">
-                    </div>
+                    <datepicker-popup
+                        #first
+                        [toSetDate]="searchForm?.get('FromDate')?.value"
+                        [placeholder]="'Select From Date'"
+                        (dateInFormat)="setFromDate($event)"
+                        [class]="f.FromDate?.errors?.isValidDate" >
+                    </datepicker-popup>
                 </div>
             </div>
             <div class="col-md-2 form-group" >
                 <div class="timepicker-input input-icon">
-                    <div class="input-group">
-                        <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                        <input readonly="true" type="text"
-                        class="form-control start-date flatpickr"
-                        id="to-date"
-                        placeholder="To Date"
-                        data-provide="datepicker" formControlName="ToDate"
-                        [ngClass]="{'errorSelecto': f.ToDate?.errors?.isValidDate }"
-                        name="todate">
-                    </div>
+                    <datepicker-popup
+                    [toSetDate]="searchForm?.get('ToDate')?.value"
+                    [placeholder]="'Select To Date'"
+                    (dateInFormat)="setToDate($event)"
+                    [class]="f.ToDate?.errors?.isValidDate" >
+                    </datepicker-popup>
                 </div>
             </div>
             <div class="col-md-2 form-group" >

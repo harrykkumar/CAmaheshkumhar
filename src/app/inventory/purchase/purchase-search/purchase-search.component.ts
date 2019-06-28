@@ -7,7 +7,7 @@ import { Settings } from '../../../shared/constants/settings.constant';
 import { PurchaseService } from '../purchase.service';
 import { GlobalService } from '../../../commonServices/global.service';
 import { DependencyCheck } from '../../../shared/validators/dependencyCheck';
-declare const flatpickr: any
+import { DatepickerComponent } from '../../../shared/datepicker/datepicker.component';
 declare const $: any
 @Component({
   selector: 'app-purchase-search',
@@ -39,11 +39,11 @@ export class PurchaseSearchComponent {
   dataValues: Array<Select2OptionData> = []
   @ViewChild('date_select2') dateSelect2: Select2Component
   isValid: boolean = true
+  @ViewChild('fromdate') fromdate: DatepickerComponent
   ngOnChanges (changes: SimpleChanges): void {
     if (changes.toShow && changes.toShow.currentValue) {
       setTimeout(() => {
-        const element = this.dateSelect2.selector.nativeElement
-        element.focus({ preventScroll: false })
+        this.fromdate.toggleView()
       }, 10)
     }
   }
@@ -59,8 +59,6 @@ export class PurchaseSearchComponent {
       {id: '1', text: 'Party Bill Date'}
     ]
     this.createForm()
-    this.setFromDate()
-    this.setToDate()
     this.getSuplier()
     this.getCountryList()
   }
@@ -187,25 +185,6 @@ export class PurchaseSearchComponent {
     }
   }
 
-  
-  setFromDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#from-date', {
-        dateFormat: _self.settings.dateFormat
-      })
-    })
-  }
-
-  setToDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#to-date', {
-        dateFormat: _self.settings.dateFormat
-      })
-    })
-  }
-
   search () {
     if (this.searchForm.valid) {
       let fromDate = ''
@@ -286,5 +265,13 @@ export class PurchaseSearchComponent {
     '&LedgerId=' + this.LedgerId + 
     '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
    this.purchaseService.setSearchQueryParamsStr(queryStr)
+  }
+
+  setToDate (evt) {
+    this.searchForm.controls.ToDate.setValue(evt)
+  }
+
+  setFromDate (evt) {
+    this.searchForm.controls.FromDate.setValue(evt)
   }
 }

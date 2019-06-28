@@ -12,9 +12,11 @@ import { CommonService } from '../../../../../commonServices/commanmaster/common
 import { GlobalService } from '../../../../../commonServices/global.service'
 import { Settings } from '../../../../../shared/constants/settings.constant'
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
+import {SetUpIds} from 'src/app/shared/constants/setupIds.constant'
 import { IfStmt } from '@angular/compiler';
 import { timeout } from 'q';
 import {SaleCommonService} from '../../saleCommon.service';
+import { TouchSequence } from 'selenium-webdriver';
 declare const _: any
 declare var $: any
 declare var flatpickr: any
@@ -168,16 +170,16 @@ export class SalesDirectComponent {
   InterestRateType: any
   CommisionRateType: any
   transactions: any
+  MainEditID: any
   AdditionalChargeData: any
   IsForOtherState: any;
   isAddNew: boolean
-  constructor ( private _coustomerServices: VendorServices,private _formBuilder: FormBuilder,private renderer2: Renderer2, public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
+  constructor ( public _setUpIds: SetUpIds,private _coustomerServices: VendorServices,private _formBuilder: FormBuilder,private renderer2: Renderer2, public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
     private _ledgerServices: VendorServices,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
     public _settings: Settings) {
     this.ATTRIBUTE_PARENTTYPEID = 6
-    this.clientDateFormat = this._settings.dateFormat
     this.addCustomerForm()
     this.clientNameSelect2 = []
     this.suplierNameSelect2 = []
@@ -311,7 +313,7 @@ export class SalesDirectComponent {
           this.stateShippingValue = data.id
           this.stateId = +data.stateId
           this.SupplyStateId = +data.stateId
-          debugger
+          
           this.checkOtherStateForNewItemAdd(JSON.parse(data.stateId))
          
         }
@@ -337,11 +339,14 @@ export class SalesDirectComponent {
             this.editMode = false
             this.editRowListFlag = true
             this.Id = 0
+            this.MainEditID =0
             this.CaseCustId = 0
           } else {
             this.editMode = true
             this.editRowListFlag = false
             this.Id = status.editId
+            this.MainEditID =status.editId
+
           }
           this.openDirectModal()
 
@@ -354,7 +359,7 @@ export class SalesDirectComponent {
 
     this.modalCategory = this._commonService.getCategoryStatus().subscribe(
       (data: AddCust) => {
-        debugger
+        
         if (data.id && data.name) {
            this.categoryId = data.id
           let categoryName = data.name
@@ -409,7 +414,6 @@ export class SalesDirectComponent {
   currencies: any
 
   getAllCategories (categoryName, categoryId, isAddNew) {
-    debugger
     this._commonService.getAllCategories().subscribe(
       data => {
         let levelNo = 0
@@ -627,25 +631,21 @@ export class SalesDirectComponent {
         if (data.Data && data.Data.ItemCategorys.length > 0) {
           this.getCatagoryDetail(data.Data.ItemCategorys)
         }
+        this.additionChargeLedger = []
+        let newAdditionCharge =[]
+        this.ledgerChargePlaceHolder = { placeholder: 'Select  Charge' }
+        newAdditionCharge = [{ id: UIConstant.BLANK, text: 'Select Charge' },{id:'-1',text:UIConstant.ADD_NEW_OPTION}]
         if(data.Data && data.Data.LedgerCharges.length >0){
-          this.additionChargeLedger = []
-          let newAdditionCharge =[]
-          this.ledgerChargePlaceHolder = { placeholder: 'Select  Charge' }
-           newAdditionCharge = [{ id: UIConstant.BLANK, text: 'Select Charge' },{id:'-1',text:UIConstant.ADD_NEW_OPTION}]
-
            if(data.Data && data.Data.LedgerCharges.length > 0){
             data.Data.LedgerCharges.forEach(element => {
               newAdditionCharge.push({
                 id: element.Id,
                 text: element.Name
               })
-
             })
            }
-           this.additionChargeLedger = newAdditionCharge
-
-
-        }
+        } 
+        this.additionChargeLedger = newAdditionCharge
 
       }
     })
@@ -1122,7 +1122,7 @@ getBillingAddressList(data){
   this.stateValue = this.stateList[2].id
   this.stateBillingSelect2Id.setElementValue(this.stateValue)
   
-  return this.stateValue
+  //return this.stateValue
 }
 
 getShippingAddressList(data){
@@ -1137,7 +1137,7 @@ getShippingAddressList(data){
   this.stateShippingValue = this.stateListShip[2].id
   this.stateShippingSelect2Id.setElementValue(this.stateShippingValue)
   
-  return this.stateShippingValue
+ // return this.stateShippingValue
 }
 stateShippingValue: any
   getAddressOfCustomerByID (customerId, parentTypeId) {
@@ -1229,8 +1229,6 @@ stateShippingValue: any
           this.disabledAddressFlag = false
           this.ledgerStateId = event.data[0].stateId
           if( this.ledgerStateId >0){
-            
-            debugger
             this.checkOtherStateForNewItemAdd(this.ledgerStateId)
           }
 
@@ -1606,12 +1604,11 @@ stateShippingValue: any
       MrpRate: this.MrpRate,
       PurchaseRate: this.PurchaseRate,
       ExpiryDate: this.ExpiryDateChngae,
+      MfdDate: this.MFDateChngae,
       ExpiryDateToshow: this.ExpiryDate,
       MfDateToshow: this.MfdDate,
-      MfdDate: this.MFDateChngae,
       BatchNo: this.BatchNo,
       CategoryId: this.categoryId,
-      //CategoryName: this.categoryName,
       CategoryName: this.getPattern(),
       ItemName: this.ItemName,
       UnitName: this.UnitName,
@@ -1632,7 +1629,8 @@ stateShippingValue: any
       ReversetotalAmount:+this.ReversetotalAmount,
       baserate:+this.getBaseRateForItem,
       rowEditFlagValue: true,
-      IsForOtherState: this.taxRateForOtherStateFlag
+      IsForOtherState: this.taxRateForOtherStateFlag,
+      IsForOtherStateForTrans :this.taxRateForOtherStateFlag === false ? 0 : 1
 
     })
   sendForBillingSumItem.push({
@@ -1648,7 +1646,6 @@ stateShippingValue: any
       this._commonService.fixTableHFL('item-table')
     }, 1)
     console.log(this.items, 'items-Array -recentaly-added items')
-    //this.trsnItemId = this.items[this.items.length - 1].Sno + 1
     this.localAddAttribute(this.trsnItemId)
     this.localItems()
     this.getBillingSummery(sendForBillingSumItem)
@@ -1657,11 +1654,9 @@ stateShippingValue: any
 
   rowIndex: any
   AttrId: any
-
   BatchNo: any
   ReversetotalAmount: number
   initialiseItem () {
-    //debugger
     this.Remark = ''
     this.Rate = ''
     this.Discount = 0
@@ -1799,101 +1794,25 @@ stateShippingValue: any
     }
 
   }
-  // cat_select2
-  // item_select2
   setDueDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#due-date', {
-        dateFormat: _self.clientDateFormat,
-        defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-      })
-    })
-    this.DueDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
-   // console.log( this.DueDate ,'dat---->>>>>>>>>>>>')
-
+    this.DueDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
-
   setPayDate () {
     let _self = this
-    if (this.backDateEntry) {
-      jQuery(function ($) {
-        flatpickr('#pay-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#pay-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-        })
-      })
-    }
     this.PayDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
-
   }
   setExpiryDate () {
-    let _self = this
-
-    jQuery(function ($) {
-      flatpickr('#Expiry-date', {
-        dateFormat: _self.clientDateFormat
-
-      })
-    })
+       this.ExpiryDate =''
   }
   setMFDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#MF-date', {
-        dateFormat: _self.clientDateFormat
-
-      })
-    })
+          this.MfdDate =''    
   }
   CurrentDate: any
   setCurrentDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#Current-date', {
-        dateFormat: _self.clientDateFormat,
-        defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-
-      })
-    })
-    this.CurrentDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
-
+    this.CurrentDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
-
   setBillDate () {
-    let _self = this
-    if (this.backDateEntry) {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self._globalService.getDefaultDate(_self.clientDateFormat)]
-
-        })
-      })
-    }
-    this.InvoiceDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
-
+    this.InvoiceDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
 
   clearExtras () {
@@ -2562,6 +2481,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
   textItemId:any
   itemTableDisabledFlag: boolean
   withoursaveEditFlag : boolean
+  getModuleSettingValue: any
   openDirectModal () {
     this.netBillAmount = 0
     this.DiscountAmt = 0
@@ -2571,13 +2491,15 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     this.Amount = 0
     this.editChargeId =0
     this.textItemId =0
-   let data = JSON.stringify(this._settings.industryId)
-   this.industryId = JSON.parse(data)  
-    console.log( this.industryId, this._settings.industryId ,'Ins---------')
-    let datacatLevel = JSON.stringify(this._settings.catLevel)
-    this.catLevel = JSON.parse(datacatLevel)
-    console.log(this.catLevel ,'cat-level')
-    this.createModels(this.catLevel)
+    this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
+    console.log(this._settings.moduleSettings,'valll')
+    this.getModuleSettingData()
+   this.industryId = this._settings.industryId
+  //  console.log( this.industryId, this._settings.industryId ,'Ins---------')
+  //  let datacatLevel = JSON.stringify(this._settings.catLevel)
+  //  this.catLevel = JSON.parse(datacatLevel)
+  //  console.log(this.catLevel ,'cat-level')
+  //  this.createModels(this.catLevel)
     this.disabledTaxFlag = false
     this.addressShowFlag = false
     this.ChallanId = 0
@@ -2593,7 +2515,6 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
     this.transactions = []
     this.AdditionalChargeData =[]
     this.getCurrency()
-    this.getModuleSettingData()
     this.getSPUtilityDataBilling()
     this.getCountry(0)
     this.editItemId = 0
@@ -2784,13 +2705,12 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
         if (data.Data && data.Data.CustomerTypes.length > 0) {
           this.setEditCustomerData(data.Data.CustomerTypes)
         }
-        //element.TaxType === 0 ? 
         if (data.Data && data.Data.AdditionalChargeDetails.length > 0) {
           this.AdditionalChargeData=[]
           data.Data.AdditionalChargeDetails.forEach(chrgeItem =>{
             this.AdditionalChargeData.push({
               Id: chrgeItem.Id,
-              Sno:1,
+              Sno:chrgeItem.Sno,
               LedgerChargeId: chrgeItem.LedgerChargeId,
               ParentChargeId: chrgeItem.ParentChargeId,
               ParentTypeChargeId: chrgeItem.ParentTypeChargeId,
@@ -2813,7 +2733,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
           data.Data.ItemTaxTransDetails.forEach(item =>{
             this.taxSlabSummery.push({
               Id: item.Id,
-              Sno:1,
+              Sno:item.Sno,
               TaxTypeTax: item.TaxTypeCharge ,
               AmountTax: item.AmountTax,
               ItemTransTaxId: item.ItemTransTaxId,
@@ -2844,6 +2764,19 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
           this.BillNo = this.inventoryItemSales[0].BillNo
           this.itemsAttribute = []
           this.stateId = this.inventoryItemSales[0].AddressId
+          this.CurrentDate = this.inventoryItemSales[0].CurrentDate
+          if(this.inventoryItemSales[0].CurrentDate !== null ){
+            this.CurrentDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].CurrentDate, this.clientDateFormat)
+         }
+         else{
+          this.CurrentDate = ''
+         }
+         if(this.inventoryItemSales[0].DueDate	 !== null ){
+          this.DueDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].DueDate, this.clientDateFormat)
+        }
+        else{
+          this.DueDate = ''
+        }
           this.SupplyStateId = this.inventoryItemSales[0].SupplyState
           //this.stateBillingSelect2Id.setElementValue( this.stateId)
          // this.stateShippingSelect2Id.setElementValue(this.SupplyStateId)
@@ -2866,24 +2799,6 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
           this.InvoiceDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].BillDate, this.clientDateFormat)
          // console.log(this.InvoiceDate, 'billdate')
           this.EwayBillNo = this.inventoryItemSales[0].EwayBillNo
-
-          this.Commission = this.inventoryItemSales[0].Commission
-          this.TotalQuantity = this.inventoryItemSales.filter(item1 => item1.TotalQty)
-            .map(item1 => parseFloat(item1.TotalQty))
-            .reduce((sum, current) => sum + current, 0)
-
-          this.OtherCharge = this.inventoryItemSales.filter(item1 => item1.OtherCharge)
-            .map(item1 => parseFloat(item1.OtherCharge))
-            .reduce((sum, current) => sum + current, 0)
-          data.Data.SaleTransactionses.forEach(ele => {
-            if (ele.FreightMode === 1) {
-
-              this.TotalFreight = data.Data.SaleTransactionses.filter(item1 => ele.Freight)
-                .map(item2 => parseFloat(item2.Freight))
-                .reduce((sum, current) => sum + current, 0)
-            }
-          })
-
           // [].reduce( (previousValue, currentValue) => previousValue + currentValue, 0);
           let newDataUnit = Object.assign([], this.unitDataType)
           newDataUnit.push({ id: this.inventoryItemSales[0].OrgId, text: this.inventoryItemSales[0].UnitName })
@@ -2898,10 +2813,9 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
         if (data.Data && data.Data.PaymentDetails && data.Data.PaymentDetails.length > 0) {
           this.transactions = []
           data.Data.PaymentDetails.forEach(ele => {
-
             let payDate = this._globalService.utcToClientDateFormat(ele.PayDate, this.clientDateFormat)
             this.transactions.push({
-              Sno: 1,
+              Sno: ele.Sno,
               Id: ele.Id,
               Paymode: ele.Paymode,
               PayModeId: ele.PayModeId,
@@ -2909,6 +2823,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
               ledgerName: ele.BankLedgerName,
               Amount: ele.Amount,
               PayDate: payDate,
+              PayShowDate:payDate,
               ChequeNo: ele.ChequeNo,
               ParentTypeId: ele.ParentTypeId
             })
@@ -2952,7 +2867,7 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
             }
             let ExpiryDatevar;
             let MFDatevar;
-            debugger
+            
             if(element.ExpiryDate !== null ){
                ExpiryDatevar = this._globalService.utcToClientDateFormat(element.ExpiryDate, this.clientDateFormat)
 
@@ -3056,6 +2971,8 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
 
       this.addItems()
       this.addTransactions()
+      this.addAdditionCharge()
+
       if (this.checkValidation()) {
         console.log(JSON.stringify(this.items), 'Request')
         if (this.items.length !== 0) {
@@ -3129,7 +3046,8 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
           this._commonService.postSaleDirectAPI(obj).subscribe(
             (data: any) => {
               if (data.Code === UIConstant.THOUSAND) {
-                _self.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
+                let saveName = this.MainEditID ===0 ? UIConstant.SAVED_SUCCESSFULLY :UIConstant.UPDATE_SUCCESSFULLY
+                _self.toastrService.showSuccess('', saveName)
                 _self._commonService.newSaleAdded()
                 if (!_self.keepOpen) {
                   _self._commonService.closeSaleDirect()
@@ -3187,11 +3105,11 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
 
       this.calculateAllTotal()
       this.calculateTotalOfRow()
-      if(id>0 && sno ===1 ){
+      // if(id>0 && sno ===1 ){
+      //   this.removeBillSummery(a,'items',detail.Id)
+      // }
+      if(id>0 && sno >0 ){
         this.removeBillSummery(a,'items',detail.Id)
-      }
-      if(id>0 && sno >1 ){
-        this.removeBillSummery(a,'items',sno)
       }
       if(id === 0){
         this.removeBillSummery(a,'items',sno)
@@ -3208,11 +3126,11 @@ for(let i=this.taxSlabSummery.length; i  > this.taxSlabSummery.length -1; i--  )
       this.unBilledAmount()
       this.calculateAllTotal()
       this.alreadySelectCharge(+detail.LedgerChargeId, detail.LedgerName,false)
-      if(id>0 && sno ===1 ){
+      // if(id>0 && sno ===1 ){
+      //   this.removeBillSummery(a,'charge',detail.Id)
+      // }
+      if(id>0 && sno >0 ){
         this.removeBillSummery(a,'charge',detail.Id)
-      }
-      if(id>0 && sno >1 ){
-        this.removeBillSummery(a,'charge',sno)
       }
       if(id === 0){
         this.removeBillSummery(a,'charge',sno)
@@ -3381,8 +3299,8 @@ this.withoursaveEditFlag = false
           this.LedgerId = this.transactions[index].LedgerId
           this.ledgerName = this.transactions[index].ledgerName
           this.Amount = this.transactions[index].Amount
-          this.PayDate = this._globalService.utcToClientDateFormat(this.transactions[index].PayDate, this.clientDateFormat)
-
+          this.PayDate = this.transactions[index].PayShowDate
+          this.PayShowDate =  this.transactions[index].PayShowDate
           this.ChequeNo = this.transactions[index].ChequeNo
           this.paymodeSelect2.setElementValue(this.PayModeId)
           this.ledgerSelect2.setElementValue(this.LedgerId)
@@ -3421,6 +3339,7 @@ this.withoursaveEditFlag = false
     
 
   }
+  PayShowDate: any 
   snoForPAymentId: any
   snoForChargeId : any
   taxslabChargeName: any
@@ -3583,7 +3502,6 @@ this.withoursaveEditFlag = false
   addTransactions () {
     this.deleteEditPaymentFlag = true
     if (this.Paymode && this.PayModeId && this.LedgerId && this.ledgerName && this.Amount && this.PayDate && !this.ChequeNoFlag) {
-
       if (this.checkValidationForAmount()) {
         this.addTransaction()
         this.clickTrans = true
@@ -3612,10 +3530,16 @@ this.withoursaveEditFlag = false
     let index ;
     this.payDateVar = this._globalService.clientToSqlDateFormat(this.PayDate, this.clientDateFormat)
     if (this.transactions.length === 0) {
-      index =2
+      index =1
     } else {
-       index = +this.transactions[this.transactions.length - 1].Sno + 1
+      index = this.transactions.length + 1
+      for(let i=0; i < this.transactions.length; i ++){
+        if(index === this.transactions[i].Sno){
+          index =  index + 1
+        }
+      }
     }
+    debugger
     this.transactions.push({
       Id: this.editTransId === 0 ? 0 : this.editTransId,
       Sno: index,
@@ -3624,6 +3548,7 @@ this.withoursaveEditFlag = false
       LedgerId: this.LedgerId,
       ledgerName: this.ledgerName,
       Amount: this.Amount,
+      PayShowDate:this.PayDate,
       PayDate: this.payDateVar,
       ChequeNo: this.ChequeNo
     })
@@ -3642,67 +3567,43 @@ this.withoursaveEditFlag = false
   decimalDigit: any
   isInclusiveCaseBeforeDiscount: any
   getModuleSettingData () {
-    let checkForCustomItemRate
-    let checkForCatLevel
-    let checkForBackDateEntry
-    let checkforBillManualNo
-    let decimalDigit
-    let isInclusiveCaseBeforeDiscount
     this.applyCustomRateOnItemFlag = false
     this.localItemRate = true
-    this.subscribe = this._commonService.getModulesettingAPI('Sale').subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND) {
-        if (data.Data && data.Data.SetupMasters && data.Data.SetupMasters.length && data.Data.SetupClients.length > 0) {
-          data.Data.SetupMasters.forEach(ele => {
-            // check for item custom rate and apply for this custom rate // SetupId = 12 for apply custom Rate
-            checkForCustomItemRate = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 12))
-            if (checkForCustomItemRate.length > 0) {
-              this.applyCustomRateOnItemFlag = true
-
-            }
-            // check for category level
-            checkForCatLevel = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 1))
-            if (checkForCatLevel.length > 0) {
-              this.catLevel = JSON.parse(checkForCatLevel[0].Val)
-              console.log(this.catLevel ,'catlebelll')
-
-            }
-            // back date entry
-            checkForBackDateEntry = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 58))
-            if (checkForBackDateEntry.length > 0) {
-              this.backDateEntry = JSON.parse(checkForBackDateEntry[0].Val)
-              console.log(this.backDateEntry, 'date-setup')
-
-            }
-            //  id master 22 /Sale BillNo Manual Entry
-            checkforBillManualNo = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 22))
-            if (checkforBillManualNo.length > 0) {
-              this.isManualBillNoEntry = JSON.parse(checkforBillManualNo[0].Val)
-              console.log(this.isManualBillNoEntry, 'manualEntry')
-
-            }
-            decimalDigit = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 43))
-            if (decimalDigit.length > 0) {
-              this.decimalDigit = JSON.parse(decimalDigit[0].Val)
-              console.log(this.decimalDigit ,'decimal')
-
-            }
-            isInclusiveCaseBeforeDiscount = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 66))
-            if (isInclusiveCaseBeforeDiscount.length > 0) {
-              this.isInclusiveCaseBeforeDiscount = JSON.stringify(isInclusiveCaseBeforeDiscount[0].Id) 
-              // this.isInclusiveCaseBeforeDiscount='2'
-              console.log(this.isInclusiveCaseBeforeDiscount ,'Inclusive')
-            }
-            else{
+        if ( this.getModuleSettingValue.settings.length > 0) {
+          this.getModuleSettingValue.settings.forEach(ele => {
+            if (ele.id=== SetUpIds.catLevel) {
+             this.catLevel =JSON.parse(ele.val) 
+              this.createModels(+this.catLevel)
+            } 
+            if (ele.id=== SetUpIds.catLevel) {
+              this.industryId =JSON.parse(ele.val) 
+             }
+             if (ele.id=== SetUpIds.backDateEntryForSale) {
+              this.backDateEntry =JSON.parse(ele.val) === 0 ? false :true
+             }
+             if (ele.id=== SetUpIds.applyCustomRateOnItemForSale) {
+              this.applyCustomRateOnItemFlag =JSON.parse(ele.val) 
+             }
+             if (ele.id=== SetUpIds.isManualBillNoEntryForsale) {
+              this.isManualBillNoEntry =JSON.parse(ele.val)
+             }
+             if (ele.id=== SetUpIds.taxCalInclusive) {
+              this.isInclusiveCaseBeforeDiscount = ele.val
+             }
+             else{
               this.isInclusiveCaseBeforeDiscount='2'
-            }
-
-          })
-
-        }
-      }
-    })
+             }  
+             if (ele.id=== SetUpIds.noOfDecimalPoint) {
+              this.decimalDigit = JSON.parse(ele.val)
+             }
+             if (ele.id=== SetUpIds.dateFormat) {
+              this.clientDateFormat =  ele.val[0].Val
+              console.log(this.clientDateFormat)
+             }
+   })
   }
+  }
+  
   itemSaleRate: any
   MrpRate: any
   itemCustomSaleRate: any
@@ -4282,7 +4183,6 @@ inilizeAdditionCharge () {
   this.allTaxRateForItem=[]
   this.clickSaleAdditionCharge = false
   if (this.taxChargeSelect2 && this.taxChargeSelect2.selector.nativeElement.value) {
-    this.taxChargeSelect2.setElementValue('')
   }
   if (this.chargeSelect2 && this.chargeSelect2.selector.nativeElement.value) {
     this.chargeSelect2.setElementValue('')
@@ -4296,11 +4196,17 @@ createChargeArray () {
   let index;
   let taxForChargeSlab;
   if (this.AdditionalChargeData.length === 0) {
-     index =2
+     index =1
     taxForChargeSlab = this.taxCalculationForCharge(index)
 
   } else {
-     index = +this.AdditionalChargeData[this.AdditionalChargeData.length - 1].Sno + 1
+    index= this.AdditionalChargeData.length + 1
+    for(let i=0; i < this.AdditionalChargeData.length; i ++){
+      if(index === this.AdditionalChargeData[i].Sno){
+        index=  index + 1
+      }
+    }
+     //index = +this.AdditionalChargeData[this.AdditionalChargeData.length - 1].Sno + 1
     taxForChargeSlab = this.taxCalculationForCharge(index)
 
   }

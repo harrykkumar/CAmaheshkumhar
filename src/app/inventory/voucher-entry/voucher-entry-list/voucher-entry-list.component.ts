@@ -21,7 +21,7 @@ export class VoucherEntryListComponent implements OnInit {
   keys: any = []
   actionList: any = []
   customFooter: any = []
-  newPurchaseSub: Subscription
+  newVoucherSub: Subscription
   formName: number
   p: number = 1
   itemsPerPage: number = 20
@@ -34,7 +34,8 @@ export class VoucherEntryListComponent implements OnInit {
     Type: ''
   }
   clientDateFormat: string = ''
-  @ViewChild('custom_table', { read: ElementRef }) customTable: ElementRef
+  LedgerStatements = []
+  summary: any
   @ViewChild('paging_comp') pagingComp: PagingComponent
 
   onTextEnteredSub: Subscription
@@ -47,6 +48,12 @@ export class VoucherEntryListComponent implements OnInit {
     private gs: GlobalService,
     private toastrService: ToastrCustomService
     ) {
+      this.formName = FormConstants.VoucherForm
+      this.newVoucherSub = this.commonService.getNewVoucherAddedStatus().subscribe(
+        () => {
+          this.getLedgerSummaryData()
+        }
+      )
       this.onTextEnteredSub = this.voucherService.search$.subscribe(
         (text: string) => {
           if (text.length > 0) {
@@ -77,10 +84,12 @@ export class VoucherEntryListComponent implements OnInit {
   searchForStr (text) {
     this.isSearching = true
     this.searchGetCall(text).subscribe((data) => {
+      this.LedgerStatements = data.Data.LedgerStatements
+      this.total = data.Data.LedgerStatements[0] ? data.Data.LedgerStatements[0].TotalRows : 0
+      this.summary = data.Data.LedgerStatementsSummary[0]
       setTimeout(() => {
         this.isSearching = false
       }, 100)
-      this.createTableData(data.Data, '')
     },(err) => {
       setTimeout(() => {
         this.isSearching = false
@@ -134,9 +143,15 @@ export class VoucherEntryListComponent implements OnInit {
     .subscribe(data => {
       console.log('voucher data: ', data)
       if (data) {
-        this.createTableData(data.LedgerStatements, data.LedgerStatementsSummary)
+        this.LedgerStatements = data.LedgerStatements
+        this.total = data.LedgerStatements[0] ? data.LedgerStatements[0].TotalRows : 0
+        this.summary = data.LedgerStatementsSummary
+        setTimeout(() => {
+          this.isSearching = false
+        }, 100)
+        // this.createTableData(data.LedgerStatements, data.LedgerStatementsSummary)
       } else {
-      this.isSearching = false
+        this.isSearching = false
       }
     },(error) => {
       this.isSearching = false
@@ -144,40 +159,48 @@ export class VoucherEntryListComponent implements OnInit {
     })
   }
 
-  createTableData (data, summary) {
-    let customContent = [...data]
-    this.customContent = customContent
-    this.customHeader = [
-      { text: 'S.No.', isRightAligned: false },
-      { text: 'Particular', isRightAligned: false },
-      { text: 'Ledger Name', isRightAligned: false },
-      { text: 'Voucher No.', isRightAligned: false },
-      { text: 'Voucher Type', isRightAligned: false },
-      { text: 'Narration', isRightAligned: false },
-      { text: 'Cr', isRightAligned: true },
-      { text: 'Dr', isRightAligned: true }
-    ]
-    this.keys = [
-      { text: 'Particular', isRightAligned: false },
-      { text: 'LedgerName', isRightAligned: false },
-      { text: 'VoucherNo', isRightAligned: false },
-      { text: 'VoucherType', isRightAligned: false },
-      { text: 'Narration', isRightAligned: false },
-      { text: 'Cr', isRightAligned: true },
-      { text: 'Dr', isRightAligned: true }
-    ]
-    this.actionList = [
-    ]
-    this.customFooter = [{
-      colspan: 6, data: [
-        +summary[0].Cr.toFixed(2),
-        +summary[0].Dr.toFixed(2)
-      ] }]
+  // createTableData (data, summary) {
+  //   let customContent = [...data]
+  //   this.customContent = customContent
+  //   this.customHeader = [
+  //     { text: 'S.No.', isRightAligned: false },
+  //     { text: 'Particular', isRightAligned: false },
+  //     { text: 'Ledger Name', isRightAligned: false },
+  //     { text: 'Voucher No.', isRightAligned: false },
+  //     { text: 'Voucher Type', isRightAligned: false },
+  //     { text: 'Narration', isRightAligned: false },
+  //     { text: 'Cr', isRightAligned: true },
+  //     { text: 'Dr', isRightAligned: true }
+  //   ]
+  //   this.keys = [
+  //     { text: 'Particular', isRightAligned: false },
+  //     { text: 'LedgerName', isRightAligned: false },
+  //     { text: 'VoucherNo', isRightAligned: false },
+  //     { text: 'VoucherType', isRightAligned: false },
+  //     { text: 'Narration', isRightAligned: false },
+  //     { text: 'Cr', isRightAligned: true },
+  //     { text: 'Dr', isRightAligned: true }
+  //   ]
+    // VoucherTypeId
+  //   this.actionList = [
+  //     { type: FormConstants.Print, id: 0, text: 'Print', printId: 'payment_print_id' }
+  //   ]
+  //   this.customFooter = [{
+  //     colspan: 6, data: [
+  //       +summary[0].Cr.toFixed(2),
+  //       +summary[0].Dr.toFixed(2)
+  //     ] }]
     // console.log('footer : ', this.customFooter)
-    this.formName = FormConstants.VoucherForm
-    this.total = summary[0] ? summary[0].TotalRows : 0
-    setTimeout(() => {
-      this.isSearching = false
-    }, 100)
+  //   this.formName = FormConstants.VoucherForm
+  //   this.total = summary[0] ? summary[0].TotalRows : 0
+  //   setTimeout(() => {
+  //     this.isSearching = false
+  //   }, 100)
+  // }
+
+  ngOnDestroy () {
+    this.newVoucherSub.unsubscribe()
+    this.onTextEnteredSub.unsubscribe()
+    this.queryStr$.unsubscribe()
   }
 }

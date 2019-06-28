@@ -57,6 +57,7 @@ export class UnitAddComponent {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.unitForm.controls.UnitName.setValue(data.Data[0].Name)
         this.unitForm.controls.IsBaseUnit.setValue(data.Data[0].IsBaseUnit)
+        this.unitForm.controls.UnitName.markAsDirty()
       }
     })
   }
@@ -91,7 +92,7 @@ export class UnitAddComponent {
   }
 
   private unitFormDetail () {
-    this.UnitName = new FormControl('', Validators.required)
+    this.UnitName = new FormControl('', Validators.compose([Validators.required, Validators.minLength(2)]))
     this.unitForm = this._formBuilder.group({
       UnitName: this.UnitName
     })
@@ -101,7 +102,7 @@ export class UnitAddComponent {
     const unitElement = {
       unitObj: {
         IsBaseUnit: this.unitForm.value.IsBaseUnit,
-        UnitName: this.unitForm.value.UnitName,
+        UnitName: this.unitForm.value.UnitName.trim(),
         Id: this.id ? this.id : 0
       } as UnitModel
     }
@@ -116,6 +117,7 @@ export class UnitAddComponent {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           if (this.keepOpen) {
             this.initialiseExtras()
+            this.commonService.newUnitAdded()
             this.toastrCustomService.showSuccess('Success','Saved Successfully')
           } else {
             this.commonService.newUnitAdded()

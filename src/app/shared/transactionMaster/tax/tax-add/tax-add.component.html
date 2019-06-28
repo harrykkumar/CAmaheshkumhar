@@ -12,79 +12,128 @@
             <div class="modal-body">
                 <div class="card-body">
                     <div>
-                        <form [formGroup]="taxForm">
+                        <form #taxForm="ngForm">
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="bill_no">Tax Type</label>
                                     <div class="input-group adw_select">
-                                        <select2 [data]="selectTaxTpye" #taxtype_select2 class="control_select"
+                                        <select2 [disabled]='id !==0'  [data]="selectTaxTpye" #taxtype_select2 class="control_select"
                                             (valueChanged)="selectedTaxType($event)" autocomplete="true"
-                                            [options]="selectTaxTypePlaceHolde" [value]="deafaultValue"
-                                            >
+                                            [options]="{placeholder:'Select Tax Type'}" [value]="deafaultValue">
                                         </select2>
                                         <!-- <div *ngIf="select2Error">{{this.errorMassage}}</div> -->
                                     </div>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="tax_slab">Tax Slab</label>
-                                    <input type="text" #first class="form-control" id="tax_slab" placeholder="Enter Slab-Name"
-                                        formControlName="slab"
-                                        (keydown.enter)="texboxDiv()"
-                                        [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.slab.errors }">
+                                    <input (input)="checkValidation()" type="text"
+                                        [ngClass]="{ 'errorTextBoxBorder is-invalid': invalidObjSlab?.slab && submitClick }"
+                                        #first class="form-control" id="tax_slab" name='slab'
+                                        placeholder="Enter Slab-Name" [(ngModel)]="slab">
                                 </div>
                                 <div class="row">
                                     <a class="m-2 text-primary bold pl-4" (click)="texboxDiv()"><strong>Add Tax Rates
                                         </strong> </a>
                                 </div>
                             </div>
-                            <div class="form-row " id="tax_rate" *ngIf="taxboxDivVisibale">
+                            <div class="form-row " id="tax_rate">
                                 <table class="table" style="width: 100%">
                                     <thead>
                                         <tr>
                                             <th width="5%">#</th>
+                                            <th width="10%">Other State</th>
                                             <th>Tax Rate Name</th>
-                                            <th>Tax Rate</th>
-                                            <th width="15%">Type</th>
-                                            <th width="15%">Other State</th>
-                                            <th width="15%">Action</th>
+                                            <th width="15%">Tax Rate</th>
+                                            <!-- <th width="5%">Action</th> -->
+
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr *ngFor="let item of addPulsSign; let i = index">
-                                            <td width="5%">
-                                                <button type="submit" id="btn_add" class="btn btn-primary btn_add_more"
-                                                    (click)="addPulsFuctionality(1)">+</button></td>
-                                            <td>
-                                                <input type="text" class="form-control" id="taxrateName{{i}}"
-                                                    placeholder="Tax-Name" autocomplete="true"
-                                                    value="{{item.name}}"></td>
-                                            <td>
-                                                <input type="number" appIncludeDecimal  class="form-control" id="taxRate{{i}}"
-                                                    placeholder="Taxrate" autocomplete="true" value="{{item.taxRate}}">
-                                            </td>
-                                            <td>
-                                                <select class="form-control" id="exampleFormControlSelect1{{i}}"
-                                                    value="{{item.valueType}}">
-                                                    <option value="0">%</option>
-                                                    <option *ngFor="let currency of currencies;"
-                                                    [value]="currency.cuyId" >{{currency.val}}</option>
-                                                </select>
-                                            </td>
+                                        <tr class="default_row" *ngFor="let item of taxTypeList let i=index">
+                                            <td>{{i+1}}</td>
                                             <td>
                                                 <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input"
-                                                        id="customCheck{{i}}" [checked]="item.isForOtherState">
+                                                    <input [attr.disabled]='true' type="checkbox"
+                                                        class="custom-control-input" id="customCheck{{i}}"
+                                                        [checked]="item.isForOtherState">
                                                     <label class="custom-control-label" for="customCheck{{i}}"></label>
                                                 </div>
                                             </td>
-                                            <td width="5%" (click)="deleteTaxArray(i)"><a><i class="fa fa-trash fa-1x"
-                                                        aria-hidden="true"></i></a></td>
+                                            <td>
+                                                {{item.Name}}  
+                                            </td>
+                                                <td width="15%"> 
+                                                    <div class="discount">
+                                                        <input style="width:158px"
+                                                            [ngClass]="{ 'errorTextBoxBorder is-invalid': item.taxrateFlag && saveTaxRate}"
+                                                            (input)="validateTaxRates();" type="number"
+                                                            class="form-control  width_70 mr-1" appIncludeDecimal
+                                                            name="taxrate{{i}}" placeholder="Tax-Rate " [(ngModel)]="item.taxrate">
+                                                        <div class="input-group">
+                                                            <select2 #selecto2_taxrate [data]="currencies"
+                                                                class="dropdown_width_100"
+                                                                (valueChanged)="onSelectCurrency($event)"
+                                                                autocomplete="true"></select2>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                        
+                                            <!-- <td class="profile-pic1">
+                                                <div class="">
+                                                    <a (click)="deleteArrayMobileType(i,item)">
+                                                        <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
+                                                    </a>
+                                                    <a (click)="editRowItem(i,item )"><i class="fas fa-pen fa-1x"></i>
+                                                    </a>
+                                                </div>
+                                            </td> -->
+
                                         </tr>
                                     </tbody>
+
+                                    <!-- <tfoot>
+                                        <tr>
+                                            <td></td>
+                                            <td width="5%">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input #checkBtn_focs (keyup.enter)="selectKeyChecked($event)"
+                                                        type="checkbox" class="custom-control-input" id="customCheck"
+                                                        [checked]="isForOtherState">
+                                                    <label class="custom-control-label" for="customCheck"></label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input (input)="validateTaxRates()"
+                                                    [ngClass]="{ 'errorTextBoxBorder is-invalid': invalidObjCont?.taxName && saveTaxRate }"
+                                                    type="text" class="form-control" placeholder="Tax-Name"
+                                                    name='taxName' autocomplete="true" [(ngModel)]="taxName">
+                                            </td>
+                                            <td width="15%">
+
+                                                <div class="discount">
+                                                    <input style="width:158px"
+                                                        [ngClass]="{ 'errorTextBoxBorder is-invalid': invalidObjCont?.taxrate && saveTaxRate }"
+                                                        (input)="validateTaxRates();" type="number"
+                                                        class="form-control  width_70 mr-1" appIncludeDecimal
+                                                        name="taxrate" placeholder="Tax-Rate " [(ngModel)]="taxrate">
+                                                    <div class="input-group">
+                                                        <select2 #selecto2_taxrate [data]="currencies"
+                                                            class="dropdown_width_100"
+                                                            (valueChanged)="onSelectCurrency($event)"
+                                                            autocomplete="true"></select2>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td (keydown.enter)="enterPressItem($event)" width="5%">
+                                                <button type="submit" class="btn btn-primary btn_add_more"
+                                                    (click)="addtaxrates()">+</button>
+                                            </td>
+
+
+                                        </tr>
+                                    </tfoot> -->
                                 </table>
-                                <div class="error_msg" id="taxErrMsg" style="text-align:center;"></div>
-                                <div class="error_msg" style="text-align:center;" *ngIf="taxErrorFlag">
-                                    {{this.taxErrormass}}</div>
+
                             </div>
                         </form>
                     </div>
@@ -93,8 +142,10 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn_close waves-effect" data-dismiss="modal"
                     (click)="clearValidation()">Close</button>
-                <button type="button" class="btn btn-primary waves-effect" (click)="keepOpen=false;addTax()">Save</button>
-                <button type="button" class="btn btn-primary waves-effect" (click)="keepOpen=true;addTax()">Save With Add New</button>
+                <button type="button" class="btn btn-primary waves-effect"
+                    (click)="keepOpen=false;addTax()">Save</button>
+                <button type="button" class="btn btn-primary waves-effect" (click)="keepOpen=true;addTax()">Save With
+                    Add New</button>
             </div>
         </div>
     </div>

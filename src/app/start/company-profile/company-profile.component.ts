@@ -1,3 +1,5 @@
+import { AddNewAreaComponent } from './../../shared/components/add-new-area/add-new-area.component';
+import { AddNewCityComponent } from './../../shared/components/add-new-city/add-new-city.component';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { GlobalService } from 'src/app/commonServices/global.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -5,13 +7,13 @@ import { Settings } from './../../shared/constants/settings.constant';
 import { UIConstant } from './../../shared/constants/ui-constant';
 import { ItemmasterServices } from './../../commonServices/TransactionMaster/item-master.services';
 import { ToastrCustomService } from './../../commonServices/toastr.service';
-import { Component, OnInit, ViewChild, Input, Output, SimpleChanges, OnChanges, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, SimpleChanges, OnChanges, EventEmitter, ElementRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { OrganisationProfileService } from '../header/organisation-profile/organisation-profile.service';
 import { takeUntil } from 'rxjs/operators';
 declare var $: any
-declare const flatpickr: any
 import * as _ from 'lodash'
+import { Select2Component } from 'ng2-select2';
 
 
 @Component({
@@ -20,12 +22,28 @@ import * as _ from 'lodash'
   styleUrls: ['./company-profile.component.css']
 })
 export class CompanyProfileComponent implements OnInit, OnChanges {
+  @ViewChild('addNewCityRef') addNewCityRefModel  : AddNewCityComponent
+  @ViewChild('addNewAreaRef') addNewAreaRefModel  : AddNewAreaComponent
   @ViewChild('mobileDetailModel') mobileDetailModel
   @ViewChild('emailDetailModel') emailDetailModel
   @ViewChild('bankFormModel') bankFormModel
   @ViewChild('addressFormModel') addressFormModel
   @ViewChild('keyPersonFormModel') keyPersonFormModel
   @ViewChild('orgProfileFormModel') orgProfileFormModel
+  @ViewChild('industryTypeSelect') industryTypeSelect : Select2Component
+  @ViewChild('registrationTypeSelect') registrationTypeSelect : Select2Component
+  @ViewChild('branchTypeSelect') branchTypeSelect : Select2Component
+  @ViewChild('finYearSelect') finYearSelect : Select2Component
+  @ViewChild('mobileCountryCodeSelect') mobileCountryCodeSelect : Select2Component
+  @ViewChild('countrySelect') countrySelect : Select2Component
+  @ViewChild('stateSelect') stateSelect : Select2Component
+  @ViewChild('citySelect') citySelect : Select2Component
+  @ViewChild('areaSelect') areaSelect : Select2Component
+  @ViewChild('addressTypeSelect') addressTypeSelect : Select2Component
+  @ViewChild('accMethodSelect') accMethodSelect : Select2Component
+  @ViewChild('contactNoSelect') contactNoSelect : Select2Component
+  @ViewChild('keyPersonSelect') keyPersonSelect : Select2Component
+  @ViewChild('companyNameModel') companyNameModel : ElementRef
   @Input('modalData') modalData: any;
   @Output() closeModal = new EventEmitter();
   private unSubscribe$ = new Subject<void>()
@@ -40,6 +58,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   editMobileDetailIndex: number = null
   keyPersonTypeList: Array<any> = []
   industryTypeList: Array<any> = []
+  subIndustryTypeList: Array<any> = []
   registrationTypeList: Array<any> = []
   mobileTypeList: Array<any> = []
   mobileCountryCodeList: Array<any> = []
@@ -50,7 +69,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   stateList: Array<any> = []
   cityList: Array<any> = []
   areaList: Array<any> = []
-  finYearIdList: Array<any> = []
+  // finYearIdList: Array<any> = []
   addressTypeList: Array<any> = []
   addressDetail: any = {}
   addressDetailArray: Array<any> = []
@@ -65,6 +84,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   branchTypeList:Array<any> = []
   clientDateFormat: any
   editId: any;
+  finSessionList:Array<any> = []
   constructor (
     public _globalService: GlobalService,
     private _orgService: OrganisationProfileService,
@@ -75,7 +95,10 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     private _route: ActivatedRoute,
     private router: Router
   ) {
-    this.clientDateFormat = this._settings.dateFormat
+    if(this._settings.dateFormat) {
+      this.clientDateFormat = this._settings.dateFormat
+    }
+    this._settings.dateFormat = 'd-m-Y'  
     this._route.paramMap.subscribe((parameters) => {
       this.editId = parameters.get('id');
     })
@@ -83,56 +106,122 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.modalData && this.modalData.open === true) {
-      this.resetFormData();
+      if (!this.registrationTypeSelect.value || Number(this.registrationTypeSelect.value) !== 1) {
+        this.personalDetailModel.registrationTypeId = 1;
+      }
       if(this.modalData.editId) {
         this.getOrgProfileData()
       }
       $('#companyOrganisationModal').modal(UIConstant.MODEL_SHOW)
-      $('#activeTab').click();
     } else if (this.modalData && this.modalData.open === false) {
       $('#companyOrganisationModal').modal(UIConstant.MODEL_HIDE)
+      this.resetFormData();
     }
   }
 
   // tslint:disable-next-line:no-empty
   ngOnInit () {
-    this.initDateFormat()
     this.initDropDownData()
     this.getUploadedImages()
   }
-
-  /* Function to initialise flatpicker date format */
-  initDateFormat = () => {
-    jQuery(function ($) {
-      flatpickr('.dor', {
-        maxDate: 'today',
-        dateFormat: 'd M y'
-      })
-    })
-  }
+  
 
   /* Function to initialise dropdown list data */
   initDropDownData = async () => {
     this.personalDetail.mobileArray = []
     this.personalDetail.emailArray = []
     this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }]
-    this.cityList = [{ id: UIConstant.ZERO, text: 'Select City' }]
-    this.areaList = [{ id: UIConstant.ZERO, text: 'Select Area' }]
-    this.addressTypeList = this._orgService.getAddressTypeList()
-    this.addressDetail.selectedAddressType = 2
+    this.cityList = [
+      { id: 0, text: 'Select City' },
+      { id: -1, text: '+Add New' }
+    ]
+    this.areaList = [
+    { id: 0, text: 'Select Area' },
+    { id: -1, text: '+Add New' }]
+    this.addressTypeList = await this._orgService.getAddressTypeList()
     this.registrationTypeList = this._orgService.getRegistrationTypeList()
     this.industryTypeList = await this._orgService.getIndustryTypeList()
     this.branchTypeList = await this._orgService.getBranchTypeList()
     this.countryList = await this._orgService.getCountryList()
     this.accMethodList = await this._orgService.getAccountingMethod()
-    this.finYearIdList = await this._orgService.getFinYearIdList()
-    this.personalDetail.selectedRegistrationType = 1
+    // this.finYearIdList = await this._orgService.getFinYearIdList()
+    this.finSessionList = await this._orgService.getFinSessionList()
     this.getMobileCountryCodeList()
-    this.getKeyPersonTypeList()
     this.getMobileTypeList()
     this.getEmailTypeList()
-    // this.initPersonalDetail()
   }
+
+
+  /* Function to reset all the form data fields on close of profile */
+  resetFormData = () => {
+    this.emailDetail = {
+      selectedEmailType: 1,
+      selectedEmail: ''
+    }
+    this.mobileDetail = {
+      selectedMobileType: 1,
+      selectedMobileCountryCode:
+        { id: UIConstant.ZERO, text: 'Select Country Code' },
+      mobileNo: ''
+    }
+    this.personalDetail = {}
+    this.personalDetail.mobileArray = []
+    this.personalDetail.emailArray = []
+    if (!_.isEmpty(this.industryTypeSelect) && this.industryTypeSelect.value && Number(this.industryTypeSelect.value) > 0 ) {
+      this.industryTypeSelect.setElementValue(0);
+    }
+    if (!_.isEmpty(this.finYearSelect) && this.finYearSelect.value && Number(this.finYearSelect.value) > 0) {
+      this.finYearSelect.setElementValue(0)
+    }
+    if (!_.isEmpty(this.branchTypeSelect) && this.branchTypeSelect.value && Number(this.branchTypeSelect.value) > 0) {
+      this.branchTypeSelect.setElementValue(0)
+    }
+    if (!_.isEmpty(this.mobileCountryCodeSelect.value) && this.mobileCountryCodeSelect.value && Number(this.mobileCountryCodeSelect.value) > 0) {
+      this.mobileCountryCodeSelect.setElementValue(0)
+    }
+    if (!_.isEmpty(this.countrySelect.value) && this.countrySelect.value && Number(this.countrySelect.value) > 0) {
+      this.countrySelect.setElementValue(0);
+
+    }
+    if (!_.isEmpty(this.stateSelect.value) && this.stateSelect.value && Number(this.stateSelect.value) > 0 ) {
+      this.stateSelect.setElementValue(0)
+    }
+    if (!_.isEmpty(this.citySelect.value) && this.citySelect.value && Number(this.citySelect.value) > 0 ) {
+      this.citySelect.setElementValue(0)
+
+    }
+    if (!_.isEmpty(this.areaSelect.value) && this.areaSelect.value && Number(this.areaSelect.value) > 0 ) {
+      this.areaSelect.setElementValue(0)
+
+    }
+    if (!_.isEmpty(this.addressTypeSelect.value) && this.addressTypeSelect.value && Number(this.addressTypeSelect.value) > 0 ) {
+      this.addressTypeSelect.setElementValue(0)
+
+    }
+    if (!_.isEmpty(this.keyPersonSelect.value) && this.keyPersonSelect.value && Number(this.keyPersonSelect.value) > 0 ) {
+      this.keyPersonSelect.setElementValue(0)
+
+    }
+    if (!_.isEmpty(this.contactNoSelect.value) && this.contactNoSelect.value && Number(this.contactNoSelect.value) > 0 ) {
+      this.contactNoSelect.setElementValue(0)
+    }
+    this.addressDetailArray = []
+    this.keyPersonDetailArray = []
+    this.bankDetailArray = []
+    this.statutoryDetail = {}
+    this.accMethodList = []
+    this.imageList = []
+    this.editAddressDetailIndex = null
+    this.editBankDetailIndex = null
+    this.editKeyPersonDetailIndex = null
+    this.addressFormModel.resetForm()
+    this.keyPersonFormModel.resetForm()
+    this.bankFormModel.resetForm()
+    this.orgProfileFormModel.resetForm()
+    $('.active').removeClass('active');
+    $('#activeTab').click();
+  }
+
 
   /* Function invoke on key person type selection change and assign new value */
   onKeyPersonTypeSelectionChange = (event) => {
@@ -145,15 +234,66 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   onIndustryTypeSelectionChange = (event) => {
     if (event.data.length > 0) {
       this.personalDetail.selectedIndustryType = event.data[0]
+      this.subIndustryTypeList = [...this._orgService.getSubIndustryTypeList(Number(event.value))]
     }
   }
 
+  /* Function for sub industry  */
+  onSubIndustryTypeSelectionChange = (event) => {
+    if (event.data.length > 0) {
+      this.personalDetail.selectedSubIndustry = event.data[0]
+    }
+  }
+
+
     /* Function invoke on industry type selection change and assign new value */
-    onFinYearIdSelectionChange = (event) => {
+    // onFinYearIdSelectionChange = (event) => {
+    //   if (event.data.length > 0) {
+    //     this.personalDetail.selectedFinYearId = event.data[0]
+    //   }
+    // }
+
+    onFinSessionSelectionChange = (event) => {
       if (event.data.length > 0) {
-        this.personalDetail.selectedFinYearId = event.data[0]
+        this.personalDetail.selectedFinSession = event.data[0]
+        this.setEndDateOnSessionChange()
       }
     }
+
+  setEndDateOnSessionChange() {
+    let month, session, year;
+    if (!_.isEmpty(this.personalDetail.selectedFinSession) && this.personalDetail.selectedFinSession.shortName && this.personalDetail.storedBookStartDate) {
+      month = Number(this.personalDetail.storedBookStartDate.split('-')[1])
+      year = Number(this.personalDetail.storedBookStartDate.split('-')[2])
+      session = Number(this.personalDetail.selectedFinSession.shortName.split('/')[0])
+      this.setEndDataValue(month, session, year)
+    }
+  }
+
+  setEndDataValue(month, session, year) {
+    if (session > month) {
+      let endDate = `${this.personalDetail.selectedFinSession.shortName}/${year}`
+      endDate = this._globalService.utcToClientDateFormat(endDate, 'd-m-Y')
+      this.personalDetail.bookEndDate = `${this.personalDetail.storedBookStartDate}---${endDate}`
+    } else if (session === month) {
+    } else if (session < month) {
+      const modifiedYear = year + 1
+      let endDate = `${this.personalDetail.selectedFinSession.shortName}/${modifiedYear}`
+      endDate = this._globalService.utcToClientDateFormat(endDate, 'd-m-Y')
+      this.personalDetail.bookEndDate = `${this.personalDetail.storedBookStartDate}---${endDate}`
+    }
+  }
+
+  onBookStartDateChange(event) {
+    let month, session, year
+    this.personalDetail.storedBookStartDate = event  
+    if (!_.isEmpty(this.personalDetail.selectedFinSession) && this.personalDetail.selectedFinSession.shortName && event) {
+      month = Number(this.personalDetail.storedBookStartDate.split('-')[1])
+      year = Number(this.personalDetail.storedBookStartDate.split('-')[2])
+      session = Number(this.personalDetail.selectedFinSession.shortName.split('/')[0])
+      this.setEndDataValue(month, session, year)
+    }
+  }
 
   /* Function invoke on registration type selection change and assign new value */
   onRegistrationTypeSelectionChange = (event) => {
@@ -165,6 +305,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   onBranchTypeSelectionChange = (event) => {
     if (event.data.length > 0) {
       this.personalDetail.selectedBranchType = event.data[0]
+      this.getKeyPersonTypeList(Number(event.value))
     }
   }
 
@@ -188,24 +329,45 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     if (this.addressDetail.selectedState && this.addressDetail.selectedState.id > UIConstant.ZERO) {
       this.getCityList(this.addressDetail.selectedState.id)
     } else {
-      this.cityList = [{ id: UIConstant.ZERO, text: 'Select City' }]
+      this.cityList = [
+      { id: 0, text: 'Select City' },
+      { id: -1, text: '+Add New' },]
     }
   }
 
   /* Function invoke on city dropdown selection change and assign new value */
   onCitySelectionChange = (event) => {
+    if(Number(event.value) === -1) {
+      const data = {
+        countryList: !_.isEmpty(this.countryList) ?  [...this.countryList] : [],
+        countryId: !_.isEmpty(this.addressDetail.selectedCountry) ? this.addressDetail.selectedCountry.id : 0,
+        stateId: !_.isEmpty(this.addressDetail.selectedState) ? this.addressDetail.selectedState.id : 0
+      }
+      this.addNewCityRefModel.openModal(data);
+    }
     if (event.data.length > 0) {
       this.addressDetail.selectedCity = event.data[0]
     }
     if (this.addressDetail.selectedCity && this.addressDetail.selectedCity.id > UIConstant.ZERO) {
       this.getAreaList(this.addressDetail.selectedCity.id)
     } else {
-      this.areaList = [{ id: UIConstant.ZERO, text: 'Select Area' }]
+      this.areaList = [
+      { id: 0, text: 'Select Area' },
+      { id: -1, text: '+Add New' }]
     }
   }
 
   /* Function invoke on area dropdown selection change and assign new value */
   onAreaSelectionChange = (event) => {
+    if(Number(event.value) === -1) {
+      const data = {
+        countryList: !_.isEmpty(this.countryList) ?  [...this.countryList] : [],
+        countryId: !_.isEmpty(this.addressDetail.selectedCountry) ? this.addressDetail.selectedCountry.id : 0,
+        stateId: !_.isEmpty(this.addressDetail.selectedState) ? this.addressDetail.selectedState.id : 0,
+        cityId: !_.isEmpty(this.addressDetail.selectedCity) ? this.addressDetail.selectedCity.id : 0
+      }
+      this.addNewAreaRefModel.openModal(data);
+    }
     if (event.data.length > 0) {
       this.addressDetail.selectedArea = event.data[0]
     }
@@ -261,7 +423,10 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
         takeUntil(this.unSubscribe$)
       ).
       subscribe((response: any) => {
-        this.cityList = [{ id: UIConstant.ZERO, text: 'Select City' }, ...response]
+        this.cityList = [
+          { id: 0, text: 'Select City' },
+          { id: -1, text: '+Add New' },
+          ...response]
         if(this.dummyData.cityCodeId) {
           this.model.cityCodeId = this.dummyData.cityCodeId
           this.dummyData.cityCodeId = null
@@ -276,7 +441,8 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
         takeUntil(this.unSubscribe$)
       ).
       subscribe((response: any) => {
-        this.areaList = [{ id: UIConstant.ZERO, text: 'Select Area' }, ...response]
+        this.areaList = [{ id: 0, text: 'Select Area' },
+        { id: -1, text: '+Add New' }, ...response]
         if (this.dummyData.areaId) {
           this.model.areaId = this.dummyData.areaId
           this.dummyData.areaId = null
@@ -287,8 +453,8 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   
 
   /* Function to get all the key person type list */
-  getKeyPersonTypeList = () => {
-    this._orgService.getKeyPersonTypeList().
+  getKeyPersonTypeList = (organizationTypeId) => {
+    this._orgService.getKeyPersonTypeList(organizationTypeId).
       pipe(
         takeUntil(this.unSubscribe$)
       ).
@@ -307,37 +473,6 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
         selectedEmailType: 2, selectedEmail: ''
       }]
     }
-  }
-
-  /* Function to reset all the form data fields on close of profile */
-  resetFormData = () => {
-    // this.unSubscribe$.next()
-    // this.unSubscribe$.complete()
-    this.emailDetail = {
-      selectedEmailType: 1,
-      selectedEmail: ''
-    }
-    this.mobileDetail = {
-      selectedMobileType: 1,
-      selectedMobileCountryCode:
-        { id: UIConstant.ZERO, text: 'Select Country Code' },
-      mobileNo: ''
-    }
-    this.personalDetail = {}
-    this.personalDetail.mobileArray = []
-    this.personalDetail.emailArray = []
-    this.addressDetailArray = []
-    this.keyPersonDetailArray = []
-    this.bankDetailArray = []
-    this.statutoryDetail = {}
-    this.accMethodList = []
-    this.editAddressDetailIndex = null
-    this.editBankDetailIndex = null
-    this.editKeyPersonDetailIndex = null
-    this.addressFormModel.submitted = false
-    this.keyPersonFormModel.submitted = false
-    this.bankFormModel.submitted = false
-    this.orgProfileFormModel.reset()
   }
 
   /* Function to add new bank details */
@@ -400,14 +535,19 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.keyPersonDetailArray[this.editKeyPersonDetailIndex] = { ...this.keyPersonDetail }
       this.editKeyPersonDetailIndex = null
     } else {
-      this.keyPersonDetailArray = [...this.keyPersonDetailArray, this.keyPersonDetail]
+      this.keyPersonDetailArray = [...this.keyPersonDetailArray, {...this.keyPersonDetail}]
     }
-    this.keyPersonDetail = {}
-    this.keyPersonFormModel.submitted = false
+    this.keyPersonSelect.setElementValue(0)
+    this.contactNoSelect.setElementValue(0)
+    this.keyPersonFormModel.resetForm()
   }
 
   /* Function to edit existing key person details  */
   editKeyPerson = (i) => {
+    const keyPersonTypeId = this.keyPersonDetailArray[i].selectedKeyPersonType.id 
+    const contactCodeId = this.keyPersonDetailArray[i].keyPersonMobileCountryCode.id 
+    this.keyPersonSelect.setElementValue(keyPersonTypeId)
+    this.contactNoSelect.setElementValue(contactCodeId)
     this.keyPersonDetail = { ...this.keyPersonDetailArray[i] }
     this.editKeyPersonDetailIndex = i
   }
@@ -476,7 +616,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     /* Function to validate mobile detail */
   validateMobileDetail = () => {
     let valid = true
-    if (this.mobileDetail.selectedMobileCountryCode && Number(this.mobileDetail.selectedMobileCountryCode.id) === 0) {
+    if (!_.isEmpty(this.mobileDetail.selectedMobileCountryCode) && Number(this.mobileDetail.selectedMobileCountryCode.id) === 0) {
       valid = false
     }
     return valid
@@ -485,10 +625,10 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     /* Function to validate key person details */
   validateKeyPersonDetail = () => {
     let valid = true
-    if (this.keyPersonDetail.keyPersonMobileCountryCode && Number(this.keyPersonDetail.keyPersonMobileCountryCode.id) === 0) {
+    if (!_.isEmpty(this.keyPersonDetail.keyPersonMobileCountryCode) && Number(this.keyPersonDetail.keyPersonMobileCountryCode.id) === 0) {
       valid = false
     }
-    if (this.keyPersonDetail.selectedKeyPersonType && Number(this.keyPersonDetail.selectedKeyPersonType.id) === 0) {
+    if (!_.isEmpty(this.keyPersonDetail.selectedKeyPersonType) && Number(this.keyPersonDetail.selectedKeyPersonType.id) === 0) {
       valid = false
     }
     return valid
@@ -497,16 +637,16 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     /* Function to validate address details */
   validateAddressDetail = () => {
     let valid = true
-    if (this.addressDetail.selectedCountry && Number(this.addressDetail.selectedCountry.id) === 0) {
+    if (!_.isEmpty(this.addressDetail.selectedCountry) && Number(this.addressDetail.selectedCountry.id) === 0) {
       valid = false
     }
-    if (this.addressDetail.selectedState && Number(this.addressDetail.selectedState.id) === 0) {
+    if (!_.isEmpty(this.addressDetail.selectedState) && Number(this.addressDetail.selectedState.id) === 0) {
       valid = false
     }
-    if (this.addressDetail.selectedCity && Number(this.addressDetail.selectedCity.id) === 0) {
+    if (!_.isEmpty(this.addressDetail.selectedCity) && Number(this.addressDetail.selectedCity.id) === 0) {
       valid = false
     }
-    if (this.addressDetail.selectedAddressType && Number(this.addressDetail.selectedAddressType.id) === 0) {
+    if (!_.isEmpty(this.addressDetail.selectedAddressType) && Number(this.addressDetail.selectedAddressType.id) === 0) {
       valid = false
     }
     return valid
@@ -595,13 +735,13 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     const websiteArray = [
       {
         Id: 0,
-        Name: 'www.san.com',
+        Name: '',
         Type: 1,
         ParentTypeId: 3
       },
       {
         Id: 0,
-        Name: 'www.tlinfo.com',
+        Name: '',
         Type: 1,
         ParentTypeId: 3
       }
@@ -640,16 +780,19 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       }
     })
 
+    let toDate = this.personalDetail.bookEndDate.split('---')[1]
+    toDate = this._globalService.clientToSqlDateFormat(toDate, 'd-m-Y')
+    const startDate = this._globalService.clientToSqlDateFormat(this.personalDetail.storedBookStartDate, 'd-m-Y')
     return {
       Id: this.personalDetail.id ? this.personalDetail.id : 0,
       Name: this.personalDetail.companyName,
-      TypeId: this.personalDetail.selectedBranchType.id,
-      IndustryType: this.personalDetail.selectedIndustryType.id,
-      FinYearId: this.personalDetail.selectedFinYearId.id,
-      // RegistrationDate: this.personalDetail.registrationDate,
-      BookStartDate: this.personalDetail.bookStartDate,
-      RegistrationType: this.personalDetail.selectedRegistrationType.id,
-      AccountingMethod: this.statutoryDetail.accMethod,
+      TypeId: this.personalDetail.selectedBranchType.id ? this.personalDetail.selectedBranchType.id : 0,
+      IndustryType: this.personalDetail.selectedIndustryType.id ? this.personalDetail.selectedIndustryType.id : 0,
+      SessionType: this.personalDetail.selectedFinSession.id ? this.personalDetail.selectedFinSession.id : 0,
+      BookStartDate: startDate ? startDate : '' ,
+      ToDate: toDate ? toDate : '',
+      RegistrationType: this.personalDetail.selectedRegistrationType.id ? this.personalDetail.selectedRegistrationType.id : 0,
+      AccountingMethod: 0,
       Addresses: addressArray,
       ContactInfos: contactArray,
       Emails: emailArray,
@@ -694,10 +837,10 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   initFormData = (profileData) => {
     if (profileData && profileData.ImageFiles && profileData.ImageFiles.length > 0) {
       profileData.ImageFiles.forEach(element => {
-        this.imageList.queue.push(element.Name)
-        this.imageList.images.push(element.FilePath)
-        this.imageList.baseImages.push(0)
-        this.imageList.id.push(element.Id)
+        this.imageList['queue'].push(element.Name)
+        this.imageList['images'].push(element.FilePath)
+        this.imageList['baseImages'].push(0)
+        this.imageList['id'].push(element.Id)
       })
       this.createImageFiles();
     }
@@ -761,7 +904,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       }
     })
 
-    const mobileArray = _.map(profileData.ContactInfo, (item) => {
+    const mobileArray = _.map(profileData.ContactInfos, (item) => {
       return {
         id: item.Id,
         selectedMobileType: item.ContactType,
@@ -776,18 +919,19 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       orgData = profileData.Organisationdetails[0]
     }
     if (orgData) {
-      let bookStartDate= this._globalService.utcToClientDateFormat( orgData.BookStartDate, this.clientDateFormat)
+      const toDate = this._globalService.utcToClientDateFormat(orgData.ToDate, this._settings.dateFormat)
+      const bookStartDate = this._globalService.utcToClientDateFormat(orgData.BookStartDate, this._settings.dateFormat)
       this.personalDetail = {
         id: orgData.Id,
         mobileArray: [...mobileArray],
         emailArray: [...emailArray],
         companyName: orgData.Name,
-        // registrationDate:   regDate,
-        bookStartDate: bookStartDate
+        bookStartDate: bookStartDate,
+        storedBookStartDate: this._globalService.utcToClientDateFormat(orgData.BookStartDate, 'd-m-Y'),
+        bookEndDate: `${bookStartDate}---${toDate}`
       }
-
       this.personalDetailModel.industryTypeId = orgData.IndustryType ? orgData.IndustryType : UIConstant.ZERO;
-      this.personalDetailModel.finYearId = orgData.FinYearId ? orgData.FinYearId : UIConstant.ZERO;
+      this.personalDetailModel.finSessionValue = orgData.SessionType ? orgData.SessionType : UIConstant.ZERO;
       this.personalDetailModel.registrationTypeId = orgData.GstnTypeId ? orgData.GstnTypeId : UIConstant.ZERO;
       this.personalDetailModel.branchTypeId = orgData.TypeId ? orgData.TypeId : UIConstant.ZERO;
     }
@@ -817,19 +961,22 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
    /* validating form fields on saving profile data */
   validateForm = () => {
     let valid = true
-    if (Number(this.personalDetail.selectedIndustryType.id) === 0) {
+    if (!_.isEmpty(this.personalDetail.selectedIndustryType) && Number(this.personalDetail.selectedIndustryType.id) === 0) {
       valid = false
     }
-    if (Number(this.personalDetail.selectedFinYearId.id) === 0) {
-      valid = false
-    }
-    if (Number(this.personalDetail.selectedRegistrationType.id) === 0) {
+    if (!_.isEmpty(this.personalDetail.selectedRegistrationType) && Number(this.personalDetail.selectedRegistrationType.id) === 0) {
       valid = false
     }
     if (this.personalDetail.mobileArray.length === 0) {
       valid = false
     }
     if (this.personalDetail.emailArray.length === 0) {
+      valid = false
+    }
+    if (this.keyPersonDetailArray.length === 0) {
+      valid = false
+    }
+    if (this.addressDetailArray.length === 0) {
       valid = false
     }
     return valid
@@ -856,10 +1003,99 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   createImageFiles () {
     let ImageFiles = []
-    for (let i = 0; i < this.imageList.images.length; i++) {
-      let obj = { Name: this.imageList.queue[i], BaseString: this.imageList.safeUrls[i], IsBaseImage: this.imageList.baseImages[i], Id: this.imageList.id[i] ? this.imageList.id[i] : 0 }
+    for (let i = 0; i < this.imageList['images'].length; i++) {
+      let obj = { Name: this.imageList['queue'][i], BaseString: this.imageList['safeUrls'][i], IsBaseImage: this.imageList['baseImages'][i], Id: this.imageList['id'][i] ? this.imageList['id'][i] : 0 }
       ImageFiles.push(obj)
     }
     this.ImageFiles = ImageFiles
+  }
+  removeActiveClass(){
+    $('#activeTab').click();
+  }
+
+  onTabOut(value){
+    $(`a[href=${JSON.stringify(value)}]`).click()
+  }
+
+  focuOnTabOut(value, type){
+    $(`#${value}`).focus();
+    if (type === 'ref') {
+     this[value].selector.nativeElement.focus();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.unSubscribe$.next()
+    this.unSubscribe$.complete()
+  }
+  onMobileNoChange(control){
+    if(control.valid){
+      this.addNewMobileDetail();
+    }
+  }
+  onEmailChange(control){
+    if (control.valid) {
+      this.addNewEmailDetail();
+    }
+  }
+
+  addCityClosed(selectedIds?) {
+    if (!_.isEmpty(selectedIds) && selectedIds.cityId > 0) {
+      // if (!_.isEmpty(this.addressDetail.selectedCountry) && this.addressDetail.selectedCountry.id !== selectedIds.countryId) {
+        this.model.countryCodeId = selectedIds.countryId
+      // }
+      // if (!_.isEmpty(this.addressDetail.selectedState) && this.addressDetail.selectedState.id !== selectedIds.stateId) {
+        this.dummyData.stateCodeId = selectedIds.stateId
+        this.dummyData.cityCodeId = selectedIds.cityId;
+      // } else {
+        // this.model.cityCodeId = selectedIds.cityId;
+      // }
+    } else {
+      this.model.cityCodeId = 0
+    }
+  }
+  addAreaClosed(selectedIds?) {
+    if (!_.isEmpty(selectedIds) && selectedIds.areaId > 0) {
+      this.model.countryCodeId = selectedIds.countryId
+      this.dummyData.stateCodeId = selectedIds.stateId
+      this.dummyData.cityCodeId = selectedIds.cityId
+      this.dummyData.areaId = selectedIds.areaId;
+
+      // if (!_.isEmpty(this.addressDetail.selectedState) && this.addressDetail.selectedState.id !== selectedIds.stateId) {
+      //   this.dummyData.stateCodeId = selectedIds.stateId
+      // } else {
+      //   this.model.stateCodeId = selectedIds.stateId
+      // }
+
+      // if (!_.isEmpty(this.addressDetail.selectedCity) && this.addressDetail.selectedCity.id !== selectedIds.cityId) {
+      //   this.dummyData.cityCodeId = selectedIds.cityId;
+      //   this.dummyData.areaId = selectedIds.areaId;
+      // } else {
+      //   this.model.cityCodeId = selectedIds.cityId;
+      //   this.model.areaId = selectedIds.areaId
+      // }
+
+
+      // if (!_.isEmpty(this.addressDetail.selectedCountry) && this.addressDetail.selectedCountry.id !== selectedIds.countryId) {
+      //   this.model.countryCodeId = selectedIds.countryId
+      //   this.dummyData.stateCodeId = selectedIds.stateId
+      // } else {
+      //   this.model.stateCodeId = selectedIds.stateId
+      // }
+      // if (!_.isEmpty(this.addressDetail.selectedState) && this.addressDetail.selectedState.id !== selectedIds.stateId) {
+      //   this.dummyData.stateCodeId = selectedIds.stateId
+      //   this.dummyData.cityCodeId = selectedIds.cityId;
+      // } else {
+      //   this.model.cityCodeId = selectedIds.cityId;
+      // }
+      // if (!_.isEmpty(this.addressDetail.selectedCity) && this.addressDetail.selectedCity.id !== selectedIds.cityId) {
+      //   this.dummyData.cityCodeId = selectedIds.cityId;
+      //   this.dummyData.areaId = selectedIds.areaId;
+      // } else {
+      //   this.model.areaId = selectedIds.areaId
+      // }
+    } else {
+      this.model.areaId = 0
+    }
   }
 }

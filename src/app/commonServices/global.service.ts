@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Settings } from '../shared/constants/settings.constant'
+import { SetUpIds } from '../shared/constants/setupIds.constant';
 @Injectable({
   providedIn: 'root'
 })
@@ -610,6 +611,7 @@ export class GlobalService {
       let newDate = month + '/' + day + '/' + year
       year = '' + new Date(this.sqlToUtc(newDate)).getFullYear()
     }
+    // console.log(month + '/' + day + '/' + year)
     return month + '/' + day + '/' + year
   }
 
@@ -618,9 +620,53 @@ export class GlobalService {
     return newDate
   }
 
+  todayInUtc (): string {
+    let date = new Date()
+    return date.toISOString()
+  }
+
   setDueDate (creditDays, clientDateFormat) {
     const d = new Date()
     d.setDate(d.getDate() + creditDays)
     return this.checkForFormat(4, d, clientDateFormat)
+  }
+
+  getAllSettings (settings, moduleId) {
+    let setting = []
+    let setupMasters = settings.SetupMasters
+    let setupClient = settings.SetupClients
+    // console.log(setupMasters)
+    // console.log(setupClient)
+    // let i = 0
+    setupMasters.forEach(element => {
+      let val: string | Array<any> | boolean | number
+      let name = element.SetupName
+      if (+element.Type === SetUpIds.singleId) {
+        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
+        val = setupclient[0].Id
+      }
+      if (+element.Type === SetUpIds.singleVal) {
+        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
+        val = setupclient
+      }
+      if (+element.Type === SetUpIds.getStrOrNum || +element.Type === SetUpIds.baseTypeNum) {
+        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
+        val = setupclient[0].Val
+      } else if (+element.Type === SetUpIds.multiple) {
+        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
+        console.log(setupclient) /*setupclient[0].Val.split(',') */
+        val = setupclient
+      } else if (+element.Type === SetUpIds.getBoolean) {
+        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
+        val = !!(+setupclient[0].Val)
+      }
+      setting.push({
+        id: element.Id,
+        val: val,
+        name: name
+      })
+    })
+    // console.log(setting)
+    this.settings.moduleSettings = JSON.stringify({settings: setting, moduleId: moduleId})
   }
 }

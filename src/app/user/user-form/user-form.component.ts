@@ -1,6 +1,6 @@
 import { LoginService } from './../../commonServices/login/login.services';
 import { UserFormService } from './user-form.service'
-import { Component, Input, Output, EventEmitter, SimpleChanges, ViewChild, AfterViewInit } from '@angular/core'
+import { Component, Input, Output, EventEmitter, SimpleChanges, ViewChild, AfterViewInit, OnInit } from '@angular/core'
 import { UIConstant } from '../../shared/constants/ui-constant'
 import { Subject, forkJoin } from 'rxjs'
 import { takeUntil } from 'rxjs/internal/operators/takeUntil'
@@ -17,7 +17,7 @@ declare const flatpickr: any
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css']
 })
-export class UserFormComponent implements AfterViewInit {
+export class UserFormComponent implements OnInit {
   userType: string
   @ViewChild('mobileDetailModel') mobileDetailModel
   @ViewChild('emailDetailModel') emailDetailModel
@@ -65,19 +65,8 @@ export class UserFormComponent implements AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
-    this.initDateFormat()
-  }
+  ngOnInit(){}
 
-  /* Function to initialise flatpicker date format */
-  initDateFormat = () => {
-    // https://timepicker.co/options/
-    $('.timepicker').timepicker({
-      timeFormat: 'h:mm:ss p',
-      dropdown: true,
-      scrollbar: true
-    });
-  }
 
   /* Function to initialise dropdown list data */
   initDropDownData = () => {

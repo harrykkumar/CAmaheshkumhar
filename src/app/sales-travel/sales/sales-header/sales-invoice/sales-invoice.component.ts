@@ -1,5 +1,5 @@
 import { Component, ViewChild, Renderer2, ElementRef } from '@angular/core'
-import { Subscription } from 'rxjs'
+import { Subscription, throwError } from 'rxjs';
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { TravelImports, TravelPayments, AddCust, ResponseSale, SalesTourism } from '../../../../model/sales-tracker.model'
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
@@ -9,6 +9,7 @@ import { CommonService } from '../../../../commonServices/commanmaster/common.se
 import { SetUpIds } from '../../../../shared/constants/setupIds.constant'
 import { UIConstant } from '../../../../shared/constants/ui-constant'
 import { SaleTravelServices } from '../../sale-travel.services'
+import { filter, catchError, map } from 'rxjs/internal/operators';
 declare const $: any
 declare const flatpickr: any
 @Component({
@@ -105,6 +106,7 @@ export class SalesInvoiceComponent {
   validItem: boolean = true
   validTransaction: boolean = true
   clientDateFormat: string = ''
+  backDateEntry: boolean
 
   supplierList$: Subscription
   routeList$: Subscription
@@ -127,7 +129,7 @@ export class SalesInvoiceComponent {
     this.supplierList$ = this._saleTravelServices.supplierList$.subscribe(
       (data) => {
         this.suplierNameSelect2 = Object.assign([], data)
-        console.log('supplier : ', this.suplierNameSelect2)
+        // console.log('supplier : ', this.suplierNameSelect2)
       }
     )
 
@@ -408,8 +410,6 @@ export class SalesInvoiceComponent {
             this.calTotalInvoiceAmount()
           }
           this.initialiseItem()
-          this.setTravelDate()
-          this.setReturnDate()
         }
       } else {
         if (this.editMode) {
@@ -424,8 +424,6 @@ export class SalesInvoiceComponent {
           this.calTotalInvoiceAmount()
         }
         this.initialiseItem()
-        this.setTravelDate()
-        this.setReturnDate()
       }
     }
   }
@@ -681,83 +679,12 @@ export class SalesInvoiceComponent {
     this.setupModules = {}
   }
 
-  setTravelDate () {
-    let _self = this
-    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
-      jQuery(function ($) {
-        flatpickr('#travel-date', {
-          dateFormat: _self.clientDateFormat
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#travel-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat
-        })
-      })
-    }
-  }
-
   setPayDate () {
-    let _self = this
-    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
-      jQuery(function ($) {
-        flatpickr('#pay-date1', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.BillDate]
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#pay-date1', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.BillDate]
-        })
-      })
-    }
-    console.log(_self.BillDate)
-    _self.PayDate = _self.BillDate
-  }
-
-  setReturnDate () {
-    let _self = this
-    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
-      jQuery(function ($) {
-        flatpickr('#return-travel-date', {
-          dateFormat: _self.clientDateFormat
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#return-travel-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat
-        })
-      })
-    }
+    this.PayDate = this.BillDate
   }
 
   setBillDate () {
-    let _self = this
-    if (this.setupModules && this.setupModules.IsBackDateEntryAllow) {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-    } else {
-      jQuery(function ($) {
-        flatpickr('#bill-date', {
-          minDate: 'today',
-          dateFormat: _self.clientDateFormat,
-          defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-        })
-      })
-      this.BillDate = _self.gs.getDefaultDate(_self.clientDateFormat)
-    }
+    this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
 
   calTotalInvoiceAmount () {
@@ -953,7 +880,63 @@ export class SalesInvoiceComponent {
 
   openModal () {
     this.initComp()
-    this.getCurrency()
+    this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
+  }
+
+  noOfDecimalPoint: number = 0
+  isBillNoManuall: boolean
+  getSetUpModules (settings) {
+    console.log('settings : ', settings)
+    settings.forEach(element => {
+      if (element.id === SetUpIds.dateFormat) {
+        this.clientDateFormat = element.val[0].Val
+      }
+      if (element.id === SetUpIds.noOfDecimalPoint) {
+        this.noOfDecimalPoint = +element.val
+      }
+      if (element.id === SetUpIds.backDateEntry) {
+        this.backDateEntry = !!(+element.val)
+        console.log('backDateEntry : ', this.backDateEntry)
+      }
+      if (element.id === SetUpIds.purchaseBillNoManually) {
+        this.isBillNoManuall = !!(+element.val)
+        if (!this.isBillNoManuall) {
+          this.getBillNo()
+        } else if (!this.editMode) {
+          this.BillNo = ''
+        }
+        // console.log('isBillNoManuall : ', this.isBillNoManuall)
+      }
+      if (element.id === SetUpIds.currency) {
+        let newData = []
+        let currencies = element.val
+        currencies.forEach(currency => {
+          if (+currency.Id !== 0 && +currency.Id === +currency.DefaultValue && !this.editMode) {
+            this.defaultCurrency = currency.Val
+            this.currencyValues[1] = { id: 1, symbol: this.defaultCurrency }
+          }
+          newData.push({
+            id: currency.Id,
+            text: currency.Val
+          })
+        })
+        this.currencies = newData
+        this.isDataAvailable = true
+        setTimeout(() => {
+          if (this.id !== 0) {
+            this.clientSelect2.setElementValue(this.other.ClientName)
+            this.currencySelect2.setElementValue(this.other.CurrencyId)
+          } else {
+            this.CurrencyId = +this.currencies[0].id
+            this.currencySelect2.setElementValue(this.currencies[0].id)
+          }
+          if (this.clientSelect2) {
+            const element = this.renderer.selectRootElement(this.clientSelect2.selector.nativeElement, true)
+            element.focus({ preventScroll: false })
+          }
+        }, 1000)
+      }
+    })
   }
 
   closeModal () {
@@ -969,59 +952,25 @@ export class SalesInvoiceComponent {
     this.commonService.closeInvoice()
   }
 
-  getCurrency () {
+  getBillNo () {
     let _self = this
-    this.getAvailableCurrency().toPromise().then(
-      (data: ResponseSale) => {
+    $('#salerout').modal(UIConstant.MODEL_SHOW)
+    this.commonService.getSPUtilityData(UIConstant.TRAVEL_TYPE).pipe(
+      filter(data => {
         if (data.Code === UIConstant.THOUSAND) {
-          _self.setupModules = data.Data.SetupModules[0]
-          console.log('settings : ', data.Data)
-          if (!_self.editMode) {
-            if (!_self.setupModules.IsBillNoManual) {
-              _self.BillNo = _self.setupModules.BillNo
-            }
-          }
-          if (!_self.editMode) {
-            _self.setBillDate()
-          }
-          _self.setPayDate()
-          _self.setTravelDate()
-          _self.setReturnDate()
-          let currencies = data.Data.SetupSettings
-          _self.placeholderCurreny = { placeholder: 'Select Currency' }
-          let newData = []
-          currencies.forEach(element => {
-            if (+element.SetupId === SetUpIds.currency && +element.Type === SetUpIds.multiple) {
-              if (+element.Id !== 0 && +element.Id === +element.DefaultValue && !_self.editMode) {
-                _self.defaultCurrency = element.Val
-                _self.currencyValues[1] = { id: 1, symbol: _self.defaultCurrency }
-              }
-              newData.push({
-                id: element.Id,
-                text: element.Val
-              })
-            }
-          })
-          _self.currencies = newData
-          _self.isDataAvailable = true
-          _self.editMode = false
-          $('#salerout').removeClass('fadeOut')
-          $('#salerout').addClass('fadeInDown')
-          $('#salerout').modal(UIConstant.MODEL_SHOW)
-          setTimeout(() => {
-            if (this.id !== 0) {
-              this.clientSelect2.setElementValue(this.other.ClientName)
-              this.currencySelect2.setElementValue(this.other.CurrencyId)
-            } else {
-              this.CurrencyId = +_self.currencies[0].id
-              this.currencySelect2.setElementValue(_self.currencies[0].id)
-            }
-            if (this.clientSelect2) {
-              const element = this.renderer.selectRootElement(this.clientSelect2.selector.nativeElement, true)
-              element.focus({ preventScroll: false })
-            }
-          }, 1000)
-          // console.log('currencies available : ', _self.currencies)
+          return true
+        } else {
+          throw new Error(data.Description)
+        }
+      }),
+      catchError(error => {
+        return throwError(error)
+      }),
+      map(data => data.Data)
+    ).subscribe(data => {
+      console.log('sputility : ', data)
+        if (data) {
+          _self.BillNo = (data.TransactionNoSetups && data.TransactionNoSetups.length > 0) ? data.TransactionNoSetups[0].BillNo : ''
         }
       }
     )
@@ -1427,7 +1376,7 @@ export class SalesInvoiceComponent {
   }
 
   validateTransaction () {
-    if (+this.Paymode > 0 || +this.PayModeId > 0 || +this.LedgerId > 0 || this.ledgerName || +this.Amount > 0 || this.ChequeNo) {
+    if (+this.Paymode > 0 || +this.PayModeId > 0 || +this.LedgerId > 0 || this.ledgerName ) {
       let isValid = 1
       if (+this.PayModeId > 0) {
         this.invalidObj['PayModeId'] = false

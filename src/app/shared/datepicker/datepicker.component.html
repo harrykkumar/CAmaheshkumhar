@@ -1,0 +1,16 @@
+<div class="input-group">
+  <input class="form-control" [ngClass]="{'errorSelecto': class}" [placeholder]="placeholder"
+  (keydown.enter)="toggleView()"
+  [(ngModel)]="selectedDate"
+  (dateTimeChange)="onSelect($event)"
+  [min]="minDate"
+  [max]="maxDate"
+  (keyup.Tab)="toggleView()"
+  readonly="true"
+  [owlDateTimeTrigger]="dt2" [owlDateTime]="dt2">
+  <owl-date-time [pickerType]="'calendar'"
+  [startAt]="today"
+  [disabled]="disableInput"
+  (afterPickerClosed)="onClose()"
+  #dt2></owl-date-time>
+</div>

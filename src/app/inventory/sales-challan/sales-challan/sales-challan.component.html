@@ -64,7 +64,7 @@
                             <tbody>
                                 <tr *ngFor="let item of saleTravelDetails | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index">
                                 <td>
-                             <div *ngIf="item.SaleId === 0" class="custom-control custom-checkbox mb-3">
+                             <div *ngIf="item.SaleId === 0" class="custom-control custom-checkbox">
                               <input (change)="getBillingId(item,$event,i)"  type="checkbox" class="custom-control-input" id="selectChallanForBill{{i}}" name="example1">
                               <label class="custom-control-label" for="selectChallanForBill{{i}}"></label>
                             </div>
@@ -102,12 +102,15 @@
                 </div>
             </div>
           </div>
-          <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-          (pageNoEmitter)="p = $event;getSaleChallanDetail();"
-          (pageSizeEmitter)="itemsPerPage = $event;getSaleChallanDetail();" >
-          </app-pagination>
+         
     </div>
 </main>
+
+<app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+(pageNoEmitter)="p = $event;getSaleChallanDetail();"
+(pageSizeEmitter)="itemsPerPage = $event;getSaleChallanDetail();" >
+</app-pagination>
+
 <app-sales-challan-invoice></app-sales-challan-invoice>
 <app-sales-billing></app-sales-billing>
 <div class="modal" id="sales_Challan_print_id">   

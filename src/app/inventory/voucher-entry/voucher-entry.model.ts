@@ -8,7 +8,7 @@ export interface VoucherAddModel {
   TotalAmount: number,
   VoucherDate: string,
   VoucherDatas: Array<VoucherData>,
-  PaymentDetails: Array<VoucherTransaction>
+  PaymentDetails: Array<VoucherTransaction>,
 }
 
 export interface VoucherTransaction {

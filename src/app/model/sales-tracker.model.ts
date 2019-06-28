@@ -304,6 +304,7 @@ export interface AddCust {
   itemId?:any
   imageType?:string
   headId?:any
+  
 }
 
 export interface ResponseSale {

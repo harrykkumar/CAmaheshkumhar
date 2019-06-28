@@ -10,7 +10,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'admin',
+        redirectTo: 'dashboard',
         pathMatch: 'full'
       },
       {
@@ -181,6 +181,14 @@ const routes: Routes = [
       {
         path: 'owner/company',
         loadChildren: '../start/company-profile/company-profile.module#CompanyProfileListModule'
+      },
+      {
+        path: 'transaction-number',
+        loadChildren: '../shared/transaction-number/transaction-number.module#TransactionNumberModule'
+      },
+      {
+        path: 'sample-approval',
+        loadChildren: '../Manufacturer/sample-approval/sample-approval.module#SampleApprovalModule'
       }
     ]
   }

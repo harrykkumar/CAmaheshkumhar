@@ -52,7 +52,7 @@ export class SalesReturnListComponent implements OnInit, OnDestroy {
       }
     )
     this.clientDateFormat = this.settings.dateFormat
-    console.log('client date format : ', this.clientDateFormat)
+    // console.log('client date format : ', this.clientDateFormat)
     if (this.clientDateFormat === '') {
       this.commonService.getSettingById(SetUpIds.dateFormat).subscribe(
         (data) => {
@@ -70,6 +70,7 @@ export class SalesReturnListComponent implements OnInit, OnDestroy {
   totalBillAmount: number
   getSaleReturnDetail () {
     this._saleTravelServices.getSaleReturnList().subscribe(data => {
+      console.log('rerurn : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         console.log('sales return data: ', data)
         this.saleReturnDetails = data.Data
@@ -93,7 +94,7 @@ export class SalesReturnListComponent implements OnInit, OnDestroy {
 
   onPrintButton (id, htmlID) {
     console.log('id : ', id)
-    this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
+    // this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
     this.word = ''
     let _self = this
     _self._saleTravelServices.getSaleTravelReturnPrint(id).subscribe(data => {
@@ -222,17 +223,14 @@ export class SalesReturnListComponent implements OnInit, OnDestroy {
               })
             }
           }
-          _self.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
         }
-
+        _self.orgImage = (data.Data.ImageContents && data.Data.ImageContents.length > 0) ? data.Data.ImageContents[0].FilePath : ''
         setTimeout(function () {
-          // _self.printComponent(htmlID);
           _self.printComponent(htmlID)
         }, 0)
       }
-    }
-    )
-    $('#sales_print_id').modal(UIConstant.MODEL_SHOW)
+    })
+    // $('#sales_print_id').modal(UIConstant.MODEL_SHOW)
   }
 
   printComponent (cmpName) {

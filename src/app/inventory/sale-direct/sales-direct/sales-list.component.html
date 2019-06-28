@@ -48,7 +48,7 @@
          <div class="col-md-12">
             <div class="bgc-white bdrs-3 mB-20">
                 <div class="table-responsive table_height">
-                    <table class="table cat-table table-hover cat-table">
+                    <table class="table cat-table table-hover">
                             <thead>
                               <tr>
                                 <th>Sr.No.</th>
@@ -107,11 +107,12 @@
                 </div>
             </div>
           </div>
-          <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-          (pageNoEmitter)="p = $event;getSaleDetail();"
-          (pageSizeEmitter)="itemsPerPage = $event;getSaleDetail();" >
-          </app-pagination>
+         
     </div>
 </main>
+<app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+(pageNoEmitter)="p = $event;getSaleDetail();"
+(pageSizeEmitter)="itemsPerPage = $event;getSaleDetail();" >
+</app-pagination>
 <!-- <app-sales-challan-invoice></app-sales-challan-invoice> -->
 <app-sales-direct></app-sales-direct>

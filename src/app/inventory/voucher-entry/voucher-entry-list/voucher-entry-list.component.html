@@ -2,57 +2,59 @@
 <div class="row">
     <div class="col-md-12">
         <div class="bgc-white bdrs-3 mB-20">
-            <div class="table-responsive table_height1">
-                <table class="table cat-table">
+            <div class="table-responsive table_height">
+                <table class="table cat-table table-hover">
                     <thead>
                         <tr>
-                            <th *ngFor="let title of customHeader;" [ngClass]="{'text-right': title.isRightAligned}" >{{title.text}}</th>
+                            <th>Sr.No.</th>
+                            <th>Particular</th>
+                            <th>Ledger Name</th>
+                            <th>Voucher No.</th>
+                            <th>Voucher Type</th>
+                            <th>Narration</th>
+                            <th class="text-right">Cr</th>
+                            <th class="text-right">Dr</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody *ngIf="isSearching" style="height:100px;" >
-                        <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;" />
-                    </tbody>
-                    <tbody *ngIf="!isSearching">
-                        <tr *ngFor="let item of customContent | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index">
-                            <td>{{lastItemIndex + i + 1}}</td>
-                            <td *ngFor="let key of keys;" [ngClass]="{'text-right': key.isRightAligned}" >{{item[key.text]}}</td>
-                            <td class="text-right" *ngIf="actionList.length > 0" >
-                                <div class="dropdown enquiry-tag">
+                    <tbody>
+                        <tr *ngFor="let item of LedgerStatements | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index; let i=index">
+                            <td>{{i+1}}</td>
+                            <td>{{item.Particular}} </td>
+                            <td>{{item.LedgerName}}</td>
+                            <td>{{item.VoucherNo}}</td>
+                            <td>{{item.VoucherType}}</td>
+                            <td>{{item.Narration}}</td>
+                            <td class="text-right">{{item.Cr}}</td>
+                            <td class="text-right">{{item.Dr}}</td>
+                            <td>
+                                <div class="dropdown enquiry-tag" *ngIf="item.VoucherTypeId === 103" >
                                     <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                                        class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+                                    class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
                                     <ul class="dropdown-menu fsz-sm">
-                                        <li *ngFor="let action of actionList">
-                                            <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="onActionClicked(action, item.Id)" >
-                                                <i class="fas mR-10 cH-blue"
-                                                    [ngClass]="{'fa-print': action.type === 2,
-                                                    'fa-edit': action.type === 1,
-                                                    'fa-trash': action.type === 4,
-                                                    'fa-arrow': action.type === 5
-                                                    }"
-                                                ></i>
-                                                <span>{{action.text}}</span>
-                                            </a>
-                                        </li>
+                                        <li><a (click)="onActionClicked({id: 0, type: 2, printId: 'payment_print_id'} ,item.VoucherId)" 
+                                            class="d-b td-n p-1 bgcH-grey-100 c-grey-700">
+                                            <i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
                                     </ul>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
-                    <tfoot *ngIf="customFooter.length > 0" >
+                    <tfoot>
                         <tr>
-                            <ng-container *ngFor="let foot of customFooter;">
-                                <th [colSpan]="foot.colspan"></th>
-                                <th class="text-right font-weight-bold" *ngFor="let data of foot.data" >{{data}}</th>
-                            </ng-container>
-                            <th *ngIf="actionList.length > 0" ></th>
+                            <th colspan="6"></th>
+                            <th class="text-right font-weight-bold">{{summary.Cr}}</th>
+                            <th class="text-right font-weight-bold">{{summary.Dr}}</th>
+                            <th></th>
                         </tr>
                     </tfoot>
                 </table>
             </div>
         </div>
-        <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-            (pageNoEmitter)="p = $event;getLedgerSummaryData();"
-            (pageSizeEmitter)="itemsPerPage = $event;getLedgerSummaryData();" >
-        </app-pagination>
     </div>
 </div>
+<app-pagination (lastValueEmitter)="lastItemIndex = $event;"
+          (pageNoEmitter)="p = $event;getLedgerSummaryData();"
+          (pageSizeEmitter)="itemsPerPage = $event;getLedgerSummaryData();" ></app-pagination>
+
+

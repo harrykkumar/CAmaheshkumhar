@@ -217,29 +217,12 @@
                               <div
                                 class="timepicker-input input-icon form-group"
                               >
-                                <div class="input-group">
-                                  <div
-                                    class="input-group-addon bgc-white bd bdwR-0"
-                                    start-date
-                                  >
-                                    <i class="fas fa-calendar-alt"></i>
-                                  </div>
-                                  <input
-                                    class="form-control start-date flatpickr dor"
-                                    placeholder="Enter Reg. Date"
-                                    data-provide="datepicker"
-                                    name="regDate"
-                                    [(ngModel)]="
-                                      personalDetail.registrationDate
-                                    "
-                                    [ngClass]="{
-                                      'is-invalid':
-                                        orgProfileFormModel?.submitted &&
-                                        !personalDetail.registrationDate
-                                    }"
-                                    required
-                                  />
-                                </div>
+                                <datepicker-popup [toSetDate]="personalDetail.registrationDate"
+                                (dateInFormat)="personalDetail.registrationDate = $event;"
+                                [class]="orgProfileFormModel?.submitted &&
+                                !personalDetail.registrationDate"
+                                required
+                              ></datepicker-popup>
                               </div>
                             </div>
                           </div>
@@ -378,6 +361,7 @@
                                           (keypress)="
                                             _commonService.isNumber($event)
                                           "
+                                          (blur)="onMobileNoChange(mobileNoModel)"
                                           name="mobileInput"
                                           [(ngModel)]="
                                             mobileDetail.mobileNo
@@ -385,7 +369,7 @@
                                           #mobileNoModel="ngModel"
                                           [ngClass]="{
                                             'is-invalid':
-                                              (mobileDetailModel?.submitted &&
+                                              (
                                                 mobileNoModel.invalid) ||
                                               (orgProfileFormModel?.submitted &&
                                                 personalDetail?.mobileArray
@@ -505,14 +489,14 @@
                                           class="form-control"
                                           name="emailInput"
                                           #emailModel="ngModel"
+                                          (blur)="onEmailChange(emailModel)"
                                           [(ngModel)]="
                                             emailDetail.selectedEmail
                                           "
                                           pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"                                          
                                           [ngClass]="{
                                             'is-invalid':
-                                              (emailDetailModel?.submitted &&
-                                                (!emailDetail.selectedEmail || emailModel?.errors?.pattern)) ||
+                                            (emailModel.dirty && !emailModel.valid) ||
                                               (orgProfileFormModel?.submitted &&
                                                 personalDetail?.emailArray
                                                   ?.length === 0)
@@ -672,7 +656,7 @@
                       </div>
                       <div class="row align-items-center mt-3">
                         <div
-                          class="col-md-3"
+                          class="col-md-3 profile-pic"
                           *ngFor="let item of addressDetailArray; let i = index"
                         >
                           <div class="card addredd_book p-3">
@@ -717,7 +701,7 @@
                             </div>
                           </div>
                         </div>
-                        <button class="col-md-3 p-0" type="submit">
+                        <button class="col-md-3 p-0 border-0" type="submit">
                           <div class="card addredd_book p-3">
                             <a class="add_btn pt-4">
                               <i class="fas fa-plus-circle"></i
@@ -877,7 +861,7 @@
                               </div>
                             </div>
                           </div>
-                          <button class="col-md-3 p-0" type="submit">
+                          <button class="col-md-3 p-0 border-0" type="submit">
                             <div class="card addredd_book p-3">
                               <a class="add_btn pt-4">
                                 <i class="fas fa-plus-circle"></i
@@ -924,7 +908,7 @@
                           class="form-control"
                           placeholder="Enter PAN Number"
                           name="panNo"
-                          [(ngModel)]="statutoryDetail.panNo"
+                          [ngModel]="statutoryDetail.panNo | uppercase" (ngModelChange)="statutoryDetail.panNo=$event"
                           [pattern]="_commonService.panRegx"
                           [ngClass]="{
                             'is-invalid':
@@ -1005,7 +989,7 @@
                       >
                         <div class="form row">
                           <div class="form-group col-md-4">
-                            <label>Name</label>
+                            <label>Key Person Name</label>
                             <input
                               type="text"
                               class="form-control"
@@ -1094,7 +1078,7 @@
                               class="form-control"
                               placeholder="Enter Pan Card Number"
                               name="panNo"
-                              [(ngModel)]="keyPersonDetail.panNo"
+                              [ngModel]="keyPersonDetail.panNo | uppercase" (ngModelChange)="keyPersonDetail.panNo=$event"
                               [pattern]="_commonService.panRegx"
                               [ngClass]="{
                                 'is-invalid':
@@ -1175,7 +1159,7 @@
                               </div>
                             </div>
                           </ng-container>
-                          <button class="col-md-3 p-0" type="submit">
+                          <button class="col-md-3 p-0 border-0" type="submit">
                             <div class="card addredd_book p-3">
                               <a class="add_btn pt-4">
                                 <i class="fas fa-plus-circle"></i
@@ -1233,3 +1217,5 @@
     </div>
   </div>
 </div>
+
+<app-add-new-city #addNewCityRef (addCityClosed) = "addCityClosed($event)"></app-add-new-city>

@@ -1,4 +1,4 @@
-import { CompanyProfileComponent } from './../start/company-profile/company-profile.component';
+import { ImageModalModule } from './transactionMaster/images-modal/image-modal.module';
 import { FooterComponent } from './../start/footer/footer.component';
 import { OrganisationProfileComponent } from './../start/header/organisation-profile/organisation-profile.component';
 import { HeaderComponent } from './../start/header/header.component';
@@ -18,6 +18,11 @@ import { Select2Module } from 'ng2-select2'
 import { OrganisationBranchComponent } from '../start/org-branch/org-branch-form/org-branch-form.component'
 import { PagingUtilityModule } from './pagination/pagination.module'
 import { NgxPaginationModule } from 'ngx-pagination';
+import { DatepickerModule } from './datepicker/datepicker.module';
+import { RouterModule } from '@angular/router';
+import { CompanyProfileComponent } from '../start/company-profile/company-profile.component';
+import { AddNewCityComponent } from './components/add-new-city/add-new-city.component';
+import { AddNewAreaComponent } from './components/add-new-area/add-new-area.component';
 
 @NgModule({
   imports: [
@@ -29,7 +34,10 @@ import { NgxPaginationModule } from 'ngx-pagination';
     PagingUtilityModule,
     NgxPaginationModule,
     TableUtilityModule,
-    DynamicCategoryModule
+    DynamicCategoryModule,
+    DatepickerModule,
+    RouterModule,
+    ImageModalModule
   ],
   exports: [
     CommonModule,
@@ -51,7 +59,12 @@ import { NgxPaginationModule } from 'ngx-pagination';
     OrganisationBranchComponent,
     PagingUtilityModule,
     NgxPaginationModule,
-    CompanyProfileComponent
+    DatepickerModule,
+    CompanyProfileComponent,
+    RouterModule,
+    ImageModalModule,
+    AddNewCityComponent,
+    AddNewAreaComponent
   ],
   declarations: [
     ControlMessageComponent,
@@ -64,7 +77,9 @@ import { NgxPaginationModule } from 'ngx-pagination';
     FooterComponent,
     OrganisationProfileComponent,
     OrganisationBranchComponent,
-    CompanyProfileComponent
+    CompanyProfileComponent,
+    AddNewCityComponent,
+    AddNewAreaComponent
   ]
 })
 export class SharedModule {

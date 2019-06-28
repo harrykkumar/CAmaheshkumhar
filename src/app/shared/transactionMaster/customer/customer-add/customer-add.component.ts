@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ViewChild } from '@angular/core'
+import { Component, OnDestroy, HostListener ,ViewChild } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { Ledger, AddCust, AddLedger } from '../../../../model/sales-tracker.model'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
@@ -12,6 +12,8 @@ import { CommonService } from '../../../../commonServices/commanmaster/common.se
 import { GlobalService } from '../../../../commonServices/global.service'
 import { Settings } from '../../../../shared/constants/settings.constant'
 import { disableBindings } from '@angular/core/src/render3';
+import { IfStmt } from '@angular/compiler';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 declare const $: any
 declare const flatpickr: any
 @Component({
@@ -21,8 +23,7 @@ declare const flatpickr: any
 })
 export class CustomerAddComponent implements OnDestroy {
   modalSub: Subscription
-  adressArray: any
-  emailAdressArray: any
+  confirmSUB: Subscription
   coustomerDetails: Ledger[]
   subscribe: Subscription
   id: any
@@ -60,15 +61,21 @@ export class CustomerAddComponent implements OnDestroy {
   coustomerForm: FormGroup
   stateId: any
   cityId: any
+  EMAIL: any = 'email'
+  MOBILE: any = 'mobile'
+  YES: any = 'yes'
+  NO: any = 'no'
+
   addresTypeId: any
   contactId: number = 0
-  mobileNoId: number =0
+  mobileNoId: number = 0
   areaID: any
   storeAddress: any
   addressError: boolean
   clientDateFormat: any
   isAddNew: boolean = false
-  constructor (public _globalService: GlobalService, public _settings: Settings, private _CommonService: CommonService,
+  editId: any
+  constructor(public _globalService: GlobalService, public _settings: Settings, private _CommonService: CommonService,
     private _formBuilder: FormBuilder,
     private _coustomerServices: VendorServices, public _categoryservices: CategoryServices, public _toastrcustomservice: ToastrCustomService) {
     this.createCustomerForm()
@@ -81,29 +88,61 @@ export class CustomerAddComponent implements OnDestroy {
           this.isAddNew = data.isAddNew
           if (data.editId === '') {
             this.editMode = false
+            this.editId = 0
             this.enableContactFlag = true
           } else {
+            this.editId = data.editId
             this.id = data.editId
             this.editMode = true
           }
+
           this.openModal()
         } else {
           this.closeModal()
         }
       }
     )
+    this.confirmSUB = this._CommonService.getConfirmationStatus().subscribe(
+      (data: AddCust) => {
+        
+        if (data) {
+          if (data.type === this.YES && data.name === this.MOBILE) {
+            setTimeout(() => {
+              this.select_Mobile.selector.nativeElement.focus()
+            }, 10)
+          }
+          else if (data.type === this.YES && data.name === this.EMAIL) {
+            setTimeout(() => {
+              this.select_email.selector.nativeElement.focus()
+            }, 10)
+          }
+          else if (data.type === this.NO && data.name === this.MOBILE) {
+
+            setTimeout(() => {
+              this.select_email.selector.nativeElement.focus()
+            }, 10)
+          }
+          else if (data.type === this.NO && data.name === this.EMAIL) {
+            this.activaTab('customer2')
+            this.adressTab()
+            setTimeout(() => {
+              this.select_Mobile.selector.nativeElement.focus()
+            }, 10)
+          }
+
+        }
+      }
+    )
   }
-  get f () { return this.coustomerForm.controls }
-  ngOnInit () {
-    this.adressArray = []
-    this.emailAdressArray = []
+  get f() { return this.coustomerForm.controls }
+  ngOnInit() {
     this.collectionOfAddress = []
     this.errormassage = ErrorConstant.REQUIRED
     this.adressType(1)
 
   }
 
-  closeModal () {
+  closeModal() {
     if ($('#customer_form').length > 0) {
       this.id = UIConstant.ZERO
       this.editMode = false
@@ -111,16 +150,19 @@ export class CustomerAddComponent implements OnDestroy {
     }
   }
 
- 
+
   @ViewChild('country_selecto') countryselecto: Select2Component
-  adressTab () {
+  adressTab() {
     setTimeout(() => {
       this.countryselecto.selector.nativeElement.focus()
     }, 1000)
 
   }
+  activaTab(tab) {
+    $('.tabs-cyan a[href="#' + tab + '"]').tab('show');
+  };
   vendorDiv: boolean
-  customerTab () {
+  customerTab() {
     setTimeout(() => {
       this.ledgerName.nativeElement.focus()
     }, 1000)
@@ -129,10 +171,10 @@ export class CustomerAddComponent implements OnDestroy {
   bankDiv: boolean
 
   stateValue: any
-  getStaeList (id, value) {
+  getStaeList(id, value) {
     this.subscribe = this._coustomerServices.gatStateList(id).subscribe(Data => {
       this.stateListplaceHolder = { placeholder: 'Select State' }
-      this.stateList = [{ id: UIConstant.BLANK, text: 'select State' }]
+      this.stateList = [{ id: UIConstant.BLANK, text: 'Select State' }]
       Data.Data.forEach(element => {
         this.stateList.push({
           id: element.Id,
@@ -143,7 +185,7 @@ export class CustomerAddComponent implements OnDestroy {
     })
   }
 
-  selectStatelist (event) {
+  selectStatelist(event) {
     this.stateId = event.value
     this.stateError = false
     if (this.stateId > UIConstant.ZERO) {
@@ -151,7 +193,7 @@ export class CustomerAddComponent implements OnDestroy {
     }
   }
   cityValue: any
-  getCitylist (id, value) {
+  getCitylist(id, value) {
     this.subscribe = this._coustomerServices.getCityList(id).subscribe(Data => {
       this.cityList = []
       Data.Data.forEach(element => {
@@ -164,16 +206,16 @@ export class CustomerAddComponent implements OnDestroy {
     })
   }
 
-  selectedCityId (event) {
+  selectedCityId(event) {
     this.cityId = event.value
     this.cityError = false
     if (this.cityId > 0) {
       this.getAreaId(this.cityId)
     }
   }
-  get adAre () { return this.areaForm.controls }
+  get adAre() { return this.areaForm.controls }
 
-  private getAreaId (id) {
+  private getAreaId(id) {
     this.subscribe = this._coustomerServices.getAreaList(id).subscribe(Data => {
       // console.log(' area list : ', Data)
       this.areaListPlaceHolder = { placeholder: 'Select Area' }
@@ -186,21 +228,21 @@ export class CustomerAddComponent implements OnDestroy {
       })
     })
   }
-  addArea () {
+  addArea() {
     this.areaForm = this._formBuilder.group({
       'areaName': ['', Validators.required]
     })
   }
-  openAreaModel () {
+  openAreaModel() {
     $('#add_area_Popup').modal(UIConstant.MODEL_SHOW)
   }
-  closeAreaModel () {
+  closeAreaModel() {
     $('#add_area_Popup').modal(UIConstant.MODEL_HIDE)
   }
 
   addAreaClick: boolean
   areNameId: any
-  areaAdd () {
+  areaAdd() {
     this.addAreaClick = true
     // debugger
     const addValue = {
@@ -236,7 +278,7 @@ export class CustomerAddComponent implements OnDestroy {
 
   }
   Areaname: any
-  selectedArea (event) {
+  selectedArea(event) {
     if (event.data.length > 0) {
       if (event.data[0].selected) {
         if (event.data[0].id !== '0') {
@@ -258,7 +300,7 @@ export class CustomerAddComponent implements OnDestroy {
   }
   addressValue: any
   addTypeName: any
-  adressType (value) {
+  adressType(value) {
     this.addressError = false
     this.addressTypePlaceHolder = { placeholder: 'Select Address Type' }
     this.addressType = [{ id: '1', text: 'Personal' }, { id: '2', text: 'Work' }, { id: '3', text: 'Postal' }, { id: '4', text: 'Other' }]
@@ -267,7 +309,7 @@ export class CustomerAddComponent implements OnDestroy {
 
   }
 
-  selectedAddressTypeId (event) {
+  selectedAddressTypeId(event) {
     if (event && event.data.length > 0) {
       this.addTypeName = event.data[0].text
       this.addresTypeId = event.value
@@ -281,29 +323,27 @@ export class CustomerAddComponent implements OnDestroy {
   }
 
   /* clear validation */
-  clearValidation () {
+  clearValidation() {
     this.createCustomerForm()
     this.getCountry(0)
     this.coustomerForm.reset()
-    this.emailAdressArray = []
-    this.mobileArray = []
-    this.contactTypeData =[]
-    this.adressArray = []
+    //this.mobileArray = []
+    // this.contactTypeData = []
     this.getContactType()
     this.emailTypeDataType()
     this.collectionOfAddress = []
     $('#customer_form').modal(UIConstant.MODEL_HIDE)
-  
-  this.select_Mobile.setElementValue(0)
-  this.select_email.setElementValue(0)
-  this.phoneCodeselect2.setElementValue(0)
+
+    this.select_Mobile.setElementValue(1)
+    this.select_email.setElementValue(1)
+    this.phoneCodeselect2.setElementValue(0)
 
 
     // this.getCustomerDetail()
   }
-  get add () { return this.adressForm.controls }
+  get add() { return this.adressForm.controls }
 
-  private createCustomerForm () {
+  private createCustomerForm() {
     this.coustomerForm = this._formBuilder.group({
       'customerName': [UIConstant.BLANK, Validators.required],
       'contactPerson': [UIConstant.BLANK, Validators.required],
@@ -318,7 +358,7 @@ export class CustomerAddComponent implements OnDestroy {
       'EmailAddress': [UIConstant.BLANK]
     })
   }
-  private addTyperessForm () {
+  private addTyperessForm() {
     this.adressForm = this._formBuilder.group({
       'adresss': [UIConstant.BLANK, Validators.required],
       'postcode': [UIConstant.BLANK, Validators.required]
@@ -328,50 +368,42 @@ export class CustomerAddComponent implements OnDestroy {
   mobileRequirdForSetting: boolean
   emailRequirdForSetting: boolean
   customerCustomRateFlag: boolean
+  futureDateAn: any
+  DateOfBirth: any=''
+  DateOfAnniry:any=''
+  futureDateB:any
+  setDOBDate() {
+    this.DateOfBirth =''
+    this.futureDateAn = this._globalService.getDefaultDate(this.clientDateFormat)
 
-  setDOBDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#flatpickr_dob', {
-        maxDate: 'today',
-        dateFormat: _self.clientDateFormat
-
-      })
-    })
   }
-  setDOADate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#flatpickr_doa', {
-        maxDate: 'today',
-        dateFormat: _self.clientDateFormat
-
-      })
-    })
+  setDOADate() {
+    this.DateOfAnniry = ''
+    this.futureDateB =this._globalService.getDefaultDate(this.clientDateFormat)
+   
   }
   validMobileFlag: boolean
   editFlg: boolean
   EmailId: number
-  openModal () {
+  openModal() {
+    this.getEmailvalid = true
+    this.mobileArray = []
+    this.emailArray = []
+    this.activaTab('customer1')
+    this.enableContactFlag = true
     this.editEmailFlg = true
     this.editFlg = true
-    this.getEmailvalid = true
     this.getContactType()
     this.emailTypeDataType()
-     this.validMobileFlag= false
-    this.mobileNoId =0
-    this.EmailId=0
+    this.validMobileFlag = false
+    this.mobileNoId = 0
+    this.EmailId = 0
     this.searchCountryCodeForMobile(' ')
     this.addressRequiredForLedger = false
     this.customerCustomRateFlag = false
     this.mobileRequirdForSetting = false
     this.emailRequirdForSetting = false
     this.addressClick = false
-    this.mobileArray= []
-    this.emailArray=[]
-    this.adressArray = []
-    this.emailAdressArray = []
-    
     this.setDOBDate()
     this.setDOADate()
     if (this.coustomerForm) {
@@ -387,10 +419,8 @@ export class CustomerAddComponent implements OnDestroy {
       $('#customer_form').modal(UIConstant.MODEL_SHOW)
       setTimeout(() => {
         this.ledgerName.nativeElement.focus()
-        this._CommonService.fixTableHF('cat-table')
       }, 1000)
       this.collectionOfAddress = []
-      //  this.emailAddingArray(0)
       this.customerTabDiv = false
       this.addressTabDiv = true
       this.createCustomerForm()
@@ -398,15 +428,14 @@ export class CustomerAddComponent implements OnDestroy {
       this.satuariesId = UIConstant.ZERO
       this.submitClick = false
       this.addressid = UIConstant.ZERO
-
       this.select2VendorValue(UIConstant.ZERO)
       this.select2CrDrValue(0)
       this.getCountry(0)
       this.adressType(0)
       this.getCustomoerType(0)
       this.phoneCodeselect2.setElementValue(0)
-      this.select_Mobile.setElementValue(0)
-      this.select_email.setElementValue(0)
+      this.select_Mobile.setElementValue(1)
+      this.select_email.setElementValue(1)
       this.istradeDiscountValue = false
       this.isVolumeDiscountValue = false
       this.isDiscountValue = false
@@ -416,13 +445,13 @@ export class CustomerAddComponent implements OnDestroy {
       /* ............................completed..................... */
     }
   }
-  
-@ViewChild('select_mobiletype') select_Mobile : Select2Component
-@ViewChild('select_emailtype') select_email : Select2Component
 
-@ViewChild('ledgerName') ledgerName
+  @ViewChild('select_mobiletype') select_Mobile: Select2Component
+  @ViewChild('select_emailtype') select_email: Select2Component
+
+  @ViewChild('ledgerName') ledgerName
   customerValue: any
-  getCustomoerType (value) {
+  getCustomoerType(value) {
     this.subscribe = this._coustomerServices.getCommonValues('116').subscribe(Data => {
       this.coustmoerTypePlaceholder = { placeholder: 'Select CustomerType' }
       this.customerType = [{ id: UIConstant.BLANK, text: 'CustomerType' }]
@@ -436,7 +465,7 @@ export class CustomerAddComponent implements OnDestroy {
     })
   }
 
-  isvolumeDisount (event) {
+  isvolumeDisount(event) {
     if (event === true) {
       this.isVolumeDiscountValue = true
     } else {
@@ -444,7 +473,7 @@ export class CustomerAddComponent implements OnDestroy {
     }
   }
 
-  isDicount (event) {
+  isDicount(event) {
     if (event === true) {
       this.isDiscountValue = true
     } else {
@@ -454,24 +483,24 @@ export class CustomerAddComponent implements OnDestroy {
 
   }
 
-  istradeDiscount (event) {
+  istradeDiscount(event) {
     if (event === true) {
       this.istradeDiscountValue = true
     } else {
       this.istradeDiscountValue = false
     }
   }
-  selectCRDRId (event) {
+  selectCRDRId(event) {
     this.crDrId = event.value
   }
 
-  selectCoustmoreId (event) {
+  selectCoustmoreId(event) {
     this.coustmoreRegistraionId = event.value
     this.customerRegistraionError = false
   }
 
   countrId: any
-  selectCountryListId (event) {
+  selectCountryListId(event) {
     this.countrId = event.value
     this.countryError = false
     if (this.countrId > 0) {
@@ -481,13 +510,13 @@ export class CustomerAddComponent implements OnDestroy {
   }
 
   customerTypeId: number
-  selectCustomerType (event) {
+  selectCustomerType(event) {
     this.customerTypeId = event.value
     this.customCustomer = true
 
   }
   countryValue: any
-  getCountry (value) {
+  getCountry(value) {
     this.subscribe = this._coustomerServices.getCommonValues('101').subscribe(Data => {
       this.countryListPlaceHolder = { placeholder: 'Select Country' }
       this.countryList = [{ id: UIConstant.BLANK, text: 'select Country' }]
@@ -500,27 +529,27 @@ export class CustomerAddComponent implements OnDestroy {
       this.countryValue = value
     })
   }
-  deleteArrayMobileType (i,type) {
-    if(type ==='contact'){
-      if(this.mobileArray.length > 0){
-        this.mobileArray.splice(i,1)
-       }
+  deleteArrayMobileType(i, type) {
+    if (type === 'contact') {
+      if (this.mobileArray.length > 0) {
+        this.mobileArray.splice(i, 1)
+      }
     }
-    if(type ==='email'){
-      if(this.emailArray.length > 0){
-        this.emailArray.splice(i,1)
-       }
+    if (type === 'email') {
+      if (this.emailArray.length > 0) {
+        this.emailArray.splice(i, 1)
+      }
     }
 
   }
 
   ParentTypeId: 5
   CodeId: any
-  editRowItem (i,type,id) {
-    if(type ==='contact'){
-      if(this.editFlg){
+  editRowItem(i, type, id) {
+    if (type === 'contact') {
+      if (this.editFlg) {
         this.editFlg = false
-        this.mobileNoId =id
+        this.mobileNoId = id
         this.contactType = this.mobileArray[i].ContactType
         this.select_Mobile.setElementValue(this.mobileArray[i].ContactType)
         this.contactTypeName = this.mobileArray[i].ContactTypeName
@@ -529,49 +558,49 @@ export class CustomerAddComponent implements OnDestroy {
         this.phoneCodeselect2.setElementValue(this.mobileArray[i].CodeId)
         this.CodeId = this.mobileArray[i].CodeId
         this.validMobileFlag = false
-        this.deleteArrayMobileType (i,'contact')
+        this.deleteArrayMobileType(i, 'contact')
       }
-      
-    
-    else{
-      this._toastrcustomservice.showWarning('', 'Save Editable Contact')
 
+
+      else {
+        this._toastrcustomservice.showWarning('', 'Save Editable Contact')
+
+      }
     }
-  }
-    if(type ==='email'){
-      if(this.editEmailFlg){
+    if (type === 'email') {
+      if (this.editEmailFlg) {
         this.editEmailFlg = false
         this.EmailId = id
         this.EmailType = this.emailArray[i].EmailType
         this.select_email.setElementValue(this.emailArray[i].EmailType)
         this.EmailAddressTypeName = this.emailArray[i].EmailTypeName
         this.coustomerForm.controls.EmailAddress.setValue(this.emailArray[i].EmailAddress)
-        this.deleteArrayMobileType (i,'email')
+        this.deleteArrayMobileType(i, 'email')
       }
-      else{
-      this._toastrcustomservice.showWarning('', 'Save Editable Email')
+      else {
+        this._toastrcustomservice.showWarning('', 'Save Editable Email')
 
       }
-      
+
 
     }
   }
 
 
   checkSelectCode: boolean = false
-  validateMobile (mobile) {
+  validateMobile(mobile) {
     let regx = /\[0-9]/g
     return regx.test(mobile)
   }
   invalidMobilelength: boolean = false
-  checkNumberByCountry (e) {
+  checkNumberByCountry(e) {
     this.mobileNo = e.target.value
     if (this.checkSelectCode) {
-        if (this.validmobileLength === this.mobileNo.length) {
-          this.validMobileFlag = false
-        } else {
-          this.validMobileFlag = true
-        }
+      if (this.validmobileLength === this.mobileNo.length) {
+        this.validMobileFlag = false
+      } else {
+        this.validMobileFlag = true
+      }
     }
 
   }
@@ -584,28 +613,28 @@ export class CustomerAddComponent implements OnDestroy {
   selectCoustomerplaceHolder: Select2Options
   coustomerValue: any
   coustmoreRegistraionId: number
-  select2VendorValue (value) {
+  select2VendorValue(value) {
     this.selectyCoustmoreRegistration = []
     this.selectCoustomerplaceHolder = { placeholder: 'Select Customer Registration' }
-    this.selectyCoustmoreRegistration = [{ id: UIConstant.BLANK, text: 'select Customer' }, { id: '1', text: 'Regular' }
+    this.selectyCoustmoreRegistration = [{ id: UIConstant.BLANK, text: 'Select Customer' }, { id: '1', text: 'Regular' }
       , { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' }
       , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
-    return this.coustomerValue = this.selectyCoustmoreRegistration[1].id
+    this.coustomerValue = this.selectyCoustmoreRegistration[1].id
   }
 
   select2CrDrPlaceHolder: Select2Options
   valueCRDR: any
   crDrId: number
-  select2CrDrValue (value) {
+  select2CrDrValue(value) {
     this.selectCrDr = []
-    this.select2CrDrPlaceHolder = { placeholder: 'Select CR/Dr' }
+    this.select2CrDrPlaceHolder = { placeholder: 'Select CR/DR' }
     this.selectCrDr = [{ id: '1', text: 'CR' }, { id: '0', text: 'DR' }]
     this.valueCRDR = value
-    this.crDrId =   +this.selectCrDr[0].id
+    this.crDrId = +this.selectCrDr[0].id
   }
 
- 
-  addnewCoustomer () {
+
+  addnewCoustomer() {
     $('#customer_form').modal(UIConstant.MODEL_SHOW)
     jQuery(function ($) {
       flatpickr('.customer-add', {
@@ -613,8 +642,6 @@ export class CustomerAddComponent implements OnDestroy {
         dateFormat: 'd M y'
       })
     })
-    this.adressArray = []
-    this.emailAdressArray = []
     this.customerTabDiv = false
     this.addressTabDiv = true
     this.createCustomerForm()
@@ -642,59 +669,55 @@ export class CustomerAddComponent implements OnDestroy {
   }
   requiredValid: boolean
   /* ...................adding customer........................... */
-  addCoustmore (value) {
+  saveCustomer(value) {
     this.submitClick = true
     this.VendorValidation()
-    this.checkGSTNumberValid()
-    this.checkPANNumberValid()
     this.emailAddingArray()
     this.addConatctDetails()
     if (value === 'reset') {
-      this.coustomerForm.reset()
-      this.createCustomerForm()
-      this.getStaeList(0, 0)
-      this.getCitylist(0, 0)
-      this.select2VendorValue(0)
-      this.getCustomoerType(0)
+        this.resetForNew()
+         this.activaTab('customer1')
     } else {
-      // // debugger;
-      if (this.coustomerForm.valid && !this.validMobileFlag && this.getEmailvalid &&   this.coustmoreRegistraionId > 0 && !this.customerCustomRateFlag) {
+      if (this.coustomerForm.valid && !this.validMobileFlag && this.getEmailvalid && this.coustmoreRegistraionId > 0 && !this.customerCustomRateFlag) {
         if (!this.mobileRequirdForSetting) {
           if (!this.emailRequirdForSetting) {
             if (!this.validGSTNumber) {
               if (!this.validPANFlag) {
                 if (!this.addressRequiredForLedger) {
                   this.subscribe = this._coustomerServices.addVendore(this.customerParams()).subscribe(Data => {
-                    // if (Data.Message === 'Error on Server') {
-                    //   this._toastrcustomservice.showWarning('Warning', 'check your internet connection and try again later')
-                    // }
+
                     if (Data.Code === UIConstant.THOUSAND) {
                       if (value === 'save') {
                         const dataToSend = { id: Data.Data, name: this.coustomerForm.value.customerName }
                         this._CommonService.AddedItem()
                         this._CommonService.closeCust({ ...dataToSend })
                         $('#customer_form').modal(UIConstant.MODEL_HIDE)
-                        this._toastrcustomservice.showSuccess('', 'Saved Successfully')
-                      } else {
+                        let saveFlag = this.editId === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+                        this._toastrcustomservice.showSuccess('', saveFlag)
+                      } else if (value === 'new') {
+                        this.activaTab('customer1')
+                        this._CommonService.AddedItem()
+                        this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
                         this.id = 0
                         this.satuariesId = 0
                         this.contactId = 0
                         this.addressid = 0
-                        this.emailAdressArray = []
-                        this.adressArray = []
-                        this.submitClick = false
-                        this.createCustomerForm()
+                        this.resetForNew()
                       }
                     }
                     if (Data.Code === UIConstant.THOUSANDONE) {
                       this._toastrcustomservice.showInfo('', Data.Description)
+                    }
+                    if (Data.Code === 5001) {
+                      this._toastrcustomservice.showError('', Data.Description)
 
                     }
                   }, () => {
                     //   console.log(error)
                   })
                 } else {
-
+                  this.activaTab('customer2')
+                  this.adressTab()
                   this._toastrcustomservice.showError('', ' Enter Address ')
                 }
               } else {
@@ -705,16 +728,31 @@ export class CustomerAddComponent implements OnDestroy {
             }
 
           } else {
+            this.select_email.selector.nativeElement.focus()
             this._toastrcustomservice.showError('', ' Enter Email')
           }
         } else {
+          this.select_Mobile.selector.nativeElement.focus()
           this._toastrcustomservice.showError('', '  Enter Contact Details')
         }
       }
     }
   }
 
+  resetForNew() {
 
+    this.submitClick = false
+    this.coustomerForm.reset()
+    this.createCustomerForm()
+  //  this.getStaeList(0, 0)
+    //this.getCitylist(0, 0)
+    this.select2VendorValue(0)
+    this.getCustomoerType(0)
+    this.mobileArray = []
+    this.emailArray = []
+    this.collectionOfAddress = []
+    this.createCustomerForm()
+  }
   errormassage: string
   stateError: boolean
   cityError: boolean
@@ -723,7 +761,7 @@ export class CustomerAddComponent implements OnDestroy {
   mobileErrormass: string
   emailErrormass: string
   reqEmailMobile: boolean
-  VendorValidation () {
+  VendorValidation() {
     if (this.coustmoreRegistraionId > 0) {
       this.customerRegistraionError = false
     } else {
@@ -759,7 +797,7 @@ export class CustomerAddComponent implements OnDestroy {
   }
 
   @ViewChild('area_selecto2') areaSelect2: Select2Component
-  addressDetailsValidation () {
+  addressDetailsValidation() {
     if (this.countrId > 0) {
       this.countryError = false
     } else {
@@ -783,21 +821,21 @@ export class CustomerAddComponent implements OnDestroy {
     }
 
   }
-  gstNumberRegxValidation (gstNumber) {
+  gstNumberRegxValidation(gstNumber) {
     //  /^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$ // working
     //  /^([0-9]{2}[a-zA-Z]{4}([a-zA-Z]{1}|[0-9]{1})[0-9]{4}[a-zA-Z]{1}([a-zA-Z]|[0-9]){3}){0,15}$/
     let regxGST = /^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$/
     return regxGST.test(gstNumber)
   }
-  panNumberRegxValidation (panNumber) {
+  panNumberRegxValidation(panNumber) {
     let regxPAN = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/
     return regxPAN.test(panNumber)
   }
   validPANFlag: boolean = false
   GSTNumber: any
   PANNumber: any
-  checkPANNumberValid () {
-    this.PANNumber = (this.coustomerForm.value.panNo).toUpperCase()
+  onInputCheckPANNumber(event) {
+    this.PANNumber = (event.target.value).toUpperCase()
     if (this.PANNumber !== '' && this.PANNumber !== null) {
       if (this.panNumberRegxValidation(this.PANNumber)) {
         this.validPANFlag = false
@@ -809,8 +847,9 @@ export class CustomerAddComponent implements OnDestroy {
     }
   }
   validGSTNumber: boolean = false
-  checkGSTNumberValid () {
-    this.GSTNumber = (this.coustomerForm.value.gstin).toUpperCase()
+
+  onInputCheckGstNumber(event) {
+    this.GSTNumber = (event.target.value).toUpperCase()
     // debugger
     if (this.GSTNumber !== '' && this.GSTNumber !== null) {
       if (this.gstNumberRegxValidation(this.GSTNumber)) {
@@ -823,23 +862,22 @@ export class CustomerAddComponent implements OnDestroy {
     }
   }
 
-  private customerParams (): AddLedger {
-     debugger
-    let doa
-    let dob
-    if (this.coustomerForm.value.doa !== '') {
-      doa = this._globalService.clientToSqlDateFormat(this.coustomerForm.value.doa, this.clientDateFormat)
-
-    }
-    else{
-      doa =''
-    }
-    if (this.coustomerForm.value.dob !== '') {
-      dob = this._globalService.clientToSqlDateFormat(this.coustomerForm.value.dob, this.clientDateFormat)
-
-    } else {
-      dob = ''
-    }
+  private customerParams(): AddLedger {
+    let DOA;
+    let DOB;
+    // DateOfAnniry:any
+  if(this.DateOfAnniry !==''){
+     DOA = this._globalService.clientToSqlDateFormat(this.DateOfAnniry, this.clientDateFormat)
+  }
+  else{
+    DOA=''
+  }
+  if(this.DateOfBirth !==''){
+     DOB = this._globalService.clientToSqlDateFormat(this.DateOfBirth, this.clientDateFormat)
+ }
+ else{
+  DOB=''
+ }
 
     let customerElement = {
       customerOBJ: {
@@ -867,33 +905,33 @@ export class CustomerAddComponent implements OnDestroy {
           Id: this.contactId,
           ParentTypeId: 5,
           Name: this.coustomerForm.value.contactPerson,
-          DOB: dob,
-          DOA: doa
+          DOB: DOB,
+          DOA: DOA
         }],
-        
+
         ContactInfos: this.mobileArray,
         Addresses: this.collectionOfAddress,
         Emails: this.emailArray
       } as AddLedger
     }
-
+console.log(customerElement,'customer-Req-')
     return customerElement.customerOBJ
   }
-  private getCreditLimit () {
+  private getCreditLimit() {
     if (this.coustomerForm.value.creditlimit > 0) {
       return this.coustomerForm.value.creditlimit
     } else {
       return 0
     }
   }
-  private creditDaysValue () {
+  private creditDaysValue() {
     if (this.coustomerForm.value.creditDays > 0) {
       return this.coustomerForm.value.creditDays
     } else {
       return 0
     }
   }
-  private getopeinAmountValue () {
+  private getopeinAmountValue() {
     if (this.coustomerForm.value.openingblance > 0) {
       return this.coustomerForm.value.openingblance
     } else {
@@ -904,8 +942,7 @@ export class CustomerAddComponent implements OnDestroy {
   country: string
   stateName: string
   cityName: string
-  addNewAdress () {
-    // // debugger;
+  addNewAdress() {
     this.addressClick = true
     this.addressDetailsValidation()
     if (this.stateId > 0 && this.cityId > 0 && this.countrId > 0 && this.adressForm.value.adresss !== '' && this.adressForm.value.adresss !== null) {
@@ -978,10 +1015,13 @@ export class CustomerAddComponent implements OnDestroy {
     this.adressForm.reset()
     this.getCountry(0)
     this.adressType(0)
+    setTimeout(() => {
+      this.countryselecto.selector.nativeElement.focus()
+    }, 1000)
   }
 
   addressIndex: any
-  getEditAddress (address, index) {
+  getEditAddress(address, index) {
     this.addressIndex = index
     this.adressForm.controls.postcode.setValue(address.PostCode)
     this.adressForm.controls.adresss.setValue(address.AddressValue)
@@ -992,12 +1032,13 @@ export class CustomerAddComponent implements OnDestroy {
 
 
 
-  
-  ngOnDestroy () {
+
+  ngOnDestroy() {
     this.modalSub.unsubscribe()
+    this.confirmSUB.unsubscribe()
   }
   setupCodeForAddresRequired: any
-  removeAdressIndexArray (i) {
+  removeAdressIndexArray(i) {
     this.collectionOfAddress.splice(i, 1)
     if (this.collectionOfAddress.length > 0) {
       this.addressRequiredForLedger = false
@@ -1010,7 +1051,10 @@ export class CustomerAddComponent implements OnDestroy {
       }
   }
 
-  getCustomerEditData (id) {
+  getCustomerEditData(id) {
+    setTimeout(() => {
+      this.ledgerName.nativeElement.focus()
+    }, 1000)
     this.getCountry(0)
     this.submitClick = false
     $('#customer_form').modal(UIConstant.MODEL_SHOW)
@@ -1018,108 +1062,108 @@ export class CustomerAddComponent implements OnDestroy {
     this.addressTabDiv = true
 
     this.subscribe = this._coustomerServices.editvendor(id).subscribe(Data => {
-if(Data.Code === UIConstant.THOUSAND){
-     // this.emailMobileValidationRequired()
-      //  console.log('edit customer data: ', Data)
-      if (Data.Data && Data.Data.Statutories && Data.Data.Statutories.length > 0) {
-        this.satuariesId = Data.Data.Statutories[0].Id
-        this.coustomerForm.controls.gstin.setValue(Data.Data.Statutories[0].GstinNo)
-        this.coustomerForm.controls.panNo.setValue(Data.Data.Statutories[0].PanNo)
-      }
-      // console.log(Data.Data, 'customer edit Data')
-      if (Data.Data && Data.Data.Addresses && Data.Data.Addresses.length > 0) {
-        // alert("jij9")
-        this.collectionOfAddress = []
-        this.collectionOfAddress = Data.Data.Addresses
-        this.addressRequiredForLedger = false
-
-      } else {
-        this.collectionOfAddress = []
-      }
-
-      if (Data.Data && Data.Data.ContactPersons && Data.Data.ContactPersons.length > 0) {
-        this.contactId = Data.Data.ContactPersons[0].Id
-        this.coustomerForm.controls.contactPerson.setValue(Data.Data.ContactPersons[0].Name)
-        if(Data.Data.ContactPersons[0].DOA !==null){
-          let DOA = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOA, this.clientDateFormat)
-          this.coustomerForm.controls.doa.setValue(DOA)
+      if (Data.Code === UIConstant.THOUSAND) {
+        // this.emailMobileValidationRequired()
+        //  console.log('edit customer data: ', Data)
+        if (Data.Data && Data.Data.Statutories && Data.Data.Statutories.length > 0) {
+          this.satuariesId = Data.Data.Statutories[0].Id
+          this.coustomerForm.controls.gstin.setValue(Data.Data.Statutories[0].GstinNo)
+          this.coustomerForm.controls.panNo.setValue(Data.Data.Statutories[0].PanNo)
         }
-        else{
-          this.coustomerForm.controls.doa.setValue('')
+        // console.log(Data.Data, 'customer edit Data')
+        if (Data.Data && Data.Data.Addresses && Data.Data.Addresses.length > 0) {
+          // alert("jij9")
+          this.collectionOfAddress = []
+          this.collectionOfAddress = Data.Data.Addresses
+          this.addressRequiredForLedger = false
+
+        } else {
+          this.collectionOfAddress = []
         }
-        if(Data.Data.ContactPersons[0].DOB !==null){
-        let DOB = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOB, this.clientDateFormat)
-        this.coustomerForm.controls.dob.setValue(DOB)
+
+        if (Data.Data && Data.Data.ContactPersons && Data.Data.ContactPersons.length > 0) {
+          this.contactId = Data.Data.ContactPersons[0].Id
+          this.coustomerForm.controls.contactPerson.setValue(Data.Data.ContactPersons[0].Name)
+          if (Data.Data.ContactPersons[0].DOA !== null) {
+            this.DateOfAnniry = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOA, this.clientDateFormat)
+            // this.coustomerForm.controls.doa.setValue(DOA)
+          }
+          else {
+            this.coustomerForm.controls.doa.setValue('')
+          }
+          if (Data.Data.ContactPersons[0].DOB !== null) {
+            this.DateOfBirth = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOB, this.clientDateFormat)
+            // this.coustomerForm.controls.dob.setValue(DOB)
+          }
+          else {
+            this.coustomerForm.controls.dob.setValue('')
+          }
         }
-        else{
-          this.coustomerForm.controls.dob.setValue('')
+
+        if (Data.Data && Data.Data.LedgerDetails && Data.Data.LedgerDetails.length > 0) {
+
+          this.coustomerForm.controls.customerName.setValue(Data.Data.LedgerDetails[0].Name)
+          this.coustomerForm.controls.creditDays.setValue(Data.Data.LedgerDetails[0].CreditDays)
+          this.coustomerForm.controls.creditlimit.setValue(Data.Data.LedgerDetails[0].CreditLimit)
+          this.coustomerForm.controls.openingblance.setValue(Data.Data.LedgerDetails[0].OpeningBalance)
+          this.customerTypeId = Data.Data.LedgerDetails[0].CustomerTypeId
+          this.customerTypeId = Data.Data.LedgerDetails[0].TaxTypeId
+          this.crDrId = Data.Data.LedgerDetails[0].Crdr
+          this.getCustomoerType(Data.Data.LedgerDetails[0].CustomerTypeId)
+          this.select2VendorValue(Data.Data.LedgerDetails[0].TaxTypeId)
+          this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
+        }
+
+        if (Data.Data.ContactInfo.length > 0) {
+
+          this.mobileRequirdForSetting = false
+          this.mobileArray = []
+          this.mobileArray = Data.Data.ContactInfo
+          console.log(this.mobileArray, 'hhhh---')
+        } else {
+          this.mobileArray = []
+          //   this.addingArrayinMobleType(0)
+        }
+        if (Data.Data && Data.Data.Emails.length > 0) {
+          this.emailRequirdForSetting = false
+          this.emailArray = []
+          this.emailArray = Data.Data.Emails
+        } else {
+          this.emailArray = []
+          //this.emailAddingArray(0)
+        }
+
+        if (Data.Data.LedgerDetails[0].IsTradeDiscountable === true) {
+          this.istradeDiscountValue = true
+          $('#tradediscount').prop('checked', true)
+        } else {
+          $('#tradediscount').prop('checked', false)
+          this.istradeDiscountValue = false
+        }
+        if (Data.Data.LedgerDetails[0].IsVolumeDiscountable === true) {
+          $('#volumediscount1').prop('checked', true)
+          this.isVolumeDiscountValue = true
+        } else {
+          $('#volumediscount1').prop('checked', false)
+          this.isVolumeDiscountValue = false
+        }
+
+        if (Data.Data.LedgerDetails[0].IsCashDiscountable === true) {
+          $('#cashdiscount').prop('checked', true)
+          this.isDiscountValue = true
+        } else {
+          $('#cashdiscount').prop('checked', false)
+          this.isDiscountValue = false
         }
       }
-
-      if (Data.Data && Data.Data.LedgerDetails && Data.Data.LedgerDetails.length > 0) {
-
-        this.coustomerForm.controls.customerName.setValue(Data.Data.LedgerDetails[0].Name)
-        this.coustomerForm.controls.creditDays.setValue(Data.Data.LedgerDetails[0].CreditDays)
-        this.coustomerForm.controls.creditlimit.setValue(Data.Data.LedgerDetails[0].CreditLimit)
-        this.coustomerForm.controls.openingblance.setValue(Data.Data.LedgerDetails[0].OpeningBalance)
-        this.customerTypeId = Data.Data.LedgerDetails[0].CustomerTypeId
-        this.customerTypeId = Data.Data.LedgerDetails[0].TaxTypeId
-        this.crDrId = Data.Data.LedgerDetails[0].Crdr
-        this.getCustomoerType(Data.Data.LedgerDetails[0].CustomerTypeId)
-        this.select2VendorValue(Data.Data.LedgerDetails[0].TaxTypeId)
-        this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
-      }
-
-      if (Data.Data.ContactInfo.length > 0) { 
-        
-        this.mobileRequirdForSetting = false
-        this.mobileArray = []
-        this.mobileArray = Data.Data.ContactInfo
-        console.log(this.mobileArray,'hhhh---')
-      } else {
-        this.mobileArray = []
-     //   this.addingArrayinMobleType(0)
-      }
-      if (Data.Data && Data.Data.Emails.length > 0) {
-        this.emailRequirdForSetting = false
-        this.emailArray = []
-        this.emailArray = Data.Data.Emails
-      } else {
-        this.emailArray = []
-        //this.emailAddingArray(0)
-      }
-
-      if (Data.Data.LedgerDetails[0].IsTradeDiscountable === true) {
-        this.istradeDiscountValue = true
-        $('#tradediscount').prop('checked', true)
-      } else {
-        $('#tradediscount').prop('checked', false)
-        this.istradeDiscountValue = false
-      }
-      if (Data.Data.LedgerDetails[0].IsVolumeDiscountable === true) {
-        $('#volumediscount1').prop('checked', true)
-        this.isVolumeDiscountValue = true
-      } else {
-        $('#volumediscount1').prop('checked', false)
-        this.isVolumeDiscountValue = false
-      }
-
-      if (Data.Data.LedgerDetails[0].IsCashDiscountable === true) {
-        $('#cashdiscount').prop('checked', true)
-        this.isDiscountValue = true
-      } else {
-        $('#cashdiscount').prop('checked', false)
-        this.isDiscountValue = false
-      }
-    }
     })
   }
 
-  reapeatName (name: string) {
+  reapeatName(name: string) {
     this.coustomerForm.controls.contactPerson.setValue(name)
   }
 
-  emailMobileValidationRequired () {
+  emailMobileValidationRequired() {
     this.subscribe = this._CommonService.getModulesettingAPI('').subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data && data.Data.SetupClients && data.Data.SetupClients.length > 0) {
@@ -1169,49 +1213,57 @@ if(Data.Code === UIConstant.THOUSAND){
 
 
   contactTypeData: any
-  getContactType (){
-    this.contactTypeData = [{id:'0',text:'Select'},
-                          {id:'1',text:'Work'},
-                          {id:'2',text:'Home'},
-                          {id:'3',text:'Mobile'},
-                          {id:'4',text:'Fax'},
-                          {id:'5',text:'Skype'},
-                          {id:'6',text:'YMessenger'},
-                          {id:'7',text:'Sip'},
-                          {id:'8',text:'Other'},
+  getContactType() {
+    this.contactTypeData = [
+      { id: '1', text: 'Work' },
+      { id: '2', text: 'Home' },
+      { id: '3', text: 'Mobile' },
+      { id: '4', text: 'Fax' },
+      { id: '5', text: 'Skype' },
+      { id: '6', text: 'YMessenger' },
+      { id: '7', text: 'Sip' },
+      { id: '8', text: 'Other' },
 
 
-  ]
+    ]
+    //this.select_Mobile.setElementValue(this.contactTypeData[1].id)
+    // this.selectMobileId = this.contactTypeData[1].id
+
+
   }
-    emailTypeData: any
-    emailTypeDataType (){
-    this.emailTypeData = [{id:'0',text:'Select'},
-                          {id:'1',text:'Persnal'},
-                          {id:'2',text:'Work'},
-                          {id:'3',text:'Home'},
-                          {id:'4',text:'Other'}
+  selectMobileId: any
+  emailTypeData: any
+  emailTypeDataType() {
+    this.emailTypeData = [
+      { id: '1', text: 'Persnal' },
+      { id: '2', text: 'Work' },
+      { id: '3', text: 'Home' },
+      { id: '4', text: 'Other' }
 
-                        
 
-  ]
+
+    ]
+    // this.contactType = this.emailTypeData[1].id
+    //this.select_email.setElementValue(+this.contactType)
+
   }
-
+  selectEmailId: any
   countryListWithCode: any
-  searchCountryCodeForMobile (name) {
+  searchCountryCodeForMobile(name) {
     this.subscribe = this._CommonService.searchCountryByName(name).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND && Data.Data.length > 0) {
         this.countryListWithCode = []
-        let newdataList = [{ id: '0',text : 'select code',PhoneCode : '0' , Length: 0 }]
+        let newdataList = [{ id: '0', text: 'Select Code', PhoneCode: '0', Length: 0 }]
         Data.Data.forEach(element => {
           newdataList.push({
-            id : element.Phonecode,
-            text : '+' + element.Phonecode + '-' + element.Name,
-            PhoneCode : element.Phonecode,
-            Length : element.Length
+            id: element.Phonecode,
+            text: '+' + element.Phonecode + '-' + element.Name,
+            PhoneCode: element.Phonecode,
+            Length: element.Length
           })
         })
         this.countryListWithCode = newdataList
-        console.log(Data ,'code')
+        console.log(Data, 'code')
       } else {
         this._toastrcustomservice.showError('', Data.Description)
 
@@ -1223,20 +1275,27 @@ if(Data.Code === UIConstant.THOUSAND){
   validmobileLength: any
   enableContactFlag: boolean
   onCountryCodeSelectionChange = (event) => {
-    debugger
+    
     if (event.data.length > 0) {
-      this.checkSelectCode = true
-      this.enableContactFlag = false
-      this.CountryCode = '+' + event.data[0].PhoneCode
-      this.validmobileLength = event.data[0].Length
-      this.CountryCodeId =  event.data[0].PhoneCode
+      if(event.data[0].id !== '0'){
+        this.checkSelectCode = true
+        this.enableContactFlag = false
+        this.CountryCode = '+' + event.data[0].PhoneCode
+        this.validmobileLength = event.data[0].Length
+        this.CountryCodeId =  event.data[0].PhoneCode
+      }
+      else{
+        this.enableContactFlag = true
+      }
+      
     }
   }
+  
   contactType: any
   contactTypeName: any
   CountryCodeId: any
-  onChangeContactType =(event) => {
-    if(event.data.length>0){
+  onChangeContactType = (event) => {
+    if (event.data.length > 0) {
       this.contactType = event.data[0].id
       this.contactTypeName = event.data[0].text
     }
@@ -1245,103 +1304,108 @@ if(Data.Code === UIConstant.THOUSAND){
   EmailType: any
   EmailAddress: any
   EmailAddressTypeName: any
-  onChangeEmailType =(event) => {
-    if(event.data.length>0){
+  onChangeEmailType = (event) => {
+    if (event.data.length > 0) {
       this.EmailType = event.data[0].id
       this.EmailAddressTypeName = event.data[0].text
     }
 
   }
-  validateEmail (email) {
+  validateEmail(email) {
     let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     return re.test(email)
   }
-  editEmailFlg: boolean= true
-  emailAddingArray () {
+  editEmailFlg: boolean = true
+  emailAddingArray() {
     this.editEmailFlg = true
-    if(this.EmailType > 0 && this.getEmailvalid && this.coustomerForm.value.EmailAddress !== ''){
+    this.checkvalidationEmail()
+    if (this.EmailType > 0 && this.getEmailvalid && this.coustomerForm.value.EmailAddress !== '') {
       this.emailRequirdForSetting = false
-    this.emailArray.push({
-      Id: this.EmailId ===0 ? 0 : this.EmailId,
-      EmailType:this.EmailType,
-      EmailTypeName: this.EmailAddressTypeName,
-      EmailAddress : this.coustomerForm.value.EmailAddress,
-      ParentTypeId: 5
-    
-     })
-     this.clear('email')
-    }
-   
-  }
-@ViewChild('phoneCode_select2') phoneCodeselect2: Select2Component
+      this.emailArray.push({
+        Id: this.EmailId === 0 ? 0 : this.EmailId,
+        EmailType: this.EmailType,
+        EmailTypeName: this.EmailAddressTypeName,
+        EmailAddress: this.coustomerForm.value.EmailAddress,
+        ParentTypeId: 5
 
-  clear(type){
-    if(type === 'email'){
-      this.coustomerForm.controls.EmailAddress.setValue('')
-      this.select_email.setElementValue(0)
-      this.EmailType ='0'
+      })
+
+      this.clear('email')
     }
-    if(type ==='contact'){
+
+  }
+  @ViewChild('phoneCode_select2') phoneCodeselect2: Select2Component
+
+  clear(type) {
+    if (type === 'email') {
+      this.coustomerForm.controls.EmailAddress.setValue('')
+      this.select_email.setElementValue(1)
+      this.EmailType = '1'
+    }
+    if (type === 'contact') {
       this.coustomerForm.controls.mobileNo.setValue('')
       this.phoneCodeselect2.setElementValue(0)
-      this.select_Mobile.setElementValue(0)
-      this.select_email.setElementValue(0)
-      this.contactType ='0'
-      this.CountryCode =0
-      this.validMobileFlag =false
+      this.select_Mobile.setElementValue(1)
+      this.contactType = '1'
+      this.CountryCode = 0
+      this.validMobileFlag = false
     }
   }
 
- addConctFlag: boolean = false
-  addConatctDetails (){
-    this.addConctFlag= true
+  addConctFlag: boolean = false
+  addConatctDetails() {
+    this.addConctFlag = true
     this.editFlg = true
-    this.validateContact()
-    if(this.contactType > 0  && this.CountryCode > 0 && !this.validMobileFlag && this.coustomerForm.value.mobileNo !== ''){
-     
-       this.mobileRequirdForSetting = false
+    if (this.contactType > 0 && this.CountryCode > 0 && !this.validMobileFlag && this.coustomerForm.value.mobileNo !== '') {
+
+      this.mobileRequirdForSetting = false
       this.mobileArray.push({
-       Id: this.mobileNoId ===0 ? 0 :this.mobileNoId,
-       ContactType:this.contactType,
-       ContactTypeName: this.contactTypeName,
-       ContactNo : this.coustomerForm.value.mobileNo,
-       CountryCode:this.CountryCode,
-       CodeId:this.CountryCodeId,
-       ParentTypeId: 5
-     
+        Id: this.mobileNoId === 0 ? 0 : this.mobileNoId,
+        ContactType: this.contactType,
+        ContactTypeName: this.contactTypeName,
+        ContactNo: this.coustomerForm.value.mobileNo,
+        CountryCode: this.CountryCode,
+        CodeId: this.CountryCodeId,
+        ParentTypeId: 5
+
       })
+
       this.enableContactFlag = true
       this.clear('contact')
     }
 
-   
-   console.log(this.mobileArray,'this.adressArray')
-   }
-   invalidObj:any ={}
-   invalidObjCont: any ={}
-validateContact (){
-debugger
-  let isValid = 1
-  if (this.contactType !=='0') {
-    this.invalidObjCont['contactType'] = false
-  } else {
-    this.invalidObjCont['contactType'] = true
-    isValid = 0
+
   }
- 
-  if (this.CountryCode >0) {
-    this.invalidObjCont['CountryCode'] = false
-  } else {
-    this.invalidObjCont['CountryCode'] = true
-    isValid = 0
-  }
+  invalidObj: any = {}
+  invalidObjCont: any = {}
+
+  getEmailvalid: any
+  checkvalidationEmail() {
+    if (this.coustomerForm.value.EmailAddress === "" || this.coustomerForm.value.EmailAddress === null) {
+      this.getEmailvalid = true
+    }
+    else {
+      this.getEmailvalid = this.validateEmail(this.coustomerForm.value.EmailAddress)
+      return this.getEmailvalid
+    }
 
 
-  return !!isValid 
-}
-getEmailvalid: any
-checkvalidationEmail (event) {
-this.getEmailvalid =     this.validateEmail(event.target.value)
-return this.getEmailvalid
-}
+  }
+
+  pressEnterEmailadd(e: KeyboardEvent) {
+    this.emailAddingArray()
+    this._CommonService.openConfirmation('email', 'Email Details')
+
+  }
+
+  pressEnterMobileAdd(e: KeyboardEvent) {
+    this.addConatctDetails()
+    this._CommonService.openConfirmation('mobile', 'Contact Details')
+
+  }
+  // @HostListener('document:keypress', ['$event'])
+  // key: any
+  // handleKeyboardEvent(event: KeyboardEvent) { 
+  //   this.key = event.key;
+  // }
 }

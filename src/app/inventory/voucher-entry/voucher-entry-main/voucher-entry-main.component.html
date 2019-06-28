@@ -45,3 +45,91 @@
 </main>
 
 <voucher-entry-add></voucher-entry-add>
+
+
+
+
+
+
+
+
+<!--print-->
+<div class="modal" id="payment_print_id" >
+  <header class="clearfix">
+    <div class="row1">
+      <div class="col1">
+        <div id="logo">
+          <img src="https://www.saniiro.com/img/logo.png">
+        </div>
+      </div>
+      <div class="col1">
+        <div class="company-title">
+          <h2 class="name">Saniiro Technologies Pvt Ltd</h2>
+          <div>613-5th Floor Apex Mall Lalkothi Jaipur</div>
+          <div>(602) 519-0450</div>
+          <div><a href="mailto:company@example.com">info@saniiro.com</a></div>
+          <div><a href="https://www.saniiro.com/" target="_blank">www.saniiro.com</a></div>
+          <div style="font-weight:600">CIN : 10ASAH5544AS10</div>
+          <div style="font-weight:600">Print Date : 10-05-2019</div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class=" header">
+      <h2 class="name">Receipt</h2>
+  </div>
+  <main>
+    <div class="clearfix">
+        <div class="row1">
+            <div class="col1" style="font-weight:600" 
+            *ngIf="printData && printData[0] && printData[0].ReceiptPayments[0]" >
+            Receipt No.:{{printData[0]?.ReceiptPayments[0]?.VoucherNo}}</div>
+            <div class="col1" style="text-align:right; font-weight:600">Date : </div>
+        </div>
+    </div>
+    <div id="details" class="clearfix">
+        <div class="row1">
+            <div class="col1" style="font-weight:600">Membership No.:CLB_2019_R_771</div>
+        </div>
+        <div class="row1">
+            <div class="col1">
+                <p> Received with thanks from <strong>Mr./Ms. SWATI MAHESHWARI</strong> Rs. 1000.00 (Rs. One Thousand )</p>
+            </div>
+        </div>
+        <!-- <div class="row1">
+            <div class="col1">
+                <span><strong>Narration </strong>:Advance Payment</span>
+            </div>
+        </div>  against (Advance Payment :- 1000.00 ) -->
+    </div>
+    <div class="row1">
+      <div class="col1"></div>
+      <div class="col1">
+        <div class="table_summery">
+          <table border="0" class="table1" cellspacing="0" cellpadding="0">
+            <tbody>
+              <tr *ngIf="printData && printData[0] && printData[0].ReceiptPayments[0]" >
+                <th class="desc" >Total Outstanding Amount</th>
+                <td class="total">{{printData[0]?.ReceiptPayments[0]?.CurrentOutStanding}}</td>
+              </tr>
+              <tr>
+                <th class="desc">Amount Received</th>
+                <td class="total">{{printData[0]?.ReceiptPayments[0]?.PaidAmount}}</td>
+              </tr>
+              <tr>
+                <th class="desc">Balance Amount</th>
+                <td class="total">{{printData[0]?.ReceiptPayments[0]?.BalanceAmount}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="row1">
+      <div class="col1">
+        <h3 class="name-footer">For : Saniiro Technologies Pvt Ltd</h3>
+      </div>
+      <div class="col1"><p style="text-align:right;font-weight:600;">Authorised Signatory</p></div>
+    </div>
+  </main>
+</div>

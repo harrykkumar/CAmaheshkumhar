@@ -37,12 +37,17 @@
               </div>
                <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label class="fw-500">Challan Date</label>
-                <div class="timepicker-input input-icon ">
+                <datepicker-popup [disableInput]="editMode"
+                [toSetDate]="InvoiceDate" [isBackDate]="backDateEntry"
+                (dateInFormat)="InvoiceDate = $event;"
+                [class]="submitSave && invalidObj?.InvoiceDate" >
+                </datepicker-popup>
+                <!-- <div class="timepicker-input input-icon ">
                   <div class="input-group">
                     <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
                     <input [disabled]="Id !== 0" (ngModelChange)="changeBillDate($event)" (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="bill-date" placeholder="Challan Date" [ngClass]="{'errorSelecto': submitSave && invalidObjmain?.InvoiceDate }" data-provide="datepicker" [(ngModel)]="InvoiceDate" name="InvoiceDate">
                   </div>
-                </div>
+                </div> -->
               </div>
              <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label>Organization Name</label>
@@ -60,12 +65,11 @@
               </div>
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
                   <label class="fw-500">Current Date</label>
-                  <div class="timepicker-input input-icon ">
-                    <div class="input-group">
-                      <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                      <input [disabled]="Id !== 0"  (input)="checkValidation()" type="text" class="form-control  start-date flatpickr"  id="Current-date" placeholder="Current Date" [ngClass]="{'errorSelecto': submitSave && invalidObjmain?.CurrentDate }" data-provide="datepicker" [(ngModel)]="CurrentDate" name="CurrentDate">
-                    </div>
-                  </div>
+                  <datepicker-popup [disableInput]="editMode"
+                  [toSetDate]="CurrentDate" 
+                  (dateInFormat)="CurrentDate = $event;"
+                  [class]="submitSave && invalidObj?.CurrentDate" >
+                  </datepicker-popup>
                 </div>
              
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
@@ -230,10 +234,18 @@
                   
                         <ng-container *ngIf="industryId === '5' " >
                         <td>
-                        <input  (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="MF-date" placeholder="MF Date"  data-provide="datepicker" [(ngModel)]="MfdDate" name="MFDate">
+                            <datepicker-popup 
+                            [toSetDate]="MfdDate" 
+                            (dateInFormat)="MfdDate = $event;" >
+                            </datepicker-popup>
+                        <!-- <input  (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="MF-date" placeholder="MF Date"  data-provide="datepicker" [(ngModel)]="MfdDate" name="MFDate"> -->
                       </td>
                         <td>
-                           <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate">
+                            <datepicker-popup 
+                            [toSetDate]="ExpiryDate" 
+                            (dateInFormat)="ExpiryDate = $event;" >
+                            </datepicker-popup>
+                           <!-- <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate"> -->
                       </td>
                          <td>
                         <input (input)="validationForItemData()"  type="text"   class="form-control"   [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.BatchNo }"  placeholder="BatchNo"  name="BatchNo" [(ngModel)]="BatchNo">
@@ -244,8 +256,11 @@
                         <input  (input)="validationForItemData()" type="text"   class="form-control"   [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.BatchNo }"  placeholder="BatchNo"  name="BatchNo" [(ngModel)]="BatchNo">
                       </td>
                       <td>
-                           
-                           <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate">
+                          <datepicker-popup 
+                          [toSetDate]="ExpiryDate" 
+                          (dateInFormat)="ExpiryDate = $event;" >
+                          </datepicker-popup>
+                           <!-- <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate"> -->
                       </td>
                         </ng-container>
                         
@@ -380,12 +395,10 @@
                 <div class="form-row">
                   <div class="form-group col-md-4">
                     <label class="fw-500">Supply Date</label>
-                 <div class="timepicker-input input-icon ">
-                  <div class="input-group">
-                    <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                    <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="supply-date" placeholder="Supply Date" [ngClass]="{'errorSelecto': submitSave && invalidObjmain?.SupplyDate }" data-provide="datepicker" [(ngModel)]="SupplyDate" name="SupplyDate">
-                  </div> 
-                </div>
+                <datepicker-popup 
+                [toSetDate]="SupplyDate" 
+                (dateInFormat)="SupplyDate = $event;" >
+                </datepicker-popup>
                   </div>
                   <div class="form-group col-md-4">
                     <label class="">Location To</label>

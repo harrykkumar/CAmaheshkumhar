@@ -31,8 +31,6 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
 
   // tslint:disable-next-line:space-before-function-paren
   ngOnInit() {
-
-    this.initAttributeNameList(0)
     this.initAddAttributeData()
 
     this.deleteParent$ = this.attributeService.deleteParent$.subscribe(
@@ -55,6 +53,8 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
       if (response.open === true) {
         // console.log(response, 'add attr')
         this.resetFormData()
+        this.initAttributeNameList(0)
+
         this.isParent = response.data.isParent
         if (response.data.editId || response.data.attrNameId) {
           this.setEditData(response)

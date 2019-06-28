@@ -71,21 +71,11 @@ export class ItemStockSearchComponent implements OnInit, AfterViewInit, OnChange
   }
 
   fromDate = () => {
-    $('#item-stock-from-date').flatpickr({
-      dateFormat: this.clientDateFormat,
-      onOpen: () => {
-        this.model.fromDatevalue = ''
-      }
-    })
+    this.model.fromDatevalue = ''
   }
 
   toDate = () => {
-    $('#item-stock-to-date').flatpickr({
-      dateFormat: this.clientDateFormat,
-      onOpen: () => {
-        this.model.toDateValue = ''
-      }
-    })
+      this.model.toDateValue = ''
   }
 
   getSalePurchaseUtilityItems = () => {
@@ -136,12 +126,7 @@ export class ItemStockSearchComponent implements OnInit, AfterViewInit, OnChange
   }
 
   ngOnInit() {
-    $(document).ready(function () {
-      $('.table_challan').tableHeadFixer({
-        head: true,
-        foot: true
-      })
-    })
+    this._commonService.fixTableHF('table_challan')
     this.getSalePurchaseUtilityItems();
   }
 
@@ -251,4 +236,5 @@ export class ItemStockSearchComponent implements OnInit, AfterViewInit, OnChange
     this.model.fromDatevalue = ""
     this.model.toDateValue = ""
   }
+
 }

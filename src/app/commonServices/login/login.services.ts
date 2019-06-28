@@ -1,38 +1,43 @@
 import { MODULES_IMG_SRC } from './../../start/user-modules/user-modules-image-src';
 import { UIConstant } from './../../shared/constants/ui-constant'
 import { Injectable } from '@angular/core'
-import { Observable, BehaviorSubject } from 'rxjs'
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { ApiConstant } from '../../shared/constants/api'
 import { BaseServices } from '../base-services'
-import { CommonService } from '../commanmaster/common.services'
-import { Settings } from 'src/app/shared/constants/settings.constant'
 import * as _ from 'lodash'
 import { Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { TokenService } from '../token.service';
+import { filter } from 'rxjs/internal/operators';
+import { catchError } from 'rxjs/internal/operators/catchError';
+import { GlobalService } from '../global.service';
+import { ToastrCustomService } from '../toastr.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-  moduleSelected = new BehaviorSubject(false)
   permissionUpdated = new BehaviorSubject(false)
   selectedUserModule: any = {}
   selectedOrganization: any = {}
   userData: any = {}
   userOrganizations: any = {}
   constructor(private _basesService: BaseServices,
-    private commonService: CommonService,
-    private settings: Settings,
     private router: Router,
-    private tokenService: TokenService) { }
+    private gs: GlobalService,
+    private tokenService: TokenService,
+    private toastrService: ToastrCustomService) { }
 
   public login (params: any): Observable<any> {
     return this._basesService.postRequest(ApiConstant.LOGIN_URL, params)
   }
 
-  logOut () {
+  logOut() {
     this.tokenService.destroyToken()
+    this.selectedUserModule = {}
+    this.selectedOrganization = {}
+    this.userData = {}
+    this.userOrganizations = {}
   }
 
   /* Function to get user data, modules, menus and menu-permissions */
@@ -42,6 +47,7 @@ export class LoginService {
         async (data) => {
           if (data.Code === UIConstant.THOUSAND) {
             this.userData = data.Data
+            console.log(this.userData ,'Company')
             await this.mapSideMenus()
             await this.mapSubMenus()
             await this.mapPermissions()
@@ -177,13 +183,31 @@ export class LoginService {
   mapModules = async (selectedOrganization) => {
     await this.getUserDetails(selectedOrganization.Id)
     if (this.userData.Modules.length === 1) {
+      console.log('this.userData.Modules : ', this.userData.Modules)
       this.selectedUserModule = { ...this.userData.Modules[0] }
+      this.getAllSettings(this.userData.Modules[0].Id)
       this.selectedUserModule['index'] = 0
       localStorage.setItem('SELECTED_MODULE', JSON.stringify(this.selectedUserModule))
-      this.moduleSelected.next(true)
       this.router.navigate(['dashboard'])
     } else {
       this.router.navigate(['modules'])
     }
+  }
+
+  getModuleSetting (id) {
+    return this._basesService.getRequest(ApiConstant.MODULE_SETTING_ON_TOP + id)
+  }
+
+  getAllSettings (id) {
+    let _self = this
+    this.getModuleSetting(id).pipe(filter(data => {
+      if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
+    }), catchError(error => { return throwError(error) }), map(data => data.Data))
+    .subscribe((data) => {
+        console.log('settings data : ', data)
+        _self.gs.getAllSettings(data, id)
+      },
+      (error) => {console.log(error);this.toastrService.showError(error, '')}
+    )
   }
 }

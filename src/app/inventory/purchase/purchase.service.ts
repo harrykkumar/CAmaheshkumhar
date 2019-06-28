@@ -41,8 +41,10 @@ export class PurchaseService {
   freightData$ = this.freightData.asObservable()
   addressData = new Subject<{data: Array<Select2OptionData>}>()
   addressData$ = this.addressData.asObservable()
-  settingData = new Subject<{data: Array<Select2OptionData>}>()
+  settingData = new Subject<{data: Array<any>}>()
   settingData$ = this.settingData.asObservable()
+  settingData1 = new Subject<{data: Array<any>}>()
+  settingData1$ = this.settingData1.asObservable()
   chargestData = new Subject<{data: Array<Select2OptionData>}>()
   chargestData$ = this.chargestData.asObservable()
   searchSub = new Subject<string>()
@@ -89,6 +91,7 @@ export class PurchaseService {
         this.toastrService.showError('Not getting appropriate data for attributes', '')
       }
     }
+    console.log(attributesData)
     let attibutesDataToSend = Object.assign([], attributesData)
     this.attributesDataSub.next({ 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend })
   }
@@ -271,39 +274,7 @@ export class PurchaseService {
   }
 
   getAllSettings (settings) {
-    let setting = []
-    let setupMasters = settings.SetupMasters
-    let setupClient = settings.SetupClients
-    console.log(setupMasters)
-    console.log(setupClient)
-    // let i = 0
-    setupMasters.forEach(element => {
-      let val: string | Array<any> | boolean | number
-      if (+element.Type === SetUpIds.singleId) {
-        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        val = setupclient[0].Id
-      }
-      if (+element.Type === SetUpIds.singleVal) {
-        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        val = setupclient[0].Val
-      }
-      if (+element.Type === SetUpIds.getStrOrNum || +element.Type === SetUpIds.baseTypeNum) {
-        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        val = setupclient[0].Val
-      } else if (+element.Type === SetUpIds.multiple) {
-        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        val = setupclient[0].Val.split(',')
-      } else if (+element.Type === SetUpIds.getBoolean) {
-        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        val = !!(+setupclient[0].Val)
-      }
-      setting.push({
-        id: element.Id,
-        val: val
-      })
-      // i++
-    })
-    this.settingData.next({ 'data': setting })
+    this.settingData1.next({ 'data': settings })
   }
 
   taxCalculation (taxRates, taxSlabType, rate, isOtherState, parentType, slabName) {

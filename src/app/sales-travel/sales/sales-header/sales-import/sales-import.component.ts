@@ -171,7 +171,7 @@ export class SalesImportComponent implements OnInit, OnDestroy {
         masterTableArray = XLSX.utils.sheet_to_json(worksheet, { raw: true })
         this.masterTableDivShow = true
       }
-      this.masterTableArray = this.masterTableArray.splice(0, masterTableArray.length)
+      this.masterTableArray = masterTableArray.splice(0, masterTableArray.length)
       console.log('masterTableArray : ', this.masterTableArray)
       // check validation
       if (this.masterTableArray.length > 0) {
@@ -217,7 +217,7 @@ export class SalesImportComponent implements OnInit, OnDestroy {
               newRow['FARE'] = +newRow['FARE']
               newRow['DATE'] = this.gs.checkForValidDayAndMonthForImport(newRow['DATE'])
               newRow['DATEOFTRAVEL'] = this.gs.checkForValidDayAndMonthForImport(newRow['DATEOFTRAVEL'])
-              newRow['RETURNDATE'] = this.gs.checkForValidDayAndMonthForImport(newRow['RETURNDATE'])
+              newRow['RETURNDATE'] = (newRow['RETURNDATE']) ? this.gs.checkForValidDayAndMonthForImport(newRow['RETURNDATE']) : ''
               this.masterKeys = Object.keys(newRow)
               console.log(newRow)
               if (!newRow['CLIENTNAME']) {
@@ -298,31 +298,45 @@ export class SalesImportComponent implements OnInit, OnDestroy {
                 return false
               } else {
                 let obj = { ...newRow }
-                const indexOfRemark = Object.keys(obj).indexOf('REMARK')
-                if (indexOfRemark > -1) {
-                  const taxArrKeys = Object.keys(obj).splice(indexOfRemark + 1)
-                  this.masterData.push(newRow)
-                  let index = this.masterData.length - 1
-                  for (let i = 0; i <= taxArrKeys.length - 1; i++) {
-                    this.masterData[index][taxArrKeys[i]] = element[taxArrKeys[i]]
+                let taxArrKeys = []
+                for (const key in obj) {
+                  if (obj.hasOwnProperty(key) && mandatoryKeys.indexOf(key) === -1) {
+                    taxArrKeys.push(key)
                   }
-                    // for tax
-                  let taxRowIndex = 0
-                  taxArrKeys.forEach(tax => {
-                    taxRowIndex += taxRowIndex
-                    let taxRow = {
-                      'SNO': taxRowIndex,
-                      'TAXRATENAME': tax,
-                      'TAXRATE': element[tax],
-                      'TAXTYPE': 1,
-                      'TAXAMOUNT': element[tax],
-                      'ROWID': element['SNO']
-                    }
-                    this.array.push(taxRow)
-                  })
-                  console.log('tax data: ', this.array)
-                  // for tax
                 }
+                // console.log('objrrtrtr : ', obj)
+                // const taxArrKeys = Object.keys(obj).splice(indexOfRemark + 1)
+                this.masterData.push(newRow)
+                let index = this.masterData.length - 1
+                for (let i = 0; i <= taxArrKeys.length - 1; i++) {
+                  this.masterData[index][taxArrKeys[i]] = element[taxArrKeys[i]]
+                }
+                // for tax
+                let taxRowIndex = 0
+                taxArrKeys.forEach(tax => {
+                  taxRowIndex += taxRowIndex
+                  let taxRow = {
+                    'SNO': taxRowIndex,
+                    'TAXRATENAME': tax,
+                    'TAXRATE': element[tax],
+                    'TAXTYPE': 1,
+                    'TAXAMOUNT': element[tax],
+                    'ROWID': element['SNO']
+                  }
+                  this.array.push(taxRow)
+                })
+                console.log('tax data: ', this.array)
+                // for tax
+                // const indexOfRemark = Object.keys(obj).indexOf('REMARK')
+                // if (indexOfRemark > -1) {
+                //   const taxArrKeys = Object.keys(obj).splice(indexOfRemark + 1)
+                //   this.masterData.push(newRow)
+                //   let index = this.masterData.length - 1
+                //   for (let i = 0; i <= taxArrKeys.length - 1; i++) {
+                //     this.masterData[index][taxArrKeys[i]] = element[taxArrKeys[i]]
+                //   }
+                  
+                // }
               }
             })
             this.masterKeys = Object.keys(_self.masterData[0])

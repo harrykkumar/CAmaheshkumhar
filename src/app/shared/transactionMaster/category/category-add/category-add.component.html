@@ -4,7 +4,8 @@
         <div class="modal-content">
             <div class="modal-header close_popup">
                 <h4 class="modal-title w-100 c-grey-900">Add Category</h4>
-                <button type="button" class="close" (click)="clearCategoryvalidation()" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" (click)="clearCategoryvalidation()" 
+                aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div *ngIf="loading" class="modal-content" >
                 <div class="modal-body" style="height:inherit;" >
@@ -42,7 +43,7 @@
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label>Short Name</label>
-                                    <input formControlName="ShortName" type="text" class="form-control" placeholder="Enter Short Name" >
+                                    <input formControlName="ShortName" type="text" class="form-control" placeholder="Enter Short Name" (keyup.tab)="keepOpen=false;" >
                                 </div>
                             </div>
                         </form>
@@ -53,7 +54,8 @@
                 <button type="button"
                  (keydown.enter)="saveAndUpdateCategory()"
                  class="btn btn-primary waves-effect"
-                 (click)="keepOpen=false;saveAndUpdateCategory()">Save
+                 (keyup.tab)="keepOpen=true;"
+                 (click)="keepOpen=true;saveAndUpdateCategory()">Save
                 </button>
                 <button type="button"
                  (keydown.enter)="saveAndUpdateCategory()"

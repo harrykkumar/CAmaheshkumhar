@@ -192,4 +192,25 @@ export class UIConstant {
   public static get RECEIPT_TYPE (): string {
     return 'receipt'
   }
+
+  public static get CONTRA_TYPE (): string {
+    return 'contra'
+  }
+  public static get CONFARMATION_POPUP (): string {
+    return 'yes'
+  }
+  public static get UPDATE_SUCCESSFULLY (): string {
+    return 'Update SuccessFully'
+  }
+
+  public static get JOURNAL_TYPE (): string {
+    return 'journal'
+  }
+
+  public static get TRAVEL_TYPE (): string {
+    return 'Travel'
+  }
+  public static get REQUIRED_5020 (): number {
+    return 5020
+  }
 }

@@ -58,8 +58,16 @@
               <div class="timepicker-input input-icon ">
                 <div class="input-group">
                   <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                  <input [disabled]="id != 0" (input)="checkValidation()" type="text" class="form-control start-date flatpickr sale-courier-parcel" id="bill-date" placeholder="Bill Date"  [ngClass]="{'errorSelecto': submitSave && invalidObj?.InvoiceDate }" data-provide="datepicker"
-                    [(ngModel)]="InvoiceDate" name="InvoiceDate" >
+                  <!-- <input [disabled]="id != 0" (input)="checkValidation()" type="text"
+                    class="form-control start-date flatpickr sale-courier-parcel" id="bill-date"
+                    placeholder="Bill Date"  [ngClass]="{'errorSelecto': submitSave && invalidObj?.InvoiceDate }"
+                    data-provide="datepicker"
+                    [(ngModel)]="InvoiceDate" name="InvoiceDate" > -->
+                  <datepicker-popup [disableInput]="id != 0"
+                    [toSetDate]="InvoiceDate" [isBackDate]="backDateEntry"
+                    (dateInFormat)="InvoiceDate = $event; PayDate = $event; checkValidation()"
+                    [class]="submitSave && invalidObj?.InvoiceDate" >
+                  </datepicker-popup>
                 </div>
               </div>
             </div>
@@ -77,7 +85,7 @@
               <table class="table editable_tbl table-hover item-table" id="table">
                 <thead>
                   <tr class="default_row">
-                    <th>#</th>
+                    <th class="cust_width_80">#</th>
                     <!-- <th>Sno.</th> -->
                     <th>Description</th>
                     <th>Unit Price</th>
@@ -231,7 +239,7 @@
                   <table class="table editable_tbl trans-table">
                     <thead>
                       <tr>
-                        <th>#</th>
+                        <th class="cust_width_80">#</th>
                         <!-- <th>Sno.</th> -->
                         <th>Payment Mode</th>
                         <th>Ledger</th>
@@ -303,11 +311,18 @@
                               [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans) }"
                               (input)="validateTransaction()"
                               placeholder="Enter Amount"></td>
-                            <td><input type="text" name="PayDate" id="pay-date"
+                            <td>
+                              <!-- <input type="text" name="PayDate" id="pay-date"
                               class="form-control flatpickr sale-courier-parcel"
                               [ngClass]="{'errorSelecto': invalidObj?.PayDate && (submitSave || !clickTrans) }"
                               (input)="validateTransaction()"
-                              [(ngModel)]="PayDate" placeholder="Select Date"></td>
+                              [(ngModel)]="PayDate" placeholder="Select Date"> -->
+                              <datepicker-popup
+                                [toSetDate]="PayDate" [isBackDate]="backDateEntry"
+                                (dateInFormat)="PayDate = $event; validateTransaction()"
+                                [class]="invalidObj?.PayDate && (submitSave || !clickTrans)" >
+                              </datepicker-popup>
+                            </td>
                             <td><input type="text" id="ChequeNo" class="form-control"
                                name="ChequeNo" [(ngModel)]="ChequeNo"
                                (input)="validateTransaction()"

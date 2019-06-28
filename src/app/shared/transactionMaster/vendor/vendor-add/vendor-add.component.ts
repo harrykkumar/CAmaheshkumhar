@@ -26,6 +26,7 @@ export class VendorAddComponent implements OnDestroy {
   bankForm: FormGroup
   adressForm: FormGroup
   subscribe: Subscription
+  confirmSUB: Subscription
   VendorDetailShow: Ledger[]
   id: any
   statutoriesId: any
@@ -57,6 +58,11 @@ export class VendorAddComponent implements OnDestroy {
   editMode: boolean = false
   clientDateFormat: any
   isAddNew: boolean = false
+  EMAIL: any = 'email'
+  MOBILE: any = 'mobile'
+  YES: any = 'yes'
+  NO: any = 'no'
+  editId: any
   get f () { return this.vendorForm.controls }
   get bank () { return this.bankForm.controls }
   get address () { return this.adressForm.controls }
@@ -79,14 +85,46 @@ export class VendorAddComponent implements OnDestroy {
           this.isAddNew = data.isAddNew
           if (data.editId === '') {
             this.editMode = false
-            this.enableContactFlag = true
+            this.editId = 0
           } else {
             this.id = data.editId
+            this.editId = data.editId
             this.editMode = true
           }
           this.openModal()
         } else {
           this.closeModal()
+        }
+      }
+    )
+    this.confirmSUB = this._CommonService.getConfirmationStatus().subscribe(
+      (data: AddCust) => {
+        
+        if (data) {
+          if(data.type ===this.YES && data.name===this.MOBILE){
+                    setTimeout(() => {
+              this.select_Mobile.selector.nativeElement.focus()
+            }, 10)
+          }
+          else if(data.type ===this.YES && data.name===this.EMAIL){
+            setTimeout(() => {
+                this.select_email.selector.nativeElement.focus()
+              }, 10)
+            }
+            else if(data.type ===this.NO && data.name===this.MOBILE){
+             
+              setTimeout(() => {
+                this.select_email.selector.nativeElement.focus()
+              }, 10)
+            }
+            else if(data.type ===this.NO && data.name===this.EMAIL){
+              this.activaTab('vendor2')
+              this.adressTab()
+              setTimeout(() => {
+                this.select_Mobile.selector.nativeElement.focus()
+              }, 10)
+            }
+      
         }
       }
     )
@@ -96,35 +134,31 @@ export class VendorAddComponent implements OnDestroy {
   get adAre () { return this.areaForm.controls }
   ngOnDestroy () {
     this.modalSub.unsubscribe()
+    this.confirmSUB.unsubscribe()
     if (this.editvenderSubscribe) {
       this.editvenderSubscribe.unsubscribe()
     }
   }
-  setDOBDate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#flatpickr_dob', {
-        maxDate: 'today',
-        dateFormat: _self.clientDateFormat
+  futureDateAn: any
+  DateOfBirth: any=''
+  DateOfAnniry:any=''
+  futureDateB:any
+  setDOBDate() {
+    this.DateOfBirth =''
+    this.futureDateAn = this._globalService.getDefaultDate(this.clientDateFormat)
 
-      })
-    })
   }
-  setDOADate () {
-    let _self = this
-    jQuery(function ($) {
-      flatpickr('#flatpickr_doa', {
-        maxDate: 'today',
-        dateFormat: _self.clientDateFormat
-
-      })
-    })
+  setDOADate() {
+    this.DateOfAnniry = ''
+    this.futureDateB =this._globalService.getDefaultDate(this.clientDateFormat)
+   
   }
   addressRequiredForLedger: boolean
   mobileRequirdForSetting: boolean
   emailRequirdForSetting: boolean
 
   openModal () {
+    this.activaTab('vendor1')
     this.editFlg = true
     this.editEmailFlg = true
     this.getEmailvalid = true
@@ -174,7 +208,8 @@ export class VendorAddComponent implements OnDestroy {
       this.isMsdm = false
       this.isRcm = false
       this.id = UIConstant.ZERO
-
+      this.select_Mobile.setElementValue(1)
+      this.select_email.setElementValue(1)
       this.addressDiv = false
       this.vendorDiv = true
       this.bankDiv = false
@@ -182,6 +217,8 @@ export class VendorAddComponent implements OnDestroy {
       $('#tradediscount').prop('checked', false)
       $('#cashdiscount').prop('checked', false)
       $('#volumediscount1').prop('checked', false)
+      this.phoneCodeselect2.setElementValue(0)
+      this.enableContactFlag = true
       /* ............................completed..................... */
     }
   }
@@ -194,6 +231,9 @@ export class VendorAddComponent implements OnDestroy {
     }
   }
   getVendorEditData (id) {
+    setTimeout(() => {
+      this.ledgerName.nativeElement.focus()
+    }, 1000)
     this.submitClick = false
     $('#vendor_form').modal(UIConstant.MODEL_SHOW)
     this.editvenderSubscribe = this._vendorServices.editvendor(id).subscribe(
@@ -251,15 +291,15 @@ export class VendorAddComponent implements OnDestroy {
             this.contactPersonId = Data.Data.ContactPersons[0].Id
             this.vendorForm.controls.contactPerson.setValue(Data.Data.ContactPersons[0].Name)
             if(Data.Data.ContactPersons[0].DOA !==null){
-              let DOA = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOA, this.clientDateFormat)
-               this.vendorForm.controls.daoDate.setValue(DOA)
+              this.DateOfAnniry= this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOA, this.clientDateFormat)
+             //  this.vendorForm.controls.daoDate.setValue(DOA)
             }
             else {
               this.vendorForm.controls.daoDate.setValue('')
             }
             if(Data.Data.ContactPersons[0].DOA !==null){
-              let DOB = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOB, this.clientDateFormat)
-              this.vendorForm.controls.dobDate.setValue(DOB)
+              this.DateOfBirth = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOB, this.clientDateFormat)
+              //this.vendorForm.controls.dobDate.setValue(DOB)
             }
             else{
               this.vendorForm.controls.dobDate.setValue('')
@@ -369,8 +409,8 @@ export class VendorAddComponent implements OnDestroy {
   }
   validPANFlag: boolean = false
 
-  checkPANNumberValid () {
-    this.PANNumber = (this.vendorForm.value.panNo).toUpperCase()
+  onInputCheckPANNumber(event) {
+    this.PANNumber = (event.target.value).toUpperCase()
     if (this.PANNumber !== '' && this.PANNumber !== null) {
       if (this.panNumberRegxValidation(this.PANNumber)) {
         this.validPANFlag = false
@@ -382,8 +422,9 @@ export class VendorAddComponent implements OnDestroy {
     }
   }
   validGSTNumber: boolean = false
-  checkGSTNumberValid () {
-    this.GSTNumber = (this.vendorForm.value.gstNo).toUpperCase()
+
+  onInputCheckGstNumber(event) {
+    this.GSTNumber = (event.target.value).toUpperCase()
     // debugger
     if (this.GSTNumber !== '' && this.GSTNumber !== null) {
       if (this.gstNumberRegxValidation(this.GSTNumber)) {
@@ -829,13 +870,12 @@ export class VendorAddComponent implements OnDestroy {
   submitClick: boolean
   bankClick: boolean
   addVendor (value) {
-    this.checkGSTNumberValid()
-    this.checkPANNumberValid()
     this.addConatctDetails()
     this.emailAddingArray()
     this.submitClick = true
     if (value === 'reset') {
-      this.formVendor()
+          this.resetForNewFoem()
+         this.activaTab('vendor1')
     } else if (this.vendorForm.valid && !this.validMobileFlag && this.getEmailvalid && this.vendorId > UIConstant.ZERO) {
       if (!this.mobileRequirdForSetting) {
         if (!this.emailRequirdForSetting) {
@@ -848,23 +888,29 @@ export class VendorAddComponent implements OnDestroy {
                     this._commonGaterSeterServices.setVendorName(Data.Data)
                     this._sanariioservices.filter()
                     if (value === 'save') {
-                      debugger
+                      
                       const dataToSend = { id: Data.Data, name: this.vendorForm.value.vendorName }
                       this._CommonService.closeVend({ ...dataToSend })
                       this._CommonService.AddedItem()
-                      this._toastrcustomservice.showSuccess('', 'Save successfully')
-
+                      let saveFlag = this.editId === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+               this._toastrcustomservice.showSuccess('', saveFlag)
                       $('#vendor_form').modal(UIConstant.MODEL_HIDE)
-                      this.formVendor()
-                    }
+                      } else if (value === 'new') {
+                        this.activaTab('vendor1')
+                        this._CommonService.AddedItem()
+                        this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
+                         this.resetForNewFoem()
+                         this.id =0
+                      }
                   }
-                  if (Data.Code === 1001) {
+                  if (Data.Code === UIConstant.THOUSANDONE) {
                     this._toastrcustomservice.showInfo('', Data.Description)
 
                   }
                 })
               } else {
-               // this.adressTab()
+                this.activaTab('vendor2')
+                this.adressTab()
                 this._toastrcustomservice.showError('', 'Enter Address Details ')
               }
             } else {
@@ -874,23 +920,36 @@ export class VendorAddComponent implements OnDestroy {
             this._toastrcustomservice.showError('', 'invalid GST No. ')
           }
         } else {
-          //   document.getElementById('email' + '0').className += ' errorTextBoxBorder'
-          $('.emailfocu').focus()
-          $('.mobilefocu').focus()
+          this.select_email.selector.nativeElement.focus()
           this._toastrcustomservice.showError('', ' Enter Email Details ')
 
         }
       } else {
-        //   document.getElementById('email' + '0').className += ' errorTextBoxBorder'
-        $('.emailfocu').focus()
-        $('.mobilefocu').focus()
+        this.select_Mobile.selector.nativeElement.focus()
         this._toastrcustomservice.showError('', ' Enter Contact Details ')
 
       }
     }
 
   }
+  activaTab(tab){
+    $('.tabs-cyan a[href="#' + tab + '"]').tab('show');
+};
 
+resetForNewFoem (){
+  this.vendorForm.reset()
+  this.select2VendorValue(0)
+  this.phoneCodeselect2.setElementValue(0)
+  this.select_Mobile.setElementValue(1)
+  this.select_email.setElementValue(1)
+  this.mobileArray = []
+  this.emailArray = []
+  this.collectionOfAddress = []
+  this.formVendor()
+  this.bankArray=[]
+  this.submitClick = false
+  this.select2VendorValue(0)
+}
   private getopeinAmountValue () {
     if (this.vendorForm.value.openingBlance > 0) {
       return this.vendorForm.value.openingBlance
@@ -902,17 +961,17 @@ export class VendorAddComponent implements OnDestroy {
   GSTNumber: any
   PANNumber: any
   private addLedgerParmas () {
-    // debugger
+     
     let doa
     let dob
-    if (this.vendorForm.value.daoDate !== '' ) {
-      doa = this._globalService.clientToSqlDateFormat(this.vendorForm.value.daoDate, this.clientDateFormat)
+    if (this.DateOfAnniry!== '' ) {
+      doa = this._globalService.clientToSqlDateFormat(this.DateOfAnniry, this.clientDateFormat)
 
     } else {
       doa = ''
     }
-    if (this.vendorForm.value.dobDate !== '' ) {
-      dob = this._globalService.clientToSqlDateFormat(this.vendorForm.value.dobDate, this.clientDateFormat)
+    if (this.DateOfBirth!== '' ) {
+      dob = this._globalService.clientToSqlDateFormat(this.DateOfBirth, this.clientDateFormat)
 
     } else {
       dob = ''
@@ -1021,6 +1080,9 @@ export class VendorAddComponent implements OnDestroy {
     this.adressForm.reset()
     this.getCountry(0)
     this.adressType(0)
+    setTimeout(() => {
+      this.countryselecto.selector.nativeElement.focus()
+    }, 1000)
   }
   // }
 
@@ -1043,7 +1105,6 @@ export class VendorAddComponent implements OnDestroy {
         this.addressRequiredForLedger = true
       } else {
         this.addressRequiredForLedger = false
-
       }
   }
   crossButton () {
@@ -1101,8 +1162,10 @@ export class VendorAddComponent implements OnDestroy {
       }
       this.bankClick = false
     }
-
     this.formBank()
+    setTimeout(() => {
+      this.bankName.nativeElement.focus()
+    }, 1000)
   }
   removeIndexOfBank (index) {
     this.bankArray.splice(index, 1)
@@ -1164,7 +1227,7 @@ export class VendorAddComponent implements OnDestroy {
 
   contactTypeData: any
   getContactType (){
-    this.contactTypeData = [{id:'0',text:'Select'},
+    this.contactTypeData = [
                           {id:'1',text:'Work'},
                           {id:'2',text:'Home'},
                           {id:'3',text:'Mobile'},
@@ -1178,7 +1241,7 @@ export class VendorAddComponent implements OnDestroy {
   }
     emailTypeData: any
     emailTypeDataType (){
-    this.emailTypeData =[{id:'0',text:'Select'},
+    this.emailTypeData =[
     {id:'1',text:'Persnal'},
     {id:'2',text:'Work'},
     {id:'3',text:'Home'},
@@ -1209,9 +1272,9 @@ export class VendorAddComponent implements OnDestroy {
     })
   }
   onCountryCodeSelectionChange = (event) => {
-    debugger
+    
     if (event.data.length > 0) {
-      if(event.data[0].id !== 0){
+      if(event.data[0].id !== '0'){
         this.checkSelectCode = true
         this.enableContactFlag = false
         this.CountryCode = '+' + event.data[0].PhoneCode
@@ -1249,6 +1312,7 @@ export class VendorAddComponent implements OnDestroy {
   editEmailFlg: boolean= true
   emailAddingArray () {
     this.editEmailFlg = true
+    this.checkvalidationEmail()
     if(this.EmailType > 0 && this.getEmailvalid && this.vendorForm.value.EmailAddress !== ''){
       this.emailRequirdForSetting = false
     this.emailArray.push({
@@ -1270,16 +1334,15 @@ export class VendorAddComponent implements OnDestroy {
   clear(type){
     if(type === 'email'){
       this.vendorForm.controls.EmailAddress.setValue('')
-      this.select_email.setElementValue(0)
-      this.EmailType ='0'
+      this.select_email.setElementValue(1)
+      this.EmailType ='1'
 
     }
     if(type ==='contact'){
       this.vendorForm.controls.mobileNo.setValue('')
       this.phoneCodeselect2.setElementValue(0)
-      this.select_Mobile.setElementValue(0)
-      this.select_email.setElementValue(0)
-      this.contactType ='0'
+      this.select_Mobile.setElementValue(1)
+      this.contactType ='1'
       this.CountryCode =0
       this.validMobileFlag =false
     }
@@ -1314,13 +1377,7 @@ export class VendorAddComponent implements OnDestroy {
    invalidObjCont : any ={}
 validateContact (){
   let isValid = 1
-  if (this.contactType !=='0') {
-    this.invalidObjCont['contactType'] = false
-  } else {
-    this.invalidObjCont['contactType'] = true
-    isValid = 0
-  }
- 
+
   if (this.CountryCode >0) {
     this.invalidObjCont['CountryCode'] = false
   } else {
@@ -1332,10 +1389,29 @@ validateContact (){
   return !!isValid 
 }
 getEmailvalid: any
-checkvalidationEmail (event) {
-this.getEmailvalid =     this.validateEmail(event.target.value)
-return this.getEmailvalid
+checkvalidationEmail() {
+  if (this.vendorForm.value.EmailAddress === "" || this.vendorForm.value.EmailAddress === null) {
+    this.getEmailvalid = true
+  }
+  else {
+    this.getEmailvalid = this.validateEmail(this.vendorForm.value.EmailAddress)
+    return this.getEmailvalid
+  }
+
+
 }
 
+pressEnterEmailadd (e: KeyboardEvent) {
+  this.emailAddingArray()
+  this._CommonService.openConfirmation('email', 'Email Details')
 
+  
+}
+  
+pressEnterMobileAdd (e: KeyboardEvent) {
+  this.addConatctDetails()
+  this._CommonService.openConfirmation('mobile', 'Contact Details')
+
+  this.enableContactFlag = true
+}
 }

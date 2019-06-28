@@ -46,21 +46,21 @@ export class SalesListComponent implements   OnInit   {
   }
 
   getSaleChallanDetail () {
-    this._commonService.getListSaleDirect('10').subscribe(data => {
-      console.log('sales data: ', data)
-      if (data.Code === UIConstant.THOUSAND && data.Data) {
-        this.totalDiscount = 0
-        this.totaltax = 0
-        this.totalBillAmount = 0
-        this.saleDirectDetails = data.Data
-        data.Data.forEach(element => {
-          this.totalDiscount = +(this.totalDiscount + +element.Discount).toFixed(2)
-          this.totaltax = +(this.totaltax + +element.TaxAmount).toFixed(2)
-          this.totalBillAmount = +(this.totalBillAmount + +element.BillAmount).toFixed(2)
-        })
+    // this._commonService.getListSaleDirect('10').subscribe(data => {
+    //   console.log('sales data: ', data)
+    //   if (data.Code === UIConstant.THOUSAND && data.Data) {
+    //     this.totalDiscount = 0
+    //     this.totaltax = 0
+    //     this.totalBillAmount = 0
+    //     this.saleDirectDetails = data.Data
+    //     data.Data.forEach(element => {
+    //       this.totalDiscount = +(this.totalDiscount + +element.Discount).toFixed(2)
+    //       this.totaltax = +(this.totaltax + +element.TaxAmount).toFixed(2)
+    //       this.totalBillAmount = +(this.totalBillAmount + +element.BillAmount).toFixed(2)
+    //     })
 
-      }
-    })
+    //   }
+    // })
   }
   openPrint (id,isViewPrint) {
     this._commonService.openPrint(id,this.DIRECT_SALE_TYPE,isViewPrint)
