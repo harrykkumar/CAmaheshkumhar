@@ -87,16 +87,17 @@ export class PrintComponent {
   constructor (private _CommonService: CommonService, public _settings: Settings) {
 
     this.clientDateFormat = this._settings.dateFormat
-    this.dicimalDigitFormat = 2
+    this.dicimalDigitFormat = this._settings.noOfDecimal
     this.modalSub = this._CommonService.getprintStatus().subscribe(
       (status: any) => {
-        if (status.open) {
-          this.printId = status.id
-          this.type = status.type
-          this.openModal(this.type,status.isViewPrint)
-        } else {
-          this.closeModal()
-        }
+        // if (status.open) {
+        //   debugger
+        //   this.printId = status.id
+        //   this.type = status.type
+        //   this.openModal(this.type,status.isViewPrint)
+        // } else {
+        //   this.closeModal()
+        // }
       }
     )
   }
@@ -106,11 +107,11 @@ export class PrintComponent {
   }
 
   openModal (type,isViewPrint) {
-    if (type === 'DirectSale') {
-      let data = JSON.stringify(this._settings.industryId)
-      this.industryId = JSON.parse(data)
-      this.onPrintForDirectSale(this.printId, 'sale_Direct_print_id',isViewPrint)
-    }
+   // if (type === 'DirectSale') {
+     // let data = JSON.stringify(this._settings.industryId)
+      //this.industryId = JSON.parse(data)
+     // this.onPrintForDirectSale(this.printId, 'sale_Direct_print_id',isViewPrint)
+    //}
   }
   closeModal () {
     $('#sale_Direct_print_id').modal(UIConstant.MODEL_HIDE)
@@ -132,9 +133,13 @@ export class PrintComponent {
   totaltaxAmount: any
   subTotalAmount: any
   billAmount: any
-  paymentModeData: any
+  paymentModeData: any =[]
   TermsConditions: any
   ClientInfos: any
+  billName ={
+   billspply: 'Bill Of Supply',
+   taxname:'Tax-Invoice'
+  }
   getAddtionalCharge: any
   onPrintForDirectSale (id, htmlId,isViewForm) {
     this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
@@ -149,7 +154,7 @@ export class PrintComponent {
           _self.InventoryTransactionSales = data.Data.SaleTransactionses
           _self.barcode = data.Data.SaleTransactionses[0].BarcodeBill
           this.billAmount = (data.Data.SaleTransactionses[0].BillAmount).toFixed(this.dicimalDigitFormat)
-          this.NumInWords(this.billAmount)
+          this._CommonService.NumInWords(this.billAmount)
         } else {
           _self.InventoryTransactionSales = []
         }
@@ -298,7 +303,7 @@ export class PrintComponent {
         }
         if (data.Data.HsnItemTaxTransDetails.length > 0) {
 
-        this.ValueOfTaxName(data.Data.HsnItemTaxTransDetails, data.Data.HsnItemTransactions, data.Data.SaleTransactionses[0].Currency)
+        this.ValueOfTaxName(data.Data.HsnItemTaxTransDetails, data.Data.HsnItemTransactions,data.Data.TaxTitles, data.Data.SaleTransactionses[0].Currency)
       //  this.CustomerTypes = []
           this.hsntaxItem = data.Data.HsnItemTaxTransDetails
 
@@ -345,39 +350,40 @@ export class PrintComponent {
 
   headerKeys: any = []
   hsnToSHow: any = []
+  Heading:any=[]
+  HeadingSale:any =[]
   headerValue: any
-  ValueOfTaxName (hsnData, hsnTransaction, currency) {
-    console.log(hsnData,hsnTransaction,currency)
-    let groupOnName = _.groupBy(hsnData, (data) => {
-      return data.Name + '(' + data.TaxRate + '%)'
-    })
-    this.headerKeys = []
-    this.hsnToSHow = []
-    console.log(groupOnName)
-    for (const name in groupOnName) {
-      this.headerKeys.push(name)
-     this.headerValue = this.headerKeys.length
-    }
-    hsnTransaction.forEach(hsnTrans => {
-      let hsnDetails = hsnData.filter(
-        hsnDetail => hsnDetail.HsnNo === hsnTrans.HsnNo
-        )
-      let totalTaxRate = 0
-      let obj = {}
-      hsnDetails.forEach(hsn => {
-        let index = this.headerKeys.indexOf(hsn.Name + '(' + hsn.TaxRate + '%)')
-        if (index >= 0) {
-          obj[hsn.Name + '(' + hsn.TaxRate + '%)'] = hsn.Amount
-          totalTaxRate += hsn.TaxRate
-        } else {
-          obj[hsn.Name + '(' + hsn.TaxRate + '%)'] = '-'
-        }
+  HedShow:any
+  mainData:any=[]
+  per:any ='%'
+  ValueOfTaxName (hsnData, hsnTransaction,TaxTitles, currency) {
+//TaxTitleId
+let rate=0
+this.mainData =[]
+this.HedShow=[]
+let valueshow=[]
+     hsnTransaction.forEach(element => {
+      this.HedShow = hsnData.filter( d=>d.HsnNo ===element.HsnNo)
+      if(this.HedShow.length>0){
+          valueshow=[]
+         rate = this.HedShow.filter(item1 => item1.TaxRate)
+            .map(item1 => parseFloat(item1.TaxRate))
+            .reduce((sum, current) => sum + current, 0)
+            for(let i =0; i<this.HedShow.length; i++){
+              valueshow.push(this.HedShow[i].Amount+ '-' + '('+this.HedShow[i].TaxRate +')'+'%')
+            }
+      
+      }
+     
+      this.mainData.push({
+        HsnNo:element.HsnNo,
+        TaxableAmount:element.TaxableAmount,
+        TotalAmount:element.TotalAmount,
+       totalTaxRate:rate +'%',
+       TaxType:valueshow,
       })
-      hsnTrans['totalTaxRate'] = totalTaxRate + ' ' + (hsnDetails[0].ValueType === 0 ? '%' : currency)
-      hsnTrans['AppliedTaxes'] = obj
-    })
-    this.hsnToSHow = JSON.parse(JSON.stringify(hsnTransaction))
-    console.log('hsn to show : ', this.hsnToSHow)
+    });
+    console.log(this.mainData ,'Main-HSN')
   }
   SupplyAddress: any
   hsnItemData: any
@@ -414,77 +420,5 @@ export class PrintComponent {
 
   }
 
-  word: string = ''
-  NumInWords (value) {
-    let fraction = Math.round(this.frac(value) * 100)
-    let fText = ''
-
-    if (fraction > 0) {
-      fText = 'AND ' + this.convertNumber(fraction) + ' PAISE'
-    }
-
-    return this.convertNumber(value) + ' RUPEE ' + fText + ' ONLY'
-  }
-
-  frac (f) {
-    return f % 1
-  }
-
-  convertNumber (num1) {
-    if ((num1 < 0) || (num1 > 999999999)) {
-      return 'Number not count !!-Sysytem issue'
-    }
-    let Gn = Math.floor(num1 / 10000000)  /* Crore */
-    num1 -= Gn * 10000000
-    let kn = Math.floor(num1 / 100000)     /* lakhs */
-    num1 -= kn * 100000
-    let Hn = Math.floor(num1 / 1000)      /* thousand */
-    num1 -= Hn * 1000
-    let Dn = Math.floor(num1 / 100)       /* Tens (deca) */
-    num1 = num1 % 100               /* Ones */
-    let tn = Math.floor(num1 / 10)
-    let one = Math.floor(num1 % 10)
-    this.word = ''
-
-    if (Gn > 0) {
-      this.word += (this.convertNumber(Gn) + ' Crore')
-    }
-    if (kn > 0) {
-      this.word += (((this.word === '') ? '' : ' ') +
-        this.convertNumber(kn) + ' Lakh')
-    }
-    if (Hn > 0) {
-      this.word += (((this.word === '') ? '' : ' ') +
-        this.convertNumber(Hn) + ' Thousand')
-    }
-
-    if (Dn) {
-      this.word += (((this.word === '') ? '' : ' ') +
-        this.convertNumber(Dn) + ' Hundred')
-    }
-
-    let ones = Array('', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', ' Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen')
-    let tens = Array('', '', 'Twenty', 'Thirty', 'Fourty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety')
-
-    if (tn > 0 || one > 0) {
-      if (!(this.word === '')) {
-        this.word += ' And '
-      }
-      if (tn < 2) {
-        this.word += ones[tn * 10 + one]
-      } else {
-
-        this.word += tens[tn]
-        if (one > 0) {
-          this.word += ('-' + ones[one])
-        }
-      }
-    }
-
-    if (this.word === '') {
-      this.word = ' zero'
-    }
-    return this.word
-  }
 
 }

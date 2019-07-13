@@ -1,13 +1,18 @@
 <div *ngIf="showHeader" class="header navbar">
   <div class="header-container">
     <ul class="nav-right">
-      <!-- <li style="padding-top: 15px;">
+      <li style="padding-top: 15px;"> 
         <div>
-          {{ (loggedinUserData?.LoginUserDetailsinfo)[0]?.OfficeName }} ({{
-            (loggedinUserData?.LoginUserDetailsinfo)[0]?.PropertyCode
-          }})
+          {{loggedinUserData?.Name}}
+          <span>({{loggedinUserData?.fromDate | dateFormat:clientDateFormat}} - </span>
+            <span>{{loggedinUserData?.toDate | dateFormat:clientDateFormat}})</span>
         </div>
-      </li> -->
+        <div>
+            <span class="fsz-xsm c-grey-900">
+                {{_loginService?.loginUserDetails?.Name}}({{_loginService?.loginUserDetails?.Code}})
+          </span>
+          </div>
+      </li>
       <li class="dropdown">
         <a
           href=""
@@ -31,11 +36,6 @@
               />
             <!-- </ng-template> -->
           </div>
-          <!-- <div class="peer">
-            <span class="fsz-sm c-grey-900">{{
-              (loggedinUserData?.LoginUserDetailsinfo)[0]?.Name
-            }}</span>
-          </div> -->
         </a>
         <ul class="dropdown-menu fsz-sm">
           <li>
@@ -63,16 +63,23 @@
   <div id="mainContent">
     <div class="page-header p-0">
       <div class="container-fluid">
-        <div *ngIf="showHeader" class="row">
-              <div class="right_saerch_side p-0">
+          <div *ngIf="showHeader" class="row">
+              <div class="col-md-8 left_side_head">
+                <p class="heading_lead c-grey-900 mb-0">
+                    <i class="fas fa-cog"></i>Organization Master Settings
+                </p>
+              </div>
+              <div class="col-md-4 right_saerch_side p-0">
                   <div class="btn_header">
-                    <button type="button" class="btn btn-primary waves-effect waves-light" (click)="saveForm()" >{{showHeader ? 'Save & Next' : 'Save'}}</button>
+                    <button type="button" class="btn btn-primary waves-effect waves-light" (click)="saveForm()" >Save & Next</button>
                   </div>
                 </div>
-        </div>
+          </div>
         <div *ngIf="!showHeader" class="row">
           <div class="col-md-4 left_side_head">
-            <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-shopping-cart" aria-hidden="true"></i></p>
+            <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-cog"></i>
+              Master Settings
+            </p>
           </div>
           <div class="col-md-8 right_saerch_side p-0">
             <div class="mr-2">

@@ -51,6 +51,7 @@ export class PurchaseService {
   search$ = this.searchSub.asObservable()
   private queryStrSub = new Subject<string>()
   public queryStr$ = this.queryStrSub.asObservable()
+
   constructor (private baseService: BaseServices, private toastrService: ToastrCustomService) {}
   getPurchaseList (queryParams) {
     return this.baseService.getRequest(ApiConstant.PURCHASE_LIST + queryParams)

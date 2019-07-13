@@ -36,6 +36,7 @@ export class CategoryAddComponent {
   loading: boolean = true
   catOrSubCatSub: Subscription
   keepOpen: boolean
+  editID:any
   public selectCategory: Array<Select2OptionData>
 
   constructor (private _catagoryservices: CategoryServices,
@@ -54,10 +55,12 @@ export class CategoryAddComponent {
           } else {
             this.addForItem = false
             if (data.editId === '') {
+              this.editID =0
               this.editMode = false
             } else {
               this.editMode = true
               this.Id = data.editId
+              this.editID= data.editId
             }
           }
           this.getCategoryList()
@@ -177,7 +180,7 @@ export class CategoryAddComponent {
 
   private formCategory () {
     this.categoryForm = this._formBuilder.group({
-      'CategoryName': ['', Validators.compose([Validators.required, Validators.minLength(4)])],
+      'CategoryName': ['', Validators.compose([Validators.required, Validators.minLength(2)])],
       'ShortName': [''],
       'level': [0]
     })
@@ -223,7 +226,7 @@ export class CategoryAddComponent {
                   const element = this.renderer.selectRootElement(this.catname.nativeElement, true)
                   element.focus({ preventScroll: false })
                 }
-              }, 1000)
+              }, 500)
             }
             if (this.categoryForm.value.level === this.catLevel) {
               _self.commonService.categoryAdded()
@@ -233,17 +236,28 @@ export class CategoryAddComponent {
             }
           } else {
             if (this.keepOpen) {
-              _self.toastrService.showSuccess('Success', 'Saved Successfully')
-              this.getCategoryList()
-              this.initialiseExtras()
-              _self.commonService.categoryAdded()
-            } else {
-              _self.commonService.categoryAdded()
-              _self.toastrService.showSuccess('Success', 'Saved Successfully')
+              _self.toastrService.showSuccess('',UIConstant.SAVED_SUCCESSFULLY)
               let toSend = { name: _self.categoryForm.value.CategoryName, id: data.Data,
                 level: _self.categoryForm.value.level + 1 }
-              this.commonService.closeCategory(toSend)
-              _self.clearCategoryvalidation()
+              // this.commonService.closeCategory(toSend)
+
+              this.getCategoryList()
+              this.initialiseExtras()
+              
+              _self.commonService.categoryAdded()
+            } else {
+              let namesave = this.editID ===0 ?UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+              _self.commonService.categoryAdded()
+              _self.toastrService.showSuccess('',namesave)
+              this.getCategoryList()
+              setTimeout(() => {
+                if (this.catname) {
+                  const element = this.renderer.selectRootElement(this.catname.nativeElement, true)
+                  element.focus({ preventScroll: false })
+                }
+              }, 500)
+              // this.commonService.closeCategory(toSend)
+              _self.initData()
             }
           }
         } else if (data.Code === UIConstant.THOUSANDONE) {
@@ -269,12 +283,14 @@ export class CategoryAddComponent {
     console.log('CategoryParams : ', JSON.stringify(categoryElement.categoryObj))
     return categoryElement.categoryObj
   }
-
+initData (){
+  this.categoryForm.reset()
+  this.toEmitName = ''
+  this.submitClick = false
+  this.selectCategory = []
+}
   clearCategoryvalidation () {
-    this.categoryForm.reset()
-    this.toEmitName = ''
-    this.submitClick = false
-    this.selectCategory = []
+    this.initData()
     this.commonService.closeCategory('')
   }
 

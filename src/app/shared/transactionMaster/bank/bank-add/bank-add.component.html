@@ -1,28 +1,22 @@
 <div class="modal right fade" id="bankPopup"  role="dialog" data-backdrop="static" data-keyboard="false">
   <form  [formGroup]="bankForm">
-   <div class="modal-dialog modal-full-height modal-right" role="document">
+   <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
        <div class="modal-content bgcH-grey-100">
            <!--Header-->
-           <div class="modal-header primary-bg">
-               <div class="container-fluid">
-                   <div class="row">
-                       <div class="col-md-9 left_side_head">
-                           <p class="heading_lead">Bank</p>
-                       </div>
-                       <div class="col-md-3">
-                          <button type="button" class="close" (click)='clearbank()' data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true" class="white-text">×</span>
-                          </button>
-                       </div>
-                   </div>
-               </div>
-           </div>
+           <div  class="modal-header close_popup">
+               <h4  class="modal-title w-100 c-grey-900">Bank</h4>
+               <button type="button" class="close" (click)='clearbank()' data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+               
+            </div>
+          
            <!--Body-->
            <div class="modal-body">
                <div class="form row">
                    <div class="form-group col-md-12">
                        <label class="active">Bank Name</label>
-                       <input #bankname type="text" class="form-control" placeholder=" Bank Name" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.banName.errors }"  formControlName="banName">
+                       <input #bankname1 type="text" class="form-control" placeholder=" Bank Name" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.banName.errors }"  formControlName="banName">
                    </div>
                    <div class="form-group col-md-12">
                        <label class="active">Account Number</label>
@@ -36,8 +30,8 @@
                     <label>Opening Balance</label>
                     <div class="discount">
                             <input type="number " class="form-control " placeholder="Opening Balance" name="CrDrRate" appIncludeDecimal formControlName="openingbalance">
-                                <div class="input-group">
-                                  <select2 #crdr_selecto2 [data]="selectCrDr" class="dropdown_width_100" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="{placeholder:'Select CR DR'}" [value]="valueCRDR"></select2>
+                                <div class="">
+                                  <select2 #crdr_selecto2 [data]="selectCrDr" class="" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="{placeholder:'Select CR DR'}" [value]="valueCRDR"></select2>
                                 </div>
                       </div>
                    </div>
@@ -59,7 +53,7 @@
                               </div>
                    <div class="form-group col-md-6">
                       <label class="active">GSTIN Number</label>
-                      <input style="text-transform:uppercase" 
+                      <input  [attr.disabled]="disabledGSTfor_UnRegi?'':null" style="text-transform:uppercase" 
                       type="text" class="form-control"
                        id="org_code" placeholder=" GSTIN No"
                         formControlName="gstin" (input)="checkGSTNumber($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': (submitClick && validGSTNumber) || (submitClick && requiredGST ) }"
@@ -68,13 +62,13 @@
                          <div class="form-group col-md-6">
                       <label for="bill_no">Country</label>
                       <div class="input-group adw_select">
-                          <select2  #country_selecto [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)" autocomplete="true" [options]="{placeholder:'Select Country'}" [value]="countryValue"></select2>
+                          <select2 [disabled]='disabledStateCountry'   #country_selecto [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)" autocomplete="true" [options]="{placeholder:'Select Country'}" [value]="countryValue"></select2>
                       </div>
                   </div>
                     <div class="form-group col-md-6">
                       <label for="bill_no">State</label>
                       <div class="input-group adw_select">
-                          <select2 #state_select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)" autocomplete="true" [options]="{
+                          <select2 [disabled]='disabledStateCountry' #state_select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)" autocomplete="true" [options]="{
                               placeholder: 'Select State'
                           }" [value]="stateValue" ></select2>
                       </div>

@@ -305,4 +305,31 @@ export class ApiConstant {
 
   public static get AREA_ADD (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster3' }
 
+  public static get ITEM_REQUIREMENT (): string { return this.BASE_URL + '/api/v1/ims/SalePurchaseItemUtility?Type=Itemrequirement' }
+
+  public static get TRANS_SESSION (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=167' }
+
+  public static get TRANS_FORMAT (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=165' }
+
+  public static get TRANS_POSITION (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=168' }
+
+  public static get INIT_DASHBOARD (): string { return this.BASE_URL + '/api/v1/common/dashboard' }
+  
+  public static get ITEM_REQUIRE_POST (): string { return this.BASE_URL + '/api/v1/Manufacturer/ItemRequirement' }
+
+  public static get ITEM_REQUIRE_GET (): string { return this.BASE_URL + '/api/v1/Manufacturer/ItemRequirementSummary' }
+
+  public static get TRANS_EXISTENCY_GET (): string { return this.BASE_URL + '/api/v1/existency?Formname=TransactionNo' }
+
+  public static get TRANS_EXISTENCY_POST (): string { return this.BASE_URL + '/api/v1/checkexistency' }
+
+  public static get ITEM_REQ_INSTRUCTION (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=169' }
+
+  public static get CHECK_GST_FOR_STATE (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster1?CommonCode=102&Strvalue=' }
+
+  public static get GET_ITEM_REPORT_INVENTORY (): string { return this.BASE_URL + '/api/v1/ims/ItemInventory' }
+
+  public static get GET_REPORT_TRAIL_BALANCE (): string { return this.BASE_URL + '/api/v1/account/TrailBalance' }
+
+ 
 }

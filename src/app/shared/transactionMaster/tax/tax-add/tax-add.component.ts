@@ -94,10 +94,11 @@ editMainID :any
     }
   }
   ngOnInit() {
-    this.getTaxName()
+    //this.getTaxName()
   }
  
   getTaxName(){
+    
     this.selectTaxTpye =[]
     let localdata=[]
     this.subscribe = this._taxMasterServices.getTaxTypeName().subscribe(Data => {
@@ -113,14 +114,13 @@ editMainID :any
           });
       }
       this.selectTaxTpye =  localdata
+      //this.taxtype_select2.setElementValue()
     })
     
   }
   openModal() {
-    this.EditFlag =true
-    this.getTaxName()
     this.clearForm()
-    this.slab = ''
+    this.TypeUid=0
     this.isForOtherState = false
     this.taxrRateId = 0
     this.currencies = [{ id: 0, text: '%' }]
@@ -130,6 +130,7 @@ editMainID :any
       this.taxrates = []
       this.id = UIConstant.ZERO
       this.taxboxDivVisibale = true
+      this.getTaxName()
     }
     this.taxboxDivVisibale = false
     this.plusValue = 0
@@ -198,10 +199,10 @@ editMainID :any
     this.taxboxDivVisibale = true
     this.subscribe = this._taxMasterServices.editTax(id).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
-        setTimeout(() => {
-          const element = this.first.nativeElement.focus()
-          element.focus({ preventScroll: false })
-        }, 500)
+        // setTimeout(() => {
+        //   const element = this.first.nativeElement.focus()
+        //   element.focus({ preventScroll: false })
+        // }, 500)
         console.log('tax-response :-' ,JSON.stringify(Data))
         if (Data.Data && Data.Data.TaxRates.length > 0) {
           this.taxTypeList = []
@@ -228,8 +229,10 @@ editMainID :any
         }
         if (Data.Data && Data.Data.TaxSlabs.length > 0) {
           this.slab = Data.Data.TaxSlabs[0].Slab
-          this.TypeUid = Data.Data.TaxSlabs[0].Type
-           this.deafaultValue =Data.Data.TaxSlabs[0].Type
+          this.TypeUid = Data.Data.TaxSlabs[0].Type 
+          this.deafaultValue =Data.Data.TaxSlabs[0].Type
+          let localdata =[{id:Data.Data.TaxSlabs[0].Type,text: Data.Data.TaxSlabs[0].TypeName}]
+          this.selectTaxTpye =  localdata
           this.taxtypeSelect2.setElementValue(this.deafaultValue)
         }
       }
@@ -246,9 +249,8 @@ editMainID :any
   TypeUid:any
   selectedTaxType(event) {
     if (event.value && event.data.length > 0) {
-      this.type = +event.value
-      this.TypeUid = +event.data[0].uid
-     // alert(this.TypeUid)
+      this.TypeUid = +event.data[0].id
+      console.log( this.TypeUid)
       if(this.editMode && !this.EditFlag){
         this.getTypeOfTax(false,this.TypeUid)
       }
@@ -313,20 +315,21 @@ editMainID :any
     this.addtaxrates()
     this.checkValidation()
     this.select2Validation()
-    if (JSON.parse(this.type) > UIConstant.ZERO) {
+    if (this.TypeUid > 0) {
    //   if (this.taxrates.length > UIConstant.ZERO) {
 
         this._taxMasterServices.addTax(this.taxParams()).subscribe(Data => {
           if (Data.Code === UIConstant.THOUSAND) {
             if (this.keepOpen) {
               let savename = this.editMainID===0 ? UIConstant.SAVED_SUCCESSFULLY :UIConstant.UPDATE_SUCCESSFULLY
-
               this.toastrCustomService.showSuccess('', savename)
               this.commonService.newTaxAdded()
               this.taxTypeList = []
+              this.clearForm()
                this.getTypeOfTax(true,this.TypeUid)
-               this.clearForm()
+              
                this.id =0
+               
               // setTimeout(() => {
               //   const element = this.first.nativeElement
               //   element.focus({ preventScroll: false })
@@ -338,12 +341,12 @@ editMainID :any
               //   const element = this.first.nativeElement.focus()
               //   element.focus({ preventScroll: false })
               // }, 1000)
-              this._commonGetSetServices.setTax(Data.Data)
+              //this._commonGetSetServices.setTax(Data.Data)
               const dataToSend = { id: Data.Data, name: this.slab }
               this.commonService.newTaxAdded()
               this.commonService.closeTax(dataToSend)
               let savename = this.editMainID===0 ? UIConstant.SAVED_SUCCESSFULLY :UIConstant.UPDATE_SUCCESSFULLY
-
+               this.EditFlag = true
               this.toastrCustomService.showSuccess('',savename)
             //  this.selectTaxTpye = [{ id: '1', text: 'GST' }, { id: '2', text: 'VAT' }, { id: '3', text: 'Other' }]
             }
@@ -473,6 +476,8 @@ editMainID :any
   clearForm() {
     this.taxrate = 0
     this.slab = ''
+   this.EditFlag = true
+  
     //this.isForOtherState = true
 
   }

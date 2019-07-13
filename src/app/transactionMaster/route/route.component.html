@@ -45,12 +45,12 @@
                             <table class="table cat-table table-hover">
                         <thead>
                             <tr>
-                                <th>SR</th>
-                                <th>Category</th>
-                                <th>Routing</th>
-                                <th>Fare</th>
-                                <th>Tax </th>
-                                <th>Action</th>
+                                <th width="7%">SR</th>
+                                <th width="25%">Category</th>
+                                <th width="40%">Routing</th>
+                                <th width="10%">Fare</th>
+                                <th width="10%">Tax </th>
+                                <th width="8%">Action</th>
                             </tr>
                         </thead>
                         <tbody *ngIf="isSearching" style="height:100px;" >
@@ -77,10 +77,11 @@
                     </table>
                 </div>
             </div>
-            <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-                (pageNoEmitter)="p = $event;getItemMasterDetail();"
-                (pageSizeEmitter)="itemsPerPage = $event;getItemMasterDetail();" ></app-pagination>
+            
         </div>
         </div>
     </div>
 </main>
+<app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+                (pageNoEmitter)="p = $event;getItemMasterDetail();"
+                (pageSizeEmitter)="itemsPerPage = $event;getItemMasterDetail();" ></app-pagination>

@@ -175,6 +175,22 @@ export const SIDE_MENU_MODEL = {
     path: 'common-menu',
     icon: ''
   },
+  'Sample Approval': {
+    path: 'sample-approval',
+    icon: ''
+  },
+  'Style': {
+    path: 'style',
+    icon: ''
+  },
+  'Material Requirement': {
+    path: 'material-requirement',
+    icon: ''
+  },
+  'Buyer-Order': {
+    path: 'buyer-order',
+    icon: ''
+  },
   'TransactionNo': {
     path: 'transaction-number',
     icon: ''
@@ -261,5 +277,14 @@ export const SIDE_MENU_MODEL = {
   'Trading': {
     path: 'account/trading',
     icon: ''
+  },
+  'Item Inventory': {
+    path: 'ims/report/item-inventory',
+    icon: ''
+  },
+  'Trail Balance': {
+    path: 'account/trail-balance',
+    icon: ''
   }
+  
 }

@@ -242,6 +242,8 @@ export class PurchaseSearchComponent {
     this.DateType = 0
     this.LedgerId = 0
     this.searchForm.reset()
+    this.searchForm.controls.FromDate.setValue('')
+    this.searchForm.controls.ToDate.setValue('')
     if (this.ledgerSelect2) {
       this.ledgerSelect2.setElementValue(0)
     }

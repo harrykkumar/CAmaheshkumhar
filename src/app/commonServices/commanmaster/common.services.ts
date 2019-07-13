@@ -55,7 +55,10 @@ export class CommonService {
   private sendDataForSearchBalanceSheetSub = new BehaviorSubject<AddCust>({ 'open': false })
   private sendDataForSearcProfitLossSub = new BehaviorSubject<AddCust>({ 'open': false })
   private sendDataForSearcTradingSub = new BehaviorSubject<AddCust>({ 'open': false })
-
+  private sendDataForSearchPurchaseSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private searchToggle = new BehaviorSubject<AddCust>({ 'open': false })
+  
+  
   //  validation reg ex
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
@@ -496,6 +499,7 @@ export class CommonService {
   }
 
   getPurchaseStatus() {
+
     return this.openPurchaseAddSub.asObservable()
   }
 
@@ -559,12 +563,24 @@ export class CommonService {
     return this.baseService.getRequest(ApiConstant.FIN_YEAR)
   }
 
+  getTransactionSession = () => {
+    return this.baseService.getRequest(ApiConstant.TRANS_SESSION)
+  }
+
+  getTransactionFormat = () => {
+    return this.baseService.getRequest(ApiConstant.TRANS_FORMAT)
+  }
+
+  getTransactionPosition = () => {
+    return this.baseService.getRequest(ApiConstant.TRANS_POSITION)
+  }
+
   getFinSessionList() {
     return this.baseService.getRequest(ApiConstant.FIN_SESSION)
   }
 
-  openSaleDirect(editId) {
-    this.openSaleDirectSubject.next({ 'open': true, 'editId': editId })
+  openSaleDirect(editId,flag) {
+    this.openSaleDirectSubject.next({ 'open': true, 'editId': editId ,'isAddNew':flag})
   }
 
   closeSaleDirect() {
@@ -572,6 +588,7 @@ export class CommonService {
   }
 
   getSaleDirectStatus(): Observable<any> {
+
     return this.openSaleDirectSubject.asObservable()
   }
   postSaleDirectAPI(input) {
@@ -868,10 +885,10 @@ export class CommonService {
     this.sendDataForSearchSub.next({ 'open': true, 'itemId': itemId, 'ledgerId': ledgerId, 'categoryId': categoryId, 'toDate': todate, 'fromDate': fromDate, 'batchNo': batchNo })
   }
   getSearchForPurchaseStatus() {
-    return this.sendDataForSearchSub.asObservable()
+    return this.sendDataForSearchPurchaseSub.asObservable()
   }
   searchByDateForPurchaseItemSale(todate, fromDate, batchNo, categoryId, itemId, ledgerId) {
-    this.sendDataForSearchSub.next({ 'open': true, 'itemId': itemId, 'ledgerId': ledgerId, 'categoryId': categoryId, 'toDate': todate, 'fromDate': fromDate, 'batchNo': batchNo })
+    this.sendDataForSearchPurchaseSub.next({ 'open': true, 'itemId': itemId, 'ledgerId': ledgerId, 'categoryId': categoryId, 'toDate': todate, 'fromDate': fromDate, 'batchNo': batchNo })
   }
   getProfitAndLossList(todate, fromdate) {
     return this.baseService.getRequest(ApiConstant.ACCOUNT_PROFIT_AND_LOSS_BY_DATE + '?OnDate=' + fromdate + '&ToDate=' + todate)
@@ -960,6 +977,113 @@ export class CommonService {
     return this.openConfirmationeSubJect.asObservable()
   }
 
+  openSearchToggle(editId) {
+    this.searchToggle.next({ 'open': true, 'editId': editId })
+  }
+
+  searchTogglestatus() {
+    return this.searchToggle.asObservable()
+  }
+
+  searchToggleClose() {
+    this.searchToggle.next({ 'open': false })
+  }
+  // 
+
+  getDashBoardData(type) {
+    return this.baseService.getRequest(ApiConstant.INIT_DASHBOARD +type)
+  }
+  private querySaleStrSub = new Subject<string>()
+  public querySaleStr$ = this.querySaleStrSub.asObservable()
+  setSearchQueryParamsStr (str) {
+    this.querySaleStrSub.next(str)
+  }
   
+  word: string = ''
+  NumInWords (value) {
+    let fraction = Math.round(this.frac(value) * 100)
+    let fText = ''
+
+    if (fraction > 0) {
+      fText = 'AND ' + this.convertNumber(fraction) + ' PAISE'
+    }
+
+    return this.convertNumber(value) + ' RUPEE ' + fText + ' ONLY'
+  }
+
+  frac (f) {
+    return f % 1
+  }
+
+  convertNumber (num1) {
+    if ((num1 < 0) || (num1 > 999999999)) {
+      return 'Number not count !!-Sysytem issue'
+    }
+    let Gn = Math.floor(num1 / 10000000)  /* Crore */
+    num1 -= Gn * 10000000
+    let kn = Math.floor(num1 / 100000)     /* lakhs */
+    num1 -= kn * 100000
+    let Hn = Math.floor(num1 / 1000)      /* thousand */
+    num1 -= Hn * 1000
+    let Dn = Math.floor(num1 / 100)       /* Tens (deca) */
+    num1 = num1 % 100               /* Ones */
+    let tn = Math.floor(num1 / 10)
+    let one = Math.floor(num1 % 10)
+    this.word = ''
+
+    if (Gn > 0) {
+      this.word += (this.convertNumber(Gn) + ' Crore')
+    }
+    if (kn > 0) {
+      this.word += (((this.word === '') ? '' : ' ') +
+        this.convertNumber(kn) + ' Lakh')
+    }
+    if (Hn > 0) {
+      this.word += (((this.word === '') ? '' : ' ') +
+        this.convertNumber(Hn) + ' Thousand')
+    }
+
+    if (Dn) {
+      this.word += (((this.word === '') ? '' : ' ') +
+        this.convertNumber(Dn) + ' Hundred')
+    }
+
+    let ones = Array('', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', ' Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen')
+    let tens = Array('', '', 'Twenty', 'Thirty', 'Fourty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety')
+
+    if (tn > 0 || one > 0) {
+      if (!(this.word === '')) {
+        this.word += ' And '
+      }
+      if (tn < 2) {
+        this.word += ones[tn * 10 + one]
+      } else {
+
+        this.word += tens[tn]
+        if (one > 0) {
+          this.word += ('-' + ones[one])
+        }
+      }
+    }
+
+    if (this.word === '') {
+      this.word = ' zero'
+    }
+    return this.word
+  }
+
   
+  getStateByGStCode (statecode){
+    return this.baseService.getRequest(ApiConstant.CHECK_GST_FOR_STATE + statecode)
+  }
+  getReportItemInventory(data) {
+    const url = `${ApiConstant.GET_ITEM_REPORT_INVENTORY}?CategoryId=${data.CategoryId}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&ItemId=${data.ItemId}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
+    return this.baseService.getRequest(url)
+  }
+  getTrailBalanceReport (fromadate,todate){
+    return this.baseService.getRequest(`${ApiConstant.GET_REPORT_TRAIL_BALANCE}?OnDate=${fromadate}&ToDate=${todate}`)
+
+    
+  }
+
 }

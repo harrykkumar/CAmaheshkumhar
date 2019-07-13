@@ -54,6 +54,7 @@ export class FileUploaderComponent implements OnInit {
   }
 
   blobToString(blob) {
+    debugger
     let reader = new FileReader()
     reader.readAsDataURL(blob)
     let _self = this
@@ -62,11 +63,13 @@ export class FileUploaderComponent implements OnInit {
       let img = new Image();
       img.src = base64data
       img.onload = () => {
-        if (_self.imageType === 'logo' && (img.width !== 450 || img.height !== 150)) {
-          _self.toastrService.showError('Image width and height should be 450×150', '')
-          _self.len -= 1
-          return
-        } else {
+        // if (_self.imageType === 'logo' && (img.width !== 450 || img.height !== 150)) {
+
+        // if (_self.imageType === 'logo') {
+        //   _self.toastrService.showError('Image width and height should be 450×150', '')
+        //   _self.len -= 1
+        //   return
+        // } else {
           let base64Image = _self.domSanitizer.bypassSecurityTrustUrl(base64data) as any
           let toPushBase64Image = base64Image.changingThisBreaksApplicationSecurity || base64Image
           console.log('base64Image : ', toPushBase64Image)
@@ -89,7 +92,7 @@ export class FileUploaderComponent implements OnInit {
             _self.len = 0
             _self.uploadedImages.emit({ 'images': images, 'queue': queue, 'safeUrls': safeUrls, 'baseImages': baseImages, 'id': id })
           }
-        }
+        //}
       }
     }
   }

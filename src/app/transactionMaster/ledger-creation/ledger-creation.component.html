@@ -46,14 +46,13 @@
                         <table class="table cat-table table-hover">
                             <thead>
                                 <tr>
-                                    <th>S.NO</th>
-                                    <th>Group Name</th>
-                                    <th>Ledger Name</th>
-                                    <th>GSTIN Number</th>
-                                    <th>Register Type</th>
-                                    <th>Opening Balance</th>
-
-                                    <th>Action</th>
+                                    <th width="7%">S.NO</th>
+                                    <th width="15%">Group Name</th>
+                                    <th width="30%">Ledger Name</th>
+                                    <th width="15%">GSTIN Number</th>
+                                    <th width="10%">Register Type</th>
+                                    <th width="15%" class="text-right">Opening Balance</th>
+                                    <th width="8%">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -64,7 +63,7 @@
                                     <td>{{item.Name}}</td>
                                     <td>{{item.GstinNo}}</td>
                                     <td>{{item.TaxType}}  </td>
-                                    <td>{{item.OpeningBalance }}-{{item.Crdr === 0 ? 'DR' : 'CR'}}</td>
+                                    <td class="text-right">{{item.OpeningBalance }}-{{item.Crdr === 0 ? 'DR' : 'CR'}}</td>
                                     
                                     <td class="text-center">
                                         <a    class="actionBtn" data-toggle="tooltip"  title=""
@@ -79,10 +78,11 @@
                         </table>
                     </div>
                 </div>
-                <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-                (pageNoEmitter)="p = $event;getLedgerDetail();"
-                (pageSizeEmitter)="itemsPerPage = $event;getLedgerDetail();" ></app-pagination>
+               
             </div>
         </div>
     </div>
 </main>
+<app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+(pageNoEmitter)="p = $event;getLedgerDetail();"
+(pageSizeEmitter)="itemsPerPage = $event;getLedgerDetail();" ></app-pagination>

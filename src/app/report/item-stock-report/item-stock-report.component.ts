@@ -52,7 +52,7 @@ export class ItemStockReportComponent implements OnInit {
   allAttributeData: any
   localArray: any
   labelLength: any
-  mainData: any
+  mainData: any =[]
   AttributeValues: any
   ClosingStock :any
   getSaleChallanDetail (data) {
@@ -126,7 +126,9 @@ export class ItemStockReportComponent implements OnInit {
           let ItemBarCodeTransactions = data.Data.ItemBarCodeTransactions.filter(s => (s.ItemId === mainItm.Id && s.GroupId === mainItm.GroupId))
           if (ItemBarCodeTransactions.length === 0) {
             ItemBarCodeTransactions = []
-            ItemBarCodeTransactions.push({ BarCode: '' })
+            ItemBarCodeTransactions.push({ Barcode: '' })
+            ItemBarCodeTransactions.push({ AttributeDetail: '' })
+
           }
           this.mainData.push({
             id: mainItm.Id,
@@ -139,7 +141,8 @@ export class ItemStockReportComponent implements OnInit {
             purchase: ItemstockdetailsPurchase,
             purchaseReturn: ItemstockdetailsPurchaseReturn,
             sale: ItemstockdetailsSale,
-            barcode: ItemBarCodeTransactions,
+            barcode: ItemBarCodeTransactions[0].Barcode,
+            attributeData: ItemBarCodeTransactions[0].AttributeDetail,
             saleReturn: ItemstockdetailsSaleReturn,
             ClosingStock:ClosingStock,
             ItemsWestageStock:ItemsWestageStock,

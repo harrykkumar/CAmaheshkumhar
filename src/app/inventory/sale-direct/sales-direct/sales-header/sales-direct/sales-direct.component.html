@@ -10,7 +10,8 @@
               </div>
               <div class="col-md-9">
                 <div class="btn_header">
-                  <a  (keydown.enter)="pressF10ForSave($event)"  class="btn btn-default waves-effect" (click)="keepOpen=false;saveSaleChallan()">Save </a><a class="btn btn-info waves-effect" (click)="keepOpen=true;saveSaleChallan()">Save and New</a>
+                  <button  (keydown.enter)="pressF10ForSave($event)"  class="btn btn-default waves-effect" (click)="keepOpen=false;saveSaleChallan()">Save </button>
+                  <button   class="btn btn-info waves-effect" (click)="keepOpen=true;saveSaleChallan()">Save and New</button>
                   <button type="button" (click)="clearExtras()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">×</span> </button>
                 </div>
               </div>
@@ -41,11 +42,16 @@
                 <datepicker-popup [disableInput]="editMode"
                 [toSetDate]="InvoiceDate" [isBackDate]="backDateEntry"
                 (dateInFormat)="InvoiceDate = $event;"
-                [class]="submitSave && invalidObj?.InvoiceDate" >
+                >
                 </datepicker-popup>
               </div>
                <div class="form-group col-md-4 col-lg-2 col-xl-2">
-                <label>Invoice NO.</label><label *ngIf="isManualBillNoEntry && lastBillNo" id="previous-bill-container" > ( Last BillNo. is -{{lastBillNo}} )</label>
+
+                <label>Invoice NO.</label>
+                <!-- <label *ngIf="true" id="previous-bill-container" ></label> -->
+                <label *ngIf="redirectToTranspageFlag"><span></span><a  (click)="openTranctionBillNo()" class="info_tooltip" data-toggle="modal"  ><i class="fas fa-cog"></i></a> </label>
+
+                <label *ngIf="isManualBillNoEntry && lastBillNo" id="previous-bill-container" > ( Last BillNo. is -{{lastBillNo}} )</label>
                 <input   type="text" placeholder="Bill Number" (input)="checkValidation()" [disabled]="!isManualBillNoEntry" [ngClass]="{'errorSelecto': submitSave && invalidObj2?.BillNo }" class="form-control" name="BillNo" [(ngModel)]="BillNo">
               </div>
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
@@ -54,7 +60,7 @@
                 <datepicker-popup [disableInput]="editMode"
                 [toSetDate]="CurrentDate" 
                 (dateInFormat)="CurrentDate = $event;"
-                [class]="submitSave && invalidObj?.CurrentDate" >
+                >
                 </datepicker-popup>
               </div>
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
@@ -132,6 +138,7 @@
                           {{column.label}}
                       </th>
                       </ng-container>
+                      <th>Quantity</th>
                       <th>Unit</th>
                       <ng-container *ngIf="industryId === '3' " >
                        <th>Length</th>
@@ -148,7 +155,7 @@
                         <th>Batch No</th>
                         <th>Expiry Date</th>
                       </ng-container>
-                      <th>Quantity</th>
+                     
                       <th>Rate</th>
                       <th>Total</th>
 
@@ -183,6 +190,7 @@
                             {{localItemas[i].LableAttributeVale && localItemas[i].LableAttributeVale[a]?.AttributeValue[0]?.AttributeName}}
                       </td>
                        </ng-container>
+                       <td>{{item.Quantity}}</td>
                       <td>{{item.UnitName}}</td>
                      <ng-container *ngIf="industryId === '3' " >
                       <td>{{item.Length}}</td>
@@ -199,7 +207,7 @@
                       <td>{{item.BatchNo}}</td>
                       <td>{{item.ExpiryDate}}</td>
                       </ng-container>
-                      <td>{{item.Quantity}}</td>
+                    
                       <td class="text-right">{{item.Rate}}</td>
                       <td class="text-right">{{(item.ReversetotalAmount).toFixed(decimalDigit)}}</td>
                        <td class="text-right">{{item.Discount}}&nbsp;{{item.DiscountType === '0'  ? '%' : defaultCurrency}}
@@ -235,7 +243,7 @@
 
                 <td>
               <div class="input-group adw_select ">
-                <select2 (input)="validationForItemData()" [disabled]='itemTableDisabledFlag' #item_select2 [data]="itemCategoryType" class="control_select " (valueChanged)="onSelectItemCategory($event)" autocomplete="true"
+                <select2 (input)="validationForItemData()" [disabled]='disabledItem || itemTableDisabledFlag' #item_select2 [data]="itemCategoryType" class="control_select " (valueChanged)="onSelectItemCategory($event)" autocomplete="true"
                 [options]="itemcategoryPlaceHolder" [value]="itemCategoryId" [ngClass]="{ 'errorSelecto is-invalid ': itemSubmit && invalidObj?.itemCategoryId }" ></select2>
               </div>
                 </td>
@@ -250,6 +258,9 @@
                   </div>
                 </td>
               </ng-container>
+              <td>
+                <input type="number"   class="form-control " (input)="validationForItemData();calculate();"  placeholder="Quantity" appIncludeDecimal name="Quantity" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.Quantity }"  [(ngModel)]="Quantity">
+              </td>
                  <td>
                    <div class="input-group adw_select ">
                             <select2 [data]="unitDataType" #unit_select2 class="control_select" (valueChanged)="onSelectUnitId($event)"
@@ -301,9 +312,7 @@
                      <!-- <input (input)="validationForItemData()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate"> -->
                 </td>
                   </ng-container>
-                     <td>
-                  <input type="number"   class="form-control " (input)="validationForItemData();calculate();"  placeholder="Quantity" appIncludeDecimal name="Quantity" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.Quantity }"  [(ngModel)]="Quantity">
-                </td>
+                  
                 <td >
                   <input type="number"  appIncludeDecimal class="form-control "  (input)="validationForItemData();calculate();" placeholder="Rate" appIncludeDecimal name="Rate" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.Rate }" [(ngModel)]="Rate">
                 </td>
@@ -323,9 +332,9 @@
                         </td>
                          <td>
                         <div class="input-group adw_select ">
-                            <select2  [disabled]='itemTableDisabledFlag'  [data]="taxSlabSelectoData" #tax_select2 class="control_select"
+                            <select2  [disabled]='taxDisabledFlag'  [data]="taxSlabSelectoData" #tax_select2 class="control_select"
                             (valueChanged)="onChangeTaxSlabType($event)"
-                            autocomplete="true" [options]="taxslabPlaceHolder" [value]="taxSlabId"  >
+                            autocomplete="true" [options]="{placeholder:'Select Tax'}" [value]="taxSlabId"  >
                           </select2>
                           </div>
                             </td>
@@ -453,7 +462,7 @@
                           </td>
                           <td>
                               <div class="input-group adw_select ">
-                                  <select2 [disabled]='itemTableDisabledFlag'  [data]="taxSlabSelectoData" #taxCharge_select2 class="control_select"
+                                  <select2 [disabled]='taxDisabledFlag'  [data]="taxSlabSelectoData" #taxCharge_select2 class="control_select"
                                   (valueChanged)="onChangeTaxCharge($event)"
                                   autocomplete="true" [options]="taxslabPlaceHolder" [value]="taxChargeId"  >
                                 </select2>

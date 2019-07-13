@@ -3,6 +3,7 @@ import { LoginService } from './../../commonServices/login/login.services';
 import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import * as _ from 'lodash'
+import { GlobalService } from '../../commonServices/global.service';
 
 
 @Component({
@@ -17,6 +18,7 @@ export class UserOrganizationsComponent implements OnInit {
   constructor(private router: Router,
     public _loginService: LoginService,
     private tokenService: TokenService,
+    private gs: GlobalService
   ) { }
 
   ngOnInit () {
@@ -27,6 +29,7 @@ export class UserOrganizationsComponent implements OnInit {
     const token = await this._loginService.extendJwtToken({ OrgId : selectedOrganization.Id})
     console.log(token)
     this.tokenService.saveToken(token)
+    this.gs.getOrgDetails()
     this._loginService.selectedOrganization = selectedOrganization
     localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
     this._loginService.mapModules(selectedOrganization)
@@ -45,7 +48,6 @@ export class UserOrganizationsComponent implements OnInit {
     this.modalData = {
       open: true
     }
-    // this.router.navigate(['new-organization']);
   }
 
   editCompany = (item) => {

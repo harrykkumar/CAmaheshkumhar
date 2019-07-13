@@ -9,7 +9,10 @@ export class UIConstant {
   public static get ONE (): number {
     return 1
   }
-
+    public static get CUSTOMER_GLID (): number {
+    return 5
+  }
+  CUSTOMER_GLID
   public static get TWO (): number {
     return 2
   }

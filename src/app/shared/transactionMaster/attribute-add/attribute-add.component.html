@@ -9,7 +9,7 @@
             <div class="modal-body">
                 <div class="card-body">
                     <div>
-                        <form #formModel="ngForm" (ngSubmit)=" saveAndUpdateAttribute()" novalidate>
+                        <form #formModel="ngForm" novalidate>
                             <div class="form-row">
                                 <div class="form-group col-md-10">
                                     <label for="attrName">Attribute Name</label>
@@ -31,7 +31,7 @@
                                         <label for="attrSelectName">Selected Attribute </label>
                                         <div class="input-group adw_select"
                                         [ngClass]="{'is-invalid': formModel?.submitted && !selectedAttribute}">
-                                            <select2 [disabled]='disabledAddNewFlag' id="attrSelectName" [data]="attributeList"
+                                            <select2 #selectAttributeSelect2 [disabled]='disabledAddNewFlag' id="attrSelectName" [options]='{placeholder:"Select Attribute"}' [data]="attributeList"
                                             class="control_select" (valueChanged)="onAttrValueChange($event)"
                                             autocomplete="true"  [value]="selectedAttribute"
                                             ></select2>
@@ -47,8 +47,11 @@
                                 </ng-container>
                             </div>
                             <div class="modal-footer" style="padding-right:0;" *ngIf="!isParent"  >
-                                <button type="submit" class="btn btn-primary waves-effect">Save </button>
+                                <button type="button"  (click)=" saveAndUpdateAttribute('save')"  class="btn btn-primary waves-effect">Save </button>
+                                <button type="button" (click)="saveAndUpdateAttribute('New')" class="btn btn-primary waves-effect"> Add New & Save </button>
+
                             </div>
+                           
                         </form>
                     </div>
                 </div>

@@ -25,8 +25,8 @@
                             <td>{{item.VoucherNo}}</td>
                             <td>{{item.VoucherType}}</td>
                             <td>{{item.Narration}}</td>
-                            <td class="text-right">{{item.Cr}}</td>
-                            <td class="text-right">{{item.Dr}}</td>
+                            <td class="text-right">{{(item.Cr).toFixed(noOfdecimal)}}</td>
+                            <td class="text-right">{{(item.Dr).toFixed(noOfdecimal)}}</td>
                             <td>
                                 <div class="dropdown enquiry-tag" *ngIf="item.VoucherTypeId === 103" >
                                     <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
@@ -43,8 +43,8 @@
                     <tfoot>
                         <tr>
                             <th colspan="6"></th>
-                            <th class="text-right font-weight-bold">{{summary.Cr}}</th>
-                            <th class="text-right font-weight-bold">{{summary.Dr}}</th>
+                            <th class="text-right font-weight-bold">{{(summary?.Cr).toFixed(noOfdecimal)}}</th>
+                            <th class="text-right font-weight-bold">{{(summary?.Dr).toFixed(noOfdecimal)}}</th>
                             <th></th>
                         </tr>
                     </tfoot>

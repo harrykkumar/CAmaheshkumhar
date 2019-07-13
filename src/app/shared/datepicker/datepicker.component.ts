@@ -27,9 +27,11 @@ export class DatepickerComponent {
   selectedDate;
   isoRegex = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(.[0-9]+)?(Z)?$/g
   
-  constructor(private gs: GlobalService, private settings: Settings, private dateTimeAdapter: DateTimeAdapter<any>) {
+  constructor(private gs: GlobalService, private settings: Settings,
+    private dateTimeAdapter: DateTimeAdapter<any>) {
     this.clientDateFormat = this.settings.dateFormat
     this.dateTimeAdapter.setLocale('en-IN')
+    this.getSettings()
   }
 
   ngOnChanges (changes: SimpleChanges): void {
@@ -64,10 +66,14 @@ export class DatepickerComponent {
     if (changes.setMinDate && changes.setMinDate.currentValue  && changes.setMinDate.currentValue !== changes.setMinDate.previousValue) {
       this.today = this.gs.sqlToUtc(this.gs.clientToSqlDateFormat(changes.setMinDate.currentValue, this.clientDateFormat))
       this.minDate = new Date(this.today)
+    } else if (changes.setMinDate && changes.setMinDate.currentValue === '' ) {
+      this.minDate = new Date('')
     }
     if (changes.setMaxDate && changes.setMaxDate.currentValue  && changes.setMaxDate.currentValue !== changes.setMaxDate.previousValue) {
       this.today = this.gs.sqlToUtc(this.gs.clientToSqlDateFormat(changes.setMaxDate.currentValue, this.clientDateFormat))
       this.maxDate = new Date(this.today)
+    } else if (changes.setMaxDate && changes.setMaxDate.currentValue === '' ) {
+      this.maxDate = new Date('')
     }
   }
 
@@ -84,6 +90,7 @@ export class DatepickerComponent {
   }
 
   toggleView () {
+    // console.log('selected : ', this.dt2.selected)
     if (!this.dt2.opened) {
       this.dt2.open()
     }
@@ -93,5 +100,11 @@ export class DatepickerComponent {
   onClose () {
     this.opened.emit(false)
     this.dt2.dtInput.elementRef.nativeElement.focus({ preventScroll: false })
+  }
+
+  getSettings () {
+    console.log('set date')
+    if (this.settings.finFromDate) this.minDate = new Date(this.settings.finFromDate)
+    if (this.settings.finToDate) this.maxDate = new Date(this.settings.finToDate)
   }
 }

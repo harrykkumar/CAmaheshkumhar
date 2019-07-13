@@ -38,13 +38,17 @@ export class ItemSaleSearchComponent implements OnInit {
   }
   fromDate () {
     let _self = this
-    this.fromDatevalue = ''
+    this.fromDatevalue = this._globalService.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
+
+    // this.fromDatevalue = ''
 
   }
   fromDatevalue: string
   toDateValue: string
   toDate () {
-    this.toDateValue = ''
+    this.toDateValue = this._globalService.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
+
+    // this.toDateValue = ''
 
   }
   ngOnInit () {
@@ -104,7 +108,7 @@ export class ItemSaleSearchComponent implements OnInit {
     }
    
     onSelectItem (event) {
-      debugger
+      
       if (event.data.length > 0) {
         if (event.data[0].id !== '') {
            this.itemId = event.value
@@ -138,7 +142,6 @@ export class ItemSaleSearchComponent implements OnInit {
       date = this.fromDatevalue
     }
      this.fromDateChange = this._globalService.clientToSqlDateFormat(date, this.clientDateFormat)
-   // this._commonService.searchByDateForItemSale( this.toDateChngae ,this.fromDateChange,this.batchNo ,this.categoryId ,this.itemId, this.ledgerId)
    
  }
  onChangeToDate(event ){
@@ -150,7 +153,6 @@ export class ItemSaleSearchComponent implements OnInit {
     date = this.toDateValue
   }
    this.toDateChngae = this._globalService.clientToSqlDateFormat(date, this.clientDateFormat)
- // this._commonService.searchByDateForItemSale( this.toDateChngae ,this.fromDateChange,this.batchNo ,this.categoryId ,this.itemId, this.ledgerId)
 
 }
 @ViewChild('cat_select2') catSelect2: Select2Component

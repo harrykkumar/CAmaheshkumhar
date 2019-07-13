@@ -1,0 +1,123 @@
+<main class="main-content bgc-grey">
+    <div id="mainContent">
+      <div class="page-header p-0">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-4 left_side_head">
+              <p class="heading_lead c-grey-900 mb-0">
+                <i class="fa fa-chart-line"></i>Material Requirement
+              </p>
+            </div>
+            <div class="col-md-8 right_saerch_side p-0">
+              <div class="mr-2">
+                <form>
+                  <div id="custom-search-input" class="btn_header1">
+                    <div class="input-group col-md-12">
+                      <input
+                        type="text"
+                        class="form-control input-lg"
+                        placeholder="Search"
+                      />
+                      <span class="input-group-btn">
+                        <a>
+                          <i class="fas fa-search"></i>
+                        </a>
+                      </span>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="btn_header">
+                <a>
+                  <img src="assets/img/printer.png" />
+                </a>
+                <a> <img src="assets/img/pdf.png"/></a>
+  
+                <a>
+                  <img src="assets/img/excel.png" />
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-primary waves-effect waves-light"
+                  data-toggle="modal"
+                  (click)="addItemRequirement()"
+                >
+                  Add New
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row animated-background">
+        <div class="col-md-12">
+          <div class="bgc-white bdrs-3 mB-20">
+            <div class="table-responsive table_height">
+              <table class="table cat-table cat-table table-hover">
+                <thead>
+                  <tr>
+                    <th width="7%">SNo.</th>
+                    <th width="25%">Name</th>
+                    <th width="15%">Type</th>
+                    
+                    <th width="15%">On Date</th>
+                    <th width="15%">Cost</th>
+                    <th width="15%">Total Items</th>
+                    <th width="8%">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let item of itemRequirementListData| paginate: { itemsPerPage: pageSize, currentPage: pageNo, totalItems: totalItemSize
+                            };
+                      let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ item?.ParentName }}</td>
+                    <td>{{ item?.ParentTypeName }}</td>
+                    <td>{{ item?.OnDate }}</td>
+                    <td>{{ item?.Cost }}</td>
+                    <td>{{ item?.TotalItems }}</td>
+                    <td>
+                      <a
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        title="Edit"
+                        class="actionBtn"
+                      >
+                        <i
+                          class="fa fa-edit fa-1x"
+                          aria-hidden="true"
+                          (click)="addItemRequirement(item)"
+                        >
+                        </i
+                      ></a>
+                      <a
+                        data-toggle="tooltip"
+                        class="actionBtn"
+                        data-placement="bottom"
+                        title="Delete"
+                        (click)="deleteItemRequirement(item)"
+                        ><i class="fa fa-trash fa-1x" aria-hidden="true"></i
+                      ></a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+     
+    </div>
+  </main>
+  <app-pagination
+  #sample_approval_paging
+  (lastValueEmitter)="onLastValueChange($event)"
+  (pageNoEmitter)="onPageNoChange($event)"
+  (pageSizeEmitter)="onPageSizeChange($event)"
+></app-pagination>
+ 
+  <app-item-requirement #addItemRequirementRef
+  (triggerCloseModal)="onModalClosed($event)" ></app-item-requirement>

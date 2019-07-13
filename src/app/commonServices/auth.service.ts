@@ -36,6 +36,7 @@ export class AuthService implements CanActivate {
       }
     }
     if (this._validUser.getToken() && !_.isEmpty(this._loginService.selectedOrganization) &&  _.isEmpty(this._loginService.selectedUserModule)) {
+      await this._loginService.getUserOrganization()
       await this._loginService.getUserDetails(this._loginService.selectedOrganization.Id)
       this._loginService.selectedUserModule = JSON.parse(localStorage.getItem('SELECTED_MODULE'))
     }

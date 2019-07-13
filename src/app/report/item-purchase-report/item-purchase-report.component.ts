@@ -7,11 +7,18 @@ declare const $: any
 import { CommonService } from '../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { Settings } from '../../shared/constants/settings.constant'
-
+import {animation,trigger,query, style, transition,animate ,group} from "@angular/animations";
 @Component({
   selector: 'app-item-purchase-report',
   templateUrl: './item-purchase-report.component.html',
-  styleUrls: ['./item-purchase-report.component.css']
+  styleUrls: ['./item-purchase-report.component.css'],
+  animations: [
+    trigger('simpleStateTransition', [
+      transition('initial => extended', group([
+        query('.fadeout', animate('300ms', style({'opacity': '0'})))
+      ])),
+    ])
+  ]
 })
 export class ItemPurchaseReportComponent implements OnInit {
   DIRECT_SALE_TYPE: any = 'DirectSale'
@@ -22,8 +29,10 @@ export class ItemPurchaseReportComponent implements OnInit {
   newBillSub: Subscription
   dateShow: any
   clientDateFormat: any
+  noOfDecimal:any
   constructor(public _settings: Settings ,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     this.clientDateFormat = this._settings.dateFormat
+    this.noOfDecimal = this._settings.noOfDecimal
 
     this.newBillSub = this._commonService.getSearchForPurchaseStatus().subscribe(
       (obj: any) => {
@@ -41,8 +50,10 @@ export class ItemPurchaseReportComponent implements OnInit {
   }
 
   toShowSearch = false
-
+  simpleState = 'initial'
   toggleSearch() {
+    // this.simpleState = this.simpleState === 'initial' ? 'extended' : 'initial'
+    // this._commonService.openSearchToggle('')
     this.toShowSearch = !this.toShowSearch
   }
   Attributelabel: any
@@ -52,15 +63,16 @@ export class ItemPurchaseReportComponent implements OnInit {
   allAttributeData: any
   localArray: any
   labelLength: any
-  mainData: any
+  mainData: any =[]
   AttributeValues: any
-  totalDiscountAmt: any
-  totalTaxAmount: any
-  SubTotalAmount: any
+  totalDiscountAmt: any =0
+  TotalQty:any=0
+  totalTaxAmount: any =0
+  SubTotalAmount: any =0
   getItemSaleDetails (type ,LedgerId,CategoryId,ItemId,FromDate,ToDate,BatchNo ,Pagenumber,Size) {
     this._commonService.itemSalePurchaseReportDetails(type ,LedgerId,CategoryId,ItemId,FromDate,ToDate,BatchNo ,Pagenumber,Size).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
-        // debugger
+        //
         console.log(data ,'getdata')
         this.mainData = []
       
@@ -70,6 +82,8 @@ export class ItemPurchaseReportComponent implements OnInit {
         }
         if (data.Data.SummarizeDetails.length > 0) {
           console.log(data.Data.SummarizeDetails,"sdss")
+          this.TotalQty =data.Data.SummarizeDetails[0].Quantity
+
           this.totalDiscountAmt = data.Data.SummarizeDetails[0].Discount
           this.totalTaxAmount = data.Data.SummarizeDetails[0].TaxAmount
           this.SubTotalAmount = data.Data.SummarizeDetails[0].SubTotalAmount
@@ -101,6 +115,7 @@ export class ItemPurchaseReportComponent implements OnInit {
             itemid:mainItm.itemid,
             itemName: mainItm.Name,
             HsnNo: mainItm.HsnNo,
+            Qty:mainItm.Quantity,
             ItemCode: mainItm.ItemCode,
             BarCode:mainItm.BarCode,
             SaleRate:mainItm.SaleRate,

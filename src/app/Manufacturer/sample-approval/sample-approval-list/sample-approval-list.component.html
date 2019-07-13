@@ -131,7 +131,8 @@
                   <td class="text-right">
                       <div class="form-group">
                           <select class="form-control" id="approval" name="approveType"
-                             [(ngModel)]="item.Status">
+                             [(ngModel)]="item.Status"
+                             [disabled]="item?.disableApprove" >
                             <option value="true" >Yes</option>
                             <option value="false">No</option>
                           </select>
@@ -139,15 +140,16 @@
                   </td>
                   <td class="text-right"> 
                     <datepicker-popup
+                    [disableInput]="item?.disableApprove"
                     [toSetDate]="item.ApprovedOn"
                     (dateInFormat)="item.ApprovedOn = $event;"
                   ></datepicker-popup></td>
                   <td>
-                      <a data-toggle="tooltip" data-placement="top" title="Approve" class="actionBtn" >
+                      <a *ngIf="!item?.disableApprove" data-toggle="tooltip" data-placement="top" title="Approve" class="actionBtn" >
                           <i class="far fa-paper-plane fa-1x" aria-hidden="true"
                           (click)="onApprove(item)">
                           </i></a>
-                      <a data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn" >
+                      <a *ngIf="!item?.disableApprove" data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn" >
                       <i class="fa fa-edit fa-1x" aria-hidden="true"
                       (click)="addSampleApproval(item)">
                       </i></a>

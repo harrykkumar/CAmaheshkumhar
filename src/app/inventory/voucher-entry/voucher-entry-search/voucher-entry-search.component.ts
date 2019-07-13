@@ -106,7 +106,8 @@ export class VoucherEntrySearchComponent {
       if (!this.searchForm.value.ToDate) {
         this.searchForm.value.ToDate = ''
       }
-      const queryStr = '&Type=' + this.Type +
+      // '&Type=' + this.Type +
+      const queryStr = 
        '&FromDate=' + fromDate + 
        '&ToDate=' + toDate + 
        '&LedgerId=' + this.LedgerId
@@ -119,6 +120,8 @@ export class VoucherEntrySearchComponent {
     this.ledgerValue = 0
     this.LedgerId = 0
     this.searchForm.reset()
+    this.searchForm.controls.FromDate.setValue('')
+    this.searchForm.controls.ToDate.setValue('')
     if (this.ledgerSelect2) {
       this.ledgerSelect2.setElementValue(0)
     }

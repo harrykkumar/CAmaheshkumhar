@@ -1,0 +1,269 @@
+<div
+  class="modal fade"
+  id="item_requirement_form"
+  role="dialog"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div
+    class="modal-dialog large_form modal-full-height modal-top"
+    role="document"
+  >
+    <div class="modal-content bgcH-grey-100">
+      <form
+        #itemRequirementForm="ngForm"
+        novalidate
+        (ngSubmit)="
+          itemRequirementForm.form.valid &&
+            validateForm() &&
+            postItemRequireData()
+        "
+      >
+        <!--Header-->
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-3 left_side_head">
+                <p class="heading_lead">
+                  <i class="far fa-building"></i>Material Requirement Form
+                </p>
+              </div>
+              <div class="col-md-9">
+                <div class="btn_header">
+                  <button type="submit" class="btn btn-default waves-effect">
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    class="close"
+                    (click)="closeModal()"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true" class="white-text">×</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="col-md-1 form-group d-flex align-items-center">
+              <label class="radio ">
+                <input
+                  type="radio"
+                  class="item-requirement-radio-input"
+                  value="style"
+                  [(ngModel)]="model.type"
+                  name="optradio"
+                />Style
+              </label>
+            </div>
+            <div class="col-md-1 form-group d-flex align-items-center">
+              <label class="radio item-requirement-radio-label">
+                <input
+                  type="radio"
+                  class="item-requirement-radio-input"
+                  value="item"
+                  [(ngModel)]="model.type"
+                  name="optradio"
+                />Item
+              </label>
+            </div>
+            <div class="form-group col-md-4">
+              <label>Items</label>
+              <div class="input-group adw_select">
+                <div class="input-group adw_select">
+                  <select2
+                    [data]="storedItems"
+                    class="control_select"
+                    autocomplete="true"
+                    (valueChanged)="onParentItemChange($event)"
+                    [value]="model?.parentItemValue"
+                    [ngClass]="{
+                      errorSelecto:
+                        itemRequirementForm.submitted &&
+                        !model?.selectedParentItemId
+                    }"
+                  >
+                  </select2>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-3">
+              <label class="fw-500">Date</label>
+              <div class="timepicker-input input-icon form-group">
+                <datepicker-popup
+                  [toSetDate]="model.OnDate"
+                  [setMinDate]="''"
+                  [setMaxDate]="''"
+                  (dateInFormat)="model.OnDate = $event"
+                  [class]="itemRequirementForm.submitted && !model?.OnDate"
+                ></datepicker-popup>
+              </div>
+            </div>
+          </div>
+
+          <div class="row animated-background">
+            <div class="col-md-12">
+              <div class="bgc-white bdrs-3 mB-20">
+                <div class="table-responsive table_height">
+                  <table class="table cat-table cat-table table-hover">
+                    <thead>
+                      <tr class="default_row">
+                        <th rowspan="2" colspan="1">
+                          Add
+                        </th>
+                        <th rowspan="2"  colspan="1">
+                          Category
+                        </th>
+                        <th rowspan="2"  colspan="1">
+                          Item
+                        </th>
+                        <th rowspan="2"  colspan="1">
+                          Unit
+                        </th>
+                        <th rowspan="2"  colspan="1">
+                          Instructions
+                        </th>
+                        <th *ngIf="storedAttributeValues?.length > 1" rowspan="2"  colspan="1">
+                          Attribute Values
+                        </th>
+                        <th
+                          rowspan="2"
+                          colspan="1"
+                          *ngFor="let item of AttributeValue_1; let j = index"
+                        >
+                          {{ item?.Name }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let item of values;
+                          let i = index;
+                          let last = last
+                        "
+                      >
+                        <td>
+                          <button
+                            type="button"
+                            *ngIf="last"
+                            id="btn_add_email"
+                            class="btn btn-primary btn_add_more"
+                            (click)="addRow(i)"
+                          >
+                            +
+                          </button>
+                        </td>
+                        <td>
+                          <div class="form-group col-md-4">
+                            <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                <select2
+                                  [data]="categoryList"
+                                  class="control_select"
+                                  autocomplete="true"
+                                  [value]="values[i]?.selectCategoryValue"
+                                  (valueChanged)="onCategoryChange($event, i)">
+                                </select2>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="form-group col-md-4">
+                            <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                <select2
+                                  [data]="values[i]?.items"
+                                  class="control_select"
+                                  autocomplete="true"
+                                  [value]="values[i]?.selectItemValue"
+                                  (valueChanged)="onItemChange($event, i)"
+                                >
+                                </select2>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="form-group col-md-4">
+                            <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                <select2
+                                  [data]="values[i]?.units"
+                                  class="control_select"
+                                  autocomplete="true"
+                                  [value]="values[i]?.selectUnitValue"
+                                  (valueChanged)="onUnitChange($event, i)"
+                                >
+                                </select2>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="form-group col-md-4">
+                            <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                <select2
+                                  [data]="instructionList"
+                                  class="control_select"
+                                  autocomplete="true"
+                                  [value]="item?.selectInstructionValue"
+                                  (valueChanged)="
+                                    onInstructionChange($event, i)
+                                  "
+                                >
+                                </select2>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style="font-weight:bold" *ngIf="storedAttributeValues?.length > 1">
+                          <div class="form-group col-md-4">
+                            <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                <select2
+                                  [data]="storedAttributeValues"
+                                  class="control_select"
+                                  autocomplete="true"
+                                  [value]="item?.selectAttributeValue"
+                                  (valueChanged)="onAttributeChange($event, i)"
+                                >
+                                </select2>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td
+                          *ngFor="
+                            let columnItem of item?.quantityArray;
+                            let j = index
+                          "
+                        >
+                          <div class="form-group col-md-12">
+                            <label for="{{ i }}-{{ j }}-quantity"></label>
+                            <input
+                              name="{{ i }}-{{ j }}-quantity"
+                              type="text"
+                              class="form-control"
+                              [(ngModel)]="columnItem.quantity"
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -60,7 +60,9 @@ export class BalanceSheetReportComponent implements OnInit {
     this.headervalue1 =0
     this.headervalue1First=0
     this.headervalue2First=0
-    this.loggedinUserData = this._loginService.userData
+    
+    const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
+    this.loggedinUserData = organization
     this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
     this._commonService.fixTableHF('cat-table')
   }

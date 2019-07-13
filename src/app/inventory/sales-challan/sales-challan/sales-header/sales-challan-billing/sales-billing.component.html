@@ -123,6 +123,7 @@
                           {{column.label}}
                       </th>
                         </ng-container>
+                        <th>Quantity</th>
                       <th>Unit</th>
                       <ng-container *ngIf="industryId === '3' " >
                        <th>Length</th>
@@ -138,7 +139,7 @@
                         <th>Batch No</th>
                         <th>Expiry Date</th>
                       </ng-container>
-                      <th>Quantity</th>
+                     
                       <th>Rate</th>
                       <th >Total</th>
                       <th>Discount</th>
@@ -172,6 +173,7 @@
                             {{localItemas[i].LableAttributeVale && localItemas[i].LableAttributeVale[a]?.AttributeValue[0]?.AttributeName}}
                       </td>
                       </ng-container>
+                      <td>{{item.Quantity}}</td>
                       <td>{{item.UnitName}}</td>
                      <ng-container *ngIf="industryId === '3' " >
                       <td>{{item.Length}}</td>
@@ -187,7 +189,7 @@
                       <td>{{item.BatchNo}}</td>
                       <td>{{item.ExpiryDate}}</td> 
                       </ng-container>
-                      <td>{{item.Quantity}}</td>
+                     
                       <td>{{item.Rate}}</td>
                       <td class="text-right">{{(item.ReversetotalAmount).toFixed(decimalDigit)}}</td>
 
@@ -239,7 +241,9 @@
                 </div>
               </td>
             </ng-container>
-                
+            <td>
+              <input type="number"   class="form-control " (input)="checkValidation();calculate();"  placeholder="Quantity" appIncludeDecimal name="Quantity"  [(ngModel)]="Quantity">
+            </td>
                  <td>
                    <div class="input-group adw_select ">
                             <select2 [data]="unitDataType" #unit_select2 class="control_select" (valueChanged)="onSelectUnitId($event)"
@@ -289,9 +293,7 @@
                      <!-- <input (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="Expiry-date" placeholder="Expiry Date"  data-provide="datepicker" [(ngModel)]="ExpiryDate" name="ExpiryDate"> -->
                 </td>
                   </ng-container>
-                     <td>
-                  <input type="number"   class="form-control " (input)="checkValidation();calculate();"  placeholder="Quantity" appIncludeDecimal name="Quantity"  [(ngModel)]="Quantity">
-                </td>
+             
                 <td >
                   <input type="number" (input)="checkValidation()" appIncludeDecimal class="form-control "  (input)="calculate();" placeholder="Rate" appIncludeDecimal name="Rate" [ngClass]="{'errorSelecto': itemSubmit && invalidObj?.TotalAmount }" [(ngModel)]="Rate">
                 </td>

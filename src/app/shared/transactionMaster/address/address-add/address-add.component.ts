@@ -63,6 +63,9 @@ export class AddressAddComponent {
     this.modalSub.unsubscribe()
   }
   openAreaModel () {
+    setTimeout(() => {
+      this.areaname.nativeElement.focus()
+    }, 1000)
     $('#add_area_Popup_main').modal(UIConstant.MODEL_SHOW)
   }
   closeAreaModel () {
@@ -81,7 +84,7 @@ export class AddressAddComponent {
   }
 
   @ViewChild('areaSelecto2') areaSelect2: Select2Component
-
+@ViewChild ('areaName') areaname 
   countrId: any
   countryName: any
   selectCountryListId (event) {

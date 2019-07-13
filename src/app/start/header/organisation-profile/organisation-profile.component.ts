@@ -3,7 +3,7 @@ import { ItemmasterServices } from 'src/app/commonServices/TransactionMaster/ite
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 /* Created by Bharat */
 
-import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, ViewChild, EventEmitter } from '@angular/core'
+import { Component, OnInit, Input, OnChanges, SimpleChanges, Output,ElementRef, ViewChild, EventEmitter } from '@angular/core'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { Subject } from 'rxjs'
 import { takeUntil, map } from 'rxjs/operators'
@@ -75,10 +75,11 @@ export class OrganisationProfileComponent implements OnInit {
     this.clientDateFormat = this._settings.dateFormat
 
   }
-
+@ViewChild ('CompnyName') CompanyName :ElementRef
   // tslint:disable-next-line:no-empty
   ngOnInit () {
     $('#organisationModal').modal(UIConstant.MODEL_SHOW)
+    this.CompanyName.nativeElement.focus()
     this.initDateFormat()
     this.initDropDownData()
     this.getUploadedImages()
@@ -100,10 +101,10 @@ export class OrganisationProfileComponent implements OnInit {
     this.personalDetail.emailArray = []
     this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }]
     this.cityList = [{ id: 0, text: 'Select City' },
-    { id: -1, text: '+Add New' }]
+    { id: -1, text: UIConstant.ADD_NEW_OPTION }]
     this.areaList = [
       { id: UIConstant.BLANK, text: 'Select Area' },
-      { id: UIConstant.ZERO, text: '+Add New' }
+      { id: UIConstant.ZERO, text: UIConstant.ADD_NEW_OPTION }
     ]
     this.addressTypeList = await this._orgService.getAddressTypeList()
     this.addressDetail.selectedAddressType = 2
@@ -169,7 +170,7 @@ export class OrganisationProfileComponent implements OnInit {
       this.getCityList(this.addressDetail.selectedState.id)
     } else {
       this.cityList = [{ id: 0, text: 'Select City' },
-      { id: -1, text: '+Add New' }]
+      { id: -1, text: UIConstant.ADD_NEW_OPTION }]
     }
   }
 
@@ -192,7 +193,7 @@ export class OrganisationProfileComponent implements OnInit {
     } else {
       this.areaList = [
         { id: UIConstant.BLANK, text: 'Select Area' },
-      { id: UIConstant.ZERO, text: '+Add New' }
+      { id: UIConstant.ZERO, text: UIConstant.ADD_NEW_OPTION }
       ]
     }
   }
@@ -256,7 +257,7 @@ export class OrganisationProfileComponent implements OnInit {
       ).
       subscribe((response: any) => {
         this.cityList = [{ id: 0, text: 'Select City' },
-        { id: -1, text: '+Add New' }, ...response]
+        { id: -1, text: UIConstant.ADD_NEW_OPTION }, ...response]
         if(this.dummyData.cityCodeId) {
           this.model.cityCodeId = this.dummyData.cityCodeId
           this.dummyData.cityCodeId = null
@@ -273,7 +274,7 @@ export class OrganisationProfileComponent implements OnInit {
       subscribe((response: any) => {
         this.areaList = [
           { id: UIConstant.BLANK, text: 'Select Area' },
-      { id: UIConstant.ZERO, text: '+Add New' }
+      { id: UIConstant.ZERO, text:UIConstant.ADD_NEW_OPTION }
       , ...response]
         if (this.dummyData.areaId) {
           this.model.areaId = this.dummyData.areaId
@@ -594,13 +595,13 @@ export class OrganisationProfileComponent implements OnInit {
     const websiteArray = [
       {
         Id: 0,
-        Name: 'www.san.com',
+        Name: '',
         Type: 1,
         ParentTypeId: 3
       },
       {
         Id: 0,
-        Name: 'www.tlinfo.com',
+        Name: '',
         Type: 1,
         ParentTypeId: 3
       }
@@ -689,12 +690,15 @@ export class OrganisationProfileComponent implements OnInit {
 
   /* Function to initialise all form fields by profile data */
   initFormData = (profileData) => {
-    profileData.ImageFiles.forEach(element => {
-      this.imageList.queue.push(element.Name)
-      this.imageList.images.push(element.FilePath)
-      this.imageList.baseImages.push(0)
-      this.imageList.id.push(element.Id)
-    })
+    this.imageList = { images: [], queue: [], safeUrls: [], baseImages: [], id: [], imageType: 'logo' }
+    if (!_.isEmpty(profileData) && profileData.ImageFiles.length > 0) {
+      profileData.ImageFiles.forEach(element => {
+        this.imageList.queue.push(element.Name)
+        this.imageList.images.push(element.FilePath)
+        this.imageList.baseImages.push(0)
+        this.imageList.id.push(element.Id)
+      })
+    }
     this.createImageFiles();
 
     this.addressDetailArray = _.map(profileData.Addressesdetail, (item) => {

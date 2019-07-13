@@ -3,6 +3,7 @@ import { Component } from '@angular/core'
 import { TokenService } from '../../commonServices/token.service'
 import { Router } from '@angular/router';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
+import { Settings } from 'src/app/shared/constants/settings.constant';
 declare const $: any
 @Component({
   selector: 'app-header',
@@ -15,11 +16,19 @@ export class HeaderComponent {
     profileOpen: false,
     editMode: false
   }
+  clientDateFormat: string = ''
   constructor (
     private _tokenServices: TokenService,
     private router: Router,
+    private settings: Settings,
     public _loginService: LoginService) {
-    this.loggedinUserData = this._loginService.userData
+    this.clientDateFormat = this.settings.dateFormat
+    const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
+    this.loggedinUserData =  this.loggedinUserData = Object.assign({}, {
+      'fromDate': this.settings.finFromDate, 'toDate': this.settings.finToDate,
+      'Name': organization.Name
+    })
+    console.log(this.loggedinUserData ,'Fin-year date')
   }
   public siderbarMenu () {
     $('.app').toggleClass('is-collapsed')

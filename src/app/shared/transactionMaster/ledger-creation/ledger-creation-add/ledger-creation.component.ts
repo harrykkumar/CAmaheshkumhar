@@ -14,6 +14,9 @@ import { Settings } from '../../../../shared/constants/settings.constant'
 import { Alert } from 'selenium-webdriver';
 declare const $: any
 declare const flatpickr: any
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { disableDebugTools } from '@angular/platform-browser';
 @Component({
   selector: 'app-ledger-creation',
   templateUrl: './ledger-creation.component.html',
@@ -34,9 +37,10 @@ export class LedgerCreationAddComponent implements OnDestroy {
   emailErrMsg: any
   editMode: boolean = false
   areaForm: FormGroup
+  private unSubscribe$ = new Subject<void>()
   public selectCrDr: Array<Select2OptionData>
   public countryList: Array<Select2OptionData>
-  public stateList: Array<Select2OptionData>
+  public stateList:any
   public cityList: Array<Select2OptionData>
   public selectyCoustmoreRegistration: Array<Select2OptionData>
   public stateListplaceHolder: Select2Options
@@ -90,6 +94,10 @@ export class LedgerCreationAddComponent implements OnDestroy {
           this.LedgerGroupValue = data.id
           this.parentId = data.id
           this.headId = data.headId
+          setTimeout(() => {
+            this.underGroupSelect2.selector.nativeElement.focus()
+          }, 1000)
+          this.getLedgerGroupList()
         }
       }
      )
@@ -99,13 +107,15 @@ export class LedgerCreationAddComponent implements OnDestroy {
   ngOnInit () {
 
   }
+  onDestroy$ = new Subject()
   LgroupDetails:any
-  getLedgerGroupList () {
+  getLedgerGroupList  ()  {
     this.ledgerGroupData =[]
     this.ledgergroupPlaceHolder = { placeholder: 'Select Group' }
     let newData = [{ id: '0', text: 'Select Group' ,headId:'0'},{id:'-1',text:UIConstant.ADD_NEW_OPTION ,headId:'0'}]
-    this._CommonService.getLedgerGroupParentData('').subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+
+    this._CommonService.getLedgerGroupParentData('').pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+      if (data.Code === UIConstant.THOUSAND) {
         this.LgroupDetails = data.Data
         console.log( this.LgroupDetails ,'HeadId')
         data.Data.forEach(element => {
@@ -115,6 +125,9 @@ export class LedgerCreationAddComponent implements OnDestroy {
             headId:element.HeadId
           })
         })
+      }
+      if(data.Code === UIConstant.SERVERERROR){
+        this._toastrcustomservice.showError('Data Fetching Error','')
       }
       this.ledgerGroupData = newData
     }
@@ -138,7 +151,8 @@ export class LedgerCreationAddComponent implements OnDestroy {
       Data.Data.forEach(element => {
         this.stateList.push({
           id: element.Id,
-          text: element.CommonDesc1
+          text: element.CommonDesc1,
+          stateCode:element.ShortName1
         })
       })
       this.stateValue = value
@@ -176,11 +190,28 @@ export class LedgerCreationAddComponent implements OnDestroy {
     
     }
   }
- 
+  GSTStateCode:any
+
+  matchGStno:boolean
+matchStateCodeWithGSTNumber(){
+  if(this.GSTStateCode>0 &&  this.GstinNoCode !==''){
+    if(this.GSTStateCode === this.GstinNoCode){
+        return true 
+       }
+       else{
+        return  false
+       }
+  } else{
+    return true
+  }
+  
+}
   selectStatelist (event) {
       if(event.data.length > 0){
         if(+event.value > 0){
           this.stateId = +event.value
+          this.GSTStateCode = event.data[0].stateCode
+          this.matchStateCodeWithGSTNumber()
           this.countryError = false
           if (this.stateId > 0) {
             this.getCitylist(this.stateId, 0)
@@ -237,6 +268,7 @@ export class LedgerCreationAddComponent implements OnDestroy {
     this.submitClick =false
     this.selectyCoustmoreRegistration =[]
     this.select2VendorValue(0)
+    this.customeRegistTypeSelect2.setElementValue(1)
   }
  // get add () { return this.adressForm.controls }
 
@@ -276,6 +308,10 @@ export class LedgerCreationAddComponent implements OnDestroy {
 
   currencyValues: any
   openModal () {
+    this.disabledGSTfor_UnRegi = false
+    this.matchGStno =true
+    this.GstinNoCode =''
+    this.GSTStateCode  =0
     this.getLedgerGroupList()
     this.disabledInputField = true
     this.headId =0
@@ -294,30 +330,46 @@ export class LedgerCreationAddComponent implements OnDestroy {
       this.select2CrDrValue()
       this.getCountry(0)
     $('#ledger_creation_id').modal(UIConstant.MODEL_SHOW)
+    setTimeout(() => {
+      this.underGroupSelect2.selector.nativeElement.focus()
+    }, 1000)
+    // this.customeRegistTypeSelect2.setElementValue(1)
+
   }
 @ViewChild('ledgerName') ledgerName
 
   selectCRDRId (event) {
-    debugger
-    if(event.data[0].selected){
+    
+   if(event.data[0].selected){
       this.crDrId = +event.value
       this.checkGlagLib = false
       this.calculate()
-    }
+   }
     
    
 
  
   }
+  disabledGSTfor_UnRegi:boolean=false
+
   selectCoustmoreId (event) {
+ debugger
     if(event.data.length > 0){
       if(+event.value>0){
         this.coustmoreRegistraionId = event.value
   if(this.coustmoreRegistraionId === '1'){
     this.requiredGST = true
+    this.disabledGSTfor_UnRegi= false
+  }
+  else if(event.value==='4'){ 
+    this.disabledGSTfor_UnRegi= true
+   this.ledgerForm.controls.gstin.setValue('')
+   this.requiredGST =false
+
   }
   else{
     this.requiredGST = false
+    this.disabledGSTfor_UnRegi= false
   }
       }
    
@@ -350,12 +402,14 @@ export class LedgerCreationAddComponent implements OnDestroy {
     this.subscribe = this._coustomerServices.getCommonValues('101').subscribe(Data => {
       this.countryListPlaceHolder = { placeholder: 'Select Country' }
       this.countryList = [{ id: '0', text: 'Select Country' }]
+      if(Data.Code === UIConstant.THOUSAND){
       Data.Data.forEach(element => {
         this.countryList.push({
           id: element.Id,
           text: element.CommonDesc
         })
       })
+    }
       this.countryValue = value
     })
   }
@@ -373,11 +427,11 @@ export class LedgerCreationAddComponent implements OnDestroy {
   select2VendorValue (value) {
     this.selectyCoustmoreRegistration = []
     this.selectCoustomerplaceHolder = { placeholder: 'Select Customer .' }
-    this.selectyCoustmoreRegistration = [{ id: UIConstant.BLANK, text: 'Select Customer' }, { id: '1', text: 'Regular' }
+    this.selectyCoustmoreRegistration = [{ id: '1', text: 'Regular' }
       , { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' }
       , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
-      this.coustmoreRegistraionId = this.selectyCoustmoreRegistration[1].id
-    return this.coustomerValue = this.selectyCoustmoreRegistration[1].id
+      this.coustmoreRegistraionId = this.selectyCoustmoreRegistration[0].id
+     this.coustomerValue = this.selectyCoustmoreRegistration[0].id
   }
 
   select2CrDrPlaceHolder: Select2Options
@@ -390,10 +444,13 @@ export class LedgerCreationAddComponent implements OnDestroy {
     if(this.headId===UIConstant.ONE){
       this.valueCRDR = this.selectCrDr[1].id
       this.crdrselecto2.setElementValue( this.valueCRDR)
+      this.crDrId =+this.selectCrDr[1].id
     }
     else if(this.headId===UIConstant.TWO){
       this.valueCRDR = this.selectCrDr[0].id
       this.crdrselecto2.setElementValue( this.valueCRDR)
+      this.crDrId =+this.selectCrDr[0].id
+
     }
     this.valueCRDR = this.selectCrDr[0].id
   }
@@ -404,20 +461,21 @@ export class LedgerCreationAddComponent implements OnDestroy {
     this.submitClick = true
     this.checkGSTNumberValid()
     this.checkPANNumberValid()
-      if (this.ledgerForm.valid && this.parentId > 0  && !this.requiredGST && !this.validPANFlag) {
+      if (  this.ledgerForm.valid && this.parentId > 0  && !this.requiredGST && !this.validPANFlag) {
+        if(this.matchStateCodeWithGSTNumber()){
                   this.subscribe = this._coustomerServices.addVendore(this.LedgerParams()).subscribe(Data => {
                     if (Data.Code === UIConstant.THOUSAND) {
                       if(value ==='save'){
                         const dataToSend = { id: Data.Data, name: this.ledgerForm.value.ledgerName }
                         this._CommonService.closeledgerCretion({ ...dataToSend })
                         this._CommonService.AddedItem()
+                        this.disabledStateCountry=false
                         $('#ledger_creation_id').modal(UIConstant.MODEL_HIDE)
                         let saveName =this.editID ===0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
                         this._toastrcustomservice.showSuccess('', saveName)
-                       //this.clearValidation()
                       }else{
-                        // const dataToSend = { id: Data.Data, name: this.ledgerForm.value.ledgerName }
-                        // this._CommonService.closeledgerCretion({ ...dataToSend })
+                        this.getCountry(0)
+                        this.disabledStateCountry=false
                         this._CommonService.AddedItem()
                         this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
                       }
@@ -426,11 +484,18 @@ export class LedgerCreationAddComponent implements OnDestroy {
                     }
                     if (Data.Code === UIConstant.THOUSANDONE) {
                       this._toastrcustomservice.showInfo('', Data.Description)
-
                     }
-                  }, () => {
-                    //   console.log(error)
-          })
+                    if(Data.Code === UIConstant.REQUIRED_5020){
+                      this._toastrcustomservice.showError('', Data.Data)
+                    }
+                    if(Data.Code === UIConstant.SERVERERROR){
+                      this._toastrcustomservice.showError('', Data.Data)
+                    }
+                  })
+                }
+                else{
+                  this._toastrcustomservice.showError('','Invalid GSTIN Number According to Selected State ')
+                }
       }
   }
 
@@ -443,9 +508,51 @@ export class LedgerCreationAddComponent implements OnDestroy {
   validPANFlag: boolean = false
   GSTNumber: any
   PANNumber: any
+  GstinNoCode:any = ''
+  disabledStateCountry:boolean= false
   checkGSTNumber (event) {
     this.ledgerForm.value.gstin = event.target.value;
+    let str = this.ledgerForm.value.gstin
+    let val =  str.trim();
+    this.GstinNoCode = val.substr(0,2);
+    if( this.GstinNoCode !==''){
+      this.getStateCode(this.GstinNoCode)
+    }
+    else{
+      this.disabledStateCountry =false
+      
+    }
+    this.matchStateCodeWithGSTNumber()
+    
+   //getGStnumber =event.target.value
     this.checkGSTNumberValid()
+  }
+  getOneState (rsp){
+    let  newdata =[]
+       newdata.push({
+         id:rsp.Data[0].CommonCode,
+         text: rsp.Data[0].CommonDesc1
+       })
+       this.disabledStateCountry =true
+     this.stateList = newdata
+     this.getCitylist(rsp.Data[0].Id, 0)
+   }
+  getStateCode = async (stateCode) =>{
+    this._CommonService.getStateByGStCode(stateCode).
+    pipe(
+      takeUntil(this.unSubscribe$)
+    ).
+    subscribe((response: any) => {
+      //ShortName1 = statecode
+      this.countrId =response.Data[0].CommonId
+      this.stateId = response.Data[0].CommonCode
+      if(response.Code=== UIConstant.THOUSAND){
+        this.countryselecto.setElementValue(response.Data[0].CommonId)
+        this.getOneState(response)
+     //   this.stateselecto.setElementValue( response.Data[0].CommonCode)
+        
+      }
+    })
   }
   checkPANNumberValid () {
     if(this.ledgerForm.value.panNo !=='' && this.ledgerForm.value.panNo !==null){
@@ -536,6 +643,9 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
   state_select2
 
   editLedgerData (id) {
+    setTimeout(() => {
+      this.underGroupSelect2.selector.nativeElement.focus()
+    }, 1000)
     this.submitClick = false 
     this.isSelectParentGrp = false
     this.subscribe = this._coustomerServices.editvendor(id).subscribe(Data => {
@@ -560,6 +670,8 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
         // this.LedgerGroupValue = Data.Data.LedgerDetails[0].GlId
          this.underGroupSelect2.setElementValue(Data.Data.LedgerDetails[0].GlId)
         }, 1000);
+        this.disabledGSTfor_UnRegi =Data.Data.LedgerDetails[0].TaxTypeId === 4 ? true :false
+
         this.customeRegistTypeSelect2.setElementValue(Data.Data.LedgerDetails[0].TaxTypeId)
         this.coustmoreRegistraionId = JSON.stringify( Data.Data.LedgerDetails[0].TaxTypeId)
        if(this.coustmoreRegistraionId === '0') {
@@ -605,7 +717,7 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
   openingStatus() {
     this.subscribe =this._CommonService.openingStatusForLedger().subscribe(data=>{
       if(data.Code === UIConstant.THOUSAND){
-       if(data.Data.length > 0){
+       if(data.Data.length > 0){ 
          this.initilzedAssets = data.Data[0].Dr
          this.initilzedLiabilities = data.Data[0].Cr
          this.initilzedDifference = data.Data[0].Differece
@@ -617,7 +729,8 @@ console.log('Ledger-Request',JSON.stringify(obj.Ledger))
     })
  }
  checkGlagLib: any
- // CR =1 Dr= 0 //
+
+
  calculate (){
    
 if(this.headId > 0){

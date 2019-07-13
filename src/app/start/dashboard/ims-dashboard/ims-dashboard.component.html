@@ -92,31 +92,12 @@
                     <div class="card-body p-0">
                       <table class="table-borderless table">
                         <tbody>
-                          <tr>
-                            <td>Ravi</td>
+                            <tr *ngFor ="let Debtors of AllDataDashboard?.Debtors"> 
+                            <td>{{Debtors.Name}}</td>
 
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Aman</td>
-
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Praveen</td>
-
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Badal</td>
-
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Manoj</td>
-
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
+                            <td class="text-right">{{Debtors.Amount}}</td>
+                          </tr> 
+                         
                         </tbody>
                       </table>
                     </div>
@@ -138,31 +119,10 @@
                     <div class="card-body p-0">
                       <table class="table-borderless table">
                         <tbody>
-                          <tr>
-                            <td>Ravi</td>
-
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Aman</td>
-
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Praveen</td>
-
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Badal</td>
-
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Manoj</td>
-
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
+                          <tr *ngFor ="let Creators of AllDataDashboard?.Creators"> 
+                            <td>{{Creators.Name}}</td>
+                            <td class="text-right">{{Creators.Amount}}</td>
+                          </tr> 
                         </tbody>
                       </table>
                     </div>
@@ -184,36 +144,12 @@
                     <div class="card-body p-0">
                       <table class="table-borderless table">
                         <tbody>
-                          <tr>
-                            <td>Ravi</td>
-                            <td>25-06/2019</td>
-                            <td>₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Ravi</td>
-                            <td>25-06/2019</td>
-                            <td>₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Ravi</td>
-                            <td>25-06/2019</td>
-                            <td>₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Ravi</td>
-                            <td>25-06/2019</td>
-                            <td>₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Ravi</td>
-                            <td>25-06/2019</td>
-                            <td>₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>Ravi</td>
-                            <td>25-06/2019</td>
-                            <td>₹2500.00</td>
-                          </tr>
+                         
+                          <tr *ngFor ="let InventoryGrowths of AllDataDashboard?.InventoryGrowths"> 
+                            <td>{{InventoryGrowths.LedgerName}}</td>
+                            <td>{{InventoryGrowths.BillDate | dateFormat : DateFormate}}</td>
+                            <td class="text-right">{{InventoryGrowths.Quantity}}</td>
+                          </tr> 
                         </tbody>
                       </table>
                     </div>
@@ -238,6 +174,7 @@
                         >
                           <input
                             type="radio"
+                            (click)="changeType('sale')"
                             class="custom-control-input"
                             id="customRadio"
                             name="example"
@@ -252,6 +189,7 @@
                         >
                           <input
                             type="radio"
+                            (click)="changeType('purchase')"
                             class="custom-control-input"
                             id="customRadio2"
                             name="example"
@@ -273,31 +211,13 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>101</td>
-                            <td class="text-right">25</td>
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>101</td>
-                            <td class="text-right">25</td>
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>101</td>
-                            <td class="text-right">25</td>
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>101</td>
-                            <td class="text-right">25</td>
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
-                          <tr>
-                            <td>101</td>
-                            <td class="text-right">25</td>
-                            <td class="text-right">₹2500.00</td>
-                          </tr>
+                          <tr *ngFor ="let OverDueDetails of SaleOverDueItem"> 
+                            <td>{{OverDueDetails.BillNo}}</td>
+                            <td class='text-right'>{{OverDueDetails.DueDays}}</td>
+                            <td class="text-right">{{OverDueDetails.BillAmount}}</td>
+                            
+                          </tr> 
+                       
                         </tbody>
                       </table>
                     </div>

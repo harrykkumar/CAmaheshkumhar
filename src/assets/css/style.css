@@ -2012,6 +2012,7 @@ table.table td, table.table th {
     padding-bottom: 3px;
     font-weight: 400;
     vertical-align: middle;
+    word-break: break-word;
 }
 
 
@@ -2216,7 +2217,7 @@ span#inputGroupFileAddon01 {
    
 }
 .md-elevation-4dp .nav {
-    justify-content: space-around;
+   
     padding: 2px 0;
 }
 .md-elevation-4dp .nav-tabs .nav-link img {
@@ -2737,7 +2738,8 @@ table#mytable {
 }
 
     .header .header-container .nav-left > li, .header .header-container .nav-right > li {
-        float: left
+        float: left;
+        font-weight: 400;
     }
 
         .header .header-container .nav-left > li > a, .header .header-container .nav-right > li > a {
@@ -5396,6 +5398,8 @@ input[type=number]::-webkit-outer-spin-button {
     .highlight_image img {
         text-align: center;
         margin: auto;
+        min-height: 160px;
+        max-height: 160px;
         display: block;
     }
 
@@ -5461,7 +5465,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .left_item .toast {
-    width: 90%;
+   
     background: #fff !important;
     padding: 6px;
     border: 1px solid #8080804a;
@@ -5824,8 +5828,8 @@ input[type=number]::-webkit-outer-spin-button {
     min-width: 1600px !important;
 }
 .cust_width_80 {
-    max-width: 80px !important;
-    min-width: 80px !important;
+    max-width: 70px !important;
+    min-width: 70px !important;
 }
 .cust_width_150 {
     max-width: 150px !important;
@@ -6167,3 +6171,8 @@ table.table1 th {
 .addAddress_btn{
     background: white
 }
+
+.item-requirement-radio-input {
+    margin-right: 0.80rem;
+  }
+  

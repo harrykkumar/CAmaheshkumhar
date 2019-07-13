@@ -22,6 +22,7 @@ export class UnitAddComponent {
   modalSub: Subscription
   editMode: boolean = false
   keepOpen: boolean = false
+  editID:any
   constructor (public toastrCustomService: ToastrCustomService,
     private _unitmasterServices: UnitMasterServices,
     private _formBuilder: FormBuilder,
@@ -34,7 +35,10 @@ export class UnitAddComponent {
           if (data.editId !== '') {
             this.editMode = true
             this.id = data.editId
+            this.editID =data.editId
           } else {
+            this.editID =0
+
             this.editMode = false
           }
           this.openModal()
@@ -56,7 +60,7 @@ export class UnitAddComponent {
     this._unitmasterServices.getUnit(id).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.unitForm.controls.UnitName.setValue(data.Data[0].Name)
-        this.unitForm.controls.IsBaseUnit.setValue(data.Data[0].IsBaseUnit)
+        //this.unitForm.controls.IsBaseUnit.setValue(data.Data[0].IsBaseUnit)
         this.unitForm.controls.UnitName.markAsDirty()
       }
     })
@@ -77,7 +81,7 @@ export class UnitAddComponent {
         const element = this.renderer.selectRootElement(this.first.nativeElement, true)
         element.focus({ preventScroll: false })
       }
-    }, 1000)
+    }, 500)
   }
 
   closeModal () {
@@ -118,10 +122,11 @@ export class UnitAddComponent {
           if (this.keepOpen) {
             this.initialiseExtras()
             this.commonService.newUnitAdded()
-            this.toastrCustomService.showSuccess('Success','Saved Successfully')
+            this.toastrCustomService.showSuccess('',UIConstant.SAVED_SUCCESSFULLY)
           } else {
             this.commonService.newUnitAdded()
-            this.toastrCustomService.showSuccess('Success','Saved Successfully')
+            let saveName = this.editID===0 ?UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+            this.toastrCustomService.showSuccess('',saveName)
             const datatoSend = { id: data.Data, name: this.unitForm.value.UnitName }
             this.commonService.closeUnit(datatoSend)
           }

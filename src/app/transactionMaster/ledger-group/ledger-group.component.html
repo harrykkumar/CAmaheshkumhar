@@ -46,10 +46,10 @@
                         <table class="table cat-table table-hover">
                             <thead>
                                 <tr>
-                                    <th>S.NO</th>
-                                    <th>Group Name</th>
-                                    <th>Under Group</th>
-                                    <th>Action</th>
+                                    <th width="7%">S.NO</th>
+                                    <th width="45%">Group Name</th>
+                                    <th width="40%">Under Group</th>
+                                    <th width="8%">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -71,10 +71,11 @@
                         </table>
                     </div>
                 </div>
-                <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-                (pageNoEmitter)="p = $event;getLedgerGroupDetail();"
-                (pageSizeEmitter)="itemsPerPage = $event;getLedgerGroupDetail();" ></app-pagination>
+               
             </div>
         </div>
     </div>
 </main>
+<app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+(pageNoEmitter)="p = $event;getLedgerGroupDetail();"
+(pageSizeEmitter)="itemsPerPage = $event;getLedgerGroupDetail();" ></app-pagination>

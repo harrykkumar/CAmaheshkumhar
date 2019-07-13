@@ -62,6 +62,7 @@ export class SampleApprovalListComponent implements OnInit {
         _.map(response.Data, (item) => {
           item.ExpectedReplyDate = this._globalService.utcToClientDateFormat(item.ExpectedReplyDate, 'd.M.Y')
           item.SampleDate = this._globalService.utcToClientDateFormat(item.SampleDate, 'd.M.Y')
+          item.ApprovedOn = this._globalService.clientToSqlDateFormat(this.clientDateFormat, item.SampleDate)
         })
         this.sampleApprovalListDate = [...response.Data]
         this.totalItemSize = response.Data[0].TotalRows
@@ -101,15 +102,19 @@ export class SampleApprovalListComponent implements OnInit {
   }
 
   onApprove(item){
+    if (!item.ApprovedOn) {
+      return
+    }
     const data = {
       Type: 'Approval',
       Id: item.Id,
-      ApprovedOn: item.ApprovedOn,
+      ApprovedOn: this._globalService.utcToClientDateFormat(item.ApprovedOn, 'm/d/Y'),
       Status: item.Status
     }
     this.sampleApprovalService.postSampleApprovalFormData(data).subscribe((res) => {
       if(res.Code === 1000) {
         this._toastService.showSuccess('success', 'Approved')
+        item.disableApprove = true
       } else {
         this._toastService.showError('Error', res.Message)
       }

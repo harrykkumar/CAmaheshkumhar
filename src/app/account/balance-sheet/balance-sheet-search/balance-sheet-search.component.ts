@@ -18,10 +18,14 @@ import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 export class BalanceSheetSearchComponent implements OnInit {
   @Input() toShow: boolean = false
   clientDateFormat: any
+  finToDate:any
+  finFromDate:any
   subscribe: Subscription
   constructor(public _globalService: GlobalService,
     public _settings: Settings, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
       this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
+      this.finFromDate = this._settings.finFromDate
+      this.finToDate = this._settings.finToDate
     this.getModuleSettingData()
     this.toDate()
     this.fromDate()
@@ -31,11 +35,19 @@ export class BalanceSheetSearchComponent implements OnInit {
   fromDateValue: string
   toDateValue: string
   fromDate() {
-    this.fromDateValue = this._globalService.getDefaultDate(this.clientDateFormat)
+    this.fromDateValue = this._globalService.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
+
+    // this.fromDateValue = this._settings.finFromDate
+    // this.toDateValue = this._globalService.getDefaultDate(this.clientDateFormat)
+
+    console.log( this.fromDateValue ,this.toDateValue)
 
   }
   toDate() {
-    this.toDateValue = this._globalService.getDefaultDate(this.clientDateFormat)
+    // this.toDateValue =   this._settings.finToDate
+    this.toDateValue = this._globalService.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
+
+    // this.toDateValue = this._globalService.getDefaultDate(this.clientDateFormat)
   }
 
   ngOnInit() {

@@ -27,6 +27,7 @@ export class AttributeComponent implements OnInit {
   total: number = 0
   lastItemIndex: number = 0
   isSearching: boolean = false
+  refreshPage:Subscription
   parentAttrAdd$: Subscription
   @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (
@@ -37,6 +38,12 @@ export class AttributeComponent implements OnInit {
     this.initDeleteStatus()
     this.initCloseAttributeStatus()
     this.formSearch()
+
+    this.refreshPage = this.commonService.newRefreshItemStatus().subscribe(
+      (obj) => {
+        this.initAttributeList() 
+      }
+    ) 
   }
 
   ngOnInit () {

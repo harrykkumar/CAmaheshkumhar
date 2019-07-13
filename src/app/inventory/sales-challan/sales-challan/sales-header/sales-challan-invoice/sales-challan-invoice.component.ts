@@ -11,6 +11,8 @@ import { CommonService } from '../../../../../commonServices/commanmaster/common
 import { GlobalService } from '../../../../../commonServices/global.service'
 import { Settings } from '../../../../../shared/constants/settings.constant'
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
+import {SetUpIds} from 'src/app/shared/constants/setupIds.constant'
+
 declare const _: any
 declare var $: any
 declare var flatpickr: any
@@ -153,12 +155,27 @@ export class SalesChallanInvoiceComponent {
     // for new add unit
     this.newCustAddSub = this._commonService.getUnitStatus().subscribe(
       (data: AddCust) => {
+        let unitFlg = true
         if (data.id && data.name) {
           let newData = Object.assign([], this.unitDataType)
-          newData.push({ id: data.id, text: data.name })
+          newData.forEach(element => {
+            if (element.id === data.id) {
+              unitFlg = false
+              this.unitDataType = newData
+            }
+          });
+          if (unitFlg) {
+            newData.push({ id: data.id, text: data.name })
+          }
           this.unitDataType = newData
           this.unitId = data.id
           this.getUnitId = data.id
+          setTimeout(() => {
+            if (this.unitSelect2) {
+              const element = this.renderer2.selectRootElement(this.unitSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 200)
         }
       }
     )
@@ -263,6 +280,8 @@ export class SalesChallanInvoiceComponent {
             this.categoryName = this.AlreadySelectCategoryName
             this.updateCategories(this.AlreadySelectCategoryId)
           },100)
+          this.getItemRateByLedgerData(+data.id, this.clientNameId)
+
         }
       }
     )
@@ -771,7 +790,7 @@ export class SalesChallanInvoiceComponent {
         if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
           this.unitSelect2.selector.nativeElement.value = ''
           this._commonService.openUnit('')
-          this.unitDataType.selector.nativeElement.value = ''
+         // this.unitDataType.selector.nativeElement.value = ''
         } else {
           if (event.data[0] && event.data[0].text) {
             this.unitId = event.value
@@ -799,6 +818,7 @@ export class SalesChallanInvoiceComponent {
           this.itemTableDisabledFlag = false
           this.clientNameId = event.value
           let parentTypeId = 5
+          this.getGSTByLedgerAddress( this.clientNameId )
           this.getAddressOfCustomerByID(this.clientNameId, parentTypeId)
 
         }
@@ -852,7 +872,7 @@ export class SalesChallanInvoiceComponent {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.updatedFlag = true
         data.Data.forEach(element => {
-            // debugger
+            // 
           if (element.CategoryId === JSON.parse(categoryId)) {
             newdataitem.push({
               id: element.Id,
@@ -929,36 +949,7 @@ export class SalesChallanInvoiceComponent {
   setupOrganization: any
   organizationData: any
   enableDisableflagOrgName: boolean = true
-  getCurrency () {
-    let _self = this
-// tslint:disable-next-line: no-floating-promises
-    this.getAvailableCurrency().toPromise().then(
-      (data: ResponseSale) => {
-        if (data.Code === UIConstant.THOUSAND && data.Data.SetupModules.length > 0) {
-         
 
-          let currencies = data.Data.SetupSettings
-          _self.currenciesSelect2 = []
-          _self.currencyPlaceholder = { placeholder: 'Select Currency' }
-          let newData = [{ id: UIConstant.BLANK, text: 'Select Currency' }]
-          currencies.forEach(element => {
-            if (+element.SetupId === 37 && +element.Type === 3) {
-              if (+element.Id !== 0 && +element.Id === +element.defaultvalue) {
-                _self.defaultCurrency = element.Val
-                _self.currenyValues[1] = { id: '1', symbol: _self.defaultCurrency }
-              }
-              newData.push({
-                id: element.Id,
-                text: element.Val
-              })
-            }
-          })
-          _self.currenciesSelect2 = newData
-          _self.isDataAvailable = true
-        }
-      }
-    )
-  }
 
   changeBillDate (eDate) {
     let dateChnage = this._globalService.clientToSqlDateFormat(eDate, this.clientDateFormat)
@@ -1352,7 +1343,7 @@ export class SalesChallanInvoiceComponent {
     this.Height = 1
     this.ExpiryDate = ''
     this.MfdDate = ''
-    this.currencyValues = [{ id: 0, symbol: '%' }, { id: 1, symbol: '$' }]
+    
 
     if (this.clientSelect2 && this.clientSelect2.selector.nativeElement.value) {
       this.clientSelect2.setElementValue('')
@@ -1591,17 +1582,61 @@ export class SalesChallanInvoiceComponent {
   loginCategoryLevel: any
   editChargeId: any
   deleteEditChargeFlag: boolean
+  getModuleSettingValue:any
+  OrgGstinNo:any
+  OrgGstinNoCode:any
+  getOrgnizationGSTNOCode ( ){
+    let CompanyDetails= JSON.parse(this._settings.CompanyDetails)  
+    this.OrgGstinNo = CompanyDetails.GstinNo
+    if(CompanyDetails.GstinNo !==null){
+      let str = CompanyDetails.GstinNo
+      let val =  str.trim();
+      this.OrgGstinNoCode = val.substr(0,2);
+      this.checkOtherStateByGSTNumber(this.OrgGstinNoCode)
+    }
+  }
 
+  checkOtherStateByGSTNumber(GSTCode) {
+    console.log(this.OrgGstinNoCode, GSTCode, 'GST-org --> GST-Party')
+    if (this.OrgGstinNoCode === GSTCode) {
+      this.taxRateForOtherStateFlag = false
+    } else {
+      this.taxRateForOtherStateFlag = true
+    }
+    return this.taxRateForOtherStateFlag
+  }
+  ledgerStateId:any
+  PartyGstinNoCode:any
+  getGSTByLedgerAddress(ledgerId) {
+    this.subscribe = this._commonService.ledgerGetGSTByAddress(ledgerId).subscribe(data => {
+      if (data.Code === UIConstant.THOUSAND) {
+        console.log(data.Data ,'GST---------->>')
+        if (data.Data.LedgerDetails.length > 0) {
+          if(data.Data.LedgerDetails[0].GstinNo !==null){
+            let str = data.Data.LedgerDetails[0].GstinNo
+            let val =  str.trim();
+            this.PartyGstinNoCode =val.substr(0,2);
+            this.checkOtherStateByGSTNumber(this.PartyGstinNoCode)
+          }
+        }
+        if (data.Data.AddressDetails.length > 0) {
+          this.ledgerStateId = data.Data.AddressDetails[0].StateId
+          this.checkOtherStateForNewItemAdd(this.ledgerStateId)
+        }
+      }
+    })
+  }
   openModalPopup () {
+    
+    this.currencyValues = [{ id: 0, symbol: '%' }]
     this.deleteEditChargeFlag= true
     this.allTaxRateForCharge=[]
     this.itemTableDisabledFlag = true
     this.editChargeId =0
-    let data = JSON.stringify(this._settings.industryId)
-    this.industryId = JSON.parse(data)
-    let datacatLevel = JSON.stringify(this._settings.catLevel)
-    this.catLevel = JSON.parse(datacatLevel)
-    this.createModels(this.catLevel)
+    this.getOrgnizationGSTNOCode()
+    this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
+    this.getModuleSettingData()
+    this.industryId =this._settings.industryId
     this.getCommisionTypeValue()
     this.godownId = 0
     this.itemAddRequiredFlag = false
@@ -1610,7 +1645,6 @@ export class SalesChallanInvoiceComponent {
     this.localLabelData = []
     this.trsnItemId = 1
     this.itemsAttribute = []
-    this.getCurrency()
     this.SPUtilityData()
     this.editItemId = 0
     this.initComp()
@@ -1808,9 +1842,9 @@ export class SalesChallanInvoiceComponent {
           this.Commission = this.inventoryItemSales[0].Commission
           this.TotalFreight = this.inventoryItemSales[0].Freight
           this.OtherCharge = this.inventoryItemSales[0].OtherCharge
-          let newDataUnit = Object.assign([], this.unitDataType)
-          newDataUnit.push({ id: this.inventoryItemSales[0].OrgId, text: this.inventoryItemSales[0].UnitName })
-          this.unitDataType = newDataUnit
+         // let newDataUnit = Object.assign([], this.unitDataType)
+         // newDataUnit.push({ id: this.inventoryItemSales[0].OrgId, text: this.inventoryItemSales[0].UnitName })
+          //this.unitDataType = newDataUnit
           this.unitId = this.inventoryItemSales[0].UnitId
           this.getUnitId = this.inventoryItemSales[0].UnitId
           this.stateSelect2Id.setElementValue(this.inventoryItemSales[0].SupplyState)
@@ -2395,65 +2429,47 @@ this.AlreadySelectCategoryName = evt.data[0].text
   decimalDigitData: any
   isInclusiveCaseBeforeDiscount: any
   getModuleSettingData () {
-    let checkForCustomItemRate
-    let checkForCatLevel
-    let checkForBackDateEntry
-    let checkforBillManualNo
-    let decimalDigit
-    let isInclusiveCaseBeforeDiscount
-
     this.applyCustomRateOnItemFlag = false
     this.localItemRate = true
-    this.subscribe = this._commonService.getModulesettingAPI('SaleChallan').subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND) {
-        console.log(data.Data, 'getModulesettingAPI')
-        if (data.Data && data.Data.SetupMasters && data.Data.SetupMasters.length && data.Data.SetupClients.length > 0) {
-          data.Data.SetupMasters.forEach(ele => {
-            // check for item custom rate and apply for this custom rate // SetupId = 12 for apply custom Rate
-            checkForCustomItemRate = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 12))
-            if (checkForCustomItemRate.length > 0) {
-              this.applyCustomRateOnItemFlag = true
-
-            }
-            // check for category level
-            checkForCatLevel = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 1))
-            if (checkForCatLevel.length > 0) {
-              this.loginCategoryLevel = JSON.parse(checkForCatLevel[0].Val)
-
-            }
-            // back date entry
-            checkForBackDateEntry = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 58))
-            if (checkForBackDateEntry.length > 0) {
-              this.backDateEntry = JSON.parse(checkForBackDateEntry[0].Val)
-
-            }
-            //  id master 22 /Sale BillNo Manual Entry
-            checkforBillManualNo = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 22))
-            if (checkforBillManualNo.length > 0) {
-              this.isManualBillNoEntry = JSON.parse(checkforBillManualNo[0].Val)
-
-            }
-            decimalDigit = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 43))
-            if (decimalDigit.length > 0) {
-              this.decimalDigitData = JSON.parse(decimalDigit[0].Val)
-              console.log(this.decimalDigitData ,'decimal')
-
-            }
-            isInclusiveCaseBeforeDiscount = data.Data.SetupClients.filter(s => (s.SetupId === ele.Id) && (ele.Id === 66))
-            if (isInclusiveCaseBeforeDiscount.length > 0) {
-              this.isInclusiveCaseBeforeDiscount = JSON.stringify(isInclusiveCaseBeforeDiscount[0].Id) 
-              // this.isInclusiveCaseBeforeDiscount='2'
-              console.log(this.isInclusiveCaseBeforeDiscount ,'Inclusive')
-            }
-            else{
+        if ( this.getModuleSettingValue.settings.length > 0) {
+          this.getModuleSettingValue.settings.forEach(ele => {
+            if (ele.id=== SetUpIds.catLevel) {
+             this.catLevel =JSON.parse(ele.val) 
+              this.createModels(+this.catLevel)
+            } 
+            // if (ele.id=== SetUpIds.catLevel) {
+            //   this.industryId =JSON.parse(ele.val) 
+            //  }
+             if (ele.id=== SetUpIds.backDateEntryForSale) {
+              this.backDateEntry =JSON.parse(ele.val) === 0 ? false :true
+             }
+             if (ele.id=== SetUpIds.applyCustomRateOnItemForSale) {
+              this.applyCustomRateOnItemFlag =JSON.parse(ele.val) === 0 ? false :true
+             }
+             if (ele.id=== SetUpIds.isManualBillNoEntryForsale) {
+              this.isManualBillNoEntry =JSON.parse(ele.val)
+             }
+             if (ele.id=== SetUpIds.taxCalInclusive) {
+              this.isInclusiveCaseBeforeDiscount = ele.val
+             }
+             else{
               this.isInclusiveCaseBeforeDiscount='2'
-            }
+             }  
+             if (ele.id=== SetUpIds.noOfDecimalPoint) {
+              this.decimalDigitData = JSON.parse(ele.val)
+             }
+             if (ele.id=== SetUpIds.dateFormat) {
+              this.clientDateFormat =  ele.val[0].Val
+              console.log(this.clientDateFormat)
+             }
+             if (ele.id=== SetUpIds.currency) {
+               this.defaultCurrency = ele.val[0].Val
+               this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
+              console.log(this.currencyValues)
+             }
           })
+          }
         }
-      }
-    })
-  }
-  CommisionRate: any
   changeCommisiontrate (e) {
     this.CommisionRateType = e === '0' ? 0 : 1
   }

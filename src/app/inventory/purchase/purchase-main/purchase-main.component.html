@@ -1,4 +1,4 @@
-<main class="main-content bgc-grey">
+<main class="main-content2 bgc-grey">
   <div id="mainContent">
     <div class="page-header p-0">
       <div class="container-fluid">
@@ -260,22 +260,17 @@
                 <th style="width:10%;">HSN</th>
                 <th style="width:12%;">Taxable Value</th>
                 <th style="width:8%;">Rate</th>
-                <th *ngFor="let key of headerKeys;" >{{key}}</th>
+                <th *ngFor="let label of HedShow;">{{label.Name}}</th>
                 <th style="text-align:right;">Total</th>
               </tr>
-              <tr *ngFor="let item of hsnToSHow;">
+              <tr *ngFor="let item of hsnToSHow; let i=index">
                 <td>{{item.HsnNo}}</td>
                 <td class="cat-con" >{{item.TaxableAmount}}</td>
                 <td class="cat-con" >{{item.totalTaxRate}}</td>
-                <ng-container *ngFor="let col of headerKeys" >
-                  <td>
-                    <ng-container *ngIf="item.AppliedTaxes[col]"  >
-                      {{item.AppliedTaxes[col]}}
-                    </ng-container>
-                    <ng-container *ngIf="!item.AppliedTaxes[col]"  >
-                      -
-                    </ng-container>
-                  </td>
+                <ng-container *ngFor="let taxRate of hsnToSHow[i].TaxType;">
+                    <td>
+                            {{taxRate}}
+                    </td>
                 </ng-container>
                 <td style="text-align:right;">{{item.TotalAmount}}</td>
               </tr>

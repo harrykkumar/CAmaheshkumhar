@@ -41,25 +41,18 @@
                                         <label class="active">Short Name</label>
                                         <input     type="text" formControlName="ShortName" class="form-control" placeholder="Enter Value">
                                     </div>
-                                    
-                                        <div class="form-group col-md-6 ">
+                                     <div class="form-group col-md-6 ">
                                         <label>Opening Balance</label>
                                         <div class="opening_stcock">
-                                       
-                                        
-                                        <div class="discount">
+                                            <div class="discount">
                                                 <input [attr.disabled]="disabledInputField? '':null"  style="width:158px" (input)="calculate();" type="number" class="form-control  width_70 mr-1" appIncludeDecimal name="openingblance"  placeholder="Opening Balance " formControlName="openingblance">
                                                 <div class="input-group">
                                                         <select2 #crdr_selecto2 [data]="selectCrDr" class="dropdown_width_100" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="select2CrDrPlaceHolder" [value]="valueCRDR"></select2>
                                                       </div>
                                               </div>
                                         </div>
-    
-                                        </div>
-                                  
-                                   
-                               
-                                <div class="form-group col-md-12">
+                                     </div>
+                                      <div class="form-group col-md-12">
                                     <label class="pr-3">GST Applicable or not?</label>
                                  
                                     <div class="custom-control custom-radio mr-3">
@@ -79,13 +72,13 @@
                                                 <label for="bill_no">Registration Type</label>
                                                 <div class="input-group adw_select">
                                                     <div class="input-group adw_select">
-                                                      <select2 #select_regiType [data]="selectyCoustmoreRegistration" class="control_select" (valueChanged)="selectCoustmoreId($event)" autocomplete="true" [options]="selectCoustomerplaceHolder" [value]="coustomerValue" ></select2>
+                                                      <select2  #select_regiType [data]="selectyCoustmoreRegistration" class="control_select" (valueChanged)="selectCoustmoreId($event)" autocomplete="true" [options]="{placeholder:'Select Type'}" [value]="coustomerValue" ></select2>
                                                     </div>
                                                   </div>
                                             </div>
                                  <div class="form-group col-md-4">
                                     <label class="active">GSTIN Number</label>
-                                    <input style="text-transform:uppercase" 
+                                    <input [attr.disabled]="disabledGSTfor_UnRegi?'':null" style="text-transform:uppercase" 
                                     type="text" class="form-control"
                                      id="org_code" placeholder=" GSTIN No"
                                       formControlName="gstin" (input)="checkGSTNumber($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': (submitClick && validGSTNumber) || (submitClick && requiredGST ) }"
@@ -98,19 +91,19 @@
                                        <div class="form-group col-md-4">
                                     <label for="bill_no">Country</label>
                                     <div class="input-group adw_select">
-                                        <select2  #country_selecto [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)" autocomplete="true" [options]="countryListPlaceHolder" [value]="countryValue" [ngClass]="{ 'errorSelecto is-invalid': addressClick && countryError  }"></select2>
+                                        <select2 [disabled]='disabledStateCountry' #country_selecto [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)" autocomplete="true" [options]="{placeholder :'Select Country '}" [value]="countryValue" [ngClass]="{ 'errorSelecto is-invalid': addressClick && countryError  }"></select2>
                                     </div>
                                 </div>
                                   <div class="form-group col-md-4">
                                     <label for="bill_no">State</label>
                                     <div class="input-group adw_select">
-                                        <select2 #state_select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)" autocomplete="true" [options]="stateListplaceHolder" [value]="stateValue" [ngClass]="{ 'errorSelecto is-invalid': addressClick &&  stateError  }"></select2>
+                                        <select2 [disabled]='disabledStateCountry' #state_select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)" autocomplete="true" [options]="{placeholder:'Select State'}" [value]="stateValue" [ngClass]="{ 'errorSelecto is-invalid': addressClick &&  stateError  }"></select2>
                                     </div>
                                 </div>
                                        <div class="form-group col-md-4">
                                     <label for="bill_no">City</label>
                                     <div class="input-group adw_select">
-                                        <select2 #city_select2 [data]="cityList" class="control_select" autocomplete="true" (valueChanged)="selectedCityId($event)" [value]="cityValue" [ngClass]="{ 'errorSelecto is-invalid':  addressClick && cityError  }"></select2>
+                                        <select2 #city_select2 [data]="cityList" class="control_select" autocomplete="true" (valueChanged)="selectedCityId($event)" [value]="cityValue" [options]="{placeholder:'Select City'}" [ngClass]="{ 'errorSelecto is-invalid':  addressClick && cityError  }"></select2>
                                     </div>
                                 </div>
                               <div class="col-md-12">

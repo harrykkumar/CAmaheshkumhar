@@ -180,37 +180,72 @@ export class PurchaseMainComponent {
       }
     })
   }
-
+Heading:any =[]
   headerKeys: any = []
   hsnToSHow: any = []
+  HedShow:any =[]
   getDistinctTaxName (hsnData, hsnTransaction, currency) {
-    let groupOnName = _.groupBy(hsnData, (data) => {
-      return data.Name + '(' + data.TaxRate + '%)'
-    })
-    this.headerKeys = []
-    this.hsnToSHow = []
-    console.log(groupOnName)
-    for (const name in groupOnName) {
-      this.headerKeys.push(name)
-    }
-    hsnTransaction.forEach(hsnTrans => {
-      let hsnDetails = hsnData.filter(hsnDetail => hsnDetail.HsnNo === hsnTrans.HsnNo)
-      let totalTaxRate = 0
-      let obj = {}
-      hsnDetails.forEach(hsn => {
-        let index = this.headerKeys.indexOf(hsn.Name + '(' + hsn.TaxRate + '%)')
-        if (index >= 0) {
-          obj[hsn.Name + '(' + hsn.TaxRate + '%)'] = hsn.Amount
-          totalTaxRate += hsn.TaxRate
-        } else {
-          obj[hsn.Name + '(' + hsn.TaxRate + '%)'] = '-'
-        }
+    //TaxTitleId
+let rate=0
+this.hsnToSHow =[]
+this.HedShow=[]
+let valueshow=[]
+     hsnTransaction.forEach(element => {
+      this.HedShow = hsnData.filter( d=>d.HsnNo ===element.HsnNo)
+      if(this.HedShow.length>0){
+          valueshow=[]
+         rate = this.HedShow.filter(item1 => item1.TaxRate)
+            .map(item1 => parseFloat(item1.TaxRate))
+            .reduce((sum, current) => sum + current, 0)
+            for(let i =0; i<this.HedShow.length; i++){
+              valueshow.push(this.HedShow[i].Amount+ '-' + '('+this.HedShow[i].TaxRate +')'+'%')
+            }
+      
+      }
+     
+      this.hsnToSHow.push({
+       HsnNo:element.HsnNo,
+       TaxableAmount:element.TaxableAmount,
+       TotalAmount:element.TotalAmount,
+       totalTaxRate:rate +'%',
+       TaxType:valueshow,
       })
-      hsnTrans['totalTaxRate'] = totalTaxRate + ' ' + (hsnDetails[0].ValueType === 0 ? '%' : currency)
-      hsnTrans['AppliedTaxes'] = obj
-    })
-    this.hsnToSHow = JSON.parse(JSON.stringify(hsnTransaction))
-    console.log('hsn to show : ', this.hsnToSHow)
+    });
+    console.log(this.hsnToSHow ,'Main-HSN')
+    // let groupOnName = _.groupBy(hsnData, (data) => {
+    //   return data.Name + '(' + data.TaxRate + '%)'
+    // })
+    // let GroupHeading = _.groupBy(hsnData, (data) => {
+    //   return data.Name 
+    // })
+    // this.Heading =[]
+    // this.headerKeys = []
+    // this.hsnToSHow = []
+    // console.log(groupOnName)
+    // for (const name in groupOnName) {
+    //   this.headerKeys.push(name)
+    // }
+    // for (const name in GroupHeading) {
+    //   this.Heading.push(name)
+    // }
+    // hsnTransaction.forEach(hsnTrans => {
+    //   let hsnDetails = hsnData.filter(hsnDetail => hsnDetail.HsnNo === hsnTrans.HsnNo)
+    //   let totalTaxRate = 0
+    //   let obj = {}
+    //   hsnDetails.forEach(hsn => {
+    //     let index = this.headerKeys.indexOf(hsn.Name + '(' + hsn.TaxRate + '%)')
+    //     if (index >= 0) {
+    //       obj[hsn.Name + '(' + hsn.TaxRate + '%)'] = hsn.Amount
+    //       totalTaxRate += hsn.TaxRate
+    //     } else {
+    //       obj[hsn.Name + '(' + hsn.TaxRate + '%)'] = '-'
+    //     }
+    //   })
+    //   hsnTrans['totalTaxRate'] = totalTaxRate + ' ' + (hsnDetails[0].ValueType === 0 ? '%' : currency)
+    //   hsnTrans['AppliedTaxes'] = obj
+    // })
+    // this.hsnToSHow = JSON.parse(JSON.stringify(hsnTransaction))
+    // console.log('hsn to show : ', this.hsnToSHow)
   }
 
   splitArray (arr, len) {
@@ -272,12 +307,12 @@ export class PurchaseMainComponent {
       border: 1px solid #333;
     }
     @media print {.hidden-print {display: none !important;}}
-    @import url("https://fonts.googleapis.com/css?family=Open+Sans&display=swap");
+   
     #main-con{width: 100%}td.cat-con{max-width: 10%;}
     .invoiveN table td, .billT table td {
       font-size: 13px !important;
     }
-    body{font-size:13px;word-break: break-all;width:21cm;height:29.7cm;position: relative;}
+    body{font-family: Calibri;font-size:13px;word-break: break-all;width:21cm;height:29.7cm;position: relative;}
     #page-wrap{width:100%;margin:0 auto;background:#f1f1f1;}
     #header{width:100%;text-align:center;color:#000;text-decoration:uppercase;
     letter-spacing:10px;padding:2px 0;font-size:13px;font-weight:600;}
@@ -307,8 +342,8 @@ export class PurchaseMainComponent {
     printWindow.focus()
     $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
     setTimeout(function () {
-      printWindow.print()
-      printWindow.close()
+       printWindow.print()
+       printWindow.close()
     }, 100)
   }
   word: string = ''

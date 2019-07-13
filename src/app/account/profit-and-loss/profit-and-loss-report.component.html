@@ -132,9 +132,12 @@
                     <div class="row justify-content-center">
             <div class="balancesheet bgc-white col-md-11">  
                    <div class="row text-center bs_head p-2">
-                        <div class="name text-center col-md-12 font-weight-bold name_size"> {{ (loggedinUserData?.LoginUserDetailsinfo)[0]?.OfficeName }} </div>
+                        <div class="name text-center col-md-12 font-weight-bold name_size"> {{ loggedinUserData.Name }} </div>
                         <div class="name text-center col-md-12 font-weight-bold">Profit & Loss</div>
-                        <div class="text-center col-md-12 font-weight-bold">As on Date From {{fromDateShow  | dateFormat:clientDateFormat }} To {{toDateShow  | dateFormat:clientDateFormat }}</div>
+                        <div class="text-center col-md-12 font-weight-bold">
+                            For the year ended 
+                            <!-- As on Date From {{fromDateShow  | dateFormat:clientDateFormat }} To  -->
+                            {{toDateShow  | dateFormat:clientDateFormat }}</div>
                         <!-- <div class="text-center col-md-12 font-weight-bold">As on Date {{dateShow | dateFormat:clientDateFormat }}</div> -->
 
                     </div>
@@ -213,11 +216,11 @@
            
                      <div class="row tfoot">
                         <div class="col-3 text-right font-weight-bold">Total</div>
-                        <div  class="col amount_bs bdr_gray font-weight-bold">{{( headervalue2First).toFixed(decimalDigit)}}</div>
+                        <!-- <div  class="col amount_bs bdr_gray font-weight-bold">{{( headervalue2First).toFixed(decimalDigit)}}</div> -->
 
                         <div  class="col amount_bs bdr_gray font-weight-bold">{{(headervalue2).toFixed(decimalDigit)}}</div>
                         <div class="col-3 text-right font-weight-bold">Total</div>
-                        <div class="col amount_bs font-weight-bold">{{(headervalue1First).toFixed(decimalDigit)}}</div>
+                        <!-- <div class="col amount_bs font-weight-bold">{{(headervalue1First).toFixed(decimalDigit)}}</div> -->
 
                         <div class="col amount_bs font-weight-bold">{{(headervalue1).toFixed(decimalDigit)}}</div>
                     </div>

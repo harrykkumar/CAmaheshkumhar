@@ -125,7 +125,7 @@
                                             <div class="input-group adw_select">
                                                 <select2 [data]="selectUnitType" #unit_select2 class="control_select"
                                                 (valueChanged)="selectedUnitTpye($event)"
-                                                autocomplete="true" [options]="unitTypePlaceHolder" [value]="unitTypeValue"
+                                                autocomplete="true" [options]="{placeholder:'Select Unit'}" [value]="unitTypeValue"
                                                 [ngClass]="{'errorSelecto': submitClick && invalidObj.UnitId }"
                                                 ></select2>
                                             </div>
@@ -136,7 +136,7 @@
                                         <div class="input-group adw_select">
                                             <select2 [data]="selectTax" #tax_select2 class="control_select" (valueChanged)="selectedTax($event)"
                                                 autocomplete="true"
-                                                 [options]="taxTypePlaceHolder" [value]="taxValue"
+                                                 [options]="{placeholder:'Select Tax'}" [value]="taxValue"
                                                 [ngClass]="{'errorSelecto': submitClick && invalidObj.TaxId }"
                                                 ></select2>
                                         </div>

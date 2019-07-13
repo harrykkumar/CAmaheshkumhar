@@ -64,6 +64,10 @@ export class UnitComponent implements OnInit, OnDestroy {
           this.commonService.closeDelete('')
           this.getUnitDetail()
         }
+        if (Data.Code === UIConstant.SERVERERROR) {
+          this.toastrService.showError('', Data.Description)
+
+        }
       })
     }
   }

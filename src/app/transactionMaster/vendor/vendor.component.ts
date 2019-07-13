@@ -130,7 +130,7 @@ export class VendorComponent implements OnInit, OnDestroy {
       })
   }
   getVendorDetail () {
-    debugger
+    
       if (!this.searchForm.value.searckKey) {
         this.searchForm.value.searckKey = ''
       }

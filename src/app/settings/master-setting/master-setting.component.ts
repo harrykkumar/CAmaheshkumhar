@@ -7,12 +7,13 @@ import { ToastrCustomService } from '../../commonServices/toastr.service';
 import { filter, catchError, map } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { Currencies } from '../currency';
-import { SetUpIds } from '../../shared/constants/setupIds.constant';
+import { SetUpIds } from '../../shared/constants/setupIds.constant'; 
 import { DateFormats } from '../data-format';
 import { Subscription } from 'rxjs/Subscription';
 import { LoginService } from 'src/app/commonServices/login/login.services';
 import * as _ from 'lodash'
 import { Router } from '@angular/router';
+import { Settings } from 'src/app/shared/constants/settings.constant';
 
 
 @Component({
@@ -21,6 +22,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./master-setting.component.css']
 })
 export class MasterSettingComponent implements OnInit {
+  isNewSetting: boolean = false
   currency: any
   dateFormat: any
   options: Select2Options
@@ -29,7 +31,8 @@ export class MasterSettingComponent implements OnInit {
      private toastrService: ToastrCustomService,
      private _loginService: LoginService,
      private _commonService: CommonService,
-     private router: Router) {
+     private router: Router,
+     private _settings:Settings) {
     this.saveSub$ = this.settingsService.saveSub$.subscribe(
       (obj) => {
         this.postFormValue()
@@ -165,12 +168,14 @@ export class MasterSettingComponent implements OnInit {
     )
   }
 
-  ngOnInit () {
+  ngOnInit() {
+    if (_.includes(this.router.url, 'organization')) {
+      this.isNewSetting = true
+    }
     this.getFormFields()
   }
 
   postFormValue () {
-    // console.log(this.settings)
     let isValid = true
     let _settings = JSON.parse(JSON.stringify(this.settings))
     let newSettings = []
@@ -198,6 +203,9 @@ export class MasterSettingComponent implements OnInit {
           isValid = false
         }
       }
+      if(this.isNewSetting){
+        setting.selected = true
+      }
       if (setting.selected) {
         newSettings.push(setting)
       }
@@ -210,12 +218,15 @@ export class MasterSettingComponent implements OnInit {
       let obj = {'SetupClients': newSettings}
       console.log('obj: ', JSON.stringify(obj))
       this.settingsService.postFormValues(obj).subscribe(
-        (data) => {
-          console.log(data)
+      async  (data) => {
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             this.toastrService.showSuccess('Saved Successfully', '')
-            if (_.includes(this.router.url, 'organization')) {
+            if (this.isNewSetting) {
               this.router.navigate(['organization/transaction-number']);
+            } else {
+              const selectedModule =  JSON.parse(localStorage.getItem('SELECTED_MODULE'))
+              this._settings.removeModuleSettings()
+              await this._loginService.getAllSettings(selectedModule.Id)
             }
           } else {
             throw new Error(data.Description)

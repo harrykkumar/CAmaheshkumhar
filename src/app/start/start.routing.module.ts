@@ -189,7 +189,27 @@ const routes: Routes = [
       {
         path: 'sample-approval',
         loadChildren: '../Manufacturer/sample-approval/sample-approval.module#SampleApprovalModule'
-      }
+      },
+      {
+        path: 'style',
+        loadChildren: '../Manufacturer/style/style.module#StyleModule'
+      },
+      {
+        path: 'material-requirement',
+        loadChildren: '../Manufacturer/item-requirement/item-requirement.module#ItemRequirementModule'
+      } ,
+      {
+        path: 'ims/report/item-inventory',
+        loadChildren: '../report/item-inventory-report/item-inventory-report.module#ItemInventoryReportModule'
+      } ,
+      {
+        path: 'account/trail-balance',
+        loadChildren: '../account/trail-balance/trail-balance-report.module#TrailBalanceReportModule'
+      },
+      {
+        path: 'buyer-order',
+        loadChildren: '../Manufacturer/buyer-order/buyer-order.module#BuyerOrderModule'
+      } 
     ]
   }
 ]

@@ -6,7 +6,8 @@ import { SaniiroCommonService } from '../../../../commonServices/SaniiroCommonSe
 import { CommonSetGraterServices } from '../../../../commonServices/setgatter.services'
 import { UIConstant } from '../../../constants/ui-constant'
 import { VendorServices } from '../../../../commonServices/TransactionMaster/vendoer-master.services'
-
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Banks ,AddCust } from '../../../../model/sales-tracker.model'
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
@@ -25,9 +26,10 @@ export class BankAddComponent {
   Id: any
   submitClick: boolean
   editData: any
+  private unSubscribe$ = new Subject<void>()
   public selectCrDr: Array<Select2OptionData>
   public countryList: Array<Select2OptionData>
-  public stateList: Array<Select2OptionData>
+  public stateList: any
   public cityList: Array<Select2OptionData>
   public stateListplaceHolder: Select2Options
   public countryListPlaceHolder: Select2Options
@@ -42,7 +44,7 @@ export class BankAddComponent {
     this.modalSub = this.commonService.getLedgerStatus().subscribe(
       (data: AddCust) => {
         if (data.open) {
-          debugger
+          
           if (data.editId === '') {
             this.editData = false
             this.Id = 0
@@ -67,10 +69,13 @@ export class BankAddComponent {
   stateValue: any
   stateId: any
   countryError: any
+  GSTStateCode:any=0
   selectStatelist (event) {
     if(event.data.length > 0){
       if(+event.value > 0){
         this.stateId = +event.value
+        this.GSTStateCode = event.data[0].stateCode
+        this.matchStateCodeWithGSTNumber()
         this.countryError = false
         if (this.stateId > 0) {
           this.getCitylist(this.stateId, 0)
@@ -114,7 +119,8 @@ selectedCityId (event) {
       Data.Data.forEach(element => {
         this.stateList.push({
           id: element.Id,
-          text: element.CommonDesc1
+          text: element.CommonDesc1,
+          stateCode:element.ShortName1
         })
       })
       this.stateValue = value
@@ -144,11 +150,15 @@ selectedCityId (event) {
   CRDRType: any
   @ViewChild('bankname1') banknameFocus : ElementRef;
   openModal () {
+    this.disabledGSTfor_UnRegi = false
     this.Ledgerid = 0
     this.addressId = 0
     this.satuariesId = 0
     this.requiredGST = true
     $('#bankPopup').modal(UIConstant.MODEL_SHOW)
+    setTimeout(() => {
+      this.banknameFocus.nativeElement.focus()
+     }, 200);
     this.select2CrDrValue(0)
     this.getCountry(0)
     this.select2VendorValue(0)
@@ -161,15 +171,13 @@ selectedCityId (event) {
      
     }
 
-    setTimeout(() => {
-     // this.banknameFocus.nativeElement.focus()
-    }, 1000);
+
   }
 
   edibankDetails (id) {
     if (id) {
       this.subscribe = this.commonService.getEditbankDetails(id).subscribe(data => {
-        if (data.Code === 1000) { 
+        if (data.Code === UIConstant.THOUSAND) { 
     console.log(JSON.stringify(data),'Response-bank')
 
           if(data.Data.BankDetails.length >0){
@@ -180,6 +188,7 @@ selectedCityId (event) {
             this.bankForm.controls.micr.setValue(data.Data.BankDetails[0].MicrNo)
             this.bankForm.controls.openingbalance.setValue(data.Data.BankDetails[0].OpeningBalance)
             this.crDrSelect2.setElementValue(data.Data.BankDetails[0].Crdr)
+            this.disabledGSTfor_UnRegi =data.Data.BankDetails[0].TaxTypeId === 4 ? true :false
             this.registerTypeSelect2.setElementValue(data.Data.BankDetails[0].TaxTypeId)
             this.coustmoreRegistraionId =JSON.stringify(data.Data.BankDetails[0].TaxTypeId)
             this.valueCRDR = data.Data.BankDetails[0].Crdr
@@ -271,6 +280,7 @@ selectedCityId (event) {
     this.submitClick = true
     this.checkGSTNumberValid()
     if (this.bankForm.valid  && !this.requiredGST && this.bankForm.value.ifscCode !== null && this.bankForm.value.branch !== null && this.bankForm.value.banName !== null && this.bankForm.value.accountNo !== null && this.bankForm.value.ifscCode !== '' && this.bankForm.value.branch !== '' && this.bankForm.value.banName !== '' && this.bankForm.value.accountNo !== '') {
+         if(this.matchStateCodeWithGSTNumber()){
       this.subscribe = this._bankServices.saveBank(this.bankParams()).subscribe(data => {
         console.log(data)
         if (data.Code === UIConstant.THOUSAND) {
@@ -278,10 +288,14 @@ selectedCityId (event) {
           let saveNameFlag = this.editID === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
           _self.toastrService.showSuccess('', saveNameFlag)
           if (type === 'save') {
+            this.disabledStateCountry=false
             this.commonService.AddedItem()
             _self.commonService.closeLedger(false,toSend)
             this.clearbank()
           } else {
+            this.getCountry(0)
+            this.disabledStateCountry=false
+
             this.commonService.AddedItem()
             _self.commonService.closeLedger(true,toSend)
             this.clearbank()
@@ -295,13 +309,17 @@ selectedCityId (event) {
         }
       })
     }
+    else{
+      this.toastrService.showError('','Invalid GSTIN Number According to Selected State ')
+    }
+    }
   }
   CrDrRateType: any
   Ledgerid: any
   addressId: any
   satuariesId: any
   private bankParams (): Banks {
-    debugger
+    
     const bankElement = {
       bankObj: {
         // tslint:disable-next-line: no-multi-spaces
@@ -367,20 +385,74 @@ selectedCityId (event) {
       , { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' }
       , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
       this.coustmoreRegistraionId = this.selectyCoustmoreRegistration[1].id
-    return this.coustomerValue = this.coustmoreRegistraionId
+     this.coustomerValue = this.coustmoreRegistraionId
   }
   validGSTNumber: boolean = false
-  requiredGST:boolean 
+  requiredGST:boolean
+   GstinNoCode:any
+   disabledStateCountry:boolean = false
+  @ViewChild('country_selecto') countryselecto: Select2Component
+  @ViewChild('state_select2') stateselecto: Select2Component
+
+   getOneState (rsp){
+    let  newdata =[]
+       newdata.push({
+         id:rsp.Data[0].CommonCode,
+         text: rsp.Data[0].CommonDesc1
+       })
+       this.disabledStateCountry =true
+     this.stateList = newdata
+     this.getCitylist(rsp.Data[0].Id, 0)
+   }
+   getStateCode = async (stateCode) =>{
+    this.commonService.getStateByGStCode(stateCode).
+    pipe(
+      takeUntil(this.unSubscribe$)
+    ).
+    subscribe((response: any) => {
+      //ShortName1 = statecode
+      this.countrId =response.Data[0].CommonId
+      this.stateId = response.Data[0].CommonCode
+      if(response.Code=== UIConstant.THOUSAND){
+        this.countryselecto.setElementValue(response.Data[0].CommonId)
+        this.getOneState(response)
+        this.stateselecto.setElementValue( response.Data[0].CommonCode)
+        
+      }
+    })
+  }
   checkGSTNumber (event) {
     this.bankForm.value.gstin = event.target.value;
+    let str = this.bankForm.value.gstin
+    let val =  str.trim();
+    this.GstinNoCode = val.substr(0,2);
+    if( this.GstinNoCode !==''){
+      this.getStateCode(this.GstinNoCode)
+    }
+    else{
+      this.disabledStateCountry =false
+      
+    }
+    this.matchStateCodeWithGSTNumber()
     this.checkGSTNumberValid()
   }
 
   GSTNumber: any
   showHideFlag: boolean
-  checkGSTNumberValid () {
-    debugger
+  matchStateCodeWithGSTNumber(){
+    if(this.GSTStateCode>0 &&  this.GstinNoCode !==''){
+      if(this.GSTStateCode === this.GstinNoCode){
+          return true 
+         }
+         else{
+          return  false
+         }
+    } else{
+      return true
+    }
     
+  }
+  checkGSTNumberValid () {
     if(this.bankForm.value.gstin  !=='' && this.bankForm.value.gstin !==null){
       this.GSTNumber = (this.bankForm.value.gstin).toUpperCase()
       if(this.coustmoreRegistraionId === '1'){
@@ -401,17 +473,27 @@ selectedCityId (event) {
 }
 validError: boolean
 customerRegistraionError: any
+disabledGSTfor_UnRegi:boolean
 selectCoustmoreId (event) {
-  
+  debugger
   if(event.data.length > 0){
         if(+event.value>0){
           this.coustmoreRegistraionId = event.value
         this.validError = false
     if(this.coustmoreRegistraionId === '1'){
       this.requiredGST = true
+      this.disabledGSTfor_UnRegi= false
+    }
+    else if(event.value==='4'){ 
+      this.disabledGSTfor_UnRegi= true
+     this.bankForm.controls.gstin.setValue('')
+     this.requiredGST =false
+  
     }
     else{
       this.requiredGST = false
+      this.disabledGSTfor_UnRegi= false
+
     }
         }
         else{

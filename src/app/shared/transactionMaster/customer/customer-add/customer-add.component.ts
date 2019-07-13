@@ -14,6 +14,12 @@ import { Settings } from '../../../../shared/constants/settings.constant'
 import { disableBindings } from '@angular/core/src/render3';
 import { IfStmt } from '@angular/compiler';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import {SetUpIds} from 'src/app/shared/constants/setupIds.constant'
+import { Alert } from 'selenium-webdriver';
+// import { sep } from 'path';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 declare const $: any
 declare const flatpickr: any
 @Component({
@@ -32,6 +38,7 @@ export class CustomerAddComponent implements OnDestroy {
   addressid: any
   emailErrMsg: any
   editMode: boolean = false
+  private unSubscribe$ = new Subject<void>()
   areaForm: FormGroup
   public selectCrDr: Array<Select2OptionData>
   public countryList: Array<Select2OptionData>
@@ -48,6 +55,8 @@ export class CustomerAddComponent implements OnDestroy {
   public countryListPlaceHolder: Select2Options
   addressTabDiv: boolean
   customerTabDiv: boolean
+  @ViewChild('state_select2') stateselecto: Select2Component
+
   emailArray: any
   satuariesId: number
   submitClick: boolean
@@ -81,7 +90,7 @@ export class CustomerAddComponent implements OnDestroy {
     this.createCustomerForm()
     this.addTyperessForm()
     this.addArea()
-    this.clientDateFormat = this._settings.dateFormat
+    //this.clientDateFormat = this._settings.dateFormat
     this.modalSub = this._CommonService.getCustStatus().subscribe(
       (data: AddCust) => {
         if (data.open) {
@@ -192,6 +201,8 @@ export class CustomerAddComponent implements OnDestroy {
       this.getCitylist(this.stateId, 0)
     }
   }
+  @ViewChild('customer_register_type') CustomerRegisterTypeSelect2 :Select2Component
+
   cityValue: any
   getCitylist(id, value) {
     this.subscribe = this._coustomerServices.getCityList(id).subscribe(Data => {
@@ -233,7 +244,11 @@ export class CustomerAddComponent implements OnDestroy {
       'areaName': ['', Validators.required]
     })
   }
+  @ViewChild('areaName') areaname
   openAreaModel() {
+    setTimeout(() => {
+      this.areaname.nativeElement.focus()
+    }, 500)
     $('#add_area_Popup').modal(UIConstant.MODEL_SHOW)
   }
   closeAreaModel() {
@@ -263,10 +278,12 @@ export class CustomerAddComponent implements OnDestroy {
           this.areNameId = data.Data
           this.areaID = data.Data
           this.Areaname = this.areaForm.value.areaName
-          //   this.saleService.closeAddress({ ...Send })
           this._toastrcustomservice.showSuccess('', 'Area Added !')
           this.areaForm.reset()
           this.closeAreaModel()
+          setTimeout(() => {
+            this.areaSelect2.selector.nativeElement.focus()
+          }, 500)
         }
         if (data.Code === 5000) {
           this._toastrcustomservice.showError('', data.Description)
@@ -321,22 +338,23 @@ export class CustomerAddComponent implements OnDestroy {
     this.addressError = false
     this.addressDetailsValidation()
   }
+  @ViewChild('state_select2') cityselecto: Select2Component
 
   /* clear validation */
   clearValidation() {
     this.createCustomerForm()
-    this.getCountry(0)
     this.coustomerForm.reset()
-    //this.mobileArray = []
-    // this.contactTypeData = []
     this.getContactType()
     this.emailTypeDataType()
     this.collectionOfAddress = []
-    $('#customer_form').modal(UIConstant.MODEL_HIDE)
-
+    this.closeAreaModel()
     this.select_Mobile.setElementValue(1)
     this.select_email.setElementValue(1)
     this.phoneCodeselect2.setElementValue(0)
+    this.countryList=[]
+    this.stateList =[]
+    this.cityList=[]
+    this.areaList=[]
 
 
     // this.getCustomerDetail()
@@ -385,7 +403,11 @@ export class CustomerAddComponent implements OnDestroy {
   validMobileFlag: boolean
   editFlg: boolean
   EmailId: number
+  requiredGSTNumber:boolean
   openModal() {
+    this.disabledGSTfor_UnRegi = false
+    this.disabledStateCountry = false
+    this.requiredGSTNumber = false
     this.getEmailvalid = true
     this.mobileArray = []
     this.emailArray = []
@@ -414,12 +436,13 @@ export class CustomerAddComponent implements OnDestroy {
       this.getCustomerEditData(this.id)
       this.adressType(0)
     } else {
-      this.emailMobileValidationRequired()
+      this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
+      this.getModuleSettingData()
       this.id = UIConstant.ZERO
       $('#customer_form').modal(UIConstant.MODEL_SHOW)
       setTimeout(() => {
         this.ledgerName.nativeElement.focus()
-      }, 1000)
+      }, 500)
       this.collectionOfAddress = []
       this.customerTabDiv = false
       this.addressTabDiv = true
@@ -433,19 +456,22 @@ export class CustomerAddComponent implements OnDestroy {
       this.getCountry(0)
       this.adressType(0)
       this.getCustomoerType(0)
-      this.phoneCodeselect2.setElementValue(0)
+     //
       this.select_Mobile.setElementValue(1)
       this.select_email.setElementValue(1)
+      this.phoneCodeselect2.setElementValue(0)
       this.istradeDiscountValue = false
       this.isVolumeDiscountValue = false
       this.isDiscountValue = false
+    this.CustomerRegisterTypeSelect2.setElementValue(1)
+this.VendorValidation()
       $('#tradediscount').prop('checked', false)
       $('#cashdiscount').prop('checked', false)
       $('#volumediscount1').prop('checked', false)
       /* ............................completed..................... */
     }
   }
-
+  getModuleSettingValue:any
   @ViewChild('select_mobiletype') select_Mobile: Select2Component
   @ViewChild('select_emailtype') select_email: Select2Component
 
@@ -493,10 +519,26 @@ export class CustomerAddComponent implements OnDestroy {
   selectCRDRId(event) {
     this.crDrId = event.value
   }
-
+  disabledGSTfor_UnRegi:boolean=false
   selectCoustmoreId(event) {
-    this.coustmoreRegistraionId = event.value
+    this.coustmoreRegistraionId = +event.value
     this.customerRegistraionError = false
+    if(+event.value===1){
+      this.requiredGSTNumber = true
+      this.disabledGSTfor_UnRegi= false
+    }
+    else if(+event.value===4){ 
+      this.disabledGSTfor_UnRegi= true
+      this.coustomerForm.controls.gstin.setValue('')
+      this.requiredGSTNumber =false
+
+    }
+    else{
+      this.requiredGSTNumber = false
+      this.disabledGSTfor_UnRegi=false
+      }
+
+
   }
 
   countrId: any
@@ -519,7 +561,7 @@ export class CustomerAddComponent implements OnDestroy {
   getCountry(value) {
     this.subscribe = this._coustomerServices.getCommonValues('101').subscribe(Data => {
       this.countryListPlaceHolder = { placeholder: 'Select Country' }
-      this.countryList = [{ id: UIConstant.BLANK, text: 'select Country' }]
+      this.countryList = [{ id: UIConstant.BLANK, text: 'Select Country' }]
       Data.Data.forEach(element => {
         this.countryList.push({
           id: element.Id,
@@ -616,10 +658,13 @@ export class CustomerAddComponent implements OnDestroy {
   select2VendorValue(value) {
     this.selectyCoustmoreRegistration = []
     this.selectCoustomerplaceHolder = { placeholder: 'Select Customer Registration' }
-    this.selectyCoustmoreRegistration = [{ id: UIConstant.BLANK, text: 'Select Customer' }, { id: '1', text: 'Regular' }
+    this.selectyCoustmoreRegistration = [ { id: '1', text: 'Regular' }
       , { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' }
       , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
-    this.coustomerValue = this.selectyCoustmoreRegistration[1].id
+    this.coustomerValue = this.selectyCoustmoreRegistration[0].id
+    this.coustmoreRegistraionId = +this.selectyCoustmoreRegistration[0].id
+   // this.CustomerRegisterTypeSelect2.setElementValue(1)
+
   }
 
   select2CrDrPlaceHolder: Select2Options
@@ -671,14 +716,19 @@ export class CustomerAddComponent implements OnDestroy {
   /* ...................adding customer........................... */
   saveCustomer(value) {
     this.submitClick = true
+    
+    this.checkGSTNumberValid()
     this.VendorValidation()
     this.emailAddingArray()
     this.addConatctDetails()
+    this.addNewAdress()
     if (value === 'reset') {
         this.resetForNew()
          this.activaTab('customer1')
     } else {
-      if (this.coustomerForm.valid && !this.validMobileFlag && this.getEmailvalid && this.coustmoreRegistraionId > 0 && !this.customerCustomRateFlag) {
+      
+      if (this.coustomerForm.valid && !this.validMobileFlag  &&  this.getEmailvalid && this.coustmoreRegistraionId > 0 && !this.customerCustomRateFlag) {
+        if(!this.requiredGSTNumber){
         if (!this.mobileRequirdForSetting) {
           if (!this.emailRequirdForSetting) {
             if (!this.validGSTNumber) {
@@ -696,14 +746,20 @@ export class CustomerAddComponent implements OnDestroy {
                         this._toastrcustomservice.showSuccess('', saveFlag)
                       } else if (value === 'new') {
                         this.activaTab('customer1')
+                        setTimeout(() => {
+                          this.ledgerName.nativeElement.focus()
+                        }, 500)
+                        this.getCountry(0)
                         this._CommonService.AddedItem()
                         this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
                         this.id = 0
                         this.satuariesId = 0
                         this.contactId = 0
                         this.addressid = 0
-                        this.resetForNew()
+                        
                       }
+                      this.disabledStateCountry = false
+                      this.resetForNew()
                     }
                     if (Data.Code === UIConstant.THOUSANDONE) {
                       this._toastrcustomservice.showInfo('', Data.Description)
@@ -711,6 +767,10 @@ export class CustomerAddComponent implements OnDestroy {
                     if (Data.Code === 5001) {
                       this._toastrcustomservice.showError('', Data.Description)
 
+                    }
+                    if (Data.Code === UIConstant.REQUIRED_5020) {
+                      this._toastrcustomservice.showError('', Data.Data)
+  
                     }
                   }, () => {
                     //   console.log(error)
@@ -735,6 +795,10 @@ export class CustomerAddComponent implements OnDestroy {
           this.select_Mobile.selector.nativeElement.focus()
           this._toastrcustomservice.showError('', '  Enter Contact Details')
         }
+      } else {
+        this.validGSTNumber = true
+        this._toastrcustomservice.showError('', 'Enter GSTIN No.')
+      }
       }
     }
   }
@@ -744,14 +808,16 @@ export class CustomerAddComponent implements OnDestroy {
     this.submitClick = false
     this.coustomerForm.reset()
     this.createCustomerForm()
-  //  this.getStaeList(0, 0)
-    //this.getCitylist(0, 0)
     this.select2VendorValue(0)
     this.getCustomoerType(0)
     this.mobileArray = []
     this.emailArray = []
     this.collectionOfAddress = []
     this.createCustomerForm()
+    this.countryList=[]
+    this.stateList =[]
+    this.cityList=[]
+    this.areaList=[]
   }
   errormassage: string
   stateError: boolean
@@ -768,6 +834,7 @@ export class CustomerAddComponent implements OnDestroy {
       this.customerRegistraionError = true
 
     }
+   
     if (this.customerCustomRateFlag) {
       this.customCustomer = false
     } else {
@@ -846,21 +913,90 @@ export class CustomerAddComponent implements OnDestroy {
       this.validPANFlag = false
     }
   }
+  disabledStateCountry:any
   validGSTNumber: boolean = false
 
-  onInputCheckGstNumber(event) {
-    this.GSTNumber = (event.target.value).toUpperCase()
-    // debugger
-    if (this.GSTNumber !== '' && this.GSTNumber !== null) {
-      if (this.gstNumberRegxValidation(this.GSTNumber)) {
-        this.validGSTNumber = false
-      } else {
-        this.validGSTNumber = true
+
+  getStateCode = async (stateCode) =>{
+    this._CommonService.getStateByGStCode(stateCode).
+    pipe(
+      takeUntil(this.unSubscribe$)
+    ).
+    subscribe((response: any) => {
+      //ShortName1 = statecode
+      this.countrId =response.Data[0].CommonId
+      this.stateId = response.Data[0].CommonCode
+      if(response.Code=== UIConstant.THOUSAND){
+        this.countryselecto.setElementValue(response.Data[0].CommonId)
+        this.getOneState(response)
+        this.stateselecto.setElementValue( response.Data[0].CommonCode)
+        
       }
+    })
+  }
+
+  
+    getOneState (rsp){
+     let  newdata =[]
+        newdata.push({
+          id:rsp.Data[0].CommonCode,
+          text: rsp.Data[0].CommonDesc1
+        })
+        this.disabledStateCountry =true
+      this.stateList = newdata
+      this.getCitylist(rsp.Data[0].Id, 0)
+    }
+  checkGSTNumber (event) {
+    this.coustomerForm.value.gstin = event.target.value;
+    let str = this.coustomerForm.value.gstin
+    let val =  str.trim();
+    this.GstinNoCode = val.substr(0,2);
+    if( this.GstinNoCode !==''){
+      this.getStateCode(this.GstinNoCode)
+    }
+    else{
+      this.disabledStateCountry =false
+      
+    }
+    
+    this.matchStateCodeWithGSTNumber()
+    this.checkGSTNumberValid()
+  }
+  GSTStateCode:any=0
+  GstinNoCode:any
+  matchStateCodeWithGSTNumber(){
+    if(this.GSTStateCode>0 &&  this.GstinNoCode !==''){
+      if(this.GSTStateCode === this.GstinNoCode){
+          return true 
+         }
+         else{
+          return  false
+         }
+    } else{
+      return true
+    }
+    
+  }
+  checkGSTNumberValid () {
+    if(this.coustomerForm.value.gstin  !=='' && this.coustomerForm.value.gstin !==null){
+  //    this.GSTNumber = (this.coustomerForm.value.gstin).toUpperCase()
+      if(this.coustmoreRegistraionId === 1){
+        if (this._CommonService.gstNumberRegxValidation((this.coustomerForm.value.gstin).toUpperCase())) {
+          this.validGSTNumber = false
+          this.requiredGSTNumber = false
+          
+        } else {
+          this.validGSTNumber = true
+          this.requiredGSTNumber = true
+        }
+      }
+     
     } else {
       this.validGSTNumber = false
     }
-  }
+ 
+}
+
 
   private customerParams(): AddLedger {
     let DOA;
@@ -898,7 +1034,7 @@ export class CustomerAddComponent implements OnDestroy {
         Statutories: [{
           Id: this.satuariesId,
           PanNo: this.PANNumber,
-          GstinNo: this.GSTNumber,
+          GstinNo: this.coustomerForm.value.gstin,
           ParentTypeId: 5
         }],
         ContactPersons: [{
@@ -1013,13 +1149,19 @@ console.log(customerElement,'customer-Req-')
     }
 
     this.adressForm.reset()
-    this.getCountry(0)
+    this.resetAddress()
     this.adressType(0)
     setTimeout(() => {
       this.countryselecto.selector.nativeElement.focus()
     }, 1000)
   }
-
+  resetAddress(){
+    this.getCountry(0)
+    this.countryList =[]
+    this.stateList=[]
+    this.cityList=[]
+    this.areaList=[]
+  }
   addressIndex: any
   getEditAddress(address, index) {
     this.addressIndex = index
@@ -1110,7 +1252,11 @@ console.log(customerElement,'customer-Req-')
           this.customerTypeId = Data.Data.LedgerDetails[0].TaxTypeId
           this.crDrId = Data.Data.LedgerDetails[0].Crdr
           this.getCustomoerType(Data.Data.LedgerDetails[0].CustomerTypeId)
-          this.select2VendorValue(Data.Data.LedgerDetails[0].TaxTypeId)
+          this.CustomerRegisterTypeSelect2.setElementValue(Data.Data.LedgerDetails[0].TaxTypeId)
+          // this.select2VendorValue(Data.Data.LedgerDetails[0].TaxTypeId)
+          this.disabledGSTfor_UnRegi = Data.Data.LedgerDetails[0].TaxTypeId === 4 ? true :false
+          
+         
           this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
         }
 
@@ -1158,53 +1304,47 @@ console.log(customerElement,'customer-Req-')
       }
     })
   }
+  
+  @ViewChild('customer_type_select2') customerTypeSelect2 :Select2Component
 
   reapeatName(name: string) {
     this.coustomerForm.controls.contactPerson.setValue(name)
   }
-
-  emailMobileValidationRequired() {
-    this.subscribe = this._CommonService.getModulesettingAPI('').subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND) {
-        if (data.Data && data.Data.SetupClients && data.Data.SetupClients.length > 0) {
-          data.Data.SetupClients.forEach(ele => {
-            // for only mobile required
-            if (ele.SetupId === 55 && ele.Val === '1') {
+  getModuleSettingData () {
+        if ( this.getModuleSettingValue.settings.length > 0) {
+          this.getModuleSettingValue.settings.forEach(ele => {
+            if (ele.id=== SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === '1') {
               this.emailError = false
               this.mobileRequirdForSetting = true
-
-            }
-            // for only mobile and email required
-            if (ele.SetupId === 55 && ele.Val === '2') {
+            } 
+            if (ele.id=== SetUpIds.dateFormat) {
+              this.clientDateFormat =  ele.val[0].Val
+              console.log(this.clientDateFormat)
+             }
+            if (SetUpIds.edgerEmailorMobileRequiredorNot === ele.id && ele.val === '2') {
               this.emailRequirdForSetting = true
               this.mobileRequirdForSetting = true
               this.mobileError = true
               this.emailError = true
             }
-            // for only email required
-            if (ele.SetupId === 55 && ele.Val === '3') {
+            if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === '3') {
               this.emailError = true
               this.mobileError = false
               this.emailRequirdForSetting = true
             }
-            if (ele.SetupId === 54 && ele.Val === '1') {
+            if (ele.id === SetUpIds.edgerAddressRequiredorNot && ele.val === '1') {
               this.setupCodeForAddresRequired = 54
               this.addressRequiredForLedger = true
 
             }
-            if (ele.SetupId === 12 && ele.Val === '1') {
+            if (ele.id === SetUpIds.applyCustomRateOnItemForSale && ele.val === '1') {
               this.customerCustomRateFlag = true
 
             }
-
           })
+          }
+          }
 
-        }
-
-      }
-    })
-
-  }
 
 
 
@@ -1235,7 +1375,7 @@ console.log(customerElement,'customer-Req-')
   emailTypeData: any
   emailTypeDataType() {
     this.emailTypeData = [
-      { id: '1', text: 'Persnal' },
+      { id: '1', text: 'Personal' },
       { id: '2', text: 'Work' },
       { id: '3', text: 'Home' },
       { id: '4', text: 'Other' }
@@ -1253,7 +1393,7 @@ console.log(customerElement,'customer-Req-')
     this.subscribe = this._CommonService.searchCountryByName(name).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND && Data.Data.length > 0) {
         this.countryListWithCode = []
-        let newdataList = [{ id: '0', text: 'Select Code', PhoneCode: '0', Length: 0 }]
+        let newdataList = [{ id: '0', text: 'Country-Code', PhoneCode: '0', Length: 0 }]
         Data.Data.forEach(element => {
           newdataList.push({
             id: element.Phonecode,
@@ -1394,13 +1534,19 @@ console.log(customerElement,'customer-Req-')
 
   pressEnterEmailadd(e: KeyboardEvent) {
     this.emailAddingArray()
-    this._CommonService.openConfirmation('email', 'Email Details')
+            
+            this.activaTab('customer2')
+            this.adressTab()
+  //  this._CommonService.openConfirmation('email', 'Email Details')
 
   }
 
   pressEnterMobileAdd(e: KeyboardEvent) {
     this.addConatctDetails()
-    this._CommonService.openConfirmation('mobile', 'Contact Details')
+    setTimeout(() => {
+    this.select_email.selector.nativeElement.focus()
+    }, 10)
+    //this._CommonService.openConfirmation('mobile', 'Contact Details')
 
   }
   // @HostListener('document:keypress', ['$event'])

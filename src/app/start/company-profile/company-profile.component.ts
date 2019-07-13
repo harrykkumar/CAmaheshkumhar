@@ -1,5 +1,4 @@
-import { AddNewAreaComponent } from './../../shared/components/add-new-area/add-new-area.component';
-import { AddNewCityComponent } from './../../shared/components/add-new-city/add-new-city.component';
+
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { GlobalService } from 'src/app/commonServices/global.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,6 +13,8 @@ import { takeUntil } from 'rxjs/operators';
 declare var $: any
 import * as _ from 'lodash'
 import { Select2Component } from 'ng2-select2';
+import { AddNewCityComponent } from '../../shared/components/add-new-city/add-new-city.component';
+import { AddNewAreaComponent } from '../../shared/components/add-new-area/add-new-area.component';
 
 
 @Component({
@@ -106,12 +107,13 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.modalData && this.modalData.open === true) {
-      if (!this.registrationTypeSelect.value || Number(this.registrationTypeSelect.value) !== 1) {
+      if (!this.modalData.editId) {
         this.personalDetailModel.registrationTypeId = 1;
       }
       if(this.modalData.editId) {
         this.getOrgProfileData()
       }
+      $('#companyOrganisationModal').modal({ backdrop: 'static', keyboard: false })
       $('#companyOrganisationModal').modal(UIConstant.MODEL_SHOW)
     } else if (this.modalData && this.modalData.open === false) {
       $('#companyOrganisationModal').modal(UIConstant.MODEL_HIDE)
@@ -133,18 +135,17 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }]
     this.cityList = [
       { id: 0, text: 'Select City' },
-      { id: -1, text: '+Add New' }
+      { id: -1, text: UIConstant.ADD_NEW_OPTION }
     ]
     this.areaList = [
     { id: 0, text: 'Select Area' },
-    { id: -1, text: '+Add New' }]
+    { id: -1, text: UIConstant.ADD_NEW_OPTION }]
     this.addressTypeList = await this._orgService.getAddressTypeList()
-    this.registrationTypeList = this._orgService.getRegistrationTypeList()
+    this.registrationTypeList = [...this._orgService.getRegistrationTypeList()]
     this.industryTypeList = await this._orgService.getIndustryTypeList()
     this.branchTypeList = await this._orgService.getBranchTypeList()
     this.countryList = await this._orgService.getCountryList()
     this.accMethodList = await this._orgService.getAccountingMethod()
-    // this.finYearIdList = await this._orgService.getFinYearIdList()
     this.finSessionList = await this._orgService.getFinSessionList()
     this.getMobileCountryCodeList()
     this.getMobileTypeList()
@@ -154,6 +155,17 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   /* Function to reset all the form data fields on close of profile */
   resetFormData = () => {
+    this.addressDetailArray = []
+    this.keyPersonDetailArray = []
+    this.bankDetailArray = []
+    this.imageList = []
+    this.editAddressDetailIndex = null
+    this.editBankDetailIndex = null
+    this.editKeyPersonDetailIndex = null
+    this.addressFormModel.resetForm()
+    this.keyPersonFormModel.resetForm()
+    this.bankFormModel.resetForm()
+    this.orgProfileFormModel.resetForm()
     this.emailDetail = {
       selectedEmailType: 1,
       selectedEmail: ''
@@ -164,60 +176,28 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
         { id: UIConstant.ZERO, text: 'Select Country Code' },
       mobileNo: ''
     }
-    this.personalDetail = {}
     this.personalDetail.mobileArray = []
     this.personalDetail.emailArray = []
-    if (!_.isEmpty(this.industryTypeSelect) && this.industryTypeSelect.value && Number(this.industryTypeSelect.value) > 0 ) {
-      this.industryTypeSelect.setElementValue(0);
+    this.personalDetailModel.industryTypeId = 0
+    this.personalDetailModel.branchTypeId = 0
+    if (!_.isEmpty(this.mobileDetail.selectedMobileCountryCode)) {
+      this.mobileDetail.selectedMobileCountryCode.id = 0
     }
-    if (!_.isEmpty(this.finYearSelect) && this.finYearSelect.value && Number(this.finYearSelect.value) > 0) {
-      this.finYearSelect.setElementValue(0)
-    }
-    if (!_.isEmpty(this.branchTypeSelect) && this.branchTypeSelect.value && Number(this.branchTypeSelect.value) > 0) {
-      this.branchTypeSelect.setElementValue(0)
-    }
-    if (!_.isEmpty(this.mobileCountryCodeSelect.value) && this.mobileCountryCodeSelect.value && Number(this.mobileCountryCodeSelect.value) > 0) {
-      this.mobileCountryCodeSelect.setElementValue(0)
-    }
-    if (!_.isEmpty(this.countrySelect.value) && this.countrySelect.value && Number(this.countrySelect.value) > 0) {
-      this.countrySelect.setElementValue(0);
-
-    }
-    if (!_.isEmpty(this.stateSelect.value) && this.stateSelect.value && Number(this.stateSelect.value) > 0 ) {
-      this.stateSelect.setElementValue(0)
-    }
-    if (!_.isEmpty(this.citySelect.value) && this.citySelect.value && Number(this.citySelect.value) > 0 ) {
-      this.citySelect.setElementValue(0)
-
-    }
-    if (!_.isEmpty(this.areaSelect.value) && this.areaSelect.value && Number(this.areaSelect.value) > 0 ) {
-      this.areaSelect.setElementValue(0)
-
-    }
-    if (!_.isEmpty(this.addressTypeSelect.value) && this.addressTypeSelect.value && Number(this.addressTypeSelect.value) > 0 ) {
-      this.addressTypeSelect.setElementValue(0)
-
-    }
-    if (!_.isEmpty(this.keyPersonSelect.value) && this.keyPersonSelect.value && Number(this.keyPersonSelect.value) > 0 ) {
-      this.keyPersonSelect.setElementValue(0)
-
-    }
-    if (!_.isEmpty(this.contactNoSelect.value) && this.contactNoSelect.value && Number(this.contactNoSelect.value) > 0 ) {
-      this.contactNoSelect.setElementValue(0)
-    }
-    this.addressDetailArray = []
-    this.keyPersonDetailArray = []
-    this.bankDetailArray = []
+    this.model.countryCodeId = 0
+    this.addressDetail.selectedAddressType = 0
+    this.personalDetailModel.keyPersonValue = 0
+    this.personalDetailModel.contactCodeValue = 0
+    this.personalDetailModel.finSessionValue = 0
+    this.personalDetailModel.registrationTypeId = 0
+    this.personalDetail = {}
     this.statutoryDetail = {}
-    this.accMethodList = []
-    this.imageList = []
-    this.editAddressDetailIndex = null
-    this.editBankDetailIndex = null
-    this.editKeyPersonDetailIndex = null
-    this.addressFormModel.resetForm()
-    this.keyPersonFormModel.resetForm()
-    this.bankFormModel.resetForm()
-    this.orgProfileFormModel.resetForm()
+    this.personalDetailModel = {}
+    this.model = {}
+    this.addressDetail = {}
+    this.bankDetail = {}
+    this.dummyData = {}
+    this.keyPersonDetail = {}
+    
     $('.active').removeClass('active');
     $('#activeTab').click();
   }
@@ -235,6 +215,10 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     if (event.data.length > 0) {
       this.personalDetail.selectedIndustryType = event.data[0]
       this.subIndustryTypeList = [...this._orgService.getSubIndustryTypeList(Number(event.value))]
+      if (this.dummyData.SubIndustryId) {
+        this.personalDetailModel.SubIndustryId = this.dummyData.SubIndustryId
+        this.dummyData.SubIndustryId = null
+      }
     }
   }
 
@@ -274,13 +258,13 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     if (session > month) {
       let endDate = `${this.personalDetail.selectedFinSession.shortName}/${year}`
       endDate = this._globalService.utcToClientDateFormat(endDate, 'd-m-Y')
-      this.personalDetail.bookEndDate = `${this.personalDetail.storedBookStartDate}---${endDate}`
+      this.personalDetail.bookEndDate = `${this.personalDetail.storedBookStartDate}--${endDate}`
     } else if (session === month) {
     } else if (session < month) {
       const modifiedYear = year + 1
       let endDate = `${this.personalDetail.selectedFinSession.shortName}/${modifiedYear}`
       endDate = this._globalService.utcToClientDateFormat(endDate, 'd-m-Y')
-      this.personalDetail.bookEndDate = `${this.personalDetail.storedBookStartDate}---${endDate}`
+      this.personalDetail.bookEndDate = `${this.personalDetail.storedBookStartDate}--${endDate}`
     }
   }
 
@@ -296,9 +280,15 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   }
 
   /* Function invoke on registration type selection change and assign new value */
+  disabledGSTfor_UnRegi:boolean = false
   onRegistrationTypeSelectionChange = (event) => {
-    if (event.data.length > 0) {
-      this.personalDetail.selectedRegistrationType = event.data[0]
+    this.personalDetail.selectedRegistrationType = event.data[0]
+    if(event.data[0].id ==='4'){
+      this.disabledGSTfor_UnRegi = true
+    }
+    else{
+      this.disabledGSTfor_UnRegi = false
+
     }
   }
 
@@ -320,18 +310,82 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }];
     }
   }
+  getOneState (rsp){
+    let  newdata =[]
+       newdata.push({
+         id:rsp.Data[0].CommonCode,
+         text: rsp.Data[0].CommonDesc1
+       })
+       this.disabledStateCountry =true
+     this.stateList = newdata
+     this.getCityList(rsp.Data[0].Id)
+   }
+  getStateCode = async (stateCode) =>{
+    this._commonService.getStateByGStCode(stateCode).
+    pipe(
+      takeUntil(this.unSubscribe$)
+    ).
+    subscribe((response: any) => {
+      if(response.Code=== UIConstant.THOUSAND){
+        this.addressDetail.selectedCountry.id =response.Data[0].CommonId
+        this.addressDetail.selectedCountry.text ='India'
 
+        this.countrySelect.setElementValue(response.Data[0].CommonId)
+        let event ={value:response.Data[0].Id,data:[{id:response.Data[0].Id,stateCode:response.Data[0].Id.ShortName1}]}
+        
+      //   this.addressDetail.selectedState = event.data[0]
+      // this.addressDetail.selectedState.id 
+       this.onStateSelectionChange(event)
+       this.addressDetail.selectedState.id =response.Data[0].Id
+        this.getOneState(response)
+        
+      }
+    })
+  }
+  GstinNoCode:any
+  disabledStateCountry:boolean = false
+  checkGSTNumberByState (event) {
+    this.statutoryDetail.gstNo = event.target.value;
+    let str =  this.statutoryDetail.gstNo
+    let val =  str.trim();
+    this.GstinNoCode = val.substr(0,2);
+    if( this.GstinNoCode !==''){
+      this.getStateCode(this.GstinNoCode)
+    }
+    else{
+      this.disabledStateCountry =false
+      
+    }
+    
+    this.matchStateCodeWithGSTNumber()
+    //this.checkGSTNumberValid()
+  }
+  GSTStateCode:any
+  matchStateCodeWithGSTNumber(){
+    if(this.GSTStateCode>0 &&  this.GstinNoCode !==''){
+      if(this.GSTStateCode === this.GstinNoCode){
+          return true 
+         }
+         else{
+          return  false
+         }
+    } else{
+      return true
+    }
+  }
   /* Function invoke on state dropdown selection change */
   onStateSelectionChange = (event) => {
     if (event.data.length > 0) {
       this.addressDetail.selectedState = event.data[0]
+      
     }
     if (this.addressDetail.selectedState && this.addressDetail.selectedState.id > UIConstant.ZERO) {
+      this.GSTStateCode =this.addressDetail.selectedState.stateCode
       this.getCityList(this.addressDetail.selectedState.id)
     } else {
       this.cityList = [
       { id: 0, text: 'Select City' },
-      { id: -1, text: '+Add New' },]
+      { id: -1, text: UIConstant.ADD_NEW_OPTION },]
     }
   }
 
@@ -353,7 +407,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     } else {
       this.areaList = [
       { id: 0, text: 'Select Area' },
-      { id: -1, text: '+Add New' }]
+      { id: -1, text: UIConstant.ADD_NEW_OPTION }]
     }
   }
 
@@ -398,6 +452,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   /* Function invoke on click of close profile icon
       will close the dialog box and reset data */
   emitCloseProfile (data) {
+    $('#companyOrganisationModal').modal(UIConstant.MODEL_HIDE)
     this.closeModal.emit(data);
   }
 
@@ -408,6 +463,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       takeUntil(this.unSubscribe$)
     ).
     subscribe((response: any) => {
+      
       this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }, ...response]
       if(this.dummyData.stateCodeId) {
         this.model.stateCodeId = this.dummyData.stateCodeId
@@ -425,7 +481,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       subscribe((response: any) => {
         this.cityList = [
           { id: 0, text: 'Select City' },
-          { id: -1, text: '+Add New' },
+          { id: -1, text:UIConstant.ADD_NEW_OPTION },
           ...response]
         if(this.dummyData.cityCodeId) {
           this.model.cityCodeId = this.dummyData.cityCodeId
@@ -442,7 +498,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       ).
       subscribe((response: any) => {
         this.areaList = [{ id: 0, text: 'Select Area' },
-        { id: -1, text: '+Add New' }, ...response]
+        { id: -1, text: UIConstant.ADD_NEW_OPTION }, ...response]
         if (this.dummyData.areaId) {
           this.model.areaId = this.dummyData.areaId
           this.dummyData.areaId = null
@@ -780,7 +836,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       }
     })
 
-    let toDate = this.personalDetail.bookEndDate.split('---')[1]
+    let toDate = this.personalDetail.bookEndDate.split('--')[1]
     toDate = this._globalService.clientToSqlDateFormat(toDate, 'd-m-Y')
     const startDate = this._globalService.clientToSqlDateFormat(this.personalDetail.storedBookStartDate, 'd-m-Y')
     return {
@@ -788,8 +844,9 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       Name: this.personalDetail.companyName,
       TypeId: this.personalDetail.selectedBranchType.id ? this.personalDetail.selectedBranchType.id : 0,
       IndustryType: this.personalDetail.selectedIndustryType.id ? this.personalDetail.selectedIndustryType.id : 0,
+      SubIndustryId: this.personalDetail.selectedSubIndustry.id ? this.personalDetail.selectedSubIndustry.id :  0,
       SessionType: this.personalDetail.selectedFinSession.id ? this.personalDetail.selectedFinSession.id : 0,
-      BookStartDate: startDate ? startDate : '' ,
+      BookStartDate: startDate ? startDate : '',
       ToDate: toDate ? toDate : '',
       RegistrationType: this.personalDetail.selectedRegistrationType.id ? this.personalDetail.selectedRegistrationType.id : 0,
       AccountingMethod: 0,
@@ -826,6 +883,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   getOrgProfileData = () => {
     this._orgService.getCompanyProfileDetails(this.modalData.editId).subscribe(
       (Data: any) => {
+        console.log('getCompanyProfileDetails : ', Data)
         if (Data.Code === UIConstant.THOUSAND) {
           this.initFormData(Data.Data)
         }
@@ -835,7 +893,8 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   /* Function to initialise all form fields by profile data */
   initFormData = (profileData) => {
-    if (profileData && profileData.ImageFiles && profileData.ImageFiles.length > 0) {
+    this.imageList = { images: [], queue: [], safeUrls: [], baseImages: [], id: [], imageType: 'logo' }
+    if (!_.isEmpty(profileData) && profileData.ImageFiles.length > 0) {
       profileData.ImageFiles.forEach(element => {
         this.imageList['queue'].push(element.Name)
         this.imageList['images'].push(element.FilePath)
@@ -845,7 +904,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.createImageFiles();
     }
 
-    this.addressDetailArray = _.map(profileData.Addressesdetails, (item) => {
+    this.addressDetailArray = _.map(profileData.AddressesDetails, (item) => {
       return {
         id: item.Id,
         postalCode: item.PostCode,
@@ -915,10 +974,10 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       }
     })
     let orgData
-    if (profileData.Organisationdetails && profileData.Organisationdetails.length > 0) {
-      orgData = profileData.Organisationdetails[0]
+    if (profileData.OrganisationDetails && profileData.OrganisationDetails.length > 0) {
+      orgData = profileData.OrganisationDetails[0]
     }
-    if (orgData) {
+    if (!_.isEmpty(orgData)) {
       const toDate = this._globalService.utcToClientDateFormat(orgData.ToDate, this._settings.dateFormat)
       const bookStartDate = this._globalService.utcToClientDateFormat(orgData.BookStartDate, this._settings.dateFormat)
       this.personalDetail = {
@@ -928,9 +987,10 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
         companyName: orgData.Name,
         bookStartDate: bookStartDate,
         storedBookStartDate: this._globalService.utcToClientDateFormat(orgData.BookStartDate, 'd-m-Y'),
-        bookEndDate: `${bookStartDate}---${toDate}`
+        bookEndDate: `${bookStartDate}--${toDate}`
       }
-      this.personalDetailModel.industryTypeId = orgData.IndustryType ? orgData.IndustryType : UIConstant.ZERO;
+      this.personalDetailModel.industryTypeId = orgData.IndustryId ? orgData.IndustryId : UIConstant.ZERO;
+      this.dummyData.SubIndustryId = orgData.SubIndustryId ? orgData.SubIndustryId : UIConstant.ZERO;
       this.personalDetailModel.finSessionValue = orgData.SessionType ? orgData.SessionType : UIConstant.ZERO;
       this.personalDetailModel.registrationTypeId = orgData.GstnTypeId ? orgData.GstnTypeId : UIConstant.ZERO;
       this.personalDetailModel.branchTypeId = orgData.TypeId ? orgData.TypeId : UIConstant.ZERO;
@@ -995,8 +1055,13 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   }
 
   removeImage = (index) => {
+
     _.forIn(this.imageList, (value) => {
-      value.splice(index, 1)
+     // if(value.length>0){
+        value.splice(index, 1)
+     // }
+     
+    
     })
     this.createImageFiles()
   }
@@ -1041,59 +1106,39 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   addCityClosed(selectedIds?) {
     if (!_.isEmpty(selectedIds) && selectedIds.cityId > 0) {
-      // if (!_.isEmpty(this.addressDetail.selectedCountry) && this.addressDetail.selectedCountry.id !== selectedIds.countryId) {
+      if (!_.isEmpty(this.addressDetail.selectedCountry) && Number(this.addressDetail.selectedCountry.id) !== selectedIds.countryId) {
         this.model.countryCodeId = selectedIds.countryId
-      // }
-      // if (!_.isEmpty(this.addressDetail.selectedState) && this.addressDetail.selectedState.id !== selectedIds.stateId) {
         this.dummyData.stateCodeId = selectedIds.stateId
         this.dummyData.cityCodeId = selectedIds.cityId;
-      // } else {
-        // this.model.cityCodeId = selectedIds.cityId;
-      // }
+      } else if (!_.isEmpty(this.addressDetail.selectedState) && Number(this.addressDetail.selectedState.id) !== selectedIds.stateId) {
+        this.model.stateCodeId = selectedIds.stateId
+        this.dummyData.cityCodeId = selectedIds.cityId;
+      } else {
+        this.dummyData.cityCodeId = selectedIds.cityId;
+        this.getCityList(selectedIds.stateId)
+      }
     } else {
       this.model.cityCodeId = 0
     }
   }
   addAreaClosed(selectedIds?) {
     if (!_.isEmpty(selectedIds) && selectedIds.areaId > 0) {
-      this.model.countryCodeId = selectedIds.countryId
-      this.dummyData.stateCodeId = selectedIds.stateId
-      this.dummyData.cityCodeId = selectedIds.cityId
-      this.dummyData.areaId = selectedIds.areaId;
-
-      // if (!_.isEmpty(this.addressDetail.selectedState) && this.addressDetail.selectedState.id !== selectedIds.stateId) {
-      //   this.dummyData.stateCodeId = selectedIds.stateId
-      // } else {
-      //   this.model.stateCodeId = selectedIds.stateId
-      // }
-
-      // if (!_.isEmpty(this.addressDetail.selectedCity) && this.addressDetail.selectedCity.id !== selectedIds.cityId) {
-      //   this.dummyData.cityCodeId = selectedIds.cityId;
-      //   this.dummyData.areaId = selectedIds.areaId;
-      // } else {
-      //   this.model.cityCodeId = selectedIds.cityId;
-      //   this.model.areaId = selectedIds.areaId
-      // }
-
-
-      // if (!_.isEmpty(this.addressDetail.selectedCountry) && this.addressDetail.selectedCountry.id !== selectedIds.countryId) {
-      //   this.model.countryCodeId = selectedIds.countryId
-      //   this.dummyData.stateCodeId = selectedIds.stateId
-      // } else {
-      //   this.model.stateCodeId = selectedIds.stateId
-      // }
-      // if (!_.isEmpty(this.addressDetail.selectedState) && this.addressDetail.selectedState.id !== selectedIds.stateId) {
-      //   this.dummyData.stateCodeId = selectedIds.stateId
-      //   this.dummyData.cityCodeId = selectedIds.cityId;
-      // } else {
-      //   this.model.cityCodeId = selectedIds.cityId;
-      // }
-      // if (!_.isEmpty(this.addressDetail.selectedCity) && this.addressDetail.selectedCity.id !== selectedIds.cityId) {
-      //   this.dummyData.cityCodeId = selectedIds.cityId;
-      //   this.dummyData.areaId = selectedIds.areaId;
-      // } else {
-      //   this.model.areaId = selectedIds.areaId
-      // }
+      if (!_.isEmpty(this.addressDetail.selectedCountry) && Number(this.addressDetail.selectedCountry.id) !== selectedIds.countryId) {
+        this.model.countryCodeId = selectedIds.countryId
+        this.dummyData.stateCodeId = selectedIds.stateId
+        this.dummyData.cityCodeId = selectedIds.cityId;
+        this.dummyData.areaId = selectedIds.areaId
+      } else if (!_.isEmpty(this.addressDetail.selectedState) && Number(this.addressDetail.selectedState.id) !== selectedIds.stateId) {
+        this.model.stateCodeId = selectedIds.stateId
+        this.dummyData.cityCodeId = selectedIds.cityId;
+        this.dummyData.areaId = selectedIds.areaId
+      } else if (!_.isEmpty(this.addressDetail.selectedCity) && Number(this.addressDetail.selectedCity.id) !== selectedIds.cityId) {
+        this.model.cityCodeId = selectedIds.cityId;
+        this.dummyData.areaId = selectedIds.areaId
+      } else {
+        this.dummyData.areaId = selectedIds.areaId
+        this.getAreaList(selectedIds.cityId)
+      }
     } else {
       this.model.areaId = 0
     }

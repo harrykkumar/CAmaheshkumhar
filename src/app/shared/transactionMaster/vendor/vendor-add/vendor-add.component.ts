@@ -4,6 +4,7 @@ import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { FormBuilder, Validators, FormGroup } from '@angular/forms'
 import { AddCust, Ledger } from '../../../../model/sales-tracker.model'
 import { SaniiroCommonService } from '../../../../commonServices/SaniiroCommonService'
+
 import { CommonSetGraterServices } from '../../../../commonServices/setgatter.services'
 import { UIConstant } from '../../../constants/ui-constant'
 import { VendorServices } from '../../../../commonServices/TransactionMaster/vendoer-master.services'
@@ -13,6 +14,9 @@ import { GlobalService } from '../../../../commonServices/global.service'
 import { Settings } from '../../../../shared/constants/settings.constant'
 import { bypassSanitizationTrustResourceUrl } from '@angular/core/src/sanitization/bypass'
 declare const $: any
+import {SetUpIds} from 'src/app/shared/constants/setupIds.constant'
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 declare const flatpickr: any
 @Component({
   selector: 'app-vendor-add',
@@ -63,9 +67,12 @@ export class VendorAddComponent implements OnDestroy {
   YES: any = 'yes'
   NO: any = 'no'
   editId: any
+  private unSubscribe$ = new Subject<void>()
   get f () { return this.vendorForm.controls }
   get bank () { return this.bankForm.controls }
   get address () { return this.adressForm.controls }
+  @ViewChild('vendor_registerType') vendorRegisterTypeSelect2 :Select2Component
+
   // cleckTab:any
   constructor (private _CommonService: CommonService, private _vendorServices: VendorServices,
     private _formBuilder: FormBuilder,
@@ -73,7 +80,7 @@ export class VendorAddComponent implements OnDestroy {
     private _commonGaterSeterServices: CommonSetGraterServices,
     private _toastrcustomservice: ToastrCustomService,
     public _globalService: GlobalService, public _settings: Settings) {
-    this.clientDateFormat = this._settings.dateFormat
+    //this.clientDateFormat = this._settings.dateFormat
 
     this.formVendor()
     this.formBank()
@@ -158,6 +165,9 @@ export class VendorAddComponent implements OnDestroy {
   emailRequirdForSetting: boolean
 
   openModal () {
+    this.disabledGSTfor_UnRegi = false
+    this.disabledStateCountry =false
+    this.requiredGSTNumber = true
     this.activaTab('vendor1')
     this.editFlg = true
     this.editEmailFlg = true
@@ -181,7 +191,8 @@ export class VendorAddComponent implements OnDestroy {
     if (this.editMode) {
       this.getVendorEditData(this.id)
     } else {
-      this.emailMobileValidationRequired()
+      this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
+      this.getModuleSettingData()
       $('#vendor_form').modal(UIConstant.MODEL_SHOW)
       setTimeout(() => {
         this.ledgerName.nativeElement.focus()
@@ -196,11 +207,10 @@ export class VendorAddComponent implements OnDestroy {
       this.bankClick = false
       this.addressClick = false
       this.emailAdressArray = []
-      this.emailPlusAddingArray(0)
       this.select2VendorValue(UIConstant.ZERO)
       this.select2CrDrValue(0)
       this.getCountry(0)
-
+      this.vendorRegisterTypeSelect2.setElementValue(1)
       this.formVendor()
       this.formBank()
       this.addTyperessForm()
@@ -219,9 +229,12 @@ export class VendorAddComponent implements OnDestroy {
       $('#volumediscount1').prop('checked', false)
       this.phoneCodeselect2.setElementValue(0)
       this.enableContactFlag = true
+
+      
       /* ............................completed..................... */
     }
   }
+  getModuleSettingValue:any
   @ViewChild('ledgerName') ledgerName
   closeModal () {
     if ($('#vendor_form').length > 0) {
@@ -278,6 +291,11 @@ export class VendorAddComponent implements OnDestroy {
             this.vendorForm.controls.vendorName.setValue(Data.Data.LedgerDetails[0].Name)
             this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
             this.select2VendorValue(Data.Data.LedgerDetails[0].TaxTypeId)
+           this.vendorRegisterTypeSelect2.setElementValue(Data.Data.LedgerDetails[0].TaxTypeId)
+
+            this.disabledGSTfor_UnRegi = Data.Data.LedgerDetails[0].TaxTypeId === 4 ? true :false
+           
+            
             this.vendorForm.controls.openingBlance.setValue(Data.Data.LedgerDetails[0].OpeningBalance)
           }
 
@@ -383,7 +401,6 @@ export class VendorAddComponent implements OnDestroy {
     this.submitClick = false
     this.adressArray = []
     this.emailAdressArray = []
-    this.emailPlusAddingArray(0)
     this.select2VendorValue(UIConstant.ZERO)
     this.select2CrDrValue(0)
     this.formVendor()
@@ -421,21 +438,90 @@ export class VendorAddComponent implements OnDestroy {
       this.validPANFlag = false
     }
   }
+  GSTStateCode:any=0
+  matchStateCodeWithGSTNumber(){
+    if(this.GSTStateCode>0 &&  this.GstinNoCode !==''){
+      if(this.GSTStateCode === this.GstinNoCode){
+          return true 
+         }
+         else{
+          return  false
+         }
+    } else{
+      return true
+    }
+    
+  }
+  GstinNoCode:any
   validGSTNumber: boolean = false
 
-  onInputCheckGstNumber(event) {
-    this.GSTNumber = (event.target.value).toUpperCase()
-    // debugger
-    if (this.GSTNumber !== '' && this.GSTNumber !== null) {
-      if (this.gstNumberRegxValidation(this.GSTNumber)) {
-        this.validGSTNumber = false
-      } else {
-        this.validGSTNumber = true
+getStateCode = async (stateCode) =>{
+  this._CommonService.getStateByGStCode(stateCode).
+  pipe(
+    takeUntil(this.unSubscribe$)
+  ).
+  subscribe((response: any) => {
+    //ShortName1 = statecode
+    if(response.Code=== UIConstant.THOUSAND){
+      this.countrId =response.Data[0].CommonId
+      this.stateId = response.Data[0].CommonCode
+      this.countryselecto.setElementValue(response.Data[0].CommonId)
+      this.getOneState(response)
+      this.stateselecto.setElementValue( response.Data[0].CommonCode)
+      
+    }
+  })
+
+}
+disabledStateCountry:boolean
+
+  getOneState (rsp){
+   let  newdata =[]
+      newdata.push({
+        id:rsp.Data[0].CommonCode,
+        text: rsp.Data[0].CommonDesc1
+      })
+      this.disabledStateCountry =true
+    this.stateList = newdata
+    this.getCitylist(rsp.Data[0].Id, 0)
+  }
+
+  checkGSTNumber (event) {
+    this.vendorForm.value.gstNo = event.target.value;
+    let str = this.vendorForm.value.gstNo
+    let val =  str.trim();
+    this.GstinNoCode = val.substr(0,2);
+    if( this.GstinNoCode !==''){
+      this.getStateCode(this.GstinNoCode)
+    }
+    else{
+      this.disabledStateCountry =false
+    }
+    
+    this.matchStateCodeWithGSTNumber()
+    this.checkGSTNumberValid()
+  }
+  checkGSTNumberValid () {
+   // this.GSTNumber  =''
+    if(this.vendorForm.value.gstNo  !=='' && this.vendorForm.value.gstNo !==null){
+    //  this.GSTNumber = (this.vendorForm.value.gstNo).toUpperCase()
+      if(+this.vendorId === 1){
+        if (this._CommonService.gstNumberRegxValidation((this.vendorForm.value.gstNo).toUpperCase())) {
+          this.validGSTNumber = false
+          this.requiredGSTNumber = false
+          
+        } else {
+          this.validGSTNumber = true
+          this.requiredGSTNumber = true
+        }
       }
+     
     } else {
       this.validGSTNumber = false
     }
-  }
+ 
+}
+ 
   validateMobile (mobile) {
     let regx = /\[0-9]/g
     return regx.test(mobile)
@@ -531,45 +617,7 @@ export class VendorAddComponent implements OnDestroy {
   emailValueFlag: any = false
   emailError: any
 
-  emailPlusAddingArray (value) {
-    let boolCheck = false
-    for (let i = 0; i < this.emailAdressArray.length; i++) {
-      if ($('#sel1parmantent' + i).val() === '') {
-        $('#sel1parmantent' + i).val('1')
-      }
-      let email = $('#email' + i).val()
-      if ($('#email' + i).val() !== '' && this.validateEmail(email)) {
-        document.getElementById('email' + i).className += ' successTextBoxBorder'
-        document.getElementById('email' + i).classList.remove('errorTextBoxBorder')
-        if ($('#sel1parmantent' + (i + 1)).val() > 0) {
-          boolCheck = true
-        } else {
-          boolCheck = false
-          break
-        }
-
-      } else {
-        $('#email' + i).focus()
-        document.getElementById('email' + i).className += ' errorTextBoxBorder'
-        boolCheck = false
-        break
-      }
-    }
-    if (boolCheck) {
-      this.emailAdressArray.push({
-        Id: 0,
-        EmailType: undefined,
-        EmailAddress: undefined
-      })
-    }
-    if (this.emailAdressArray.length === 0) {
-      this.emailAdressArray.push({
-        Id: 0,
-        EmailType: undefined,
-        EmailAddress: undefined
-      })
-    }
-  }
+ 
 
   /* .....................select2 values.............. */
   selectVendorPlaceHolder: Select2Options
@@ -578,22 +626,23 @@ export class VendorAddComponent implements OnDestroy {
   select2VendorValue (value) {
     this.selectVendor = []
     this.selectVendorPlaceHolder = { placeholder: 'Select Vendor' }
-    this.selectVendor = [{ id: UIConstant.BLANK, text: 'SelectVendor' }, { id: '1', text: 'Regular' }
+    this.selectVendor = [ { id: '1', text: 'Regular' }
       , { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' }
       , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
-    this.vendorId = this.selectVendor[1].id
-    return this.vendorValue = this.selectVendor[1].id
-  }
+     this.vendorId = this.selectVendor[0].id
+     this.vendorValue = this.selectVendor[0].id
 
-  checkVendorRegiValidation () {
 
-    // debugger
-    if (this.vendorId > 0) {
-      this.vendorRegiError = false
-    } else {
-      this.vendorRegiError = true
-    }
   }
+ 
+
+  // checkVendorRegiValidation () {
+  //   if (this.vendorId > 0) {
+  //     this.vendorRegiError = false
+  //   } else {
+  //     this.vendorRegiError = true
+  //   }
+  // }
   countryError: boolean = false
   stateError: boolean = false
   cityError: boolean = false
@@ -622,11 +671,27 @@ export class VendorAddComponent implements OnDestroy {
     }
 
   }
+  requiredGSTNumber:boolean
+  disabledGSTfor_UnRegi:boolean = false
+  selectedVendorId(event) {
+    this.vendorId = +event.value
+    if(+event.value===1){
+      this.requiredGSTNumber = true
+      this.disabledGSTfor_UnRegi= false
+    }
+    else if(+event.value===4){ 
+      this.disabledGSTfor_UnRegi= true
+      this.vendorForm.controls.gstNo.setValue('')
+      this.requiredGSTNumber =false
+    }
+    else{
+      this.requiredGSTNumber = false
+      this.disabledGSTfor_UnRegi=false
+      }
 
-  selectedVendorId (event) {
-    this.vendorId = event.value
-    this.vendorRegiError = false
+
   }
+
 
   select2CrDrPlaceHolder: Select2Options
   valueCRDR: any
@@ -696,13 +761,15 @@ export class VendorAddComponent implements OnDestroy {
   getCitylist (id, value) {
     this.subscribe = this._vendorServices.getCityList(id).subscribe(Data => {
       this.cityList = []
+      let newData =[]
       Data.Data.forEach(element => {
-        this.cityList.push({
+        newData.push({
           id: element.Id,
           text: element.CommonDesc2
         })
       })
-      this.cityValue = value
+      this.cityList = newData
+      //this.cityValue = value
     })
   }
 
@@ -733,7 +800,12 @@ export class VendorAddComponent implements OnDestroy {
       'areaName': ['', Validators.required]
     })
   }
+  @ViewChild('areaName') areaname
+
   openAreaModel () {
+    setTimeout(() => {
+      this.areaname.nativeElement.focus()
+    }, 500)
     $('#add_area_Popup1').modal(UIConstant.MODEL_SHOW)
   }
   closeAreaModel () {
@@ -764,8 +836,11 @@ export class VendorAddComponent implements OnDestroy {
           this._toastrcustomservice.showSuccess('', 'Area Added !')
           this.areaForm.reset()
           this.closeAreaModel()
+          setTimeout(() => {
+            this.areaSelect2.selector.nativeElement.focus()
+          }, 500)
         }
-        if (data.Code === 5000) {
+        if (data.Code === UIConstant.SERVERERROR) {
           this._toastrcustomservice.showError('', data.Description)
           this.closeAreaModel()
 
@@ -819,6 +894,8 @@ export class VendorAddComponent implements OnDestroy {
     this.addressDetailsValidation()
     this.addressError = false
   }
+  
+  @ViewChild('state_select2') stateselecto: Select2Component
 
   @ViewChild('country_selecto') countryselecto: Select2Component
   @ViewChild('bankName') bankName
@@ -870,13 +947,17 @@ export class VendorAddComponent implements OnDestroy {
   submitClick: boolean
   bankClick: boolean
   addVendor (value) {
+    this.submitClick = true
+    this.checkGSTNumberValid()
     this.addConatctDetails()
     this.emailAddingArray()
-    this.submitClick = true
+    this.addNewAdress()
+    
     if (value === 'reset') {
           this.resetForNewFoem()
          this.activaTab('vendor1')
     } else if (this.vendorForm.valid && !this.validMobileFlag && this.getEmailvalid && this.vendorId > UIConstant.ZERO) {
+      if(!this.requiredGSTNumber){
       if (!this.mobileRequirdForSetting) {
         if (!this.emailRequirdForSetting) {
           if (!this.validGSTNumber) {
@@ -888,7 +969,7 @@ export class VendorAddComponent implements OnDestroy {
                     this._commonGaterSeterServices.setVendorName(Data.Data)
                     this._sanariioservices.filter()
                     if (value === 'save') {
-                      
+                   
                       const dataToSend = { id: Data.Data, name: this.vendorForm.value.vendorName }
                       this._CommonService.closeVend({ ...dataToSend })
                       this._CommonService.AddedItem()
@@ -896,15 +977,26 @@ export class VendorAddComponent implements OnDestroy {
                this._toastrcustomservice.showSuccess('', saveFlag)
                       $('#vendor_form').modal(UIConstant.MODEL_HIDE)
                       } else if (value === 'new') {
+                        setTimeout(() => {
+                          this.ledgerName.nativeElement.focus()
+                        }, 500)
+                       
+                        this.getCountry(0)
                         this.activaTab('vendor1')
                         this._CommonService.AddedItem()
                         this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
-                         this.resetForNewFoem()
+                         
                          this.id =0
                       }
+                      this.disabledStateCountry= false
+                      this.resetForNewFoem()
                   }
                   if (Data.Code === UIConstant.THOUSANDONE) {
                     this._toastrcustomservice.showInfo('', Data.Description)
+
+                  }
+                  if (Data.Code === UIConstant.REQUIRED_5020) {
+                    this._toastrcustomservice.showError('', Data.Data)
 
                   }
                 })
@@ -929,6 +1021,11 @@ export class VendorAddComponent implements OnDestroy {
         this._toastrcustomservice.showError('', ' Enter Contact Details ')
 
       }
+    } else {
+      this.validGSTNumber = true
+      this._toastrcustomservice.showError('', ' Enter GSTIN No ')
+
+    }
     }
 
   }
@@ -948,7 +1045,12 @@ resetForNewFoem (){
   this.formVendor()
   this.bankArray=[]
   this.submitClick = false
-  this.select2VendorValue(0)
+ this.vendorRegisterTypeSelect2.setElementValue(1)
+ this.countryList=[]
+ this.stateList =[]
+ this.cityList=[]
+ this.areaList=[]
+  
 }
   private getopeinAmountValue () {
     if (this.vendorForm.value.openingBlance > 0) {
@@ -990,7 +1092,7 @@ resetForNewFoem (){
         Statutories: [{
           Id: this.statutoriesId,
           PanNo: this.PANNumber,
-          GstinNo: this.GSTNumber,
+          GstinNo: this.vendorForm.value.gstNo,
           ParentTypeId: 5
         }],
         ContactPersons: [{
@@ -1078,14 +1180,23 @@ resetForNewFoem (){
       this.addressClick = false
     }
     this.adressForm.reset()
-    this.getCountry(0)
+    this.resetAddress()
     this.adressType(0)
+
+    this.activaTab('vendor3')
+    this.adressTab()
     setTimeout(() => {
-      this.countryselecto.selector.nativeElement.focus()
-    }, 1000)
+      this.bankName.nativeElement.focus()
+    }, 500)
   }
   // }
-
+resetAddress(){
+  this.getCountry(0)
+  this.countryList =[]
+  this.stateList=[]
+  this.cityList=[]
+  this.areaList=[]
+}
   addressIndex: any
   getEditAddress (address, index) {
     this.addressIndex = index
@@ -1115,8 +1226,11 @@ resetForNewFoem (){
     this.mobileArray = []
     this.adressArray = []
     this.collectionOfAddress = []
-    this.emailPlusAddingArray(0)
-    $('#vendor_form').modal(UIConstant.MODEL_HIDE)
+    this.countryList=[]
+    this.stateList =[]
+    this.cityList=[]
+    this.areaList=[]
+    this.closeModal()
   }
   bankIndex: any
 
@@ -1177,43 +1291,36 @@ resetForNewFoem (){
   }
 
   setupCodeForAddresRequired: any
-  emailMobileValidationRequired () {
-    this.subscribe = this._CommonService.getModulesettingAPI('').subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND && data.Data) {
-        if (data.Data.SetupClients.length > 0) {
-          data.Data.SetupClients.forEach(ele => {
-            // for only mobile required
-            if (ele.SetupId === 55 && ele.Val === '1') {
-              this.emailError = false
-              this.mobileRequirdForSetting = true
-            }
-            // for only mobile and email required
-            if (ele.SetupId === 55 && ele.Val === '2') {
-              this.emailRequirdForSetting = true
-              this.mobileRequirdForSetting = true
-              // this.mobileError = true;
-              this.emailError = true
-            }
-            // for only email required
-            if (ele.SetupId === 55 && ele.Val === '3') {
-              this.emailError = true
-              this.emailRequirdForSetting = true
-            }
-            // setting for address is required or not
-            if (ele.SetupId === 54 && ele.Val === '1') {
-              this.setupCodeForAddresRequired = 54
-              this.addressRequiredForLedger = true
-            }
-
-          })
+  getModuleSettingData () {
+    if ( this.getModuleSettingValue.settings.length > 0) {
+      this.getModuleSettingValue.settings.forEach(ele => {
+        if (ele.id=== SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === '1') {
+          this.emailError = false
+          this.mobileRequirdForSetting = true
+        } 
+        if (ele.id=== SetUpIds.dateFormat) {
+          this.clientDateFormat =  ele.val[0].Val
+          console.log(this.clientDateFormat)
+         }
+        if (SetUpIds.edgerEmailorMobileRequiredorNot === ele.id && ele.val === '2') {
+          this.emailRequirdForSetting = true
+          this.mobileRequirdForSetting = true
+          this.emailError = true
+        }
+        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === '3') {
+          this.emailError = true
+      
+          this.emailRequirdForSetting = true
+        }
+        if (ele.id === SetUpIds.edgerAddressRequiredorNot && ele.val === '1') {
+          this.setupCodeForAddresRequired = 54
+          this.addressRequiredForLedger = true
 
         }
-
-      //  console.log(data, 'setting')
+        
+      })
       }
-    })
-
-  }
+      }
   countryListWithCode: any
   invalidMobilelength: boolean = false
   CountryCode: any = 'select'
@@ -1242,7 +1349,7 @@ resetForNewFoem (){
     emailTypeData: any
     emailTypeDataType (){
     this.emailTypeData =[
-    {id:'1',text:'Persnal'},
+    {id:'1',text:'Personal'},
     {id:'2',text:'Work'},
     {id:'3',text:'Home'},
     {id:'4',text:'Other'}
@@ -1254,7 +1361,7 @@ resetForNewFoem (){
     this.subscribe = this._CommonService.searchCountryByName(name).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND && Data.Data.length > 0) {
         this.countryListWithCode = []
-        let newdataList = [{ id: '0',text : 'select code',PhoneCode : '0' , Length: 0 }]
+        let newdataList = [{ id: '0',text : 'Country-Code',PhoneCode : '0' , Length: 0 }]
         Data.Data.forEach(element => {
           newdataList.push({
             id : element.Phonecode,
@@ -1403,14 +1510,19 @@ checkvalidationEmail() {
 
 pressEnterEmailadd (e: KeyboardEvent) {
   this.emailAddingArray()
-  this._CommonService.openConfirmation('email', 'Email Details')
+  this.activaTab('vendor2')
+            this.adressTab()
+ // this._CommonService.openConfirmation('email', 'Email Details')
 
   
 }
   
 pressEnterMobileAdd (e: KeyboardEvent) {
   this.addConatctDetails()
-  this._CommonService.openConfirmation('mobile', 'Contact Details')
+  setTimeout(() => {
+    this.select_email.selector.nativeElement.focus()
+    }, 10)
+ // this._CommonService.openConfirmation('mobile', 'Contact Details')
 
   this.enableContactFlag = true
 }

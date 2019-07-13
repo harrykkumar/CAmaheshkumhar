@@ -4,7 +4,7 @@
     <table class="table cat-table table-hover">
       <thead>
         <tr>
-          <th style="width:10%;" ></th>
+          <th *ngIf="!isNewSetting" style="width:10%;" >#</th>
           <th style="width:10%;" >Sno.</th>
           <th style="width:30%;" >Setup Name</th>
           <th style="width: 50%;" >Value</th>
@@ -12,9 +12,10 @@
       </thead>
       <tbody>
         <tr *ngFor="let setting of settings;let i = index;" >
-          <td>
+          <td *ngIf="!isNewSetting">
             <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="customCheck{{i}}" name="example1" (change)="setting.selected = $event.target.checked" >
+              <input type="checkbox" class="custom-control-input" id="customCheck{{i}}" name="example1"
+               (change)="setting.selected = $event.target.checked" >
               <label class="custom-control-label" for="customCheck{{i}}"></label>
             </div>
           </td>

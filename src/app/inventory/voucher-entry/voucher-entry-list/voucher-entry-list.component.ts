@@ -71,6 +71,8 @@ export class VoucherEntryListComponent implements OnInit {
         }
       )
     this.clientDateFormat = this.settings.dateFormat
+    this.noOfdecimal = this.settings.noOfDecimal
+   
     let today = this.gs.convertToSqlFormat(new Date())
     // console.log(today)
     this.data = {
@@ -80,7 +82,7 @@ export class VoucherEntryListComponent implements OnInit {
     }
     this.getLedgerSummaryData()
   }
-
+  noOfdecimal:any
   searchForStr (text) {
     this.isSearching = true
     this.searchGetCall(text).subscribe((data) => {
@@ -126,7 +128,9 @@ export class VoucherEntryListComponent implements OnInit {
       this.searchKey = ''
     }
     this.isSearching = true
-    this.voucherService.getLedgerSummaryData(`?Type=${this.data.Type}&FromDate=${this.data.FromDate}&ToDate=${this.data.ToDate}&Page=${this.p}&Size=${this.itemsPerPage}` + this.queryStr)
+    // this.voucherService.getLedgerSummaryData(`?Type=${this.data.Type}&FromDate=${this.data.FromDate}&ToDate=${this.data.ToDate}&Page=${this.p}&Size=${this.itemsPerPage}` + this.queryStr)
+
+    this.voucherService.getLedgerSummaryData(`?Type=${this.data.Type}&Page=${this.p}&Size=${this.itemsPerPage}` + this.queryStr)
     .pipe(
       filter(data => {
         if (data.Code === UIConstant.THOUSAND) {
@@ -145,7 +149,7 @@ export class VoucherEntryListComponent implements OnInit {
       if (data) {
         this.LedgerStatements = data.LedgerStatements
         this.total = data.LedgerStatements[0] ? data.LedgerStatements[0].TotalRows : 0
-        this.summary = data.LedgerStatementsSummary
+        this.summary = data.LedgerStatementsSummary[0]
         setTimeout(() => {
           this.isSearching = false
         }, 100)

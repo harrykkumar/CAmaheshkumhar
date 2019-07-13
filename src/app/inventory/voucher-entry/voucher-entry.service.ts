@@ -46,9 +46,9 @@ export class VoucherEntryServie {
   createCustomers (array, type) {
     let newData = []
     if (type === UIConstant.CONTRA_TYPE) {
-      newData.push({ id: '0', text: 'Select Ledger' })
+      newData.push({ id: '0', text: 'Select Ledger' },{id:'-1',text:UIConstant.ADD_NEW_OPTION})
     } else if (UIConstant.RECEIPT_TYPE) {
-      newData.push({ id: '0', text: 'Select Party' })
+      newData.push({ id: '0', text: 'Select Party ' },{id:'-1',text:UIConstant.ADD_NEW_OPTION})
     }
     array.forEach(data => {
       newData.push({
@@ -62,9 +62,9 @@ export class VoucherEntryServie {
   createVendors (array, type) {
     let newData = []
     if (type === UIConstant.CONTRA_TYPE) {
-      newData.push({ id: '0', text: 'Select Ledger' })
+      newData.push({ id: '0', text: 'Select Ledger  ' },{id:'-1',text:UIConstant.ADD_NEW_OPTION})
     } else if (UIConstant.PAYMENT_TYPE) {
-      newData.push({ id: '0', text: 'Select Vendor' })
+      newData.push({ id: '0', text: 'Select Vendor / Customer'},{id:'-1',text:UIConstant.ADD_NEW_OPTION})
     }
     array.forEach(data => {
       newData.push({

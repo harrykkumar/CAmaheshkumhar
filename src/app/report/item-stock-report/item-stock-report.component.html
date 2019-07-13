@@ -61,33 +61,24 @@
       <div class="col-md-12">
         <div class="bgc-white bdrs-3 mB-20">
           <div class="table-responsive table_height">
-            <table class="table cat-table cat-table table-hover">
+            <table class="table cat-table cat-table fixTable4  table-hover">
               <thead>
                 <tr>
-                  <th rowspan="2" colspan="1">SNo</th>
-                  <th rowspan="2" colspan="1">Category</th>
-                  <th rowspan="2" colspan="1">Item</th>
-                  <th rowspan="2" colspan="1">BarCode</th>
-                  <th rowspan="2" colspan="1">HSN</th>
-                  <th rowspan="2" colspan="1">ItemCode</th>
-                  <th
-                    *ngFor="let label of Attributelabel; let i = index"
-                    colspan="1"
-                    rowspan="1"
-                    class="attribute_header "
-                  >
-                    {{ label?.Name }}
-                  </th>
-                  <th class="text-right" rowspan="2" colspan="1">Opening</th>
-                  <th class="text-right" rowspan="2" colspan="1">Purchase</th>
-                  <th class="text-right" rowspan="2" colspan="1">Sale</th>
-                  <th class="text-right" rowspan="2" colspan="1">Purchase Return</th>
-                  <th class="text-right" rowspan="2" colspan="1">Sale Return</th>
-                  <th class="text-right" rowspan="2" colspan="1">Closing Stock </th>
-                  <th class="text-right" rowspan="2" colspan="1"> Dead Stock </th>
-                  <th class="text-right" rowspan="2" colspan="1"> Westage Stock </th>
-
-
+                  <th width="50px" >SNo</th>
+                  <th width="200px">Category</th>
+                  <th width="200px">Item</th>
+                  <th>BarCode</th>
+                  <th >HSN</th>
+                  <th>ItemCode</th>
+                  <th>Attribute Details</th>
+                  <th class="text-right" >Opening</th>
+                  <th class="text-right" >Purchase</th>
+                  <th class="text-right">Sale</th>
+                  <th class="text-right">Purchase Return</th>
+                  <th class="text-right">Sale Return</th>
+                  <th class="text-right"> Dead Stock </th>
+                  <th class="text-right"> Westage Stock </th>
+                  <th class="text-right">Closing Stock </th>
                 </tr>
               </thead>
               <tbody>
@@ -96,17 +87,10 @@
                   <td>{{ i + 1 }}</td>
                   <td>{{ item?.CategoryName }}</td>
                   <td>{{ item?.itemName }}</td>
-                  <td>{{ item?.barcode[0] && item?.barcode[0]?.BarCode }}</td>
+                  <td>{{ item?.barcode }}</td>
                   <td>{{ item?.HsnNo }}</td>
                   <td>{{ item?.ItemCode }}</td>
-                  <td
-                    *ngFor="let attributeValue of item?.attributeLabelValue;let a = index;"
-                  >
-                    {{
-                      item?.attributeLabelValue[a] &&
-                        item?.attributeLabelValue[a]?.AttributeValueName
-                    }}
-                  </td>
+                  <td>{{ item?.attributeData }}</td>
                   <td class="text-right">
                     {{
                       item?.openingStock[0] && item?.openingStock[0]?.CurrentStock
@@ -127,17 +111,21 @@
                   <td class="text-right">
                     {{ item?.saleReturn[0] && item?.saleReturn[0]?.CurrentStock }}
                   </td>
-                  <td class="text-right">
-                    {{ item?.ClosingStock[0] && item?.ClosingStock[0]?.CurrentStock }}
-                  </td>
+               
                   <td class="text-right">
                     {{ item?.ItemsDeadStock[0] && item?.ItemsDeadStock[0]?.CurrentStock }}
                   </td>
                   <td class="text-right">
                     {{ item?.ItemsWestageStock[0] && item?.ItemsWestageStock[0]?.CurrentStock }}
                   </td>
+                  <td class="text-right">
+                    {{ item?.ClosingStock[0] && item?.ClosingStock[0]?.CurrentStock }}
+                  </td>
                 </tr>
               </tbody>
+              <tr *ngIf='mainData.length ===0' class="text-center">
+              <td class="recordNotFound" colspan="12"> No record Found</td>
+              </tr>
             </table>
           </div>
         </div>

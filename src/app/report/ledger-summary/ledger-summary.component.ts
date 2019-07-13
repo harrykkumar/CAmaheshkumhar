@@ -36,9 +36,10 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
     private _toastService: ToastrCustomService,
   ) {
     this.clientDateFormat = this._settings.dateFormat
+    this.noOfDecimal =this._settings.noOfDecimal
     this.getLedgerItemList();
   }
-
+  noOfDecimal:any
   ngOnInit() {
     this.getLedgerSummaryData();
   }
@@ -85,6 +86,7 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
         this.ledgerItemList = [{ id: UIConstant.ZERO, text: 'Select Ledger' }, ...response];
       })
   }
+  getValueFalg: boolean = true
 
   getLedgerSummaryData = () => {
     let fromDate, toDate
@@ -104,18 +106,21 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
     this._commonService.getLedgerSummaryData(data).pipe(
       takeUntil(this.unSubscribe$)
     ).subscribe((response: any) => {
-      if (response.Code === 1000 && response.Data && response.Data.LedgerStatements.length > 0) {
+      if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.LedgerStatements.length > 0) {
         this.ledgerSummary = response.Data;
+       this.getValueFalg = false
         this.totalItemSize = response.Data.LedgerStatements[0].TotalRows;
-      } else if (response.Code === 1000 && response.Data && response.Data.LedgerStatements.length === 0) {
+      } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.LedgerStatements.length === 0) {
+        this.getValueFalg = true
         this.ledgerSummary = {
           LedgerStatements: [],
           LedgerStatementsSummary: []
         }
         this.totalItemSize = 0;
       } else {
-        this._toastService.showError("Error in Data Fetching", 'error');
+        this._toastService.showError("Error in Data Fetching", '');
       }
+      console.log(this.ledgerSummary  ,'fff')
     }, (error) => {
       console.log(error);
     });

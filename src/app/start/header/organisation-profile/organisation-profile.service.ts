@@ -45,7 +45,11 @@ export class OrganisationProfileService {
   
   /* Funtion to get  getCompanyProfile data  */
   getCompanyProfileDetails = (id?) => {
-    return this._baseService.getRequest(`${ApiConstant.ORG_COMPANY_DETAILS}?Id=${id}`)
+    if (id) {
+      return this._baseService.getRequest(`${ApiConstant.ORG_COMPANY_DETAILS}?Id=${id}`)
+    } else {
+      return this._baseService.getRequest(ApiConstant.ORG_COMPANY_DETAILS)
+    }
   }
 
   /* Funtion to update the branch data  */
@@ -145,7 +149,8 @@ export class OrganisationProfileService {
           return _.map(data.Data, (element) => {
             return {
               id: element.Id,
-              text: element.CommonDesc1
+              text: element.CommonDesc1,
+              stateCode:element.ShortName1
             }
           })
         })
@@ -190,7 +195,7 @@ export class OrganisationProfileService {
           this.totalIndustryList = [...data.Data];
           const industryList = _.map(_.filter(data.Data, {UnderId : 0}), (element) => {
             return {
-              id: element.UId,
+              id: element.Id,
               text: element.Name
             }
           })
@@ -202,7 +207,7 @@ export class OrganisationProfileService {
   getSubIndustryTypeList = (industryId) => {
     const subIndustryList = _.map(_.filter(this.totalIndustryList, { UnderId: industryId }), (element) => {
       return {
-        id: element.UId,
+        id: element.Id,
         text: element.Name
       }
     })
@@ -248,12 +253,83 @@ export class OrganisationProfileService {
           const list = _.map(data.Data, (element) => {
             return {
               id: element.Id,
-              text: element.FinYear
+              text: element.FinYear,
+              IsCurrent: element.IsCurrent
             }
           })
           return [{ id: UIConstant.ZERO, text: 'Select Financial Year' }, ...list]
         })
       ).toPromise();
+  }
+
+  getTransactionSession = () => {
+    return this._commonService.getTransactionSession().
+      pipe(
+        map((data: any) => {
+          const list = _.map(data.Data, (element) => {
+            return {
+              id: element.UId,
+              text: element.CommonDesc
+            }
+          })
+          return [{ id: UIConstant.ZERO, text: 'Select Session' }, ...list]
+        })
+      ).toPromise();
+  }
+
+  getTransactionFormat = () => {
+    return this._commonService.getTransactionFormat().
+      pipe(
+        map((data: any) => {
+          const list = _.map(data.Data, (element) => {
+            return {
+              id: element.UId,
+              text: element.CommonDesc
+            }
+          })
+          return [{ id: UIConstant.ZERO, text: 'Select Format' }, ...list]
+        })
+      ).toPromise();
+  }
+
+  getTransactionPosition = () => {
+    return this._commonService.getTransactionPosition().
+      pipe(
+        map((data: any) => {
+          const list = _.map(data.Data, (element) => {
+            return {
+              id: element.UId,
+              text: element.CommonDesc
+            }
+          })
+          return [{ id: UIConstant.ZERO, text: 'Select Position' }, ...list]
+        })
+      ).toPromise();
+  }
+
+  getNumericZeroList = () => {
+    const list =  _.map([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], (element, i) => {
+      return {
+        id: i + 1,
+        text: element
+      }
+    })
+    return [{id: UIConstant.ZERO, text: 'Select No. Of Zeroes'}, ...list]
+  }
+
+  getSplitterList = () => {
+    return [
+      { id: 0, text: 'Select Splitter' },
+      { id: 1, text: '/' },
+      { id: 2, text: '-' }]
+  }
+
+  getExistencyList = () => {
+    return this._baseService.getRequest(ApiConstant.TRANS_EXISTENCY_GET)
+  }
+
+  postExistencyData = (data) => {
+    return this._baseService.postRequest(ApiConstant.TRANS_EXISTENCY_POST, data)
   }
 
   getFinSessionList = () => {
@@ -262,7 +338,7 @@ export class OrganisationProfileService {
         map((data: any) => {
           const list = _.map(data.Data, (element) => {
             return {
-              id: element.Id,
+              id: element.UId,
               text: element.CommonDesc,
               shortName: element.ShortName
             }
@@ -275,10 +351,10 @@ export class OrganisationProfileService {
 
    /* Function to get all registration type list */
   getRegistrationTypeList = () => {
-    return [{ id: UIConstant.ZERO, text: 'Select Registration Type' },
-    { id: '1', text: 'Regular' },
-    { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' },
-    { id: '4', text: 'UnRegistered' }, { id: '5', text: 'E-Commerce Operator' }]
+    return [{ id: 0, text: 'Select Registration Type' },
+    { id: 1, text: 'Regular' },
+    { id: 2, text: 'Composition' }, { id: 3, text: 'Exempted' },
+    { id: 4, text: 'UnRegistered' }, { id: 5, text: 'E-Commerce Operator' }]
   }
 
   /* Function to get all branch type list */

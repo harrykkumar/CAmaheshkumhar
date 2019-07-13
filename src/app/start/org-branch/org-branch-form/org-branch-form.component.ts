@@ -529,7 +529,8 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
 
   /* Function to initialise all form fields by profile data */
   initFormData = (branchData) => {
-    if (branchData && branchData.ImageFiles && branchData.ImageFiles.length > 0) {
+    this.imageList = { images: [], queue: [], safeUrls: [], baseImages: [], id: [], imageType: 'logo' }
+    if (!_.isEmpty(branchData) && branchData.ImageFiles.length > 0) {
       branchData.ImageFiles.forEach(element => {
         this.imageList['queue'].push(element.Name)
         this.imageList['images'].push(element.FilePath)
@@ -911,6 +912,19 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
   // }
 
   resetFormData = () => {
+    this.addressDetailArray = []
+    this.keyPersonDetailArray = []
+    this.bankDetailArray = []
+    this.imageList = []
+    this.personalDetail.mobileArray = []
+    this.personalDetail.emailArray = []
+    this.editAddressDetailIndex = null
+    this.editBankDetailIndex = null
+    this.editKeyPersonDetailIndex = null
+    this.addressFormModel.resetForm()
+    this.keyPersonFormModel.resetForm()
+    this.bankFormModel.resetForm()
+    this.branchFormModel.resetForm()
     this.emailDetail = {
       selectedEmailType: 1,
       selectedEmail: ''
@@ -921,57 +935,24 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
         { id: UIConstant.ZERO, text: 'Select Country Code' },
       mobileNo: ''
     }
+    this.personalDetailModel.industryTypeId = 0
+    this.personalDetailModel.branchTypeId = 0
+    if (!_.isEmpty(this.mobileDetail.selectedMobileCountryCode)) {
+      this.mobileDetail.selectedMobileCountryCode.id = 0
+    }
+    this.model.countryCodeId = 0
+    this.addressDetail.selectedAddressType = 0
+    this.personalDetailModel.keyPersonValue = 0
+    this.personalDetailModel.contactCodeValue = 0
+    this.personalDetailModel.finSessionValue = 0
     this.personalDetail = {}
-    this.personalDetail.mobileArray = []
-    this.personalDetail.emailArray = []
-    if (!_.isEmpty(this.industryTypeSelect) && this.industryTypeSelect.value && Number(this.industryTypeSelect.value) > 0 ) {
-      this.industryTypeSelect.setElementValue(0);
-    }
-
-    if (!_.isEmpty(this.branchTypeSelect) && this.branchTypeSelect.value && Number(this.branchTypeSelect.value) > 0) {
-      this.branchTypeSelect.setElementValue(0)
-    }
-    if (!_.isEmpty(this.mobileCountryCodeSelect.value) && this.mobileCountryCodeSelect.value && Number(this.mobileCountryCodeSelect.value) > 0) {
-      this.mobileCountryCodeSelect.setElementValue(0)
-    }
-    if (!_.isEmpty(this.countrySelect.value) && this.countrySelect.value && Number(this.countrySelect.value) > 0) {
-      this.countrySelect.setElementValue(0);
-
-    }
-    if (!_.isEmpty(this.stateSelect.value) && this.stateSelect.value && Number(this.stateSelect.value) > 0 ) {
-      this.stateSelect.setElementValue(0)
-    }
-    if (!_.isEmpty(this.citySelect.value) && this.citySelect.value && Number(this.citySelect.value) > 0 ) {
-      this.citySelect.setElementValue(0)
-
-    }
-    if (!_.isEmpty(this.areaSelect.value) && this.areaSelect.value && Number(this.areaSelect.value) > 0 ) {
-      this.areaSelect.setElementValue(0)
-
-    }
-    if (!_.isEmpty(this.addressTypeSelect.value) && this.addressTypeSelect.value && Number(this.addressTypeSelect.value) > 0 ) {
-      this.addressTypeSelect.setElementValue(0)
-
-    }
-    if (!_.isEmpty(this.keyPersonSelect.value) && this.keyPersonSelect.value && Number(this.keyPersonSelect.value) > 0 ) {
-      this.keyPersonSelect.setElementValue(0)
-    }
-    if (!_.isEmpty(this.contactNoSelect.value) && this.contactNoSelect.value && Number(this.contactNoSelect.value) > 0 ) {
-      this.contactNoSelect.setElementValue(0)
-    }
-    this.addressDetailArray = []
-    this.keyPersonDetailArray = []
-    this.bankDetailArray = []
     this.statutoryDetail = {}
-    this.accMethodList = []
-    this.imageList = []
-    this.editAddressDetailIndex = null
-    this.editBankDetailIndex = null
-    this.editKeyPersonDetailIndex = null
-    this.addressFormModel.resetForm()
-    this.keyPersonFormModel.resetForm()
-    this.bankFormModel.resetForm()
-    this.branchFormModel.resetForm()
+    this.personalDetailModel = {}
+    this.model = {}
+    this.addressDetail = {}
+    this.bankDetail = {}
+    this.dummyData = {}
+    this.keyPersonDetail = {}
     $('.active').removeClass('active');
     $('#activeTab').click();
   }

@@ -47,13 +47,13 @@
                             <table class="table cat-table table-hover">
                             <thead>
                                 <tr>
-                                    <th width="10%">Sr No.</th>
-                                    <th>Unit Name</th>
-                                    <th>Main Unit Name</th>
-                                    <th>Sub Unit Name</th>
-                                    <th>Composite Unit Qty</th>
-                                    <th>Unit Qty</th>
-                                    <th width="10%">Action</th>
+                                    <th width="7%">Sr No.</th>
+                                    <th width="30%">Unit Name</th>
+                                    <th width="25%">Main Unit Name</th>
+                                    <th width="10%">Sub Unit Name</th>
+                                    <th width="10%">Composite Unit Qty</th>
+                                    <th width="10%">Unit Qty</th>
+                                    <th width="8%">Action</th>
                                 </tr>
                             </thead>
                             <tbody *ngIf="isSearching" style="height:100px;" >
@@ -81,10 +81,11 @@
                         </table>
                     </div>
                 </div>
-                <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-                (pageNoEmitter)="p = $event;getCompositeDetail();"
-                (pageSizeEmitter)="itemsPerPage = $event;getCompositeDetail();" ></app-pagination>
+              
             </div>
         </div>
     </div>
 </main>
+<app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+(pageNoEmitter)="p = $event;getCompositeDetail();"
+(pageSizeEmitter)="itemsPerPage = $event;getCompositeDetail();" ></app-pagination>

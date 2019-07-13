@@ -106,4 +106,12 @@ export class SetUpIds {
   public static get autoGneratedItemCode (): number {
     return 64
   }
+  
+  public static get edgerAddressRequiredorNot (): number {
+    return 54
+  }
+  
+  public static get edgerEmailorMobileRequiredorNot (): number {
+    return 55
+  }
 }

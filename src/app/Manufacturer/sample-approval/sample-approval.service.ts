@@ -30,20 +30,7 @@ export class SampleApprovalService {
     })
   ).toPromise();
   }
-  
-  getStyleNumberListData(){
-    return this.baseService.getRequest(ApiConstant.SAMPLE_STYLE).
-    pipe( map((data: any) => {
-      const list = _.map(data.Data, (element) => {
-        return {
-          id: element.Id,
-          text: element.Name
-        }
-      })
-      return [{ id: UIConstant.ZERO, text: 'Select Style Number' }, ...list]
-    })
-  ).toPromise();
-  }
+ 
 
   postSampleApprovalFormData(data) {
     return this.baseService.postRequest(ApiConstant.SAMPLING_GET, data)

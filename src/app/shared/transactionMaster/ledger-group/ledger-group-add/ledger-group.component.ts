@@ -229,6 +229,7 @@ export class LedgerGroupAddComponent {
           }
           else{
             this._commonservice.AddedItem()
+            
             this.getLedgerGroupList()
             _self.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
             this.LedgerGroupForm.controls.LedgerGroupName.setValue('')
@@ -248,11 +249,17 @@ export class LedgerGroupAddComponent {
         } else {
           _self.toastrService.showError('', data.Message)
         }
+        if(data.Code === UIConstant.SERVERERROR){
+          _self.toastrService.showError('', data.Message)
+        }
+        if(data.Code === UIConstant.REQUIRED_5020){
+          _self.toastrService.showError('', data.Data)
+        }
       })
     }
   }
 ledgerGroupParam (): AddLedgerGroup {
-  debugger;
+  
  const Obj = {
    ledgerGroup: {
      Id: this.Id ? this.Id : 0,

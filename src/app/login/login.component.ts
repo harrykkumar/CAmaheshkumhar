@@ -1,4 +1,3 @@
-import { async } from '@angular/core/testing';
 import { Component } from '@angular/core'
 import { FormBuilder, Validators, FormGroup } from '@angular/forms'
 import { Router } from '@angular/router'
@@ -8,8 +7,8 @@ import { URLConstant } from '../shared/constants/urlconstant'
 import { ErrorConstant } from '../shared/constants/error-constants'
 import { LoginService } from '../commonServices/login/login.services'
 import { TokenService } from '../commonServices/token.service'
-import { Settings } from '../shared/constants/settings.constant'
 import { ToastrCustomService } from '../commonServices/toastr.service'
+import { GlobalService } from '../commonServices/global.service';
 
 @Component({
   selector: 'auth-login',
@@ -28,7 +27,7 @@ export class LoginComponent {
         private tokenService: TokenService,
         private _formBuilder: FormBuilder,
         private _route: Router,
-        private settings: Settings,
+        private gs: GlobalService,
         private _toastrCustomService: ToastrCustomService
     ) {
     this.loginForm = this._formBuilder.group({
@@ -52,14 +51,14 @@ export class LoginComponent {
         data => {
           console.log('login : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
-            this.settings.dateFormat = data.Data.DateFormat
-            this.settings.catLevel = data.Data.CategoryLevel
-            this.settings.industryId = data.Data.IndustryId
+            // this.settings.dateFormat = data.Data.DateFormat
+            // this.settings.catLevel = data.Data.CategoryLevel
+            // this.settings.industryId = data.Data.IndustryId
           }
           if (data.Code === 5003) {
             this._toastrCustomService.showError('', data.Message)
           }
-          if (data.Data != null) {
+          if (data.Code ===UIConstant.THOUSAND &&data.Data != null) {
             this.tokenService.saveToken(data.Data.Token)
             // this.mapModules()
             this.mapOrganizations();
@@ -101,10 +100,11 @@ export class LoginComponent {
     this._loginService.selectedOrganization = { ...this._loginService.userOrganizations[0] }
     const token = await this._loginService.extendJwtToken({ OrgId : this._loginService.selectedOrganization.Id})
     this.tokenService.saveToken(token)
+    await this.gs.getOrgDetails()
     localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
     this._loginService.mapModules(this._loginService.selectedOrganization);
    } else {
-     this._route.navigate(['organizations']);
+    this._route.navigate(['organizations']);
    }
   }
 

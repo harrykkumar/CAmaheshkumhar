@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core'
 import { Settings } from '../shared/constants/settings.constant'
 import { SetUpIds } from '../shared/constants/setupIds.constant';
+import { OrganisationProfileService } from '../start/header/organisation-profile/organisation-profile.service';
+import { UIConstant } from '../shared/constants/ui-constant';
+import { debug } from 'util';
 @Injectable({
   providedIn: 'root'
 })
 export class GlobalService {
   clientDateFormat: string = ''
-  constructor (private settings: Settings) {}
+  constructor (private settings: Settings, private orgService: OrganisationProfileService) {}
   isValidDate (dateString) {
     // First check for the pattern
     if (!/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(dateString)) {
@@ -632,18 +635,22 @@ export class GlobalService {
   }
 
   getAllSettings (settings, moduleId) {
+    
     let setting = []
     let setupMasters = settings.SetupMasters
     let setupClient = settings.SetupClients
-    // console.log(setupMasters)
-    // console.log(setupClient)
+    console.log(setupMasters)
+    console.log(setupClient)
     // let i = 0
     setupMasters.forEach(element => {
       let val: string | Array<any> | boolean | number
       let name = element.SetupName
       if (+element.Type === SetUpIds.singleId) {
         let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        val = setupclient[0].Id
+        if(setupclient.length>0){
+          val = setupclient[0].Id
+        }
+       
       }
       if (+element.Type === SetUpIds.singleVal) {
         let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
@@ -651,14 +658,20 @@ export class GlobalService {
       }
       if (+element.Type === SetUpIds.getStrOrNum || +element.Type === SetUpIds.baseTypeNum) {
         let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        val = setupclient[0].Val
+        if(setupclient.length >0){
+          val = setupclient[0].Val
+        }
+      
       } else if (+element.Type === SetUpIds.multiple) {
         let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
         console.log(setupclient) /*setupclient[0].Val.split(',') */
         val = setupclient
       } else if (+element.Type === SetUpIds.getBoolean) {
         let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        val = !!(+setupclient[0].Val)
+        if(setupclient.length>0){
+          val = !!(+setupclient[0].Val)
+        }
+   
       }
       setting.push({
         id: element.Id,
@@ -666,7 +679,38 @@ export class GlobalService {
         name: name
       })
     })
-    // console.log(setting)
     this.settings.moduleSettings = JSON.stringify({settings: setting, moduleId: moduleId})
+    if (setting.length > 0) {
+      setting.forEach(element => {
+        if (+element.id === +SetUpIds.dateFormat) {
+          this.clientDateFormat = element.val[0].Val
+          this.settings.dateFormat = element.val[0].Val
+          return 
+        }
+        if (+element.id === +SetUpIds.noOfDecimalPoint) {
+            this.settings.noOfDecimal = element.val
+          return 
+        }
+      });
+    }
+  }
+
+  async getOrgDetails (): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.orgService.getCompanyProfileDetails().subscribe((data) => {
+        if (data.Code === UIConstant.THOUSAND && data.Data) {
+          this.settings.finFromDate = data.Data.OrganisationDetails[0].FromDate
+          this.settings.finToDate = data.Data.OrganisationDetails[0].ToDate
+          this.settings.industryId = data.Data.OrganisationDetails[0].ProcessId
+          this.settings.CompanyDetails = JSON.stringify(data.Data.Statutories[0])
+          resolve();
+        } else {
+          resolve(data.Description)
+        }
+      },
+      (error) => {
+        console.log(error)
+      });
+    })
   }
 }

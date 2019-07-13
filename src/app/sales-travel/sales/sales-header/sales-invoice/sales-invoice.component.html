@@ -176,6 +176,7 @@
                       <td>
                         <datepicker-popup
                           [toSetDate]="Date" [isBackDate]="backDateEntry"
+                          [setMaxDate]="''"
                           (dateInFormat)="Date = $event; validateItem();checkForValidation();checkForValidReturnDate()"
                           [class]="(submitSave || !clickItem) && invalidObj?.Date" >
                         </datepicker-popup>
@@ -183,6 +184,7 @@
                       <td>
                           <datepicker-popup [toSetDate]="returnDate"
                           [isBackDate]="backDateEntry"
+                          [setMaxDate]="''"
                           (dateInFormat)="returnDate = $event; checkForValidReturnDate();"
                           [class]="returnDateError" ></datepicker-popup>
                       </td>

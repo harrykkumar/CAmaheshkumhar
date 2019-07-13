@@ -1,3 +1,4 @@
+import { StyleService } from './../../style/style.service';
 import { Select2Component } from 'ng2-select2';
 import { ItemmasterServices } from 'src/app/commonServices/TransactionMaster/item-master.services';
 import { SampleApprovalService } from './../sample-approval.service';
@@ -8,7 +9,6 @@ import { GlobalService } from 'src/app/commonServices/global.service';
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import * as _ from 'lodash'
-import { resolve } from 'q';
 declare var $: any
 declare var flatpickr: any
 
@@ -37,6 +37,7 @@ ImageFiles: any = []
     private _toastService: ToastrCustomService,
     private sampleApprovalService: SampleApprovalService,
     private itemMaster: ItemmasterServices,
+    private _styleService: StyleService
   ) {
     this.clientDateFormat = this._settings.dateFormat
   }
@@ -91,7 +92,7 @@ ImageFiles: any = []
 
   async getFormUtilityData(){
     this.sampleShipmentByList = await this.sampleApprovalService.getShipmentByListData()
-    this.styleNumberListData = await this.sampleApprovalService.getStyleNumberListData()
+    this.styleNumberListData = await this._styleService.getStyleNumberListData()
   }
 
   preparePayload = () => {

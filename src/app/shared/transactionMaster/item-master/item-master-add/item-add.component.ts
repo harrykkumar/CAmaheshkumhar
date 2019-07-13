@@ -82,6 +82,7 @@ export class ItemAddComponent {
   IsTradeDiscountApply: boolean = false
   ImageFiles: any = []
   isBarCode: boolean = false
+  noOfDecimal: number = 1
   isItemCode: boolean = false
   barCodeExistSub: Subscription
   nameExistSub: Subscription
@@ -712,7 +713,7 @@ export class ItemAddComponent {
   }
 
   getTaxtDetail (value) {
-    this.taxTypePlaceHolder = { placeholder: 'select Tax' }
+    this.taxTypePlaceHolder = { placeholder: 'Select Tax' }
     let newData = [{ id: '0', text: 'Select Tax' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this._itemmasterServices.getTaxDetail().subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
@@ -749,7 +750,7 @@ export class ItemAddComponent {
 
   getUnitTypeDetail (value) {
     this.unitTypePlaceHolder = { placeholder: 'Select Unit' }
-    let newData = [{ id: '0', text: 'select unit' }, { id: '-1', text: '+Add New' }]
+    let newData = [{ id: '0', text: 'Select Unit' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.unitMasterService.getSubUnits().subscribe(data => {
       // console.log('units : ', data)
       if (data.Code === UIConstant.THOUSAND) {
@@ -794,7 +795,7 @@ export class ItemAddComponent {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         let newData = []
         if (data.Data.length > 0) {
-          newData = [{ id: '0', text: 'SelectBrand' }]
+          newData = [{ id: '0', text: 'Select Brand' }]
           data.Data.forEach(element => {
             newData.push({
               id: element.Id,
@@ -823,7 +824,7 @@ export class ItemAddComponent {
     }
   }
   getItemDetail (value) {
-    this.itemTpyePlaceHolder = { placeholder: 'select item' }
+    this.itemTpyePlaceHolder = { placeholder: 'Select item' }
     this.selectItemTpye = [{ id: '1', text: 'Stockable' },{ id: '2', text: 'Stockable Not Sale' }]
   }
   selectedItemType (itemTypeCode) {
@@ -951,6 +952,10 @@ export class ItemAddComponent {
         console.log('this.isBarCode : ', this.isBarCode)
         this.getBarCodeSetting()
       }
+      if (element.id === SetUpIds.noOfDecimalPoint) {
+        this.noOfDecimal = +element.val
+        console.log('this.noOfDecimal : ', this.noOfDecimal)
+      }
     })
   }
 
@@ -1008,25 +1013,25 @@ export class ItemAddComponent {
 
   onPurchaseRateChange = () => {
     if(+this.OpeningStock > 0 && +this.PurchaseRate > 0) {
-      this.OpeningStockValue = +(+this.OpeningStock * +this.PurchaseRate).toFixed(3)
+      this.OpeningStockValue = +(+this.OpeningStock * +this.PurchaseRate).toFixed(this.noOfDecimal)
     } else {
       this.OpeningStockValue = 0
     }
-    if(+this.OpeningStockValue > 0 && +this.PurchaseRate > 0) {
-      this.OpeningStock = +(+this.OpeningStockValue / +this.PurchaseRate).toFixed(3)
-    } else {
-      this.OpeningStock = 0
-    }
+    // if(+this.OpeningStockValue > 0 && +this.PurchaseRate > 0) {
+    //   this.OpeningStock = +(+this.OpeningStockValue / +this.PurchaseRate).toFixed(this.noOfDecimal)
+    // } else {
+    //   this.OpeningStock = 0
+    // }
   }
 
   onOpeningStockChange = () => {
     if(+this.PurchaseRate > 0 && +this.OpeningStock > 0) {
-      this.OpeningStockValue = +(+this.OpeningStock * +this.PurchaseRate).toFixed(3)
+      this.OpeningStockValue = +(+this.OpeningStock * +this.PurchaseRate).toFixed(this.noOfDecimal)
     } else {
       this.OpeningStockValue = 0
     }
     if(+this.OpeningStockValue > 0 && +this.OpeningStock > 0) {
-      this.PurchaseRate = +(+this.OpeningStockValue / +this.OpeningStock).toFixed(3)
+      this.PurchaseRate = +(+this.OpeningStockValue / +this.OpeningStock).toFixed(this.noOfDecimal)
     } else {
       this.PurchaseRate = 0
     } 
@@ -1034,15 +1039,15 @@ export class ItemAddComponent {
 
   onOpeningStockValueChange = () => {
     if(+this.OpeningStock > 0 && +this.OpeningStockValue > 0) {
-      this.PurchaseRate = +(+this.OpeningStockValue / +this.OpeningStock).toFixed(3)
+      this.PurchaseRate = +(+this.OpeningStockValue / +this.OpeningStock).toFixed(this.noOfDecimal)
     } else {
       this.PurchaseRate = 0
     }
-    if(+this.PurchaseRate > 0 && +this.OpeningStockValue > 0) {
-      this.OpeningStock = +(+this.OpeningStockValue / +this.PurchaseRate).toFixed(3)
-    } else {
-      this.OpeningStock = 0
-    }
+    // if(+this.PurchaseRate > 0 && +this.OpeningStockValue > 0) {
+    //   this.OpeningStock = +(+this.OpeningStockValue / +this.PurchaseRate).toFixed(this.noOfDecimal)
+    // } else {
+    //   this.OpeningStock = 0
+    // }
   }
 
   openItemStockAttributeModel = () => {

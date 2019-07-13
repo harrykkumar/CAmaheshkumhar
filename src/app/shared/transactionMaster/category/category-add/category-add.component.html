@@ -22,7 +22,7 @@
                                     <input id="cateName" 
                                     type="text"
                                     #catname class="form-control" 
-                                    placeholder="Enter Atleast 4 Characters"
+                                    placeholder="Enter Category"
                                     formControlName="CategoryName" 
                                     [ngClass]="{ 'errorTextBoxBorder is-invalid': ((submitClick && f.CategoryName.errors?.required) || (f.CategoryName.dirty && f.CategoryName.errors?.minlength)) }" >
                                 </div>
@@ -60,7 +60,7 @@
                 <button type="button"
                  (keydown.enter)="saveAndUpdateCategory()"
                  class="btn btn-primary waves-effect"
-                 (click)="keepOpen=true;saveAndUpdateCategory()">Save with Add New
+                 (click)="keepOpen=false;saveAndUpdateCategory()">Save with Add New
                 </button>
             </div>
         </div>

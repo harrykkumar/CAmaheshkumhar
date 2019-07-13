@@ -111,7 +111,7 @@
                         {{column.label}}
                     </th>
                     </ng-container>
-                 
+                    <th class="cust_width_150">Quantity</th>
                       <th>Unit</th>
                         <ng-container *ngIf="industryId === '3' " >
                        <th class="cust_width_150">Length</th>
@@ -128,7 +128,7 @@
                         <th>Expiry Date</th>
                       </ng-container>
                      
-                      <th class="cust_width_150">Quantity</th>
+                     
                       <th class="cust_width_150">Rate</th>
                       <th class="cust_width_150">Total</th>
                       <th class="cust_width_150">Remark</th>
@@ -152,6 +152,7 @@
                             {{localItemas[i].LableAttributeVale && localItemas[i].LableAttributeVale[a]?.AttributeValue[0]?.AttributeName}}
                       </td>
                     </ng-container>
+                    <td>{{item.Quantity}}</td>
                       <td>{{item.UnitName}}</td>
                         <ng-container *ngIf="industryId === '3' " >
                       <td>{{item.Length}}</td>
@@ -168,7 +169,7 @@
                       <td>{{item.ExpiryDate}}</td> 
                       </ng-container>
                     
-                      <td>{{item.Quantity}}</td>
+                    
                       <td>{{item.Rate}}</td>
                       <td >{{(item.ReversetotalAmount).toFixed(decimalDigitData)}}</td>
                       <td>{{item.Remark}}</td>
@@ -212,6 +213,9 @@
                       </td>
   
                       </ng-container>
+                      <td>
+                        <input type="number"   class="form-control" (input)=" validationForItemData();calculate();"  placeholder="Quantity" appIncludeDecimal name="Quantity" [(ngModel)]="Quantity">
+                      </td>
                        <td>
                          <div class="input-group adw_select">
                                   <select2 [data]="unitDataType" #unit_select2 class="control_select" (valueChanged)="onSelectUnitId($event)"
@@ -264,9 +268,7 @@
                       </td>
                         </ng-container>
                         
-                      <td>
-                        <input type="number"   class="form-control" (input)=" validationForItemData();calculate();"  placeholder="Quantity" appIncludeDecimal name="Quantity" [(ngModel)]="Quantity">
-                      </td>
+                    
                       <td >
                         <input type="number"  class="form-control"  (input)="calculate();" placeholder="Rate" appIncludeDecimal name="Rate"  [(ngModel)]="Rate">
                       </td>

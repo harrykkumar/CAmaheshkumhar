@@ -19,6 +19,10 @@ export class SideMenuComponent {
     this.initSideMenuData()
     this.initUpdatePermission()
   }
+  Homepage(){
+    this._route.navigate(['/dashboard'])
+
+  }
 
   initSideMenuData = () => {
     this.loggedinUserData = { ...this._loginService.userData }

@@ -51,7 +51,8 @@ export class TradingReportComponent implements OnInit {
     this.headervalue1 = 0
     this.headervalue1First = 0
     this.headervalue2First = 0
-    this.loggedinUserData = this._loginService.userData
+    const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
+    this.loggedinUserData = organization
     this._commonService.fixTableHF('cat-table')
   }
   getModuleSettingValue: any

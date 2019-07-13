@@ -76,7 +76,7 @@
                                     <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
                                       class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
                                     <ul class="dropdown-menu fsz-sm">
-                                      <li><a (click)="openPrint(item.Id,false)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                                      <li><a (click)="openPrint(item.Id,'sale_Direct_print_id',false)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
                                       <li><a (click)="openPrint(item.Id,true)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fas fa-print mR-10 cH-blue"></i><span>View Bill</span></a></li>
                                       <li ><a (click)="openSaleDirect(item.Id)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
                                       <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
@@ -111,3 +111,4 @@
 </main>
 <!-- <app-sales-challan-invoice></app-sales-challan-invoice> -->
 <app-sales-direct></app-sales-direct>
+

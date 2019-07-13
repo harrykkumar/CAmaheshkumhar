@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, Renderer2, ElementRef } from '
 import { Subject, Subscription } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators'
 import _ from 'lodash'
+import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service'
 import { AttributeService } from 'src/app/transactionMaster/attribute/attribute.service'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
@@ -54,7 +55,6 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
         // console.log(response, 'add attr')
         this.resetFormData()
         this.initAttributeNameList(0)
-
         this.isParent = response.data.isParent
         if (response.data.editId || response.data.attrNameId) {
           this.setEditData(response)
@@ -97,11 +97,25 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   }
   disabledAddNewFlag: boolean
   AttributeNameNewAdd: any
+
+
+  // setEditData = (response) => {
+  //   this.attrEditId = response.data.editId
+  //   this.selectedAttribute = response.data.attrNameId
+  //   if (response.data.isParent) {
+  //     this.attribute.name = response.data.attrValue
+  //   } else {
+  //     this.attribute.value = response.data.attrValue
+  //   }
+  // }
+  @ViewChild('selectAttributeSelect2') selectAttributeSelect2 :Select2Component
   addNewAttributeDynamic = (response) => {
+    
     this.attrEditId = 0
-    this.selectedAttribute = response.data.attrValue
-    this.attribute.name = this.AttributeNameNewAdd
+    //this.selectAttributeSelect2.setElementValue(response.data.attrValue)
+  //  this.selectedAttribute = response.data.attrValue
     this.disabledAddNewFlag = response.data.disabledAddButton
+    this.attribute.value = ''
 
   }
 
@@ -116,6 +130,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
 
   /* Initialising function to get the attribute name dropdown list */
   initAttributeNameList = (newAddId) => {
+    
     this.attributeService.getAttributeName().pipe(
       takeUntil(this.unSubscribe$),
       map((response) => {
@@ -171,35 +186,56 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   }
 
   /* Function to save and update the attribute name with value */
-  saveAndUpdateAttribute = () => {
-    const payload = {
-      Id: this.attrEditId ? this.attrEditId : 0,
-      Name: this.attribute.value,
-      AttributeId: this.selectedAttribute
-    }
-    this.attributeService.postAttributeValue(payload).pipe((
-      takeUntil(this.unSubscribe$)
-    ))
-      .subscribe((response) => {
-        if (response.Code === UIConstant.THOUSAND) {
-          this.toastrService.showSuccess('Success', 'Saved Successfully')
-          $('#attribute_master').modal(UIConstant.MODEL_HIDE)
-          // this._CommonService.closeAttribute({ status: 'saved' })
-          const data = { status: 'saved', id: response.Data, name: this.attribute.value, AttributeId: this.selectedAttribute }
-          this._CommonService.closeAttributeForDynamicAdd({ ...data })
-        }
-        if (response.Code === UIConstant.THOUSANDONE) {
-          this.toastrService.showError('', response.Message)
-        }
-        if (response.Code === UIConstant.SERVERERROR) {
-          this.toastrService.showError('', response.Message)
-        }
-      }, error => console.log(error))
+  saveAndUpdateAttribute = (value) => {
+
+      const payload = {
+        Id: this.attrEditId ? this.attrEditId : 0,
+        Name: this.attribute.value,
+        AttributeId: this.selectedAttribute
+      }
+      this.attributeService.postAttributeValue(payload).pipe((
+        takeUntil(this.unSubscribe$)
+      ))
+        .subscribe((response) => {
+          if (response.Code === UIConstant.THOUSAND) {
+            if(value === 'save'){
+            let saveName =  this.attrEditId ===null ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+              this.toastrService.showSuccess('', saveName)
+              $('#attribute_master').modal(UIConstant.MODEL_HIDE)
+              // this._CommonService.closeAttribute({ status: 'saved' })
+              const data = { status: 'saved', id: response.Data, name: this.attribute.value, AttributeId: this.selectedAttribute }
+              this._CommonService.closeAttributeForDynamicAdd({ ...data })
+            }
+            else{
+              this.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
+              this._CommonService.AddedItem()
+               this.resetFormData()
+               setTimeout(() => {
+                if (this.attrname) {
+                  const element = this.renderer.selectRootElement(this.attrname.nativeElement, true)
+                  element.focus({ preventScroll: false })
+                }
+              }, 100)
+              const data = { status: 'saved', id: response.Data, name: this.attribute.value, AttributeId: this.selectedAttribute }
+              //this._CommonService.closeAttributeForDynamicAdd({ ...data })
+            }
+     
+          }
+          if (response.Code === UIConstant.THOUSANDONE) {
+            this.toastrService.showError('', response.Message)
+          }
+          if (response.Code === UIConstant.SERVERERROR) {
+            this.toastrService.showError('', response.Message)
+          }
+        }, error => console.log(error))
+   // }
+   
   }
 
   /* Function call on dropdown value changes */
   onAttrValueChange = (event) => {
     this.selectedAttribute = event.value
+
   }
 
   /* Function call on component destroy */

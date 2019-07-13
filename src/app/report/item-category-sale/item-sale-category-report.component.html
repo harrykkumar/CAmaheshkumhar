@@ -65,7 +65,7 @@
                               <td  class="profile-pic1 collapsed new-clas"  data-target="#collapseThree33" data-toggle="collapse"
                               data-role="expander" >
                                 <div class="edit1 ">                      
-                                    <a *ngIf="item.ItemId === 0 " (click)="collapsed1=!collapsed1;toggleCategory(i)" ><i class= " fas fa-minus-circle "></i></a>
+                                    <a *ngIf="item.ItemId === 0 " (click)="collapsed1=!collapsed1;toggleCategory(i)" ><i class= " fas fa-plus-circle "></i></a>
                                     <!-- <a *ngIf="item.ItemId !== 0 && item.AttributeId !== 1" (click)="collapsed2=!collapsed2" ><i class="fas fa-plus-circle"></i></a> -->
                                 </div>
                               </td>
@@ -75,9 +75,9 @@
                                     'pl-5':item.AttributeId === 1
                                   }" >{{item.Name}}</td>
                                 <td>{{item.Quantity}}</td>
-                                <td class="text-right">{{item.DiscountAmt}}</td>
-                                <td class="text-right">{{item.TaxAmount}}</td>
-                                <td class="text-right">{{item.BillAmount}}</td>
+                                <td class="text-right">{{(item.DiscountAmt).toFixed(noOfDecimal)}}</td>
+                                <td class="text-right">{{(item.TaxAmount).toFixed(noOfDecimal)}}</td>
+                                <td class="text-right">{{(item.BillAmount).toFixed(noOfDecimal)}}</td>
                                 </tr>
               <tr *ngIf="item.ItemId !== 0 && item.AttributeId !== 1 && collapsed1" id='collapseThree33'   class="default_row "   [ngClass]="{
                                   'category-bg':item.ItemId === 0,
@@ -98,9 +98,9 @@
                                    
                                     }" >{{item.Name}}</td>
                                   <td>{{item.Quantity}}</td>
-                                  <td class="text-right">{{item.DiscountAmt}}</td>
-                                  <td class="text-right">{{item.TaxAmount}}</td>
-                                  <td class="text-right">{{item.BillAmount}}</td>
+                                  <td class="text-right">{{(item.DiscountAmt).toFixed(noOfDecimal)}}</td>
+                                  <td class="text-right">{{(item.TaxAmount).toFixed(noOfDecimal)}}</td>
+                                  <td class="text-right">{{(item.BillAmount).toFixed(noOfDecimal)}}</td>
                                   </tr>
                <tr *ngIf="item.AttributeId === 1 && toggleAttribute "  id='collapseThreeAttribute' data-parent="#accordionExample" class="default_row collapse"   [ngClass]="{
                                     'attribute-bg':item.AttributeId === 1
@@ -114,9 +114,9 @@
                                         'pl-5':item.AttributeId === 1
                                       }" >{{item.Name}}</td>
                                     <td>{{item.Quantity}}</td>
-                                    <td class="text-right">{{item.DiscountAmt}}</td>
-                                    <td class="text-right">{{item.TaxAmount}}</td>
-                                    <td class="text-right">{{item.BillAmount}}</td>
+                                    <td class="text-right">{{(item.DiscountAmt).toFixed(noOfDecimal)}}</td>
+                                    <td class="text-right">{{(item.TaxAmount).toFixed(noOfDecimal)}}</td>
+                                    <td class="text-right">{{(item.BillAmount).toFixed(noOfDecimal)}}</td>
                                     </tr>
                                 </ng-container>
                             

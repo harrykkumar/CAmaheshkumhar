@@ -14,6 +14,7 @@ import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { AdditionalCharges, ItemTaxTrans } from '../../../model/sales-tracker.model';
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
 import { takeUntil, catchError, filter, map } from 'rxjs/operators';
+import { element } from '@angular/core/src/render3';
 
 declare const $: any
 declare const _: any
@@ -190,7 +191,7 @@ export class PurchaseAddComponent {
   InterestRate: number
   InterestAmount: number
   InterestType: number
-  DueDate: string
+  DueDate: string =''
   OrderId: number
   Advanceamount: number
   NetAmount: number
@@ -307,6 +308,7 @@ export class PurchaseAddComponent {
           this.chargesData = newData
           this.LedgerChargeId = +data.id
           this.ledgerChargeValue = data.id
+        //  this.alreadySelectCharge(+data.id,  data.name, false)
           setTimeout(() => {
             if (this.chargeSelect2) {
               const element = this.renderer.selectRootElement(this.chargeSelect2.selector.nativeElement, true)
@@ -464,7 +466,9 @@ export class PurchaseAddComponent {
     this.purchaseService.chargestData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
-          this.chargesData = data.data
+    
+          
+          
         }
       }
     )
@@ -1062,6 +1066,7 @@ export class PurchaseAddComponent {
     }
   }
 
+
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal () {
     $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
@@ -1073,7 +1078,6 @@ export class PurchaseAddComponent {
     this.initItem()
     this.initTransaction()
     this.initCharge()
-
     if (!this.editMode) {
       if (!this.isBillNoManuall) {
         this.setBillNo(this.TransactionNoSetups)
@@ -1151,7 +1155,9 @@ export class PurchaseAddComponent {
   setPayDate () {
     this.PayDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
-
+  setDueDate () {
+    this.DueDate = this.gs.getDefaultDate(this.clientDateFormat)
+  }
   setBillDate () {
     this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
@@ -2419,6 +2425,7 @@ export class PurchaseAddComponent {
   @ViewChild('taxSlabCharge_select2') taxSlabChargeSelect2: Select2Component
   @ViewChild('charge_select2') chargeSelect2: Select2Component
   initCharge () {
+    
     this.LedgerChargeId = 0
     this.LedgerName = ''
     this.AmountCharge = 0
@@ -2468,6 +2475,7 @@ export class PurchaseAddComponent {
   initComp () {
     this.BillDate = ''
     this.PartyBillDate = ''
+    this.DueDate =''
     this.GodownId = 0
     this.CurrencyId = 0
     this.ConvertToCurrencyId = 0
@@ -2602,7 +2610,7 @@ export class PurchaseAddComponent {
     this.setPartyBillDate()
     this.setPayDate()
     // this.setExpiryDate()
-    // this.setDueDate(0)
+    this.setDueDate()
     // this.setMfdDate()
     this.getNewBillNo()
     this.getNewCurrentDate()
@@ -2620,6 +2628,7 @@ export class PurchaseAddComponent {
   }
 
   private purchaseAddParams (): PurchaseAdd {
+    debugger
     let BillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
     let CurrentDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
     let PartyBillDate = this.gs.clientToSqlDateFormat(this.PartyBillDate, this.clientDateFormat)

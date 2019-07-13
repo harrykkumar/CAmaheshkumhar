@@ -22,8 +22,11 @@ export class ItemSaleReportComponent implements OnInit {
   newBillSub: Subscription
   dateShow: any
   clientDateFormat: any
+  noOfDecimal:any
+page:any=1
   constructor(public _settings: Settings ,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
-    this.clientDateFormat = this._settings.dateFormat
+   this.clientDateFormat = this._settings.dateFormat
+    this.noOfDecimal = this._settings.noOfDecimal
 
     this.newBillSub = this._commonService.getSearchForStatus().subscribe(
       (obj: any) => {
@@ -37,12 +40,18 @@ export class ItemSaleReportComponent implements OnInit {
 
   ngOnInit () {
     this._commonService.fixTableHF('cat-table')
-    this.getItemSaleDetails(UIConstant.SALE_TYPE ,0,'','','','','' ,1,10)
+    this.getItemSaleDetails(UIConstant.SALE_TYPE ,0,'','','','','' ,this.page,10)
   }
 
   toShowSearch = false
-
+  openSearchToggle ( ) {}
   toggleSearch() {
+
+    // $( function() {
+    //   $( "#button" ).on( "click", function() {
+    //     $( "#effect" ).toggleClass( "newClass", 1000 );
+    //   });
+    // } );
     this.toShowSearch = !this.toShowSearch
   }
   Attributelabel: any
@@ -52,15 +61,16 @@ export class ItemSaleReportComponent implements OnInit {
   allAttributeData: any
   localArray: any
   labelLength: any
-  mainData: any
+  mainData: any=[]
   AttributeValues: any
-  totalDiscountAmt: any
-  totalTaxAmount: any
-  SubTotalAmount: any
+  totalDiscountAmt: any =0
+  TotalQty:any=0
+  totalTaxAmount: any=0
+  SubTotalAmount: any=0
   getItemSaleDetails (type ,LedgerId,CategoryId,ItemId,FromDate,ToDate,BatchNo ,Pagenumber,Size) {
     this._commonService.itemSalePurchaseReportDetails(type ,LedgerId,CategoryId,ItemId,FromDate,ToDate,BatchNo ,Pagenumber,Size).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
-        // debugger
+        // 
         console.log(data ,'getdata')
         this.mainData = []
       
@@ -70,6 +80,7 @@ export class ItemSaleReportComponent implements OnInit {
         }
         if (data.Data.SummarizeDetails.length > 0) {
           console.log(data.Data.SummarizeDetails,"sdss")
+          this.TotalQty =data.Data.SummarizeDetails[0].Quantity
           this.totalDiscountAmt = data.Data.SummarizeDetails[0].Discount
           this.totalTaxAmount = data.Data.SummarizeDetails[0].TaxAmount
           this.SubTotalAmount = data.Data.SummarizeDetails[0].SubTotalAmount
@@ -79,7 +90,7 @@ export class ItemSaleReportComponent implements OnInit {
           let AttributeDetails
         data.Data.ItemTransactionSalePurchases.forEach(mainItm => {
         
-          debugger
+          
           let itemAttributeDetailTrans = data.Data.ItemAttributesDetailsTrans.filter(
             getValue => getValue.GroupId === mainItm.Groupid)
        
@@ -101,6 +112,7 @@ export class ItemSaleReportComponent implements OnInit {
             itemid:mainItm.itemid,
             itemName: mainItm.Name,
             HsnNo: mainItm.HsnNo,
+            Qty:mainItm.Quantity,
             ItemCode: mainItm.ItemCode,
             BarCode:mainItm.BarCode,
             SaleRate:mainItm.SaleRate,

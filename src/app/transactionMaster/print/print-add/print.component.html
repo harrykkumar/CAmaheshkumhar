@@ -20,7 +20,7 @@
 
     </header>
     <div class=" header1">
-        <h4 style="text-align:center; margin:0;padding:0;">Tax-Invoice</h4>
+        <h4 style="text-align:center; margin:0;padding:0;">Tax Invoice</h4>
     </div>
     <main>
         <div id="details" class="clearfix">
@@ -241,7 +241,7 @@
                             </tr>
                             <tr>
                                 <td style="width:25%;">Branch</td>
-                                <td><strong>{{ClientInfos && ClientInfos[0]?.BranchName}}</strong></td>
+                                <td><strong>{{ClientInfos && ClientInfos[0]?.Branch}}</strong></td>
                             </tr>
                         </table>
                     </div>
@@ -282,12 +282,12 @@
                 </div>
                 <div class="row1 total_word">
                     <div class="col1">Total Amount In Words :</div>
-                    <div class="col1" style="text-align:right;"><strong>{{word}}
+                    <div class="col1" style="text-align:right;"><strong>
                             {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}</strong></div>
                 </div>
             </div>
         </div>
-        <div class="table_summery">
+        <div class="table_summery" *ngIf='paymentModeData.length >0'>
             <table border="0" class="table1" cellspacing="0" cellpadding="0">
                 <thead>
                     <tr>
@@ -328,62 +328,31 @@
                         <th style="width:10%;">HSN</th>
                         <th style="width:12%;">Taxable Value</th>
                         <th style="width:8%;">Rate</th>
-                        <th *ngFor="let key of headerKeys;">{{key}}</th>
+                        <th  style="text-align:right;" *ngFor="let label of HedShow;">{{label.Name}}</th>
                         <th style="text-align:right;">Total</th>
+                        
                     </tr>
                 </thead>
 
                 <tbody id="main-con">
-                    <tr *ngFor="let item of hsnToSHow;">
+                    <tr *ngFor="let item of mainData; let i =index">
                         <td>{{item.HsnNo}}</td>
-                        <td style="text-align:right;">{{item.TaxableAmount}}</td>
+                        <td style="text-align:right;">{{(item.TaxableAmount).toFixed(dicimalDigitFormat)}}</td>
                         <td style="text-align:right;">{{item.totalTaxRate}}</td>
-                        <ng-container *ngFor="let col of headerKeys">
-                            <td>
-                                <ng-container style="text-align:right;" *ngIf="item.AppliedTaxes[col]">
-                                    {{item.AppliedTaxes[col]}}
-                                </ng-container>
-                                <ng-container *ngIf="!item.AppliedTaxes[col]">
-                                    -
-                                </ng-container>
+                        <ng-container *ngFor="let value1 of mainData[i].TaxType;">
+                            <td style="text-align:right;">
+                               
+                                    {{value1}}
+                               
                             </td>
                         </ng-container>
-                        <td style="text-align:right;">{{item.TotalAmount}}</td>
+                        <td style="text-align:right;">{{(item.TotalAmount).toFixed(dicimalDigitFormat)}}</td>
                     </tr>
                 </tbody>
             </table>
             <!-- </div> -->
             <div style="clear:both"></div>
         </div>
-        <!-- <div class="table_summery">
-                <table class="record" width="100%" cellspacing="0" cellpadding="3">
-                  <tbody id="main-con">
-                    <tr>
-                      <th style="width:10%;">HSN</th>
-                      <th style="width:12%;">Taxable Value</th>
-                      <th style="width:8%;">Rate</th>
-                      <th *ngFor="let key of headerKeys;" >{{key}}</th>
-                      <th style="text-align:right;">Total</th>
-                    </tr>
-                    <tr *ngFor="let item of hsnToSHow;">
-                      <td>{{item.HsnNo}}</td>
-                      <td class="cat-con" >{{item.TaxableAmount}}</td>
-                      <td class="cat-con" >{{item.totalTaxRate}}</td>
-                      <ng-container *ngFor="let col of headerKeys" >
-                        <td>
-                          <ng-container *ngIf="item.AppliedTaxes[col]"  >
-                            {{item.AppliedTaxes[col]}}
-                          </ng-container>
-                          <ng-container *ngIf="!item.AppliedTaxes[col]"  >
-                            -
-                          </ng-container>
-                        </td>
-                      </ng-container>
-                      <td style="text-align:right;">{{item.TotalAmount}}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>    -->
 
 
     </main>

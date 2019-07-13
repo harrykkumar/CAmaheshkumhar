@@ -10,11 +10,12 @@ declare const $: any
 export class ConfirmationModalComponent implements OnDestroy {
   confirmSUB: Subscription
   title: string = ''
+  openpopupFlag:any
   constructor (private commonService: CommonService) {
     this.confirmSUB = this.commonService.getConfirmationStatus().subscribe(
       (obj) => {
         if (obj.open) {
-          this.title = obj.title
+          this.openpopupFlag = obj.name
           this.openModal()
         } else {
           this.closeModal()
@@ -46,7 +47,16 @@ export class ConfirmationModalComponent implements OnDestroy {
       this.commonService.closeConfirmation(obj)
     }
   }
+  openVendor (){
+ this.commonService.openVend('', false)
+ this.closeModal()
 
+  }
+  openCustomer (){
+    this.commonService.openCust('', false)
+    this.closeModal()
+
+  }
   ngOnDestroy () {
     this.confirmSUB.unsubscribe()
   }

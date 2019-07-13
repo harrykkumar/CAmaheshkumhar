@@ -395,7 +395,7 @@ export class SalesInvoiceComponent {
   }
 
   addItems () {
-    if (this.Supplier > 0 && this.TicketNo && this.Routing > 0 && this.Remark && this.Date && this.Fare > 0) {
+    if (this.Supplier > 0 && this.TicketNo && this.Routing > 0 && this.Remark && this.Fare > 0) {
       if (this.returnDate) {
         if (this.checkForValidReturnDate()) {
           if (this.editMode) {
@@ -604,8 +604,8 @@ export class SalesInvoiceComponent {
     this.TotalAmount = 0
     this.routingName = ''
     this.supplierName = ''
-    this.Date = ''
-    this.returnDate = ''
+    this.Date = this.gs.getDefaultDate(this.clientDateFormat)
+    this.returnDate = this.gs.getDefaultDate(this.clientDateFormat)
     this.supplierId = 0
     this.routingId = 0
     this.editItemId = -1
@@ -1325,7 +1325,7 @@ export class SalesInvoiceComponent {
   }
 
   validateItem () {
-    if (this.Supplier || this.TicketNo || this.Routing || this.Remark || this.Date || this.Fare) {
+    if (this.Supplier || this.TicketNo || this.Routing || this.Remark || this.Fare) {
       let isValid = 1
       if (+this.Routing > 0) {
         this.invalidObj['Routing'] = false

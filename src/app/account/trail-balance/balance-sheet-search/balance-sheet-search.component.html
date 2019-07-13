@@ -1,0 +1,79 @@
+<div id="demo" class="collapse bgc-white" [ngStyle]="{'display': toShow ? 'block' : 'none'}">
+    <div class="form-row bdrs-3 p-10 mB-5">
+        <!-- <div class="form-group col-md-3">
+            <label for="bill_no">Category</label>
+            <div class="input-group adw_select" id="adv-search">
+                    <div class="input-group adw_select" > -->
+        <!-- <select2 [data]="category.data" #cat_select2 class="control_select"
+                              (valueChanged)="onSelectCategory($event, category.level)"
+                              autocomplete="true" [options]="{ placeholder: 'Select Category' }" [value]="category.value"
+                            ></select2> -->
+        <!-- </div> -->
+
+        <!-- <div class="input-group-btn">
+                    <div class="btn-group" role="group">
+                        <div class="dropdown dropdown-lg">
+                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+                            <ul class="dropdown-menu select_dropdown">
+                                <li class="pX-20 pY-5 ta-c bdT bgc-grey"><a data-toggle="modal" data-target="#category_master"><i class="fa fa-plus pR-10"></i><span
+                                    class="fsz-sm fw-600 c-grey-900">Add New</span></a></li>
+                                <li class="pX-20 pY-5 ta-c bdT"><span>Category</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div> -->
+        <!-- </div> -->
+        <!-- </div> -->
+        <!-- <div class="form-group col-md-3">
+           
+        </div>
+        <div class="form-group col-md-3">
+           
+          
+        </div>
+        <div class="form-group col-md-3">
+           
+            
+        </div> -->
+
+        <!-- <div class="form-group col-md-2">
+            <label for="org_code">Text Search</label>
+            <input type="text" class="form-control" id="org_code" placeholder="Search ">
+        </div> -->
+        <!-- <div class="form-group col-md-1 pt-4">
+                <div class="custom-control custom-radio">
+                        <input type="radio" class="custom-control-input" id="customRadio" name="example1">
+                        <label class="custom-control-label" for="customRadio">HSN</label>
+                      </div> 
+                      
+         
+        </div> -->
+        <!-- <div class="form-group col-md-2">
+            <label class="fw-500">From</label>
+            <div class="timepicker-input input-icon form-group">
+                <div class="input-group">
+                    <div class="input-group-addon bgc-white bd bdwR-0" start-date><i class="fas fa-calendar-alt"></i></div>
+                    <input  (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="from-date" placeholder=" From Date"  data-provide="datepicker" [(ngModel)]="fromDatevalue" name="fromDatevalue">
+                </div>
+            </div>
+        </div> -->
+        <div class="form-group col-md-2">
+            <label class="fw-500">From Date</label>
+            <datepicker-popup  [toSetDate]="fromDateValue"  (dateInFormat)="fromDateValue = $event;"
+             
+              ></datepicker-popup>
+        </div>
+        <div class="form-group col-md-2">
+            <label class="fw-500">To Date</label>
+            <datepicker-popup  (dateInFormat)="toDateValue = $event;" [toSetDate]="toDateValue" 
+              
+              ></datepicker-popup>
+        </div>
+        <div class="form-group col-md-1 pt-3">
+            <button type="button" (click)="searchItemButton()"
+                class="btn btn-primary waves-effect waves-light">Search</button>
+
+        </div>
+
+    </div>
+</div>

@@ -146,7 +146,7 @@ export class SalesChallanComponent  implements   OnInit  {
       this.searchForm.value.searckKey = ''
     }
     this._commonService.getAllDataOfSaleChallan('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+      if (data.Code === UIConstant.THOUSAND ) {
       console.log('sales data: ', data)
         this.totalBillAmount = 0
         this.saleTravelDetails = data.Data
@@ -368,7 +368,7 @@ searchGetCall (term: string) {
   generateBillFlagEnable: boolean 
   allChallanIds: any;
   getBillingId(data,e,index){
-  // debugger;
+  // ;
     let postDataId=[]
     let postDataChallnNo=[]
 

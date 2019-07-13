@@ -30,12 +30,16 @@ export class BalanceSheetSearchComponent implements OnInit {
   fromDateValue: string = ''
   toDateValue: string = ''
   fromDate() {
+    this.fromDateValue = this._globalService.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
+
     //this._globalService.getDefaultDate(this.clientDateFormat)
-    this.fromDateValue = this._globalService.getDefaultDate(this.clientDateFormat)
+    // this.fromDateValue = this._globalService.getDefaultDate(this.clientDateFormat)
 
   }
   toDate() {
-    this.toDateValue = this._globalService.getDefaultDate(this.clientDateFormat)
+    this.toDateValue = this._globalService.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
+
+    // this.toDateValue = this._globalService.getDefaultDate(this.clientDateFormat)
   }
   ngOnInit() {
    

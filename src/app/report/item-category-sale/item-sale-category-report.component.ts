@@ -7,6 +7,8 @@ import { UIConstant } from '../../shared/constants/ui-constant'
 import { CommonService } from '../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import {animate, state, style, transition, trigger} from '@angular/animations';
+import { Settings } from '../../shared/constants/settings.constant'
+
 @Component({
   selector: 'app-item-sale-category-report',
   templateUrl: './item-sale-category-report.component.html',
@@ -27,9 +29,11 @@ export class ItemSaleCategoryReportComponent implements OnInit {
   totaltax: number
   totalBillAmount: number
   newBillSub: Subscription
+  noOfDecimal:any
   ///expandedElement: PeriodicElement | null;
 
-  constructor (public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+  constructor ( public _settings :Settings ,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+    this.noOfDecimal = this._settings.noOfDecimal
     //  this.getSaleChallanDetail()
     // this.newBillSub = this._commonService.newSaleStatus().subscribe(
     //   (obj: any) => {
@@ -81,7 +85,6 @@ export class ItemSaleCategoryReportComponent implements OnInit {
 
 toggleCategory(event,itemId,AttributeId ,index) {
   $(document).ready(function(){
-    debugger
     // Add minus icon for collapse element which is open by default
     $(".collapse.show").each(function(){
       $(this).prev(".new-clas").find(".fa").addClass("fa-minus").removeClass("fa-plus");

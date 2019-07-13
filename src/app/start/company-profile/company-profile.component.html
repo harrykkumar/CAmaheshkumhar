@@ -90,31 +90,6 @@
               <li class="nav-item">
                 <a
                   class="nav-link waves-light"
-                  (keydown.Tab)="focuOnTabOut('countrySelect', 'ref')"
-                  data-toggle="tab"
-                  href="#address_org"
-                  role="tab"
-                  [ngClass]="{
-                    'tab-Invalid':
-                      orgProfileFormModel?.submitted &&
-                      addressDetailArray.length === 0
-                  }"
-                  >Address</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link waves-light"
-                  (keydown.Tab)="focuOnTabOut('bankNameId', 'id')"
-                  data-toggle="tab"
-                  href="#panel529"
-                  role="tab"
-                  >Bank Detail</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link waves-light"
                   (keydown.Tab)="focuOnTabOut('tinNoId', 'id')"
                   data-toggle="tab"
                   href="#panel539"
@@ -129,6 +104,33 @@
                   >Statutory Master Details</a
                 >
               </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link waves-light"
+                  (keydown.Tab)="focuOnTabOut('countrySelect', 'ref')"
+                  data-toggle="tab"
+                  href="#address_org"
+                  role="tab"
+                  [ngClass]="{
+                    'tab-Invalid':
+                      orgProfileFormModel?.submitted &&
+                      addressDetailArray.length === 0
+                  }"
+                  >Address</a
+                >
+              </li>
+             
+              <li class="nav-item">
+                <a
+                  class="nav-link waves-light"
+                  (keydown.Tab)="focuOnTabOut('bankNameId', 'id')"
+                  data-toggle="tab"
+                  href="#panel529"
+                  role="tab"
+                  >Bank Detail</a
+                >
+              </li>
+           
               <li class="nav-item">
                 <a
                   class="nav-link waves-light"
@@ -290,6 +292,8 @@
                               >
                                 <datepicker-popup
                                   [toSetDate]="personalDetail.bookStartDate"
+                                  [setMinDate]="''"
+                                  [setMaxDate]="''"
                                   (dateInFormat)="
                                     personalDetail.bookStartDate = $event;
                                     onBookStartDateChange($event)
@@ -309,9 +313,7 @@
                                     #finSessionSelect
                                     [data]="finSessionList"
                                     class="control_select"
-                                    (valueChanged)="
-                                      onFinSessionSelectionChange($event)
-                                    "
+                                    (valueChanged)="onFinSessionSelectionChange($event)"
                                     autocomplete="true"
                                     [value]="
                                       personalDetailModel?.finSessionValue
@@ -360,7 +362,7 @@
                                   >
                                     <thead>
                                       <tr>
-                                        <th>#</th>
+                                        <th class="cust_width_80">#</th>
                                         <th>Contact Type</th>
                                         <th>Contact Number</th>
                                       </tr>
@@ -531,7 +533,7 @@
                                   >
                                     <thead>
                                       <tr>
-                                        <th>#</th>
+                                        <th class="cust_width_80">#</th>
                                         <th>Email Type</th>
                                         <th>Email Id</th>
                                       </tr>
@@ -622,7 +624,7 @@
                                             pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
                                             [ngClass]="{
                                               'is-invalid':
-                                                  (emailModel.dirty && !emailModel.valid) ||
+                                                  (emailDetail.selectedEmail && !emailModel.valid) ||
                                                 (orgProfileFormModel?.submitted &&
                                                   personalDetail?.emailArray
                                                     ?.length === 0)
@@ -662,7 +664,7 @@
                           <label>Country</label>
                           <div class="input-group adw_select">
                             <div class="input-group adw_select">
-                              <select2
+                              <select2 [disabled]='disabledStateCountry'
                                 #countrySelect
                                 id="countrySelectId"
                                 [data]="countryList"
@@ -688,7 +690,7 @@
                           <label>State</label>
                           <div class="input-group adw_select">
                             <div class="input-group adw_select">
-                              <select2
+                              <select2 [disabled]='disabledStateCountry'
                                 #stateSelect
                                 [data]="stateList"
                                 class="control_select"
@@ -743,7 +745,7 @@
                             </div>
                           </div>
                         </div>
-                        <div class="form-group col-md-4 ">
+                        <div class="form-group col-md-3 ">
                           <label>Address Type</label>
                           <div class="input-group adw_select">
                             <div class="input-group adw_select">
@@ -764,7 +766,7 @@
                             </div>
                           </div>
                         </div>
-                        <div class="form-group col-md-2">
+                        <div class="form-group col-md-3">
                           <label>Post Code</label>
                           <input
                             type="number"
@@ -774,7 +776,7 @@
                             placeholder="Post Code"
                           />
                         </div>
-                        <div class="form-group col-md-7 ">
+                        <div class="form-group col-md-6">
                           <label>Address</label>
                           <textarea
                             class="form-control "
@@ -1015,7 +1017,7 @@
                             </div>
                           </div>
                           <button
-                            (keydown.Tab)="onTabOut('#panel539')"
+                            (keydown.Tab)="onTabOut('#paneImage')"
                             class="col-md-3 p-0 border-0"
                             type="submit"
                           >
@@ -1068,12 +1070,13 @@
                         </div>
                         <div class="form-group col-md-4">
                           <label>GSTIN Number</label>
-                          <input
+                          <input [attr.disabled]="disabledGSTfor_UnRegi?'':null"
                             #gstInModel="ngModel"
                             type="text"
                             class="form-control"
                             placeholder="Enter GSTIN Number"
                             name="gstNo"
+                            (input)='checkGSTNumberByState($event)'
                             [(ngModel)]="statutoryDetail.gstNo"
                             [pattern]="_commonService.gstInRegx"
                             [ngClass]="{
@@ -1113,7 +1116,7 @@
                           <div class="input-group adw_select">
                             <div class="input-group adw_select">
                               <select2
-                                (keydown.Tab)="onTabOut('#paneImage')"
+                                (keydown.Tab)="onTabOut('#address_org')"
                                 #accMethodSelect
                                 [data]="accMethodList"
                                 class="control_select"
@@ -1164,7 +1167,7 @@
                             />
                           </div>
                           <div class="form-group col-md-4">
-                            <label>Type</label>
+                            <label>Key Person Type</label>
                             <div class="input-group adw_select">
                               <div class="input-group adw_select">
                                 <select2
@@ -1199,7 +1202,7 @@
                                 #contactNoSelect
                                 style="width: 240px !important"
                                 [data]="mobileCountryCodeList"
-                                class="control_select col-md-4 pr-0"
+                                class="control_select col-md-4 pl-0"
                                 (valueChanged)="
                                   onKeyPersonMobileCountryCodeChange($event)
                                 "
@@ -1323,7 +1326,7 @@
                             </div>
                           </ng-container>
                           <button
-                            (keydown.Tab)="onTabOut('#address_org')"
+                            (keydown.Tab)="onTabOut('#panel539')"
                             class="col-md-3 p-0 border-0"
                             type="submit"
                           >
@@ -1366,7 +1369,6 @@
                               class="custom-file-upload"
                               id="imageUploadId"
                               ><i class="fas fa-upload"></i> Image Upload
-                              (Height -150px, Width - 450px)
                             </a>
                           </div>
                         </div>
@@ -1393,7 +1395,7 @@
                         </div>
                         <div class="col-lg-5">
                           <div *ngIf="ImageFiles && ImageFiles.length > 0">
-                            <img
+                            <img width="40%"
                               id="center-img"
                               [src]="ImageFiles[0].BaseString"
                               (click)="openImageModal()"
