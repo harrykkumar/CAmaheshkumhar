@@ -543,7 +543,7 @@ img.blah {
 }
 
 .table_height {
-    max-height: calc(100vh - 240px);
+    max-height: calc(100vh - 200px);
     /* max-height: 100px; */
 }
 
@@ -573,15 +573,15 @@ img.blah {
 
 .btn_add_more {
     background: #33b5e5 !important;
-    border-radius: 50px !important;
-    padding: 0px 3px 2px 2px !important;
+    border-radius: 50% !important;
+    padding: 0px 2px 2px 2px !important;
     font-weight: bold !important;
     display: inline-block;
     height: 20px;
     width: 20px;
-    line-height: 0.2;
+    line-height: 0.3;
     text-align: center;
-    /* margin: auto; */
+    margin: auto;
 }
 
 .btn_add_less {
@@ -2008,8 +2008,10 @@ table.table-hover tbody tr:hover {
 }
 
 table.table td, table.table th {
-    padding-top: 3px;
+    padding-top: 3px ;
     padding-bottom: 3px;
+    padding-left: 5px ;
+    padding-right: 5px;
     font-weight: 400;
     vertical-align: middle;
     word-break: break-word;
@@ -2022,8 +2024,10 @@ table.table th {
     border: 1px solid #ccc;
     font-size: .75rem;
     background: #d9e3f7;
-    padding-top: 5px !important;
-    padding-bottom: 5px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
@@ -2941,7 +2945,7 @@ table#mytable {
 
 .main-content {
     padding: 60px 15px 0px !important;
-    min-height: calc(100vh - 88px)
+    min-height: calc(100vh - 62px)
 }
 
 @media screen and (max-width:991px) {
@@ -6096,7 +6100,7 @@ table.table1 th {
 }
 .main-content2 {
     padding: 60px 15px 0px !important;
-    min-height: calc(100vh - 54px);
+    min-height: calc(100vh - 20px);
 }
 .highlight_box2 {
     /* box-shadow: inset 1px 0px 2px 0px #ccc; */
@@ -6175,4 +6179,15 @@ table.table1 th {
 .item-requirement-radio-input {
     margin-right: 0.80rem;
   }
-  
+  .position_relative {
+    position: relative;
+  }
+  .close_btn {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    text-align: center;
+ }
+ .font-italic{
+    font-style: italic;
+  }

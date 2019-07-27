@@ -3,10 +3,10 @@
   (keydown.enter)="toggleView()"
   [(ngModel)]="selectedDate"
   (dateTimeChange)="onSelect($event)"
-  [min]="minDate"
-  [max]="maxDate"
   (keyup.Tab)="toggleView()"
   readonly="true"
+  [min]="minDate"
+  [max]="maxDate"
   [owlDateTimeTrigger]="dt2" [owlDateTime]="dt2">
   <owl-date-time [pickerType]="'calendar'"
   [startAt]="today"
@@ -14,3 +14,4 @@
   (afterPickerClosed)="onClose()"
   #dt2></owl-date-time>
 </div>
+<!---->

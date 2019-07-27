@@ -39,7 +39,7 @@
                                     </div>
                                     <div class="form-group col-md-12">
                                         <label for="attrValue">Attribute Value</label>
-                                        <input id="attrValue" name="attributeValue" #attrValueModel="ngModel" type="text" class="form-control" 
+                                        <input #AttributeValue id="attrValue" name="attributeValue" #attrValueModel="ngModel" type="text" class="form-control" 
                                         placeholder="Enter Attribute Value" [(ngModel)]="attribute.value"
                                         [ngClass]="{ 'is-invalid': formModel?.submitted && attrValueModel?.invalid }"
                                             required>

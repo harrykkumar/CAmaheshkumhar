@@ -8,10 +8,11 @@ import { GlobalService } from 'src/app/commonServices/global.service'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { FormConstants } from 'src/app/shared/constants/forms.constant'
 import { PagingComponent } from '../../../shared/pagination/pagination.component';
-import { filter, catchError, map } from 'rxjs/operators';
+import { filter, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
-
+import { map, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 declare const $: any
 @Component({
   selector: 'app-purchase-list',
@@ -25,6 +26,7 @@ export class PurchaseListComponent implements OnInit {
   actionList: any = []
   customFooter: any = []
   newPurchaseSub: Subscription
+  deleteSub:Subscription
   formName: number
   clientDateFormat: string
   p: number = 1
@@ -34,6 +36,7 @@ export class PurchaseListComponent implements OnInit {
   isSearching: boolean = true
   @ViewChild('custom_table', { read: ElementRef }) customTable: ElementRef
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  private unSubscribe$ = new Subject<void>()
 
   onTextEnteredSub: Subscription
   searchKey: string = ''
@@ -59,6 +62,13 @@ export class PurchaseListComponent implements OnInit {
         }
       }
     )
+    this.deleteSub = this.commonService.getDeleteStatus().subscribe(
+      (obj) => {
+        if (obj.id && obj.type && obj.type === 'purchase') {
+          this.deleteItem(obj.id)
+        }
+      }
+    ) 
     this.queryStr$ = this.purchaseService.queryStr$.subscribe(
       (str) => {
         console.log(str)
@@ -108,6 +118,11 @@ export class PurchaseListComponent implements OnInit {
     action.id = id
     action['formname'] = this.formName
     this.commonService.onActionClicked(action)
+    if(action.type ===4){
+    this.commonService.openDelete(id, 'purchase', 'purchase')
+    
+    }
+    
   }
   getPurchaseList () {
     if (!this.searchKey || this.searchKey.length === 0) {
@@ -189,5 +204,24 @@ export class PurchaseListComponent implements OnInit {
     setTimeout(() => {
       this.isSearching = false
     }, 100)
+  }
+
+  
+  deleteItem (id) {
+    if (id) {
+      this.commonService.cancelPurchase(id).pipe(
+        takeUntil(this.unSubscribe$)
+      ).subscribe((Data: any) => {
+        if (Data.Code === UIConstant.DELETESUCCESS) {
+          this.toastrService.showSuccess('', UIConstant.DELETED_SUCCESSFULLY)
+          this.commonService.closeDelete('')
+          this.getPurchaseList()
+        }
+        if (Data.Code === UIConstant.CANNOTDELETERECORD) {
+          this.toastrService.showInfo('', Data.Description)
+          this.commonService.closeDelete('')
+        }
+      })
+    }
   }
 }

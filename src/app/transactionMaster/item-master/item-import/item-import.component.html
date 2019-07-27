@@ -21,7 +21,7 @@
             </div>
             <!--Body-->
             <div class="modal-body">
-                <div>
+                <div class="container-fluid">
                     <div class="tab-content">
                         <!--Panel 1-->
                         <div class="tab-pane fade in show active" id="import11" role="tabpanel">
@@ -73,7 +73,7 @@
                                     <div class="tab-pane fade in show active">
                                         <div class="card" *ngIf="masterData && masterData.length > 0" >
                                             <div class="table-responsive" id="parent">
-                                                <table class="table" id="fixTable">
+                                                <table class="table fixTable3" id="fixTable">
                                                     <thead>
                                                         <tr>
                                                             <th>
@@ -107,7 +107,7 @@
                                         <br/>
                                         <div class="card" *ngIf="itemImport && itemImport.length > 0">
                                             <div class="table-responsive" id="parent1">
-                                                <table class="table" id="fixTable">
+                                                <table class="table fixTable2" id="fixTable">
                                                     <thead>
                                                         <tr>
                                                             <th *ngFor="let key of itemImportKeys" >{{key | uppercase }}</th>

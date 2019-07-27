@@ -4,11 +4,13 @@ import { PagingComponent } from "src/app/shared/pagination/pagination.component"
 import { CommonService } from "src/app/commonServices/commanmaster/common.services";
 import { GlobalService } from "src/app/commonServices/global.service";
 import { ToastrCustomService } from "src/app/commonServices/toastr.service";
-import { filter, catchError, map } from "rxjs/operators";
+import { filter, catchError, } from "rxjs/operators";
 import { UIConstant } from "src/app/shared/constants/ui-constant";
 import { FormConstants } from "src/app/shared/constants/forms.constant";
 import { Settings } from '../../../shared/constants/settings.constant';
 import { VoucherEntryServie } from "../voucher-entry.service";
+import { map, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'voucher-entry-list',
@@ -22,6 +24,7 @@ export class VoucherEntryListComponent implements OnInit {
   actionList: any = []
   customFooter: any = []
   newVoucherSub: Subscription
+  deleteSub:Subscription
   formName: number
   p: number = 1
   itemsPerPage: number = 20
@@ -62,6 +65,13 @@ export class VoucherEntryListComponent implements OnInit {
           }
         }
       )
+      this.deleteSub = this.commonService.getDeleteStatus().subscribe(
+        (obj) => {
+          if (obj.id && obj.type && obj.type === 'voucher') {
+            this.deleteItem(obj.id)
+          }
+        }
+      ) 
       this.queryStr$ = this.voucherService.queryStr$.subscribe(
         (str) => {
           console.log(str)
@@ -83,6 +93,25 @@ export class VoucherEntryListComponent implements OnInit {
     this.getLedgerSummaryData()
   }
   noOfdecimal:any
+
+    
+  deleteItem (id) {
+    if (id) {
+      this.voucherService.deleteVouncherData(id).pipe(
+        takeUntil(this.unSubscribe$)
+      ).subscribe((Data: any) => {
+        if (Data.Code === UIConstant.DELETESUCCESS) {
+          this.toastrService.showSuccess('', UIConstant.DELETED_SUCCESSFULLY)
+          this.commonService.closeDelete('')
+          this.getLedgerSummaryData()
+        }
+        if (Data.Code === UIConstant.CANNOTDELETERECORD) {
+          this.toastrService.showInfo('', Data.Description)
+          this.commonService.closeDelete('')
+        }
+      })
+    }
+  }
   searchForStr (text) {
     this.isSearching = true
     this.searchGetCall(text).subscribe((data) => {
@@ -112,6 +141,7 @@ export class VoucherEntryListComponent implements OnInit {
     this.pagingComp.setPage(1)
     return this.voucherService.getLedgerSummaryData(`?Type=${this.data.Type}&FromDate=${this.data.FromDate}&ToDate=${this.data.ToDate}` + this.queryStr)
   }
+  private unSubscribe$ = new Subject<void>()
 
   ngOnInit () {
     setTimeout(() => {
@@ -122,6 +152,10 @@ export class VoucherEntryListComponent implements OnInit {
     action.id = id
     action['formname'] = this.formName
     this.commonService.onActionClicked(action)
+    if(action.type ===4){
+      this.commonService.openDelete(id, 'voucher', 'voucher')
+      
+      }
   }
   getLedgerSummaryData () {
     if (!this.searchKey || this.searchKey.length === 0) {
@@ -206,5 +240,6 @@ export class VoucherEntryListComponent implements OnInit {
     this.newVoucherSub.unsubscribe()
     this.onTextEnteredSub.unsubscribe()
     this.queryStr$.unsubscribe()
+    this.deleteSub.unsubscribe()
   }
 }

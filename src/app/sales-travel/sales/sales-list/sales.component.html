@@ -231,9 +231,9 @@
                             {{customerAddress && customerAddress[1]?.cityName}} {{customerAddress && customerAddress[1]?.statename}} {{customerAddress && customerAddress[1]?.countryName }}
                           </td>
                         </tr>
-                        <tr *ngIf="salesData && salesData[0].gstinNo" >
+                        <tr *ngIf="salesData && salesData[0].GstinNo" >
                           <td>GSTin</td>
-                          <td colspan="2">{{salesData && salesData[0]?.gstinNo}}</td>
+                          <td colspan="2">{{salesData && salesData[0]?.GstinNo}}</td>
                         </tr>
                       </tbody>
                     </table>

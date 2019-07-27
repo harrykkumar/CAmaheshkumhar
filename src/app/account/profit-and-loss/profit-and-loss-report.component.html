@@ -24,7 +24,7 @@
                             </div>
                       <div class="btn_header">
                         <a>
-                          <img src="assets/img/printer.png">
+                          <img (click)="openPrint('open_pandlPrint')" src="assets/img/printer.png">
                         </a>
                         <a>
                           <img src="assets/img/pdf.png"></a>
@@ -143,22 +143,22 @@
                     </div>
                  
                     <div class="row thead">
-                        <div class="col-4 font-weight-bold"> Particulars</div>
+                        <div class="col-3 font-weight-bold text-center"> Particulars</div>
                         <div class="col amount_bs bdr_gray font-weight-bold">Amount  </div>
                         <div class="col amount_bs bdr_gray font-weight-bold">Amount  </div>
 
-                        <div class="col-4 font-weight-bold">Particulars</div>
+                        <div class="col-3 font-weight-bold text-center">Particulars</div>
                         <div class="col amount_bs bdr_gray font-weight-bold">Amount  </div>
                         <div class="col amount_bs bdr_gray font-weight-bold">Amount  </div>
 
                     </div>
          
                     <div class="row tbody">
-                        <div class="col-md-6 p-0 bdr_gray">
+                        <div class="col-md-6 p-0 bdr_gray border-right">
                             <div class="col-md-12">
-                                <div class="row" *ngFor = "let item of mainData; let i =index" >
-                                    <div class="col-md-8">
-                                        <div *ngIf='item.HeadId === 2 ' [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"  [ngStyle]="{'padding-left':item.HeadId === 2 && item.LevelNo ===2 ? '50px' : item.HeadId === 2 && item.LevelNo ===3 ? '100px' : '0px' }" class="panel-title"> 
+                                <div class="row" *ngFor = "let item of headI2dData; let i =index" >
+                                    <div class="col-md-6">
+                                        <div *ngIf='item.HeadId === 2 ' [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"  [ngStyle]="{'padding-left':item.HeadId === 2 && item.LevelNo ===2 ? '20px' : item.HeadId === 2 && item.LevelNo ===3 ? '40px' : '0px' }" class="panel-title"> 
                                            <a  data-toggle="collapse">{{item.GlName}}</a>
 
                                         </div>
@@ -166,7 +166,7 @@
                                     </div>
                                     <div class="col">
                                         <ng-container>
-                                                <div class='align-righ'   *ngIf='item.HeadId === 2 && item.LevelNo !== 1'  class="amount_bs">
+                                                <div class='align-right'   *ngIf='item.HeadId === 2 && item.LevelNo !== 1'  class="amount_bs">
                                                         {{(item.Amount).toFixed(decimalDigit)}}
                                                      </div>
                                         </ng-container>
@@ -174,7 +174,7 @@
                                     </div>
                                     <div class="col">
                                         <ng-container>
-                                                <div class='align-righ'   [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    *ngIf='item.HeadId === 2 && item.LevelNo === 1'  class="amount_bs">
+                                                <div class='align-right'   [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    *ngIf='item.HeadId === 2 && item.LevelNo === 1'  class="amount_bs">
                                                         {{(item.Amount1).toFixed(decimalDigit)}}
                                                      </div>
                                         </ng-container>
@@ -186,14 +186,14 @@
                         </div>
                         <div class="col-md-6 p-0">
                             <div class="col-md-12">
-                                <div class="row" *ngFor = "let item of mainData; let a =index" >
-                                    <div class="col-md-8">
-                                        <div   *ngIf= 'item.HeadId === 1'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    [ngStyle]="{'padding-left':item.HeadId === 1 && item.LevelNo ===2 ? '50px' : item.HeadId === 1 && item.LevelNo ===3 ? '100px' : '0px' }" class="panel-title"><a  data-toggle="collapse">{{item.GlName}}</a></div>
+                                <div class="row" *ngFor = "let item of headI1dData; let a =index" >
+                                    <div class="col-md-6">
+                                        <div   *ngIf= 'item.HeadId === 1'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    [ngStyle]="{'padding-left':item.HeadId === 1 && item.LevelNo ===2 ? '20px' : item.HeadId === 1 && item.LevelNo ===3 ? '40px' : '0px' }" class="panel-title"><a  data-toggle="collapse">{{item.GlName}}</a></div>
                                   
                                     </div>
                                     <div class="col">
                                         <ng-container>
-                                                <div class='align-righ'   *ngIf='item.HeadId === 1 && item.LevelNo !== 1'  class="amount_bs">
+                                                <div class='align-right'   *ngIf='item.HeadId === 1 && item.LevelNo !== 1'  class="amount_bs">
                                                         {{(item.Amount).toFixed(decimalDigit)}}
                                                      </div>
                                         </ng-container>
@@ -201,7 +201,7 @@
                                     </div>
                               <div class="col">
                                         <ng-container>
-                                                <div  class='align-righ'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    *ngIf='item.HeadId === 1 && item.LevelNo === 1'  class="amount_bs">
+                                                <div  class='align-right'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    *ngIf='item.HeadId === 1 && item.LevelNo === 1'  class="amount_bs">
                                                         {{(item.Amount1).toFixed(decimalDigit)}}
                                                      </div>
                                         </ng-container>
@@ -229,3 +229,106 @@
                 </div>
     </div>
 </main>
+<body id='open_pandlPrint'>
+        <div class="modal" id="mainContent">
+            <div class=" mt-2 main-balance">
+                <div class="row justify-content-center p-0">
+                    <div class="balancesheet bgc-white col-md-11 p-0">
+                        <div class="row text-center bs_head p-2">
+                                <div id="logo " class="col-md-3" style="text-align: left;">
+                                    <img height="75px" style="text-align: left;" src="{{orgDetails.ImageContents && orgDetails.ImageContents[0]?.FilePath}}">
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="name text-center col-md-12 name_size font-weight-bold">
+                                        {{orgDetails.OrganizationDetails && orgDetails.OrganizationDetails[0]?.OrgName}}</div>
+                                      <div class="text-center col-md-12">{{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.CityName}}
+                                        {{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.StateName}}
+                                        {{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.CountryName}}
+                                      </div>
+                                      <div class="name text-center col-md-12 font-weight-bold" style="font-size:18px; letter-spacing:3px;">
+                                            Profit & Loss</div>
+                                      <div class="text-center col-md-12" style="font-weight:600;">  For the year ended  {{toDateShow | dateFormat:clientDateFormat }}
+                                        </div>
+                                </div>
+                                <div class="col-md-3"></div>
+                            </div>
+                            <div class="row thead">
+                                    <div class="col-3 font-weight-bold text-center">Particulars</div>
+                                    <div class="col amount_bs bdr_gray font-weight-bold">Amount  </div>
+                                    <div class="col amount_bs bdr_gray font-weight-bold" style="padding-right: 13px;">Amount  </div>
+                                    <div class="col-3 font-weight-bold text-center">Particulars</div>
+                                    <div class="col amount_bs font-weight-bold">Amount </div>
+                                    <div class="col amount_bs font-weight-bold" style="padding-right: 5px;">Amount </div>
+                                </div>
+                     
+                                <div class="row p-0 tbody">
+                                        <div class="col-md-6 bdr_gray bdr_right">
+                                            <div class="col-md-12">
+                                                <div class="row" *ngFor = "let item of headI2dData; let i =index" >
+                                                    <div class="col-md-6">
+                                                        <div *ngIf='item.HeadId === 2 ' [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"  [ngStyle]="{'padding-left':item.HeadId === 2 && item.LevelNo ===2 ? '20px' : item.HeadId === 2 && item.LevelNo ===3 ? '40px' : '0px' }" class="panel-title"> 
+                                                           <a  data-toggle="collapse">{{item.GlName}}</a>
+                
+                                                        </div>
+                                                       
+                                                    </div>
+                                                    <div class="col">
+                                                        <ng-container>
+                                                                <div class='align-righ'   *ngIf='item.HeadId === 2 && item.LevelNo !== 1'  class="amount_bs">
+                                                                        {{(item.Amount).toFixed(decimalDigit)}}
+                                                                     </div>
+                                                        </ng-container>
+                                                   
+                                                    </div>
+                                                    <div class="col">
+                                                        <ng-container>
+                                                                <div class='align-righ'   [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    *ngIf='item.HeadId === 2 && item.LevelNo === 1'  class="amount_bs">
+                                                                        {{(item.Amount1).toFixed(decimalDigit)}}
+                                                                     </div>
+                                                        </ng-container>
+                                                    </div>
+                                                  
+                                                </div>
+                                            </div>
+                                          
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="col-md-12">
+                                                <div class="row" *ngFor = "let item of headI1dData; let a =index" >
+                                                    <div class="col-md-6">
+                                                        <div   *ngIf= 'item.HeadId === 1'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    [ngStyle]="{'padding-left':item.HeadId === 1 && item.LevelNo ===2 ? '20px' : item.HeadId === 1 && item.LevelNo ===3 ? '40px' : '0px' }" class="panel-title"><a  data-toggle="collapse">{{item.GlName}}</a></div>
+                                                  
+                                                    </div>
+                                                    <div class="col">
+                                                        <ng-container>
+                                                                <div class='align-righ'   *ngIf='item.HeadId === 1 && item.LevelNo !== 1'  class="amount_bs">
+                                                                        {{(item.Amount).toFixed(decimalDigit)}}
+                                                                     </div>
+                                                        </ng-container>
+                                                   
+                                                    </div>
+                                              <div class="col">
+                                                        <ng-container>
+                                                                <div  class='align-righ'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"    *ngIf='item.HeadId === 1 && item.LevelNo === 1'  class="amount_bs">
+                                                                        {{(item.Amount1).toFixed(decimalDigit)}}
+                                                                     </div>
+                                                        </ng-container>
+                                                    </div>
+                                                 
+                                                </div>
+                                                
+                                            </div>
+                                         
+                                        </div>
+                                     </div>
+                                     <div class="row tfoot">
+                                        <div class="col-3 text-center font-weight-bold">Total</div>
+                                        <div  class="col amount_bs bdr_gray font-weight-bold" style="padding-right: 5px;">{{(headervalue2).toFixed(decimalDigit)}}</div>
+                                        <div class="col-3 text-right font-weight-bold"></div>
+                                        <div class="col amount_bs font-weight-bold" style="padding-right: 5px;">{{(headervalue1).toFixed(decimalDigit)}}</div>
+                               </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>

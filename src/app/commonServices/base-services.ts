@@ -35,15 +35,13 @@ export class BaseServices {
 
   public getRequest (path: string): Observable<ResponseSale> {
     return this.http.get(path, { headers: this.setHeaders() })
-      // .catch(this.formatErrors)
       .pipe(map((res: Response) => res.json())).pipe(share())
   }
-  // public getRequest(url: string): Observable<any> {
-  //     let headers = new Headers();
-  //     this.createAuthorizationHeader(headers);
-  //     return this._http.get(url, { headers: headers })
-  //         .pipe(map((response: Response) => response.json()));
-  // }
+  public putRequest (path: string): Observable<ResponseSale> {
+    return this.http.put(path, { headers: this.setHeaders() })
+      .pipe(map((res: Response) => res.json())).pipe(share())
+  }
+
 
   // put(path: string, body: Object = {}): Observable<any> {
   //     return this.http.put(
@@ -68,6 +66,6 @@ export class BaseServices {
   }
 
   handleError (response) {
-    //
+ 
   }
 }

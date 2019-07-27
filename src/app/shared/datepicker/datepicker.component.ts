@@ -78,7 +78,7 @@ export class DatepickerComponent {
   }
 
   onSelect (evt) {
-    if (evt.value._d) {
+    if (evt.value && evt.value._d) {
       this.model = this.gs.utcToClientDateFormat((new Date(evt.value._d)).toISOString(), this.clientDateFormat)
       this.dateInFormat.emit(this.model)
       this.dt2.dtInput.elementRef.nativeElement.value = this.model
@@ -103,7 +103,7 @@ export class DatepickerComponent {
   }
 
   getSettings () {
-    console.log('set date')
+    // console.log('set date')
     if (this.settings.finFromDate) this.minDate = new Date(this.settings.finFromDate)
     if (this.settings.finToDate) this.maxDate = new Date(this.settings.finToDate)
   }

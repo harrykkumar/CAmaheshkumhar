@@ -44,7 +44,9 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   }
 
   @ViewChild('attrname') attrname: ElementRef
+  @ViewChild('AttributeValue') AttributeValue: ElementRef
 
+  
   /* initialising attribute data to open add attribute modal */
   initAddAttributeData = () => {
     this._CommonService.getAttributeStatus().pipe((
@@ -54,6 +56,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
       if (response.open === true) {
         // console.log(response, 'add attr')
         this.resetFormData()
+        this.selectedAttribute = null
         this.initAttributeNameList(0)
         this.isParent = response.data.isParent
         if (response.data.editId || response.data.attrNameId) {
@@ -122,7 +125,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   /* Resetting form data by default */
   resetFormData = () => {
     this.attribute = {}
-    this.selectedAttribute = null
+   // this.selectedAttribute = null
     this.attrEditId = null
     this.formModel.submitted = false
     //  console.log(this.formModel)
@@ -130,7 +133,6 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
 
   /* Initialising function to get the attribute name dropdown list */
   initAttributeNameList = (newAddId) => {
-    
     this.attributeService.getAttributeName().pipe(
       takeUntil(this.unSubscribe$),
       map((response) => {
@@ -147,7 +149,9 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
       })
     ).subscribe((response: any) => {
       // console.log('attribute list : ', response)
-      this.attributeList = [...response]
+      let dataV = [...response]
+      dataV.unshift({id:0,text:'Select Attribute'})
+       this.attributeList =dataV
     }, error => console.log(error))
   }
 
@@ -183,6 +187,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
     if ($('#attribute_master')) {
       $('#attribute_master').modal(UIConstant.MODEL_HIDE)
     }
+    this.selectedAttribute =null
   }
 
   /* Function to save and update the attribute name with value */
@@ -205,14 +210,24 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
               // this._CommonService.closeAttribute({ status: 'saved' })
               const data = { status: 'saved', id: response.Data, name: this.attribute.value, AttributeId: this.selectedAttribute }
               this._CommonService.closeAttributeForDynamicAdd({ ...data })
+              this.resetFormData()
+              this.selectedAttribute =null
+              
+              setTimeout(() => {
+                if (this.attrname) {
+                  const element = this.renderer.selectRootElement(this.attrname.nativeElement, true)
+                  element.focus({ preventScroll: false })
+                }
+              }, 100)
+
             }
             else{
               this.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
               this._CommonService.AddedItem()
                this.resetFormData()
                setTimeout(() => {
-                if (this.attrname) {
-                  const element = this.renderer.selectRootElement(this.attrname.nativeElement, true)
+                if (this.AttributeValue) {
+                  const element = this.renderer.selectRootElement(this.AttributeValue.nativeElement, true)
                   element.focus({ preventScroll: false })
                 }
               }, 100)

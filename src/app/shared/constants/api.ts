@@ -217,7 +217,7 @@ export class ApiConstant {
 
   public static get EDIT_BANK_DATA (): string { return this.BASE_URL + '/api/v1/setting/bankdetails?id=' }
 
-  public static get REPORT_ITEM_BY_CATEGORY_SALE_DATA (): string { return this.BASE_URL + '/api/v1/ims/ItemCategorisedsummary?Type=' }
+  public static get REPORT_ITEM_BY_CATEGORY_SALE_DATA (): string { return this.BASE_URL + '/api/v1/ims/ItemCategorisedsummary' }
 
   public static get SPUTILITY_TO_CREATE_COMBO (): string { return this.BASE_URL + '/api/v1/ItemDetailForCombo' }
 
@@ -331,5 +331,24 @@ export class ApiConstant {
 
   public static get GET_REPORT_TRAIL_BALANCE (): string { return this.BASE_URL + '/api/v1/account/TrailBalance' }
 
- 
+  public static get BUYER_ORDER (): string { return this.BASE_URL + '/api/v1/Manufacturer/BuyerOrder' }
+
+  public static get TERMS_UTILITY (): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=170' }
+
+  public static get REPORT_OUT_STANDING () : string { return this.BASE_URL + '/api/v1/ims/PartyOutStanding'}
+
+  public static get REPORT_CASHBOOK() : string { return this.BASE_URL + '/api/v1/account/CashBook'}
+
+  public static get REPORT_DAYBOOK() : string { return this.BASE_URL + '/api/v1/account/DayBook'}
+  
+  public static get REPORT_BANKBOOK() : string { return this.BASE_URL + '/api/v1/account/Bankbook'}
+
+  public static get REPORT_SALE_PURCHASE_REGISTER() : string { return this.BASE_URL + '/api/v1/ims/SalePurchaseRegister'}
+
+  public static get REPORT_SALE_PURCHASE_SUMMARY() : string { return this.BASE_URL + '/api/v1/ims/SalePurchaseSummary'}
+  
+
+  
+
+
 }

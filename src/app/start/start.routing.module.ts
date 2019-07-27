@@ -209,7 +209,57 @@ const routes: Routes = [
       {
         path: 'buyer-order',
         loadChildren: '../Manufacturer/buyer-order/buyer-order.module#BuyerOrderModule'
-      } 
+      } ,
+       {
+        path: 'ims/report/cashbook',
+        loadChildren: '../report/cashbook/cashbook.module#CashBookModule'
+      } ,
+      {
+        path: 'ims/report/daybook',
+        loadChildren: '../report/daybook/daybook.module#DayBookModule'
+      } ,
+      {
+        path: 'report/item-group-stock',
+        loadChildren: '../report/item-group-stock/item-group-stock.module#ItemGroupStockModule'
+      }
+      , {
+        path: 'report/outstanding-payables',
+        loadChildren: '../report/outstanding-payables-report/outstanding-payables-report.module#OutStandingPayablesReportModule'
+      }
+      , {
+        path: 'report/outstanding-receiables',
+        loadChildren: '../report/outstanding-receiables-report/outstanding-receiables-report.module#OutStandingReceiablesReportModule'
+      }
+      , {
+        path: 'ims/report/cashbook-day',
+        loadChildren: '../report/cashbook-dayBalance/cashbook-dayBalance.module#CashBookDayBalanceModule'
+      },
+      {
+        path: 'ims/report/bankbook',
+        loadChildren: '../report/bankbook/bankbook.module#BankBookModule'
+      } ,
+      {
+        path: 'ims/report/purchase-register',
+        loadChildren: '../report/purchase-register/purchase-register.module#PurchaseRegisterModule'
+      } ,
+      {
+        path: 'ims/report/sale-register',
+        loadChildren: '../report/sale-register/sale-register.module#SaleRegisterModule'
+      } ,
+      {
+        path: 'ims/report/purchase-summary',
+        loadChildren: '../report/purchase-summary/purchase-summary.module#PurchaseSummaryReportModule'
+      } ,
+      {
+        path: 'ims/report/sale-summary',
+        loadChildren: '../report/sale-summary/sale-summary.module#SaleSummaryReportModule'
+      } ,
+      {
+        path: 'ims/report/journal-register',
+        loadChildren: '../report/journal-register/journal-register.module#JournalRegisterModule'
+      } ,
+      
+      //'ims/report/cashbook-day BankBookModule
     ]
   }
 ]

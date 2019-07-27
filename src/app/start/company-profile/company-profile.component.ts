@@ -15,6 +15,7 @@ import * as _ from 'lodash'
 import { Select2Component } from 'ng2-select2';
 import { AddNewCityComponent } from '../../shared/components/add-new-city/add-new-city.component';
 import { AddNewAreaComponent } from '../../shared/components/add-new-area/add-new-area.component';
+import { UniqueSelectionDispatcher } from '@angular/cdk/collections';
 
 
 @Component({
@@ -48,7 +49,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   @Input('modalData') modalData: any;
   @Output() closeModal = new EventEmitter();
   private unSubscribe$ = new Subject<void>()
-  imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [], imageType: 'logo' }
+  imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
   ImageFiles: any = []
   model: any = {}
   personalDetailModel:any = {}
@@ -118,6 +119,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     } else if (this.modalData && this.modalData.open === false) {
       $('#companyOrganisationModal').modal(UIConstant.MODEL_HIDE)
       this.resetFormData();
+      
     }
   }
 
@@ -141,6 +143,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     { id: 0, text: 'Select Area' },
     { id: -1, text: UIConstant.ADD_NEW_OPTION }]
     this.addressTypeList = await this._orgService.getAddressTypeList()
+    console.log(this.addressTypeList ,'kkk')
     this.registrationTypeList = [...this._orgService.getRegistrationTypeList()]
     this.industryTypeList = await this._orgService.getIndustryTypeList()
     this.branchTypeList = await this._orgService.getBranchTypeList()
@@ -282,14 +285,19 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   /* Function invoke on registration type selection change and assign new value */
   disabledGSTfor_UnRegi:boolean = false
   onRegistrationTypeSelectionChange = (event) => {
-    this.personalDetail.selectedRegistrationType = event.data[0]
-    if(event.data[0].id ==='4'){
-      this.disabledGSTfor_UnRegi = true
+    if(event.data.length >0){
+      this.personalDetail.selectedRegistrationType = event.data[0]
+      if(event.data[0].id ==='4'){
+        this.disabledGSTfor_UnRegi = true
+        this.statutoryDetail.gstNo =''
+        this.disabledStateCountry =false
+      }
+      else{
+        this.disabledGSTfor_UnRegi = false
+  
+      }
     }
-    else{
-      this.disabledGSTfor_UnRegi = false
-
-    }
+    
   }
 
   onBranchTypeSelectionChange = (event) => {
@@ -301,6 +309,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   /* Function invoke on country dropdown selection change */
   onCountrySelectionChange = (event) => {
+    debugger
     if (event.data.length > 0) {
       this.addressDetail.selectedCountry = event.data[0]
     }
@@ -313,7 +322,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   getOneState (rsp){
     let  newdata =[]
        newdata.push({
-         id:rsp.Data[0].CommonCode,
+         id:rsp.Data[0].Id,
          text: rsp.Data[0].CommonDesc1
        })
        this.disabledStateCountry =true
@@ -326,19 +335,29 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       takeUntil(this.unSubscribe$)
     ).
     subscribe((response: any) => {
-      if(response.Code=== UIConstant.THOUSAND){
+     // countryId: !_.isEmpty(this.addressDetail.selectedCountry) ? this.addressDetail.selectedCountry.id : 0,
+      if(response.Code=== UIConstant.THOUSAND && response.Data.length >0){
+    //  if(!_.isEmpty(this.addressDetail.selectedCountry)){
         this.addressDetail.selectedCountry.id =response.Data[0].CommonId
-        this.addressDetail.selectedCountry.text ='India'
-
+        this.addressDetail.selectedCountry.text =response.Data[0].CommonName
+        this.GSTStateCode =response.Data[0].ShortName1
         this.countrySelect.setElementValue(response.Data[0].CommonId)
-        let event ={value:response.Data[0].Id,data:[{id:response.Data[0].Id,stateCode:response.Data[0].Id.ShortName1}]}
-        
-      //   this.addressDetail.selectedState = event.data[0]
-      // this.addressDetail.selectedState.id 
-       this.onStateSelectionChange(event)
-       this.addressDetail.selectedState.id =response.Data[0].Id
+        let event ={value:response.Data[0].Id,data:[{id:response.Data[0].Id, stateCode:response.Data[0].ShortName1}]}
+        this.onStateSelectionChange(event)
+        this.addressDetail.selectedState.id =response.Data[0].Id
         this.getOneState(response)
+        this.matchStateCodeWithGSTNumber()
+      //}
+      
         
+        
+      }
+      else{
+      //  countryId: !_.isEmpty(this.addressDetail.selectedCountry) ? this.addressDetail.selectedCountry.id : 0,
+        //this.addressDetail.selectedCountry.id =0
+        //this.addressDetail.selectedCountry.text =''
+        //this.addressDetail.selectedState.id=0
+
       }
     })
   }
@@ -351,13 +370,15 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     this.GstinNoCode = val.substr(0,2);
     if( this.GstinNoCode !==''){
       this.getStateCode(this.GstinNoCode)
+      this.addressDetailArray.splice(0,1)
+      this.RemoveAddressButtonFlag = true
     }
     else{
       this.disabledStateCountry =false
       
     }
     
-    this.matchStateCodeWithGSTNumber()
+    
     //this.checkGSTNumberValid()
   }
   GSTStateCode:any
@@ -375,12 +396,14 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   }
   /* Function invoke on state dropdown selection change */
   onStateSelectionChange = (event) => {
+    debugger
     if (event.data.length > 0) {
       this.addressDetail.selectedState = event.data[0]
+      this.GSTStateCode =event.data[0].stateCode
       
     }
     if (this.addressDetail.selectedState && this.addressDetail.selectedState.id > UIConstant.ZERO) {
-      this.GSTStateCode =this.addressDetail.selectedState.stateCode
+      this.GSTStateCode = event.data[0].stateCode
       this.getCityList(this.addressDetail.selectedState.id)
     } else {
       this.cityList = [
@@ -426,12 +449,13 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.addressDetail.selectedArea = event.data[0]
     }
   }
-
+  AddressTypeName:string=''
   /* Function invoke on addresstype selection change */
   onAddressTypeChange = (event) => {
-    if (Number(event.value) >= UIConstant.ZERO) {
+   if (Number(event.value) > UIConstant.ZERO) {
       this.addressDetail.selectedAddressType = Number(event.value)
-    }
+      this.addressDetail.AddressTypeName = event.data[0].text
+   }
   }
 
   /* Function invoke on key person contact country code selection change */
@@ -453,11 +477,14 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       will close the dialog box and reset data */
   emitCloseProfile (data) {
     $('#companyOrganisationModal').modal(UIConstant.MODEL_HIDE)
+    this.RemoveAddressButtonFlag = true
+    
     this.closeModal.emit(data);
   }
 
   /* Function to get all the state list */
   getStateList = (countryCode) => {
+    debugger
     this._orgService.getStateList(countryCode).
     pipe(
       takeUntil(this.unSubscribe$)
@@ -553,16 +580,26 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   removeBankDetail = (i) => {
     this.bankDetailArray.splice(i,1)
   }
-
+  RemoveAddressButtonFlag:boolean = true
   /* Function to add new address details */
   addNewAddress = () => {
+    this.RemoveAddressButtonFlag = false
     if (this.editAddressDetailIndex !== null) {
       this.addressDetailArray[this.editAddressDetailIndex] = { ...this.addressDetail }
+      
       this.editAddressDetailIndex = null
     } else {
       this.addressDetailArray = [...this.addressDetailArray, this.addressDetail]
     }
-    this.addressDetail = {}
+    this.addressDetail ={
+      selectedAddressType :this.addressTypeList[0].id,
+      AddressTypeName : '',
+      postalCode:'',
+      address:'',
+      selectedCountry:{id:0,text:''},
+      selectedState:{id:0,text:''},
+      selectedArea:{id:0,text:''}
+    }
     this.model.countryCodeId = 0
     this.model.stateCodeId = 0
     this.model.cityCodeId = 0
@@ -572,17 +609,22 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   /* Function to edit existing address details */
   editAddress = (i) => {
+    debugger
     this.addressDetail = { ...this.addressDetailArray[i] }
     this.model.countryCodeId = this.addressDetailArray[i].selectedCountry.id
     this.dummyData.areaId = this.addressDetailArray[i].selectedArea.id
     this.dummyData.stateCodeId = this.addressDetailArray[i].selectedState.id
     this.dummyData.cityCodeId = this.addressDetailArray[i].selectedCity.id
     this.editAddressDetailIndex = i
+    this.addressDetailArray.splice(i,1)
+    this.RemoveAddressButtonFlag = true
   }
 
   /* Function to remove existing address details */
   removeAdress = (i) => {
     this.addressDetailArray.splice(i,1)
+    this.RemoveAddressButtonFlag = true
+
   }
 
   /* Function to add new key person details */
@@ -751,7 +793,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
         CountryId: address.selectedCountry.id,
         StateId: address.selectedState.id,
         CityId: address.selectedCity.id,
-        AreaId: address.selectedArea.id,
+        AreaId: !_.isEmpty(address.selectedArea) ?  address.selectedArea.id : 0 ,
         PostCode: address.postalCode,
         ParentTypeId: 3
       }
@@ -864,17 +906,18 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   /* Function to save the profile */
   saveOrgProfile = () => {
     const data = this.prepareSavePayload()
+   //this.addNewAddress()
     this._orgService.saveCompanyProfile(data).subscribe(
       (Data: any) => {
         if (Data.Code === UIConstant.THOUSAND) {
-          this.toastrService.showSuccess('Success', 'Saved Successfully')
+          this.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
           this.emitCloseProfile(Data.Data);
         } else {
-          this.toastrService.showError('Error', Data.Message)
+          this.toastrService.showError('', Data.Message)
         }
       }, error => {
       console.log(error)
-      this.toastrService.showError('Error', 'error in profile save')
+      this.toastrService.showError('', 'error in profile save')
     }
     )
   }
@@ -893,7 +936,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   /* Function to initialise all form fields by profile data */
   initFormData = (profileData) => {
-    this.imageList = { images: [], queue: [], safeUrls: [], baseImages: [], id: [], imageType: 'logo' }
+    this.imageList = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
     if (!_.isEmpty(profileData) && profileData.ImageFiles.length > 0) {
       profileData.ImageFiles.forEach(element => {
         this.imageList['queue'].push(element.Name)
@@ -903,13 +946,22 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       })
       this.createImageFiles();
     }
-
+    this.addressDetail ={
+      selectedAddressType :this.addressTypeList[0].id,
+      AddressTypeName : '',
+      postalCode:'',
+      address:'',
+      selectedCountry:{id:0,text:''},
+      selectedState:{id:0,text:''},
+      selectedArea:{id:0,text:''}
+    }
     this.addressDetailArray = _.map(profileData.AddressesDetails, (item) => {
       return {
         id: item.Id,
         postalCode: item.PostCode,
         address: item.AddressValue,
         selectedAddressType: item.AddressType,
+        addressTypeName :item.AddressTypeName,
         selectedCountry: {
           id: item.CountryId,
           text: item.CountryName
@@ -1057,11 +1109,9 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   removeImage = (index) => {
 
     _.forIn(this.imageList, (value) => {
-     // if(value.length>0){
+     if(!_.isEmpty(value) && value.length>0 && index < value.length){
         value.splice(index, 1)
-     // }
-     
-    
+     }
     })
     this.createImageFiles()
   }
@@ -1069,7 +1119,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   createImageFiles () {
     let ImageFiles = []
     for (let i = 0; i < this.imageList['images'].length; i++) {
-      let obj = { Name: this.imageList['queue'][i], BaseString: this.imageList['safeUrls'][i], IsBaseImage: this.imageList['baseImages'][i], Id: this.imageList['id'][i] ? this.imageList['id'][i] : 0 }
+      let obj = { Name: this.imageList['queue'][i], BaseString: this.imageList['images'][i], IsBaseImage: this.imageList['baseImages'][i], Id: this.imageList['id'][i] ? this.imageList['id'][i] : 0 }
       ImageFiles.push(obj)
     }
     this.ImageFiles = ImageFiles

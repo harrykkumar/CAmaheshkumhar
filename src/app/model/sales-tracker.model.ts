@@ -412,6 +412,7 @@ export interface TravelImports {
   Sno: number,
   SupplierId: number,
   TicketNo: string,
+  AirlineTicketCode?:string,
   RoutingId: number,
   Remark: string,
   Date: string,

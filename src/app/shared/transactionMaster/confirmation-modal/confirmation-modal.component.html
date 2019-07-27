@@ -10,17 +10,15 @@
           <div class="modal-body">
               <div class="card-body">
                   <div>
-                      <p style="font-size: 18px" class="bold text-center font_size">Are you want to Add New Customer / Vendor, Please Choose</p>
+                      <p style="font-size: 18px" class="bold text-center font_size">Are you want to Add New ? Please Choose one</p>
                   </div>
               </div>
           </div>
-          <!-- <div *ngIf ='false' class="modal-footer">
-              <button id='yesFocus' type="button" class="btn btn-danger waves-effect" (click)="Response('yes')">Yes </button>
-              <button type="button" class="btn btn-primary waves-effect" (click)="Response('no')">No</button>
-          </div> -->
-          <div style="justify-content: center;"  *ngIf ='openpopupFlag' class="modal-footer ">
-            <button id='yesFocus' type="button" class="btn btn-danger waves-effect" (click)="openVendor('Vendor')">Vendor </button>
-            <button type="button" class="btn btn-primary waves-effect" (click)="openCustomer('Customer')">Customer</button>
+          <div style="justify-content: center;"   class="modal-footer ">
+            <button id='yesFocus' type="button" class="btn btn-danger waves-effect" (click)="openVendor()">Vendor </button>
+            <button type="button" class="btn btn-primary waves-effect" (click)="openCustomer()">Customer</button>
+            <button *ngIf='openpopupFlag' type="button" class="btn btn-primary waves-effect" (click)="openLedger()">Ledger</button>
+
         </div>
       </div>
   </div>

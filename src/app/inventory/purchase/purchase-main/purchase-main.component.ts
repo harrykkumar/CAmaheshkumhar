@@ -315,7 +315,7 @@ let valueshow=[]
     body{font-family: Calibri;font-size:13px;word-break: break-all;width:21cm;height:29.7cm;position: relative;}
     #page-wrap{width:100%;margin:0 auto;background:#f1f1f1;}
     #header{width:100%;text-align:center;color:#000;text-decoration:uppercase;
-    letter-spacing:10px;padding:2px 0;font-size:13px;font-weight:600;}
+    letter-spacing:10px;padding:2px 0;font-size:13px;}
     #header12{width:100%;text-align:center;color:#000;
     padding:2px 0;font-size:13px;font-weight:600;
     }
@@ -342,8 +342,8 @@ let valueshow=[]
     printWindow.focus()
     $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
     setTimeout(function () {
-       printWindow.print()
-       printWindow.close()
+     /*   printWindow.print()
+       printWindow.close() */
     }, 100)
   }
   word: string = ''

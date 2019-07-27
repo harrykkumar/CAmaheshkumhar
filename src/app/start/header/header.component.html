@@ -221,13 +221,13 @@
     <ul class="nav-right">
       <li style="padding-top: 10px;" class="text-right">
           <div>
-              {{loggedinUserData?.Name}}
+              {{loggedinUserData?.name}}
               <span>({{loggedinUserData?.fromDate | dateFormat:clientDateFormat}} - </span>
                 <span>{{loggedinUserData?.toDate | dateFormat:clientDateFormat}})</span>
             </div>
             <div>
                 <span class="fsz-xsm c-grey-900">
-                    {{_loginService?.loginUserDetails?.Name}}({{_loginService?.loginUserDetails?.Code}})
+                    {{_loginService?.loginUserDetails?.name}}({{_loginService?.loginUserDetails?.Code}})
               </span>
               </div>
       </li>

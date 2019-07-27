@@ -7,8 +7,8 @@
                     <thead>
                         <tr>
                             <th>Sr.No.</th>
-                            <th>Particular</th>
-                            <th>Ledger Name</th>
+                            <th>Particulars</th>
+                            <th>Voucher Date</th>
                             <th>Voucher No.</th>
                             <th>Voucher Type</th>
                             <th>Narration</th>
@@ -21,20 +21,25 @@
                         <tr *ngFor="let item of LedgerStatements | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index; let i=index">
                             <td>{{i+1}}</td>
                             <td>{{item.Particular}} </td>
-                            <td>{{item.LedgerName}}</td>
+                            <td>{{item.CurrentDate  | dateFormat:clientDateFormat}}</td>
                             <td>{{item.VoucherNo}}</td>
                             <td>{{item.VoucherType}}</td>
                             <td>{{item.Narration}}</td>
                             <td class="text-right">{{(item.Cr).toFixed(noOfdecimal)}}</td>
                             <td class="text-right">{{(item.Dr).toFixed(noOfdecimal)}}</td>
                             <td>
-                                <div class="dropdown enquiry-tag" *ngIf="item.VoucherTypeId === 103" >
+                                <div class="dropdown enquiry-tag"  >
                                     <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
                                     class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
                                     <ul class="dropdown-menu fsz-sm">
-                                        <li><a (click)="onActionClicked({id: 0, type: 2, printId: 'payment_print_id'} ,item.VoucherId)" 
+                                        <li *ngIf="(item.VoucherTypeId === 103 || item.VoucherTypeId === 102)"><a (click)="onActionClicked({id: 0, type: 2, printId: 'payment_print_id'} ,item.VoucherId)" 
                                             class="d-b td-n p-1 bgcH-grey-100 c-grey-700">
-                                            <i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                                            <i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a>
+                                        </li>
+                                        <li><a (click)="onActionClicked({id: 0, type: 4, printId: ''} ,item.VoucherId)" 
+                                            class="d-b td-n p-1 bgcH-grey-100 c-grey-700">
+                                            <i class="fas fa-print mR-10 cH-blue"></i><span>Delete</span></a>
+                                        </li>
                                     </ul>
                                 </div>
                             </td>

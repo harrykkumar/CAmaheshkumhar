@@ -40,7 +40,7 @@
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label class="fw-500">Invoice Date</label>
                 <datepicker-popup [disableInput]="editMode"
-                [toSetDate]="InvoiceDate" [isBackDate]="backDateEntry"
+                [toSetDate]="InvoiceDate" [isBackDate]="backDateEntrySale"
                 (dateInFormat)="InvoiceDate = $event;"
                 >
                 </datepicker-popup>
@@ -646,7 +646,7 @@
                   <td>
                       <datepicker-popup 
                       [toSetDate]="PayDate" 
-                      [isBackDate]="backDateEntry"
+                      [isBackDate]="backDateEntrySale"
                       (dateInFormat)="PayDate = $event;" >
                       </datepicker-popup>
                     <!-- <input (input)="validateTransaction()" type="text" name="PayDate" id="pay-date" class="form-control flatpickr" [(ngModel)]="PayDate" [ngClass]="{'errorSelecto': invalidObj3?.PayDate && (submitSave || !clickTrans) }" placeholder="Select Date"> -->

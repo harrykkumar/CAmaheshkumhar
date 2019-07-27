@@ -216,4 +216,10 @@ export class UIConstant {
   public static get REQUIRED_5020 (): number {
     return 5020
   }
+   public static get GST_APPLY_METHOD_TYPE1 (): number{
+     return 1
+   }
+   public static get GST_APPLY_METHOD_TYPE2 (): number{
+    return 2
+  }
 }

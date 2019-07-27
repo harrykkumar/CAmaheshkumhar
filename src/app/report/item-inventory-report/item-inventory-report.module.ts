@@ -7,6 +7,7 @@ import { ItemStockSearchComponent } from './item-search/item-stock-search.compon
 import { ItemInventoryReportComponent } from './item-inventory-report.component'
 import { SharedModule } from '../../shared/shared.module'
 import { NgxBarcodeModule } from 'ngx-barcode'
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 @NgModule({
   declarations: [ 
     ItemInventoryReportComponent,
@@ -19,7 +20,8 @@ import { NgxBarcodeModule } from 'ngx-barcode'
     FormsModule,
     Select2Module,
     NgxBarcodeModule,
-    ItemInventoryReportRoutingModule
+    ItemInventoryReportRoutingModule,
+    NgxExtendedPdfViewerModule
   ]
 })
 export class ItemInventoryReportModule {}

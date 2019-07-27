@@ -2022,7 +2022,7 @@ export class SalesChallanBillingComponent {
     returmTaxAmount = +(totalTaxAmt).toFixed(this.decimalDigit)
     return returmTaxAmount
   }
-  netBillAmount: any
+  netBillAmount: any=0
   TaxableValue: any
   totalBillAmount: any
   calTotalBillAmount() {
@@ -2459,9 +2459,9 @@ export class SalesChallanBillingComponent {
           if (this.inventoryItemSales[0].DueDate !== null) {
             this.DueDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].DueDate, this.clientDateFormat)
           }
-          else {
-            this.DueDate = ''
-          }
+          // else {
+          //   this.DueDate = ''
+          // }
           this.InvoiceDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].BillDate, this.clientDateFormat)
           console.log(this.InvoiceDate, 'billdate')
           this.EwayBillNo = this.inventoryItemSales[0].EwayBillNo
@@ -2683,6 +2683,7 @@ export class SalesChallanBillingComponent {
   InterestType: any
   InvoiceDateChngae: any
   DueDateChngae: any
+  CurrentDateChngae:any
   saveSaleChallan() {
     this.submitSave = true
     if (this.deleteEditflag) {
@@ -2702,7 +2703,11 @@ export class SalesChallanBillingComponent {
           } else {
             this.DueDateChngae = ''
           }
-
+          if (this.CurrentDate !== '') {
+            this.CurrentDateChngae = this._globalService.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+          } else {
+            this.CurrentDateChngae = ''
+          }
           let obj = {}
           obj['Id'] = 0
           //  obj['Commission'] = this.Commission
@@ -2749,6 +2754,10 @@ export class SalesChallanBillingComponent {
           obj['PaymentDetail'] = this.transactions
           obj['Items'] = this.items
           obj['ItemAttributeTrans'] = this.sendAttributeData
+          obj['AdditionalCharges'] = this.AdditionalChargeData
+          obj['ItemTaxTrans'] = this.taxSlabSummery
+          obj['CurrentDate'] = this.CurrentDateChngae
+          obj['EwayBillNo']= this.EwayBillNo
           let _self = this
           console.log('sale-challan -bill-request : ', JSON.stringify(obj))
           this._commonService.postSaleChallanBillingAPI(obj).subscribe(
@@ -3316,6 +3325,20 @@ export class SalesChallanBillingComponent {
   itemSaleRate: any
   MrpRate: any
   itemCustomSaleRate: any
+    filterUnitForItem(UnitData) {
+    this.unitDataType = []
+    let newdataUnit = [{ id: UIConstant.BLANK, text: 'Select  Unit' }, { id: '-1', text: '+Add New' }]
+    if (UnitData && UnitData.SubUnitDetails.length > 0) {
+      UnitData.SubUnitDetails.forEach(element => {
+        newdataUnit.push({
+          id: element.Id,
+          text: element.Name
+        })
+
+      })
+    }
+    this.unitDataType = newdataUnit
+  }
   getItemRateByLedgerData(ItemId, CustomerId) {
     this.itemSaleRate = 0
     this.itemCustomSaleRate = 0
@@ -3353,6 +3376,7 @@ export class SalesChallanBillingComponent {
           this.unitSelect2.setElementValue(this.unitId)
 
         }
+        this.filterUnitForItem(Data.Data)
         this.onChangeSlabTax('item', Data.Data.ItemDetails[0].TaxId, '')
 
         this.calculate()

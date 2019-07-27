@@ -48,7 +48,7 @@ export class PurchaseAddComponent {
   paymentLedgerselect2: Array<Select2OptionData>
   taxSlabsData: Array<Select2OptionData>
   chargesData: Array<Select2OptionData>
-
+  tempChargeData :any=[]
   subUnitsValue: number
   attributeValue: number
   itemValue: number
@@ -352,6 +352,7 @@ export class PurchaseAddComponent {
       data => {
         if (data.data) {
           this.vendorData = data.data
+          console.log('this.vendorData : ', this.vendorData)
         }
       }
     )
@@ -466,13 +467,11 @@ export class PurchaseAddComponent {
     this.purchaseService.chargestData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
-    
-          
-          
+          this.chargesData = data.data 
+           this.tempChargeData = data.data
         }
       }
     )
-
     let _self = this
     this.purchaseService.addressData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
@@ -664,6 +663,17 @@ export class PurchaseAddComponent {
 
   dataForEdit: any
   taxRatesForEdit = []
+  getListOfChargeData (){
+    if(this.tempChargeData.length >0 ){
+      this.chargesData =[]
+        let newData =[]
+         this.tempChargeData.forEach(ele=>{
+          newData.push({ id: ele.id, text:ele.text ,disabled: false})
+          this.chargesData = newData
+     })
+    }
+  }
+
   createForm (data) {
     this.dataForEdit = data
     this.other = {}
@@ -713,6 +723,10 @@ export class PurchaseAddComponent {
   }
 
   createAdditionalCharges (charges) {
+    debugger
+    if(charges.length>0){
+
+    
     charges.forEach(element => {
       let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.ChargeForm && taxRate.SlabId === element.TaxSlabChargeId)
       let itemTaxTrans = []
@@ -748,6 +762,7 @@ export class PurchaseAddComponent {
         this.toastrService.showError('Not getting enough data for edit', '')
       }
     })
+  }
     console.log('this.AdditionalCharges : ', this.AdditionalCharges)
   }
 
@@ -865,6 +880,7 @@ export class PurchaseAddComponent {
   }
 
   createTransaction (paymentDetails) {
+    if(paymentDetails.length>0){
     paymentDetails.forEach(element => {
       this.Paymode = element.Paymode
       this.PayModeId = element.PayModeId
@@ -880,6 +896,7 @@ export class PurchaseAddComponent {
         this.toastrService.showError('Not getting enough data for edit', '')
       }
     })
+  }
     // console.log('this.PaymentDetail : ', this.PaymentDetail)
   }
 
@@ -1069,6 +1086,7 @@ export class PurchaseAddComponent {
 
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal () {
+    this.getListOfChargeData()
     $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
     this.industryId = +this.settings.industryId
     this.taxTypeData = [
@@ -2104,7 +2122,9 @@ export class PurchaseAddComponent {
   }
 
   addItems () {
-    if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
+    // if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
+
+    if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0  && this.PurchaseRate > 0) {
       if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
        || (this.industryId === 3 && this.Length && this.Width && this.Height)
        || (this.industryId === 2 || this.industryId === 6)) {
@@ -2425,7 +2445,6 @@ export class PurchaseAddComponent {
   @ViewChild('taxSlabCharge_select2') taxSlabChargeSelect2: Select2Component
   @ViewChild('charge_select2') chargeSelect2: Select2Component
   initCharge () {
-    
     this.LedgerChargeId = 0
     this.LedgerName = ''
     this.AmountCharge = 0
@@ -3168,16 +3187,18 @@ export class PurchaseAddComponent {
   }
 
   alreadySelectCharge (chargeId,name,enableflag) {
-    this.chargesData.forEach(data=>{
-      let index = this.chargesData.findIndex(
-        selectedItem =>selectedItem.id  === chargeId)
-       if(index !== -1){
-        this.chargesData.splice(index,1)
-        let newData = Object.assign([], this.chargesData)
-        newData.push({ id: chargeId, text:name ,disabled: enableflag})
-        this.chargesData = newData
-       }
-    })
+    if(chargeId >0){
+      this.chargesData.forEach(data=>{
+        let index = this.chargesData.findIndex(
+          selectedItem =>selectedItem.id  === chargeId)
+         if(index !== -1){
+          this.chargesData.splice(index,1)
+          let newData = Object.assign([], this.chargesData)
+          newData.push({ id: chargeId, text:name ,disabled: enableflag})
+          this.chargesData = newData
+         }
+      })
+    }
    }
 
   addCustomCharge () {
@@ -3221,15 +3242,14 @@ export class PurchaseAddComponent {
   }
 
   onChargeSelect (evt) {
-    // console.log('on change of charge : ', evt)
-    if (+evt.value === -1) {
+    if (+evt.value === -1 && evt.data[0].selected) {
+      this.taxTypeChargeSelect2.selector.nativeElement.value = ''
       this.commonService.openledgerCretion('', FormConstants.PurchaseForm)
-      this.taxSlabChargeSelect2.selector.nativeElement.value = ''
+     
     } else {
       this.LedgerChargeId = +evt.value
       if (evt.value > 0) {
         this.LedgerName = evt.data[0].text
-        // this.getTaxDetail(this.TaxSlabId)
       }
     }
     this.validateCharge()

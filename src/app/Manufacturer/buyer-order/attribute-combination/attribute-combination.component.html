@@ -1,4 +1,4 @@
-<!-- <div
+<div
   class="modal fade"
   id="attribute_combine_form"
   tabindex="-1"
@@ -10,22 +10,26 @@
     class="modal-dialog large_form modal-full-height modal-top"
     role="document"
   >
-    <div class="modal-content bgcH-grey-100"> -->
+    <div class="modal-content bgcH-grey-100">
       <!--Header-->
-      <!-- <div class="modal-header primary-bg">
+      <form 
+      #attributeCombineForm="ngForm"
+        novalidate
+        (ngSubmit)="attributeCombineForm.form.valid && validateForm() && postData()">
+      <div class="modal-header primary-bg">
         <div class="container-fluid">
           <div class="row">
             <div class="col-md-3 left_side_head">
               <p class="heading_lead">
-                <i class="fas fa-chart-line" aria-hidden="true"></i>Order Attribute
+                <i class="fas fa-chart-line" aria-hidden="true"></i>Order
+                Attribute
               </p>
             </div>
             <div class="col-md-9">
               <div class="btn_header">
-                <a href="#" class="btn btn-default waves-effect">Save </a
-                > -->
+                <button type="submit" class="btn btn-default waves-effect">Save </button>
                 <!-- <a href="#" class="btn btn-info waves-effect">Save and New</a> -->
-                <!-- <button
+                <button
                   type="button"
                   class="close"
                   data-dismiss="modal"
@@ -37,29 +41,80 @@
             </div>
           </div>
         </div>
-      </div> -->
+      </div>
 
       <!--Body-->
-      <!-- <div class="modal-body">
-        <form>
+        <div class="modal-body">
           <div class="form-row ">
-              <div class="form-group col-md-4">
-                  <label>Order Type <span class="compulsory_field">*</span></label>
-                  <div class="input-group adw_select">
-                    <div class="input-group adw_select">
-                      <select2
-                        [data]="listItem?.orderTypeList"
-                        class="control_select"
-                        (valueChanged)="onOrderTypeChange($event)"
-                        autocomplete="true"
-                        [value]="model?.orderTypeValue">
-                      </select2>
-                    </div>
-                  </div>
+            <div
+              *ngFor="let item of attributeWithValuesList; let i = index"
+              class="form-group col-md-4"
+            >
+              <label
+                >{{ item?.Name }}<span class="compulsory_field">*</span></label
+              >
+              <div class="input-group adw_select">
+                <div class="input-group adw_select">
+                  <select2
+                    [data]="item?.attributeValueList"
+                    class="control_select"
+                    [options]="options"
+                    (valueChanged)="onAttributeValueChange($event, i)"
+                    autocomplete="true"
+                    [value]="item?.attributeValue"
+                  >
+                  </select2>
+                </div>
               </div>
+            </div>
           </div>
-        </form>
-      </div>
+
+          <div class="row animated-background">
+            <div class="col-md-12">
+              <div class="bgc-white bdrs-3 mB-20">
+                <div class="table-responsive table-item-attribute">
+                  <table
+                    class="table cat-table fixTable2   table-hover"
+                    id="attribute-combine-table"
+                  >
+                    <thead>
+                      <tr class="default_row">
+                        <th rowspan="2" colspan="1">SNo.</th>
+                        <th rowspan="2" colspan="1">attributeCombination</th>
+                        <th
+                          rowspan="2"
+                          colspan="1"
+                          class="dynamic_fix"
+                          *ngFor="let attributeValue of sizeAttributeValueList"
+                        >
+                          {{ attributeValue?.Name }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        class="default_row"
+                        *ngFor="let item of combineAttributeList; let i = index"
+                      >
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ item?.text }}</td>
+                        <td *ngFor="let columnItem of item['values']; let j = index;">
+                          <input
+                            type="number"
+                            class="form-control"
+                            name="itemValue-{{ i }}-{{j}}"
+                            [(ngModel)]="columnItem['Qty']"
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
-</div> -->
+</div>

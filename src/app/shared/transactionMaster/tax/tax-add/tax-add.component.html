@@ -14,27 +14,30 @@
                     <div>
                         <form #taxForm="ngForm">
                             <div class="form-row">
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-4">
                                     <label for="bill_no">Tax Type</label>
                                     <div class="input-group adw_select">
-                                        <select2 [disabled]='id !==0'  [data]="selectTaxTpye" #taxtype_select2 class="control_select"
-                                            (valueChanged)="selectedTaxType($event)" autocomplete="true"
-                                            [options]="{placeholder:'Select Tax Type'}" [value]="deafaultValue">
+                                        <select2 [disabled]='id !==0' [data]="selectTaxTpye" #taxtype_select2
+                                            class="control_select" (valueChanged)="selectedTaxType($event)"
+                                            autocomplete="true" [options]="{placeholder:'Select Tax Type'}"
+                                            [value]="deafaultValue">
                                         </select2>
                                         <!-- <div *ngIf="select2Error">{{this.errorMassage}}</div> -->
                                     </div>
                                 </div>
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-4">
                                     <label for="tax_slab">Tax Slab</label>
                                     <input (input)="checkValidation()" type="text"
                                         [ngClass]="{ 'errorTextBoxBorder is-invalid': invalidObjSlab?.slab && submitClick }"
                                         #first class="form-control" id="tax_slab" name='slab'
                                         placeholder="Enter Slab-Name" [(ngModel)]="slab">
                                 </div>
-                                <div class="row">
-                                    <a class="m-2 text-primary bold pl-4" (click)="texboxDiv()"><strong>Add Tax Rates
-                                        </strong> </a>
-                                </div>
+                                <!-- <datepicker-popup [disableInput]="editMode"
+                                [toSetDate]="setDate" 
+                                (dateInFormat)="setDate = $event;"
+                                >
+                                </datepicker-popup> -->
+
                             </div>
                             <div class="form-row " id="tax_rate">
                                 <table class="table" style="width: 100%">
@@ -62,22 +65,25 @@
                                             <td>
                                                 {{item.Name}} - {{item.taxrate}}
                                             </td>
-                                                <td width="15%"> 
-                                                    <div class="discount">
-                                                        <input style="width:158px"
-                                                            [ngClass]="{ 'errorTextBoxBorder is-invalid': item.taxrateFlag && saveTaxRate}"
-                                                            (input)="validateTaxRates();" type="number"
-                                                            class="form-control  width_70 mr-1" appIncludeDecimal
-                                                            name="taxrate{{i}}" placeholder="Tax-Rate " [(ngModel)]="item.taxrate">
-                                                        <div class="input-group">
-                                                            <select2 #selecto2_taxrate [data]="currencies"
-                                                                class="dropdown_width_100"
-                                                                (valueChanged)="onSelectCurrency($event)"
-                                                                autocomplete="true"></select2>
-                                                        </div>
+                                            <td width="15%">
+                                                <div class="discount">
+                                                    <input style="width:158px" 
+                                                    [disabled]="(item.DisabledBox)? true:false"
+                                                     [attr.disabled]="item.DisabledBox?'':null" 
+                                                        [ngClass]="{ 'errorTextBoxBorder is-invalid': item.taxrateFlag && saveTaxRate}"
+                                                        (input)="TaxRateEntry($event ,item.groupid);" type="number"
+                                                        class="form-control  width_70 mr-1" appIncludeDecimal
+                                                        name="taxrate{{i}}" placeholder="Tax-Rate "
+                                                        [(ngModel)]="item.taxrate">
+                                                    <div class="input-group">
+                                                        <select2 #selecto2_taxrate [data]="currencies"
+                                                            class="dropdown_width_100"
+                                                            (valueChanged)="onSelectCurrency($event)"
+                                                            autocomplete="true"></select2>
                                                     </div>
-                                                </td>
-                                        
+                                                </div>
+                                            </td>
+
                                             <!-- <td class="profile-pic1">
                                                 <div class="">
                                                     <a (click)="deleteArrayMobileType(i,item)">

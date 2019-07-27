@@ -90,27 +90,44 @@ export class VoucherEntryAddComponent implements OnDestroy {
   cashData: Array<Select2OptionData>
   transferData: Array<Select2OptionData>
   voucherDataJ: Array<VoucherDatas> = []
+  tempJournaldata:Array<VoucherDatas> = []
+  sendItemJournalData:Array<VoucherDatas> = []
   allLedgerList: Array<Select2OptionData>
   ledgerCreationModel:Subscription
+  getListledger:any=[]
   constructor (private commonService: CommonService, private purchaseService: PurchaseService,
     private voucherService: VoucherEntryServie, private settings: Settings, private gs: GlobalService,
     private toastrService: ToastrCustomService) {
       this.ledgerCreationModel = this.commonService.getledgerCretionStatus().subscribe(
         (data: AddCust) => {
           if (data.id && data.name) {
-            let newData = Object.assign([], this.paymentLedgerselect2)
-            newData.push({ id: +data.id, text: data.name })
-            this.paymentLedgerselect2 = newData
+            this.addNewLedgerFlag = false
+            let newData1 = Object.assign([], this.allLedgerList)
+            newData1.push({ id: data.id, text: data.name })
+            this.allLedgerList =newData1
+            this.getListledger=data
             this.LedgerId = data.id
-            // this.additionaChargeName = data.name
-            this.voucherDatas[0] = {
-              LedgerId: +data.id,
-              Amount: 0,
-              Type: 0,
-              data: this.paymentLedgerselect2 ,
-              default: 0
+            if(this.voucherDataJ.length ===1){
+              this.voucherDataJ=[{
+                LedgerId: data.id,
+                Amount: 0,
+                Type: 0,
+                data: this.allLedgerList,
+                default: 0
+              }]
             }
-            setTimeout(() => {
+            else{
+              this.voucherDataJ.forEach((ele,index)=>{
+                if (+this.voucherDataJ[index]['Amount'] > 0 &&
+                +this.voucherDataJ[index]['LedgerId'] > 0) {
+                  this.voucherDataJ[this.voucherDataJ.length-1].data = this.allLedgerList
+                  this.voucherDataJ[this.voucherDataJ.length-1].LedgerId = +data.id
+
+              }
+              })
+            }
+
+             setTimeout(() => {
               if (this.ledgerSelect2) {
                 this.ledgerSelect2.selector.nativeElement.focus()
               }
@@ -144,11 +161,37 @@ export class VoucherEntryAddComponent implements OnDestroy {
       this.newCustAddCutomer = this.commonService.getCustStatus().subscribe(
         (data: AddCust) => {
           if (data.id && data.name) {
+            this.getListledger=data
+            this.addNewLedgerFlag = false
             let newData = Object.assign([], this.ledgerData)
+           let newData1 = Object.assign([], this.allLedgerList)
+           newData1.push({ id: data.id, text: data.name })
             newData.push({ id: data.id, text: data.name })
             this.ledgerData = newData
+           this.allLedgerList = newData1
+            this.LedgerId = +data.id
             this.ledgerValue = data.id
-            this.PartyId = +data.id
+            if(this.voucherDataJ.length ===1){
+              this.voucherDataJ=[{
+                LedgerId: +data.id,
+                Amount: 0,
+                Type: 0,
+                data: this.allLedgerList,
+                default: 0
+              }]
+            }
+            else{
+              this.voucherDataJ.forEach((ele,index)=>{
+                if (+this.voucherDataJ[index]['Amount'] > 0 &&
+                +this.voucherDataJ[index]['LedgerId'] > 0) {
+                  this.voucherDataJ[this.voucherDataJ.length-1].data = this.allLedgerList
+                  this.voucherDataJ[this.voucherDataJ.length-1].LedgerId = +data.id
+
+              }
+              })
+            }
+       
+            
             setTimeout(() => {
               this.partySelect2.selector.nativeElement.focus()
             }, 600)
@@ -159,16 +202,43 @@ export class VoucherEntryAddComponent implements OnDestroy {
       this.commonService.getVendStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
         (data: AddCust) => {
           if (data.id && data.name) {
+            this.addNewLedgerFlag = false
+            this.getListledger=data
             let newData = Object.assign([], this.ledgerData)
             newData.push({ id: data.id, text: data.name })
+           let newData1 = Object.assign([], this.allLedgerList)
+            newData1.push({ id: data.id, text: data.name })
             this.ledgerData = newData
+            this.allLedgerList = newData1
             this.PartyId = +data.id
             this.ledgerValue = data.id
-            setTimeout(() => {
+            if(this.voucherDataJ.length ===1){
+              this.voucherDataJ=[{
+                LedgerId: +data.id,
+                Amount: 0,
+                Type: 0,
+                data: this.allLedgerList,
+                default: 0
+              }]
+            }
+            else{
+              this.voucherDataJ.forEach((ele,index)=>{
+                if (+this.voucherDataJ[index]['Amount'] > 0 &&
+                +this.voucherDataJ[index]['LedgerId'] > 0) {
+                  this.voucherDataJ[this.voucherDataJ.length-1].data = this.allLedgerList
+                  this.voucherDataJ[this.voucherDataJ.length-1].LedgerId = +data.id
+
+              }
+              })
+            }
+            this.addNewLedgerFlag = true
+          setTimeout(() => {
               if (this.partySelect2) {
                 this.partySelect2.selector.nativeElement.focus()
               }
             }, 600)
+            
+
           }
         }
       )
@@ -201,6 +271,7 @@ export class VoucherEntryAddComponent implements OnDestroy {
       data => {
         if (data.data) {
           this.allLedgerList = data.data
+          data.data.unshift({id:'-1',text:UIConstant.ADD_NEW_OPTION})
           this.voucherDataJ = [
             {
               LedgerId: 0,
@@ -210,6 +281,16 @@ export class VoucherEntryAddComponent implements OnDestroy {
               default: 0
             }
           ]
+          this.tempJournaldata =[
+            {
+              LedgerId: 0,
+              Amount: 0,
+              Type: 0,
+              data: this.allLedgerList,
+              default: 0
+            }
+          ]
+          
         }
       }
     )
@@ -267,8 +348,50 @@ export class VoucherEntryAddComponent implements OnDestroy {
       }
     )
   }
-
+getjournalRefreshList() {
+  let newData1 = Object.assign([], this.allLedgerList)
+  if(this.getListledger.id >0 ){
+    newData1.push({ id: this.getListledger.id, text: this.getListledger.name })
+    this.allLedgerList =newData1
+  }
+  else{
+    this.allLedgerList =newData1
+  }
+  this.voucherDataJ = [
+    {
+      LedgerId: 0,
+      Amount: 0,
+      Type: 0,
+      data: this.allLedgerList ,
+      default: 0
+    }
+  ]
+ 
+}
+  getListOfEnableLedger () {
+   
+    if (this.tempJournaldata.length >0) {
+     let newData=[]
+     this.allLedgerList=[]
+      this.tempJournaldata[0].data.forEach(ele=>{
+        newData.push({ id: ele.id, text: ele.text, disabled: false })
+      })
+        this.allLedgerList = newData
+        this.voucherDataJ = [
+          {
+            LedgerId: 0,
+            Amount: 0,
+            Type: 0,
+            data: this.allLedgerList,
+            default: 0
+          }
+        ]
+    }
+  }
   openModal() {
+    this.addNewLedgerFlag = true
+    this.getListOfEnableLedger()
+    this.getjournalRefreshList()
     this.initComp()
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     setTimeout(() => {
@@ -403,13 +526,16 @@ export class VoucherEntryAddComponent implements OnDestroy {
         }
       )
     }
-    else if(this.PartyId === -1){
-      this.partySelect2.selector.nativeElement.value=''
-      this.commonService.openConfirmation(true, ' ')
-    
-    } else {
-      this.voucherList = []
+    else if(this.addNewLedgerFlag){
+      if(this.PartyId === -1){
+        this.partySelect2.selector.nativeElement.value=''
+        this.commonService.openConfirmation(false, ' ')
+      
+      } else {
+        this.voucherList = []
+      }
     }
+
   }
 
   toggleSelect (evt) {
@@ -466,13 +592,25 @@ export class VoucherEntryAddComponent implements OnDestroy {
       this.commonService.openLedger('') 
    }
   }
+  addNewLedgerFlag:boolean = true
   onSelectLedger (event){
+      if(+event === -1){
+        this.ledgerSelect2.selector.nativeElement.value=''
+        this.commonService.openledgerCretion('',0) 
+     }
+  
+ 
+  }
+  LedgerIdJrnl:number
+  onSelectJournalLedger(event){
     if(+event === -1){
       this.ledgerSelect2.selector.nativeElement.value=''
-      this.commonService.openledgerCretion('','') 
-   }
+      this.commonService.openConfirmation(true,' ') 
+    }
+    else{
+      this.LedgerIdJrnl= event
+    }
   }
-  
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
   onPaymentLedgerSelect (event) {
     if (event.value > 0 && event.data[0] && event.data[0].text) {
@@ -610,6 +748,23 @@ export class VoucherEntryAddComponent implements OnDestroy {
     }
   }
 
+  resetForm (){
+    this.voucherDataJ=[{
+      LedgerId: 0,
+      Amount: 0,
+      Type: 0,
+      data: this.allLedgerList,
+      default: 0
+    } 
+  ]
+  this.voucherDatas=[ {
+    LedgerId: 0,
+    Amount: 0,
+    Type: 0,
+    data: this.paymentLedgerselect2 ,
+    default: 0
+  }]
+  }
   manipulateData () {
     
     let _self = this
@@ -625,6 +780,8 @@ export class VoucherEntryAddComponent implements OnDestroy {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
               _self.commonService.newVoucherAdd()
               _self.commonService.closeVoucher()
+              this.resetForm()
+
             }
           },
           (error) => {
@@ -641,6 +798,7 @@ export class VoucherEntryAddComponent implements OnDestroy {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
               _self.commonService.newVoucherAdd()
               _self.commonService.closeVoucher()
+              this.resetForm()
             }
           },
           (error) => {
@@ -774,12 +932,12 @@ export class VoucherEntryAddComponent implements OnDestroy {
           isValid = 0
           this.invalidObj['Amount'] = true
         }
-        if (this.Narration) {
-          this.invalidObj['ChequeNo'] = false
-        } else {
-          isValid = 0
-          this.invalidObj['ChequeNo'] = true
-        }
+        // if (this.ChequeNo) {
+        //   this.invalidObj['ChequeNo'] = false
+        // } else {
+        //   isValid = 0
+        //   this.invalidObj['ChequeNo'] = true
+        // }
       } else {
         isValid = 1
       }
@@ -838,7 +996,9 @@ export class VoucherEntryAddComponent implements OnDestroy {
   }
 
   @ViewChildren('first') first: QueryList<Select2Component>
+  
   addItems () {
+   
     this.enableDisableLedger(+this.voucherDataJ[this.voucherDataJ.length - 1].LedgerId, true)
     if (+this.voucherDataJ[this.voucherDataJ.length - 1]['Amount'] > 0 &&
       +this.voucherDataJ[this.voucherDataJ.length - 1]['LedgerId'] > 0) {
@@ -859,8 +1019,11 @@ export class VoucherEntryAddComponent implements OnDestroy {
       }, 100)
     }
   }
-
-  enableDisableLedger (ledgerId, toDisable) {
+  CRDRId:number 
+  onchangesCRDRType (id){
+ this.CRDRId= id
+  }
+  enableDisableLedger (ledgerId, toDisable ) {
     if (+ledgerId > 0) {
       let index = this.allLedgerList.findIndex(ledger => +ledger.id === +ledgerId)
       if (index >= 0) {
@@ -869,6 +1032,7 @@ export class VoucherEntryAddComponent implements OnDestroy {
         let newData = Object.assign([], this.allLedgerList)
         newData.push({ id: ledgerId, text: text, disabled: toDisable })
         this.allLedgerList = newData
+
       }
     }
   }
@@ -892,6 +1056,7 @@ export class VoucherEntryAddComponent implements OnDestroy {
     if (this.tabId === 2) {
       this.ledgerPlaceholder = {placeholder: 'Select Vendor / Customer'}
     }
+    this.setFocus()
   }
 
   setToOther (index) {

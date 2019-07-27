@@ -120,7 +120,7 @@ export class OrganisationProfileService {
               text: element.CommonDesc
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Address Type' }, ...list]
+          return [ ...list]
         })
       ).toPromise();
   }
@@ -143,6 +143,7 @@ export class OrganisationProfileService {
 
   /* Function to get all the state list */
   getStateList = (countryCode) => {
+    debugger
     return this._vendorService.gatStateList(countryCode).
       pipe(
         map((data: any) => {
@@ -308,9 +309,9 @@ export class OrganisationProfileService {
   }
 
   getNumericZeroList = () => {
-    const list =  _.map([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], (element, i) => {
+    const list =  _.map([2, 3, 4, 5, 6, 7, 8, 9, 10], (element, i) => {
       return {
-        id: i + 1,
+        id: element,
         text: element
       }
     })

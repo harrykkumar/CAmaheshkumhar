@@ -563,7 +563,7 @@ export class GlobalService {
     if (first === 'm' || second === 'm') {
       month = '' + (+month + 1)
     }
-    if ((first === 'm' || second === 'm') && +month < 10) {
+    if (+month < 10) {
       month = '0' + month
     }
     if (+day < 10) {

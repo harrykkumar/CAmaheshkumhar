@@ -479,6 +479,7 @@ matchStateCodeWithGSTNumber(){
                         this._CommonService.AddedItem()
                         this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
                       }
+                      this.disabledGSTfor_UnRegi=false
                       this.clearValidation()
                         
                     }
@@ -530,7 +531,7 @@ matchStateCodeWithGSTNumber(){
   getOneState (rsp){
     let  newdata =[]
        newdata.push({
-         id:rsp.Data[0].CommonCode,
+         id:rsp.Data[0].Id,
          text: rsp.Data[0].CommonDesc1
        })
        this.disabledStateCountry =true
@@ -544,9 +545,10 @@ matchStateCodeWithGSTNumber(){
     ).
     subscribe((response: any) => {
       //ShortName1 = statecode
-      this.countrId =response.Data[0].CommonId
-      this.stateId = response.Data[0].CommonCode
-      if(response.Code=== UIConstant.THOUSAND){
+    
+      if(response.Code=== UIConstant.THOUSAND && response.Data.length >0){
+        this.countrId =response.Data[0].CommonId
+        this.stateId = response.Data[0].CommonCode
         this.countryselecto.setElementValue(response.Data[0].CommonId)
         this.getOneState(response)
      //   this.stateselecto.setElementValue( response.Data[0].CommonCode)
@@ -775,8 +777,9 @@ if(this.headId > 0){
         this.ledgerForm.controls.Liabilities.setValue(dataDr)
     }
   }
+    let diffcr_dr = this.ledgerForm.value.Assets - this.ledgerForm.value.Liabilities 
     
-    let diffcr_dr = this.ledgerForm.value.Liabilities - this.ledgerForm.value.Assets
+    // let diffcr_dr = this.ledgerForm.value.Liabilities - this.ledgerForm.value.Assets
      this.ledgerForm.controls.Difference.setValue(diffcr_dr)
 }
 else{

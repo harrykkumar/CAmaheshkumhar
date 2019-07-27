@@ -4,7 +4,7 @@
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-4 left_side_head">
-            <p class="heading_lead c-grey-900 mb-0"><i class="fa fa-chart-line"></i>Trail Balance</p>
+            <p class="heading_lead c-grey-900 mb-0"><i class="fa fa-chart-line"></i>Trial Balance</p>
           </div>
           <div class="col-md-8 right_saerch_side p-0">
             <div class="mr-2">
@@ -133,7 +133,7 @@
         <div class="balancesheet bgc-white col-md-11">
           <div class="row text-center bs_head p-2">
             <div class="name text-center col-md-12 font-weight-bold name_size"> {{ loggedinUserData.Name }} </div>
-            <div class="name text-center col-md-12 font-weight-bold">Trail Balance </div>
+            <div class="name text-center col-md-12 font-weight-bold">Trial Balance </div>
             <!-- <div class="text-center col-md-12 font-weight-bold">As on Date {{dateShow | dateFormat:clientDateFormat }}</div> -->
             <div class="text-center col-md-12 font-weight-bold">As on 
 <!--               Date To From
@@ -182,34 +182,6 @@
               </div>
 
             </div>
-            <!-- <div class="col-md-6 p-0">
-                            <div class="col-md-12">
-                                <div class="row"  *ngFor = "let item of mainData; let a =index" >
-                                    <div class="col-md-8">
-                                        <div   *ngIf= 'item.HeadId === 1'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"   [ngStyle]="{'padding-left':item.HeadId === 1 && item.LevelNo ===2 ? '50px' : item.HeadId === 1 && item.LevelNo ===3 ? '100px' : '0px' }" class="panel-title"><a  data-toggle="collapse">{{item.GlName}}</a></div>
-                                  
-                                    </div>
-                                    <div class="col">
-                                      <ng-container>
-                                              <div class='align-righ'   *ngIf='item.HeadId === 1 && item.LevelNo !== 1'  class="amount_bs">
-                                                      {{(item.Amount).toFixed(decimalDigit)}}
-                                                   </div>
-                                      </ng-container>
-      
-                              </div>
-                                    <div class="col">
-                                            <ng-container>
-                                                    <div class='align-righ'  [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"   *ngIf='item.HeadId === 1 && item.LevelNo === 1'  class="amount_bs">
-                                                            {{(item.Amount1).toFixed(decimalDigit)}}
-                                                         </div>
-                                            </ng-container>
-                                        </div>
-                            
-                                </div>
-                                
-                            </div>
-                         
-                        </div> -->
           </div>
 
           <div class="row tfoot">

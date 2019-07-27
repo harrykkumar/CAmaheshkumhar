@@ -44,6 +44,9 @@ export class TransactionNumberComponent implements OnInit {
       }
     }
     this.dropDownList.numericZerosList = this._orgService.getNumericZeroList()
+    if(!_.isEmpty(this.dropDownList.numericZerosList) && this.dropDownList.numericZerosList.length > 0){
+      this.modal.noOfZeroesValue = 2
+    }
     this.dropDownList.splitterList = this._orgService.getSplitterList()
     if (!_.isEmpty(this.dropDownList.splitterList) && this.dropDownList.splitterList.length > 0) {
       this.modal.splitterValue = 1
@@ -53,7 +56,13 @@ export class TransactionNumberComponent implements OnInit {
       this.modal.sessionValue = 1
     }
     this.dropDownList.transactionFormatList = await this._orgService.getTransactionFormat()
+    if (!_.isEmpty(this.dropDownList.transactionFormatList) && this.dropDownList.transactionFormatList.length > 0) {
+      this.modal.transFormatValue = 1
+    }
     this.dropDownList.transactionPositionList = await this._orgService.getTransactionPosition()
+    if (!_.isEmpty(this.dropDownList.transactionPositionList) && this.dropDownList.transactionPositionList.length > 0) {
+      this.modal.positionValue = 1
+    }
     $('#transactionNumberModal').modal(UIConstant.MODEL_SHOW)
   }
 
@@ -381,6 +390,10 @@ export class TransactionNumberComponent implements OnInit {
 
   submitForm() {
     const filteredData = _.filter(this.transactionNumberList, { Checked: true });
+    if (_.isEmpty(filteredData)) {
+      this.toastrService.showError('Error', 'Please select atleast 1 row')
+      return
+    }
     const formInvalid = _.some(filteredData, ['inValid', true]);
     if (formInvalid) {
       return

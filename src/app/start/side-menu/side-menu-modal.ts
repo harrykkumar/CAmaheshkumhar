@@ -155,10 +155,10 @@ export const SIDE_MENU_MODEL = {
     path: '',
     icon: ''
   },
-  'Organization Profile': {
-    path: 'organisation-profile',
-    icon: ''
-  },
+  // 'Organization Profile': {
+  //   path: 'organisation-profile',
+  //   icon: ''
+  // },
   'Branches': {
     path: 'owner/branch',
     icon: ''
@@ -242,14 +242,7 @@ export const SIDE_MENU_MODEL = {
     icon: ''
   },
 
-  'Day Book': {
-    path: '',
-    icon: ''
-  },
-  'Cash Book': {
-    path: '',
-    icon: ''
-  },
+
   'Balance Sheet': {
     path: 'account/balance-sheet',
     icon: ''
@@ -282,9 +275,58 @@ export const SIDE_MENU_MODEL = {
     path: 'ims/report/item-inventory',
     icon: ''
   },
-  'Trail Balance': {
+  'Trial Balance': {
     path: 'account/trail-balance',
     icon: ''
-  }
+  },
+  'Day Book': {
+    path: 'ims/report/daybook',
+    icon: ''
+  },
+  'Cash Book': {
+    path: 'ims/report/cashbook',
+    icon: ''
+  },
+  'Item Group Stock': {
+    path: 'report/item-group-stock',
+    icon: ''
+  },
+  'OutStanding Payable': {
+    path: 'report/outstanding-payables',
+    icon: ''
+  },
+  'OutStanding Receivable': {
+    path: 'report/outstanding-receiables',
+    icon: ''
+  },
+  'Cash Day Balance': {
+    path: 'ims/report/cashbook-day',
+    icon: ''
+  },
+  'Bank Book': {
+    path: 'ims/report/bankbook',
+    icon: ''
+  },
+  'Purchase Register': {
+    path: 'ims/report/purchase-register',
+    icon: ''
+  },
+  'Sale Register': {
+    path: 'ims/report/sale-register',
+    icon: ''
+  },
+  'Purchase Summary': {
+    path: 'ims/report/purchase-summary',
+    icon: ''
+  },
+  'Sale Summary': {
+    path: 'ims/report/sale-summary',
+    icon: ''
+  },
+  'Journal Register': {
+    path: 'ims/report/journal-register',
+    icon: ''
+  },
+  //ims/report/journal-register
   
 }

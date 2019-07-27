@@ -33,8 +33,8 @@ export class VendorAddComponent implements OnDestroy {
   confirmSUB: Subscription
   VendorDetailShow: Ledger[]
   id: any
-  statutoriesId: any
-  contactPersonId: any
+  statutoriesId: any =0
+  contactPersonId: any =0
   adressArray: any
   emailAdressArray: any
   ContactInfoId: number
@@ -165,9 +165,11 @@ export class VendorAddComponent implements OnDestroy {
   emailRequirdForSetting: boolean
 
   openModal () {
+    this.statutoriesId =0
+    this.contactPersonId =0
     this.disabledGSTfor_UnRegi = false
     this.disabledStateCountry =false
-    this.requiredGSTNumber = true
+    this.requiredGSTNumber = false
     this.activaTab('vendor1')
     this.editFlg = true
     this.editEmailFlg = true
@@ -189,6 +191,7 @@ export class VendorAddComponent implements OnDestroy {
       this.bankForm.reset()
     }
     if (this.editMode) {
+      this.select2VendorValue(UIConstant.ZERO)
       this.getVendorEditData(this.id)
     } else {
       this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
@@ -223,7 +226,7 @@ export class VendorAddComponent implements OnDestroy {
       this.addressDiv = false
       this.vendorDiv = true
       this.bankDiv = false
-      this.select2VendorValue(UIConstant.ZERO)
+      //this.select2VendorValue(UIConstant.ZERO)
       $('#tradediscount').prop('checked', false)
       $('#cashdiscount').prop('checked', false)
       $('#volumediscount1').prop('checked', false)
@@ -291,6 +294,9 @@ export class VendorAddComponent implements OnDestroy {
             this.vendorForm.controls.vendorName.setValue(Data.Data.LedgerDetails[0].Name)
             this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
             this.select2VendorValue(Data.Data.LedgerDetails[0].TaxTypeId)
+             this.requiredGSTNumber =  Data.Data.LedgerDetails[0].TaxTypeId ===1 ? true : false
+            
+            this.vendorId =Data.Data.LedgerDetails[0].TaxTypeId
            this.vendorRegisterTypeSelect2.setElementValue(Data.Data.LedgerDetails[0].TaxTypeId)
 
             this.disabledGSTfor_UnRegi = Data.Data.LedgerDetails[0].TaxTypeId === 4 ? true :false
@@ -401,7 +407,7 @@ export class VendorAddComponent implements OnDestroy {
     this.submitClick = false
     this.adressArray = []
     this.emailAdressArray = []
-    this.select2VendorValue(UIConstant.ZERO)
+    //this.select2VendorValue(UIConstant.ZERO)
     this.select2CrDrValue(0)
     this.formVendor()
     this.formBank()
@@ -462,12 +468,12 @@ getStateCode = async (stateCode) =>{
   ).
   subscribe((response: any) => {
     //ShortName1 = statecode
-    if(response.Code=== UIConstant.THOUSAND){
+    if(response.Code=== UIConstant.THOUSAND && response.Data.length >0){
       this.countrId =response.Data[0].CommonId
-      this.stateId = response.Data[0].CommonCode
+      this.stateId = response.Data[0].Id
       this.countryselecto.setElementValue(response.Data[0].CommonId)
       this.getOneState(response)
-      this.stateselecto.setElementValue( response.Data[0].CommonCode)
+      this.stateselecto.setElementValue( response.Data[0].Id)
       
     }
   })
@@ -478,7 +484,7 @@ disabledStateCountry:boolean
   getOneState (rsp){
    let  newdata =[]
       newdata.push({
-        id:rsp.Data[0].CommonCode,
+        id:rsp.Data[0].Id,
         text: rsp.Data[0].CommonDesc1
       })
       this.disabledStateCountry =true
@@ -671,7 +677,7 @@ disabledStateCountry:boolean
     }
 
   }
-  requiredGSTNumber:boolean
+  requiredGSTNumber:boolean = false
   disabledGSTfor_UnRegi:boolean = false
   selectedVendorId(event) {
     this.vendorId = +event.value
@@ -990,6 +996,7 @@ disabledStateCountry:boolean
                       }
                       this.disabledStateCountry= false
                       this.resetForNewFoem()
+                      this.resetAddress()
                   }
                   if (Data.Code === UIConstant.THOUSANDONE) {
                     this._toastrcustomservice.showInfo('', Data.Description)
@@ -1035,7 +1042,7 @@ disabledStateCountry:boolean
 
 resetForNewFoem (){
   this.vendorForm.reset()
-  this.select2VendorValue(0)
+ this.select2VendorValue(0)
   this.phoneCodeselect2.setElementValue(0)
   this.select_Mobile.setElementValue(1)
   this.select_email.setElementValue(1)
@@ -1050,6 +1057,7 @@ resetForNewFoem (){
  this.stateList =[]
  this.cityList=[]
  this.areaList=[]
+
   
 }
   private getopeinAmountValue () {
@@ -1080,7 +1088,7 @@ resetForNewFoem (){
     }
     let ledgerElement = {
       ledgerObj: {
-        Id: this.id,
+        Id: this.id !==0 ?  this.id : 0 ,
         Websites: [],
         GlId: 4,
         OpeningAmount: this.getopeinAmountValue(),
@@ -1090,13 +1098,13 @@ resetForNewFoem (){
         IsRcm: this.isRcm,
         IsMsmed: this.isMsdm,
         Statutories: [{
-          Id: this.statutoriesId,
+          Id: this.statutoriesId !==0 ? this.statutoriesId: 0,
           PanNo: this.PANNumber,
           GstinNo: this.vendorForm.value.gstNo,
           ParentTypeId: 5
         }],
         ContactPersons: [{
-          Id: this.contactPersonId,
+          Id: this.contactPersonId !==0 ? this.contactPersonId: 0,
           ParentTypeId: 5,
           Name: this.vendorForm.value.contactPerson,
           DOB: dob,
@@ -1118,7 +1126,7 @@ resetForNewFoem (){
   addNewAdress () {
     this.addressClick = true
     this.addressDetailsValidation()
-    if (this.stateId > 0 && this.cityId > 0 && this.countrId > 0 && this.adressForm.value.adressvalue !== '' && this.adressForm.value.adressvalue !== null) {
+    if (this.countrId > 0 && this.stateId > 0 && this.cityId > 0  && this.adressForm.value.adressvalue !== '' && this.adressForm.value.adressvalue !== null) {
       this.addressRequiredForLedger = false
       this.countryList.forEach(element => {
         if (element.id === JSON.parse(this.countrId)) {
@@ -1180,11 +1188,11 @@ resetForNewFoem (){
       this.addressClick = false
     }
     this.adressForm.reset()
-    this.resetAddress()
+    //this.resetAddress()
     this.adressType(0)
 
-    this.activaTab('vendor3')
-    this.adressTab()
+   // this.activaTab('vendor3')
+   //this.adressTab()
     setTimeout(() => {
       this.bankName.nativeElement.focus()
     }, 500)
@@ -1231,6 +1239,8 @@ resetAddress(){
     this.cityList=[]
     this.areaList=[]
     this.closeModal()
+    this.select2VendorValue(UIConstant.ZERO)
+    
   }
   bankIndex: any
 
@@ -1420,7 +1430,7 @@ resetAddress(){
   emailAddingArray () {
     this.editEmailFlg = true
     this.checkvalidationEmail()
-    if(this.EmailType > 0 && this.getEmailvalid && this.vendorForm.value.EmailAddress !== ''){
+    if(this.EmailType > 0 && this.getEmailvalid && this.vendorForm.value.EmailAddress !== null && this.vendorForm.value.EmailAddress !== ''){
       this.emailRequirdForSetting = false
     this.emailArray.push({
       Id: this.EmailId ===0 ? 0 : this.EmailId,

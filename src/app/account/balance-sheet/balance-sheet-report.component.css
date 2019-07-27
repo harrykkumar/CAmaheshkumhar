@@ -17,3 +17,23 @@
  .text-right {
 text-align: right
  }
+ .font-italic{
+   font-style: italic;
+ }
+ .normal {
+   font-weight: 500.3;
+font-style: normal
+ }
+ .bold {
+   font-weight: bold
+ }
+
+ .normal {
+ font-weight: 500.3;
+font-style: normal
+ }
+ .bold {
+   font-weight: bold
+ }
+
+ /* font-size: 13px; */

@@ -118,7 +118,10 @@ export class DateFormatPipe {
     if (first === 'M' || second === 'M') {
       month = months[month]
     }
-    if ((first === 'm' || second === 'm') && +month < 10) {
+    if (first === 'm' || second === 'm') {
+      month = '' + (+month + 1)
+    }
+    if (+month < 10) {
       month = '0' + month
     }
     if (+day < 10) {

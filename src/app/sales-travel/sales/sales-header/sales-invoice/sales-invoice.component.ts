@@ -54,6 +54,7 @@ export class SalesInvoiceComponent {
 
   Supplier: number
   TicketNo: string
+  AirlineTicketCode: string
   Routing: number
   Remark: string
   Fare: number
@@ -266,7 +267,8 @@ export class SalesInvoiceComponent {
   createItems (travelImports) {
     travelImports.forEach(element => {
       this.Supplier = element.SupplierId
-      this.TicketNo = element.TicketNo
+      this.TicketNo = element.TicketNo,
+      this.AirlineTicketCode = element.AirlineTicketCode
       this.Routing = element.RoutingId
       this.Remark = element.Remark
       this.Date = this.gs.utcToClientDateFormat(element.DateOfTravel, this.clientDateFormat)
@@ -349,6 +351,7 @@ export class SalesInvoiceComponent {
       i = i - 1
       this.Supplier = this.items[i].SupplierId
       this.TicketNo = this.items[i].TicketNo
+      this.AirlineTicketCode = this.items[i].AirlineTicketCode
       this.Routing = this.items[i].RoutingId
       this.Remark = this.items[i].Remark
       this.Date = this.items[i].Date
@@ -435,6 +438,7 @@ export class SalesInvoiceComponent {
         Sno: 1,
         SupplierId: +this.Supplier,
         TicketNo: this.TicketNo,
+        AirlineTicketCode: this.AirlineTicketCode,
         RoutingId: +this.Routing,
         Remark: this.Remark,
         Date:  this.Date,
@@ -467,6 +471,7 @@ export class SalesInvoiceComponent {
         Sno: index,
         SupplierId: this.Supplier,
         TicketNo:  this.TicketNo,
+        AirlineTicketCode: this.AirlineTicketCode,
         RoutingId:  this.Routing,
         Remark:  this.Remark,
         Date:  this.Date,
@@ -584,6 +589,7 @@ export class SalesInvoiceComponent {
   initialiseItem () {
     this.Supplier = 0
     this.TicketNo = ''
+    this.AirlineTicketCode = ''
     this.Routing = 0
     this.Remark = ''
     this.Fare = 0
@@ -1325,7 +1331,7 @@ export class SalesInvoiceComponent {
   }
 
   validateItem () {
-    if (this.Supplier || this.TicketNo || this.Routing || this.Remark || this.Fare) {
+    if (this.Supplier || this.TicketNo  || this.Routing || this.Remark || this.Fare) {
       let isValid = 1
       if (+this.Routing > 0) {
         this.invalidObj['Routing'] = false

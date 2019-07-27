@@ -236,6 +236,18 @@ export class ItemStockSearchComponent implements OnInit, AfterViewInit, OnChange
     this.model.unitValue = 0
     this.model.fromDatevalue = ""
     this.model.toDateValue = ""
+   // this.categoryOption={}
+  }
+  reset(){
+    debugger
+    this.model.formattedFromDatevalue = ""
+    this.model.formattedToDateValue = ""
+    this.model.fromDatevalue = ""
+    this.model.toDateValue = ""
+   // this.model.categoryValue = []
+    //this.model.itemValue = []
+  this.model.selectedCategory = ""
+  this.model.selectedItem = ""
   }
 
 }

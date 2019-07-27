@@ -355,6 +355,8 @@ export class CustomerAddComponent implements OnDestroy {
     this.stateList =[]
     this.cityList=[]
     this.areaList=[]
+    this.select2VendorValue(UIConstant.ZERO)
+
 
 
     // this.getCustomerDetail()
@@ -403,8 +405,10 @@ export class CustomerAddComponent implements OnDestroy {
   validMobileFlag: boolean
   editFlg: boolean
   EmailId: number
-  requiredGSTNumber:boolean
+  requiredGSTNumber:boolean = false
   openModal() {
+    this.contactId =0
+    this.satuariesId =0
     this.disabledGSTfor_UnRegi = false
     this.disabledStateCountry = false
     this.requiredGSTNumber = false
@@ -428,14 +432,17 @@ export class CustomerAddComponent implements OnDestroy {
     this.addressClick = false
     this.setDOBDate()
     this.setDOADate()
+   
     if (this.coustomerForm) {
       this.coustomerForm.reset()
     }
     if (this.editMode) {
       this.enableContactFlag = false
+      this.select2VendorValue(UIConstant.ZERO)
       this.getCustomerEditData(this.id)
       this.adressType(0)
     } else {
+      this.select2VendorValue(UIConstant.ZERO)
       this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
       this.getModuleSettingData()
       this.id = UIConstant.ZERO
@@ -451,7 +458,6 @@ export class CustomerAddComponent implements OnDestroy {
       this.satuariesId = UIConstant.ZERO
       this.submitClick = false
       this.addressid = UIConstant.ZERO
-      this.select2VendorValue(UIConstant.ZERO)
       this.select2CrDrValue(0)
       this.getCountry(0)
       this.adressType(0)
@@ -463,8 +469,8 @@ export class CustomerAddComponent implements OnDestroy {
       this.istradeDiscountValue = false
       this.isVolumeDiscountValue = false
       this.isDiscountValue = false
-    this.CustomerRegisterTypeSelect2.setElementValue(1)
-this.VendorValidation()
+       this.CustomerRegisterTypeSelect2.setElementValue(1)
+      this.VendorValidation()
       $('#tradediscount').prop('checked', false)
       $('#cashdiscount').prop('checked', false)
       $('#volumediscount1').prop('checked', false)
@@ -522,7 +528,6 @@ this.VendorValidation()
   disabledGSTfor_UnRegi:boolean=false
   selectCoustmoreId(event) {
     this.coustmoreRegistraionId = +event.value
-    this.customerRegistraionError = false
     if(+event.value===1){
       this.requiredGSTNumber = true
       this.disabledGSTfor_UnRegi= false
@@ -663,6 +668,11 @@ this.VendorValidation()
       , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
     this.coustomerValue = this.selectyCoustmoreRegistration[0].id
     this.coustmoreRegistraionId = +this.selectyCoustmoreRegistration[0].id
+
+    // if(!this.editMode){
+    //   this.coustmoreRegistraionId = +this.selectyCoustmoreRegistration[0].id
+    // }
+  
    // this.CustomerRegisterTypeSelect2.setElementValue(1)
 
   }
@@ -760,6 +770,7 @@ this.VendorValidation()
                       }
                       this.disabledStateCountry = false
                       this.resetForNew()
+                      this.resetAddress()
                     }
                     if (Data.Code === UIConstant.THOUSANDONE) {
                       this._toastrcustomservice.showInfo('', Data.Description)
@@ -808,7 +819,7 @@ this.VendorValidation()
     this.submitClick = false
     this.coustomerForm.reset()
     this.createCustomerForm()
-    this.select2VendorValue(0)
+    //this.select2VendorValue(0)
     this.getCustomoerType(0)
     this.mobileArray = []
     this.emailArray = []
@@ -923,13 +934,12 @@ this.VendorValidation()
       takeUntil(this.unSubscribe$)
     ).
     subscribe((response: any) => {
-      //ShortName1 = statecode
-      this.countrId =response.Data[0].CommonId
-      this.stateId = response.Data[0].CommonCode
-      if(response.Code=== UIConstant.THOUSAND){
+      if(response.Code=== UIConstant.THOUSAND && response.Data.length){
+        this.countrId =response.Data[0].CommonId
+        this.stateId = response.Data[0].Id
         this.countryselecto.setElementValue(response.Data[0].CommonId)
         this.getOneState(response)
-        this.stateselecto.setElementValue( response.Data[0].CommonCode)
+        this.stateselecto.setElementValue( response.Data[0].Id)
         
       }
     })
@@ -939,7 +949,7 @@ this.VendorValidation()
     getOneState (rsp){
      let  newdata =[]
         newdata.push({
-          id:rsp.Data[0].CommonCode,
+          id:rsp.Data[0].Id,
           text: rsp.Data[0].CommonDesc1
         })
         this.disabledStateCountry =true
@@ -979,7 +989,6 @@ this.VendorValidation()
   }
   checkGSTNumberValid () {
     if(this.coustomerForm.value.gstin  !=='' && this.coustomerForm.value.gstin !==null){
-  //    this.GSTNumber = (this.coustomerForm.value.gstin).toUpperCase()
       if(this.coustmoreRegistraionId === 1){
         if (this._CommonService.gstNumberRegxValidation((this.coustomerForm.value.gstin).toUpperCase())) {
           this.validGSTNumber = false
@@ -1017,7 +1026,7 @@ this.VendorValidation()
 
     let customerElement = {
       customerOBJ: {
-        Id: this.id,
+        Id: this.id !==0 ? this.editId :0,
         Websites: [],
         GlId: 5,
         CustomerTypeId: this.customerTypeId,
@@ -1032,13 +1041,13 @@ this.VendorValidation()
         IsCashDiscountable: this.isDiscountValue,
 
         Statutories: [{
-          Id: this.satuariesId,
+          Id: this.satuariesId !==0 ? this.satuariesId : 0,
           PanNo: this.PANNumber,
           GstinNo: this.coustomerForm.value.gstin,
           ParentTypeId: 5
         }],
         ContactPersons: [{
-          Id: this.contactId,
+          Id: this.contactId !==0 ?this.contactId : 0,
           ParentTypeId: 5,
           Name: this.coustomerForm.value.contactPerson,
           DOB: DOB,
@@ -1149,7 +1158,7 @@ console.log(customerElement,'customer-Req-')
     }
 
     this.adressForm.reset()
-    this.resetAddress()
+    //this.resetAddress()
     this.adressType(0)
     setTimeout(() => {
       this.countryselecto.selector.nativeElement.focus()
@@ -1205,16 +1214,12 @@ console.log(customerElement,'customer-Req-')
 
     this.subscribe = this._coustomerServices.editvendor(id).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
-        // this.emailMobileValidationRequired()
-        //  console.log('edit customer data: ', Data)
         if (Data.Data && Data.Data.Statutories && Data.Data.Statutories.length > 0) {
           this.satuariesId = Data.Data.Statutories[0].Id
           this.coustomerForm.controls.gstin.setValue(Data.Data.Statutories[0].GstinNo)
           this.coustomerForm.controls.panNo.setValue(Data.Data.Statutories[0].PanNo)
         }
-        // console.log(Data.Data, 'customer edit Data')
         if (Data.Data && Data.Data.Addresses && Data.Data.Addresses.length > 0) {
-          // alert("jij9")
           this.collectionOfAddress = []
           this.collectionOfAddress = Data.Data.Addresses
           this.addressRequiredForLedger = false
@@ -1243,13 +1248,13 @@ console.log(customerElement,'customer-Req-')
         }
 
         if (Data.Data && Data.Data.LedgerDetails && Data.Data.LedgerDetails.length > 0) {
-
           this.coustomerForm.controls.customerName.setValue(Data.Data.LedgerDetails[0].Name)
           this.coustomerForm.controls.creditDays.setValue(Data.Data.LedgerDetails[0].CreditDays)
           this.coustomerForm.controls.creditlimit.setValue(Data.Data.LedgerDetails[0].CreditLimit)
           this.coustomerForm.controls.openingblance.setValue(Data.Data.LedgerDetails[0].OpeningBalance)
           this.customerTypeId = Data.Data.LedgerDetails[0].CustomerTypeId
-          this.customerTypeId = Data.Data.LedgerDetails[0].TaxTypeId
+          this.coustmoreRegistraionId = Data.Data.LedgerDetails[0].TaxTypeId
+          this.requiredGSTNumber =  Data.Data.LedgerDetails[0].TaxTypeId ===1 ? true : false
           this.crDrId = Data.Data.LedgerDetails[0].Crdr
           this.getCustomoerType(Data.Data.LedgerDetails[0].CustomerTypeId)
           this.CustomerRegisterTypeSelect2.setElementValue(Data.Data.LedgerDetails[0].TaxTypeId)
@@ -1457,9 +1462,10 @@ console.log(customerElement,'customer-Req-')
   }
   editEmailFlg: boolean = true
   emailAddingArray() {
+    debugger
     this.editEmailFlg = true
     this.checkvalidationEmail()
-    if (this.EmailType > 0 && this.getEmailvalid && this.coustomerForm.value.EmailAddress !== '') {
+    if (this.EmailType > 0 && this.getEmailvalid && this.coustomerForm.value.EmailAddress !== null && this.coustomerForm.value.EmailAddress !== '') {
       this.emailRequirdForSetting = false
       this.emailArray.push({
         Id: this.EmailId === 0 ? 0 : this.EmailId,

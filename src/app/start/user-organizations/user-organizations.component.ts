@@ -58,10 +58,12 @@ export class UserOrganizationsComponent implements OnInit {
   }
 
   closeModal = async (data) => {
-    if(!data || (!_.isEmpty(this.modalData) && Number(data) === this.modalData.editId)){
+    if (!data || (!_.isEmpty(this.modalData) && Number(data) === this.modalData.editId)) {
       this.modalData = {
         open: false
       }
+      await this._loginService.getUserOrganization();
+      this.organizationList = [...this._loginService.userOrganizations];
     } else if (data) {
       const Id = Number(data)
       const token = await this._loginService.extendJwtToken({ OrgId: Id })

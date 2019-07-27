@@ -1,12 +1,14 @@
-import { Component ,OnInit } from '@angular/core'
-import { Subscription } from 'rxjs'
-import { FormGroup } from '@angular/forms'
-import { SaleTravel ,AddCust } from '../../../model/sales-tracker.model'
-// import { SaleTravelServices } from '../../sales/sale-travel.services'
+
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
+import { Subscription ,fromEvent} from 'rxjs'
 import { UIConstant } from '../../../shared/constants/ui-constant'
 declare const $: any
+import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { CommonService } from '../../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../../commonServices/toastr.service'
+import { VendorServices } from '../../../commonServices/TransactionMaster/vendoer-master.services'
+import { PagingComponent } from '../../../shared/pagination/pagination.component'
+import { FormGroup, FormBuilder } from '@angular/forms'
 import { Settings } from '../../../shared/constants/settings.constant'
 
 @Component({
@@ -17,42 +19,21 @@ import { Settings } from '../../../shared/constants/settings.constant'
 export class SalesListComponent implements   OnInit   {
   DIRECT_SALE_TYPE: any = 'DirectSale'
   saleDirectDetails: any
-  totalDiscount: number
-  totaltax: number
-  totalBillAmount: number
+  itemsPerPage: number = 20
+  totalDiscount: number=0
+  totaltax: number=0
+  totalBillAmount: number=0
+  refreshingpage: Subscription
   newBillSub: Subscription
-  clientDateFormat:any
-  dicimalDigitFormat:any
-  constructor (public _settings: Settings ,public _commonService: CommonService ,public _toastrCustomService: ToastrCustomService) {
-   // this.getSaleChallanDetail()
-    this.clientDateFormat = this._settings.dateFormat
-    this.dicimalDigitFormat = this._settings.noOfDecimal
-    this.newBillSub = this._commonService.newSaleStatus().subscribe(
-      (obj: any) => {
-       // this.getSaleChallanDetail()
-
-      }
-    )
-
-  }
-
-  openSaleDirect (id) {
-    this._commonService.openSaleDirect(id,true)
-  }
-  industryId:any
-  // tslint:disable-next-line:no-empty
-  ngOnInit () {
-    let data = JSON.stringify(this._settings.industryId)
-    this.industryId = JSON.parse(data)
-    this._commonService.fixTableHF('cat-table')
-  }
-  toShowSearch = false
-
-  toggleSearch () {
-    this.toShowSearch = !this.toShowSearch
-  }
-
-
+  queryStr$: Subscription
+  total: number = 0
+  searchForm: FormGroup
+  isSearching: boolean = false
+  queryStr: string = ''
+  lastItemIndex: number = 0
+  p: number = 1
+  decimalDigit:any
+  
   // generate bar code
   InventoryTransactionSales: any
   barcode: any
@@ -60,14 +41,14 @@ export class SalesListComponent implements   OnInit   {
   reciverContData: any
   reciverAddress: any
   itemAttributeDatails: any
-  itemAttbute: any
+  itemAttbute: any =[]
   website: any
   ContactCustInfo: any
   ContactOrgInfo: any
   ItemTaxTrans: any
-  totalDiscountAmt: any
-  totaltaxAmount: any
-  subTotalAmount: any
+  totalDiscountAmt: any =0
+  totaltaxAmount: any=0
+  subTotalAmount: any=0
   billAmount: any
   paymentModeData: any =[]
   TermsConditions: any
@@ -77,23 +58,127 @@ export class SalesListComponent implements   OnInit   {
    taxname:'Tax-Invoice'
   }
   getAddtionalCharge: any
+  dicimalDigitFormat:any
+  clientDateFormat:any
+  constructor ( private _settings: Settings,private _formBuilder : FormBuilder,private _coustomerServices: VendorServices,public _commonService: CommonService ,public _toastrCustomService: ToastrCustomService) {
+    this.formSearch()
+    this.clientDateFormat = this._settings.dateFormat
+    this.dicimalDigitFormat = this._settings.noOfDecimal
+    this.decimalDigit =this._settings.noOfDecimal
+    this.getSaleDetail()
+    
+    this.newBillSub = this._commonService.newSaleStatus().subscribe(
+      (obj: any) => {
+        this.getSaleDetail()
 
-  openPrint (id,HtmlId ,isViewPrint) {
-    debugger
-    alert("perint")
-    this.onPrintForDirectSale(id,HtmlId,isViewPrint)
-    // this._commonService.openPrint(id,this.DIRECT_SALE_TYPE,isViewPrint)
+      }
+    )
+    this.queryStr$ = this._commonService.querySaleStr$.subscribe(
+      (str) => {
+        console.log(str)
+        this.queryStr = str
+        this.p = 1
+        this.getSaleDetail()
+      }
+    )
+    this.refreshingpage = this._commonService.newRefreshItemStatus().subscribe(
+      (obj) => {  
+          this.getSaleDetail()
+      }
+    )
+
   }
 
+  openSaleDirect (id) {
+    this._commonService.openSaleDirect(id,true)
+  }
+  @ViewChild('searchData') searchData: ElementRef
+  industryId:any
+  ngOnInit () {
+         let data = JSON.stringify(this._settings.industryId)
+      this.industryId = JSON.parse(data)
+    this._commonService.fixTableHF('cat-table')
+    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+      map((event: any) => {
+        return event.target.value
+      }),
+      filter(res => res.length > 1 || res.length === 0),
+      debounceTime(1000),
+      distinctUntilChanged()
+      ).subscribe((text: string) => {
+        this.isSearching = true
+        this.searchGetCall(text).subscribe((data) => {
+          console.log('search data : ', data)
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          this.saleDirectDetails = data.Data
+          this.total = this.saleDirectDetails[0] ? this.saleDirectDetails[0].TotalRows : 0
+        },(err) => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+          console.log('error',err)
+        },
+        () => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+        })
+      })
+  }
+  toShowSearch = false
+  @ViewChild('paging_comp') pagingComp: PagingComponent
+  private formSearch () {
+    this.searchForm = this._formBuilder.group({
+      'searckKey': [UIConstant.BLANK]
+    })
+  }
+  toggleSearch () {
+    this.toShowSearch = !this.toShowSearch
+  }
+  searchGetCall (term: string) {
+    if (!term) {
+      term = ''
+    }
+    this.pagingComp.setPage(1)
+    return this._commonService.getListSaleDirect( '?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
+  }
+  getSaleDetail () {
+    
+    if (!this.searchForm.value.searckKey) {
+      this.searchForm.value.searckKey = ''
+    }
+    this._commonService.getListSaleDirect('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
+      console.log('sales data: ', data)
+      if (data.Code === UIConstant.THOUSAND && data.Data.SaleDetails.length >0) {
+        this.totalDiscount = 0
+        this.totaltax = 0
+        this.totalBillAmount = 0
+        this.saleDirectDetails = data.Data.SaleDetails
+        this.total = this.saleDirectDetails[0] ? this.saleDirectDetails[0].TotalRows : 0
 
+        data.Data.SaleDetails.forEach(element => {
+          this.totalDiscount = +(this.totalDiscount + +element.Discount).toFixed(this.decimalDigit)
+          this.totaltax = +(this.totaltax + +element.TaxAmount).toFixed(this.decimalDigit)
+          this.totalBillAmount = +(this.totalBillAmount + +element.BillAmount).toFixed(this.decimalDigit)
+        })
 
+      }
+    })
+  }
+  openPrint (id,HtmlId ,isViewPrint) {
+    this.onPrintForDirectSale(id,HtmlId,isViewPrint)
+  }
+  BillName:any
   customerAddress:any =[]
   orgImageData:any
   ItemTransactionactions:any =[]
   orgImage :any
   orgAddress:any
+  inWordBillAmount:string=''
   onPrintForDirectSale (id, htmlId,isViewForm) {
-    this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
+  //  this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
     let _self = this
     _self._commonService.printDirectSale(id).subscribe(data => {
       //    console.log(JSON.stringify(data)  , 'salechallan')
@@ -105,11 +190,11 @@ export class SalesListComponent implements   OnInit   {
           _self.InventoryTransactionSales = data.Data.SaleTransactionses
           _self.barcode = data.Data.SaleTransactionses[0].BarcodeBill
           this.billAmount = (data.Data.SaleTransactionses[0].BillAmount).toFixed(this.dicimalDigitFormat)
-          this._commonService.NumInWords(this.billAmount)
+          this.inWordBillAmount = this._commonService.NumInWords(this.billAmount)
         } else {
           _self.InventoryTransactionSales = []
         }
-
+        
         _self.ItemTransactionactions = []
         if (data.Data && data.Data.ItemTransactions.length > 0) {
           _self.ItemTransactionactions = []
@@ -131,9 +216,12 @@ export class SalesListComponent implements   OnInit   {
           _self.itemAttributeDatails = []
         }
         if (data.Data.ItemTaxTransDetails.length > 0) {
+          this.BillName='Tax-Invoice'
           _self.ItemTaxTrans = []
           _self.ItemTaxTrans = data.Data.ItemTaxTransDetails
         } else {
+          this.BillName='Bill Of Supply'
+          
           _self.ItemTaxTrans = []
         }
         //
@@ -255,39 +343,10 @@ export class SalesListComponent implements   OnInit   {
         if (data.Data.HsnItemTaxTransDetails.length > 0) {
 
         this.ValueOfTaxName(data.Data.HsnItemTaxTransDetails, data.Data.HsnItemTransactions,data.Data.TaxTitles, data.Data.SaleTransactionses[0].Currency)
-      //  this.CustomerTypes = []
           this.hsntaxItem = data.Data.HsnItemTaxTransDetails
-
         } else {
           this.hsntaxItem = []
-        }
-        if (data.Data.HsnItemTransactions.length > 0) {
-          this.hsnItemData= []
-         let  hsnitem =[]
-          // data.Data.HsnItemTransactions.forEach( ele =>{
-          //    hsnitem  = data.Data.HsnItemTaxTransDetails.filter(s=> s.HsnNo === ele.HsnNo)
-          //   if(hsnitem.length > 0) {
-          //     let totalrate = hsnitem.filter(item1 => item1.TaxRate)
-          //     .map(item1 => parseFloat(item1.TaxRate))
-          //     .reduce((sum, current) => sum + current, 0)
-          //     this.hsnItemData.push({
-          //       id:ele,
-          //      HsnNo:ele.HsnNo,
-          //      TaxableAmount:ele.TaxableAmount,
-          //      TotalAmount:ele.TotalAmount,
-          //      tax: hsnitem,
-          //      rate:totalrate
-               
-          //     })
-          //   }
-          // })
-         // console.log(this.hsnItemData,'HSN')
-          
-
-        } else {
-          this.hsntaxItem = []
-        }
-
+        }     
         setTimeout(function () {
           _self.InitializedPrintForDirectSale(htmlId,isViewForm)
         }, 10)
@@ -359,7 +418,6 @@ export class SalesListComponent implements   OnInit   {
           })
         });
         console.log(this.mainData ,'Main-HSN')
-      }
 
-
+}
 }

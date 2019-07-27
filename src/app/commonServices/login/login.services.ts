@@ -54,7 +54,9 @@ export class LoginService {
             await this.mapPermissions()
             resolve(this.userData)
           } else if (data.Code === 5018) {
+            this.logOut()
             this.router.navigate(['login'])
+           
             resolve()
           }
         },
@@ -170,6 +172,8 @@ export class LoginService {
           this.userOrganizations = [...res.Data['OrganizationDetails']];
           this.loginUserDetails = {...res.Data['LoginUserDetails'][0]}
           resolve(this.userOrganizations);
+        } else if(res.Code === 5018) {
+          this.logOut()
         }
       },
         (error) => {

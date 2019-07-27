@@ -92,6 +92,7 @@
                       <th>Date</th>
                       <th>Return Date</th>
                       <th>Ticket No.</th>
+                      <th>Flight Code</th>
                       <th>Fare</th>
                       <th>Discount</th>
                       <th>Tax Amount</th>
@@ -125,6 +126,7 @@
                       <td>{{item.Date}}</td>
                       <td>{{item.ReturnDate}}</td>
                       <td>{{item.TicketNo}}</td>
+                      <td>{{item.AirlineTicketCode}}</td>
                       <td>{{item.Fare}}</td>
                       <td>
                         {{item.Discount}}&nbsp;{{item.DiscountType === 0 && item.Discount != 0 ? '%' : defaultCurrency}}
@@ -188,7 +190,14 @@
                           (dateInFormat)="returnDate = $event; checkForValidReturnDate();"
                           [class]="returnDateError" ></datepicker-popup>
                       </td>
-                      <td><input type="text" name="TicketNo" placeholder="TicketNo" (input)="validateItem();checkForValidation()" [(ngModel)]="TicketNo" class="form-control" [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.TicketNo }" ></td>
+                      <td><input type="text" name="TicketNo" placeholder="TicketNo" (input)="validateItem();checkForValidation()"
+                         [(ngModel)]="TicketNo" class="form-control"
+                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.TicketNo }"
+                         ></td>
+                      <td><input type="text" name="flightCode" placeholder="Flight Code"
+                      [(ngModel)]="AirlineTicketCode" class="form-control"
+                      ></td>
+
                       <td><input type="text" class="form-control" appIncludeDecimal placeholder="Fare" name="Fare" [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Fare }" (input)="validateItem();checkForValidation();calculate()" [(ngModel)]="Fare" ></td>
                       <td>
                         <div class="discount">

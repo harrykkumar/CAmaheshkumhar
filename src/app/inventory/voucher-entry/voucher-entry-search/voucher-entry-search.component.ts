@@ -106,11 +106,12 @@ export class VoucherEntrySearchComponent {
       if (!this.searchForm.value.ToDate) {
         this.searchForm.value.ToDate = ''
       }
-      // '&Type=' + this.Type +
+
       const queryStr = 
        '&FromDate=' + fromDate + 
        '&ToDate=' + toDate + 
-       '&LedgerId=' + this.LedgerId
+       '&LedgerId=' + this.LedgerId +
+       '&VoucherType=' + this.Type
       this.voucherEntryServie.setSearchQueryParamsStr(queryStr)
     }
   }
@@ -133,7 +134,8 @@ export class VoucherEntrySearchComponent {
     '&ToDate=' + '' + 
     '&FromAmount=' + 0 + 
     '&ToAmount=' + 0 + 
-    '&LedgerId=' + this.LedgerId 
+    '&LedgerId=' + this.LedgerId +
+    '&VoucherType=' + 0 
    this.voucherEntryServie.setSearchQueryParamsStr(queryStr)
   }
 

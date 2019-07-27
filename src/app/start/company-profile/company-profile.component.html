@@ -669,6 +669,7 @@
                                 id="countrySelectId"
                                 [data]="countryList"
                                 class="control_select"
+                                [options] ="{placeholder:'Select Country'}"
                                 (valueChanged)="
                                   onCountrySelectionChange($event)
                                 "
@@ -693,6 +694,7 @@
                               <select2 [disabled]='disabledStateCountry'
                                 #stateSelect
                                 [data]="stateList"
+                                [options] ="{placeholder:'Select State'}"
                                 class="control_select"
                                 (valueChanged)="onStateSelectionChange($event)"
                                 autocomplete="true"
@@ -716,6 +718,7 @@
                                 #citySelect
                                 [data]="cityList"
                                 class="control_select"
+                                [options] ="{placeholder:'Select City'}"
                                 (valueChanged)="onCitySelectionChange($event)"
                                 autocomplete="true"
                                 [value]="model.cityCodeId"
@@ -736,6 +739,7 @@
                             <div class="input-group adw_select">
                               <select2
                                 #areaSelect
+                                [options] ="{placeholder:'Select Area'}"
                                 [data]="areaList"
                                 class="control_select"
                                 (valueChanged)="onAreaSelectionChange($event)"
@@ -751,6 +755,7 @@
                             <div class="input-group adw_select">
                               <select2
                                 #addressTypeSelect
+                                [options] ="{placeholder:'Select Address Type'}"
                                 [data]="addressTypeList"
                                 class="control_select"
                                 (valueChanged)="onAddressTypeChange($event)"
@@ -798,7 +803,7 @@
                           *ngFor="let item of addressDetailArray; let i = index"
                         >
                           <div class="card addredd_book p-3">
-                            <h5>{{ item.selectedAddressType }}</h5>
+                            <h5>{{ item.AddressTypeName }}</h5>
                             <p>
                               <span>Post Code : </span
                               ><span> {{ item.postalCode }}</span>
@@ -839,7 +844,7 @@
                             </div>
                           </div>
                         </div>
-                        <button
+                        <button  *ngIf='RemoveAddressButtonFlag'
                           (keydown.Tab)="onTabOut('#panel529')"
                           class="col-md-3 p-0 border-0"
                           type="submit"

@@ -105,4 +105,8 @@ export class VoucherEntryServie {
   printReceiptPayment (obj): Observable<ResponseSale> {
     return this.baseService.getRequest(`${ApiConstant.PAYMENT_RECEIPT_PRINT}?id=${obj.id}`)
   }
+
+  deleteVouncherData = (id) =>{
+    return this.baseService.deleteRequest(`${ApiConstant.LEDGER_SUMMARY}?id=` + id)
+  }
 }

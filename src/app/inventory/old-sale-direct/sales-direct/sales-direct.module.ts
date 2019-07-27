@@ -7,6 +7,7 @@ import { SalesSearchComponent } from './sales-header/sales-search/sales-search.c
 import { SalesListComponent } from './sales-list.component'
 import { SharedModule } from '../../../shared/shared.module'
 import { NgxBarcodeModule } from 'ngx-barcode'
+//import {SaleCommonService}
 import {SalesDirectComponent} from './sales-header/sales-direct/sales-direct.component'
 @NgModule({
   declarations: [ 

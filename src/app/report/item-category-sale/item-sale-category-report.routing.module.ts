@@ -7,6 +7,7 @@ const routes: Routes = [
     { path: 'item-sale', component: ItemSaleCategoryReportComponent }
   ]}
 ]
+
 @NgModule({
   imports: [
     RouterModule.forChild(routes)

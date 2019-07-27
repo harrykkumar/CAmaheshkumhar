@@ -1,5 +1,5 @@
 import { Component, Renderer2, ViewChild, ViewChildren, QueryList } from '@angular/core'
-import { Subscription } from 'rxjs'
+import { Subscription ,Subject } from 'rxjs'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms'
 import { AddCust, ResponseSale, TravelPayments } from '../../../../../model/sales-tracker.model'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
@@ -22,6 +22,7 @@ declare var $: any
 declare var flatpickr: any
 import { Router } from '@angular/router'
 import {AuthService} from 'src/app/commonServices/auth.service'
+import { takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'app-sales-direct',
   templateUrl: './sales-direct.component.html',
@@ -176,7 +177,7 @@ export class SalesDirectComponent {
   AdditionalChargeData: any
   IsForOtherState: any;
   isAddNew: boolean
-  constructor( public _endSessionApi :AuthService ,public _router: Router,public _setUpIds: SetUpIds, private _coustomerServices: VendorServices, private _formBuilder: FormBuilder, private renderer2: Renderer2, public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
+  constructor(public _saleCommonService: SaleCommonService, public _endSessionApi :AuthService ,public _router: Router,public _setUpIds: SetUpIds, private _coustomerServices: VendorServices, private _formBuilder: FormBuilder, private renderer2: Renderer2, public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
     private _ledgerServices: VendorServices,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
@@ -367,6 +368,7 @@ export class SalesDirectComponent {
             this.Id = 0
             this.MainEditID = 0
             this.CaseCustId = 0
+            this.getCurrentDate()
           } else {
             this.editMode = true
             this.editRowListFlag = false
@@ -403,6 +405,7 @@ export class SalesDirectComponent {
   // console.log(value ,'session-ecpiry')
   // }
   ngOnInit() {
+    //let value  = this._saleCommonService.getNewData(this.industryId)
     this.Id = 0
     this.AttrId = 0
     this.editItemId = 0
@@ -504,6 +507,7 @@ openTranctionBillNo(){
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data && data.Data.TransactionNoSetups.length > 0) {
           if (!this.editMode && this.editRowListFlag) {
+           this.setCurrentDate(data.Data.TransactionNoSetups)
             if (this.isManualBillNoEntry) {
               this.BillNo = ''
               this.updateLastBillNo(this.InvoiceDate, this.orgNameId)
@@ -1853,8 +1857,11 @@ openTranctionBillNo(){
     this.MfdDate = ''
   }
   CurrentDate: any
-  setCurrentDate() {
-    this.CurrentDate = this._globalService.getDefaultDate(this.clientDateFormat)
+  setCurrentDate(setup) {
+    if (setup && setup.length > 0) {
+      this.CurrentDate = this._globalService.utcToClientDateFormat(setup[0].CurrentDate, this.clientDateFormat)
+    }
+    //this.CurrentDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
   setBillDate() {
     this.InvoiceDate = this._globalService.getDefaultDate(this.clientDateFormat)
@@ -1877,7 +1884,7 @@ openTranctionBillNo(){
     this.setExpiryDate()
     this.setMFDate()
     this.setDueDate()
-    this.setCurrentDate()
+  //  this.setCurrentDate()
     this.getAddtionalCharge()
     this.getNewBillNo()
     //this.getSPUtilityDataBilling()
@@ -2439,7 +2446,7 @@ openTranctionBillNo(){
       let lastAmt = this.netBillAmount - unBilledAmt
       let amt = this.netBillAmount - lastAmt
       let amt2 = amt - unBilledAmt
-      this.Amount = (lastAmt + amt2).toFixed(this.decimalDigit)
+     // this.Amount = (lastAmt + amt2).toFixed(this.decimalDigit)
 
     } else {
       this.Amount = (this.netBillAmount).toFixed(this.decimalDigit)
@@ -2566,6 +2573,18 @@ openTranctionBillNo(){
       }
     }
   }
+  private unSubscribe$ = new Subject<void>()
+  getCurrentDate (){
+    this._commonService.getCurrentDate().pipe(
+      takeUntil(this.unSubscribe$)
+    ).subscribe((response: any) => {
+      if(response.Code === UIConstant.THOUSAND){
+        this.setCurrentDate(response.Data)
+        //this.CurrentDate = this._globalService.utcToClientDateFormat(response.Data[0].CurrentDate, this.clientDateFormat)
+      }
+    })
+  }
+
   openDirectModal() {
     this.taxDisabledFlag = true
     this.currencyValues = [{ id: 0, symbol: '%' }]
@@ -2579,7 +2598,6 @@ openTranctionBillNo(){
     this.textItemId = 0
     this.getOrgnizationGSTNOCode()
     this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
-    console.log(this._settings.moduleSettings, 'valll')
     this.getModuleSettingData()
     this.industryId = this._settings.industryId
     this.finFromDate = this._settings.finFromDate
@@ -2611,7 +2629,7 @@ openTranctionBillNo(){
     this.setExpiryDate()
     this.setMFDate()
     this.setDueDate()
-    this.setCurrentDate()
+   // this.setCurrentDate()
   }
   finToDate:any
   finFromDate:any
@@ -3050,13 +3068,13 @@ openTranctionBillNo(){
 
     this.submitSave = true
 
-    if (this.deleteEditflag) {
+    //if (this.deleteEditflag) {
 
       this.addItems()
       this.addTransactions()
       this.addAdditionCharge()
-
-      if (this.checkValidation()) {
+if(this.checkValidationForAmount()){
+      if (this.checkValidation() ) {
         console.log(JSON.stringify(this.items), 'Request')
         if (this.items.length !== 0) {
           if (this.InvoiceDate !== '') {
@@ -3150,9 +3168,12 @@ openTranctionBillNo(){
           this.toastrService.showError('', UIConstant.ADD_ITEM)
         }
       }
-    } else {
-      this.toastrService.showWarning('', UIConstant.FIRST_SAVE_EDIT_ITEM)
+      else{
+        this.toastrService.showWarning('', UIConstant.FIRST_SAVE_EDIT_ITEM)
+
+      }
     }
+  //}
   }
   deleteAttribute(attribute) {
     console.log(this.sendAttributeData, 'Attr')
@@ -3423,7 +3444,7 @@ openTranctionBillNo(){
 
   }
   PayShowDate: any
-  snoForPAymentId: any
+  snoForPAymentId: any= 0
   snoForChargeId: any
   taxslabChargeName: any
   @ViewChildren('atrColour_id') atrColorSelect2: QueryList<Select2Component>
@@ -3490,7 +3511,7 @@ openTranctionBillNo(){
     this.Paymode = ''
     this.PayModeId = 0
     this.LedgerId = 0
-    this.Amount = this.Amount
+    this.Amount =0
     this.PayDate = ''
     this.ChequeNo = ''
     this.paymode = 0
@@ -3565,6 +3586,7 @@ openTranctionBillNo(){
       },
       () => {
         if (this.transactions.length > 0) {
+          debugger
           if (this.snoForPAymentId === this.transactions[i].Sno && this.transactions[i]) {
             this.Paymode = this.transactions[i].Paymode
             this.PayModeId = this.transactions[i].PayModeId
@@ -3583,6 +3605,7 @@ openTranctionBillNo(){
   }
   ChequeNoFlag: boolean
   addTransactions() {
+    debugger
     this.deleteEditPaymentFlag = true
     if (this.Paymode && this.PayModeId && this.LedgerId && this.ledgerName && this.Amount && this.PayDate && !this.ChequeNoFlag) {
       if (this.checkValidationForAmount()) {
@@ -3610,6 +3633,7 @@ openTranctionBillNo(){
   }
 
   addTransaction() {
+    debugger
     let index;
     this.payDateVar = this._globalService.clientToSqlDateFormat(this.PayDate, this.clientDateFormat)
     if (this.transactions.length === 0) {
@@ -3645,7 +3669,7 @@ openTranctionBillNo(){
   }
   applyCustomRateOnItemFlag: any
   localItemRate: any
-  backDateEntry: boolean = false
+  backDateEntrySale: boolean 
   isManualBillNoEntry: boolean = false
   decimalDigit: any
   isInclusiveCaseBeforeDiscount: any
@@ -3659,13 +3683,13 @@ openTranctionBillNo(){
           this.createModels(+this.catLevel)
         }
         if (ele.id === SetUpIds.backDateEntryForSale) {
-          this.backDateEntry = JSON.parse(ele.val) === 0 ? false : true
+          this.backDateEntrySale = !!(+ele.val)
         }
         if (ele.id === SetUpIds.applyCustomRateOnItemForSale) {
           this.applyCustomRateOnItemFlag = JSON.parse(ele.val) === 0 ? false : true
         }
         if (ele.id === SetUpIds.isManualBillNoEntryForsale) {
-          this.isManualBillNoEntry = JSON.parse(ele.val)
+          this.isManualBillNoEntry = !!(+ele.val)
         }
         if (ele.id === SetUpIds.taxCalInclusive) {
           this.isInclusiveCaseBeforeDiscount = ele.val
@@ -3687,6 +3711,8 @@ openTranctionBillNo(){
         }
       })
     }
+    var d = typeof(this.backDateEntrySale)
+    console.log(d)
   }
 
   itemSaleRate: any
@@ -4033,21 +4059,27 @@ openTranctionBillNo(){
   countryError: any
   countryName: any
   selectCountryListId(event) {
-    if (event.data.length > 0) {
-      this.countrId = event.value
-      this.countryName = event.data[0].text
-      this.countryError = false
-      if (this.countrId > 0) {
-        this.getStaeList(this.countrId, 0)
-
+    if(event.value !=='0'){
+      if (event.data.length > 0) {
+        this.countrId = event.value
+        this.countryName = event.data[0].text
+        this.countryError = false
+        if (this.countrId > 0) {
+          this.getStaeList(this.countrId, 0)
+  
+        }
       }
     }
+    else{
+      this.countrId = 0
+    }
+    
   }
   countryValue: any
   getCountry(value) {
     this.subscribe = this._coustomerServices.getCommonValues('101').subscribe(Data => {
       this.countryListPlaceHolder = { placeholder: 'Select Country' }
-      this.countryList = [{ id: UIConstant.BLANK, text: 'select Country' }]
+      this.countryList = [{ id: '0', text: 'Select Country' }]
       Data.Data.forEach(element => {
         this.countryList.push({
           id: element.Id,
@@ -4062,7 +4094,7 @@ openTranctionBillNo(){
   getStaeList(id, value) {
     this.subscribe = this._coustomerServices.gatStateList(id).subscribe(Data => {
       this.stateListplaceHolder = { placeholder: 'Select State' }
-      this.stateListCustomer = [{ id: UIConstant.BLANK, text: 'select State' }]
+      this.stateListCustomer = [{ id: '0', text: 'Select State' }]
       Data.Data.forEach(element => {
         this.stateListCustomer.push({
           id: element.Id,
@@ -4075,16 +4107,21 @@ openTranctionBillNo(){
 
   StateName: any
   selectState(event) {
-
-    // console.log(event ,"sts")
-    if (event.data.length > 0) {
-      this.customerStateId = event.value
-      this.StateName = event.data[0].text
-      this.stateError = false
-      if (this.customerStateId > 0) {
-        this.getCitylist(this.customerStateId, 0)
-      }
+if(event.value !=='0'){
+  if (event.data.length > 0) {
+    this.customerStateId = event.value
+    this.StateName = event.data[0].text
+    this.stateError = false
+    if (this.customerStateId > 0) {
+      this.getCitylist(this.customerStateId, 0)
     }
+  }
+  else{
+    this.customerStateId =0
+  }
+}
+    // console.log(event ,"sts")
+   
   }
   cityValue: any
   getCitylist(id, value) {
@@ -4286,7 +4323,6 @@ openTranctionBillNo(){
     if (this.additionaChargeName && +this.additionChargeId > 0 && +this.AmountCharge > 0) {
       this.createChargeArray()
       this.alreadySelectCharge(+this.additionChargeId, this.additionaChargeName, true)
-
       this.clickSaleAdditionCharge = true
       this.calculateAllTotal()
       this.inilizeAdditionCharge()

@@ -23,7 +23,7 @@ import { RouterModule } from '@angular/router';
 import { CompanyProfileComponent } from '../start/company-profile/company-profile.component';
 import { AddNewCityComponent } from './components/add-new-city/add-new-city.component';
 import { AddNewAreaComponent } from './components/add-new-area/add-new-area.component';
-
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 @NgModule({
   imports: [
     FormsModule,
@@ -37,7 +37,8 @@ import { AddNewAreaComponent } from './components/add-new-area/add-new-area.comp
     DynamicCategoryModule,
     DatepickerModule,
     RouterModule,
-    ImageModalModule
+    ImageModalModule,
+    NgxExtendedPdfViewerModule
   ],
   exports: [
     CommonModule,

@@ -57,7 +57,11 @@ export class ConfirmationModalComponent implements OnDestroy {
     this.closeModal()
 
   }
-  ngOnDestroy () {
+  openLedger () {
+      this.commonService.openledgerCretion('',0) 
+       this.closeModal()
+  }
+   ngOnDestroy () {
     this.confirmSUB.unsubscribe()
   }
 }

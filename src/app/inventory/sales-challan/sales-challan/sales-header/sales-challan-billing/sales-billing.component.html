@@ -73,8 +73,9 @@
                           </div>
                  </div>
             <div class="form-group col-md-4 col-lg-2 col-xl-2">
-                <label class="fw-500">Due Date</label>
-                <datepicker-popup [disableInput]="editMode"
+                <label class="fw-500">Due Date</label> {{DueDate}}
+                
+                <datepicker-popup 
                 [toSetDate]="DueDate" 
                 (dateInFormat)="DueDate = $event;" >
                 </datepicker-popup>
@@ -537,7 +538,7 @@
                     <div class="form-row border-top pt-2">
                       <div class="col-md-6"></div>
                       <div class="col-md-3 labal_text font-weight-bold">Total Bill Amount</div>
-                      <div class="col-md-3 text-right font-weight-bold value_text">{{(netBillAmount).toFixed(decimalDigit)}}</div>
+                      <div class="col-md-3 text-right font-weight-bold value_text">{{netBillAmount}}</div>
                     </div>
                   </div>
                 </div>

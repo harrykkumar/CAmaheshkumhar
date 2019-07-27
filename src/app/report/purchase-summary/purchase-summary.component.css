@@ -1,0 +1,31 @@
+.font_d {
+    font-weight: bold;
+    font-style: italic;
+}
+.opn_back{
+    background: #bde4e4;
+}
+.close_back {
+    background: #c3c3c3;
+    
+}
+.white {
+    background: white;
+}
+.odd{
+    background: #bde4e4;
+}
+
+.even{
+    background: #c3c3c3;
+}
+.select_wise{
+    cursor: pointer;
+    font-weight: 600;
+/* color:#2a58ad; */
+}
+.select_wise:hover{
+    cursor: pointer;
+    font-weight: 600;
+    color:#33b5e5;
+    }

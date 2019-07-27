@@ -192,7 +192,7 @@ selectedCityId (event) {
             this.registerTypeSelect2.setElementValue(data.Data.BankDetails[0].TaxTypeId)
             this.coustmoreRegistraionId =JSON.stringify(data.Data.BankDetails[0].TaxTypeId)
             this.valueCRDR = data.Data.BankDetails[0].Crdr
-            this.requiredGST = this.coustmoreRegistraionId === '1' ? true : false
+            this.requiredGST = data.Data.BankDetails[0].TaxTypeId === 1 ? true : false
             this.Ledgerid = data.Data.BankDetails[0].Ledgerid
           }
           else{
@@ -397,7 +397,7 @@ selectedCityId (event) {
    getOneState (rsp){
     let  newdata =[]
        newdata.push({
-         id:rsp.Data[0].CommonCode,
+         id:rsp.Data[0].Id,
          text: rsp.Data[0].CommonDesc1
        })
        this.disabledStateCountry =true
@@ -411,12 +411,13 @@ selectedCityId (event) {
     ).
     subscribe((response: any) => {
       //ShortName1 = statecode
-      this.countrId =response.Data[0].CommonId
-      this.stateId = response.Data[0].CommonCode
-      if(response.Code=== UIConstant.THOUSAND){
+  
+      if(response.Code=== UIConstant.THOUSAND && response.Data.length >0){
+        this.countrId =response.Data[0].CommonId
+        this.stateId = response.Data[0].CommonCode
         this.countryselecto.setElementValue(response.Data[0].CommonId)
         this.getOneState(response)
-        this.stateselecto.setElementValue( response.Data[0].CommonCode)
+        //this.stateselecto.setElementValue( response.Data[0].CommonCode)
         
       }
     })

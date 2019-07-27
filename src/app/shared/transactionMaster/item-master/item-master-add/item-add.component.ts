@@ -40,7 +40,7 @@ export class ItemAddComponent {
 
   taxValue: any
   cateGoryValue: any
-  unitTypeValue: any
+  unitTypeValue: any =0
   packingTypeValue: any
   itemDetailValue: any
   loading: boolean = true
@@ -150,7 +150,7 @@ export class ItemAddComponent {
               const element = this.renderer.selectRootElement(this.catSelect2.selector.nativeElement, true)
               element.focus({ preventScroll: false })
             }
-          }, 2000)
+          }, 600)
         }
       }
     )
@@ -167,7 +167,7 @@ export class ItemAddComponent {
               const element = this.renderer.selectRootElement(this.taxSelect2.selector.nativeElement, true)
               element.focus({ preventScroll: false })
             }
-          }, 2000)
+          }, 600)
         }
       }
     )
@@ -184,7 +184,7 @@ export class ItemAddComponent {
               const element = this.renderer.selectRootElement(this.unitSelect2.selector.nativeElement, true)
               element.focus({ preventScroll: false })
             }
-          }, 2000)
+          }, 600)
         }
       }
     )
@@ -202,7 +202,7 @@ export class ItemAddComponent {
               const element = this.renderer.selectRootElement(this.unitSelect2.selector.nativeElement, true)
               element.focus({ preventScroll: false })
             }
-          }, 2000)
+          }, 500)
         }
       }
     )
@@ -358,7 +358,7 @@ export class ItemAddComponent {
           const element = this.renderer.selectRootElement(this.itemname.nativeElement, true)
           element.focus({ preventScroll: false })
         }
-      }, 1000)
+      }, 600)
     } else {
       setTimeout(() => {
         if (this.catSelect2) {
@@ -532,6 +532,7 @@ export class ItemAddComponent {
       this.packingTypeSelect2.setElementValue('1')
     }
     if (this.modeOfForm === 'new') {
+      this.unitTypeValue =0
       this.getSetting(JSON.parse(this.settings.moduleSettings).settings)
       this.getUnitTypeDetail(0)
       this.getItemDetail(0)
@@ -749,6 +750,7 @@ export class ItemAddComponent {
   }
 
   getUnitTypeDetail (value) {
+    debugger
     this.unitTypePlaceHolder = { placeholder: 'Select Unit' }
     let newData = [{ id: '0', text: 'Select Unit' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.unitMasterService.getSubUnits().subscribe(data => {
@@ -791,7 +793,6 @@ export class ItemAddComponent {
   getBrandDetail (brand) {
     this.selectBrand = []
     this._itemmasterServices.getBrandDetail().subscribe(data => {
-      // console.log('brand types : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         let newData = []
         if (data.Data.length > 0) {
@@ -875,6 +876,7 @@ export class ItemAddComponent {
               this.Id = UIConstant.ZERO
               this.submitClick = false
               this.loading = false
+              //this.initComp()
               this.toastrService.showSuccess('Success','Saved Successfully')
               this.initialiseExtras()
             }

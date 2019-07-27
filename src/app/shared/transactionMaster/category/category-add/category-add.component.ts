@@ -139,7 +139,7 @@ export class CategoryAddComponent {
           const element = this.renderer.selectRootElement(this.catname.nativeElement, true)
           element.focus({ preventScroll: false })
         }
-      }, 1000)
+      }, 500)
     }
   }
 
@@ -236,19 +236,21 @@ export class CategoryAddComponent {
             }
           } else {
             if (this.keepOpen) {
-              _self.toastrService.showSuccess('',UIConstant.SAVED_SUCCESSFULLY)
+              let namesave = this.editID ===0 ?UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+
+              _self.toastrService.showSuccess('',namesave)
               let toSend = { name: _self.categoryForm.value.CategoryName, id: data.Data,
                 level: _self.categoryForm.value.level + 1 }
-              // this.commonService.closeCategory(toSend)
+              this.commonService.closeCategory(toSend)
 
               this.getCategoryList()
               this.initialiseExtras()
               
               _self.commonService.categoryAdded()
             } else {
-              let namesave = this.editID ===0 ?UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+              // let namesave = this.editID ===0 ?UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
               _self.commonService.categoryAdded()
-              _self.toastrService.showSuccess('',namesave)
+              _self.toastrService.showSuccess('',UIConstant.SAVED_SUCCESSFULLY )
               this.getCategoryList()
               setTimeout(() => {
                 if (this.catname) {
@@ -259,8 +261,10 @@ export class CategoryAddComponent {
               // this.commonService.closeCategory(toSend)
               _self.initData()
             }
+            this.editMode = false
           }
-        } else if (data.Code === UIConstant.THOUSANDONE) {
+        } else 
+        if (data.Code === UIConstant.THOUSANDONE) {
           this.toastrService.showError(data.Description, '')
         } else {
           _self.toastrService.showError('', data.Description)
@@ -292,6 +296,7 @@ initData (){
   clearCategoryvalidation () {
     this.initData()
     this.commonService.closeCategory('')
+    this.editMode = false
   }
 
   getCatLevel () {

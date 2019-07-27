@@ -744,9 +744,7 @@ export class CommonService {
     return this.baseService.deleteRequest(ApiConstant.BANK_DETAIL_URL + '?id=' + id)
   }
   obj: any
-  getReportItemByCategorySale(type) {
-    return this.baseService.getRequest(ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA + type)
-  }
+
   openledgerGroup(editId, type) {
     this.openAddledgerGroupSub.next({ 'open': true, 'editId': editId, 'type': type })
   }
@@ -1081,9 +1079,56 @@ export class CommonService {
     return this.baseService.getRequest(url)
   }
   getTrailBalanceReport (fromadate,todate){
-    return this.baseService.getRequest(`${ApiConstant.GET_REPORT_TRAIL_BALANCE}?OnDate=${fromadate}&ToDate=${todate}`)
+    return this.baseService.getRequest(`${ApiConstant.GET_REPORT_TRAIL_BALANCE}?OnDate=${fromadate}&ToDate=${todate}`)  
+  }
+ 
+  getOutStanding (data){
+    const url = `${ApiConstant.REPORT_OUT_STANDING}?ReportFor=${data.TypeWise}&FromAmount=${data.ToAmount}&ToAmount=${data.ToAmount}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&LedgerId=${data.LedgerId}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
+    return this.baseService.getRequest(url)
+  } 
 
-    
+  getCashBook (data){
+    const url = `${ApiConstant.REPORT_CASHBOOK}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
+    return this.baseService.getRequest(url)
+  }
+  getDayBook (data){
+    const url = `${ApiConstant.REPORT_DAYBOOK}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.type}`;
+    return this.baseService.getRequest(url)
+  }
+  cancelSale(id) {
+    return this.baseService.deleteRequest(ApiConstant.SALE_DIRECT_BILLING_API+'?id='+ id)
+  }
+  cancelPurchase(id) {
+    return this.baseService.deleteRequest(ApiConstant.PURCHASE_LIST+'?id='+ id)
+  }
+  getBankBookReport (data){
+    const url = `${ApiConstant.REPORT_BANKBOOK}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
+    return this.baseService.getRequest(url)
   }
 
+  
+  getSalePurchaseRegisterReport (data){
+    const url = `${ApiConstant.REPORT_SALE_PURCHASE_REGISTER}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
+    return this.baseService.getRequest(url)
+  }
+  getReportItemByCategorySale2(data) {
+    const url = `${ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA}?Type=${data.Type}&Page=${data.Page}&Size=${data.Size}`;
+    return this.baseService.getRequest(url)
+  }
+    getReportItemByCategorySale(type){
+    return this.baseService.getRequest(ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA+'?Type=' + type)
+
+    }
+    getReporSalePurchaserSummary(data){
+    const url = `${ApiConstant.REPORT_SALE_PURCHASE_SUMMARY}?ReportFor=${data.ReportFor}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
+ return this.baseService.getRequest(url)
+  
+      }
+  
+  
+  getBankBook (data){
+    const url = `${ApiConstant.REPORT_BANKBOOK}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
+    return this.baseService.getRequest(url)
+  }
+  
 }

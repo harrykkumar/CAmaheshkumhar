@@ -914,6 +914,20 @@ export class SalesChallanInvoiceComponent {
   MrpRate: any
   taxSlabId:any
   itemCustomSaleRate: any
+  filterUnitForItem(UnitData) {
+    this.unitDataType = []
+    let newdataUnit = [{ id: UIConstant.BLANK, text: 'Select  Unit' }, { id: '-1', text: '+Add New' }]
+    if (UnitData && UnitData.SubUnitDetails.length > 0) {
+      UnitData.SubUnitDetails.forEach(element => {
+        newdataUnit.push({
+          id: element.Id,
+          text: element.Name
+        })
+
+      })
+    }
+    this.unitDataType = newdataUnit
+  }
   getItemRateByLedgerData (ItemId, CustomerId) {
     this.itemSaleRate = 0
     this.itemCustomSaleRate = 0
@@ -938,6 +952,7 @@ export class SalesChallanInvoiceComponent {
           this.MrpRate = Data.Data.ItemDetails[0].Mrprate
           this.unitSelect2.setElementValue(this.unitId)
         }
+        this.filterUnitForItem(Data.Data)
         //this.onChangeSlabTax('item',this.taxSlabId,'')
         this.calculate()
       }
@@ -1423,7 +1438,7 @@ export class SalesChallanInvoiceComponent {
 
   }
 
-  netBillAmount: any
+  netBillAmount: any =0
 
   calculate () {
 
