@@ -5,9 +5,8 @@ import { BaseServices } from '../base-services'
 import { ApiConstant } from '../../shared/constants/api'
 import { Router, NavigationEnd } from '@angular/router'
 import { map } from 'rxjs/operators';
-
-
 declare const $: any
+
 @Injectable({
   providedIn: 'root'
 })
@@ -49,6 +48,11 @@ export class CommonService {
   private openAddledgerCreationSub = new BehaviorSubject<AddCust>({ 'open': false })
   private sendDataForSearchSub = new BehaviorSubject<AddCust>({ 'open': false })
   private newRefreshSub = new Subject()
+  private ledgerSummarySub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openSaleDirectReturnSubject = new BehaviorSubject<AddCust>({ 'open': false })
+
+  private onsaleDirectActionClicked$ = new Subject()
+
   public previousUrl: String;
   public currentUrl: String;
   private openConfirmationeSubJect = new BehaviorSubject<AddCust>({ 'open': false })
@@ -57,8 +61,13 @@ export class CommonService {
   private sendDataForSearcTradingSub = new BehaviorSubject<AddCust>({ 'open': false })
   private sendDataForSearchPurchaseSub = new BehaviorSubject<AddCust>({ 'open': false })
   private searchToggle = new BehaviorSubject<AddCust>({ 'open': false })
-  
-  
+  private openAddServiceItemSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openSaleDirectReturnSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private onAClickForSaleReturn$ = new Subject()
+  private openPurchaseReturnSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openPurchaseReturnSub$ = new Subject()
+  private subjectOftermAndCondition = new BehaviorSubject<AddCust>({ 'open': false })
+
   //  validation reg ex
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
@@ -151,7 +160,7 @@ export class CommonService {
 
   closeVend(newVend) {
     if (newVend) {
-      this.openAddVendSub.next({ 'open': false, 'name': newVend.name, 'id': newVend.id })
+      this.openAddVendSub.next({ 'open': false, 'name': newVend.name, 'id': newVend.id, 'gstType': newVend.gstType })
     } else {
       this.openAddVendSub.next({ 'open': false })
     }
@@ -164,7 +173,9 @@ export class CommonService {
   openRouting(editId) {
     this.openAddRoutingSub.next({ 'open': true, 'editId': editId })
   }
-
+  getRoutingStatus() {
+    return this.openAddRoutingSub.asObservable()
+  }
   closeRouting(newRouting) {
     if (newRouting) {
       this.openAddRoutingSub.next({ 'open': false, 'name': newRouting.name, 'id': newRouting.id })
@@ -173,9 +184,7 @@ export class CommonService {
     }
   }
 
-  getRoutingStatus() {
-    return this.openAddRoutingSub.asObservable()
-  }
+
   openCategory(editId, type) {
     this.openAddCategorySub.next({ 'open': true, 'editId': editId, 'type': type })
   }
@@ -352,7 +361,7 @@ export class CommonService {
   }
 
   getSaleReturnStatus(): Observable<any> {
-    console.log('status called')
+    // //console.log('status called')
     return this.openSaleReturnSub.asObservable()
   }
 
@@ -530,6 +539,15 @@ export class CommonService {
   getActionClickedStatus() {
     return this.onActionClicked$.asObservable()
   }
+  onsaleDirectActionClicked(action) {
+    this.onsaleDirectActionClicked$.next(action)
+  }
+
+  getSaleDirectActionClickedStatus() {
+    return this.onsaleDirectActionClicked$.asObservable()
+  }
+  
+  
 
   getBranchTypeList = () => {
     return this.baseService.getRequest(ApiConstant.BRANCH_TYPE_LIST_URL)
@@ -579,8 +597,8 @@ export class CommonService {
     return this.baseService.getRequest(ApiConstant.FIN_SESSION)
   }
 
-  openSaleDirect(editId,flag) {
-    this.openSaleDirectSubject.next({ 'open': true, 'editId': editId ,'isAddNew':flag})
+  openSaleDirect(editId, flag) {
+    this.openSaleDirectSubject.next({ 'open': true, 'editId': editId, 'isAddNew': flag })
   }
 
   closeSaleDirect() {
@@ -616,6 +634,15 @@ export class CommonService {
     return this.baseService.getRequest(ApiConstant.DIRECT_SALE_PRINT_API + id)
 
   }
+  printSaleReturn(id) {
+    return this.baseService.getRequest(ApiConstant.PRINT_SALE_RETURN + id)
+
+  }
+  printPurchaseReturn(id) {
+    return this.baseService.getRequest(ApiConstant.PRINT_PURCHASE_RETURN + id)
+
+  }
+
 
   getSaleDirectEditData(id) {
     return this.baseService.getRequest(ApiConstant.DIRECT_SALE_EDIT_GET_API + id)
@@ -691,11 +718,11 @@ export class CommonService {
         element.FieldValue = others[element.FormKeyName]
       }
     })
-    console.log('checkForExistence : ', checkForExistence)
+    //console.log('checkForExistence : ', checkForExistence)
     let obj = {
       ExistencyNames: checkForExistence
     }
-    console.log('existency : ', JSON.stringify(obj))
+    //console.log('existency : ', JSON.stringify(obj))
     return this.baseService.postRequest(ApiConstant.CHECK_FOR_EXISTENCE, obj)
   }
 
@@ -958,14 +985,14 @@ export class CommonService {
     return this.baseService.postRequest(ApiConstant.TRANSACTIONNO_VOUCHER, data);
   }
   name: any
-  openConfirmation( type, title) {
-    this.openConfirmationeSubJect.next({ 'open': true, 'title': title, 'name':type })
+  openConfirmation(type, title) {
+    this.openConfirmationeSubJect.next({ 'open': true, 'title': title, 'name': type })
     this.name = type
   }
 
   closeConfirmation(resData) {
     if (resData) {
-      this.openConfirmationeSubJect.next({ 'open': false, 'name':this.name ,  'type': resData.type })
+      this.openConfirmationeSubJect.next({ 'open': false, 'name': this.name, 'type': resData.type })
     } else {
       this.openConfirmationeSubJect.next({ 'open': false })
     }
@@ -989,16 +1016,16 @@ export class CommonService {
   // 
 
   getDashBoardData(type) {
-    return this.baseService.getRequest(ApiConstant.INIT_DASHBOARD +type)
+    return this.baseService.getRequest(ApiConstant.INIT_DASHBOARD + type)
   }
   private querySaleStrSub = new Subject<string>()
   public querySaleStr$ = this.querySaleStrSub.asObservable()
-  setSearchQueryParamsStr (str) {
+  setSearchQueryParamsStr(str) {
     this.querySaleStrSub.next(str)
   }
-  
+
   word: string = ''
-  NumInWords (value) {
+  NumInWords(value) {
     let fraction = Math.round(this.frac(value) * 100)
     let fText = ''
 
@@ -1006,14 +1033,14 @@ export class CommonService {
       fText = 'AND ' + this.convertNumber(fraction) + ' PAISE'
     }
 
-    return this.convertNumber(value) + ' RUPEE ' + fText + ' ONLY'
+    return this.convertNumber(value) + '  ' + fText + ' Only'
   }
 
-  frac (f) {
+  frac(f) {
     return f % 1
   }
 
-  convertNumber (num1) {
+  convertNumber(num1) {
     if ((num1 < 0) || (num1 > 999999999)) {
       return 'Number not count !!-Sysytem issue'
     }
@@ -1070,44 +1097,47 @@ export class CommonService {
     return this.word
   }
 
-  
-  getStateByGStCode (statecode){
+
+  getStateByGStCode(statecode) {
     return this.baseService.getRequest(ApiConstant.CHECK_GST_FOR_STATE + statecode)
   }
   getReportItemInventory(data) {
     const url = `${ApiConstant.GET_ITEM_REPORT_INVENTORY}?CategoryId=${data.CategoryId}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&ItemId=${data.ItemId}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
     return this.baseService.getRequest(url)
   }
-  getTrailBalanceReport (fromadate,todate){
-    return this.baseService.getRequest(`${ApiConstant.GET_REPORT_TRAIL_BALANCE}?OnDate=${fromadate}&ToDate=${todate}`)  
+  getTrailBalanceReport(fromadate, todate) {
+    return this.baseService.getRequest(`${ApiConstant.GET_REPORT_TRAIL_BALANCE}?OnDate=${fromadate}&ToDate=${todate}`)
   }
- 
-  getOutStanding (data){
+
+  getOutStanding(data) {
     const url = `${ApiConstant.REPORT_OUT_STANDING}?ReportFor=${data.TypeWise}&FromAmount=${data.ToAmount}&ToAmount=${data.ToAmount}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&LedgerId=${data.LedgerId}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
     return this.baseService.getRequest(url)
-  } 
+  }
 
-  getCashBook (data){
+  getCashBook(data) {
     const url = `${ApiConstant.REPORT_CASHBOOK}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
     return this.baseService.getRequest(url)
   }
-  getDayBook (data){
+  getDayBook(data) {
     const url = `${ApiConstant.REPORT_DAYBOOK}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.type}`;
     return this.baseService.getRequest(url)
   }
   cancelSale(id) {
-    return this.baseService.deleteRequest(ApiConstant.SALE_DIRECT_BILLING_API+'?id='+ id)
+    return this.baseService.deleteRequest(ApiConstant.SALE_DIRECT_BILLING_API + '?id=' + id)
   }
   cancelPurchase(id) {
-    return this.baseService.deleteRequest(ApiConstant.PURCHASE_LIST+'?id='+ id)
+    return this.baseService.deleteRequest(ApiConstant.PURCHASE_LIST + '?id=' + id)
   }
-  getBankBookReport (data){
+  cancelserviceBilling(id) {
+    return this.baseService.deleteRequest(ApiConstant.SERVICE_BILLING_API + '?id=' + id)
+  }
+  getBankBookReport(data) {
     const url = `${ApiConstant.REPORT_BANKBOOK}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
     return this.baseService.getRequest(url)
   }
 
-  
-  getSalePurchaseRegisterReport (data){
+
+  getSalePurchaseRegisterReport(data) {
     const url = `${ApiConstant.REPORT_SALE_PURCHASE_REGISTER}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
     return this.baseService.getRequest(url)
   }
@@ -1115,20 +1145,162 @@ export class CommonService {
     const url = `${ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA}?Type=${data.Type}&Page=${data.Page}&Size=${data.Size}`;
     return this.baseService.getRequest(url)
   }
-    getReportItemByCategorySale(type){
-    return this.baseService.getRequest(ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA+'?Type=' + type)
+  getReportItemByCategorySale(type) {
+    return this.baseService.getRequest(ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA + '?Type=' + type)
 
-    }
-    getReporSalePurchaserSummary(data){
+  }
+  getReporSalePurchaserSummary(data) {
     const url = `${ApiConstant.REPORT_SALE_PURCHASE_SUMMARY}?ReportFor=${data.ReportFor}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
- return this.baseService.getRequest(url)
-  
-      }
-  
-  
-  getBankBook (data){
+    return this.baseService.getRequest(url)
+
+  }
+
+
+  getBankBook(data) {
     const url = `${ApiConstant.REPORT_BANKBOOK}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
     return this.baseService.getRequest(url)
   }
-  
+  // getJournalRegisterReport (data){
+  //   const url = `${ApiConstant.LEDGER_SUMMARY}?VoucherType=104&FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
+  //   return this.baseService.getRequest(url)
+  // }
+
+  getJournalRegisterReport(data) {
+    const url = `${ApiConstant.REPORT_DAYBOOK}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.type}`;
+    return this.baseService.getRequest(url)
+  }
+
+  openServiceItem(editId, catId) {
+    this.openAddServiceItemSub.next({ 'open': true, 'editId': editId, 'categoryId': catId })
+  }
+
+  closeServiceItem(newItemMaster) {
+    if (newItemMaster) {
+      this.openAddServiceItemSub.next({ 'open': false, 'name': newItemMaster.name, 'id': newItemMaster.id, 'categoryId': newItemMaster.categoryId })
+    } else {
+      this.openAddServiceItemSub.next({ 'open': false })
+    }
+  }
+
+  getServiceItemStatus() {
+    return this.openAddServiceItemSub.asObservable()
+  }
+
+  getServiceItemListData(queryParams) {
+    return this.baseService.getRequest(ApiConstant.SERVICE_ITEM_MASTER + queryParams)
+  }
+  PostServiceItemMaster(param) {
+    return this.baseService.postRequest(ApiConstant.SERVICE_ITEM_MASTER, param)
+  }
+  getEditServiceItemMaster(id) {
+    return this.baseService.getRequest(ApiConstant.SERVICE_EDIT_ITEM_MASTER + '?id=' + id)
+  }
+
+
+  ledgerSummaryStatus() {
+    return this.ledgerSummarySub.asObservable()
+  }
+  ledgerSummary(ledgerid, name) {
+    this.ledgerSummarySub.next({ 'open': true, 'id': ledgerid, 'name': name })
+  }
+  openSaleDirectReturnStatus() {
+    return this.openSaleDirectReturnSubject.asObservable()
+  }
+  openSaleDirectReturn2(id, htmlid) {
+    this.openSaleDirectReturnSubject.next({ 'open': true, 'id': id, 'name': htmlid })
+  }
+
+  openSaleDirectReturn(editId, type) {
+    this.openSaleDirectReturnSub.next({ 'open': true, 'editId': editId, 'type': type })
+  }
+
+  getSaleDirectReturnStatus() {
+
+    return this.openSaleDirectReturnSub.asObservable()
+  }
+
+  closeSaleDirectReturn() {
+    this.openSaleDirectReturnSub.next({ 'open': false })
+  }
+  onActionSaleReturnClicked(action) {
+    this.onAClickForSaleReturn$.next(action)
+  }
+
+  getActionSaleReturnClickedStatus() {
+    return this.onAClickForSaleReturn$.asObservable()
+  }
+
+  //purchase -return
+  openPurchaseReturn(editId) {
+    this.openPurchaseReturnSub.next({ 'open': true, 'editId': editId })
+  }
+
+  getPurchaseReturnStatus() {
+
+    return this.openPurchaseReturnSub.asObservable()
+  }
+
+  closePurchaseReturn() {
+    this.openPurchaseReturnSub.next({ 'open': false })
+  }
+
+  onActionPurchaseClicked(action) {
+    this.openPurchaseReturnSub$.next(action)
+  }
+
+  onActionPurchaseClickedStatus() {
+    return this.openPurchaseReturnSub$.asObservable()
+  }
+  getGstrAnxList(data) {
+    const queryParam = this.getQueryStringFromObject(data);
+    return this.baseService.getRequest(`${ApiConstant.GSTR_AN_X}?${queryParam}`);
+  }
+
+  getGstrAnxDetails(data) {
+    const queryParam = this.getQueryStringFromObject(data);
+    return this.baseService.getRequest(`${ApiConstant.GSTR_AN_X_DETAILS}?${queryParam}`);
+  }
+
+  getQueryStringFromObject(obj) {
+    const str = [];
+    for (const p in obj) {
+      if (obj.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+      }
+    }
+    return str.join('&');
+  }
+
+  openTermAndCondition(editId) {
+    this.subjectOftermAndCondition.next({ 'open': true, 'editId': editId })
+  }
+  getTermAndConditionStatus() {
+    return this.subjectOftermAndCondition.asObservable()
+  }
+  gettermsAndCondtionType(type) {
+    return this.baseService.getRequest(ApiConstant.TERMS_CONDITION_FORM_TYPE + type)
+  }
+  postTermsAndCondition(param) {
+    return this.baseService.postRequest(ApiConstant.TERMS_CONDITION_POST, param)
+  }
+  getListData(param) {
+    return this.baseService.getRequest(ApiConstant.TERMS_CONDITION_POST)
+  }
+  changeTypeTermsAndCondition(id) {
+    return this.baseService.getRequest(ApiConstant.TERMS_CONDITION_POST + '?ParentTypeId=' + id)
+  }
+
+  getMsmedList(data) {
+    const queryParam = this.getQueryStringFromObject(data);
+    return this.baseService.getRequest(`${ApiConstant.MSMED_OUTSTANDING}?${queryParam}`);
+  }
+
+  getMsmedDetailsList(data) {
+    const queryParam = this.getQueryStringFromObject(data);
+    return this.baseService.getRequest(`${ApiConstant.MSMED_OUTSTANDING_DETAILS}?${queryParam}`);
+  }
+
+  getLedgerData(type) {
+    return this.baseService.getRequest(`${ApiConstant.LEDGER_UTILITY}?Type=${type}`);
+  }
 }

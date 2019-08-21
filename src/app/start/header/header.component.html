@@ -221,13 +221,13 @@
     <ul class="nav-right">
       <li style="padding-top: 10px;" class="text-right">
           <div>
-              {{loggedinUserData?.name}}
-              <span>({{loggedinUserData?.fromDate | dateFormat:clientDateFormat}} - </span>
-                <span>{{loggedinUserData?.toDate | dateFormat:clientDateFormat}})</span>
+              <b>{{loggedinUserData?.name}}</b>
+              <span><b>({{loggedinUserData?.fromDate | dateFormat:clientDateFormat}}</b> - </span>
+                <span><b>{{loggedinUserData?.toDate | dateFormat:clientDateFormat}})</b></span>
             </div>
             <div>
                 <span class="fsz-xsm c-grey-900">
-                    {{_loginService?.loginUserDetails?.name}}({{_loginService?.loginUserDetails?.Code}})
+                    <b>{{_loginService?.loginUserDetails?.Name}}({{_loginService?.loginUserDetails?.Code}})</b>
               </span>
               </div>
       </li>
@@ -246,17 +246,33 @@
             <ng-template #defaultImage> -->
               <img
                 class="w-2r bdrs-50p"
-                src="https://randomuser.me/api/portraits/men/10.jpg"
+                src="../../../assets/img/man.png"
               />
             <!-- </ng-template> -->
           </div>
          
         </a>
         <ul class="dropdown-menu fsz-sm">
+          <li role="separator" class="divider"></li>
           <li>
-            <a href="email.html" class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"
-              ><i class="fas fa-envelope mR-10 cH-blue"></i
-              ><span>Messages</span></a
+            <a
+              class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"
+              [routerLink]="['/org-financial-years']"
+              routerLinkActive="active"
+            >
+              <i class="fas fa-random mR-10 cH-blue"></i>
+              Switch Financial Year</a
+            >
+          </li>
+          <li role="separator" class="divider"></li>
+          <li>
+            <a
+              class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"
+              [routerLink]="['/org-branches']"
+              routerLinkActive="active"
+            >
+              <i class="fas fa-random mR-10 cH-blue"></i>
+              Switch Branches</a
             >
           </li>
           <li role="separator" class="divider"></li>
@@ -268,6 +284,7 @@
               ><i class="fas fa-random mR-10 cH-blue"></i>
                 Switch Modules</a>
             </li>
+            <li role="separator" class="divider"></li>
           <li>
             <a
               class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"

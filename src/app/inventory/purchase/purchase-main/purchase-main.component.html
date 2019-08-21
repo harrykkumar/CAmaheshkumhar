@@ -44,6 +44,7 @@
   </div>
 </main>
 <app-purchase #purchase_add></app-purchase>
+<app-purchaseReturn></app-purchaseReturn>
 
 <div class="modal" id="purchase_print_id">
   <div id="page-wrap" *ngFor="let printData of printData1;let i = index;let last = last;">
@@ -320,7 +321,7 @@
           <div class="invoiveN" style="width: 40%;
             float: right; text-align:right; font-size: 14px;
             padding: 13px;">
-            <h3 style="margin: 0px;">For ;{{printData.ClientInfos[0]?.OfficeName}}</h3>
+            <h3 style="margin: 0px;">For : {{printData.ClientInfos[0]?.OfficeName}}</h3>
             <br>
             Authorised Signatory
           </div>

@@ -312,7 +312,7 @@ let valueshow=[]
     .invoiveN table td, .billT table td {
       font-size: 13px !important;
     }
-    body{font-family: Calibri;font-size:13px;word-break: break-all;width:21cm;height:29.7cm;position: relative;}
+    body{font-family: Calibri;font-size:13px;word-break: break-word;width:21cm;height:29.7cm;position: relative;}
     #page-wrap{width:100%;margin:0 auto;background:#f1f1f1;}
     #header{width:100%;text-align:center;color:#000;text-decoration:uppercase;
     letter-spacing:10px;padding:2px 0;font-size:13px;}

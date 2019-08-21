@@ -124,7 +124,7 @@
                 <tr>
                   <th rowspan="2" colspan="1">SNo</th>
                   <th rowspan="2" colspan="1">Party Name</th>
-                  <th class="text-right" rowspan="2" colspan="1">Balance Type</th>
+                  <!-- <th class="text-right" rowspan="2" colspan="1">Balance Type</th> -->
                   <th class="text-right" rowspan="2" colspan="1">Balance</th>
                 </tr>
               </thead>
@@ -135,7 +135,7 @@
                  let i = index;">
                   <td>{{ i + 1 }}</td>
                   <td>{{ item.PartyName }}</td>
-                  <td class="text-right">{{ item.BalanceType }}</td>
+                  <!-- <td class="text-right">{{ item.BalanceType }}</td> -->
                   <td class="text-right">{{ (item.Balance).toFixed(noOfDecimal) }}</td>
 
                 </tr>
@@ -145,7 +145,7 @@
               </tbody>
               <tfoot>
                 <tr *ngFor="let item of outStandingPayable?.OutstandingDetailsSummary ">
-                    <th colspan="3"></th>
+                    <th colspan="2"></th>
                     <th class="text-right font-weight-bold">{{(item.Balance).toFixed(noOfDecimal)}}</th>
                 </tr>
             </tfoot>

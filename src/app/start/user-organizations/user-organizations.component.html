@@ -3,15 +3,17 @@
   <div class="header-container">
     <ul class="nav-left">
       <li>
-      <h2 class="c-grey-900">Organization</h2>
+        <h2 class="c-grey-900">Organization</h2>
       </li>
     </ul>
-      <ul class="nav-right">
+    <ul class="nav-right">
       <li style="padding-top: 15px;">
         <div>
-            <span class="fsz-xsm c-grey-900">
-                {{_loginService?.loginUserDetails?.Name}}({{_loginService?.loginUserDetails?.Code}})
-            </span>
+          <span class="fsz-xsm c-grey-900">
+            <b>{{ _loginService?.loginUserDetails?.Name }}({{
+              _loginService?.loginUserDetails?.Code
+            }})</b>
+          </span>
         </div>
       </li>
       <li class="dropdown">
@@ -21,26 +23,10 @@
           data-toggle="dropdown"
         >
           <div class="peer mR-10">
-              <!-- <img
-              *ngIf="_loginService?.loginUserDetails?.DefaultImage;else defaultImage"
-              class="w-2r bdrs-50p"
-              [src]="_loginService?.loginUserDetails?.DefaultImage"
-            />
-            <ng-template #defaultImage> -->
-              <img
-                class="w-2r bdrs-50p"
-                src="https://randomuser.me/api/portraits/men/10.jpg"
-              />
-            <!-- </ng-template> -->
+            <img class="w-2r bdrs-50p" src="../../../assets/img/man.png" />
           </div>
         </a>
         <ul class="dropdown-menu fsz-sm">
-          <li>
-            <a href="email.html" class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"
-              ><i class="fas fa-envelope mR-10 cH-blue"></i
-              ><span>Messages</span></a
-            >
-          </li>
           <li role="separator" class="divider"></li>
           <li>
             <a
@@ -62,53 +48,58 @@
       <div class="row justify-content-md-center align-self-center h-100">
         <div class="col-md-8 ml-0 pl-0">
           <div>
-              <div class="col-md-12" *ngFor="let organization of organizationList; let i = index">
-                  <div>
-                    <div class="highlight_box2">
-                      <div class="row">
-                        <div class="col-md-1 grid_left border-right">
-                         <a (click)="navigateTo('dashboard', organization, i)"><i class="far fa-building"></i></a>
-                        </div>
-                        <a (click)="navigateTo('dashboard', organization, i)"
-                             class="col-md-6 border-right">
-                            <h3>{{ organization?.Name }}</h3>
-                            <h4>{{ organization?.FinancialYear }}</h4>
-                        </a>
-                        <div class="col-md-4">
-                          </div>
-                        <a *ngIf="_loginService?.loginUserDetails?.OrgStatus === 1" class="col-md-1 grid_right text-right" (click)="editCompany(organization)">
-                            <i class="far fa-edit"></i>
-                        </a>
-                      </div>
+            <div
+              class="col-md-12"
+              *ngFor="let organization of _loginService?.organizationList; let i = index"
+            >
+              <div>
+                <div class="highlight_box2">
+                  <div class="row">
+                    <div class="col-md-1 grid_left border-right">
+                      <a (click)="navigateTo(organization)"
+                        ><i class="far fa-building"></i
+                      ></a>
                     </div>
+                    <a
+                      (click)="navigateTo(organization)"
+                      class="col-md-6 border-right"
+                    >
+                      <h3>{{ organization?.Name }}</h3>
+                      <h4>{{ organization?.FinancialYear }}</h4>
+                    </a>
+                    <div class="col-md-4"></div>
+                    <a
+                      *ngIf="_loginService?.loginUserDetails?.OrgStatus === 1"
+                      class="col-md-1 grid_right text-right"
+                      (click)="createComponent(organization)"
+                    >
+                      <i class="far fa-edit"></i>
+                    </a>
                   </div>
                 </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="right_card">
-            <div *ngIf="_loginService?.loginUserDetails?.OrgStatus === 1" class="create-head border-bottom">
-                <a  (click)="addNewCompany()"  class="waves-effect waves-light create_org_btn pb-2">
-                  <i class="far fa-calendar-plus"></i> Create Organization</a>
-            </div>
-            <div class="org_card_body pt-2">
-                <div class="component component--list-block"> 
-                  <ul> 
-                    <li class="featured">Scales from 10-10k</li>
-                     <li class="featured">3,000+ apps and integrations</li> 
-                     <li class="featured">Deeply customizable workflows</li> 
-                     <li class="featured">Mobile app</li>
-                      <li class="featured">Rich APIs</li> 
-                      <li class="featured">Deep developer tool integrations</li>
-                     </ul> 
-                    </div>
+            <div
+              *ngIf="_loginService?.loginUserDetails?.OrgStatus === 1"
+              class="create-head border-bottom"
+            >
+              <a
+                (click)="createComponent()"
+                class="waves-effect waves-light create_org_btn pb-2"
+              >
+                <i class="far fa-calendar-plus"></i> Create Organization</a
+              >
             </div>
           </div>
         </div>
-       
       </div>
     </div>
   </div>
 </main>
 <app-footer></app-footer>
-<app-company-profile [modalData]="modalData" (closeModal)="closeModal($event)"></app-company-profile>
+
+<ng-template #companyContainer> </ng-template>

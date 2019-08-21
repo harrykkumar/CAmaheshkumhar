@@ -76,7 +76,12 @@ export class SetUpIds {
   public static get taxCalInclusive (): number {
     return 66
   }
-
+  public static get itemInStockForSale (): number {
+    return 3
+  }
+  public static get DiscountFor100 (): number {
+    return 2
+  }
   public static get paymentAutoVoucher (): number {
     return 68
   }
@@ -113,5 +118,8 @@ export class SetUpIds {
   
   public static get edgerEmailorMobileRequiredorNot (): number {
     return 55
+  }
+  public static get printFormate () : number {
+    return 77
   }
 }

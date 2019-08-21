@@ -194,6 +194,23 @@ export class SalesChallanBillingComponent {
         }
       }
     )
+    this._commonService.getCompositeUnitStatus().subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          let newData = Object.assign([], this.unitDataType)
+          newData.push({ id: +data.id, text: data.name })
+          this.unitDataType = newData
+          this.unitId = data.id
+          this.getUnitId = data.id
+          setTimeout(() => {
+            if (this.unitSelect2) {
+              const element = this.renderer2.selectRootElement(this.unitSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 500)
+        }
+      }
+    )
     this.newTaxSlabAddSub = this._commonService.getTaxStatus().subscribe(
       (data: AddCust) => {
         let unitFlg = true
@@ -940,7 +957,12 @@ export class SalesChallanBillingComponent {
       if (event.data[0].id !== UIConstant.BLANK) {
         if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
           this.unitSelect2.selector.nativeElement.value = ''
-          this._commonService.openUnit('')
+          if (+this.unitSettingType === 1) {
+            this._commonService.openUnit('')
+          }
+          if (+this.unitSettingType === 2) {
+            this._commonService.openCompositeUnit('')
+          }
           this.unitDataType.selector.nativeElement.value = ''
         } else {
           if (event.data[0] && event.data[0].text) {
@@ -1225,9 +1247,9 @@ export class SalesChallanBillingComponent {
   organizationData: any
 
 
-  changeBillDate(eDate) {
+ getNewBillNo() {
     let _self = this
-    let dateChnage = this._globalService.clientToSqlDateFormat(eDate, this.clientDateFormat)
+    let dateChnage = this._globalService.clientToSqlDateFormat(this.InvoiceDate,this.clientDateFormat)
     this.subscribe = this._commonService.getsettingforOrgnizationData(this.orgNameId, UIConstant.SALE_TYPE, dateChnage).subscribe(data => {
       if (data.Code === 1000 && data.Data.length > 0) {
         this.BillNo = data.Data[0].BillNo
@@ -2194,6 +2216,8 @@ export class SalesChallanBillingComponent {
   creditLimitAmount: any
   creditDays: any
   ledgerStateId: any
+  outStandingBalance:any =0
+  setCRDR:any
   PartyGstinNoCode:any
   getGSTByLedgerAddress(ledgerId) {
     this.subscribe = this._commonService.ledgerGetGSTByAddress(ledgerId).subscribe(data => {
@@ -2201,6 +2225,8 @@ export class SalesChallanBillingComponent {
         if (data.Data.LedgerDetails.length > 0) {
           this.creditLimitAmount = data.Data.LedgerDetails[0].CreditLimit
           this.creditDays = JSON.parse(data.Data.LedgerDetails[0].CreditDays)
+          this.outStandingBalance = (data.Data.LedgerDetails[0].OpeningAmount).toFixed(this.decimalDigit)
+          this.setCRDR = data.Data.LedgerDetails[0].Crdr ===0 ? 'Dr' :'Cr' ;
           if(data.Data.LedgerDetails[0].GstinNo !==null){
             let str = data.Data.LedgerDetails[0].GstinNo
             let val =  str.trim();
@@ -2241,6 +2267,7 @@ export class SalesChallanBillingComponent {
 
   itemTableDisabledFlag: boolean
   openChallanModal() {
+    this.outStandingBalance =0
     this.currencyValues = [{ id: 0, symbol: '%' }]
     this.deleteEditChargeFlag = true
     this.deleteEditflag = true
@@ -2426,6 +2453,22 @@ export class SalesChallanBillingComponent {
   getAvailableCurrency() {
     return this._commonService.setupSettingByType(UIConstant.SALE_TYPE)
   }
+
+  setEditableUnit = (itemId) => {
+    this.unitDataType = []
+    let newdataUnit = [{ id: UIConstant.BLANK, text: 'Select  Unit' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+    if (this.getEditableUnitData.length > 0) {
+      this.getEditableUnitData.forEach(element => {
+        if (itemId === element.ItemId) {
+          newdataUnit.push({
+            id: element.UnitId,
+            text: element.SubUnitName
+          })
+        }
+      })
+    }
+    this.unitDataType = newdataUnit
+  }
   inventoryItemSales: any
   ItemTransactionactions: any
   itemAttbute: any
@@ -2433,11 +2476,15 @@ export class SalesChallanBillingComponent {
   SizeCode: any
   ArticleCode: any
   editAlreadyItemDataFlag: boolean
-
+  getEditableUnitData:any =[]
   editSaleData(id) {
     this._commonService.getChallanDataByIdForBilling(id).subscribe(data => {
       console.log(JSON.stringify(data), 'editData----------->>')
       if (data.Code === UIConstant.THOUSAND && data.Data) {
+        if (data.Data && data.Data.SubUnitWithItems && data.Data.SubUnitWithItems.length > 0) {
+          this.getEditableUnitData = []
+          this.getEditableUnitData = data.Data.SubUnitWithItems
+        }
         if (data.Data && data.Data.InventoryTransactionSales.length > 0) {
           this.inventoryItemSales = []
           this.inventoryItemSales = data.Data.InventoryTransactionSales
@@ -2756,7 +2803,7 @@ export class SalesChallanBillingComponent {
           obj['ItemAttributeTrans'] = this.sendAttributeData
           obj['AdditionalCharges'] = this.AdditionalChargeData
           obj['ItemTaxTrans'] = this.taxSlabSummery
-          obj['CurrentDate'] = this.CurrentDateChngae
+          // obj['CurrentDate'] = this.CurrentDateChngae
           obj['EwayBillNo']= this.EwayBillNo
           let _self = this
           console.log('sale-challan -bill-request : ', JSON.stringify(obj))
@@ -2954,6 +3001,7 @@ export class SalesChallanBillingComponent {
         this.TotalAmount = item.TotalAmount
         this.categoryName = item.CategoryName
         this.categoryId = item.CategoryId
+        this.setEditableUnit(+item.ItemId)
         this.taxSelect2.setElementValue(item.TaxSlabId)
         this.unitSelect2.setElementValue(item.UnitId)
         this.itemSelect2.setElementValue(item.ItemId)
@@ -3282,6 +3330,7 @@ export class SalesChallanBillingComponent {
   backDateEntry: boolean = false
   isManualBillNoEntry: boolean = false
   decimalDigit: any
+  unitSettingType: any = 1
   isInclusiveCaseBeforeDiscount: any
   getModuleSettingData () {
     this.applyCustomRateOnItemFlag = false
@@ -3292,15 +3341,20 @@ export class SalesChallanBillingComponent {
              this.catLevel =JSON.parse(ele.val) 
               this.createModels(+this.catLevel)
             }
-             if (ele.id=== SetUpIds.backDateEntryForSale) {
-              this.backDateEntry =JSON.parse(ele.val) === 0 ? false :true
-             }
+            if (ele.id === SetUpIds.isManualBillNoEntryForsale) {
+              this.isManualBillNoEntry = !!(+ele.val)
+            }
+            if (ele.id === SetUpIds.backDateEntryForSale) {
+              this.backDateEntry = !!(+ele.val)
+            }
+           
              if (ele.id=== SetUpIds.applyCustomRateOnItemForSale) {
               this.applyCustomRateOnItemFlag =JSON.parse(ele.val) === 0 ? false :true
              }
-             if (ele.id=== SetUpIds.isManualBillNoEntryForsale) {
-              this.isManualBillNoEntry =JSON.parse(ele.val)
-             }
+        
+             if (ele.id === SetUpIds.unitType) {
+              this.unitSettingType = +ele.val
+            }
              if (ele.id=== SetUpIds.taxCalInclusive) {
               this.isInclusiveCaseBeforeDiscount = ele.val
              }

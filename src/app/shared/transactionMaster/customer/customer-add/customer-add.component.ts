@@ -84,13 +84,14 @@ export class CustomerAddComponent implements OnDestroy {
   clientDateFormat: any
   isAddNew: boolean = false
   editId: any
+  noOfDecimal:any =0
   constructor(public _globalService: GlobalService, public _settings: Settings, private _CommonService: CommonService,
     private _formBuilder: FormBuilder,
     private _coustomerServices: VendorServices, public _categoryservices: CategoryServices, public _toastrcustomservice: ToastrCustomService) {
     this.createCustomerForm()
     this.addTyperessForm()
     this.addArea()
-    //this.clientDateFormat = this._settings.dateFormat
+    this.noOfDecimal = this._settings.noOfDecimal
     this.modalSub = this._CommonService.getCustStatus().subscribe(
       (data: AddCust) => {
         if (data.open) {
@@ -356,6 +357,8 @@ export class CustomerAddComponent implements OnDestroy {
     this.cityList=[]
     this.areaList=[]
     this.select2VendorValue(UIConstant.ZERO)
+    this.select2CrDrValue(1)
+    this.crdrSelect2.setElementValue(1)
 
 
 
@@ -371,8 +374,8 @@ export class CustomerAddComponent implements OnDestroy {
       'dob': [UIConstant.BLANK],
       'gstin': [UIConstant.BLANK],
       'panNo': [UIConstant.BLANK],
-      'openingblance': [UIConstant.BLANK],
-      'creditlimit': [UIConstant.BLANK],
+      'openingblance': [0],
+      'creditlimit': [0],
       'creditDays': [UIConstant.BLANK],
       'mobileNo': [UIConstant.BLANK],
       'EmailAddress': [UIConstant.BLANK]
@@ -458,7 +461,7 @@ export class CustomerAddComponent implements OnDestroy {
       this.satuariesId = UIConstant.ZERO
       this.submitClick = false
       this.addressid = UIConstant.ZERO
-      this.select2CrDrValue(0)
+      this.select2CrDrValue(1)
       this.getCountry(0)
       this.adressType(0)
       this.getCustomoerType(0)
@@ -680,14 +683,16 @@ export class CustomerAddComponent implements OnDestroy {
   select2CrDrPlaceHolder: Select2Options
   valueCRDR: any
   crDrId: number
-  select2CrDrValue(value) {
+  @ViewChild('crdrSelect2') crdrSelect2 :Select2Component
+
+  select2CrDrValue (value) {
     this.selectCrDr = []
     this.select2CrDrPlaceHolder = { placeholder: 'Select CR/DR' }
-    this.selectCrDr = [{ id: '1', text: 'CR' }, { id: '0', text: 'DR' }]
+    this.selectCrDr = [ { id: '1', text: 'CR' }, { id: '0', text: 'DR' }]
     this.valueCRDR = value
-    this.crDrId = +this.selectCrDr[0].id
+    this.crDrId =  value
+   
   }
-
 
   addnewCoustomer() {
     $('#customer_form').modal(UIConstant.MODEL_SHOW)
@@ -707,7 +712,7 @@ export class CustomerAddComponent implements OnDestroy {
 
     /* ..select 2 calling */
     this.select2VendorValue(UIConstant.ZERO)
-    this.select2CrDrValue(0)
+    this.select2CrDrValue(1)
     this.getCountry(0)
     this.adressType(0)
     this.getCustomoerType(0)
@@ -735,6 +740,9 @@ export class CustomerAddComponent implements OnDestroy {
     if (value === 'reset') {
         this.resetForNew()
          this.activaTab('customer1')
+         this.getCountry(0)
+         this.select2CrDrValue(1)
+         this.crdrSelect2.setElementValue(1)
     } else {
       
       if (this.coustomerForm.valid && !this.validMobileFlag  &&  this.getEmailvalid && this.coustmoreRegistraionId > 0 && !this.customerCustomRateFlag) {
@@ -754,6 +762,8 @@ export class CustomerAddComponent implements OnDestroy {
                         $('#customer_form').modal(UIConstant.MODEL_HIDE)
                         let saveFlag = this.editId === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
                         this._toastrcustomservice.showSuccess('', saveFlag)
+                        this.select2CrDrValue(1)
+                        this.crdrSelect2.setElementValue(1)
                       } else if (value === 'new') {
                         this.activaTab('customer1')
                         setTimeout(() => {
@@ -766,6 +776,8 @@ export class CustomerAddComponent implements OnDestroy {
                         this.satuariesId = 0
                         this.contactId = 0
                         this.addressid = 0
+                        this.select2CrDrValue(1)
+                        this.crdrSelect2.setElementValue(1)
                         
                       }
                       this.disabledStateCountry = false
@@ -1250,8 +1262,8 @@ console.log(customerElement,'customer-Req-')
         if (Data.Data && Data.Data.LedgerDetails && Data.Data.LedgerDetails.length > 0) {
           this.coustomerForm.controls.customerName.setValue(Data.Data.LedgerDetails[0].Name)
           this.coustomerForm.controls.creditDays.setValue(Data.Data.LedgerDetails[0].CreditDays)
-          this.coustomerForm.controls.creditlimit.setValue(Data.Data.LedgerDetails[0].CreditLimit)
-          this.coustomerForm.controls.openingblance.setValue(Data.Data.LedgerDetails[0].OpeningBalance)
+          this.coustomerForm.controls.creditlimit.setValue((Data.Data.LedgerDetails[0].CreditLimit).toFixed(this.noOfDecimal))
+          this.coustomerForm.controls.openingblance.setValue(( Data.Data.LedgerDetails[0].OpeningBalance).toFixed(this.noOfDecimal) )
           this.customerTypeId = Data.Data.LedgerDetails[0].CustomerTypeId
           this.coustmoreRegistraionId = Data.Data.LedgerDetails[0].TaxTypeId
           this.requiredGSTNumber =  Data.Data.LedgerDetails[0].TaxTypeId ===1 ? true : false

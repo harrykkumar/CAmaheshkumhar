@@ -40,7 +40,7 @@ export class BalanceSheetSearchComponent implements OnInit {
     // this.fromDateValue = this._settings.finFromDate
     // this.toDateValue = this._globalService.getDefaultDate(this.clientDateFormat)
 
-    console.log( this.fromDateValue ,this.toDateValue)
+   // console.log( this.fromDateValue ,this.toDateValue)
 
   }
   toDate() {

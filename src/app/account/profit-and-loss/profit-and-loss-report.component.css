@@ -10,3 +10,15 @@
 .name_size {
    font-size: 19px;
 }
+.font-italic{
+   font-style: italic;
+ }
+
+ .bold {
+   font-weight: bold
+ }
+
+ .normal {
+ font-weight: 500.3;
+font-style: normal
+ }

@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnDestroy, ViewChildren, QueryList, HostListener } from '@angular/core';
+import { Component, ViewChild, OnDestroy, ViewChildren, QueryList, HostListener, ElementRef, Output, EventEmitter, OnInit } from '@angular/core';
 import { Subject, throwError } from 'rxjs';
 import { CommonService } from "src/app/commonServices/commanmaster/common.services";
 import { takeUntil, filter, catchError, map } from 'rxjs/internal/operators';
@@ -14,6 +14,7 @@ import { SetUpIds } from '../../../shared/constants/setupIds.constant';
 import { VoucherAddModel } from '../voucher-entry.model';
 import { Subscription } from 'rxjs/Subscription';
 declare const $: any
+import * as _ from 'lodash'
 declare const flatpickr: any
 export enum KEY_CODE {
   RIGHT_ARROW = 39,
@@ -23,30 +24,16 @@ export enum KEY_CODE {
   selector: 'voucher-entry-add',
   templateUrl: './voucher-entry-add.component.html'
 })
-export class VoucherEntryAddComponent implements OnDestroy {
-
-  @HostListener('window:keyup', ['$event'])
-  keyEvent(event: KeyboardEvent) {
-    if (event.keyCode === KEY_CODE.RIGHT_ARROW) {
-      if (this.tabId < 4 && this.tabId > 0 && !this.dateStatus) {
-        this.tabId++
-        this.onTabClick(this.tabId)
-        this.setFocus()
-      }
-    }
-
-    if (event.keyCode === KEY_CODE.LEFT_ARROW && !this.dateStatus) {
-      if (this.tabId > 1 && this.tabId <= 4) {
-        this.tabId--
-        this.onTabClick(this.tabId)
-        this.setFocus()
-      }
-    }
-  }
-
+export class VoucherEntryAddComponent implements OnInit, OnDestroy {
+  @ViewChildren('paymentRef') payMentAmountRef: QueryList<ElementRef>
+  @Output() voucherAddClosed = new EventEmitter();
+  editId: number
+  editType: string
+  editData: any
+  isPaymentAmount = false
   onDestroy$ = new Subject()
   subscribe: Subscription
-  newCustAddCutomer:Subscription
+  newCustAddCutomer: Subscription
   autoBill: boolean = true;
   previousVoucherNo: string
   VoucherNo: string
@@ -56,25 +43,21 @@ export class VoucherEntryAddComponent implements OnDestroy {
   glid: number = 4
   dateStatus: boolean
   tabId: number = 1
-
+  advancePayment = 0
   organisationsData: Array<Select2OptionData>
   OrgId: number
   organisationValue: number
-
   ledgerPlaceholder: Select2Options = { placeholder: 'Select Customer' }
   LedgerId: number
   ledgerValue: number
   ledgerData: Array<Select2OptionData>
-
   PartyId = 0
-
   VoucherDate: string
   settingData = []
   voucherList = []
   paymentModesData: Array<Select2OptionData>
   selectAll = false
   invalidObj = {}
-
   Paymode = ''
   PayModeId = 0
   Amount = 0
@@ -84,169 +67,171 @@ export class VoucherEntryAddComponent implements OnDestroy {
   paymode = 0
   Narration: string = ''
   submitSave: boolean
- 
   voucherDatas: Array<VoucherDatas> = []
   bankData: Array<Select2OptionData>
   cashData: Array<Select2OptionData>
-  transferData: Array<Select2OptionData>
+  transferData: Array<any> = []
   voucherDataJ: Array<VoucherDatas> = []
-  tempJournaldata:Array<VoucherDatas> = []
-  sendItemJournalData:Array<VoucherDatas> = []
+  tempJournaldata: Array<VoucherDatas> = []
+  sendItemJournalData: Array<VoucherDatas> = []
   allLedgerList: Array<Select2OptionData>
-  ledgerCreationModel:Subscription
-  getListledger:any=[]
-  constructor (private commonService: CommonService, private purchaseService: PurchaseService,
+  ledgerCreationModel: Subscription
+  getListledger: any = []
+  advanceBillNo: number;
+  constructor(private commonService: CommonService, private purchaseService: PurchaseService,
     private voucherService: VoucherEntryServie, private settings: Settings, private gs: GlobalService,
     private toastrService: ToastrCustomService) {
-      this.ledgerCreationModel = this.commonService.getledgerCretionStatus().subscribe(
-        (data: AddCust) => {
-          if (data.id && data.name) {
-            this.addNewLedgerFlag = false
-            let newData1 = Object.assign([], this.allLedgerList)
-            newData1.push({ id: data.id, text: data.name })
-            this.allLedgerList =newData1
-            this.getListledger=data
-            this.LedgerId = data.id
-            if(this.voucherDataJ.length ===1){
-              this.voucherDataJ=[{
-                LedgerId: data.id,
-                Amount: 0,
-                Type: 0,
-                data: this.allLedgerList,
-                default: 0
-              }]
-            }
-            else{
-              this.voucherDataJ.forEach((ele,index)=>{
-                if (+this.voucherDataJ[index]['Amount'] > 0 &&
-                +this.voucherDataJ[index]['LedgerId'] > 0) {
-                  this.voucherDataJ[this.voucherDataJ.length-1].data = this.allLedgerList
-                  this.voucherDataJ[this.voucherDataJ.length-1].LedgerId = +data.id
-
-              }
-              })
-            }
-
-             setTimeout(() => {
-              if (this.ledgerSelect2) {
-                this.ledgerSelect2.selector.nativeElement.focus()
-              }
-            }, 600)
+    this.ledgerCreationModel = this.commonService.getledgerCretionStatus().subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          let newData2 = Object.assign([], this.ledgerData)
+          newData2.push({ id: data.id, text: data.name })
+          this.ledgerData = newData2
+          this.addNewLedgerFlag = false
+          let newData1 = Object.assign([], this.allLedgerList)
+          newData1.push({ id: data.id, text: data.name })
+          this.allLedgerList = newData1
+          this.getListledger = data
+          this.LedgerId = data.id
+          if (this.voucherDataJ.length === 1) {
+            this.voucherDataJ = [{
+              LedgerId: Number(data.id),
+              Amount: 0,
+              Type: 0,
+              data: this.allLedgerList,
+              default: 0
+            }]
           }
+          else {
+            this.voucherDataJ.forEach((ele, index) => {
+              if (+this.voucherDataJ[index]['Amount'] > 0 &&
+                +this.voucherDataJ[index]['LedgerId'] > 0) {
+                this.voucherDataJ[this.voucherDataJ.length - 1].data = this.allLedgerList
+                this.voucherDataJ[this.voucherDataJ.length - 1].LedgerId = Number(data.id)
+
+              }
+            })
+          }
+
+          setTimeout(() => {
+            if (this.ledgerSelect2) {
+              this.ledgerSelect2.selector.nativeElement.focus()
+            }
+          }, 600)
         }
-      )
-      this.commonService.getLedgerStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-        (data: AddCust) => {
-          if (data.id && data.name) {
-            let newData = Object.assign([], this.paymentLedgerselect2)
-            newData.push({ id: data.id, text: data.name })
-            this.paymentLedgerselect2 = newData
-            this.LedgerId = +data.id
-            this.ledger = data.id
-            this.voucherDatas[0] = {
+      }
+    )
+    this.commonService.getLedgerStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          let newData = Object.assign([], this.paymentLedgerselect2)
+          newData.push({ id: data.id, text: data.name })
+          this.paymentLedgerselect2 = newData
+          this.LedgerId = +data.id
+          this.ledger = data.id
+          this.voucherDatas[0] = {
+            LedgerId: +data.id,
+            Amount: 0,
+            Type: 0,
+            data: this.paymentLedgerselect2,
+          }
+          setTimeout(() => {
+            if (this.ledgerSelect2) {
+              this.ledgerSelect2.selector.nativeElement.focus()
+            }
+          }, 600)
+        }
+      }
+    )
+    this.newCustAddCutomer = this.commonService.getCustStatus().subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          this.getListledger = data
+          this.addNewLedgerFlag = false
+          let newData = Object.assign([], this.ledgerData)
+          let newData1 = Object.assign([], this.allLedgerList)
+          newData1.push({ id: data.id, text: data.name })
+          newData.push({ id: data.id, text: data.name })
+          this.ledgerData = newData
+          this.allLedgerList = newData1
+          this.LedgerId = +data.id
+          this.ledgerValue = data.id
+
+          if (this.voucherDataJ.length === 1) {
+            this.voucherDataJ = [{
               LedgerId: +data.id,
               Amount: 0,
               Type: 0,
-              data: this.paymentLedgerselect2 ,
+              data: this.allLedgerList,
               default: 0
-            }
-            setTimeout(() => {
-              if (this.ledgerSelect2) {
-                this.ledgerSelect2.selector.nativeElement.focus()
-              }
-            }, 600)
+            }]
           }
-        }
-      )
-      this.newCustAddCutomer = this.commonService.getCustStatus().subscribe(
-        (data: AddCust) => {
-          if (data.id && data.name) {
-            this.getListledger=data
-            this.addNewLedgerFlag = false
-            let newData = Object.assign([], this.ledgerData)
-           let newData1 = Object.assign([], this.allLedgerList)
-           newData1.push({ id: data.id, text: data.name })
-            newData.push({ id: data.id, text: data.name })
-            this.ledgerData = newData
-           this.allLedgerList = newData1
-            this.LedgerId = +data.id
-            this.ledgerValue = data.id
-            if(this.voucherDataJ.length ===1){
-              this.voucherDataJ=[{
-                LedgerId: +data.id,
-                Amount: 0,
-                Type: 0,
-                data: this.allLedgerList,
-                default: 0
-              }]
-            }
-            else{
-              this.voucherDataJ.forEach((ele,index)=>{
-                if (+this.voucherDataJ[index]['Amount'] > 0 &&
+          else {
+            this.voucherDataJ.forEach((ele, index) => {
+              if (+this.voucherDataJ[index]['Amount'] > 0 &&
                 +this.voucherDataJ[index]['LedgerId'] > 0) {
-                  this.voucherDataJ[this.voucherDataJ.length-1].data = this.allLedgerList
-                  this.voucherDataJ[this.voucherDataJ.length-1].LedgerId = +data.id
+                this.voucherDataJ[this.voucherDataJ.length - 1].data = this.allLedgerList
+                this.voucherDataJ[this.voucherDataJ.length - 1].LedgerId = +data.id
 
               }
-              })
-            }
-       
-            
-            setTimeout(() => {
-              this.partySelect2.selector.nativeElement.focus()
-            }, 600)
+            })
           }
-  
-        }
-      )
-      this.commonService.getVendStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-        (data: AddCust) => {
-          if (data.id && data.name) {
-            this.addNewLedgerFlag = false
-            this.getListledger=data
-            let newData = Object.assign([], this.ledgerData)
-            newData.push({ id: data.id, text: data.name })
-           let newData1 = Object.assign([], this.allLedgerList)
-            newData1.push({ id: data.id, text: data.name })
-            this.ledgerData = newData
-            this.allLedgerList = newData1
-            this.PartyId = +data.id
-            this.ledgerValue = data.id
-            if(this.voucherDataJ.length ===1){
-              this.voucherDataJ=[{
-                LedgerId: +data.id,
-                Amount: 0,
-                Type: 0,
-                data: this.allLedgerList,
-                default: 0
-              }]
-            }
-            else{
-              this.voucherDataJ.forEach((ele,index)=>{
-                if (+this.voucherDataJ[index]['Amount'] > 0 &&
-                +this.voucherDataJ[index]['LedgerId'] > 0) {
-                  this.voucherDataJ[this.voucherDataJ.length-1].data = this.allLedgerList
-                  this.voucherDataJ[this.voucherDataJ.length-1].LedgerId = +data.id
-
-              }
-              })
-            }
-            this.addNewLedgerFlag = true
+          this.addNewLedgerFlag = true
           setTimeout(() => {
-              if (this.partySelect2) {
-                this.partySelect2.selector.nativeElement.focus()
-              }
-            }, 600)
-            
-
-          }
+            this.partySelect2.selector.nativeElement.focus()
+          }, 600)
         }
-      )
-    console.log(this.voucherService.tabs[this.tabId - 1])
+
+      }
+    )
+    this.commonService.getVendStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+
+          this.addNewLedgerFlag = false
+          this.getListledger = data
+          let newData = Object.assign([], this.ledgerData)
+          newData.push({ id: data.id, text: data.name })
+          let newData1 = Object.assign([], this.allLedgerList)
+          newData1.push({ id: data.id, text: data.name })
+          this.ledgerData = newData
+          this.allLedgerList = newData1
+          this.PartyId = +data.id
+          this.ledgerValue = data.id
+          if (this.voucherDataJ.length === 1) {
+            this.voucherDataJ = [{
+              LedgerId: +data.id,
+              Amount: 0,
+              Type: 0,
+              data: this.allLedgerList,
+              default: 0
+            }]
+          }
+          else {
+            this.voucherDataJ.forEach((ele, index) => {
+              if (+this.voucherDataJ[index]['Amount'] > 0 &&
+                +this.voucherDataJ[index]['LedgerId'] > 0) {
+                this.voucherDataJ[this.voucherDataJ.length - 1].data = this.allLedgerList
+                this.voucherDataJ[this.voucherDataJ.length - 1].LedgerId = +data.id
+
+              }
+            })
+          }
+          this.addNewLedgerFlag = true
+          setTimeout(() => {
+            if (this.partySelect2) {
+              this.partySelect2.selector.nativeElement.focus()
+            }
+          }, 600)
+
+
+        }
+      }
+    )
     this.clientDateFormat = this.settings.dateFormat
     this.transferData = [
-      { id: '0', text: 'Dr' },
-      { id: '1', text: 'Cr' }
+      { id: 0, text: 'Dr' },
+      { id: 1, text: 'Cr' }
     ];
     this.getSPUitilityData()
     this.subscribe = this.purchaseService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
@@ -271,26 +256,26 @@ export class VoucherEntryAddComponent implements OnDestroy {
       data => {
         if (data.data) {
           this.allLedgerList = data.data
-          data.data.unshift({id:'-1',text:UIConstant.ADD_NEW_OPTION})
+          data.data.unshift({ id: '-1', text: UIConstant.ADD_NEW_OPTION })
           this.voucherDataJ = [
             {
-              LedgerId: 0,
+              LedgerId: '0',
               Amount: 0,
               Type: 0,
               data: this.allLedgerList,
               default: 0
             }
           ]
-          this.tempJournaldata =[
+          this.tempJournaldata = [
             {
-              LedgerId: 0,
+              LedgerId: '0',
               Amount: 0,
               Type: 0,
               data: this.allLedgerList,
               default: 0
             }
           ]
-          
+
         }
       }
     )
@@ -309,13 +294,11 @@ export class VoucherEntryAddComponent implements OnDestroy {
           this.ledgerData = data.data
           this.bankData = data.data
           this.voucherDatas[0] = {
-            LedgerId: 0,
+            LedgerId: '0',
             Amount: 0,
             Type: 0,
             data: this.bankData,
-            default: 0
           }
-          console.log('Bank data : ', this.ledgerData)
         }
       }
     )
@@ -323,71 +306,131 @@ export class VoucherEntryAddComponent implements OnDestroy {
     this.subscribe = this.voucherService.customerData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
-          let allledger = [{id:'-1',text:UIConstant.ADD_NEW_OPTION}]
+          let allledger = [{ id: '-1', text: UIConstant.ADD_NEW_OPTION }]
           this.ledgerData = data.data
           this.cashData = data.data
           this.voucherDatas[1] = {
-            LedgerId: 0,
+            LedgerId: '0',
             Amount: 0,
             Type: 1,
             data: this.cashData,
-            default: 1
           }
-          console.log('voucher data : ', this.voucherDatas)
         }
       }
     )
+  }
 
-    this.subscribe = this.commonService.getVoucherStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-      (status: AddCust) => {
-        if (status.open) {
-          this.openModal()
-        } else {
-          this.closeModal()
+  ngOnInit() {
+    this.openModal()
+  }
+
+  getLedgerJournalData(data) {
+    if (data.data) {
+      this.allLedgerList = data.data
+      this.voucherDataJ = [
+        {
+          LedgerId: '0',
+          Amount: 0,
+          Type: 0,
+          data: this.allLedgerList,
+          default: 0
         }
-      }
-    )
-  }
-getjournalRefreshList() {
-  let newData1 = Object.assign([], this.allLedgerList)
-  if(this.getListledger.id >0 ){
-    newData1.push({ id: this.getListledger.id, text: this.getListledger.name })
-    this.allLedgerList =newData1
-  }
-  else{
-    this.allLedgerList =newData1
-  }
-  this.voucherDataJ = [
-    {
-      LedgerId: 0,
-      Amount: 0,
-      Type: 0,
-      data: this.allLedgerList ,
-      default: 0
+      ]
+      this.tempJournaldata = [
+        {
+          LedgerId: '0',
+          Amount: 0,
+          Type: 0,
+          data: this.allLedgerList,
+          default: 0
+        }
+      ]
     }
-  ]
- 
-}
-  getListOfEnableLedger () {
-   
-    if (this.tempJournaldata.length >0) {
-     let newData=[]
-     this.allLedgerList=[]
-      this.tempJournaldata[0].data.forEach(ele=>{
+  }
+  getVoucherDetailsByVoucherId(voucherId) {
+    this.voucherService.getVoucherEntryDetails(voucherId).subscribe(
+      (res) => {
+        if (res.Code === 1000) {
+          this.editData = JSON.parse(JSON.stringify(res.Data));
+          this.goToTab();
+        }
+      })
+  }
+
+  goToTab(){
+    switch (this.editType) {
+      case 'Payment':
+        $('#vendorPaymentTabLink').click()
+        this.onTabClick(1)
+        break;
+      case 'Receipt':
+        $('#customerReceiptTabLink').click()
+        this.onTabClick(2)
+        break;
+      case 'Contra':
+        $('#contraTabLink').click()
+        this.onTabClick(3)
+        break;
+      case 'Journal':
+        $('#journalTabLink').click()
+        this.onTabClick(4)
+        break;
+      case 'Expences':
+        $('#paymentTabLink').click()
+        this.onTabClick(5)
+        break;
+      case 'Income':
+        $('#receiptTabLink').click()
+        this.onTabClick(6)
+        break;
+      default:
+        break;
+    }
+  }
+
+
+  getjournalRefreshList() {
+    let newData1 = Object.assign([], this.allLedgerList)
+    if (this.getListledger.id > 0) {
+      newData1.push({ id: this.getListledger.id, text: this.getListledger.name })
+      this.allLedgerList = newData1
+    }
+    else {
+      this.allLedgerList = newData1
+    }
+    this.voucherDataJ = [
+      {
+        LedgerId: '0',
+        Amount: 0,
+        Type: 0,
+        data: this.allLedgerList,
+        default: 0
+      }
+    ]
+
+  }
+
+  getListOfEnableLedger() {
+
+    if (this.tempJournaldata.length > 0) {
+      let newData = []
+      this.allLedgerList = []
+      this.tempJournaldata[0].data.forEach(ele => {
         newData.push({ id: ele.id, text: ele.text, disabled: false })
       })
-        this.allLedgerList = newData
-        this.voucherDataJ = [
-          {
-            LedgerId: 0,
-            Amount: 0,
-            Type: 0,
-            data: this.allLedgerList,
-            default: 0
-          }
-        ]
+      this.allLedgerList = newData
+      this.voucherDataJ = [
+        {
+          LedgerId: '0',
+          Amount: 0,
+          Type: 0,
+          data: this.allLedgerList,
+          default: 0
+        }
+      ]
     }
   }
+
   openModal() {
     this.addNewLedgerFlag = true
     this.getListOfEnableLedger()
@@ -403,20 +446,24 @@ getjournalRefreshList() {
   closeModal() {
     if ($('#voucher_modal').length > 0) {
       $('#voucher_modal').modal(UIConstant.MODEL_HIDE)
+      this.voucherAddClosed.emit()
     }
   }
 
-  initComp () {
-    this.initParams()
+  initComp() {
+    if (this.editId) {
+      this.getVoucherDetailsByVoucherId(this.editId);
+    } else {
+      this.initParams()
+    }
   }
-  
-  closeForm () {
+
+  closeForm() {
     this.commonService.closeVoucher()
   }
 
   @ViewChild('organisation_select2') organisationSelect2: Select2Component
-  onChangeOrganisationId (evt) {
-    // console.log('on org select : ', evt)
+  onChangeOrganisationId(evt) {
     if (evt.value && evt.data.length > 0) {
       if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
         this.OrgId = +evt.value
@@ -426,81 +473,95 @@ getjournalRefreshList() {
     }
   }
 
-  getNewBillNo () {
+  getNewBillNo() {
     if (+this.OrgId > 0 && this.VoucherDate) {
       let newVoucherDate = this.gs.clientToSqlDateFormat(this.VoucherDate, this.clientDateFormat)
-      const auto = this.voucherService.tabs[this.tabId - 1].type
-      this.voucherService.getTransactionNo(this.voucherService.tabs[this.tabId - 1].type, +this.OrgId, newVoucherDate, auto).pipe(takeUntil(this.onDestroy$), filter(data => {
-        if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
-      }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
-        data => {
-          console.log('new bill no : ', data)
-          if (data.length > 0) {
-            if (!this.voucherService.tabs[this.tabId - 1].voucherNoManual) {
-              this.VoucherNo = data[0].BillNo
+      let auto = this.voucherService.tabs[this.tabId - 1].type
+      if (this.tabId === 5) {
+        auto = this.voucherService.tabs[0].type
+      }
+      if (this.tabId === 6) {
+        auto = this.voucherService.tabs[1].type
+      }
+      this.voucherService.getTransactionNo(auto,
+        +this.OrgId, newVoucherDate, auto).
+        pipe(takeUntil(this.onDestroy$), filter(data => {
+          if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
+        }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
+          data => {
+            if (data.length > 0) {
+              if (!this.voucherService.tabs[this.tabId - 1].voucherNoManual) {
+                this.VoucherNo = data[0].BillNo
+              } else {
+                this.previousVoucherNo = data[0].BillNo
+              }
             } else {
-              this.previousVoucherNo = data[0].BillNo
+              this.previousVoucherNo = ''
+              this.VoucherNo = ''
             }
-          } else {
-            this.previousVoucherNo = ''
-            this.VoucherNo = ''
+          },
+          (error) => {
+            this.toastrService.showError(error, '')
+          },
+          () => {
           }
-        },
-        (error) => {
-          this.toastrService.showError(error, '')
-        },
-        () => {
-        }
-      )
+        )
     }
   }
-  
+
+  JournalDataForLedger: any = []
   loading = true
-  getSPUitilityData () {
-    this.loading = true
-    let _self = this
-    this.commonService.getSPUtilityData(this.voucherService.tabs[this.tabId - 1].type).pipe(takeUntil(this.onDestroy$), filter(data => {
-      if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
-    }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
-      data => {
-        console.log('payment data : ', data)
-        this.purchaseService.createOrganisations(data.Organizations)
-        if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.PAYMENT_TYPE 
-          || _self.voucherService.tabs[_self.tabId - 1].type === UIConstant.RECEIPT_TYPE) {
-          _self.purchaseService.createPaymentModes(data.PaymentModes)
-          if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.PAYMENT_TYPE) {
-            _self.voucherService.createVendors(data.Vendors, UIConstant.PAYMENT_TYPE)
-          } else if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.RECEIPT_TYPE) {
-            _self.voucherService.createCustomers(data.Customers, UIConstant.RECEIPT_TYPE)
+  getSPUitilityData() {
+    return new Promise((resolve, reject) => {
+      this.loading = true
+      let _self = this
+      this.commonService.getSPUtilityData(this.voucherService.tabs[this.tabId - 1].type).pipe(takeUntil(this.onDestroy$), filter(data => {
+        if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
+      }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
+        data => {
+          this.purchaseService.createOrganisations(data.Organizations)
+          this.JournalDataForLedger = data.Customers
+          let journalData = this.voucherService.allLedgerList(data.Customers, UIConstant.JOURNAL_TYPE)
+          if (journalData) {
+            this.getLedgerJournalData(journalData)
           }
-        } else if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.CONTRA_TYPE) {
-          _self.voucherService.createVendors(data.Vendors, UIConstant.CONTRA_TYPE)
-          _self.voucherService.createCustomers(data.Customers, UIConstant.CONTRA_TYPE)
+          if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.PAYMENT_TYPE
+            || _self.voucherService.tabs[_self.tabId - 1].type === UIConstant.RECEIPT_TYPE) {
+            _self.purchaseService.createPaymentModes(data.PaymentModes)
+            if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.PAYMENT_TYPE) {
+              _self.voucherService.createVendors(data.Vendors, UIConstant.PAYMENT_TYPE)
+            } else if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.RECEIPT_TYPE) {
+              _self.voucherService.createCustomers(data.Customers, UIConstant.RECEIPT_TYPE)
+            }
+          } else if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.CONTRA_TYPE) {
+            _self.voucherService.createVendors(data.Vendors, UIConstant.CONTRA_TYPE)
+            _self.voucherService.createCustomers(data.Customers, UIConstant.CONTRA_TYPE)
+          } else if (_self.tabId === 5 || _self.tabId === 6) {
+            _self.voucherService.createVendors(data.Vendors, _self.voucherService.tabs[_self.tabId - 1].type)
+          }
+          resolve('success');
+        },
+        (error) => {
+          _self.toastrService.showError(error, '')
+          _self.loading = false
+        },
+        () => {
+          _self.loading = false
+          _self.setVoucherDate()
         }
-      },
-      (error) => {
-        _self.toastrService.showError(error, '')
-        _self.loading = false
-      },
-      () => {
-        _self.loading = false
-        _self.setVoucherDate()
-      }
-    )
+      )
+    })
   }
 
   billSettlementType: number = 1
-  getSetUpModules (settings) {
-    console.log('settings : ', settings)
+  getSetUpModules(settings) {
     if (this.tabId === 1 || this.tabId === 2) {
       settings.forEach(element => {
         if (element.id === SetUpIds.paymentAutoVoucher) {
           this.voucherService.tabs[0].voucherNoManual = !!(+element.val)
-          console.log('tabs[i].voucherNoManual : ', this.voucherService.tabs[0].voucherNoManual)
         }
         if (element.id === SetUpIds.receiptAutoVoucher) {
           this.voucherService.tabs[1].voucherNoManual = !!(+element.val)
-          console.log('tabs[i].voucherNoManual : ', this.voucherService.tabs[1].voucherNoManual)
         }
         if (element.id === SetUpIds.billSettlementType) {
           this.billSettlementType = +element.val
@@ -509,37 +570,82 @@ getjournalRefreshList() {
     }
   }
 
-  getVoucherList () {
-    if (this.PartyId > 0 && +this.OrgId > 0) {
-      this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor, 'Billwise',this.PartyId, +this.OrgId).pipe(takeUntil(this.onDestroy$), filter(data => {
-        if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
-      }), catchError(error => { return throwError(error) }), map(data => data.Data), 
-      map(data => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
-        data => {
-          console.log(data)
-          this.voucherList = data
-          this.updateAmount()
-          this.checkForValidation()
-        },
-        (error) => {
-          this.toastrService.showError(error, '')
+  getVoucherList() {
+    if (!this.editId) {
+      if (this.PartyId > 0 && +this.OrgId > 0) {
+        this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor, 'Billwise', this.PartyId, +this.OrgId).pipe(takeUntil(this.onDestroy$), filter(data => {
+          if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
+        }), catchError(error => { return throwError(error) }), map(data => data.Data),
+          map(data => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
+            data => {
+              if (!_.isEmpty(data)) {
+                this.voucherList = data
+              } else {
+                this.voucherList = []
+                this.Amount = 0
+                this.advancePayment = 0
+                this.advanceBillNo = 0
+              }
+              this.updateAmount()
+              this.checkForValidation()
+            },
+            (error) => {
+              this.toastrService.showError(error, '')
+            }
+          )
+      }
+      else if (this.addNewLedgerFlag) {
+        if (this.PartyId === -1) {
+          this.partySelect2.selector.nativeElement.value = ''
+          this.commonService.openConfirmation(false, ' ')
+          // this.commonService.openledgerCretion('', 0)
+
+
+        } else {
+          this.voucherList = []
         }
-      )
-    }
-    else if(this.addNewLedgerFlag){
-      if(this.PartyId === -1){
-        this.partySelect2.selector.nativeElement.value=''
-        this.commonService.openConfirmation(false, ' ')
-      
-      } else {
-        this.voucherList = []
       }
     }
-
   }
 
-  toggleSelect (evt) {
-    console.log('event : ', evt.target.checked)
+  getVoucherList_Payment_recipt() {
+    if (!this.editId) {
+      if (this.PartyId > 0 && +this.OrgId > 0) {
+        this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor, 'Billwise', this.PartyId, +this.OrgId).pipe(takeUntil(this.onDestroy$), filter(data => {
+          if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
+        }), catchError(error => { return throwError(error) }), map(data => data.Data),
+          map(data => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
+            data => {
+              if (!_.isEmpty(data)) {
+                this.voucherList = data
+              } else {
+                this.voucherList = []
+                this.Amount = 0
+                this.advancePayment = 0
+                this.advanceBillNo = 0
+              }
+              this.updateAmount()
+              this.checkForValidation()
+            },
+            (error) => {
+              this.toastrService.showError(error, '')
+            }
+          )
+      }
+      else if (this.addNewLedgerFlag) {
+        if (this.PartyId === -1) {
+          this.partySelect2.selector.nativeElement.value = ''
+          // this.commonService.openConfirmation(false, ' ')
+          this.commonService.openledgerCretion('', 0)
+
+
+        } else {
+          this.voucherList = []
+        }
+      }
+    }
+  }
+  toggleSelect(evt) {
     for (let i = 0; i < this.voucherList.length; i++) {
       this.voucherList[i].selected = evt.target.checked
     }
@@ -548,8 +654,7 @@ getjournalRefreshList() {
 
   paymentLedgerselect2: Array<Select2OptionData>
   @ViewChild('payment_select2') paymentSelect2: Select2Component
-  onPaymentModeSelect (event) {
-    // console.log('payment method select: ', event)
+  onPaymentModeSelect(event) {
     if (+event.value > 0 && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = +event.value
@@ -558,20 +663,25 @@ getjournalRefreshList() {
         this.LedgerId = 0
         this.setpaymentLedgerSelect2(0)
       } else if (+event.value === 1) {
-        this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
-        this.BankLedgerName = 'Cash'
-        this.LedgerId = 1
-        this.paymentSelect2.setElementValue(this.LedgerId)
+        this.setLedgerSelectForCash();
       }
     }
     this.checkForValidation()
   }
+  setLedgerSelectForCash() {
+    this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
+    this.BankLedgerName = 'Cash'
+    this.LedgerId = 1
+    this.ledger = 1
+    if (!_.isEmpty(this.ledgerSelect2)) {
+      this.ledgerSelect2.setElementValue(this.LedgerId)
+    }
+  }
 
-  setpaymentLedgerSelect2 (i) {
+  setpaymentLedgerSelect2(i) {
     let _self = this
-    let newData = [{ id: '0', text: 'Select Ledger' },{id:'-1',text:UIConstant.ADD_NEW_OPTION}]
+    let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.commonService.getPaymentLedgerDetail(9).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
-      // console.log('PaymentModeData : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
           newData.push({
@@ -582,67 +692,76 @@ getjournalRefreshList() {
       }
       _self.paymentLedgerselect2 = newData
     },
-    (error) => console.log(error),
-    () => {
-    })
+      (error) => console.log(error),
+      () => {
+      })
   }
-  onSelectBank (event){
-    if(+event === -1){
-      this.ledgerSelect2.selector.nativeElement.value=''
-      this.commonService.openLedger('') 
-   }
-  }
-  addNewLedgerFlag:boolean = true
-  onSelectLedger (event){
-      if(+event === -1){
-        this.ledgerSelect2.selector.nativeElement.value=''
-        this.commonService.openledgerCretion('',0) 
-     }
-  
- 
-  }
-  LedgerIdJrnl:number
-  onSelectJournalLedger(event){
-    if(+event === -1){
-      this.ledgerSelect2.selector.nativeElement.value=''
-      this.commonService.openConfirmation(true,' ') 
-    }
-    else{
-      this.LedgerIdJrnl= event
+
+  onSelectBank(event, index) {
+    if (+event === -1) {
+      this.voucherDatas[index].LedgerId = "0"
+      this.commonService.openLedger('')
     }
   }
+
+  addNewLedgerFlag: boolean = true
+  onSelectLedger(event) {
+    if (+event === -1) {
+      this.ledgerSelect2.selector.nativeElement.value = ''
+      this.commonService.openledgerCretion('', 0)
+    }
+
+
+  }
+
+  LedgerIdJrnl: number
+  onSelectJournalLedger(event, index) {
+    if (+event === -1) {
+      this.voucherDataJ[index].LedgerId = '0'
+      this.commonService.openConfirmation(true, ' ')
+    }
+    else {
+      this.LedgerIdJrnl = event
+    }
+  }
+
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
-  onPaymentLedgerSelect (event) {
+  onPaymentLedgerSelect(event) {
     if (event.value > 0 && event.data[0] && event.data[0].text) {
       this.LedgerId = +event.value
       this.BankLedgerName = event.data[0].text
     }
-    if(+event.value === -1){
-       this.ledgerSelect2.selector.nativeElement.value=''
-       this.commonService.openLedger('') 
+    if (+event.value === -1) {
+      this.ledgerSelect2.selector.nativeElement.value = ''
+      this.commonService.openLedger('')
     }
     this.checkForValidation()
   }
 
-  initPayment () {
-    this.Paymode = ''
-    this.PayModeId = 0
-    this.LedgerId = 0
-    this.Amount = 0
-    this.BankLedgerName = ''
-    this.Narration = ''
-    this.ledger = 0
-    this.paymode = 0
-    if (this.ledgerSelect2) {
-      this.ledgerSelect2.setElementValue(0)
+  initPayment(Data?) {
+    let payMentData, ledgerData
+    if (!_.isEmpty(Data)) {
+      if (!_.isEmpty(Data.PaymentDetails)) {
+        payMentData = { ...Data.PaymentDetails[0] }
+      }
+      if (!_.isEmpty(Data.LedgerVoucherMst))
+        ledgerData = { ...Data.LedgerVoucherMst[0] }
     }
-    if (this.paymentSelect2) {
-      this.paymentSelect2.setElementValue(0)
+    this.Paymode = ''
+    this.PayModeId = !_.isEmpty(payMentData) ? payMentData.PayModeId : 0
+    this.LedgerId = 0
+    this.Amount = !_.isEmpty(payMentData) ? payMentData.Amount : 0
+    this.BankLedgerName = !_.isEmpty(ledgerData) ? ledgerData.BankLedgerName : ''
+    this.Narration = !_.isEmpty(ledgerData) ? ledgerData.Narration : ''
+    this.ledger = 0
+    this.paymode = !_.isEmpty(payMentData) ? payMentData.PayModeId : 0
+    if (!_.isEmpty(payMentData) && Number(payMentData.LedgerId) === 1) {
+      this.setLedgerSelectForCash()
     }
   }
 
   @ViewChild('party_select2') partySelect2: Select2Component
-  initParams () {
+  initParams() {
     this.initPayment()
     this.PartyId = 0
     if (this.organisationsData && this.organisationsData.length > 0) {
@@ -655,7 +774,6 @@ getjournalRefreshList() {
     if (this.partySelect2) {
       this.partySelect2.setElementValue(0)
     }
-
     this.autoBill = true;
     this.selectAll = false
     this.advancePayment = 0
@@ -668,7 +786,78 @@ getjournalRefreshList() {
     this.dateStatus = false
   }
 
-  setVoucherDate () {
+
+  assignVoucherData(Data) {
+    let ledgerData
+    if (!_.isEmpty(Data) && !_.isEmpty(Data.LedgerVoucherMst)) {
+      ledgerData = { ...Data.LedgerVoucherMst[0] }
+    }
+    this.initPayment(Data)
+    this.PartyId = !_.isEmpty(ledgerData) ? ledgerData.LedgerId : 0
+    if (this.organisationsData && this.organisationsData.length > 0) {
+      this.OrgId = +this.organisationsData[0].id
+      this.organisationValue = +this.organisationsData[0].id
+      if (this.organisationSelect2) {
+        this.organisationSelect2.setElementValue(this.OrgId)
+      }
+    }
+    if (this.partySelect2) {
+      this.partySelect2.setElementValue(this.PartyId)
+    }
+    if (!_.isEmpty(ledgerData)) {
+      this.VoucherNo = ledgerData.VoucherNo
+      if (this.VoucherDate) {
+        this.VoucherDate = this.gs.utcToClientDateFormat(new Date(this.VoucherDate), this.clientDateFormat)
+      }
+    }
+    this.autoBill = true;
+    this.selectAll = false
+    this.advancePayment = 0
+    this.ledgerValue = !_.isEmpty(ledgerData) ? ledgerData.LedgerId : 0
+    this.invalidObj = {}
+    this.submitSave = false
+    this.dateStatus = false
+    if ((this.tabId === 1 || this.tabId === 2 || this.tabId === 5 || this.tabId === 6)
+     && !_.isEmpty(Data) && !_.isEmpty(Data.ReceiptPaymentTransaction)) {
+      const advancePaymentRowIndex = _.findIndex(Data.ReceiptPaymentTransaction, { BalanceType: 'AD' });
+      const advancePaymentRow = Data.ReceiptPaymentTransaction[advancePaymentRowIndex]
+      if (advancePaymentRowIndex !== -1) {
+        Data.ReceiptPaymentTransaction.splice(advancePaymentRowIndex, 1);
+      }
+      this.voucherList = JSON.parse(JSON.stringify(Data.ReceiptPaymentTransaction))
+      if (_.isEmpty(this.voucherList)) {
+        this.getAdvancePaymentBillNo(this.Amount)
+      }
+      this.updateAmount()
+      this.checkForValidation()
+    } else {
+      this.voucherList = []
+    }
+    if (this.tabId === 3 || this.tabId === 4) {
+      if (!_.isEmpty(this.editData) && !_.isEmpty(this.editData.LedgerTransDetails)) {
+        this.voucherDataJ = []
+        const ledgerTransData = JSON.parse(JSON.stringify(this.editData.LedgerTransDetails));
+        _.forEach(ledgerTransData, (item, index) => {
+          if (this.editType === 'Contra') {
+            this.voucherDatas[index]['Type'] = Number(item.CrDr)
+            this.voucherDatas[index]['Amount'] = Number(item.Amount)
+            this.voucherDatas[index]['LedgerId'] = Number(item.LedgerId)
+          }
+          if (this.editType === 'Journal') {
+            const data = {
+              Type: Number(item.CrDr),
+              Amount: Number(item.Amount),
+              LedgerId: Number(item.LedgerId),
+              data: this.allLedgerList
+            }
+            this.voucherDataJ.push({ ...data });
+          }
+        })
+      }
+    }
+  }
+
+  setVoucherDate() {
     let _self = this
     $(function ($) {
       flatpickr('#voucher-date', {
@@ -679,24 +868,28 @@ getjournalRefreshList() {
     this.VoucherDate = _self.gs.getDefaultDate(_self.clientDateFormat)
   }
 
-  private voucherAddParams () {
-    let VoucherDate = this.gs.clientToSqlDateFormat(this.VoucherDate, this.clientDateFormat)
-    if (this.tabId == 1 || this.tabId === 2) {
+  private voucherAddParams() {
+    let VoucherDate = this.gs.convertToSqlFormat(this.VoucherDate)
+    if (this.tabId == 1 || this.tabId === 2 || this.tabId === 5 || this.tabId === 6) {
       let voucherList = JSON.parse(JSON.stringify(this.voucherList))
       voucherList.forEach(voucher => {
         if (voucher.BillDate) {
-          voucher.BillDate = this.gs.clientToSqlDateFormat(voucher.BillDate, this.clientDateFormat)
+          voucher.BillDate = this.gs.convertToSqlFormat(new Date(voucher.BillDate))
+        }
+        if (voucher.BalanceType === 'OB') {
+          voucher['IsAdvance'] = 2
+        } else if (voucher.BalanceType === 'AD') {
+          voucher['IsAdvance'] = 1
         }
         voucher['ParentId'] = voucher.Id
         voucher['Amount'] = +voucher.PaymentAmount
       })
-      if (+this.advancePayment > 0)  {
+      if (+this.advancePayment > 0) {
         voucherList.push({
           IsAdvance: 1,
           Amount: this.advancePayment
         })
       }
-      console.log(voucherList)
       let paymentDetails = [{
         Id: 0,
         Paymode: this.Paymode,
@@ -706,10 +899,10 @@ getjournalRefreshList() {
         Amount: +this.Amount,
         ChequeNo: this.Narration
       }]
-      
+
       const voucherAddParams = {
         obj: {
-          Id: UIConstant.ZERO,
+          Id: this.editId ? this.editId : UIConstant.ZERO,
           OrgId: this.OrgId,
           VoucherType: this.voucherService.tabs[this.tabId - 1].voucherType,
           VoucherNo: this.VoucherNo,
@@ -720,12 +913,14 @@ getjournalRefreshList() {
           PaymentDetails: paymentDetails
         } as VoucherAddModel
       }
-      console.log('obj : ', JSON.stringify(voucherAddParams.obj))
+      if (this.tabId === 5 || this.tabId === 6) {
+        voucherAddParams.obj['IsIncomeExpence'] = 1
+      }
       return voucherAddParams.obj
     } else {
       let voucherData = []
       if (this.tabId === 3) {
-        voucherData = this.voucherDatas
+        voucherData = JSON.parse(JSON.stringify(this.voucherDatas));
       }
       if (this.tabId === 4) {
         voucherData = JSON.parse(JSON.stringify(this.voucherDataJ))
@@ -733,8 +928,11 @@ getjournalRefreshList() {
           voucherData.splice(voucherData.length - 1, 1)
         }
       }
+      _.forEach(voucherData, (item, index) => {
+        _.omit(voucherData[index], ['data']);
+      })
       let obj = {
-        Id: UIConstant.ZERO,
+        Id: this.editId ? this.editId : UIConstant.ZERO,
         OrgId: this.OrgId,
         VoucherType: this.voucherService.tabs[this.tabId - 1].voucherType,
         VoucherNo: this.VoucherNo,
@@ -743,45 +941,42 @@ getjournalRefreshList() {
         Narration: this.Narration,
         VoucherDatas: voucherData
       }
-      console.log('journal : ', JSON.stringify(obj))
       return obj
     }
   }
 
-  resetForm (){
-    this.voucherDataJ=[{
-      LedgerId: 0,
+  resetForm() {
+    this.voucherDataJ = [{
+      LedgerId: '0',
       Amount: 0,
       Type: 0,
       data: this.allLedgerList,
       default: 0
-    } 
-  ]
-  this.voucherDatas=[ {
-    LedgerId: 0,
-    Amount: 0,
-    Type: 0,
-    data: this.paymentLedgerselect2 ,
-    default: 0
-  }]
+    }
+    ]
+    this.voucherDatas = [{
+      LedgerId: 0,
+      Amount: 0,
+      Type: 0,
+      data: this.paymentLedgerselect2,
+    }]
   }
-  manipulateData () {
-    
+
+  manipulateData() {
     let _self = this
     this.submitSave = true
     if (this.checkForValidation()) {
-      if (this.tabId === 2 || this.tabId === 1) {
+      if (this.tabId === 2 || this.tabId === 1 || this.tabId === 6 || this.tabId === 5) {
         this.voucherService.postVoucher(this.voucherAddParams()).pipe(takeUntil(this.onDestroy$), filter(data => {
-          if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
+          if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
         }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
           data => {
-            console.log('data : ', data)
             if (data) {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
               _self.commonService.newVoucherAdd()
               _self.commonService.closeVoucher()
               this.resetForm()
-
+              this.closeModal()
             }
           },
           (error) => {
@@ -790,15 +985,15 @@ getjournalRefreshList() {
         )
       } else if (this.tabId === 3 || this.tabId === 4) {
         this.voucherService.postVoucherContraJournal(this.voucherAddParams()).pipe(takeUntil(this.onDestroy$), filter(data => {
-          if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
+          if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
         }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
           data => {
-            console.log('data : ', data)
             if (data) {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
               _self.commonService.newVoucherAdd()
               _self.commonService.closeVoucher()
               this.resetForm()
+              this.closeModal()
             }
           },
           (error) => {
@@ -809,7 +1004,7 @@ getjournalRefreshList() {
     }
   }
 
-  updateAmount () {
+  updateAmount() {
     if (this.autoBill) {
       let totalAmount = +this.Amount
       if (this.voucherList.length > 0) {
@@ -838,22 +1033,58 @@ getjournalRefreshList() {
         })
       }
     } else {
-      this.Amount = 0
-      this.advancePayment = 0
-      this.voucherList.forEach(element => {
-        if (element['selected'] && element['PaymentAmount'] > 0) {
-          this.Amount += +element['PaymentAmount']
-          element['selected'] = true
-        } else {
-          element['selected'] = false
-        }
-      })
+      if (!_.isEmpty(this.voucherList)) {
+        this.Amount = 0
+        this.advancePayment = 0
+        this.voucherList.forEach(element => {
+          if (!element.isPaymentEnable && element['selected']) {
+            element.isPaymentEnable = true;
+            element['PaymentAmount'] = element['Balance'];
+          } else if (element.isPaymentEnable && !element['selected']) {
+            element['PaymentAmount'] = 0;
+            element.isPaymentEnable = false;
+          } else if (!element.isPaymentEnable && !element['selected']) {
+            element.isPaymentEnable = false;
+            element['PaymentAmount'] = 0;
+          }
+          if (element['selected'] && element['PaymentAmount'] > 0) {
+            this.Amount += +element['PaymentAmount']
+            element['selected'] = true
+          } else {
+            element['selected'] = false
+          }
+        })
+      }
     }
     this.checkForRows()
     this.checkForAdvancePayment()
   }
 
-  checkForRows () {
+  setAdvancePaymentForNoVoucherList(event) {
+    if (event.target.value && (this.tabId === 1 || this.tabId === 2) && this.PartyId && _.isEmpty(this.voucherList)) {
+      if (event.target.value > 0) {
+        this.getAdvancePaymentBillNo(event.target.value)
+      }
+    }
+  }
+
+  getAdvancePaymentBillNo(amount) {
+    const request = this.tabId === 1 ? 'ADVANCEPAYMENT' : 'ADVANCERECEIPT';
+    this.voucherService.getBillNoForAdvancePayment(request).subscribe((res) => {
+      if (res.Code === 1000 && !_.isEmpty(res.Data)) {
+        this.advanceBillNo = Number(res.Data[0].BillNo);
+        this.advancePayment = amount;
+      } else {
+        this.advanceBillNo = null
+      }
+    })
+  }
+
+  trackByFn(index) {
+    return index;
+  }
+
+  checkForRows() {
     if (this.voucherList.length > 0) {
       let selectAll = true
       for (let i = 0; i < this.voucherList.length; i++) {
@@ -868,9 +1099,7 @@ getjournalRefreshList() {
     }
   }
 
-  advancePayment = 0
-  onVoucherToggle (index, e: Event) {
-    console.log('index : ', index)
+  onVoucherToggle(index, e: Event) {
     if (!this.autoBill) {
       if (!this.voucherList[index].selected) {
         this.voucherList[index]['PaymentAmount'] = 0
@@ -893,7 +1122,7 @@ getjournalRefreshList() {
     }
   }
 
-  checkForAdvancePayment () {
+  checkForAdvancePayment() {
     let amount = 0
     if (+this.Amount > 0 && this.autoBill && this.voucherList.length > 0) {
       this.voucherList.forEach(voucher => {
@@ -902,17 +1131,47 @@ getjournalRefreshList() {
         }
       })
       if (amount < +this.Amount) {
-        this.advancePayment = +this.Amount - amount
+        const advancePayment = +this.Amount - amount
+        if (advancePayment > 0) {
+          this.getAdvancePaymentBillNo(advancePayment)
+        }
+      } else {
+        this.advancePayment = 0
       }
-      console.log('voucherlist : ', this.voucherList)
-    } else {
+    }
+    else if (!this.autoBill && this.voucherList.length > 0) {
       this.advancePayment = 0
+      let advancePayment = 0
+      this.Amount = 0
+      let storedAmount = 0
+      this.voucherList.forEach((voucher, index) => {
+        if (voucher['selected'] && voucher['PaymentAmount'] > 0) {
+          if (Number(voucher['PaymentAmount']) > Number(voucher['Balance'])) {
+            advancePayment = Number(advancePayment) + (Number(voucher['PaymentAmount']) - Number(voucher['Balance']))
+            voucher['PaymentAmount'] = +voucher['Balance']
+            storedAmount = +storedAmount + +voucher['PaymentAmount']
+          } else {
+            storedAmount = +storedAmount + +voucher['PaymentAmount']
+          }
+        }
+        this.voucherList[index] = JSON.parse(JSON.stringify(voucher));
+        $(`PaymentAmount${index}`).focus();
+        if (!_.isEmpty(this.payMentAmountRef) && !_.isEmpty(this.payMentAmountRef.first)) {
+          setTimeout(() => {
+            this.payMentAmountRef.first.nativeElement.focus({ preventScroll: false })
+          }, 300);
+        }
+      })
+      this.Amount = storedAmount + advancePayment
+      if (advancePayment > 0) {
+        this.getAdvancePaymentBillNo(advancePayment);
+      }
     }
   }
 
-  checkForValidation () {
+  checkForValidation() {
     let isValid = 1
-    if (this.tabId === 1 || this.tabId === 2) {
+    if (this.tabId === 1 || this.tabId === 2 || this.tabId === 5 || this.tabId === 6) {
       if (+this.Amount > 0 && this.voucherList.length > 0) {
         if (+this.PayModeId > 0) {
           this.invalidObj['PayModeId'] = false
@@ -932,12 +1191,6 @@ getjournalRefreshList() {
           isValid = 0
           this.invalidObj['Amount'] = true
         }
-        // if (this.ChequeNo) {
-        //   this.invalidObj['ChequeNo'] = false
-        // } else {
-        //   isValid = 0
-        //   this.invalidObj['ChequeNo'] = true
-        // }
       } else {
         isValid = 1
       }
@@ -945,19 +1198,13 @@ getjournalRefreshList() {
     } else if (this.tabId === 3) {
       if (this.voucherDatas.length > 1) {
         if (this.voucherDatas[0].Type !== this.voucherDatas[1].Type
-          && +this.voucherDatas[0].Amount > 0 
+          && +this.voucherDatas[0].Amount > 0
           && +this.voucherDatas[0].LedgerId > 0 && +this.voucherDatas[1].LedgerId > 0) {
           isValid = 1
         }
       } else {
         isValid = 0
       }
-      // if (this.Narration) {
-      //   this.invalidObj['Narration'] = false
-      // } else {
-      //   isValid = 0
-      //   this.invalidObj['Narration'] = true
-      // }
       return !!isValid
     } else if (this.tabId === 4) {
       let sumCr = 0
@@ -977,12 +1224,6 @@ getjournalRefreshList() {
       } else {
         isValid = 0
       }
-      // if (this.Narration) {
-      //   this.invalidObj['Narration'] = false
-      // } else {
-      //   isValid = 0
-      //   this.invalidObj['Narration'] = true
-      // }
       return !!isValid
     } else {
       this.invalidObj = {}
@@ -990,26 +1231,24 @@ getjournalRefreshList() {
     }
   }
 
-  deleteItem (index: number): void {
+  deleteItem(index: number): void {
     this.enableDisableLedger(+this.voucherDataJ[index].LedgerId, false)
     this.voucherDataJ.splice(index, 1)
   }
 
   @ViewChildren('first') first: QueryList<Select2Component>
-  
-  addItems () {
-   
+
+  addItems() {
     this.enableDisableLedger(+this.voucherDataJ[this.voucherDataJ.length - 1].LedgerId, true)
     if (+this.voucherDataJ[this.voucherDataJ.length - 1]['Amount'] > 0 &&
       +this.voucherDataJ[this.voucherDataJ.length - 1]['LedgerId'] > 0) {
       this.voucherDataJ.push({
-        LedgerId: 0,
+        LedgerId: '0',
         Amount: 0,
         Type: 0,
         data: this.allLedgerList,
         default: 0
       })
-      console.log('this.voucherDataJ : ', this.voucherDataJ)
       setTimeout(() => {
         this.first.forEach((item: Select2Component, index: number) => {
           if (index === (this.voucherDataJ.length - 1)) {
@@ -1019,11 +1258,12 @@ getjournalRefreshList() {
       }, 100)
     }
   }
-  CRDRId:number 
-  onchangesCRDRType (id){
- this.CRDRId= id
+  CRDRId: number
+  onchangesCRDRType(id) {
+    this.CRDRId = +id
   }
-  enableDisableLedger (ledgerId, toDisable ) {
+
+  enableDisableLedger(ledgerId, toDisable) {
     if (+ledgerId > 0) {
       let index = this.allLedgerList.findIndex(ledger => +ledger.id === +ledgerId)
       if (index >= 0) {
@@ -1037,7 +1277,7 @@ getjournalRefreshList() {
     }
   }
 
-  setFocus () {
+  setFocus() {
     setTimeout(() => {
       if (this.organisationSelect2) {
         this.organisationSelect2.selector.nativeElement.focus({ preventScroll: false })
@@ -1045,26 +1285,46 @@ getjournalRefreshList() {
     }, 900)
   }
 
-  onTabClick (tabId) {
+ async onTabClick(tabId) {
     this.initParams();
     this.tabId = tabId;
-    this.getSPUitilityData();
+    await this.getSPUitilityData();
     this.getNewBillNo();
     if (this.tabId === 1) {
-      this.ledgerPlaceholder = {placeholder: 'Select Party'};
+      this.ledgerPlaceholder = { placeholder: 'Select Party' };
     }
     if (this.tabId === 2) {
-      this.ledgerPlaceholder = {placeholder: 'Select Vendor / Customer'}
+      this.ledgerPlaceholder = { placeholder: 'Select Vendor / Customer' }
     }
+    if (this.tabId === 4) {
+      this.ledgerPlaceholder = { placeholder: 'Select Ledger' }
+
+    }
+    if (this.tabId === 5) {
+      this.ledgerPlaceholder = { placeholder: 'Select Expenses' }
+    }
+    if (this.tabId === 6) {
+      this.ledgerPlaceholder = { placeholder: 'Select Income' }
+    }
+   if (this.editId) {
+     this.assignVoucherData(this.editData)
+   }
     this.setFocus()
   }
 
-  setToOther (index) {
-    let other = (index === 1) ? 0 : 1
-    this.voucherDatas[other]['default'] = (this.voucherDatas[index]['Type'] === 1) ? 0 : 1
+  setTypeForOther(index) {
+    if (index === 0) {
+      this.voucherDatas[1]['Type'] = (this.voucherDatas[0]['Type'] === 1) ? 0 : 1
+    }
   }
 
-  ngOnDestroy () {
+  setAmountForOther(index) {
+    if (index === 0) {
+      this.voucherDatas[1]['Amount'] = this.voucherDatas[0]['Amount']
+    }
+  }
+
+  ngOnDestroy() {
     this.onDestroy$.next()
     this.onDestroy$.complete()
     this.subscribe.unsubscribe()
@@ -1072,10 +1332,10 @@ getjournalRefreshList() {
 }
 
 interface VoucherDatas {
-  LedgerId: number,
+  LedgerId: any,
   Amount: number,
   Type: number,
   data: Array<Select2OptionData>,
-  default: number,
+  default?: number,
   incorrect?: boolean
 }

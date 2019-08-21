@@ -60,6 +60,13 @@ export class PurchaseService {
   postPurchaseList (obj) {
     return this.baseService.postRequest(ApiConstant.PURCHASE_LIST, obj)
   }
+  //retrun Api Purchase
+  postPurchaseReturnList (obj) {
+    return this.baseService.postRequest(ApiConstant.RERTURN_PURCHASE_LIST, obj)
+  }
+  getPurchaseReturnList (queryParams) {
+    return this.baseService.getRequest(ApiConstant.RERTURN_PURCHASE_LIST + queryParams)
+  }
 
   generateAttributes (data) {
     let obj = {}
@@ -68,7 +75,7 @@ export class PurchaseService {
     data.AttributeValueResponses.forEach(attribute => {
       attributeKeys.push(attribute.Name)
       obj['name'] = attribute.Name
-      obj['len'] = attribute.AttributeValuesResponse.length
+      obj['len'] = attribute.AttributeValuesResponse.length -1
       obj['data'] = [{ id: '0', text: 'Select Attribute' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
       obj['attributeId'] = attribute.AttributeId
       obj['id'] = 0
@@ -548,9 +555,13 @@ export class PurchaseService {
     }
   }
 
-  getPurchaseDetailById (id): Observable<ResponseSale> {
-    return this.baseService.getRequest(ApiConstant.GET_DETAIL_OF_PURCHASE_BY_ID + id)
+  getReturnPurchaseEdit (type,id): Observable<ResponseSale> {
+    return this.baseService.getRequest(ApiConstant.RETURN_PURCHASE_BY_ID+ type + id)
   }
+  getPurchaseDetailById (id): Observable<ResponseSale> {
+    return this.baseService.getRequest(ApiConstant.GET_DETAIL_OF_PURCHASE_BY_ID+ id)
+  }
+  
 
   getPrintData (id): Observable<ResponseSale> {
     return this.baseService.getRequest(ApiConstant.GET_PURCHASE_PRINT_DATA + id)

@@ -56,6 +56,7 @@ export class ItemStockReportComponent implements OnInit {
   AttributeValues: any
   ClosingStock :any
   getSaleChallanDetail (data) {
+    debugger
     this._commonService.getReportItemStock(data).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         this.mainData = []
@@ -126,7 +127,7 @@ export class ItemStockReportComponent implements OnInit {
           let ItemBarCodeTransactions = data.Data.ItemBarCodeTransactions.filter(s => (s.ItemId === mainItm.Id && s.GroupId === mainItm.GroupId))
           if (ItemBarCodeTransactions.length === 0) {
             ItemBarCodeTransactions = []
-            ItemBarCodeTransactions.push({ Barcode: '' })
+            ItemBarCodeTransactions.push({ Barcode: mainItm.BarCode })
             ItemBarCodeTransactions.push({ AttributeDetail: '' })
 
           }
@@ -141,7 +142,7 @@ export class ItemStockReportComponent implements OnInit {
             purchase: ItemstockdetailsPurchase,
             purchaseReturn: ItemstockdetailsPurchaseReturn,
             sale: ItemstockdetailsSale,
-            barcode: ItemBarCodeTransactions[0].Barcode,
+            barcode:  ItemBarCodeTransactions[0].Barcode,
             attributeData: ItemBarCodeTransactions[0].AttributeDetail,
             saleReturn: ItemstockdetailsSaleReturn,
             ClosingStock:ClosingStock,
@@ -151,6 +152,7 @@ export class ItemStockReportComponent implements OnInit {
           })
         })
       }
+      //console.log( this.mainData ,'data')
     })
   }
 

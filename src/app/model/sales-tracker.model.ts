@@ -304,6 +304,7 @@ export interface AddCust {
   itemId?:any
   imageType?:string
   headId?:any
+  gstType?:any
   
 }
 
@@ -502,6 +503,18 @@ export interface Image {
   id?: number[]
   imageType?:string
 }
+export interface ServiceItemAdd {
+  Id: number
+  Name: string
+  HsnNo: string
+  ItemCode: string
+  TaxId: number
+  ItemType: number
+  PackingType: number
+  SaleRate?: number
+  BarCode?: string
+  ImageFiles?: Array<Object>[]
+}
 
 export interface ItemMasterAdd {
   Id: number
@@ -571,44 +584,57 @@ export interface PurchaseItem {
   AmountItem: number
   taxRates: any
   itemTaxTrans?: Array<ItemTaxTrans>
+  
+  selected?:boolean
+  ReturnQuantity?:number
+  fixPurchaseRate?:number
+  SaleTransId?:number
+
 }
 
-// export interface PurchaseItem {
-//   TransType: number
-//   TransId: number
-//   ChallanId: number
-//   CategoryId: number
-//   ItemId: number
-//   UnitId: number
-//   Length: number
-//   Height: number
-//   Width: number
-//   Quantity: number
-//   SaleRate: number
-//   MrpRate: number
-//   PurchaseRate: number
-//   TaxSlabId: number
-//   TaxType: number
-//   TaxAmount: number
-//   DiscountType: number
-//   Discount: number
-//   DiscountAmt: number
-//   ExpiryDate: string
-//   MfdDate: string
-//   BatchNo: string
-//   Remark: string
-//   Id: number
-//   Sno: number
-//   itemName: string
-//   categoryName: string
-//   unitName: string
-//   taxSlabName: string
-//   taxTypeName: string
-//   SubTotal: number
-//   itemAttributeTrans?: Array<PurchaseAttribute>
-//   taxRates: Array<any>
-//   taxSlabType: number
-// }
+export interface SaleReturnItems {
+  TransType: number
+  TransId: number
+  ChallanId: number
+  CategoryId: number
+  ItemId: number
+  UnitId: number
+  Length: number
+  Height: number
+  Width: number
+  Quantity: number
+  SaleRate: number
+  MrpRate: number
+  PurchaseRate: number
+  TotalRate: number
+  TaxSlabId: number
+  TaxType: number
+  TaxAmount: number
+  DiscountType: number
+  Discount: number
+  DiscountAmt: number
+  ExpiryDate: string
+  MfdDate: string
+  BatchNo: string
+  Remark: string
+  Id: number
+  Sno: number
+  itemName: string
+  categoryName: string
+  unitName: string
+  taxSlabName: string
+  taxTypeName: string
+  SubTotal: number
+  itemAttributeTrans?: Array<PurchaseAttribute>
+  taxSlabType: number
+  AmountItem: number
+  taxRates: any
+  itemTaxTrans?: Array<ItemTaxTrans>
+  selected?:boolean
+  ReturnQuantity?:number
+  fixSaleRate?:number
+  SaleTransId?:number
+}
 
 export interface ComboItem {
   ItemId: number
@@ -655,7 +681,6 @@ export class PurchaseAdd {
   Items: Array<PurchaseItem>
   BillAmount: number
   BillDate: string
-  CurrentDate: string
   PartyBillDate: string
   PartyBillNo: string
   BillNo: string
@@ -736,4 +761,302 @@ export class ItemTaxTrans {
   ValueType: number
   TaxSlabName: string
   Sno: number
+}
+
+export interface ServiceBilling {
+  TransType: number
+  TransId: number
+  ChallanId: number
+  CategoryId: number
+  ItemId: number
+  Quantity: number
+  SaleRate: number
+  TotalRate: number
+  TaxSlabId: number
+  TaxType: number
+  TaxAmount: number
+  DiscountType: number
+  Discount: number
+  DiscountAmt: number
+  Remark: string
+  Id: number
+  Sno: number
+  itemName: string
+  taxSlabName: string
+  taxTypeName: string
+  SubTotal: number
+  taxSlabType: number
+  AmountItem: number
+  taxRates: any
+  itemTaxTrans?: Array<ItemTaxTrans>
+}
+
+//selected
+
+export class ServiceBillingAdd {
+  PaymentDetail: Array<PurchaseTransaction>
+  Items: Array<ServiceBilling>
+  BillAmount: number
+  BillDate: string
+  PartyBillDate: string
+  PartyBillNo: string
+  BillNo: string
+  ConvertedAmount: number
+  CurrencyRate: number
+  TotalDiscount: number
+  Id: number
+  PartyId: number
+  ReverseTax: number
+  CessAmount: number
+  RoundOff: number
+  SubTotalAmount: number
+  TotalTaxAmount: number
+  TotalQty: number
+  CurrencyId: number
+  OrgId: number
+  InterestRate: number
+  InterestAmount: number
+  InterestType: number
+  DueDate: string
+  OrderId: number
+  Advanceamount: number
+  NetAmount: number
+  AddressId: number
+  ConvertedCurrencyId: number
+  AdditionalCharges: Array<AdditionalCharges>
+  ItemTaxTrans: Array<ItemTaxTrans>
+}
+
+
+export interface saleReturnItem {
+  TransType: number
+  TransId: number
+  ChallanId: number
+  CategoryId: number
+  ItemId: number
+  UnitId: number
+  Length: number
+  Height: number
+  Width: number
+  Quantity: number
+  SaleRate: number
+  MrpRate: number
+  PurchaseRate: number
+  TotalRate: number
+  TaxSlabId: number
+  TaxType: number
+  TaxAmount: number
+  DiscountType: number
+  Discount: number
+  DiscountAmt: number
+  ExpiryDate: string
+  MfdDate: string
+  BatchNo: string
+  Remark: string
+  Id: number
+  Sno: number
+  itemName: string
+  categoryName: string
+  unitName: string
+  taxSlabName: string
+  taxTypeName: string
+  SubTotal: number
+  itemAttributeTrans?: Array<PurchaseAttribute>
+  taxSlabType: number
+  AmountItem: number
+  taxRates: any
+  itemTaxTrans?: Array<ItemTaxTrans>
+  selected?:boolean
+}
+
+export class SaleReturnRequestAdd {
+  ReferralCommissionTypeId: number
+  ReferralCommission: number
+  PaymentDetail: Array<PurchaseTransaction>
+  Items: Array<PurchaseItem>
+  BillAmount: number
+  BillDate: string
+  PartyBillDate: string
+  PartyBillNo: string
+  BillNo: string
+  CurrentDate:string
+  ConvertedAmount: number
+  CurrencyRate: number
+  TotalDiscount: number
+  Id: number
+  SaleId:number
+  PartyId: number
+  ReferralId: number
+  ReferralTypeId: number
+  ReferralComission: number
+  ReferralComissionTypeId: number
+  ReverseCharge: number
+  ReverseTax: number
+  CessAmount: number
+  RoundOff: number
+  SubTotalAmount: number
+  TotalTaxAmount: number
+  TotalChallan: number
+  VehicleNo: string
+  Drivername: string
+  Transportation: string
+  TotalQty: number
+  OtherCharge: number
+  GodownId: number
+  CurrencyId: number
+  OrgId: number
+  InterestRate: number
+  InterestAmount: number
+  InterestType: number
+  DueDate: string
+  OrderId: number
+  Advanceamount: number
+  NetAmount: number
+  AddressId: number
+  ConvertedCurrencyId: number
+  ItemAttributeTrans: Array<PurchaseAttribute>
+  AdditionalCharges: Array<AdditionalCharges>
+  ItemTaxTrans: Array<ItemTaxTrans>
+}
+export class PurchaseReturnAdd {
+  ReferralCommissionTypeId: number
+  ReferralCommission: number
+  PaymentDetail: Array<PurchaseTransaction>
+  Items: Array<PurchaseItem>
+  BillAmount: number
+  BillDate: string
+  PartyBillDate: string
+  PartyBillNo: string
+  BillNo: string
+  CurrentDate:string
+  ConvertedAmount: number
+  CurrencyRate: number
+  TotalDiscount: number
+  Id: number
+  PurchaseId:number
+  PartyId: number
+  ReferralId: number
+  ReferralTypeId: number
+  ReferralComission: number
+  ReferralComissionTypeId: number
+  ReverseCharge: number
+  ReverseTax: number
+  CessAmount: number
+  RoundOff: number
+  SubTotalAmount: number
+  TotalTaxAmount: number
+  TotalChallan: number
+  VehicleNo: string
+  Drivername: string
+  Transportation: string
+  TotalQty: number
+  OtherCharge: number
+  GodownId: number
+  CurrencyId: number
+  OrgId: number
+  InterestRate: number
+  InterestAmount: number
+  InterestType: number
+  DueDate: string
+  OrderId: number
+  Advanceamount: number
+  NetAmount: number
+  AddressId: number
+  ConvertedCurrencyId: number
+  ItemAttributeTrans: Array<PurchaseAttribute>
+  AdditionalCharges: Array<AdditionalCharges>
+  ItemTaxTrans: Array<ItemTaxTrans>
+}
+export class SaleDirectAdd {
+  ReferralCommissionTypeId: number
+  ReferralCommission: number
+  PaymentDetail: Array<PurchaseTransaction>
+  Items: Array<SaleDirectItem>
+  BillAmount: number
+  BillDate: string
+  PartyBillDate: string
+  PartyBillNo: string
+  BillNo: string
+  ConvertedAmount: number
+  CurrencyRate: number
+  TotalDiscount: number
+  Id: number
+  PartyId: number
+  ReferralId: number
+  ReferralTypeId: number
+  ReferralComission: number
+  ReferralComissionTypeId: number
+  ReverseCharge: number
+  ReverseTax: number
+  CessAmount: number
+  RoundOff: number
+  SubTotalAmount: number
+  TotalTaxAmount: number
+  TotalChallan: number
+  VehicleNo: string
+  Drivername: string
+  Transportation: string
+  TotalQty: number
+  OtherCharge: number
+  GodownId: number
+  CurrencyId: number
+  OrgId: number
+  InterestRate: number
+  InterestAmount: number
+  InterestType: number
+  DueDate: string
+  OrderId: number
+  Advanceamount: number
+  NetAmount: number
+  AddressId: number
+  ConvertedCurrencyId: number
+  ItemAttributeTrans: Array<PurchaseAttribute>
+  AdditionalCharges: Array<AdditionalCharges>
+  ItemTaxTrans: Array<ItemTaxTrans>
+  SupplyStateId:any
+}
+
+export interface SaleDirectItem {
+  TransType: number
+  TransId: number
+  ChallanId: number
+  CategoryId: number
+  ItemId: number
+  UnitId: number
+  Length: number
+  Height: number
+  Width: number
+  Quantity: number
+  SaleRate: number
+  MrpRate: number
+  PurchaseRate: number
+  TotalRate: number
+  TaxSlabId: number
+  TaxType: number
+  TaxAmount: number
+  DiscountType: number
+  Discount: number
+  DiscountAmt: number
+  ExpiryDate: string
+  MfdDate: string
+  BatchNo: string
+  Remark: string
+  Id: number
+  Sno: number
+  itemName: string
+  categoryName: string
+  unitName: string
+  taxSlabName: string
+  taxTypeName: string
+  SubTotal: number
+  itemAttributeTrans?: Array<PurchaseAttribute>
+  taxSlabType: number
+  AmountItem: number
+  taxRates: any
+  itemTaxTrans?: Array<ItemTaxTrans>
+  selected?:boolean
+  ReturnQuantity?:number
+  fixPurchaseRate?:number
+  SaleTransId?:number
+
 }

@@ -154,7 +154,7 @@
                                 <div class="row" *ngFor = "let item of headI2dData; let i =index" >
                                     <div class="col-md-6">
                                         <div *ngIf='item.HeadId === 2 '  [ngClass]="{'bold' : (item.HeadId === 2 && item.LevelNo ===1),'normal' : (item.HeadId === 2 && item.LevelNo ===2),'font-italic' : (item.HeadId === 2 && item.LevelNo ===3) }"  [ngStyle]="{'padding-left':item.HeadId === 2 && item.LevelNo ===2 ? '20px' : item.HeadId === 2 && item.LevelNo ===3 ? '40px' : '0px' }" class="panel-title"> 
-                                           <a  data-toggle="collapse">{{item.GlName}}</a>
+                                           <a (click)="openLedgerSummary(item)" data-toggle="collapse">{{item.GlName}}</a>
 
                                         </div>
                                        
@@ -186,7 +186,8 @@
                             <div class="col-md-12">
                                 <div class="row" *ngFor = "let item of headI1dData; let a =index" >
                                     <div class="col-md-6">
-                                        <div   *ngIf= 'item.HeadId === 1'  [ngClass]="{'bold' : (item.HeadId === 1 && item.LevelNo ===1),'normal' : (item.HeadId === 1 && item.LevelNo ===2),'font-italic' : (item.HeadId === 1 && item.LevelNo ===3) }"     [ngStyle]="{'padding-left':item.HeadId === 1 && item.LevelNo ===2 ? '20px' : item.HeadId === 1 && item.LevelNo ===3 ? '40px' : '0px' }" class="panel-title"><a  data-toggle="collapse">{{item.GlName}}</a></div>
+                                        <div   *ngIf= 'item.HeadId === 1'  [ngClass]="{'bold' : (item.HeadId === 1 && item.LevelNo ===1),'normal' : (item.HeadId === 1 && item.LevelNo ===2),'font-italic' : (item.HeadId === 1 && item.LevelNo ===3) }"     [ngStyle]="{'padding-left':item.HeadId === 1 && item.LevelNo ===2 ? '20px' : item.HeadId === 1 && item.LevelNo ===3 ? '40px' : '0px' }" class="panel-title">
+                                            <a  (click)="openLedgerSummary(item)"  data-toggle="collapse">{{item.GlName}}</a></div>
                                 
                                     </div>
                                     <div class="col">
@@ -247,18 +248,18 @@
                             <div class="row thead">
                                     <div class="col-3 font-weight-bold text-center"> Liabilities</div>
                                     <div class="col amount_bs bdr_gray font-weight-bold">Amount  </div>
-                                    <div class="col amount_bs bdr_gray font-weight-bold">Amount  </div>
+                                    <div class="col amount_bs bdr_gray font-weight-bold" style="padding-right: 13px;">Amount </div>
                                     <div class="col-3 font-weight-bold text-center">Assets</div>
                                     <div class="col amount_bs font-weight-bold">Amount </div>
-                                    <div class="col amount_bs font-weight-bold">Amount </div>
+                                    <div class="col amount_bs font-weight-bold" style="padding-right: 5px;">Amount </div>
                                 </div>
                     
-                    <div class="row tbody">
-                        <div class="col-md-6 p-0 bdr_gray bdr_right">
+                    <div class="row tbody p-0">
+                        <div class="col-md-6 bdr_gray bdr_right">
                             <div class="col-md-12">
-                                <div class="row" *ngFor = "let item of headI2dData; let i =index" >
-                                    <div class="col-md-6">
-                                        <div *ngIf='item.HeadId === 2 '  [ngClass]="{'bold' : (item.HeadId === 2 && item.LevelNo ===1),'normal' : (item.HeadId === 2 && item.LevelNo ===2),'font-italic' : (item.HeadId === 2 && item.LevelNo ===3) }"  [ngStyle]="{'padding-left':item.HeadId === 2 && item.LevelNo ===2 ? '20px' : item.HeadId === 2 && item.LevelNo ===3 ? '40px' : '0px' }" class="panel-title"> 
+                                <div class="row" *ngFor = "let item of headI2dData; let i =index"  >
+                                    <div class="col-md-6" >
+                                        <div *ngIf='item.HeadId === 2 '  [ngClass]="{'bold' : (item.HeadId === 2 && item.LevelNo ===1),'normal' : (item.HeadId === 2 && item.LevelNo ===2),'font-italic' : (item.HeadId === 2 && item.LevelNo ===3) }"  [ngStyle]="{'padding-left':item.HeadId === 2 && item.LevelNo ===2 ? '20px' : item.HeadId === 2 && item.LevelNo ===3 ? '40px' : '0px' }" class="panel-title" > 
                                            <a  data-toggle="collapse">{{item.GlName}}</a>
 
                                         </div>
@@ -287,7 +288,7 @@
                           
                         </div>
                        
-                        <div class="col-md-6 p-0">
+                        <div class="col-md-6">
                             <div class="col-md-12">
                                 <div class="row" *ngFor = "let item of headI1dData; let a =index" >
                                     <div class="col-md-6">
@@ -317,9 +318,9 @@
                      </div>
                  <div class="row tfoot">
                         <div class="col-3 text-right font-weight-bold text-center">Total</div>
-                        <div  class="col amount_bs bdr_gray font-weight-bold">{{(headervalue2).toFixed(decimalDigit)}}</div>
+                        <div  class="col amount_bs bdr_gray font-weight-bold" style="padding-right: 13px;">{{(headervalue2).toFixed(decimalDigit)}}</div>
                         <div class="col-3 text-right font-weight-bold"></div>
-                        <div class="col amount_bs font-weight-bold">{{(headervalue1).toFixed(decimalDigit)}}</div>
+                        <div class="col amount_bs font-weight-bold" style="padding-right: 5px;">{{(headervalue1).toFixed(decimalDigit)}}</div>
                     </div>
                     </div>
                 </div>

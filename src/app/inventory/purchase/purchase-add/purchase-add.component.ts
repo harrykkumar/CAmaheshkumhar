@@ -1,6 +1,6 @@
 /* File created by Dolly Garg*/
 
-import { Component, ViewChild, QueryList, ViewChildren, Renderer2,ElementRef } from '@angular/core'
+import { Component, ViewChild, QueryList, ViewChildren, Renderer2, ElementRef } from '@angular/core'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { PurchaseService } from '../purchase.service'
@@ -48,7 +48,7 @@ export class PurchaseAddComponent {
   paymentLedgerselect2: Array<Select2OptionData>
   taxSlabsData: Array<Select2OptionData>
   chargesData: Array<Select2OptionData>
-  tempChargeData :any=[]
+  tempChargeData: any = []
   subUnitsValue: number
   attributeValue: number
   itemValue: number
@@ -77,7 +77,7 @@ export class PurchaseAddComponent {
   currency: any
   defaultCurrency: string
   setupModules: any
-  currencyValues: Array < { id: string, symbol: string } > = [{ id: '0', symbol: '%' }]
+  currencyValues: Array<{ id: string, symbol: string }> = [{ id: '0', symbol: '%' }]
 
   LedgerChargeId: number
   LedgerName: string
@@ -191,7 +191,7 @@ export class PurchaseAddComponent {
   InterestRate: number
   InterestAmount: number
   InterestType: number
-  DueDate: string =''
+  DueDate: string = ''
   OrderId: number
   Advanceamount: number
   NetAmount: number
@@ -246,7 +246,7 @@ export class PurchaseAddComponent {
 
   TransactionNoSetups: any
   loadingSummary: boolean = false
-  constructor (private commonService: CommonService,
+  constructor(private commonService: CommonService,
     private purchaseService: PurchaseService,
     private toastrService: ToastrCustomService,
     private settings: Settings,
@@ -275,7 +275,7 @@ export class PurchaseAddComponent {
       data => {
         if (data.id && data.name && data.AttributeId) {
           let indexOfAttr = -1
-          for (let i = 0; i < this.attributesData.length; i++) { if (this.attributesData[i]['attributeId'] === data.AttributeId) { indexOfAttr = i; break; }}
+          for (let i = 0; i < this.attributesData.length; i++) { if (this.attributesData[i]['attributeId'] === data.AttributeId) { indexOfAttr = i; break; } }
           if (indexOfAttr >= 0) {
             let itemAttributeTrans = JSON.parse(JSON.stringify(this.itemAttributeTrans))
             let newData = Object.assign([], this.attributesData[indexOfAttr]['data'])
@@ -308,7 +308,7 @@ export class PurchaseAddComponent {
           this.chargesData = newData
           this.LedgerChargeId = +data.id
           this.ledgerChargeValue = data.id
-        //  this.alreadySelectCharge(+data.id,  data.name, false)
+          //  this.alreadySelectCharge(+data.id,  data.name, false)
           setTimeout(() => {
             if (this.chargeSelect2) {
               const element = this.renderer.selectRootElement(this.chargeSelect2.selector.nativeElement, true)
@@ -379,7 +379,8 @@ export class PurchaseAddComponent {
             this.OrgId = +this.organisationsData[0].id
             this.organisationValue = +this.organisationsData[0].id
             if (this.isBillNoManuall) {
-              this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
+              //this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
+              this.CurrentDate = this.gs.getDefaultDate(this.clientDateFormat)
               this.getNewBillNo()
             }
           }
@@ -453,7 +454,7 @@ export class PurchaseAddComponent {
             { id: '1', symbol: this.defaultCurrency }
           ]
           // console.log('currencyValues : ', this.currencyValues)
-          this.convertToCurrencyData = [ ...this.currencyData ]
+          this.convertToCurrencyData = [...this.currencyData]
           if (this.currencyData.length >= 1) {
             this.CurrencyId = +this.currencyData[0].id
             this.currencyValue = +this.currencyData[0].id
@@ -467,8 +468,8 @@ export class PurchaseAddComponent {
     this.purchaseService.chargestData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
-          this.chargesData = data.data 
-           this.tempChargeData = data.data
+          this.chargesData = data.data
+          this.tempChargeData = data.data
         }
       }
     )
@@ -506,6 +507,7 @@ export class PurchaseAddComponent {
           this.vendorData = newData
           this.PartyId = +data.id
           this.vendorValue = data.id
+          this.vendorGSTType = data.gstType
           this.CreditLimit = 0
           this.CreditDays = 0
           setTimeout(() => {
@@ -645,7 +647,7 @@ export class PurchaseAddComponent {
     )
   }
 
-  getEditData () {
+  getEditData() {
     console.log('edit id : ', this.Id)
     this.purchaseService.getPurchaseDetailById(this.Id).pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
@@ -663,18 +665,18 @@ export class PurchaseAddComponent {
 
   dataForEdit: any
   taxRatesForEdit = []
-  getListOfChargeData (){
-    if(this.tempChargeData.length >0 ){
-      this.chargesData =[]
-        let newData =[]
-         this.tempChargeData.forEach(ele=>{
-          newData.push({ id: ele.id, text:ele.text ,disabled: false})
-          this.chargesData = newData
-     })
+  getListOfChargeData() {
+    if (this.tempChargeData.length > 0) {
+      this.chargesData = []
+      let newData = []
+      this.tempChargeData.forEach(ele => {
+        newData.push({ id: ele.id, text: ele.text, disabled: false })
+        this.chargesData = newData
+      })
     }
   }
 
-  createForm (data) {
+  createForm(data) {
     this.dataForEdit = data
     this.other = {}
     this.Items = []
@@ -700,7 +702,7 @@ export class PurchaseAddComponent {
     this.creatingForm = false
   }
 
-  createItemTaxTrans (taxRates) {
+  createItemTaxTrans(taxRates) {
     taxRates.forEach((element, index) => {
       this.ItemTaxTrans[index] = {
         TaxTypeTax: element.TaxTypeTax,
@@ -722,57 +724,56 @@ export class PurchaseAddComponent {
     console.log('this.ItemTaxTrans : ', this.ItemTaxTrans)
   }
 
-  createAdditionalCharges (charges) {
-    debugger
-    if(charges.length>0){
+  createAdditionalCharges(charges) {
+    if (charges.length > 0) {
 
-    
-    charges.forEach(element => {
-      let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.ChargeForm && taxRate.SlabId === element.TaxSlabChargeId)
-      let itemTaxTrans = []
-      itemTaxTrans = this.ItemTaxTrans.filter((taxRate) => {
-        if (taxRate.ItemTransTaxId === element.Id) {
-          return taxRate
+
+      charges.forEach(element => {
+        let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.ChargeForm && taxRate.SlabId === element.TaxSlabChargeId)
+        let itemTaxTrans = []
+        itemTaxTrans = this.ItemTaxTrans.filter((taxRate) => {
+          if (taxRate.ItemTransTaxId === element.Id) {
+            return taxRate
+          }
+        })
+        if (+element.TaxTypeCharge === 0) {
+          this.taxTypeChargeName = 'Exclusive'
+        } else {
+          this.taxTypeChargeName = 'Inclusive'
+        }
+        console.log('itemTaxTrans : ', itemTaxTrans)
+
+        this.LedgerChargeId = element.LedgerChargeId
+        this.LedgerName = element.LedgerName
+        this.AmountCharge = element.AmountCharge
+        this.TaxSlabChargeId = element.TaxSlabChargeId
+        this.TaxChargeName = element.TaxChargeName
+        this.TaxAmountCharge = element.TaxAmountCharge
+        this.TotalAmountCharge = element.TotalAmountCharge
+        this.TaxTypeCharge = element.TaxTypeCharge
+        this.taxTypeChargeName = this.taxTypeChargeName
+        this.taxChargeSlabType = element.TaxSlabType
+        this.taxChargeRates = taxRates
+        this.TaxableAmountCharge = (+element.TaxTypeCharge === 0) ? this.AmountCharge : +this.TotalAmountCharge - this.TaxAmountCharge
+        this.addCharge()
+        if (this.AdditionalCharges[this.AdditionalCharges.length - 1]) {
+          this.AdditionalCharges[this.AdditionalCharges.length - 1].Id = element.Id
+          this.AdditionalCharges[this.AdditionalCharges.length - 1].itemTaxTrans = itemTaxTrans
+        } else {
+          this.toastrService.showError('Not getting enough data for edit', '')
         }
       })
-      if (+element.TaxTypeCharge === 0) {
-        this.taxTypeChargeName = 'Exclusive'
-      } else {
-        this.taxTypeChargeName = 'Inclusive'
-      }
-      console.log('itemTaxTrans : ', itemTaxTrans)
-
-      this.LedgerChargeId = element.LedgerChargeId
-      this.LedgerName = element.LedgerName
-      this.AmountCharge = element.AmountCharge
-      this.TaxSlabChargeId = element.TaxSlabChargeId
-      this.TaxChargeName = element.TaxChargeName
-      this.TaxAmountCharge = element.TaxAmountCharge
-      this.TotalAmountCharge = element.TotalAmountCharge
-      this.TaxTypeCharge = element.TaxTypeCharge
-      this.taxTypeChargeName = this.taxTypeChargeName
-      this.taxChargeSlabType = element.TaxSlabType
-      this.taxChargeRates = taxRates
-      this.TaxableAmountCharge = (+element.TaxTypeCharge === 0) ? this.AmountCharge : +this.TotalAmountCharge - this.TaxAmountCharge
-      this.addCharge()
-      if (this.AdditionalCharges[this.AdditionalCharges.length - 1]) {
-        this.AdditionalCharges[this.AdditionalCharges.length - 1].Id = element.Id
-        this.AdditionalCharges[this.AdditionalCharges.length - 1].itemTaxTrans = itemTaxTrans
-      } else {
-        this.toastrService.showError('Not getting enough data for edit', '')
-      }
-    })
-  }
+    }
     console.log('this.AdditionalCharges : ', this.AdditionalCharges)
   }
 
   itemAttributesOthers: any = []
-  createAttributes (attributes) {
+  createAttributes(attributes) {
     attributes.forEach((element, index) => {
       this.itemAttributesOthers[index] = {
         ItemId: element.ItemId,
         ItemTransId: element.ItemTransId,
-        AttributeId:  element.AttributeId,
+        AttributeId: element.AttributeId,
         ParentTypeId: FormConstants.PurchaseForm,
         name: element.AttributeName,
         Id: element.Id,
@@ -782,14 +783,14 @@ export class PurchaseAddComponent {
     // console.log('this.itemAttributesOthers : ', this.itemAttributesOthers)
   }
 
-  createItems (ItemTransactions) {
+  createItems(ItemTransactions) {
     ItemTransactions.forEach(element => {
       let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.PurchaseForm && taxRate.SlabId === element.TaxSlabId)
       let total = +(isNaN(+element.PurchaseRate) ? 0 : +element.PurchaseRate)
-      * (isNaN(+element.Quantity) || +element.Quantity === 0 ? 1 : +element.Quantity)
-      * (isNaN(+element.Length) || +element.Length === 0 ? 1 : +element.Length)
-      * (isNaN(+element.Width) || +element.Width === 0 ? 1 : +element.Width)
-      * (isNaN(+element.Height) || +element.Height === 0 ? 1 : +element.Height)
+        * (isNaN(+element.Quantity) || +element.Quantity === 0 ? 1 : +element.Quantity)
+        * (isNaN(+element.Length) || +element.Length === 0 ? 1 : +element.Length)
+        * (isNaN(+element.Width) || +element.Width === 0 ? 1 : +element.Width)
+        * (isNaN(+element.Height) || +element.Height === 0 ? 1 : +element.Height)
       this.AmountItem = total - element.DiscountAmt
       let itemTaxTrans = []
       itemTaxTrans = this.ItemTaxTrans.filter((taxRate) => {
@@ -847,11 +848,12 @@ export class PurchaseAddComponent {
       this.taxRates = taxRates
       this.editItemId = element.Id
       this.AmountItem = (+element.TaxType === 0) ? this.calcTotal() : +this.SubTotal - this.TaxAmount
-      if (this.taxCalInclusiveType === 2) {
+      if (+element.TaxType === 1 && this.taxCalInclusiveType === 2) {
         if ('' + this.DiscountType === '0') {
           if (+this.Discount < 100 && +this.Discount > 0) {
-            this.DiscountAmt = +((+this.Discount / 100) * (this.AmountItem)).toFixed(this.noOfDecimalPoint)
-          } else if (+this.Discount === 100 || +this.Discount === 0 ) {
+            this.DiscountAmt = +element.DiscountAmt
+            // this.DiscountAmt = +((+this.Discount / 100) * (this.AmountItem)).toFixed(this.noOfDecimalPoint)
+          } else if (+this.Discount === 100 || +this.Discount === 0) {
             this.DiscountAmt = 0
           }
         }
@@ -868,44 +870,44 @@ export class PurchaseAddComponent {
     console.log('items : ', this.Items)
   }
 
-  calcTotal () {
+  calcTotal() {
     const totalAmount = ((isNaN(+this.PurchaseRate) ? 0 : +this.PurchaseRate)
       * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
       * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
       * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
       * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
     )
-    - (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
+      //- (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
     return totalAmount
   }
 
-  createTransaction (paymentDetails) {
-    if(paymentDetails.length>0){
-    paymentDetails.forEach(element => {
-      this.Paymode = element.Paymode
-      this.PayModeId = element.PayModeId
-      this.LedgerId = element.LedgerId
-      this.BankLedgerName = element.BankLedgerName
-      this.Amount = element.Amount
-      this.PayDate = this.gs.utcToClientDateFormat(element.PayDate, this.clientDateFormat)
-      this.ChequeNo = element.ChequeNo
-      this.addTransactions()
-      if (this.PaymentDetail[this.PaymentDetail.length - 1]) {
-        this.PaymentDetail[this.PaymentDetail.length - 1].Id = element.Id
-      } else {
-        this.toastrService.showError('Not getting enough data for edit', '')
-      }
-    })
-  }
+  createTransaction(paymentDetails) {
+    if (paymentDetails.length > 0) {
+      paymentDetails.forEach(element => {
+        this.Paymode = element.Paymode
+        this.PayModeId = element.PayModeId
+        this.LedgerId = element.LedgerId
+        this.BankLedgerName = element.BankLedgerName
+        this.Amount = element.Amount
+        this.PayDate = this.gs.utcToClientDateFormat(element.PayDate, this.clientDateFormat)
+        this.ChequeNo = element.ChequeNo
+        this.addTransactions()
+        if (this.PaymentDetail[this.PaymentDetail.length - 1]) {
+          this.PaymentDetail[this.PaymentDetail.length - 1].Id = element.Id
+        } else {
+          this.toastrService.showError('Not getting enough data for edit', '')
+        }
+      })
+    }
     // console.log('this.PaymentDetail : ', this.PaymentDetail)
   }
 
   other: any = {}
-  createOther (others) {
+  createOther(others) {
     this.BillNo = others.BillNo
     this.ReferralCommissionTypeId = others.ReferralCommissionTypeId
     this.ReferralCommission = +others.ReferralCommission
-    this.BillDate = this.gs.utcToClientDateFormat(others.BillDate, this.clientDateFormat)
+    this.BillDate = this.gs.utcToClientDateFormat(others.CurrentDate, this.clientDateFormat)
     this.PartyBillDate = this.gs.utcToClientDateFormat(others.PartyBillDate, this.clientDateFormat)
     this.DueDate = this.gs.utcToClientDateFormat(others.DueDate, this.clientDateFormat)
     this.CurrentDate = this.gs.utcToClientDateFormat(others.CurrentDate, this.clientDateFormat)
@@ -950,7 +952,7 @@ export class PurchaseAddComponent {
     this.formReadySub.next(true)
   }
 
-  getAllCategories (categoryName, categoryId, isAddNew) {
+  getAllCategories(categoryName, categoryId, isAddNew) {
     this.commonService.getAllCategories().subscribe(
       data => {
         // console.log('all categories : ', data)
@@ -985,7 +987,7 @@ export class PurchaseAddComponent {
   backDateEntry: boolean = false
   isBillNoManuall: boolean = false
   taxCalInclusiveType: number = 2
-  getSetUpModules (settings) {
+  getSetUpModules(settings) {
     console.log('settings : ', settings)
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
@@ -1016,7 +1018,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('vendor_select2') vendorSelect2: Select2Component
-  onVendorSelect (event) {
+  onVendorSelect(event) {
     console.log('vendor select : ', event)
     if (event.value && event.data.length > 0) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
@@ -1029,19 +1031,23 @@ export class PurchaseAddComponent {
         if (event.value > 0 && event.data[0] && event.data[0].text) {
           this.PartyId = +event.value
           this.getAllAddresses(this.PartyId)
+        //  this.checkForGST()
+
         }
       }
       this.checkForValidation()
     }
   }
-
-  getAllAddresses (vendorId) {
+  outStandingBalance: any = 0
+  setCRDR: any
+  vendorGSTType: any
+  getAllAddresses(vendorId) {
     this.purchaseService.getAllAddresses(vendorId).subscribe(data => {
       // console.log('addresses : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.AddressDetails && data.Data.AddressDetails) {
           this.allAddressData = data.Data.AddressDetails
-          console.log(this.allAddressData)
+          console.log(data.Data.LedgerDetails, 'ikkkki--')
           this.purchaseService.createAddress(data.Data.AddressDetails)
         }
         if (data.Data.LedgerDetails && data.Data.LedgerDetails.length > 0) {
@@ -1049,17 +1055,19 @@ export class PurchaseAddComponent {
           console.log('LedgerDetails : ', LedgerDetails)
           this.CreditLimit = LedgerDetails.CreditLimit
           this.CreditDays = LedgerDetails.CreditDays
+          this.vendorGSTType = data.Data.LedgerDetails[0].TaxTypeId
+          this.outStandingBalance = (data.Data.LedgerDetails[0].OpeningAmount).toFixed(this.noOfDecimalPoint)
+          this.setCRDR = data.Data.LedgerDetails[0].Crdr === 0 ? 'Cr' : 'Dr';
+          this.checkForGST()
+
         }
       }
     })
   }
 
-  getNewBillNo () {
-    // if (this.BillDate) {
-    //   this.setPayDate()
-    // }
-    if (+this.OrgId > 0 && this.BillDate) {
-      let newBillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
+  getNewBillNo() {
+    if (+this.OrgId > 0 && this.CurrentDate) {
+      let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
       let type = (this.isBillNoManuall) ? 2 : 1
       this.purchaseService.getNewBillNoPurchase(+this.OrgId, newBillDate, type).subscribe(
         data => {
@@ -1085,7 +1093,8 @@ export class PurchaseAddComponent {
 
 
   @ViewChild('currency_select2') currencySelect2: Select2Component
-  openModal () {
+  openModal() {
+    this.outStandingBalance = 0
     this.getListOfChargeData()
     $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
     this.industryId = +this.settings.industryId
@@ -1101,7 +1110,7 @@ export class PurchaseAddComponent {
         this.setBillNo(this.TransactionNoSetups)
       }
       this.setCurrentDate(this.TransactionNoSetups)
-      this.setBillDate()
+      //this.setBillDate()
       this.setPartyBillDate()
       this.setPayDate()
       this.loading = false
@@ -1117,9 +1126,9 @@ export class PurchaseAddComponent {
       }
     }
   }
-  
+
   checkForExistence: any = []
-  getFormDependency () {
+  getFormDependency() {
     this.commonService.getFormDependency(UIConstant.PURCHASE_TYPE).pipe(takeUntil(this.onDestroy$), filter(data => {
       if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
     }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
@@ -1139,25 +1148,25 @@ export class PurchaseAddComponent {
     )
   }
 
-  closeModal () {
+  closeModal() {
     if ($('#purchase_modal').length > 0) {
       $('#purchase_modal').modal(UIConstant.MODEL_HIDE)
     }
   }
 
-  setBillNo (setups) {
+  setBillNo(setups) {
     if (setups && setups.length > 0) {
       this.BillNo = setups[0].BillNo
     }
   }
 
-  setCurrentDate (setups) {
+  setCurrentDate(setups) {
     if (setups && setups.length > 0) {
       this.CurrentDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
     }
   }
 
-  getCatLevel () {
+  getCatLevel() {
     let _self = this
     this.commonService.getSettingById(SetUpIds.catLevel).pipe(takeUntil(this.onDestroy$)).subscribe(
       (data) => {
@@ -1170,24 +1179,25 @@ export class PurchaseAddComponent {
   }
 
   unitSettingType: number = 1
-  setPayDate () {
+  setPayDate() {
     this.PayDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
-  setDueDate () {
+  setDueDate() {
     this.DueDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
-  setBillDate () {
-    this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
+  setBillDate() {
+   // this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
 
-  setPartyBillDate () {
+  setPartyBillDate() {
     this.PartyBillDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
 
-  createModels (levels) {
+  createModels(levels) {
     // console.log('levels : ', levels)
     this.categories = []
-    let obj = { placeholder: 'Select Category',
+    let obj = {
+      placeholder: 'Select Category',
       value: 'category',
       data: [{ id: '0', text: 'Select Category' }],
       level: 1
@@ -1205,14 +1215,14 @@ export class PurchaseAddComponent {
   }
 
   allCategories: any = []
-  getCatagoryDetail (data) {
+  getCatagoryDetail(data) {
     // console.log('category data : ', data)
     for (let i = 0; i < this.catLevel; i++) {
       if (this.categories[i]) {
         this.categories[i].data = [{ id: '0', text: 'Select Category' }]
       }
     }
-    this.allCategories = [ ...data ]
+    this.allCategories = [...data]
     let _self = this
     data.forEach(category => {
       // console.log('category.LevelNo : ', category.LevelNo)
@@ -1233,7 +1243,7 @@ export class PurchaseAddComponent {
   }
 
   catStr: string = ''
-  onSelectCategory (evt, levelNo) {
+  onSelectCategory(evt, levelNo) {
     // console.log('evt on change of category : ', evt, 'level : ', levelNo)
     if (this.catLevel > 1) {
       if (+evt.value > 0) {
@@ -1288,7 +1298,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  checkForItems (categoryId) {
+  checkForItems(categoryId) {
     let newItemsList = []
     if (categoryId > 0) {
       this.allItems.forEach(item => {
@@ -1314,7 +1324,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('item_select2') itemselect2: Select2Component
-  onItemSelect (evt) {
+  onItemSelect(evt) {
     if (evt.value && evt.data.length > 0) {
       // console.log('evt on change of item : ', evt)
       if (+evt.value === 0) {
@@ -1341,14 +1351,14 @@ export class PurchaseAddComponent {
     }
   }
 
-  getItemDetail (id) {
+  getItemDetail(id) {
     this.purchaseService.getItemDetail(id).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       console.log('item detail : ', data)
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.length > 0) {
           this.categoryName = data.Data[0].CategoryName
           this.updateCategories(data.Data[0].CategoryId)
-          // console.log('categoryname : ', this.categoryName)
+          this.categoryId =data.Data[0].CategoryId
           this.TaxSlabId = data.Data[0].TaxId
           this.UnitId = data.Data[0].UnitId
           this.unitSelect2.setElementValue(data.Data[0].UnitId)
@@ -1366,15 +1376,15 @@ export class PurchaseAddComponent {
           }
         }
       } else {
-        throw new Error (data.Description)
+        throw new Error(data.Description)
       }
     },
-    (error) => {
-      this.toastrService.showError(error, '')
-    })
+      (error) => {
+        this.toastrService.showError(error, '')
+      })
   }
 
-  onAttributeSelect (evt, index, attributeId) {
+  onAttributeSelect(evt, index, attributeId) {
     // console.log('evt on change of attribute : ', evt)
     if (+evt.value > 0 && evt.data.length > 0) {
       let Sno = 0
@@ -1392,7 +1402,7 @@ export class PurchaseAddComponent {
         this.itemAttributeTrans[index] = {
           ItemId: this.ItemId,
           ItemTransId: Sno,
-          AttributeId:  +evt.value,
+          AttributeId: +evt.value,
           ParentTypeId: FormConstants.PurchaseForm,
           name: evt.data[0].text,
           id: 0,
@@ -1424,13 +1434,13 @@ export class PurchaseAddComponent {
     this.validateItem()
   }
 
-  updateAttributes () {
+  updateAttributes() {
     for (let i = 0; i < this.itemAttributeTrans.length; i++) {
       this.itemAttributeTrans[i].ItemId = this.ItemId
     }
   }
 
-  getParentCatStr (id) {
+  getParentCatStr(id) {
     let name = ''
     this.allCategories.forEach(category => {
       if (id === category.Id) {
@@ -1440,7 +1450,7 @@ export class PurchaseAddComponent {
     return name
   }
 
-  getPattern (): string {
+  getPattern(): string {
     let childmostId = this.categoryId
     let pattern = [this.categoryId]
     this.catSelect2.forEach(() => {
@@ -1464,10 +1474,10 @@ export class PurchaseAddComponent {
     return str
   }
 
-   // console.log('id : ', id)
+  // console.log('id : ', id)
   // console.log('level : ', level)
-   // console.log('parentMostCategory : ', parentMostCategory)
-  getParentMostCat (id, level) {
+  // console.log('parentMostCategory : ', parentMostCategory)
+  getParentMostCat(id, level) {
     let parentMostCategory = 0
     while (level !== 0) {
       this.allCategories.forEach(category => {
@@ -1481,7 +1491,7 @@ export class PurchaseAddComponent {
     this.parentMostCategory = parentMostCategory
   }
 
-  getParentCat (id) {
+  getParentCat(id) {
     let parentId = 0
     this.allCategories.forEach(category => {
       if (id === category.Id) {
@@ -1490,14 +1500,14 @@ export class PurchaseAddComponent {
     })
     return parentId
   }
-// this.catSelect2.forEach((item: Select2Component, index: number) => {
-      //   if (index !== 0) {
-      //     this.updateCatArray(pattern[index - 1], index)
-      //   }
-      // })
-    //console.log('new cateogries : ', this.categories)
+  // this.catSelect2.forEach((item: Select2Component, index: number) => {
+  //   if (index !== 0) {
+  //     this.updateCatArray(pattern[index - 1], index)
+  //   }
+  // })
+  //console.log('new cateogries : ', this.categories)
   @ViewChildren('cat_select2') catSelect2: QueryList<Select2Component>
-  updateCategories (childmostId) {
+  updateCategories(childmostId) {
     console.log('childmostId id : ', childmostId)
     console.log('this.categoryId id : ', this.categoryId)
     if (this.categoryId !== childmostId || this.editItemId !== -1) {
@@ -1518,7 +1528,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  updateCatArray (id, levelNo) {
+  updateCatArray(id, levelNo) {
     console.log('evt on updateCatArray of category : ', id, 'level : ', levelNo)
     if (levelNo < this.catLevel) {
       let categoryId = +id
@@ -1540,12 +1550,12 @@ export class PurchaseAddComponent {
 
   appliedTaxRatesItem: any = []
   appliedTaxRatesCharge: any = []
-  calculate () {
+  calculate() {
     let total = +(isNaN(+this.PurchaseRate) ? 0 : +this.PurchaseRate)
-    * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
-    * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
-    * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
-    * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
+      * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
     this.TotalRate = +total.toFixed(this.noOfDecimalPoint)
     if (this.validDiscount) {
       if ('' + this.DiscountType === '0') {
@@ -1557,7 +1567,7 @@ export class PurchaseAddComponent {
       } else {
         this.DiscountAmt = isNaN(+this.Discount) ? 0 : +this.Discount
       }
-      if (this.taxRates.length > 0 && total > 0) {
+      if (total > 0) {
         let discountedAmount = 0
         if (this.DiscountAmt === total) {
           discountedAmount = total
@@ -1593,7 +1603,7 @@ export class PurchaseAddComponent {
             if ('' + this.DiscountType === '0') {
               if (+this.Discount < 100 && +this.Discount > 0) {
                 this.DiscountAmt = +((+this.Discount / 100) * (AmountItem)).toFixed(this.noOfDecimalPoint)
-              } else if (+this.Discount === 100 || +this.Discount === 0 ) {
+              } else if (+this.Discount === 100 || +this.Discount === 0) {
                 this.DiscountAmt = 0
               }
             }
@@ -1626,7 +1636,7 @@ export class PurchaseAddComponent {
         this.appliedTaxRatesCharge = returnTax.appliedTaxRates
       } else {
         if (this.TaxTypeCharge === 1) {
-          let AmountCharge = this.purchaseService.calcTaxableAmountType1 (this.taxChargeRates,
+          let AmountCharge = this.purchaseService.calcTaxableAmountType1(this.taxChargeRates,
             this.taxChargeSlabType, +this.AmountCharge, this.isOtherState)
           console.log('amount charge : ', AmountCharge)
           this.TaxableAmountCharge = +AmountCharge.toFixed(this.noOfDecimalPoint)
@@ -1643,7 +1653,7 @@ export class PurchaseAddComponent {
     }
     // console.log('TaxAmountCharge : ', this.TaxAmountCharge)
     if (+this.AmountCharge > 0) {
-      this.TotalAmountCharge = +(+this.AmountCharge +  + ((this.TaxTypeCharge === 0) ? (isNaN(+this.TaxAmountCharge) ? 0 : +this.TaxAmountCharge) : 0)).toFixed(this.noOfDecimalPoint)
+      this.TotalAmountCharge = +(+this.AmountCharge + + ((this.TaxTypeCharge === 0) ? (isNaN(+this.TaxAmountCharge) ? 0 : +this.TaxAmountCharge) : 0)).toFixed(this.noOfDecimalPoint)
     } else {
       this.TotalAmountCharge = 0
     }
@@ -1656,12 +1666,12 @@ export class PurchaseAddComponent {
     this.getBillSummary()
   }
 
-  calculateTotalOfRow () {
+  calculateTotalOfRow() {
     let totalAmount = this.AmountItem + (isNaN(+this.TaxAmount) ? 0 : +this.TaxAmount)
     return isNaN(totalAmount) ? 0 : totalAmount
   }
 
-  calculatePaymentAmount () {
+  calculatePaymentAmount() {
     let paymentTotal = 0
     for (let i = 0; i <= this.PaymentDetail.length - 1; i++) {
       paymentTotal = paymentTotal + +this.PaymentDetail[i].Amount
@@ -1674,7 +1684,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('unit_select2') unitSelect2: Select2Component
-  onUnitSelect (evt) {
+  onUnitSelect(evt) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value === -1) {
         this.unitSelect2.selector.nativeElement.value = ''
@@ -1695,7 +1705,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('organisation_select2') organisationSelect2: Select2Component
-  onChangeOrganisationId (evt) {
+  onChangeOrganisationId(evt) {
     // console.log('on org select : ', evt)
     if (evt.value && evt.data.length > 0) {
       if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
@@ -1708,7 +1718,7 @@ export class PurchaseAddComponent {
 
   newDate: string = ''
   @ViewChild('godown_select2') godownSelect2: Select2Component
-  onGodownSelect (evt) {
+  onGodownSelect(evt) {
     // console.log(evt)
     if (evt.value && evt.data.length > 0) {
       if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
@@ -1719,7 +1729,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('address_select2') addressSelect2: Select2Component
-  onAddressSelect (evt) {
+  onAddressSelect(evt) {
     // console.log('onAddressSelect : ', evt)
     if (evt.value && evt.data.length > 0) {
       if (+evt.value === -1) {
@@ -1741,23 +1751,22 @@ export class PurchaseAddComponent {
 
   needToCheckItem: boolean = false
   needToCheckCharge: boolean = false
-  checkForGST () {
-    console.log('check for gst')
+  checkForGST() {
     let isOtherState = true
     this.allAddressData.forEach(element => {
       if (element.Id === this.AddressId && element.StateId === this.clientStateId) {
         isOtherState = false
       }
     })
-    if (this.isOtherState !== isOtherState) {
-      this.isOtherState = isOtherState
-      this.updateItemTax()
-    } else {
-      this.loadingSummary = false
-    }
+    // if (this.isOtherState !== isOtherState) {
+    this.isOtherState = isOtherState
+    this.updateItemTax()
+    // } else {
+    //   this.loadingSummary = false
+    // }
   }
 
-  updateChargeTax () {
+  updateChargeTax() {
     if (this.AdditionalCharges.length > 0) {
       const observables = [];
       for (const charge of this.AdditionalCharges) {
@@ -1768,10 +1777,11 @@ export class PurchaseAddComponent {
       forkJoin(...observables).subscribe(
         data => {
           // console.log(data)
+          if(this.vendorGSTType ===1){
           data.forEach((element, index) => {
             let appliedTaxRatesCharge = []
             let taxChargeSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
-            if (element.Data.TaxRates.length > 0 && +this.AdditionalCharges[index].AmountCharge > 0) {
+            if (+this.AdditionalCharges[index].AmountCharge > 0) {
               if (this.AdditionalCharges[index].TaxTypeCharge === 1) {
                 let returnTax = this.purchaseService.taxCalCulationForInclusive(element.Data.TaxRates,
                   taxChargeSlabType,
@@ -1801,11 +1811,17 @@ export class PurchaseAddComponent {
             }
             this.AdditionalCharges[index]['TotalAmountCharge'] = +this.AdditionalCharges[index].AmountCharge + +this.AdditionalCharges[index]['TaxAmountCharge']
           });
+        }
+        else {
+          this.taxChargeSlabType = 0
+          this.taxChargeRates = []
+          this.calculate()
+        }
           this.calculateAllTotal()
         },
         (error) => {
 
-        }, 
+        },
         () => {
           setTimeout(() => {
             // this.updateTax()
@@ -1818,7 +1834,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  updateItemTax () {
+  updateItemTax() {
     if (this.Items.length > 0) {
       const observables = [];
       for (const item of this.Items) {
@@ -1829,6 +1845,7 @@ export class PurchaseAddComponent {
       forkJoin(...observables).subscribe(
         data => {
           // console.log(data)
+          if(this.vendorGSTType ===1){
           data.forEach((element, index) => {
             let appliedTaxRatesItem = []
             let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
@@ -1862,6 +1879,12 @@ export class PurchaseAddComponent {
             }
             this.Items[index]['SubTotal'] = +this.Items[index].AmountItem + +this.Items[index]['TaxAmount']
           });
+        }
+        else {
+          this.taxSlabType = 0
+          this.taxRates = []
+          this.calculate()
+        } 
           this.calculateAllTotal()
         },
         (error) => {
@@ -1883,7 +1906,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  onCurrencySelect (evt) {
+  onCurrencySelect(evt) {
     // console.log('selected currency : ', evt)
     if (evt.value > 0 && evt.data && evt.data.length > 0 && evt.data[0].text) {
       this.CurrencyId = +evt.value
@@ -1895,7 +1918,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('referraltype_select2') referraltypeSelect2: Select2Component
-  onReferralTypeSelect (evt) {
+  onReferralTypeSelect(evt) {
     // console.log(evt)
     if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
       this.ReferralTypeId = +evt.value
@@ -1903,7 +1926,7 @@ export class PurchaseAddComponent {
   }
 
   ConvertToCurrencyId: number
-  onConvertToCurrencySelect (evt) {
+  onConvertToCurrencySelect(evt) {
     // console.log(evt)
     if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
       this.ConvertToCurrencyId = +evt.value
@@ -1911,7 +1934,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('referral_select2') referralSelect2: Select2Component
-  onRefferalPartnerSelect (evt) {
+  onRefferalPartnerSelect(evt) {
     // console.log(evt)
     if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
       this.ReferralId = +evt.value
@@ -1919,7 +1942,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('payment_select2') paymentSelect2: Select2Component
-  onPaymentModeSelect (event) {
+  onPaymentModeSelect(event) {
     // console.log('payment method select: ', event)
     if (+event.value > 0 && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
@@ -1938,7 +1961,7 @@ export class PurchaseAddComponent {
     this.validateTransaction()
   }
 
-  enterPressItem (e: KeyboardEvent) {
+  enterPressItem(e: KeyboardEvent) {
     this.addItems()
     setTimeout(() => {
       let item = this.catSelect2.find((item: Select2Component, index: number, array: Select2Component[]) => {
@@ -1949,7 +1972,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('savebutton') savebutton: ElementRef
-  enterPressTrans (e: KeyboardEvent) {
+  enterPressTrans(e: KeyboardEvent) {
     let paymentTotal = this.getPaymentTotal()
     if (this.BillAmount === paymentTotal) {
       e.preventDefault()
@@ -1962,7 +1985,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  setpaymentLedgerSelect2 (i) {
+  setpaymentLedgerSelect2(i) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.commonService.getPaymentLedgerDetail(9).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
@@ -1978,25 +2001,25 @@ export class PurchaseAddComponent {
       _self.paymentLedgerselect2 = newData
       this.validateTransaction()
     },
-    (error) => console.log(error),
-    () => {
-      if (this.editTransId !== -1 && this.PaymentDetail[i]) {
-        this.Paymode = this.PaymentDetail[i].Paymode
-        this.PayModeId = this.PaymentDetail[i].PayModeId
-        this.LedgerId = this.PaymentDetail[i].LedgerId
-        this.BankLedgerName = this.PaymentDetail[i].BankLedgerName
-        this.Amount = this.PaymentDetail[i].Amount
-        this.PayDate = this.PaymentDetail[i].PayDate
-        this.ChequeNo = this.PaymentDetail[i].ChequeNo
-        this.paymentSelect2.setElementValue(this.PayModeId)
-        this.ledgerSelect2.setElementValue(this.LedgerId)
-        this.deleteItem(i, 'trans')
-      }
-    })
+      (error) => console.log(error),
+      () => {
+        if (this.editTransId !== -1 && this.PaymentDetail[i]) {
+          this.Paymode = this.PaymentDetail[i].Paymode
+          this.PayModeId = this.PaymentDetail[i].PayModeId
+          this.LedgerId = this.PaymentDetail[i].LedgerId
+          this.BankLedgerName = this.PaymentDetail[i].BankLedgerName
+          this.Amount = this.PaymentDetail[i].Amount
+          this.PayDate = this.PaymentDetail[i].PayDate
+          this.ChequeNo = this.PaymentDetail[i].ChequeNo
+          this.paymentSelect2.setElementValue(this.PayModeId)
+          this.ledgerSelect2.setElementValue(this.LedgerId)
+          this.deleteItem(i, 'trans')
+        }
+      })
   }
 
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
-  onPaymentLedgerSelect (event) {
+  onPaymentLedgerSelect(event) {
     // console.log('payment ledger id : ', event)
     if (+event.value === -1) {
       this.commonService.openLedger('')
@@ -2010,7 +2033,7 @@ export class PurchaseAddComponent {
     this.validateTransaction()
   }
 
-  getPaymentTotal (): number {
+  getPaymentTotal(): number {
     let paymentTotal = 0
     for (let i = 0; i <= this.PaymentDetail.length - 1; i++) {
       paymentTotal = paymentTotal + +this.PaymentDetail[i].Amount
@@ -2023,7 +2046,7 @@ export class PurchaseAddComponent {
     return paymentTotal
   }
   isValidAmount = true
-  checkValidationForAmount () {
+  checkValidationForAmount() {
     let paymentTotal = this.getPaymentTotal()
     paymentTotal = (isNaN(+paymentTotal)) ? 0 : +paymentTotal
     this.BillAmount = (isNaN(+this.BillAmount)) ? 0 : +this.BillAmount
@@ -2042,12 +2065,12 @@ export class PurchaseAddComponent {
     }
   }
 
-  initialiseTransaction () {
+  initialiseTransaction() {
     this.Paymode = ''
     this.PayModeId = 0
     this.LedgerId = 0
     this.Amount = 0
-    this.PayDate = this.BillDate
+    this.PayDate = this.CurrentDate
     this.ChequeNo = ''
     this.Paymode = ''
     this.BankLedgerName = ''
@@ -2059,7 +2082,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  addTransactions () {
+  addTransactions() {
     //  && this.PayDate
     if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
       if ((+this.PayModeId === 3 && this.ChequeNo) || (+this.PayModeId === 1)) {
@@ -2086,7 +2109,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  addTransaction () {
+  addTransaction() {
     if (this.PaymentDetail.length === 0) {
       this.PaymentDetail.push({
         Id: 0,
@@ -2121,13 +2144,12 @@ export class PurchaseAddComponent {
     }
   }
 
-  addItems () {
-    // if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
-
-    if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0  && this.PurchaseRate > 0) {
+  addItems() {
+    if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && this.PurchaseRate > 0) {
       if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
-       || (this.industryId === 3 && this.Length && this.Width && this.Height)
-       || (this.industryId === 2 || this.industryId === 6)) {
+        || (this.industryId === 3 && this.Length && this.Width && this.Height)
+        || (this.industryId === 2 || this.industryId === 6 || this.industryId === 7)) 
+        {
         this.addItem()
         this.clickItem = true
         console.log('items : ', this.Items)
@@ -2143,7 +2165,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  addItem () {
+  addItem() {
     this.addItemBasedOnIndustry()
     this.ItemAttributeTrans = this.ItemAttributeTrans.concat(this.itemAttributeTrans)
     if (this.appliedTaxRatesItem.length > 0) {
@@ -2152,7 +2174,7 @@ export class PurchaseAddComponent {
     console.log('ItemTaxTrans : ', this.ItemTaxTrans)
   }
 
-  addItemBasedOnIndustry () {
+  addItemBasedOnIndustry() {
     let Sno = 0
     if (this.Items.length === 0) {
       Sno = 1
@@ -2204,7 +2226,10 @@ export class PurchaseAddComponent {
       AmountItem: this.AmountItem,
       taxSlabType: this.taxSlabType,
       taxRates: this.taxRates,
-      itemTaxTrans: this.appliedTaxRatesItem
+      itemTaxTrans: this.appliedTaxRatesItem,
+      // selected:true,
+      // ReturnQuantity:0,
+      // fixPurchaseRate:0,
     })
 
     setTimeout(() => {
@@ -2217,7 +2242,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
-  editItem (i, editId, type, sno) {
+  editItem(i, editId, type, sno) {
     console.log('editId : ', editId)
     if (type === 'charge' && this.editChargeId === -1) {
       this.editChargeId = editId
@@ -2331,13 +2356,13 @@ export class PurchaseAddComponent {
     }
   }
 
-  deleteItem (i, forArr) {
+  deleteItem(i, forArr) {
     if (forArr === 'trans') {
-      this.PaymentDetail.splice(i,1)
+      this.PaymentDetail.splice(i, 1)
       this.checkValidationForAmount()
     }
     if (forArr === 'items') {
-      this.Items.splice(i,1)
+      this.Items.splice(i, 1)
       this.ItemAttributeTrans = []
       this.Items.forEach(item => {
         this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
@@ -2348,16 +2373,16 @@ export class PurchaseAddComponent {
       if (this.chargesData[i].disabled) {
         this.alreadySelectCharge(this.AdditionalCharges[i].LedgerChargeId, this.AdditionalCharges[i].LedgerName, false)
       }
-      this.AdditionalCharges.splice(i,1)
+      this.AdditionalCharges.splice(i, 1)
     }
     this.calculate()
   }
 
-  closePurchase () {
+  closePurchase() {
     this.commonService.closePurchase()
   }
 
-  initItem () {
+  initItem() {
     this.TransType = 0
     this.TransId = 0
     this.ChallanId = 0
@@ -2426,7 +2451,7 @@ export class PurchaseAddComponent {
     }, 1)
   }
 
-  initAttribute () {
+  initAttribute() {
     this.ItemId = 0
     this.ItemTransId = 0
     this.AttributeId = 0
@@ -2444,7 +2469,7 @@ export class PurchaseAddComponent {
 
   @ViewChild('taxSlabCharge_select2') taxSlabChargeSelect2: Select2Component
   @ViewChild('charge_select2') chargeSelect2: Select2Component
-  initCharge () {
+  initCharge() {
     this.LedgerChargeId = 0
     this.LedgerName = ''
     this.AmountCharge = 0
@@ -2471,7 +2496,7 @@ export class PurchaseAddComponent {
   }
 
 
-  initTransaction () {
+  initTransaction() {
     this.Paymode = ''
     this.PayModeId = 0
     this.LedgerId = 0
@@ -2491,10 +2516,10 @@ export class PurchaseAddComponent {
     }
   }
 
-  initComp () {
-    this.BillDate = ''
+  initComp() {
+    this.CurrentDate = ''
     this.PartyBillDate = ''
-    this.DueDate =''
+    this.DueDate = ''
     this.GodownId = 0
     this.CurrencyId = 0
     this.ConvertToCurrencyId = 0
@@ -2524,7 +2549,7 @@ export class PurchaseAddComponent {
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
   }
 
-  initialiseExtras () {
+  initialiseExtras() {
     this.BillAmount = 0
     this.PartyBillNo = ''
     this.BillNo = ''
@@ -2635,7 +2660,7 @@ export class PurchaseAddComponent {
     this.getNewCurrentDate()
   }
 
-  getNewCurrentDate () {
+  getNewCurrentDate() {
     this.purchaseService.getCurrentDate().subscribe(
       data => {
         console.log('current date : ', data)
@@ -2646,9 +2671,8 @@ export class PurchaseAddComponent {
     )
   }
 
-  private purchaseAddParams (): PurchaseAdd {
-    debugger
-    let BillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
+  private purchaseAddParams(): PurchaseAdd {
+    let BillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
     let CurrentDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
     let PartyBillDate = this.gs.clientToSqlDateFormat(this.PartyBillDate, this.clientDateFormat)
     let DueDate = this.gs.clientToSqlDateFormat(this.DueDate, this.clientDateFormat)
@@ -2665,13 +2689,13 @@ export class PurchaseAddComponent {
     const purchaseAddParams = {
       obj: {
         Id: this.Id ? this.Id : UIConstant.ZERO,
-        ReferralCommissionTypeId : +this.ReferralCommissionTypeId,
+        ReferralCommissionTypeId: +this.ReferralCommissionTypeId,
         ReferralCommission: +this.ReferralCommission,
         PaymentDetail: PaymentDetail,
         Items: Items,
         BillAmount: this.BillAmount,
         BillDate: BillDate,
-        CurrentDate: CurrentDate,
+        // CurrentDate: CurrentDate,
         PartyBillDate: PartyBillDate,
         PartyBillNo: this.PartyBillNo,
         BillNo: this.BillNo,
@@ -2717,7 +2741,7 @@ export class PurchaseAddComponent {
     return purchaseAddParams.obj
   }
 
-  validateTransaction () {
+  validateTransaction() {
     if (this.Paymode || +this.PayModeId > 0 || +this.LedgerId > 0 || this.BankLedgerName || this.ChequeNo) {
       let isValid = 1
       if (+this.PayModeId > 0) {
@@ -2773,7 +2797,7 @@ export class PurchaseAddComponent {
     this.clickTrans = false
   }
 
-  checkForValidation () {
+  checkForValidation() {
     if (this.PartyId || this.OrgId || this.BillDate || this.BillNo
       || this.PartyBillDate || this.PartyBillNo || this.CurrencyId
       || this.GodownId || this.AddressId
@@ -2781,7 +2805,7 @@ export class PurchaseAddComponent {
       || this.PurchaseRate
       || this.BatchNo || this.ExpiryDate || this.MfdDate
       || this.Length || this.Width || this.Height
-      ) {
+    ) {
       let isValid = 1
       if (+this.PartyId > 0) {
         this.invalidObj['PartyId'] = false
@@ -2795,10 +2819,10 @@ export class PurchaseAddComponent {
         this.invalidObj['OrgId'] = true
         isValid = 0
       }
-      if (this.BillDate) {
-        this.invalidObj['BillDate'] = false
+      if (this.CurrentDate) {
+        this.invalidObj['CurrentDate'] = false
       } else {
-        this.invalidObj['BillDate'] = true
+        this.invalidObj['CurrentDate'] = true
         isValid = 0
       }
       if (this.BillNo) {
@@ -2922,7 +2946,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  validateItem () {
+  validateItem() {
     if (+this.ItemId > 0) {
       let isValid = 1
       if (+this.DiscountType === 0) {
@@ -3037,7 +3061,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  validateAttribute () {
+  validateAttribute() {
     let isValid = true
     this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
       if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
@@ -3049,7 +3073,7 @@ export class PurchaseAddComponent {
     return isValid
   }
 
-  manipulateData () {
+  manipulateData() {
     let _self = this
     this.submitSave = true
     let dataToSend = this.purchaseAddParams()
@@ -3065,6 +3089,9 @@ export class PurchaseAddComponent {
                 valid = 0
               }
             })
+          }
+          if (data.Code === UIConstant.REQUIRED_5020) {
+            this.toastrService.showError('', data.Message)
           }
         },
         (error) => {
@@ -3098,8 +3125,12 @@ export class PurchaseAddComponent {
                     }
                   } else if (data.Code === UIConstant.THOUSANDONE) {
                     _self.toastrService.showError(data.Message, 'Please change Bill No.')
-                  } else {
-                    _self.toastrService.showError(data.Description, '')
+                  
+                    } else if (data.Code === UIConstant.REQUIRED_5020) {
+                      _self.toastrService.showError(data.Message,'')
+                    }
+                  else {
+                    _self.toastrService.showError(data.Message, '')
                   }
                 },
                 (error) => {
@@ -3140,8 +3171,12 @@ export class PurchaseAddComponent {
                 }
               } else if (data.Code === UIConstant.THOUSANDONE) {
                 _self.toastrService.showError(data.Message, 'Please change Bill No.')
-              } else {
-                _self.toastrService.showError(data.Description, '')
+              }
+              else if (data.Code === UIConstant.REQUIRED_5020) {
+                _self.toastrService.showError(data.Message,'')
+              }
+              else {
+                _self.toastrService.showError(data.Message, '')
               }
             },
             (error) => {
@@ -3156,15 +3191,15 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('loc_ref') locRef: ElementRef
-  moveToCharge () {
+  moveToCharge() {
     this.chargeSelect2.selector.nativeElement.focus({ preventScroll: false })
   }
 
-  moveToPayment () {
+  moveToPayment() {
     this.paymentSelect2.selector.nativeElement.focus({ preventScroll: false })
   }
 
-  validateCharge () {
+  validateCharge() {
     if (this.LedgerName || +this.LedgerChargeId > 0 || +this.AmountCharge > 0) {
       let isValid = 1
       if (+this.LedgerChargeId > 0) { this.invalidObj['LedgerChargeId'] = false } else { isValid = 0; this.invalidObj['LedgerChargeId'] = true; }
@@ -3176,7 +3211,7 @@ export class PurchaseAddComponent {
     this.clickCharge = false
   }
 
-  addCharge () {
+  addCharge() {
     if (this.LedgerName && +this.LedgerChargeId > 0 && +this.AmountCharge > 0) {
       this.alreadySelectCharge(this.LedgerChargeId, this.LedgerName, true)
       this.addCustomCharge()
@@ -3186,29 +3221,29 @@ export class PurchaseAddComponent {
     }
   }
 
-  alreadySelectCharge (chargeId,name,enableflag) {
-    if(chargeId >0){
-      this.chargesData.forEach(data=>{
+  alreadySelectCharge(chargeId, name, enableflag) {
+    if (chargeId > 0) {
+      this.chargesData.forEach(data => {
         let index = this.chargesData.findIndex(
-          selectedItem =>selectedItem.id  === chargeId)
-         if(index !== -1){
-          this.chargesData.splice(index,1)
+          selectedItem => selectedItem.id === chargeId)
+        if (index !== -1) {
+          this.chargesData.splice(index, 1)
           let newData = Object.assign([], this.chargesData)
-          newData.push({ id: chargeId, text:name ,disabled: enableflag})
+          newData.push({ id: chargeId, text: name, disabled: enableflag })
           this.chargesData = newData
-         }
+        }
       })
     }
-   }
+  }
 
-  addCustomCharge () {
+  addCustomCharge() {
     if (this.appliedTaxRatesCharge.length > 0) {
       this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesCharge)
     }
     console.log('ItemTaxTrans : ', this.ItemTaxTrans)
     let index = 0
     if (this.AdditionalCharges.length === 0) {
-     index = 1
+      index = 1
     } else {
       index = +this.AdditionalCharges[this.AdditionalCharges.length - 1].Sno + 1
     }
@@ -3241,11 +3276,11 @@ export class PurchaseAddComponent {
     }
   }
 
-  onChargeSelect (evt) {
+  onChargeSelect(evt) {
     if (+evt.value === -1 && evt.data[0].selected) {
-      this.taxTypeChargeSelect2.selector.nativeElement.value = ''
+      this.chargeSelect2.selector.nativeElement.value = ''
       this.commonService.openledgerCretion('', FormConstants.PurchaseForm)
-     
+
     } else {
       this.LedgerChargeId = +evt.value
       if (evt.value > 0) {
@@ -3256,7 +3291,7 @@ export class PurchaseAddComponent {
     this.calculate()
   }
 
-  onTaxSlabChargeSelect (evt) {
+  onTaxSlabChargeSelect(evt) {
     // console.log('on change of tax slab : ', evt)
     if (+evt.value === -1) {
       this.commonService.openTax('')
@@ -3271,13 +3306,20 @@ export class PurchaseAddComponent {
     this.validateCharge()
   }
 
-  getTaxChargeDetail (TaxSlabId) {
+  getTaxChargeDetail(TaxSlabId) {
     this.purchaseService.getSlabData(TaxSlabId).subscribe(
       data => {
         console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
+        
+          if (this.vendorGSTType === 1) {
           this.taxChargeSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
           this.taxChargeRates = data.Data.TaxRates
+        }
+        else {
+          this.taxChargeSlabType = 0
+          this.taxChargeRates = []
+        }
           this.calculate()
           this.createTaxes(FormConstants.ChargeForm)
           this.getBillSummary()
@@ -3286,7 +3328,7 @@ export class PurchaseAddComponent {
     )
   }
 
-  createTaxes (parentType) {
+  createTaxes(parentType) {
     let Sno = 0
     if (parentType === FormConstants.ChargeForm) {
       if (this.editChargeId !== -1) {
@@ -3334,7 +3376,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('taxTypecharge_select2') taxTypeChargeSelect2: Select2Component
-  onTaxTypeChargeSelect (evt) {
+  onTaxTypeChargeSelect(evt) {
     // console.log('on change of tax Type charge : ', evt)
     if (+evt.value >= 0 && evt.data[0] && evt.data[0].text) {
       this.TaxTypeCharge = +evt.value
@@ -3344,13 +3386,14 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('taxSlab_select2') taxSlabSelect2: Select2Component
-  onTaxSlabSelect (evt) {
+  onTaxSlabSelect(evt) {
     // console.log('on change of tax slab : ', evt)
     if (+evt.value === -1) {
       this.commonService.openTax('')
       this.taxSlabSelect2.selector.nativeElement.value = ''
     } else {
       if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
+
         this.TaxSlabId = +evt.value
         this.taxSlabName = evt.data[0].text
         this.TaxSlabName = evt.data[0].text
@@ -3360,13 +3403,20 @@ export class PurchaseAddComponent {
     this.validateItem()
   }
 
-  getTaxDetail (TaxSlabId) {
+  getTaxDetail(TaxSlabId) {
     this.purchaseService.getSlabData(TaxSlabId).subscribe(
       data => {
         console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-          this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
-          this.taxRates = data.Data.TaxRates
+          if (this.vendorGSTType === 1) {
+            this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
+            this.taxRates = data.Data.TaxRates
+          }
+          else {
+            this.taxSlabType = 0
+            this.taxRates = []
+          }
+
           this.validateItem()
           this.calculate()
           this.createTaxes(FormConstants.PurchaseForm)
@@ -3377,7 +3427,7 @@ export class PurchaseAddComponent {
   }
 
   @ViewChild('taxType_select2') taxTypeSelect2: Select2Component
-  onTaxTypeSelect (evt) {
+  onTaxTypeSelect(evt) {
     // console.log('on change of tax Type : ', evt)
     if (+evt.value >= 0 && evt.data[0] && evt.data[0].text) {
       this.TaxType = +evt.value
@@ -3391,7 +3441,7 @@ export class PurchaseAddComponent {
   TaxableValue = 0
   billSummary: Array<any> = []
   AdditionalChargesToShow: any = []
-  getBillSummary () {
+  getBillSummary() {
     let taxableValue = 0
     let ItemTaxTrans = []
     // console.log('item tax trans before bill sumarry : ', ItemTaxTrans)
@@ -3446,7 +3496,7 @@ export class PurchaseAddComponent {
     this.loadingSummary = false
     this.calculateBillTotal()
   }
-  calculateBillTotal () {
+  calculateBillTotal() {
     this.BillAmount = 0
     this.billSummary.forEach(element => {
       this.BillAmount += +element.total
@@ -3467,7 +3517,7 @@ export class PurchaseAddComponent {
     this.calculatePaymentAmount()
   }
 
-  calculateAllTotal () {
+  calculateAllTotal() {
     let totalDiscount = 0
     let totalTax = 0
     let totalQuantity = 0
@@ -3490,30 +3540,30 @@ export class PurchaseAddComponent {
     this.SubTotalAmount = +totalAmount.toFixed(this.noOfDecimalPoint)
   }
 
-  enterPressCharge (evt: KeyboardEvent) {
+  enterPressCharge(evt: KeyboardEvent) {
     this.addCharge()
     setTimeout(() => {
       this.chargeSelect2.selector.nativeElement.focus()
     }, 10)
   }
 
-  getPurchaseRate () {
+  getPurchaseRate() {
     if (+this.Quantity > 0 && +this.TotalRate > 0) {
       let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
-      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
-      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+        * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+        * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
       this.PurchaseRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
     }
   }
 
   // payDate: string = 'today'
-  billDateChange (evt) {
+  billDateChange(evt) {
     console.log(evt)
     this.BillDate = evt
     this.PayDate = evt
   }
 
-  ngOnDestroy () {
+  ngOnDestroy() {
     this.onDestroy$.next()
     this.onDestroy$.complete()
   }

@@ -1,11 +1,11 @@
 import { Settings } from './../../shared/constants/settings.constant';
-// import { MODULES_IMG_SRC } from './user-modules-image-src';
 import { LoginService } from './../../commonServices/login/login.services'
 import { Component, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
 import * as _ from 'lodash'
 import { ToastrCustomService } from '../../commonServices/toastr.service';
 import { GlobalService } from 'src/app/commonServices/global.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-user-modules',
@@ -13,42 +13,54 @@ import { GlobalService } from 'src/app/commonServices/global.service';
   styleUrls: ['./user-modules.component.css']
 })
 export class UserModulesComponent implements OnInit {
-  modulesList: any = []
   loggedinUserData: any = {}
   clientDateFormat: string = ''
-  constructor (
+  constructor(
     private router: Router,
     public _loginService: LoginService,
     private gs: GlobalService,
     private settings: Settings,
-    private toastrService: ToastrCustomService
+    private toastrService: ToastrCustomService,
+    private spinnerService: NgxSpinnerService
   ) {
-    this.clientDateFormat = this.settings.dateFormat
+    this.spinnerService.hide()
     const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
-    this.loggedinUserData = Object.assign({}, {
-      'fromDate': this.settings.finFromDate, 'toDate': this.settings.finToDate,
+    if (_.isEmpty(this.clientDateFormat)) {
+      this.clientDateFormat = 'd M Y'
+    }
+    if(_.isEmpty(this._loginService.loginUserDetails)){
+      this._loginService.loginUserDetails = JSON.parse(localStorage.getItem('LOGIN_USER'));
+    }
+    this.loggedinUserData = {
+      'fromDate': this.settings.finFromDate,
+      'toDate': this.settings.finToDate,
       'Name': organization.Name
-    })
-   }
+    };
+  }
 
-  ngOnInit () {
+  ngOnInit() {
+    this.spinnerService.hide();
     this.initModulesData()
     this.initUpdatePermission()
   }
 
   navigateTo = async (path, selectedModule, index) => {
-    console.log(selectedModule)
+    this.spinnerService.show();
     if (selectedModule.Id) {
       await this._loginService.getAllSettings(selectedModule.Id)
     }
-    this._loginService.selectedUserModule = selectedModule
-    this._loginService.selectedUserModule['index'] = index
-    localStorage.setItem('SELECTED_MODULE', JSON.stringify(this._loginService.selectedUserModule))
+    selectedModule['index'] = index
+    localStorage.setItem('SELECTED_MODULE', JSON.stringify(selectedModule))
     this.router.navigate([path])
   }
 
-  initModulesData = () => {
-    this.modulesList = [...this._loginService.userData.Modules]
+  initModulesData = async () => {
+    this.spinnerService.show()
+    const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
+    if (_.isEmpty(this._loginService.userData) || (!_.isEmpty(this._loginService.userData) && _.isEmpty(this._loginService.userData.Modules))) {
+      await this._loginService.getUserDetails(organization.Id)
+    }
+    this.spinnerService.hide()
   }
 
   initUpdatePermission = () => {

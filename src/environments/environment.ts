@@ -4,7 +4,7 @@
 
 export const environment = {
   production: true,
-  BASE_URL: 'http://testapi.saniiro.com'
+  BASE_URL: 'http://api.saniiro.com'
 }
 
 /*

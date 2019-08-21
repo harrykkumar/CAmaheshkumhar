@@ -50,14 +50,14 @@
       </div>
     </div>
 
-    <div id="ledger_search_form" class="card collapse">
-      <div class="card-body ">
+    <div id="ledger_search_form" class="bgc-white collapse">
+      <div class="">
         <form
           #ledgerSearchForm="ngForm"
           (ngSubmit)="ledgerSearchForm.form.valid && getCashBookData()"
           novalidate
         >
-          <div class="form row">
+        <div class="form row mB-5 p-10">
             <div class="form-group col-md-3 ">
               <label class="fw-500">From</label>
               <div class="timepicker-input input-icon form-group">
@@ -72,19 +72,18 @@
                 (dateInFormat)="model.toDateValue = $event;"></datepicker-popup>
               </div>
             </div>
-            <div class="form-group col-md-2 pt-3">
+            <div class="form-group col-md-3 pt-3">
               <button (click)="searchButton()" 
                 type="submit"
                 class="btn btn-primary waves-effect waves-light"
               >
                 Search
               </button>
+              <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect ">Reset</button>
+
             </div>
 
-            <div class="form-group col-md-1 pt-3 ">
-              <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect ">Reset</button>
             
-            </div>
           </div>
         </form>
       </div>
@@ -97,12 +96,12 @@
             <table class="table cat-table  table-hover">
               <thead>
                 <tr>
-                  <th rowspan="2" colspan="1">SNo</th>
-                  <th rowspan="2" colspan="1">Date</th>
-                  <th class="text-right" rowspan="2" colspan="1">Opening Balance </th>
-                  <th class="text-right" rowspan="2" colspan="1">Debit Amount </th>
-                  <th class="text-right" rowspan="2" colspan="1">Credit Amount</th>
-                  <th class="text-right" rowspan="2" colspan="1">Closing Balance</th>
+                  <th width="5%">SNo</th>
+                  <th width="15%">Date</th>
+                  <th width="20%" class="text-right">Opening Balance </th>
+                  <th width="20%" class="text-right">Cash In </th>
+                  <th width="20%" class="text-right">Cash Out</th>
+                  <th width="20%" class="text-right">Closing Balance</th>
 
                 </tr>
               </thead>
@@ -151,11 +150,11 @@
                 <div class="row justify-content-center p-0">
                   <div class="balancesheet bgc-white col-md-11 p-0">
                       <div class="row text-center bs_head p-2">
-                          <div id="logo " class="col">
+                          <div id="logo " class="col-md-3" style="text-align: left;">
                               <img height="75px" src="{{cashBook.ImageContents && cashBook.ImageContents[0]?.FilePath}}">
                           </div>
-                          <div class="col">
-                              <div class="name text-center col-md-12 name_size font-weight-bold">
+                          <div class="col-md-6">
+                              <div class="name text-center col-md-12 name_size font-weight-bold" style="font-size: 22px;">
                                   {{cashBook.OrganizationDetails && cashBook.OrganizationDetails[0]?.OrgName}}</div>
                                 <div class="text-center col-md-12">{{cashBook.AddressDetails && cashBook.AddressDetails[0]?.CityName}}
                                   {{cashBook.AddressDetails && cashBook.AddressDetails[0]?.StateName}}
@@ -166,18 +165,18 @@
                                 <div class="text-center col-md-12" style="font-weight:600;">From {{model.fromDatevalue}} to
                                   {{model.toDateValue}}</div>
                           </div>
-                          <!-- <div class="col"></div> -->
+                          <div class="col-md-3"></div>
                  
                       </div>
                     <table class="table" cellspacing="0" cellpadding="0">
                       <thead>
                         <tr>
-                            <th rowspan="2" colspan="1">SNo</th>
-                            <th rowspan="2" colspan="1">Date</th>
-                            <th class="text-right" rowspan="2" colspan="1">Opening Balance </th>
-                            <th class="text-right" rowspan="2" colspan="1">Debit Amount </th>
-                            <th class="text-right" rowspan="2" colspan="1">Credit Amount</th>
-                            <th class="text-right" rowspan="2" colspan="1">Closing Balance</th>
+                          <th width="5%">S.No.</th>
+                          <th width="15%">Date</th>
+                          <th width="20%" class="text-right">Opening Balance </th>
+                          <th width="20%" class="text-right">Cash In </th>
+                          <th width="20%" class="text-right">Cash Out</th>
+                          <th width="20%" class="text-right">Closing Balance</th>
                         </tr>
                       </thead>
                       <tbody>

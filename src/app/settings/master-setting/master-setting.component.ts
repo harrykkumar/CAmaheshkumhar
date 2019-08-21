@@ -1,6 +1,6 @@
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 // File created by dolly garg
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { SettingsService } from '../settings.service';
 import { UIConstant } from '../../shared/constants/ui-constant';
 import { ToastrCustomService } from '../../commonServices/toastr.service';
@@ -14,6 +14,8 @@ import { LoginService } from 'src/app/commonServices/login/login.services';
 import * as _ from 'lodash'
 import { Router } from '@angular/router';
 import { Settings } from 'src/app/shared/constants/settings.constant';
+import { NgxSpinner } from 'ngx-spinner/lib/ngx-spinner.enum';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 
 @Component({
@@ -21,7 +23,7 @@ import { Settings } from 'src/app/shared/constants/settings.constant';
   templateUrl: './master-setting.component.html',
   styleUrls: ['./master-setting.component.css']
 })
-export class MasterSettingComponent implements OnInit {
+export class MasterSettingComponent implements OnInit, AfterViewInit {
   isNewSetting: boolean = false
   currency: any
   dateFormat: any
@@ -32,7 +34,8 @@ export class MasterSettingComponent implements OnInit {
      private _loginService: LoginService,
      private _commonService: CommonService,
      private router: Router,
-     private _settings:Settings) {
+     private _settings:Settings,
+     private spinnerService: NgxSpinnerService) {
     this.saveSub$ = this.settingsService.saveSub$.subscribe(
       (obj) => {
         this.postFormValue()
@@ -173,6 +176,10 @@ export class MasterSettingComponent implements OnInit {
       this.isNewSetting = true
     }
     this.getFormFields()
+  }
+
+  ngAfterViewInit() {
+    this.spinnerService.hide()
   }
 
   postFormValue () {

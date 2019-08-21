@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { Settings } from '../shared/constants/settings.constant'
 import { SetUpIds } from '../shared/constants/setupIds.constant';
-import { OrganisationProfileService } from '../start/header/organisation-profile/organisation-profile.service';
+import { CompanyProfileService } from '../start/company-profile/company-profile.service';
 import { UIConstant } from '../shared/constants/ui-constant';
 import { debug } from 'util';
 @Injectable({
@@ -9,7 +9,7 @@ import { debug } from 'util';
 })
 export class GlobalService {
   clientDateFormat: string = ''
-  constructor (private settings: Settings, private orgService: OrganisationProfileService) {}
+  constructor (private settings: Settings, private orgService: CompanyProfileService) {}
   isValidDate (dateString) {
     // First check for the pattern
     if (!/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(dateString)) {
@@ -635,73 +635,78 @@ export class GlobalService {
   }
 
   getAllSettings (settings, moduleId) {
-    
-    let setting = []
-    let setupMasters = settings.SetupMasters
-    let setupClient = settings.SetupClients
-    console.log(setupMasters)
-    console.log(setupClient)
-    // let i = 0
-    setupMasters.forEach(element => {
-      let val: string | Array<any> | boolean | number
-      let name = element.SetupName
-      if (+element.Type === SetUpIds.singleId) {
-        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        if(setupclient.length>0){
-          val = setupclient[0].Id
+   return new Promise(
+     async (resolve, reject) => {
+      let setting = []
+      let setupMasters = settings.SetupMasters
+      let setupClient = settings.SetupClients
+      await  setupMasters.forEach(
+       async (element) => {
+        let val: string | Array<any> | boolean | number
+        let name = element.SetupName
+        if (+element.Type === SetUpIds.singleId) {
+          let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
+          if(setupclient.length>0){
+            val = setupclient[0].Id
+          }
+         
         }
-       
-      }
-      if (+element.Type === SetUpIds.singleVal) {
-        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        val = setupclient
-      }
-      if (+element.Type === SetUpIds.getStrOrNum || +element.Type === SetUpIds.baseTypeNum) {
-        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        if(setupclient.length >0){
-          val = setupclient[0].Val
+        if (+element.Type === SetUpIds.singleVal) {
+          let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
+          val = setupclient
         }
-      
-      } else if (+element.Type === SetUpIds.multiple) {
-        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        console.log(setupclient) /*setupclient[0].Val.split(',') */
-        val = setupclient
-      } else if (+element.Type === SetUpIds.getBoolean) {
-        let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-        if(setupclient.length>0){
-          val = !!(+setupclient[0].Val)
+        if (+element.Type === SetUpIds.getStrOrNum || +element.Type === SetUpIds.baseTypeNum) {
+          let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
+          if(setupclient.length >0){
+            val = setupclient[0].Val
+          }
+        
+        } else if (+element.Type === SetUpIds.multiple) {
+          let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
+          console.log(setupclient) /*setupclient[0].Val.split(',') */
+          val = setupclient
+        } else if (+element.Type === SetUpIds.getBoolean) {
+          let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
+          if(setupclient.length>0){
+            val = !!(+setupclient[0].Val)
+          }
+     
         }
-   
-      }
-      setting.push({
-        id: element.Id,
-        val: val,
-        name: name
+        await setting.push({
+          id: element.Id,
+          val: val,
+          name: name
+        })
       })
+      this.settings.moduleSettings = JSON.stringify({settings: setting, moduleId: moduleId})
+      if (setting.length > 0) {
+      await  setting.forEach(
+        (element) => {
+          if (+element.id === +SetUpIds.dateFormat) {
+            this.clientDateFormat = element.val[0].Val
+            this.settings.dateFormat = element.val[0].Val
+            return 
+          }
+          if (+element.id === +SetUpIds.noOfDecimalPoint) {
+              this.settings.noOfDecimal = element.val
+            return 
+          }
+        });
+      }
+      resolve('Setting set up success');
     })
-    this.settings.moduleSettings = JSON.stringify({settings: setting, moduleId: moduleId})
-    if (setting.length > 0) {
-      setting.forEach(element => {
-        if (+element.id === +SetUpIds.dateFormat) {
-          this.clientDateFormat = element.val[0].Val
-          this.settings.dateFormat = element.val[0].Val
-          return 
-        }
-        if (+element.id === +SetUpIds.noOfDecimalPoint) {
-            this.settings.noOfDecimal = element.val
-          return 
-        }
-      });
-    }
   }
 
   async getOrgDetails (): Promise<any> {
     return new Promise((resolve, reject) => {
       this.orgService.getCompanyProfileDetails().subscribe((data) => {
+        debugger
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-          this.settings.finFromDate = data.Data.OrganisationDetails[0].FromDate
-          this.settings.finToDate = data.Data.OrganisationDetails[0].ToDate
-          this.settings.industryId = data.Data.OrganisationDetails[0].ProcessId
+          console.log(data ,'company')
+          if(data.Data.OrganisationDetails.length>0 && data.Data.OrganisationDetails[0].ProcessId){
+            this.settings.industryId = data.Data.OrganisationDetails[0].ProcessId
+
+          }
           this.settings.CompanyDetails = JSON.stringify(data.Data.Statutories[0])
           resolve();
         } else {

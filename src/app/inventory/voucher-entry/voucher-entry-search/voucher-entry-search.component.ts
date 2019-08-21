@@ -84,7 +84,7 @@ export class VoucherEntrySearchComponent {
           })
         }
         this.ledgerData = Object.assign([], newData)
-        this.voucherEntryServie.allLedgerList(newData)
+        this.voucherEntryServie.allLedgerList(newData ,'')
       }
     })
   }

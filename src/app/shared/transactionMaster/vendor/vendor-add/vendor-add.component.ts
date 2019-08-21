@@ -67,6 +67,7 @@ export class VendorAddComponent implements OnDestroy {
   YES: any = 'yes'
   NO: any = 'no'
   editId: any
+  noOfDecimal:any =0
   private unSubscribe$ = new Subject<void>()
   get f () { return this.vendorForm.controls }
   get bank () { return this.bankForm.controls }
@@ -81,7 +82,7 @@ export class VendorAddComponent implements OnDestroy {
     private _toastrcustomservice: ToastrCustomService,
     public _globalService: GlobalService, public _settings: Settings) {
     //this.clientDateFormat = this._settings.dateFormat
-
+    this.noOfDecimal =this._settings.noOfDecimal
     this.formVendor()
     this.formBank()
     this.addTyperessForm()
@@ -211,7 +212,7 @@ export class VendorAddComponent implements OnDestroy {
       this.addressClick = false
       this.emailAdressArray = []
       this.select2VendorValue(UIConstant.ZERO)
-      this.select2CrDrValue(0)
+      this.select2CrDrValue(1)
       this.getCountry(0)
       this.vendorRegisterTypeSelect2.setElementValue(1)
       this.formVendor()
@@ -302,7 +303,7 @@ export class VendorAddComponent implements OnDestroy {
             this.disabledGSTfor_UnRegi = Data.Data.LedgerDetails[0].TaxTypeId === 4 ? true :false
            
             
-            this.vendorForm.controls.openingBlance.setValue(Data.Data.LedgerDetails[0].OpeningBalance)
+            this.vendorForm.controls.openingBlance.setValue( (Data.Data.LedgerDetails[0].OpeningBalance).toFixed(this.noOfDecimal) )
           }
 
           if (Data.Data && Data.Data.Statutories.length > 0) {
@@ -408,7 +409,7 @@ export class VendorAddComponent implements OnDestroy {
     this.adressArray = []
     this.emailAdressArray = []
     //this.select2VendorValue(UIConstant.ZERO)
-    this.select2CrDrValue(0)
+    this.select2CrDrValue(1)
     this.formVendor()
     this.formBank()
     this.addTyperessForm()
@@ -697,7 +698,8 @@ disabledStateCountry:boolean
 
 
   }
-
+  
+@ViewChild('crdrSelect2') crdrSelect2 :Select2Component
 
   select2CrDrPlaceHolder: Select2Options
   valueCRDR: any
@@ -705,9 +707,12 @@ disabledStateCountry:boolean
   select2CrDrValue (value) {
     this.selectCrDr = []
     this.select2CrDrPlaceHolder = { placeholder: 'Select CR/Dr' }
-    this.selectCrDr = [{ id: UIConstant.BLANK, text: 'Select CR/DR' }, { id: '1', text: 'CR' }, { id: '0', text: 'DR' }]
+    this.selectCrDr = [ { id: '1', text: 'CR' }, { id: '0', text: 'DR' }]
     this.valueCRDR = value
-    this.crDrId =   +this.selectCrDr[1].id
+   
+   // 
+    this.crDrId =  value
+   
   }
 
   selectCRDRId (event) {
@@ -962,6 +967,9 @@ disabledStateCountry:boolean
     if (value === 'reset') {
           this.resetForNewFoem()
          this.activaTab('vendor1')
+         this.getCountry(0)
+         this.select2CrDrValue(1)
+         this.crdrSelect2.setElementValue(1)
     } else if (this.vendorForm.valid && !this.validMobileFlag && this.getEmailvalid && this.vendorId > UIConstant.ZERO) {
       if(!this.requiredGSTNumber){
       if (!this.mobileRequirdForSetting) {
@@ -975,13 +983,14 @@ disabledStateCountry:boolean
                     this._commonGaterSeterServices.setVendorName(Data.Data)
                     this._sanariioservices.filter()
                     if (value === 'save') {
-                   
-                      const dataToSend = { id: Data.Data, name: this.vendorForm.value.vendorName }
+                      const dataToSend = { id: Data.Data, name: this.vendorForm.value.vendorName ,gstType :this.vendorId}
                       this._CommonService.closeVend({ ...dataToSend })
                       this._CommonService.AddedItem()
                       let saveFlag = this.editId === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
                this._toastrcustomservice.showSuccess('', saveFlag)
                       $('#vendor_form').modal(UIConstant.MODEL_HIDE)
+                      this.select2CrDrValue(1)
+                      this.crdrSelect2.setElementValue(1)
                       } else if (value === 'new') {
                         setTimeout(() => {
                           this.ledgerName.nativeElement.focus()
@@ -991,8 +1000,9 @@ disabledStateCountry:boolean
                         this.activaTab('vendor1')
                         this._CommonService.AddedItem()
                         this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
-                         
                          this.id =0
+                         this.select2CrDrValue(1)
+                         this.crdrSelect2.setElementValue(1)
                       }
                       this.disabledStateCountry= false
                       this.resetForNewFoem()
@@ -1240,6 +1250,8 @@ resetAddress(){
     this.areaList=[]
     this.closeModal()
     this.select2VendorValue(UIConstant.ZERO)
+    this.select2CrDrValue(1)
+    this.crdrSelect2.setElementValue(1)
     
   }
   bankIndex: any

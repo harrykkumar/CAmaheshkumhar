@@ -1,6 +1,5 @@
 import { ImageModalModule } from './transactionMaster/images-modal/image-modal.module';
 import { FooterComponent } from './../start/footer/footer.component';
-import { OrganisationProfileComponent } from './../start/header/organisation-profile/organisation-profile.component';
 import { HeaderComponent } from './../start/header/header.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { NgModule } from '@angular/core'
@@ -20,10 +19,17 @@ import { PagingUtilityModule } from './pagination/pagination.module'
 import { NgxPaginationModule } from 'ngx-pagination';
 import { DatepickerModule } from './datepicker/datepicker.module';
 import { RouterModule } from '@angular/router';
-import { CompanyProfileComponent } from '../start/company-profile/company-profile.component';
 import { AddNewCityComponent } from './components/add-new-city/add-new-city.component';
 import { AddNewAreaComponent } from './components/add-new-area/add-new-area.component';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { TabsModule } from 'ngx-bootstrap';
+import { NgxSpinnerModule } from "ngx-spinner";
+import { NgSelectModule } from '@ng-select/ng-select';
+import { CompanyProfileComponent } from '../start/company-profile/company-profile.component';
+import { ChartsModule } from 'ng2-charts';
+import  { DatePicker2AppModule} from './datepicker-2/datepicker2.module'
+// import { MyDatePickerModule} from 'mydatepicker'
 @NgModule({
   imports: [
     FormsModule,
@@ -36,9 +42,19 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
     TableUtilityModule,
     DynamicCategoryModule,
     DatepickerModule,
+    DatePicker2AppModule,
+    // DatepickerFormatsInputModule,
     RouterModule,
     ImageModalModule,
-    NgxExtendedPdfViewerModule
+    NgxExtendedPdfViewerModule,
+    NgbModule,
+    TabsModule.forRoot(),
+    NgxSpinnerModule,
+    NgSelectModule,
+    ChartsModule,
+    // MyDatePickerModule,
+    // DatepickerMomentModule,
+    // NgChartjsModule
   ],
   exports: [
     CommonModule,
@@ -56,16 +72,25 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
     UserTypeFormComponent,
     HeaderComponent,
     FooterComponent,
-    OrganisationProfileComponent,
     OrganisationBranchComponent,
     PagingUtilityModule,
     NgxPaginationModule,
     DatepickerModule,
-    CompanyProfileComponent,
     RouterModule,
     ImageModalModule,
     AddNewCityComponent,
-    AddNewAreaComponent
+    AddNewAreaComponent,
+    NgbModule,
+    TabsModule,
+    NgxSpinnerModule,
+    NgSelectModule,
+    CompanyProfileComponent,
+    ChartsModule,
+    // MyDatePickerModule
+    // DatepickerMomentModule,
+    // DatepickerFormatsInputModule
+    
+    DatePicker2AppModule,
   ],
   declarations: [
     ControlMessageComponent,
@@ -76,11 +101,15 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
     UserTypeFormComponent,
     HeaderComponent,
     FooterComponent,
-    OrganisationProfileComponent,
     OrganisationBranchComponent,
-    CompanyProfileComponent,
     AddNewCityComponent,
-    AddNewAreaComponent
+    AddNewAreaComponent,
+    CompanyProfileComponent,
+    // DatepickerFormatsInputComponent
+  ],
+  entryComponents: [
+    CompanyProfileComponent,
+    // DatepickerFormatsInputComponent
   ]
 })
 export class SharedModule {

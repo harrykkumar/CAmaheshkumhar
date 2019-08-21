@@ -3,13 +3,11 @@
     <ul class="nav-right">
       <li style="padding-top: 15px;"> 
         <div>
-          {{loggedinUserData?.Name}}
-          <span>({{loggedinUserData?.fromDate | dateFormat:clientDateFormat}} - </span>
-            <span>{{loggedinUserData?.toDate | dateFormat:clientDateFormat}})</span>
+          <b>{{loggedinUserData?.Name}}</b>
         </div>
         <div>
             <span class="fsz-xsm c-grey-900">
-                {{_loginService?.loginUserDetails?.Name}}({{_loginService?.loginUserDetails?.Code}})
+                <b>{{loginService?.loginUserDetails?.Name}}({{loginService?.loginUserDetails?.Code}})</b>
           </span>
           </div>
       </li>
@@ -20,30 +18,13 @@
           data-toggle="dropdown"
         >
           <div class="peer mR-10">
-            <!-- <img
-              *ngIf="
-                (loggedinUserData?.ImageContents)[0]?.FilePath;
-                else defaultImage
-              "
-              class="w-2r bdrs-50p"
-              src="loggedinUserData?.ImageContents[0]?.FilePath"
-              alt="loggedinUserData?.ImageContents[0]?.Name"
-            /> -->
-            <!-- <ng-template> -->
               <img
                 class="w-2r bdrs-50p"
-                src="https://randomuser.me/api/portraits/men/10.jpg"
+                src="../../../assets/img/man.png"
               />
-            <!-- </ng-template> -->
           </div>
         </a>
         <ul class="dropdown-menu fsz-sm">
-          <li>
-            <a href="email.html" class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"
-              ><i class="fas fa-envelope mR-10 cH-blue"></i
-              ><span>Messages</span></a
-            >
-          </li>
           <li role="separator" class="divider"></li>
           <li>
             <a class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"

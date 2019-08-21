@@ -8,7 +8,7 @@ import { map, tap } from 'rxjs/operators'
 import * as _ from 'lodash'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { CommonService } from '../../commonServices/commanmaster/common.services'
-import { OrganisationProfileService } from '../../start/header/organisation-profile/organisation-profile.service'
+import { CompanyProfileService } from '../../start/company-profile/company-profile.service'
 declare var $: any
 declare const flatpickr: any
 
@@ -44,7 +44,7 @@ export class UserFormComponent implements OnInit {
   editMobileDetailIndex: number = null
   constructor(
     private _userService: UserFormService,
-    public _orgService: OrganisationProfileService,
+    public _orgService: CompanyProfileService,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
     public _loginService: LoginService

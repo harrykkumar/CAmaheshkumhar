@@ -318,9 +318,9 @@ export class SalesImportComponent implements OnInit, OnDestroy {
                   let taxRow = {
                     'SNO': taxRowIndex,
                     'TAXRATENAME': tax,
-                    'TAXRATE': element[tax],
+                    'TAXRATE': element[tax].toFixed(4),
                     'TAXTYPE': 1,
-                    'TAXAMOUNT': element[tax],
+                    'TAXAMOUNT': element[tax].toFixed(4),
                     'ROWID': element['SNO']
                   }
                   this.array.push(taxRow)

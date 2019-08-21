@@ -6,16 +6,19 @@ import { Settings } from './../../shared/constants/settings.constant';
 import { UIConstant } from './../../shared/constants/ui-constant';
 import { ItemmasterServices } from './../../commonServices/TransactionMaster/item-master.services';
 import { ToastrCustomService } from './../../commonServices/toastr.service';
-import { Component, OnInit, ViewChild, Input, Output, SimpleChanges, OnChanges, EventEmitter, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, SimpleChanges, OnChanges, EventEmitter, ElementRef, AfterViewInit, Renderer2, DoCheck } from '@angular/core';
 import { Subject } from 'rxjs';
-import { OrganisationProfileService } from '../header/organisation-profile/organisation-profile.service';
+import { CompanyProfileService } from './company-profile.service';
 import { takeUntil } from 'rxjs/operators';
 declare var $: any
 import * as _ from 'lodash'
 import { Select2Component } from 'ng2-select2';
 import { AddNewCityComponent } from '../../shared/components/add-new-city/add-new-city.component';
 import { AddNewAreaComponent } from '../../shared/components/add-new-area/add-new-area.component';
-import { UniqueSelectionDispatcher } from '@angular/cdk/collections';
+import { TabsetComponent } from 'ngx-bootstrap';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { LoginService } from 'src/app/commonServices/login/login.services';
+import { TokenService } from 'src/app/commonServices/token.service';
 
 
 @Component({
@@ -23,7 +26,7 @@ import { UniqueSelectionDispatcher } from '@angular/cdk/collections';
   templateUrl: './company-profile.component.html',
   styleUrls: ['./company-profile.component.css']
 })
-export class CompanyProfileComponent implements OnInit, OnChanges {
+export class CompanyProfileComponent implements OnInit{
   @ViewChild('addNewCityRef') addNewCityRefModel  : AddNewCityComponent
   @ViewChild('addNewAreaRef') addNewAreaRefModel  : AddNewAreaComponent
   @ViewChild('mobileDetailModel') mobileDetailModel
@@ -31,7 +34,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   @ViewChild('bankFormModel') bankFormModel
   @ViewChild('addressFormModel') addressFormModel
   @ViewChild('keyPersonFormModel') keyPersonFormModel
-  @ViewChild('orgProfileFormModel') orgProfileFormModel
+  @ViewChild('orgProfileFormModel') orgProfileFormControlModel
   @ViewChild('industryTypeSelect') industryTypeSelect : Select2Component
   @ViewChild('registrationTypeSelect') registrationTypeSelect : Select2Component
   @ViewChild('branchTypeSelect') branchTypeSelect : Select2Component
@@ -45,8 +48,12 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   @ViewChild('accMethodSelect') accMethodSelect : Select2Component
   @ViewChild('contactNoSelect') contactNoSelect : Select2Component
   @ViewChild('keyPersonSelect') keyPersonSelect : Select2Component
-  @ViewChild('companyNameModel') companyNameModel : ElementRef
-  @Input('modalData') modalData: any;
+  @ViewChild('organizationTab') organizationTab: TabsetComponent;
+  @ViewChild('companyNameReference') companyNameReference: ElementRef
+  @ViewChild('keyPersonNameRef') keyPersonNameRef: ElementRef
+  @ViewChild('tinNumberRef') tinNumberRef: ElementRef
+  @ViewChild('bankNameRef') bankNameRef: ElementRef
+  @Input() modalData: any;
   @Output() closeModal = new EventEmitter();
   private unSubscribe$ = new Subject<void>()
   imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
@@ -89,13 +96,17 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   finSessionList:Array<any> = []
   constructor (
     public _globalService: GlobalService,
-    private _orgService: OrganisationProfileService,
+    private _orgService: CompanyProfileService,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
     private itemMaster: ItemmasterServices,
     public _settings: Settings,
     private _route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private renderer: Renderer2,
+    private spinnerService: NgxSpinnerService,
+    private _loginService: LoginService,
+    private tokenService: TokenService    
   ) {
     if(this._settings.dateFormat) {
       this.clientDateFormat = this._settings.dateFormat
@@ -106,29 +117,27 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     })
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (this.modalData && this.modalData.open === true) {
-      if (!this.modalData.editId) {
-        this.personalDetailModel.registrationTypeId = 1;
+  setFocus(ref, type?) {
+    setTimeout(() => {
+      if (type === 'select2') {
+        this[ref].selector.nativeElement.focus({ preventScroll: false })
+      } else {
+        this[ref].nativeElement.focus({ preventScroll: false })
       }
-      if(this.modalData.editId) {
-        this.getOrgProfileData()
-      }
-      $('#companyOrganisationModal').modal({ backdrop: 'static', keyboard: false })
-      $('#companyOrganisationModal').modal(UIConstant.MODEL_SHOW)
-    } else if (this.modalData && this.modalData.open === false) {
-      $('#companyOrganisationModal').modal(UIConstant.MODEL_HIDE)
-      this.resetFormData();
-      
-    }
+    },300)
   }
 
   // tslint:disable-next-line:no-empty
   ngOnInit () {
+    $('#companyOrganisationModal').modal({ backdrop: 'static', keyboard: false })
+    $('#companyOrganisationModal').modal(UIConstant.MODEL_SHOW)
+    this.selectTab(0);
+    this.setFocus('companyNameReference');
+    this.spinnerService.show()
     this.initDropDownData()
     this.getUploadedImages()
   }
-  
+
 
   /* Function to initialise dropdown list data */
   initDropDownData = async () => {
@@ -140,10 +149,10 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       { id: -1, text: UIConstant.ADD_NEW_OPTION }
     ]
     this.areaList = [
-    { id: 0, text: 'Select Area' },
-    { id: -1, text: UIConstant.ADD_NEW_OPTION }]
+      { id: 0, text: 'Select Area' },
+      { id: -1, text: UIConstant.ADD_NEW_OPTION }
+    ]
     this.addressTypeList = await this._orgService.getAddressTypeList()
-    console.log(this.addressTypeList ,'kkk')
     this.registrationTypeList = [...this._orgService.getRegistrationTypeList()]
     this.industryTypeList = await this._orgService.getIndustryTypeList()
     this.branchTypeList = await this._orgService.getBranchTypeList()
@@ -153,58 +162,15 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     this.getMobileCountryCodeList()
     this.getMobileTypeList()
     this.getEmailTypeList()
+    if (!this.modalData.editId) {
+      this.personalDetailModel.registrationTypeId = 1;
+      this.personalDetail.bookStartDate = '';
+    }
+    if(this.modalData.editId) {
+      this.getOrgProfileData()
+    }
+    this.spinnerService.hide()
   }
-
-
-  /* Function to reset all the form data fields on close of profile */
-  resetFormData = () => {
-    this.addressDetailArray = []
-    this.keyPersonDetailArray = []
-    this.bankDetailArray = []
-    this.imageList = []
-    this.editAddressDetailIndex = null
-    this.editBankDetailIndex = null
-    this.editKeyPersonDetailIndex = null
-    this.addressFormModel.resetForm()
-    this.keyPersonFormModel.resetForm()
-    this.bankFormModel.resetForm()
-    this.orgProfileFormModel.resetForm()
-    this.emailDetail = {
-      selectedEmailType: 1,
-      selectedEmail: ''
-    }
-    this.mobileDetail = {
-      selectedMobileType: 1,
-      selectedMobileCountryCode:
-        { id: UIConstant.ZERO, text: 'Select Country Code' },
-      mobileNo: ''
-    }
-    this.personalDetail.mobileArray = []
-    this.personalDetail.emailArray = []
-    this.personalDetailModel.industryTypeId = 0
-    this.personalDetailModel.branchTypeId = 0
-    if (!_.isEmpty(this.mobileDetail.selectedMobileCountryCode)) {
-      this.mobileDetail.selectedMobileCountryCode.id = 0
-    }
-    this.model.countryCodeId = 0
-    this.addressDetail.selectedAddressType = 0
-    this.personalDetailModel.keyPersonValue = 0
-    this.personalDetailModel.contactCodeValue = 0
-    this.personalDetailModel.finSessionValue = 0
-    this.personalDetailModel.registrationTypeId = 0
-    this.personalDetail = {}
-    this.statutoryDetail = {}
-    this.personalDetailModel = {}
-    this.model = {}
-    this.addressDetail = {}
-    this.bankDetail = {}
-    this.dummyData = {}
-    this.keyPersonDetail = {}
-    
-    $('.active').removeClass('active');
-    $('#activeTab').click();
-  }
-
 
   /* Function invoke on key person type selection change and assign new value */
   onKeyPersonTypeSelectionChange = (event) => {
@@ -232,21 +198,6 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     }
   }
 
-
-    /* Function invoke on industry type selection change and assign new value */
-    // onFinYearIdSelectionChange = (event) => {
-    //   if (event.data.length > 0) {
-    //     this.personalDetail.selectedFinYearId = event.data[0]
-    //   }
-    // }
-
-    onFinSessionSelectionChange = (event) => {
-      if (event.data.length > 0) {
-        this.personalDetail.selectedFinSession = event.data[0]
-        this.setEndDateOnSessionChange()
-      }
-    }
-
   setEndDateOnSessionChange() {
     let month, session, year;
     if (!_.isEmpty(this.personalDetail.selectedFinSession) && this.personalDetail.selectedFinSession.shortName && this.personalDetail.storedBookStartDate) {
@@ -259,11 +210,16 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   setEndDataValue(month, session, year) {
     if (session > month) {
+      this.dummyData.bookStartDateInvalid = false;
       let endDate = `${this.personalDetail.selectedFinSession.shortName}/${year}`
       endDate = this._globalService.utcToClientDateFormat(endDate, 'd-m-Y')
       this.personalDetail.bookEndDate = `${this.personalDetail.storedBookStartDate}--${endDate}`
     } else if (session === month) {
+      this.personalDetail.bookStartDate = '';
+      this.dummyData.bookStartDateInvalid = true;
+      this.toastrService.showError('','Please Select another Book Start Month');
     } else if (session < month) {
+      this.dummyData.bookStartDateInvalid = false;
       const modifiedYear = year + 1
       let endDate = `${this.personalDetail.selectedFinSession.shortName}/${modifiedYear}`
       endDate = this._globalService.utcToClientDateFormat(endDate, 'd-m-Y')
@@ -279,6 +235,13 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       year = Number(this.personalDetail.storedBookStartDate.split('-')[2])
       session = Number(this.personalDetail.selectedFinSession.shortName.split('/')[0])
       this.setEndDataValue(month, session, year)
+    }
+  }
+
+  onFinSessionSelectionChange = (event) => {
+    if (event.data.length > 0) {
+      this.personalDetail.selectedFinSession = event.data[0]
+      this.setEndDateOnSessionChange()
     }
   }
 
@@ -309,7 +272,6 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   /* Function invoke on country dropdown selection change */
   onCountrySelectionChange = (event) => {
-    debugger
     if (event.data.length > 0) {
       this.addressDetail.selectedCountry = event.data[0]
     }
@@ -319,6 +281,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }];
     }
   }
+
   getOneState (rsp){
     let  newdata =[]
        newdata.push({
@@ -329,6 +292,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
      this.stateList = newdata
      this.getCityList(rsp.Data[0].Id)
    }
+
   getStateCode = async (stateCode) =>{
     this._commonService.getStateByGStCode(stateCode).
     pipe(
@@ -361,8 +325,11 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       }
     })
   }
+
+
   GstinNoCode:any
   disabledStateCountry:boolean = false
+  
   checkGSTNumberByState (event) {
     this.statutoryDetail.gstNo = event.target.value;
     let str =  this.statutoryDetail.gstNo
@@ -381,6 +348,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     
     //this.checkGSTNumberValid()
   }
+  
   GSTStateCode:any
   matchStateCodeWithGSTNumber(){
     if(this.GSTStateCode>0 &&  this.GstinNoCode !==''){
@@ -394,9 +362,9 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       return true
     }
   }
+  
   /* Function invoke on state dropdown selection change */
   onStateSelectionChange = (event) => {
-    debugger
     if (event.data.length > 0) {
       this.addressDetail.selectedState = event.data[0]
       this.GSTStateCode =event.data[0].stateCode
@@ -449,6 +417,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.addressDetail.selectedArea = event.data[0]
     }
   }
+  
   AddressTypeName:string=''
   /* Function invoke on addresstype selection change */
   onAddressTypeChange = (event) => {
@@ -472,19 +441,16 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     }
   }
 
-
   /* Function invoke on click of close profile icon
       will close the dialog box and reset data */
-  emitCloseProfile (data) {
+  emitCloseProfile (data?) {
     $('#companyOrganisationModal').modal(UIConstant.MODEL_HIDE)
     this.RemoveAddressButtonFlag = true
-    
     this.closeModal.emit(data);
   }
 
   /* Function to get all the state list */
   getStateList = (countryCode) => {
-    debugger
     this._orgService.getStateList(countryCode).
     pipe(
       takeUntil(this.unSubscribe$)
@@ -564,6 +530,9 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.bankDetailArray[this.editBankDetailIndex] = { ...this.bankDetail }
       this.editBankDetailIndex = null
     } else {
+      if (_.isEmpty(this.bankDetailArray)) {
+        this.bankDetailArray = []
+      }
       this.bankDetailArray = [...this.bankDetailArray, this.bankDetail]
     }
     this.bankDetail = {}
@@ -580,6 +549,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   removeBankDetail = (i) => {
     this.bankDetailArray.splice(i,1)
   }
+
   RemoveAddressButtonFlag:boolean = true
   /* Function to add new address details */
   addNewAddress = () => {
@@ -589,6 +559,9 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       
       this.editAddressDetailIndex = null
     } else {
+      if (_.isEmpty(this.addressDetailArray)) {
+        this.addressDetailArray = []
+      }
       this.addressDetailArray = [...this.addressDetailArray, this.addressDetail]
     }
     this.addressDetail ={
@@ -605,11 +578,11 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     this.model.cityCodeId = 0
     this.model.areaId = 0
     this.addressFormModel.submitted = false
+    this.selectTab(4);
   }
 
   /* Function to edit existing address details */
   editAddress = (i) => {
-    debugger
     this.addressDetail = { ...this.addressDetailArray[i] }
     this.model.countryCodeId = this.addressDetailArray[i].selectedCountry.id
     this.dummyData.areaId = this.addressDetailArray[i].selectedArea.id
@@ -633,6 +606,9 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.keyPersonDetailArray[this.editKeyPersonDetailIndex] = { ...this.keyPersonDetail }
       this.editKeyPersonDetailIndex = null
     } else {
+      if (_.isEmpty(this.keyPersonDetailArray)) {
+        this.keyPersonDetailArray = []
+      }
       this.keyPersonDetailArray = [...this.keyPersonDetailArray, {...this.keyPersonDetail}]
     }
     this.keyPersonSelect.setElementValue(0)
@@ -680,6 +656,9 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   onCountryCodeSelectionChange = (event) => {
     if (event.data.length > 0) {
       this.mobileDetail.selectedMobileCountryCode = event.data[0]
+      if (!_.isEmpty(this.personalDetail.mobileArray)) {
+        this.personalDetailModel.contactCodeValue = Number(this.personalDetail.mobileArray[0].selectedMobileCountryCode.id);
+      }
     }
   }
 
@@ -689,6 +668,9 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.personalDetail.mobileArray[this.editMobileDetailIndex] = { ...this.mobileDetail }
       this.editMobileDetailIndex = null
     } else {
+      if (_.isEmpty(this.personalDetail.mobileArray)) {
+        this.personalDetail.mobileArray = []
+      }
       this.personalDetail.mobileArray = [...this.personalDetail.mobileArray, this.mobileDetail]
     }
     this.mobileDetail = {
@@ -762,6 +744,9 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.personalDetail.emailArray[this.editEmailDetailIndex] = { ...this.emailDetail }
       this.editEmailDetailIndex = null
     } else {
+      if (_.isEmpty(this.personalDetail.emailArray)) {
+        this.personalDetail.emailArray = []
+      }
       this.personalDetail.emailArray =
         [...this.personalDetail.emailArray, this.emailDetail]
     }
@@ -830,21 +815,6 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       }
     })
 
-    const websiteArray = [
-      {
-        Id: 0,
-        Name: '',
-        Type: 1,
-        ParentTypeId: 3
-      },
-      {
-        Id: 0,
-        Name: '',
-        Type: 1,
-        ParentTypeId: 3
-      }
-    ]
-
     const statutoriesArray = [
       {
         Id: this.statutoryDetail.id ? this.statutoryDetail.id : 0,
@@ -895,7 +865,6 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       Addresses: addressArray,
       ContactInfos: contactArray,
       Emails: emailArray,
-      Websites: websiteArray,
       ContactPersons: keyPersonArray,
       Statutories: statutoriesArray,
       Banks: bankArray,
@@ -905,25 +874,54 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
 
   /* Function to save the profile */
   saveOrgProfile = () => {
+    this.spinnerService.show();
     const data = this.prepareSavePayload()
-   //this.addNewAddress()
     this._orgService.saveCompanyProfile(data).subscribe(
       (Data: any) => {
         if (Data.Code === UIConstant.THOUSAND) {
           this.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
-          this.emitCloseProfile(Data.Data);
+          if(!this.modalData.editId){
+            this.navigateToSetting(Data.Data);
+          } else {
+            this.emitCloseProfile(Data.Data);
+            this.spinnerService.hide()
+          } 
         } else {
           this.toastrService.showError('', Data.Message)
+          this.spinnerService.hide()
         }
       }, error => {
       console.log(error)
       this.toastrService.showError('', 'error in profile save')
+      this.spinnerService.hide()
     }
     )
   }
 
+  navigateToSetting(data) {
+    const Id = Number(data)
+    this._orgService.getBranchAuthentiCationParameters(Id).subscribe(
+      async (res) => {
+        if (res.Code === 1000 && !_.isEmpty(res.Data)) {
+          const token = await this._loginService.extendJwtToken(
+            {
+              OrgId: Id,
+              BranchId: res.Data[0].BranchId,
+              OfficeId: res.Data[0].OfficeId
+            })
+          this.tokenService.saveToken(token)
+          await this._loginService.getUserOrganization();
+          this._loginService.selectedOrganization = _.find(this._loginService.organizationList, { Id: Id });
+          localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
+          this.emitCloseProfile(data)
+          this.router.navigate(['organization/settings/setup']);
+        }
+      })
+  }
+
   /* Function to get existing profile data */
   getOrgProfileData = () => {
+    this.spinnerService.show();
     this._orgService.getCompanyProfileDetails(this.modalData.editId).subscribe(
       (Data: any) => {
         console.log('getCompanyProfileDetails : ', Data)
@@ -1068,32 +1066,35 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
         }
       }
     })
+    this.spinnerService.hide();
   }
 
-   /* validating form fields on saving profile data */
+  /* validating form fields on saving profile data */
   validateForm = () => {
     let valid = true
-    if (!_.isEmpty(this.personalDetail.selectedIndustryType) && Number(this.personalDetail.selectedIndustryType.id) === 0) {
+    if (valid && !_.isEmpty(this.personalDetail.selectedIndustryType) && Number(this.personalDetail.selectedIndustryType.id) === 0) {
       valid = false
     }
-    if (!_.isEmpty(this.personalDetail.selectedRegistrationType) && Number(this.personalDetail.selectedRegistrationType.id) === 0) {
+    if (valid && !_.isEmpty(this.personalDetail.selectedRegistrationType) && Number(this.personalDetail.selectedRegistrationType.id) === 0) {
       valid = false
     }
-    if (this.personalDetail.mobileArray.length === 0) {
+    if (valid && this.personalDetail.mobileArray.length === 0) {
       valid = false
     }
-    if (this.personalDetail.emailArray.length === 0) {
+    if (valid && this.personalDetail.emailArray.length === 0) {
       valid = false
     }
-    if (this.keyPersonDetailArray.length === 0) {
+    if (valid && this.keyPersonDetailArray.length === 0) {
       valid = false
     }
-    if (this.addressDetailArray.length === 0) {
+    if (valid && this.addressDetailArray.length === 0) {
       valid = false
+    }
+    if (valid && this.dummyData.bookStartDateInvalid) {
+      valid = false;
     }
     return valid
   }
-
 
   openImageModal () {
     this.itemMaster.openImageModal(this.imageList)
@@ -1107,7 +1108,6 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
   }
 
   removeImage = (index) => {
-
     _.forIn(this.imageList, (value) => {
      if(!_.isEmpty(value) && value.length>0 && index < value.length){
         value.splice(index, 1)
@@ -1116,26 +1116,14 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     this.createImageFiles()
   }
 
-  createImageFiles () {
+  createImageFiles() {
     let ImageFiles = []
-    for (let i = 0; i < this.imageList['images'].length; i++) {
-      let obj = { Name: this.imageList['queue'][i], BaseString: this.imageList['images'][i], IsBaseImage: this.imageList['baseImages'][i], Id: this.imageList['id'][i] ? this.imageList['id'][i] : 0 }
-      ImageFiles.push(obj)
-    }
-    this.ImageFiles = ImageFiles
-  }
-  removeActiveClass(){
-    $('#activeTab').click();
-  }
-
-  onTabOut(value){
-    $(`a[href=${JSON.stringify(value)}]`).click()
-  }
-
-  focuOnTabOut(value, type){
-    $(`#${value}`).focus();
-    if (type === 'ref') {
-     this[value].selector.nativeElement.focus();
+    if (!_.isEmpty(this.imageList)) {
+      for (let i = 0; i < this.imageList['images'].length; i++) {
+        let obj = { Name: this.imageList['queue'][i], BaseString: this.imageList['images'][i], IsBaseImage: this.imageList['baseImages'][i], Id: this.imageList['id'][i] ? this.imageList['id'][i] : 0 }
+        ImageFiles.push(obj)
+      }
+      this.ImageFiles = ImageFiles
     }
   }
 
@@ -1143,11 +1131,13 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
+
   onMobileNoChange(control){
     if(control.valid){
       this.addNewMobileDetail();
     }
   }
+
   onEmailChange(control){
     if (control.valid) {
       this.addNewEmailDetail();
@@ -1171,6 +1161,7 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       this.model.cityCodeId = 0
     }
   }
+
   addAreaClosed(selectedIds?) {
     if (!_.isEmpty(selectedIds) && selectedIds.areaId > 0) {
       if (!_.isEmpty(this.addressDetail.selectedCountry) && Number(this.addressDetail.selectedCountry.id) !== selectedIds.countryId) {
@@ -1191,6 +1182,16 @@ export class CompanyProfileComponent implements OnInit, OnChanges {
       }
     } else {
       this.model.areaId = 0
+    }
+  }
+
+  selectTab(tabId: number) {
+    this.organizationTab.tabs[tabId].active = true;
+  }
+
+  selectFromAddress(tabId) {
+    if (!_.isEmpty(this.addressDetailArray)) {
+      this.organizationTab.tabs[tabId].active = true;
     }
   }
 }

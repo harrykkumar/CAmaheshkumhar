@@ -9,6 +9,7 @@ import { FormGroup, FormBuilder } from '@angular/forms'
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { PagingComponent } from '../../shared/pagination/pagination.component'
 declare const $: any
+import { Settings } from '../../shared/constants/settings.constant'
 
 @Component({
   selector: 'app-vendor',
@@ -29,11 +30,14 @@ export class VendorComponent implements OnInit, OnDestroy {
   isSearching: boolean = false
   queryStr$: Subscription
   queryStr: string = ''
+  noOfDecimal:any =0
   @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (private _vendorServices: VendorServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private Settings :Settings) {
+      this.noOfDecimal= this.Settings.noOfDecimal
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
         if (obj.id && obj.type && obj.type === 'vendor') {

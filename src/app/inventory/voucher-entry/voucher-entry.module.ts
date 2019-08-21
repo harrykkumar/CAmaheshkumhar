@@ -24,6 +24,9 @@ import { VoucherEntryListComponent } from './voucher-entry-list/voucher-entry-li
     Select2Module,
     PagingUtilityModule,
     NgxPaginationModule
+  ],
+  entryComponents: [
+    VoucherEntryAddComponent
   ]
 })
 export class VoucherEntryModule { }

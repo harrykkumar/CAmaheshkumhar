@@ -1,4 +1,5 @@
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Settings } from './../../../shared/constants/settings.constant';
+import { Component, ViewChild, ElementRef, OnInit, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { UIConstant } from "src/app/shared/constants/ui-constant";
 import { ActivatedRoute } from '@angular/router';
@@ -10,153 +11,448 @@ import { PurchaseService } from '../../purchase/purchase.service';
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 import { FormConstants } from '../../../shared/constants/forms.constant';
 declare const $: any
+import * as _ from 'lodash';
+import { VoucherEntryAddComponent } from '../voucher-entry-add/voucher-entry-add.component';
 @Component({
   selector: 'voucher-entry-main',
   templateUrl: './voucher-entry-main.component.html'
 })
 
 export class VoucherEntryMainComponent implements OnInit {
+  @ViewChild('voucherAddContainer', { read: ViewContainerRef }) voucherAddContainerRef: ViewContainerRef;
+  printTemlateTitle: string = ''
+  totalAmount: number = 0
+  totalAmountInWords: string = ''
+  printDataList: Array<any> = []
+  printOrgnizationDataList: Array<any> = []
+  
+  printHeaderData: any = {}
   toShowSearch = false
   title: string = ''
   printData = []
   onDestroy$ = new Subject()
-  constructor (private _formBuilder: FormBuilder,
+  voucherAddComponentRef: any;
+  constructor(private _formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private commonService: CommonService,
     private voucherService: VoucherEntryServie,
     private purchaseService: PurchaseService,
-    private toastrService: ToastrCustomService) {
+    private toastrService: ToastrCustomService,
+    private resolver: ComponentFactoryResolver,
+    public settings: Settings) {
     this.formSearch()
     this.getVoucherSetting()
 
     this.commonService.getActionClickedStatus().subscribe(
       (action: any) => {
         if (action.type === FormConstants.Print && action.formname === FormConstants.VoucherForm) {
+          if (action.voucherTypeId === 102) {
+            this.printTemlateTitle = 'RECEIPT VOUCHER'
+          } else if (action.voucherTypeId === 103) {
+            this.printTemlateTitle = 'PAYMENT VOUCHER'
+          }
           this.onPrintButton(action.id, action.printId)
         }
       }
     )
   }
 
-  ngOnInit () {
+  createComponent(voucherData?) {
+    this.voucherAddContainerRef.clear();
+    const factory = this.resolver.resolveComponentFactory(VoucherEntryAddComponent);
+    this.voucherAddComponentRef = this.voucherAddContainerRef.createComponent(factory);
+    if (!_.isEmpty(voucherData) &&  voucherData.VoucherId) {
+      this.voucherAddComponentRef.instance.editId = voucherData.VoucherId
+      this.voucherAddComponentRef.instance.editType = voucherData.VoucherType
+    }
+    this.voucherAddComponentRef.instance.voucherAddClosed.subscribe(
+      (data) => {
+        this.voucherAddComponentRef.destroy();
+      });
+  }
+
+  ngOnInit() {
     this.route.data.pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       this.title = data.title
     })
   }
 
-  toggleSearch () {
+  toggleSearch() {
     this.toShowSearch = !this.toShowSearch
   }
 
   @ViewChild('searchData') searchData: ElementRef
   searchForm: FormGroup
-  private formSearch () {
+  private formSearch() {
     this.searchForm = this._formBuilder.group({
       'searchKey': [UIConstant.BLANK]
     })
   }
 
-  openVoucher () {
-    this.commonService.openVoucher('')
-  }
-  getVoucherSetting () {
+  getVoucherSetting() {
     let _self = this
     this.commonService.getModuleSettings(UIConstant.VOUCHER_TYPE)
-    .pipe(
-      takeUntil(this.onDestroy$),
-      filter(data => {
-        if (data.Code === UIConstant.THOUSAND) {
-          return true
-        } else {
-          throw new Error(data.Description)
+      .pipe(
+        takeUntil(this.onDestroy$),
+        filter(data => {
+          if (data.Code === UIConstant.THOUSAND) {
+            return true
+          } else {
+            throw new Error(data.Description)
+          }
+        }),
+        catchError(error => {
+          return throwError(error)
+        }),
+        map(data => data.Data)
+      )
+      .subscribe(
+        (data) => {
+          // console.log('settings data : ', data)
+          _self.purchaseService.getAllSettings(data)
+        },
+        (error) => {
+          console.log(error)
+          this.toastrService.showError(error, '')
+        },
+        () => {
         }
-      }),
-      catchError(error => {
-        return throwError(error)
-      }),
-      map(data => data.Data)
-    )
-    .subscribe(
-      (data) => {
-        // console.log('settings data : ', data)
-        _self.purchaseService.getAllSettings(data)
-      },
-      (error) => {
-        console.log(error)
-        this.toastrService.showError(error, '')
-      },
-      () => {
-      }
-    )
+      )
+  }
+  orgimage:any=[]
+  orgAddress:any =[]
+  onPrintButton = (id, htmlID) => {
+    this.voucherService.printReceiptPayment({ id: id })
+      .pipe(
+        filter(data => {
+          if (data.Code === UIConstant.THOUSAND) {
+            return true
+          } else {
+            throw new Error(data.Description)
+          }
+        }),
+        catchError(error => {
+          return throwError(error)
+        }),
+        map(data => data.Data)
+      ).subscribe(
+        data => {
+          this.printDataList = JSON.parse(JSON.stringify(data.PaymentDetails));
+          this.printHeaderData = JSON.parse(JSON.stringify(data.LedgerVoucherMsts[0]))
+          this.printOrgnizationDataList = data.ClientInfos
+          this.orgAddress = data.AddressDetails
+          this.orgimage =data.ImageContents
+          _.forEach(this.printDataList, (item) => {
+            if (item.Amount) {
+              this.totalAmount = this.totalAmount + Number(item.Amount)
+            }
+          })
+          if(this.totalAmount) {
+            this.totalAmountInWords = this.commonService.NumInWords(this.totalAmount);
+          }
+          setTimeout(() => {
+            this.printComponent(htmlID)
+          }, 1000)
+        },
+        (error) => {
+          console.log(error)
+          this.toastrService.showError(error, '')
+        }
+      )
   }
 
-  onPrintButton (id, htmlID) {
-    let _self = this
-    this.voucherService.printReceiptPayment({id: id})
-    .pipe(
-      filter(data => {
-        if (data.Code === UIConstant.THOUSAND) {
-          return true
-        } else {
-          throw new Error(data.Description)
-        }
-      }),
-      catchError(error => {
-        return throwError(error)
-      }),
-      map(data => data.Data)
-    ).subscribe(
-      data => {
-        console.log('print data : ', data)
-        _self.printData = data
-        setTimeout(function () {
-          _self.printComponent(htmlID)
-        }, 1000)
-      },
-      (error) => {
-        console.log(error)
-        _self.toastrService.showError(error, '')
-      },
-      () => {
-      }
-    )
-  }
-
-  printComponent (cmpName) {
+  printComponent(cmpName) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open('', '_blank', '')
     printWindow.document.open()
 
     printWindow.document.write('<html><head><title>' + title + `
-    </title><style>
-    .clearfix:after{content:"";display:table;clear:both}a{color:#0087C3;text-decoration:none}
-    body{position:relative;width:21cm;height:29.7cm;margin:0 auto;color:#000;background:#FFF;
-    font-family:calibri;font-size:12px}.company-title{text-align:right}
-    .row{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-direction:row}
-    .col{-ms-flex-preferred-size:0;-ms-flex-positive:1;padding-left:10px;max-width:100%}
-    .row1{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-direction:row;
-    flex-wrap:wrap;margin-right:1px;margin-left:0px}.col1{-ms-flex-preferred-size:0;flex-basis:0;
-    -ms-flex-positive:1;flex-grow:1;padding-left:10px;max-width:100%}header{padding:10px 0}
-    .header{padding:5px 0;text-align:center}#logo{float:left;margin-top:8px}
-    #logo img{height:70px}#company{float:right;text-align:right}#client{padding-left:6px;float:left}
-    #client .to{color:#333}h2.name{font-size:1.4em;font-weight:600;margin:0}
-    #invoice{float:right;text-align:right}#invoice h1{color:#0087C3;font-size:2.4em;
-    line-height:1em;font-weight:normal;margin:0 0 10px 0}#invoice .date{font-size:1.1em;color:#000}
-    table{width:100%;border-collapse:collapse;border-spacing:0;margin-bottom:20px}
-    table th, table th, table td{padding:5px;vertical-align:bottom;text-align:center}
-    table th{white-space:nowrap;font-weight:bold}table td{text-align:left}
-    table td h3{color:#000;font-size:1em;font-weight:600;margin:0 0 0.2em 0}
-    table .no{color:#000}table .total{color:#000;text-align:right}
-    table td.unit, table td.qty, table td.total{font-size:1em}
-    table tfoot td{background:#FFF;border-bottom:none;font-weight:600;text-align:right;
-    white-space:nowrap;margin-top:100px}table tfoot tr:first-child td{border-top:none}
-    table tfoot tr:last-child td{border-top:1px solid #333}
-    .table1 tbody tr td, .table1 tbody tr th{border:1px solid #333;word-break:break-all}
-    #thanks{font-size:2em;margin-bottom:50px}#notices{padding-left:6px;border-left:6px solid #0087C3}
-    #notices .notice{font-size:1.2em}footer{color:#000;width:100%;height:30px;position:absolute;
-    bottom:60px;border-top:1px solid #AAA;padding:8px 0;text-align:center}.name-footer{text-align:left}
-    </style></head><body>`)
+    </title>
+    <style>
+    body {
+      font-size: 0.75rem !important;
+      color: #000 !important;
+      overflow-x: hidden;
+      font-family: "Calibri", sans-serif !important;
+      position: relative;
+      width: 21cm;
+      height: 29.7cm;
+      margin: 0 auto;
+    }
+
+    div {
+      display: block;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      padding-right: 5px;
+      padding-left: 5px;
+    }
+
+    .col-md-12 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+
+    .col-md-3 {
+      flex: 0 0 25%;
+      max-width: 25%;
+    }
+
+    .col-md-3 {
+      flex: 0 0 25%;
+      max-width: 25%;
+    }
+
+    .col-md-4 {
+      flex: 0 0 33.333333%;
+      max-width: 33.333333%;
+    }
+
+    .col-md-6 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+
+    .col,
+    .col-1,
+    .col-10,
+    .col-11,
+    .col-12,
+    .col-2,
+    .col-3,
+    .col-4,
+    .col-5,
+    .col-6,
+    .col-7,
+    .col-8,
+    .col-9,
+    .col-auto,
+    .col-lg,
+    .col-lg-1,
+    .col-lg-10,
+    .col-lg-11,
+    .col-lg-12,
+    .col-lg-2,
+    .col-lg-3,
+    .col-lg-4,
+    .col-lg-5,
+    .col-lg-6,
+    .col-lg-7,
+    .col-lg-8,
+    .col-lg-9,
+    .col-lg-auto,
+    .col-md,
+    .col-md-1,
+    .col-md-10,
+    .col-md-11,
+    .col-md-12,
+    .col-md-2,
+    .col-md-3,
+    .col-md-4,
+    .col-md-5,
+    .col-md-6,
+    .col-md-7,
+    .col-md-8,
+    .col-md-9,
+    .col-md-auto,
+    .col-sm,
+    .col-sm-1,
+    .col-sm-10,
+    .col-sm-11,
+    .col-sm-12,
+    .col-sm-2,
+    .col-sm-3,
+    .col-sm-4,
+    .col-sm-5,
+    .col-sm-6,
+    .col-sm-7,
+    .col-sm-8,
+    .col-sm-9,
+    .col-sm-auto,
+    .col-xl,
+    .col-xl-1,
+    .col-xl-10,
+    .col-xl-11,
+    .col-xl-12,
+    .col-xl-2,
+    .col-xl-3,
+    .col-xl-4,
+    .col-xl-5,
+    .col-xl-6,
+    .col-xl-7,
+    .col-xl-8,
+    .col-xl-9,
+    .col-xl-auto {
+      position: relative;
+      width: 100%;
+      min-height: 1px;
+    }
+
+    .justify-content-center {
+      justify-content: center !important;
+    }
+
+    .balancesheet {
+    }
+
+    .bdr_left {
+      border-left: 1px solid #000;
+    }
+
+    .bdr_right {
+      border-right: 1px solid #000;
+    }
+
+    .bdr_top {
+      border-top: 1px solid #000;
+    }
+
+    .bdr_bottom {
+      border-bottom: 1px solid #000;
+    }
+
+    .text-center {
+      text-align: center !important;
+    }
+
+    .text-right {
+      text-align: right !important;
+    }
+
+    .text-left {
+      text-align: left !important;
+    }
+
+    .p-2 {
+      padding: 0.5rem !important;
+    }
+
+    .p-1 {
+      padding: 0.25rem !important;
+    }
+
+    .font-weight-bold {
+      font-weight: 700 !important;
+    }
+
+    .name_size {
+      font-size: 22px;
+    }
+
+    .amount_bs {
+      text-align: right;
+      padding: 0px 3px;
+    }
+
+    .main-balance .tfoot,
+    .main-balance .thead {
+      font-weight: 600;
+      /* background: #e4ebef; */
+      padding: 5px 0;
+      font-size: .8rem;
+      border-top: 1px solid #000;
+      border-bottom: 1px solid #000;
+    }
+
+    .col-3 {
+      flex: 0 0 25%;
+      max-width: 25%;
+    }
+
+    .col {
+      flex-basis: 0;
+      flex-grow: 1;
+      max-width: 100%;
+    }
+
+    .p-0 {
+      padding: 0 !important;
+    }
+
+    .ittelic {
+      font-style: italic;
+    }
+
+    *,
+    ::after,
+    ::before {
+      box-sizing: border-box;
+    }
+
+    .bdr_right_fix {
+      min-height: 25px;
+      border-right: 1px solid #000;
+    }
+
+    .bdr_left_fix {
+      min-height: 25px;
+      border-left: 1px solid #000;
+    }
+
+    .d-block {
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-spacing: 0;
+      margin-bottom: 20px;
+    }
+
+    thead {
+      display: table-header-group;
+      vertical-align: middle;
+      border-color: inherit;
+    }
+
+    table th,
+    table td {
+      padding: 3px;
+      text-align: left;
+      border-bottom: 1px solid #ffffff;
+      word-break: break-word;
+    }
+
+    table th {
+      white-space: nowrap;
+      font-weight: 600;
+      font-size:.8rem;
+      border: 1px solid #000;
+      background-color: #000 !important;
+      color: white !important;
+      text-align: center;
+    }
+
+    table td {
+      text-align: left;
+      font-size:.75rem;
+      border: 1px solid #000;
+    }
+
+    @media print {
+      table th {
+        background-color: #000 !important;
+        -webkit-print-color-adjust: exact;
+      }
+
+      tr:nth-child(even) {
+        background-color: #d9e1f2;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+
+    @media print {
+      table th {
+        color: white !important;
+      }
+    }
+  </style>
+    </head><body>`)
     printWindow.document.write(divElements)
     printWindow.document.write('</body></html>')
     printWindow.document.close()

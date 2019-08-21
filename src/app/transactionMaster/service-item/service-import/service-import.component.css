@@ -1,0 +1,23 @@
+.parent {
+  max-height: 70vh;
+}
+
+/* tr.strikeout td:before {
+  content: " ";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  border-bottom: 1px solid red;
+  width: 100%;
+}
+
+tr.strikeout td:after {
+  content: "\00B7";
+  font-size: 1px;
+} */
+
+tr.strikeout td {
+  color: red !important;
+  text-decoration: line-through red;
+}
+

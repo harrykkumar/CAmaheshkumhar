@@ -8,6 +8,7 @@ import { CommonService } from 'src/app/commonServices/commanmaster/common.servic
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { PagingComponent } from '../../shared/pagination/pagination.component'
+import { Settings } from '../../shared/constants/settings.constant'
 
 declare var $: any
 @Component({
@@ -26,12 +27,15 @@ export class CustomerComponent implements OnInit {
   lastItemIndex: number = 0
   isSearching: boolean = false
   queryStr$: Subscription
+  noOfDecimal:any =0
   queryStr: string = ''
   @ViewChild('paging_comp') pagingComp: PagingComponent
   constructor (private _coustomerServices: VendorServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private Settings:Settings) {
+      this.noOfDecimal= this.Settings.noOfDecimal
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
         if (obj.id && obj.type && obj.type === 'customer') {

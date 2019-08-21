@@ -1,0 +1,32 @@
+.heading_welcome {
+  padding: 30px 0;
+}
+.heading_welcome strong {
+  color: #2a58ad;
+}
+.head_sub h4 {
+  font-size: 20px !important;
+  font-weight: 600;
+}
+.head_sub p {
+  font-weight: 600;
+  color: #666;
+  font-size: 14px;
+}
+.create_new_org {
+  width: 350px;
+  box-shadow: 1px 1px 8px 0px #ccc;
+}
+.create_new_org h4 {
+  font-size: 22px !important;
+  font-weight: 600;
+}
+.create_new_org img {
+height: 50px;
+ padding: 10px;
+}
+.create_new_org:hover {
+  background: #edeff3;
+  box-shadow: 1px 1px 8px 0px #ccc;
+  transition: 0.4s;
+}

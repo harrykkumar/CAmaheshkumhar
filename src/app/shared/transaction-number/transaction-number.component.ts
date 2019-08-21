@@ -1,7 +1,7 @@
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
-import { OrganisationProfileService } from './../../start/header/organisation-profile/organisation-profile.service';
+import { CompanyProfileService } from '../../start/company-profile/company-profile.service';
 import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import * as _ from 'lodash'
 import { GlobalService } from 'src/app/commonServices/global.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 declare var $: any
 
 
@@ -18,6 +19,7 @@ declare var $: any
   styleUrls: ['./transaction-number.component.css']
 })
 export class TransactionNumberComponent implements OnInit {
+  previousRoute: string;
   dropDownList: any = {}
   modal: any = {}
   checkAll: boolean
@@ -25,13 +27,18 @@ export class TransactionNumberComponent implements OnInit {
   existencyList: Array<any> = []
 
   constructor(
-    private _orgService: OrganisationProfileService,
+    private _orgService: CompanyProfileService,
     private _loginService: LoginService,
     private router: Router,
     public commonService: CommonService,
     private toastrService: ToastrCustomService,
-    private _globalService: GlobalService
-  ) { }
+    private _globalService: GlobalService,
+    private spinnerService: NgxSpinnerService,
+  ) {
+    if (_.includes(this.router.url, 'organization')) {
+      this.previousRoute = 'organization';
+    }
+  }
 
   async ngOnInit() {
     this.getExistencyList()
@@ -44,7 +51,7 @@ export class TransactionNumberComponent implements OnInit {
       }
     }
     this.dropDownList.numericZerosList = this._orgService.getNumericZeroList()
-    if(!_.isEmpty(this.dropDownList.numericZerosList) && this.dropDownList.numericZerosList.length > 0){
+    if (!_.isEmpty(this.dropDownList.numericZerosList) && this.dropDownList.numericZerosList.length > 0) {
       this.modal.noOfZeroesValue = 2
     }
     this.dropDownList.splitterList = this._orgService.getSplitterList()
@@ -83,7 +90,10 @@ export class TransactionNumberComponent implements OnInit {
       catchError(this.handleError)
     ).subscribe((res) => {
       this.dropDownList.organizationList = [{ id: 0, text: 'Select Organization' }, ...res];
-      this.modal.OrgValue = 1
+      const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'));
+      if (!_.isEmpty(organization)) {
+        this.modal.OrgValue = organization.Id;
+      }
     })
   }
 
@@ -175,6 +185,7 @@ export class TransactionNumberComponent implements OnInit {
       this.Concat_At_Position_0(item, index)
     }
   }
+
   Concat_At_Position_0(item, index) {
     this.transactionNumberList[index]['generatedString'] = ''
     if (item.StringValue) {
@@ -294,18 +305,20 @@ export class TransactionNumberComponent implements OnInit {
     }
   }
 
-
   concatPrefixValue(item, index) {
     this.transactionNumberList[index]['generatedString'] = this.transactionNumberList[index]['generatedString'].concat(item.StringValue)
   }
+
   concatZeroStringValue(item, index) {
     this.transactionNumberList[index]['generatedString'] = this.transactionNumberList[index]['generatedString'].concat(item.zeroString)
 
   }
+
   concatSuffixValue(item, index) {
     this.transactionNumberList[index]['generatedString'] = this.transactionNumberList[index]['generatedString'].concat(item.SuffixValue)
 
   }
+
   concatDateStringValue(item, index) {
     this.transactionNumberList[index]['generatedString'] = this.transactionNumberList[index]['generatedString'].concat(this.modal.dateString)
   }
@@ -353,17 +366,21 @@ export class TransactionNumberComponent implements OnInit {
   }
 
   getTransactionList() {
+    this.spinnerService.show()
     this.commonService.getTransationNumberList(this.modal).subscribe((response) => {
       if (response.Code === 1000) {
         this.transactionNumberList = [...response.Data];
+        if (this.previousRoute) {
+          this.selectAllTransation({ target: { checked: true } });
+        }
         _.map(this.transactionNumberList, (element) => {
           element['zeroString'] = element.NumericValue
         })
         this.generateDemoString()
       }
+      this.spinnerService.hide()
     })
   }
-
 
   preparePayload(Data) {
     const data = {
@@ -389,6 +406,7 @@ export class TransactionNumberComponent implements OnInit {
   }
 
   submitForm() {
+    this.spinnerService.show();
     const filteredData = _.filter(this.transactionNumberList, { Checked: true });
     if (_.isEmpty(filteredData)) {
       this.toastrService.showError('Error', 'Please select atleast 1 row')
@@ -399,9 +417,11 @@ export class TransactionNumberComponent implements OnInit {
       return
     }
     this.preparePayloadForExistencyAtSubmit(filteredData)
+    this.spinnerService.hide();
   }
 
   postTransactionNumberListData(filteredData) {
+    this.spinnerService.show()
     const requestData = this.preparePayload(filteredData)
     this.commonService.postTransactionNumberList(requestData).subscribe((res) => {
       if (res.Code === 1000) {
@@ -417,6 +437,7 @@ export class TransactionNumberComponent implements OnInit {
       } else {
         this.toastrService.showError('Error', res.Description);
       }
+      this.spinnerService.hide()
     });
   }
 
@@ -431,7 +452,7 @@ export class TransactionNumberComponent implements OnInit {
       const data = this.prepareExistencyPayload(item)
       this._orgService.postExistencyData(data).subscribe((res) => {
         if (res.Code === 1000 && res.Data && res.Data.length > 0) {
-          if(res.Data[0].FormKeyName === item.TransactionType && res.Data[0].Status === 1){
+          if (res.Data[0].FormKeyName === item.TransactionType && res.Data[0].Status === 1) {
             item.inValid = true
             this.toastrService.showError('Error', 'Numeric Value is not valid')
           }
@@ -475,6 +496,7 @@ export class TransactionNumberComponent implements OnInit {
   }
 
   preparePayloadForExistencyAtSubmit(filteredData) {
+    this.spinnerService.show()
     const checkExistArray = []
     _.forEach(filteredData, (item, index) => {
       _.forEach(this.existencyList, (element) => {
@@ -523,9 +545,9 @@ export class TransactionNumberComponent implements OnInit {
         _.map(filteredData, (item, index) => {
           _.forEach(res.Data, (errorItem) => {
             if (errorItem.FormKeyName === item.TransactionType && res.Data[0].Status === 1) {
-             const index =  _.findIndex(this.transactionNumberList, ['Id', item.Id])
-             this.transactionNumberList[index]['inValid'] =  true 
-             item.inValid = true
+              const index = _.findIndex(this.transactionNumberList, ['Id', item.Id])
+              this.transactionNumberList[index]['inValid'] = true
+              item.inValid = true
             }
           })
         })
@@ -538,6 +560,7 @@ export class TransactionNumberComponent implements OnInit {
       } else {
         this.postTransactionNumberListData(filteredData)
       }
+      this.spinnerService.hide()
     })
   }
 

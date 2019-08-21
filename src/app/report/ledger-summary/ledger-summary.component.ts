@@ -8,8 +8,12 @@ import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { map, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash'
 import { Subject } from 'rxjs';
+import { Subscription, from } from 'rxjs'
+import { Select2OptionData, Select2Component } from 'ng2-select2'
+
 declare var $: any
 declare var flatpickr: any
+import { AddCust, ResponseSale, TravelPayments } from '../../model/sales-tracker.model'
 
 
 @Component({
@@ -26,18 +30,42 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
   pageSize: number = 20
   pageNo: number = 1
   totalItemSize: number = 0
+  
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
-  private unSubscribe$ = new Subject<void>()
+ 
 
+  private unSubscribe$ = new Subject<void>()
+  newDateSub: Subscription
+  ledgerItemId:any =0
   constructor(
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
     private _toastService: ToastrCustomService,
   ) {
+
     this.clientDateFormat = this._settings.dateFormat
     this.noOfDecimal =this._settings.noOfDecimal
     this.getLedgerItemList();
+    this.newDateSub = this._commonService.ledgerSummaryStatus().subscribe(
+      (obj: any) => {
+        if(obj.id>0){ 
+          this.model={
+           selectedLedgerItem:{id:obj.id}
+          }
+          this.selectedLedgerId =obj.id
+         let event ={
+           id :obj.id,
+           text:obj.name
+         }
+          this.onLedgerItemChange(event)
+          this.ledgerItemId = obj.id,
+          this.getLedgerSummaryData();
+     
+        }
+     
+      }
+    )
   }
   noOfDecimal:any
   isViewPrint:boolean =false
@@ -45,10 +73,9 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
     this.readyprintOn = false
     this.viewFlag=true
     this.isViewPrint= false
-    this.getLedgerSummaryData();
+    //this.getLedgerSummaryData();
     this._commonService.fixTableHF('cat-table')
     this._commonService.fixTableHF('fix-footer')
-
   }
 
   ngAfterViewInit(){
@@ -86,26 +113,28 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
     }
  
   }
+  formTypeNmae:string='Select Ledger'
+  selectedLedgerId:number=0
   LedgerName:any =''
   readyprintOn:boolean = false
   onLedgerItemChange = (event) => {
-    this.isViewPrint= false
-    this.model.selectedLedgerItem = event.data[0]
-    if(this.model.selectedLedgerItem.id>0){
-      this.readyprintOn =true
-      this.LedgerName=event.data[0].text
-      alert( this.LedgerName)
+    if(this.ledgerItemId !==null){
+      this.isViewPrint= false
+      if(event.id>0){
+       this.selectedLedgerId = +this.ledgerItemId
+        this.readyprintOn =true
+        this.LedgerName=event.text
+      }
     }
     else{
       this.readyprintOn =false
-
     }
+ 
 
   }
 
   getLedgerItemList = () => {
     this.isViewPrint= false
-
     this._commonService.getLedgerItemList().pipe(
       takeUntil(this.unSubscribe$),
       map((data: any) => {
@@ -132,7 +161,7 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
       toDate = this._globalService.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
     }
     const data = {
-      LedgerId: this.model.selectedLedgerItem ? this.model.selectedLedgerItem.id : 0,
+      LedgerId:  this.selectedLedgerId,
       FromDate: fromDate ? fromDate : '',
       ToDate: toDate ? toDate : '',
       Page: this.pageNo,
@@ -143,7 +172,6 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.LedgerStatements.length > 0) {
         this.ledgerSummary = response.Data;
-        
        this.getValueFalg = false
        if(this.isViewPrint ){
           this.printLoad(this.htmlLoadid,this.isViewPrint)
@@ -173,7 +201,6 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
   onPageNoChange = (event) => {
     this.isViewPrint= false
     this.viewFlag=true
-
     this.pageNo = event
     this.getLedgerSummaryData()
   }
@@ -181,7 +208,6 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
   onPageSizeChange = (event) => {
     this.isViewPrint= false
     this.viewFlag=true
-
     this.pageSize = event
     this.getLedgerSummaryData()
   }
@@ -189,7 +215,6 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
   onLastValueChange = (event) => {
     this.isViewPrint= false
     this.viewFlag=true
-
     this.lastItemIndex = event
   }
 
@@ -208,7 +233,7 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
   closeBtn (){
     this.viewFlag=true
   }
-
+  @ViewChild('setWise') setTypeWise: Select2Component
   printLoad (cmpName,isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
@@ -231,5 +256,4 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
     }, 100)
    
   }
-
 }

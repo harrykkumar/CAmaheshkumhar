@@ -11,7 +11,7 @@ import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service'
 import * as _ from 'lodash'
-import { OrganisationProfileService } from '../../header/organisation-profile/organisation-profile.service'
+import { CompanyProfileService } from '../../company-profile/company-profile.service'
 import { Select2Component } from 'ng2-select2';
 declare var $: any
 declare const flatpickr: any
@@ -81,7 +81,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
 
   constructor(
     public _globalService: GlobalService,
-    public _orgService: OrganisationProfileService,
+    public _orgService: CompanyProfileService,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
     private itemMaster: ItemmasterServices,

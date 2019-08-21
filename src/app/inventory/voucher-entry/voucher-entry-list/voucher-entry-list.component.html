@@ -1,65 +1,125 @@
 <!--File is created Dolly Garg-->
 <div class="row">
-    <div class="col-md-12">
-        <div class="bgc-white bdrs-3 mB-20">
-            <div class="table-responsive table_height">
-                <table class="table cat-table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Sr.No.</th>
-                            <th>Particulars</th>
-                            <th>Voucher Date</th>
-                            <th>Voucher No.</th>
-                            <th>Voucher Type</th>
-                            <th>Narration</th>
-                            <th class="text-right">Cr</th>
-                            <th class="text-right">Dr</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let item of LedgerStatements | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index; let i=index">
-                            <td>{{i+1}}</td>
-                            <td>{{item.Particular}} </td>
-                            <td>{{item.CurrentDate  | dateFormat:clientDateFormat}}</td>
-                            <td>{{item.VoucherNo}}</td>
-                            <td>{{item.VoucherType}}</td>
-                            <td>{{item.Narration}}</td>
-                            <td class="text-right">{{(item.Cr).toFixed(noOfdecimal)}}</td>
-                            <td class="text-right">{{(item.Dr).toFixed(noOfdecimal)}}</td>
-                            <td>
-                                <div class="dropdown enquiry-tag"  >
-                                    <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                                    class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
-                                    <ul class="dropdown-menu fsz-sm">
-                                        <li *ngIf="(item.VoucherTypeId === 103 || item.VoucherTypeId === 102)"><a (click)="onActionClicked({id: 0, type: 2, printId: 'payment_print_id'} ,item.VoucherId)" 
-                                            class="d-b td-n p-1 bgcH-grey-100 c-grey-700">
-                                            <i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a>
-                                        </li>
-                                        <li><a (click)="onActionClicked({id: 0, type: 4, printId: ''} ,item.VoucherId)" 
-                                            class="d-b td-n p-1 bgcH-grey-100 c-grey-700">
-                                            <i class="fas fa-print mR-10 cH-blue"></i><span>Delete</span></a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="6"></th>
-                            <th class="text-right font-weight-bold">{{(summary?.Cr).toFixed(noOfdecimal)}}</th>
-                            <th class="text-right font-weight-bold">{{(summary?.Dr).toFixed(noOfdecimal)}}</th>
-                            <th></th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
+  <div class="col-md-12">
+    <div class="bgc-white bdrs-3 mB-20">
+      <div class="table-responsive table_height">
+        <table class="table cat-table table-hover">
+          <thead>
+            <tr>
+              <th>Sr.No.</th>
+              <th>Particulars</th>
+              <th>Voucher Date</th>
+              <th>Voucher No.</th>
+              <th>Voucher Type</th>
+              <th>Narration</th>
+              <th class="text-right">Cr</th>
+              <th class="text-right">Dr</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="
+                let item of LedgerStatements
+                  | paginate
+                    : {
+                        itemsPerPage: itemsPerPage,
+                        currentPage: p,
+                        totalItems: total
+                      };
+                let i = index;
+                let i = index
+              "
+            >
+              <td>{{ i + 1 }}</td>
+              <td>{{ item.Particular }}</td>
+              <td>{{ item.CurrentDate | dateFormat: clientDateFormat }}</td>
+              <td>{{ item.VoucherNo }}</td>
+              <td>{{ item.VoucherType }}</td>
+              <td>{{ item.Narration }}</td>
+              <td class="text-right">{{ item.Cr.toFixed(noOfdecimal) }}</td>
+              <td class="text-right">{{ item.Dr.toFixed(noOfdecimal) }}</td>
+              <td>
+                <div class="dropdown enquiry-tag">
+                  <a
+                    class="dropdown-toggle"
+                    data-toggle="dropdown"
+                    aria-expanded="false"
+                    ><i class="fa fa-cog mR-3 cH-blue fa-1x"></i
+                    ><b class="caret"></b
+                  ></a>
+                  <ul class="dropdown-menu fsz-sm">
+                      <li>
+                            <a
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Edit"
+                            class="actionBtn"
+                            (click)="editClicked.emit(item)"
+                          >
+                            <i
+                              class="fa fa-edit fa-1x"
+                              aria-hidden="true"
+                            >
+                            </i
+                          >Edit</a>
+                      </li>
+                    <li
+                      *ngIf="
+                        item.VoucherTypeId === 103 || item.VoucherTypeId === 102
+                      "
+                    >
+                      <a
+                        (click)="
+                          onActionClicked(
+                            { id: 0, type: 2, printId: 'payment_print_id', voucherTypeId: item.VoucherTypeId },
+                            item.VoucherId
+                          )
+                        "
+                        class="d-b td-n p-1 bgcH-grey-100 c-grey-700"
+                      >
+                        <i class="fas fa-print mR-10 cH-blue"></i
+                        ><span>Print</span></a
+                      >
+                    </li>
+                    <li>
+                      <a
+                        (click)="
+                          onActionClicked(
+                            { id: 0, type: 4, printId: '' },
+                            item.VoucherId
+                          )
+                        "
+                        class="d-b td-n p-1 bgcH-grey-100 c-grey-700"
+                      >
+                        <i class="fas fa-print mR-10 cH-blue"></i
+                        ><span>Delete</span></a
+                      >
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="6"></th>
+              <th class="text-right font-weight-bold">
+                {{ (summary?.Cr).toFixed(noOfdecimal) }}
+              </th>
+              <th class="text-right font-weight-bold">
+                {{ (summary?.Dr).toFixed(noOfdecimal) }}
+              </th>
+              <th></th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
+  </div>
 </div>
-<app-pagination (lastValueEmitter)="lastItemIndex = $event;"
-          (pageNoEmitter)="p = $event;getLedgerSummaryData();"
-          (pageSizeEmitter)="itemsPerPage = $event;getLedgerSummaryData();" ></app-pagination>
-
-
+<app-pagination
+  (lastValueEmitter)="lastItemIndex = $event"
+  (pageNoEmitter)="p = $event; getLedgerSummaryData()"
+  (pageSizeEmitter)="itemsPerPage = $event; getLedgerSummaryData()"
+></app-pagination>

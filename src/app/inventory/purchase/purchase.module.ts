@@ -9,6 +9,7 @@ import { Select2Module } from 'ng2-select2'
 import { SharedModule } from 'src/app/shared/shared.module'
 import { PagingUtilityModule } from 'src/app/shared/pagination/pagination.module'
 import { NgxPaginationModule } from 'ngx-pagination'
+import {PurchaseReturnModule} from './purchase-return/purchaseReturn.module'
 @NgModule({
   declarations: [
     PurchaseAddComponent,
@@ -22,7 +23,8 @@ import { NgxPaginationModule } from 'ngx-pagination'
     SharedModule,
     Select2Module,
     PagingUtilityModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    PurchaseReturnModule
   ]
 })
 export class PurchaseModule { }

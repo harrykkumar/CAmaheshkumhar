@@ -1,3 +1,4 @@
+import { CompanyProfileComponent } from './../company-profile/company-profile.component';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 

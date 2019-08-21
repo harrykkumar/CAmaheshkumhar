@@ -41,7 +41,7 @@
     </div>
 
     <div id="ledger_search_form" class="bgc-white collapse">
-      <div class="card-body p-2">
+      <div class="">
         <form #ledgerSearchForm="ngForm" novalidate>
           <div class="form row bdrs-3 p-10 mB-5">
             <div class="form-group col-md-3 ">
@@ -76,14 +76,13 @@
             <table class="table cat-table table-hover">
               <thead>
                 <tr>
-                  <th>SNo</th>
-                  <th>Date</th>
-                  <th>VoucherType</th>
-                  <th>Voucher No</th>
-                  <th>Particulars</th>
-                  <th class="text-right">Debit Amount </th>
-                  <th class="text-right">Credit Amount</th>
-                  <th class="text-right">Narration</th>
+                  <th width="10%">Date</th>
+                  <th width="10%">Vch.Type</th>
+                  <th width="10%">Vch.No</th>
+                  <th width="20%">Particulars</th>
+                  <th width="15%" class="text-right">Cash In </th>
+                  <th width="15%" class="text-right">Cash Out</th>
+                  <th width="20%" class="text-right">Narration</th>
                 </tr>
               </thead>
               <tbody>
@@ -94,7 +93,7 @@
                  [ngClass]="{'opn_back':item.OpeningFlag === 1, 'close_back': item.OpeningFlag === 2, 
                    'white':item.OpeningFlag === 0}"
                 >
-                  <td>{{ i + 1 }}</td>
+                
                   <td > <label *ngIf="item.OpeningFlag === 1 ? item.CurrentDate : item.CurrentDate === ' ' "> {{ item.CurrentDate | dateFormat:clientDateFormat}} </label> </td>
                   <td>{{ item.VoucherTypeName }}</td>
                   <td>{{ item.VoucherNo }}</td>
@@ -138,7 +137,8 @@
                   <div class="col-md-6">
                       <div class="name text-center col-md-12 name_size font-weight-bold" style="font-size: 22px;">
                           {{cashBook.OrganizationDetails && cashBook.OrganizationDetails[0]?.OrgName}}</div>
-                        <div class="text-center col-md-12">{{cashBook.AddressDetails && cashBook.AddressDetails[0]?.CityName}}
+                        <div class="text-center col-md-12">
+                          {{cashBook.AddressDetails && cashBook.AddressDetails[0]?.CityName}}
                           {{cashBook.AddressDetails && cashBook.AddressDetails[0]?.StateName}}
                           {{cashBook.AddressDetails && cashBook.AddressDetails[0]?.CountryName}}
                         </div>
@@ -152,14 +152,13 @@
               <table class="table" cellspacing="0" cellpadding="0">
                 <thead>
                   <tr>
-                      <th width="10%">Sno</th>
-                    <th width="10%">Date</th>
-                    <th>Voucher Type</th>
-                    <th>Voucher No.</th>
-                    <th width="20%">Particulars</th>
-                    <th>Debit Amount</th>
-                    <th>Credit Amount</th>
-                    <th width="20%">Narration</th>
+                  <th width="10%">Date</th>
+                  <th width="10%">Vch.Type</th>
+                  <th width="10%">Vch.No</th>
+                  <th width="20%">Particulars</th>
+                  <th width="15%" class="text-right">Cash In </th>
+                  <th width="15%" class="text-right">Cash Out</th>
+                  <th width="20%" class="text-right">Narration</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -170,7 +169,7 @@
                     [ngClass]="{'opn_back':item.OpeningFlag === 1, 'close_back': item.OpeningFlag === 2, 
                       'white':item.OpeningFlag === 0}"
                    >
-                     <td>{{ i + 1 }}</td>
+                   
                      <td > <label *ngIf="item.OpeningFlag === 1 ? item.CurrentDate : item.CurrentDate === ' ' "> {{ item.CurrentDate | dateFormat:clientDateFormat}} </label> </td>
                      <td>{{ item.VoucherTypeName }}</td>
                      <td>{{ item.VoucherNo }}</td>
@@ -182,11 +181,10 @@
                 </tbody>
                 <tfoot>
                   <tr *ngFor="let item of cashBook?.CashBookSummary let i = index;">
-                    <th colspan="5" class="font-weight-bold text-center" style="font-style:italic">Grand Total</th>
+                    <th colspan="4" class="font-weight-bold text-center" style="font-style:italic">Grand Total</th>
                     <th class="font-weight-bold text-right">{{(item.DebitAmount).toFixed(noOfDecimal)}}</th>
                     <th class="font-weight-bold text-right">{{(item.CreditAmount).toFixed(noOfDecimal)}}</th>
                     <th></th>
-
                   </tr>
                 </tfoot>
               </table>

@@ -50,14 +50,14 @@
       </div>
     </div>
 
-    <div id="ledger_search_form" class="card collapse">
-      <div class="card-body ">
+    <div id="ledger_search_form" class="bgc-white collapse">
+      <div class="">
         <form
           #ledgerSearchForm="ngForm"
           (ngSubmit)="ledgerSearchForm.form.valid && getSaleRegisterData()"
           novalidate
         >
-          <div class="form row">
+          <div class="form row mB-5 p-2">
             <div class="form-group col-md-3 ">
               <label class="fw-500">From</label>
               <div class="timepicker-input input-icon form-group">
@@ -72,19 +72,17 @@
                 (dateInFormat)="model.toDateValue = $event;"></datepicker-popup>
               </div>
             </div>
-            <div class="form-group col-md-2 pt-3">
+            <div class="form-group col-md-3 pt-3">
               <button (click)="searchButton()" 
                 type="submit"
                 class="btn btn-primary waves-effect waves-light"
               >
                 Search
               </button>
+              <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect ">Reset</button>
+
             </div>
 
-            <div class="form-group col-md-1 pt-3 ">
-              <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect ">Reset</button>
-            
-            </div>
           </div>
         </form>
       </div>
@@ -97,15 +95,15 @@
             <table class="table cat-table  table-hover">
               <thead>
                 <tr>
-                  <th rowspan="2" colspan="1">SNo</th>
-                  <th rowspan="2" colspan="1">Particulars</th>
+                  <th rowspan="2" colspan="1" width="5%">S.No.</th>
+                  <th rowspan="2" colspan="1">Months</th>
                   <th colspan="2" rowspan="1" class="text-center">Transactions</th>
-                  <th rowspan="2"  colspan="1" class="text-center">Closing Balance</th>
+                  <th rowspan="2"  colspan="1" class="text-center">Net Sales</th>
                 
                 </tr>
                 <tr>
-                    <th class="text-right">Debit Amount</th>
-                    <th class="text-right">Credit Amount</th>
+                    <th class="text-right">Sales Return</th>
+                    <th class="text-right">Total Sales</th>
                   </tr>
               </thead>
               <tbody>
@@ -143,10 +141,10 @@
                 <div class="row justify-content-center p-0">
                   <div class="balancesheet bgc-white col-md-11 p-0">
                       <div class="row text-center bs_head p-2">
-                          <div id="logo " class="col">
+                          <div id="logo " class="col-md-3" style="text-align: left;">
                               <img height="75px" src="{{saleRegister.ImageContents && saleRegister.ImageContents[0]?.FilePath}}">
                           </div>
-                          <div class="col">
+                          <div class="col-md-6">
                               <div class="name text-center col-md-12 name_size font-weight-bold">
                                   {{saleRegister.OrganizationDetails && saleRegister.OrganizationDetails[0]?.OrgName}}</div>
                                 <div class="text-center col-md-12">{{saleRegister.AddressDetails && saleRegister.AddressDetails[0]?.CityName}}
@@ -158,20 +156,20 @@
                                 <div class="text-center col-md-12" style="font-weight:600;">{{model.fromDatevalue}} to
                                   {{model.toDateValue}}</div>
                           </div>
-                          <!-- <div class="col"></div> -->
+                         <div class="col-md-3"></div> 
                  
                       </div>
                     <table class="table" cellspacing="0" cellpadding="0">
                       <thead>
                            <tr>
-                              <th rowspan="2" colspan="1">SNo</th>
-                              <th rowspan="2" colspan="1">Particulars</th>
+                              <th rowspan="2" colspan="1" width="5%">S.No.</th>
+                              <th rowspan="2" colspan="1">Months</th>
                               <th colspan="2" rowspan="1" class="text-center">Transactions</th>
-                              <th rowspan="2"  colspan="1" class="text-center">Closing Balance</th>
+                              <th rowspan="2"  colspan="1" class="text-center">Net Sales</th>
                             </tr>
                             <tr>
-                                <th class="text-right">Debit Amount</th>
-                                <th class="text-right">Credit Amount</th>
+                                <th class="text-right">Sales Return</th>
+                                <th class="text-right">Total Sales</th>
                             </tr>
                       </thead>
                       <tbody>

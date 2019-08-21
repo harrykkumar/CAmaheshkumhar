@@ -789,8 +789,12 @@ export class SalesChallanInvoiceComponent {
       if (event.data[0].id !== UIConstant.BLANK) {
         if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
           this.unitSelect2.selector.nativeElement.value = ''
-          this._commonService.openUnit('')
-         // this.unitDataType.selector.nativeElement.value = ''
+          if (+this.unitSettingType === 1) {
+            this._commonService.openUnit('')
+          }
+          if (+this.unitSettingType === 2) {
+            this._commonService.openCompositeUnit('')
+          }
         } else {
           if (event.data[0] && event.data[0].text) {
             this.unitId = event.value
@@ -864,6 +868,7 @@ export class SalesChallanInvoiceComponent {
   updatedFlag: any
   newdataCatItem: any
   getItemByCategoryid (categoryId) {
+    if(+categoryId >0){
     categoryId = JSON.stringify(categoryId)
     this.updatedFlag = false
     this.itemCategoryType = []
@@ -884,6 +889,7 @@ export class SalesChallanInvoiceComponent {
       }
       this.itemCategoryType = newdataitem
     })
+  }
   }
   categoryName: any
 
@@ -966,8 +972,8 @@ export class SalesChallanInvoiceComponent {
   enableDisableflagOrgName: boolean = true
 
 
-  changeBillDate (eDate) {
-    let dateChnage = this._globalService.clientToSqlDateFormat(eDate, this.clientDateFormat)
+  getNewBillNo () {
+    let dateChnage = this._globalService.clientToSqlDateFormat(this.InvoiceDate, this.clientDateFormat)
     this.subscribe = this._commonService.getsettingforOrgnizationData(this.orgNameId, UIConstant.SALE_TYPE, dateChnage).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.BillNo = data.Data[0].BillNo
@@ -1622,11 +1628,15 @@ export class SalesChallanInvoiceComponent {
   }
   ledgerStateId:any
   PartyGstinNoCode:any
+  outStandingBalance:any =0
+  setCRDR:any
   getGSTByLedgerAddress(ledgerId) {
     this.subscribe = this._commonService.ledgerGetGSTByAddress(ledgerId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         console.log(data.Data ,'GST---------->>')
         if (data.Data.LedgerDetails.length > 0) {
+          this.outStandingBalance = (data.Data.LedgerDetails[0].OpeningAmount).toFixed(this.decimalDigitData)
+          this.setCRDR = data.Data.LedgerDetails[0].Crdr ===0 ? 'Dr' :'Cr' ;
           if(data.Data.LedgerDetails[0].GstinNo !==null){
             let str = data.Data.LedgerDetails[0].GstinNo
             let val =  str.trim();
@@ -1642,6 +1652,7 @@ export class SalesChallanInvoiceComponent {
     })
   }
   openModalPopup () {
+    this.outStandingBalance =0
     
     this.currencyValues = [{ id: 0, symbol: '%' }]
     this.deleteEditChargeFlag= true
@@ -1813,6 +1824,23 @@ export class SalesChallanInvoiceComponent {
   getAvailableCurrency () {
     return this._commonService.setupSettingByType(UIConstant.SALE_CHALLAN_TYPE)
   }
+
+  getEditableUnitData: any = []
+  setEditableUnit = (itemId) => {
+    this.unitDataType = []
+    let newdataUnit = [{ id: UIConstant.BLANK, text: 'Select  Unit' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+    if (this.getEditableUnitData.length > 0) {
+      this.getEditableUnitData.forEach(element => {
+        if (itemId === element.ItemId) {
+          newdataUnit.push({
+            id: element.UnitId,
+            text: element.SubUnitName
+          })
+        }
+      })
+    }
+    this.unitDataType = newdataUnit
+  }
   inventoryItemSales: any
   ItemTransactionactions: any
   itemAttbute: any
@@ -1824,6 +1852,10 @@ export class SalesChallanInvoiceComponent {
     this._commonService.saleEditChallan(id).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         console.log(JSON.stringify(data) ,'editdata---')
+        if (data.Data && data.Data.SubUnitWithItems && data.Data.SubUnitWithItems.length > 0) {
+          this.getEditableUnitData = []
+          this.getEditableUnitData = data.Data.SubUnitWithItems
+        }
         if (data.Data && data.Data.InventoryTransactionSales.length > 0) {
           this.inventoryItemSales = []
           this.inventoryItemSales = data.Data.InventoryTransactionSales
@@ -2021,7 +2053,7 @@ export class SalesChallanInvoiceComponent {
           obj['itemAttributeTrans'] = this.sendAttributeData
           obj['ItemTaxTrans'] = this.taxSlabSummery
           obj['AddressId'] = this.stateIdForBill
-          obj['CurrentDate'] = this.CurrentDateChngae
+          // obj['CurrentDate'] = this.CurrentDateChngae
           
           let _self = this
           console.log('sale-challan-request : ', JSON.stringify(obj))
@@ -2191,6 +2223,7 @@ export class SalesChallanInvoiceComponent {
         this.itemCategoryId = item.ItemId
         this.Rate = item.Rate
         this.TotalAmount = item.TotalAmount
+        this.setEditableUnit(+item.ItemId)
         this.ReversetotalAmount = item.ReversetotalAmount
         this.updateCategories(this.categoryId)
         this.unitSelect2.setElementValue(item.UnitId)
@@ -2443,6 +2476,8 @@ this.AlreadySelectCategoryName = evt.data[0].text
   isManualBillNoEntry: boolean = false
   decimalDigitData: any
   isInclusiveCaseBeforeDiscount: any
+  unitSettingType: any = 1
+
   getModuleSettingData () {
     this.applyCustomRateOnItemFlag = false
     this.localItemRate = true
@@ -2455,15 +2490,20 @@ this.AlreadySelectCategoryName = evt.data[0].text
             // if (ele.id=== SetUpIds.catLevel) {
             //   this.industryId =JSON.parse(ele.val) 
             //  }
-             if (ele.id=== SetUpIds.backDateEntryForSale) {
-              this.backDateEntry =JSON.parse(ele.val) === 0 ? false :true
-             }
+          
+             if (ele.id === SetUpIds.isManualBillNoEntryForsale) {
+              this.isManualBillNoEntry = !!(+ele.val)
+            }
+            if (ele.id === SetUpIds.backDateEntryForSale) {
+              this.backDateEntry = !!(+ele.val)
+            }
              if (ele.id=== SetUpIds.applyCustomRateOnItemForSale) {
               this.applyCustomRateOnItemFlag =JSON.parse(ele.val) === 0 ? false :true
              }
-             if (ele.id=== SetUpIds.isManualBillNoEntryForsale) {
-              this.isManualBillNoEntry =JSON.parse(ele.val)
-             }
+           
+             if (ele.id === SetUpIds.unitType) {
+              this.unitSettingType = +ele.val
+            }
              if (ele.id=== SetUpIds.taxCalInclusive) {
               this.isInclusiveCaseBeforeDiscount = ele.val
              }

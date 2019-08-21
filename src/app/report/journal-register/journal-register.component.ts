@@ -11,14 +11,13 @@ import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
 
-
 @Component({
   selector: 'app-journal-register',
   templateUrl: './journal-register.component.html',
   styleUrls: ['./journal-register.component.css']
 })
 export class JournalRegisterComponent implements OnInit, AfterViewInit {
-  ledgerSummary: any = {}
+  cashBook: any = {}
   ledgerItemList: Array<any> = [];
   clientDateFormat: any
   model: any = {};
@@ -40,14 +39,12 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
     this.getLedgerItemList();
   }
   noOfDecimal:any
-  isViewPrint:boolean =false
+  viewFlag:any
   ngOnInit() {
-    this.readyprintOn = false
-    this.viewFlag=true
-    this.isViewPrint= false
-    this.getLedgerSummaryData();
+    this.viewFlag =true
+    this.isViewPrint=false
     this._commonService.fixTableHF('cat-table')
-    this._commonService.fixTableHF('fix-footer')
+    this.getCashBookData();
 
   }
 
@@ -56,56 +53,19 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
     this.fromDate()
   }
   fromDate = () => {
-    $('#ledger-from-date').flatpickr({
-      dateFormat: this.clientDateFormat,
-      onOpen: () => {
-        this.model.fromDatevalue = ''
-      }
-    })
+    this.model.fromDatevalue = ''
   }
-  searchButton (){
-    this.viewFlag=true
-    this.isViewPrint= false
-    this.getLedgerSummaryData()
-  }
+
   toDate = () => {
-    $('#ledger-to-date').flatpickr({
-      dateFormat: this.clientDateFormat,
-      onOpen: () => {
-        this.model.toDateValue = ''
-      }
-    })
+    //this._globalService.getDefaultDate(this.clientDateFormat)
+        this.model.toDateValue =   ''
   }
 
-  viewDataMode (id) {
-    if(this.readyprintOn &&  this.model.toDateValue !==''  ){
-      $('#'+id).modal(UIConstant.MODEL_SHOW)
-    }
-    else{
-      this._toastService.showError('','Please Select Ledger & Date')
-    }
- 
-  }
-  LedgerName:any =''
-  readyprintOn:boolean = false
   onLedgerItemChange = (event) => {
-    this.isViewPrint= false
     this.model.selectedLedgerItem = event.data[0]
-    if(this.model.selectedLedgerItem.id>0){
-      this.readyprintOn =true
-      this.LedgerName=event.data[0].text
-      alert( this.LedgerName)
-    }
-    else{
-      this.readyprintOn =false
-
-    }
-
   }
 
   getLedgerItemList = () => {
-    this.isViewPrint= false
-
     this._commonService.getLedgerItemList().pipe(
       takeUntil(this.unSubscribe$),
       map((data: any) => {
@@ -123,7 +83,8 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
   }
   getValueFalg: boolean = true
 
-  getLedgerSummaryData = () => {
+  getCashBookData = () => {
+    
     let fromDate, toDate
     if (this.model.fromDatevalue) {
       fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
@@ -132,28 +93,31 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
       toDate = this._globalService.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
     }
     const data = {
-      LedgerId: this.model.selectedLedgerItem ? this.model.selectedLedgerItem.id : 0,
+      // LedgerId: this.model.selectedLedgerItem ? this.model.selectedLedgerItem.id : 0,
       FromDate: fromDate ? fromDate : '',
       ToDate: toDate ? toDate : '',
+      Type:'Voucher',
       Page: this.pageNo,
       Size: this.pageSize
     }
-    this._commonService.getLedgerSummaryData(data).pipe(
+    this._commonService.getJournalRegisterReport(data).pipe(
       takeUntil(this.unSubscribe$)
     ).subscribe((response: any) => {
-      if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.LedgerStatements.length > 0) {
-        this.ledgerSummary = response.Data;
+      if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.CashBook.length > 0) {
+        this.cashBook = response.Data;
+        response.Data.CashBook.forEach(element => {
         
+        });
        this.getValueFalg = false
-       if(this.isViewPrint ){
+        this.totalItemSize = response.Data.CashBook[0].TotalRows;
+        if(this.isViewPrint ){
           this.printLoad(this.htmlLoadid,this.isViewPrint)
-      }
-        this.totalItemSize = response.Data.LedgerStatements[0].TotalRows;
-      } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.LedgerStatements.length === 0) {
+        }
+      } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.CashBook.length === 0) {
         this.getValueFalg = true
-        this.ledgerSummary = {
-          LedgerStatements: [],
-          LedgerStatementsSummary: [],
+        this.cashBook = {
+          CashBook: [],
+          CashBookSummary: [],
           AddressDetails:[],
           ContactInfoDetails:[],
           EmailDetails:[],
@@ -164,32 +128,32 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
       } else {
         this._toastService.showError("Error in Data Fetching", '');
       }
-      console.log(this.ledgerSummary  ,'fff')
+      console.log(this.cashBook  ,'fff')
     }, (error) => {
       console.log(error);
     });
+    this.viewPrint=false
+   
   }
 
   onPageNoChange = (event) => {
-    this.isViewPrint= false
-    this.viewFlag=true
-
     this.pageNo = event
-    this.getLedgerSummaryData()
+    this.isViewPrint= false
+
+    this.getCashBookData()
   }
 
   onPageSizeChange = (event) => {
-    this.isViewPrint= false
-    this.viewFlag=true
-
     this.pageSize = event
-    this.getLedgerSummaryData()
-  }
-
-  onLastValueChange = (event) => {
     this.isViewPrint= false
+    this.getCashBookData()
+  }
+  searchButton (){
     this.viewFlag=true
-
+    this.isViewPrint= false
+    this.getCashBookData()
+  }
+  onLastValueChange = (event) => {
     this.lastItemIndex = event
   }
 
@@ -197,13 +161,22 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
-  htmlLoadid:any
-  viewFlag:any
+  
+  searchResetButton (){
+    this.viewFlag=true
+    this.isViewPrint= false
+    this.model.toDateValue =''
+    this.model.fromDatevalue =''
+    this.getCashBookData()
+  }
+  isViewPrint:boolean = false
+  htmlLoadid:any =0
+  viewPrint:any
   openPrint (HtmlId ,isViewPrint) {
     this.viewFlag=false
     this.isViewPrint =isViewPrint
     this.htmlLoadid= HtmlId
-   this.getLedgerSummaryData()
+   this.getCashBookData()
   }
   closeBtn (){
     this.viewFlag=true
@@ -231,5 +204,4 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
     }, 100)
    
   }
-
 }

@@ -31,7 +31,10 @@ import { BankModule } from '../transactionMaster/bank/bank.module'
 import {LedgerGroupAddModule} from '../shared/transactionMaster/ledger-group/ledger-group-add/ledger-group.module'
 import {LedgerCreationAddModule} from '../shared/transactionMaster/ledger-creation/ledger-creation-add/ledger-creation.module'
 import { ConfirmationModule } from '../shared/transactionMaster/confirmation-modal/confirmation-modal.module';
-
+import {ServiceItemAddModule} from '../shared/transactionMaster/service-item-master/item-master-add/service-item-add.module'
+import {TermsAndCondiAddModule} from '../shared/transactionMaster/termAndCondition/termAndCondition-add/termAndCondition-add.module'
+import {MatDatepickerModule} from '@angular/material';
+// import {SaleDirectReturnModule} from '../inventory/sale-direct-return/saleReturn.module'
 @NgModule({
   declarations: [
     SideMenuComponent,
@@ -70,7 +73,10 @@ import { ConfirmationModule } from '../shared/transactionMaster/confirmation-mod
     LedgerGroupAddModule,
     LedgerCreationAddModule,
     SharedModule,
-    ConfirmationModule
+    ConfirmationModule,
+    ServiceItemAddModule,
+    TermsAndCondiAddModule,
+    MatDatepickerModule
   ],
   bootstrap: []
 })

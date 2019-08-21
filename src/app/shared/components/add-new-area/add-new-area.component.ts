@@ -1,4 +1,4 @@
-import { OrganisationProfileService } from './../../../start/header/organisation-profile/organisation-profile.service';
+import { CompanyProfileService } from '../../../start/company-profile/company-profile.service';
 import { ToastrCustomService } from './../../../commonServices/toastr.service';
 import { Component, OnInit, EventEmitter, ViewChild, Output } from '@angular/core';
 declare var $: any
@@ -19,7 +19,7 @@ export class AddNewAreaComponent implements OnInit {
   model: any = {}
   dummyModel: any = {}
   constructor(
-    private _profileService : OrganisationProfileService,
+    private _profileService : CompanyProfileService,
     private toastrService: ToastrCustomService,
   ) { }
 

@@ -9,10 +9,10 @@
               </p>
             </div>
             <div class="col-md-8 right_saerch_side p-0">
-              <div class="mr-2">
+              <div class="mr-2 col-md-10">
                 <form>
                   <div class="form-row">
-                    <div class="form-group col">
+                    <div class="col-md-6 mt-1">
                       <!-- <label>Ledger</label> -->
                       <div class="input-group ">
                         <select2 #setWise [data]="ledgerItemList" class="control_select" autocomplete="true"
@@ -20,6 +20,7 @@
                         </select2>
                       </div>
                     </div>
+                    <div class="col-md-6">
                     <div id="custom-search-input" class="btn_header1 col">
                       <div class="input-group col-md-12">
                         <input type="text" class="form-control input-lg" placeholder="Search" />
@@ -29,6 +30,7 @@
                           </a>
                         </span>
                       </div>
+                    </div>
                     </div>
                   </div>
                 </form>
@@ -50,10 +52,10 @@
         </div>
       </div>
   
-      <div id="ledger_search_form" class="card collapse">
-        <div class="card-body ">
+      <div id="ledger_search_form" class="bgc-white collapse">
+        <div class="">
           <form #ledgerSearchForm="ngForm" (ngSubmit)="ledgerSearchForm.form.valid && getSaleSummaryData()" novalidate>
-            <div class="form row">
+            <div class="form row mB-5 p-2">
               <div class="form-group col-md-3 ">
                 <label class="fw-500">From</label>
                 <div class="timepicker-input input-icon form-group">
@@ -68,15 +70,14 @@
                   </datepicker-popup>
                 </div>
               </div>
-              <div class="form-group col-md-2 pt-3">
+              <div class="form-group col-md-3 pt-3">
                 <button (click)="searchButton()" type="submit" class="btn btn-primary waves-effect waves-light">
                   Search
                 </button>
-              </div>
-              <div class="form-group col-md-1 pt-3 ">
                 <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect ">Reset</button>
-  
+
               </div>
+              
             </div>
           </form>
         </div>
@@ -86,12 +87,12 @@
         <div class="col-md-12">
           <div class="bgc-white bdrs-3 mB-20">
             <div class="table-responsive table_height">
-              <table class="table cat-table table-hover">
+              <table class="table cat-table table-hover sale_summery">
                 <thead>
                   <tr>
                     <th>{{selectedType}}</th>
                     <th *ngFor='let heder of HeadingLedger; let i=index' class="text-right position_relative">{{heder.name}} </th>
-                    <th class="text-right">Total</th>
+                    <th class="text-right" width="15%">Total</th>
   
                   </tr>
                 
@@ -110,7 +111,7 @@
                     </ng-container>
                    
                     <ng-container >
-                        <th class="text-right">{{item.MonthwiseTotal}}</th>
+                        <td class="text-right">{{item.MonthwiseTotal}}</td>
                       </ng-container>
                   </tr>
                   <tr *ngIf='getValueFalg' class="text-center">
@@ -179,7 +180,7 @@
                   <tr>
                     <th>{{selectedType}}</th>
                     <th *ngFor='let heder of HeadingLedger; let i=index' class="text-right position_relative">{{heder.name}} </th>
-                    <th class="text-right">Total</th>
+                    <th class="text-right" width="15%">Total</th>
   
                   </tr>
                 </thead>
@@ -197,7 +198,7 @@
                     </ng-container>
                    
                     <ng-container >
-                        <th class="text-right">{{item.MonthwiseTotal}}</th>
+                        <td class="text-right font-weight-bold">{{item.MonthwiseTotal}}</td>
                       </ng-container>
                   </tr>
                 </tbody>

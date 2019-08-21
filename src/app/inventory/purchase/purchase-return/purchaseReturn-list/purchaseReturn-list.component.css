@@ -1,0 +1,5 @@
+div.table-scroll {
+  max-height: 100px !important;
+  overflow: scroll !important;
+  position: relative !important;
+}

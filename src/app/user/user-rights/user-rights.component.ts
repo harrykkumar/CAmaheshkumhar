@@ -1,6 +1,6 @@
 import { MODULES_IMG_SRC } from './../../start/user-modules/user-modules-image-src';
 import { LoginService } from './../../commonServices/login/login.services'
-import { OrganisationProfileService } from './../../start/header/organisation-profile/organisation-profile.service';
+import { CompanyProfileService } from '../../start/company-profile/company-profile.service';
 import { UserFormService } from './../user-form/user-form.service'
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service'
@@ -29,7 +29,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   userData: Array<any> = []
   constructor(
     private _userService: UserFormService,
-    public _orgService: OrganisationProfileService,
+    public _orgService: CompanyProfileService,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
     private _loginService: LoginService

@@ -1,18 +1,15 @@
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
 import { StartComponent } from './start/start.component'
-import { OrganisationProfileComponent } from './header/organisation-profile/organisation-profile.component';
+import { AuthService } from '../commonServices/auth.service';
 
 const routes: Routes = [
   {
     path: '',
     component: StartComponent,
+    canActivate: [AuthService],
+    canActivateChild: [AuthService],
     children: [
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
       {
         path: 'admin',
         loadChildren: '../admin/admin.module#AdminModule'
@@ -115,7 +112,7 @@ const routes: Routes = [
       },
       {
         path: 'ims/sale',
-        loadChildren: '../inventory/sale-direct/sales-direct/sales-direct.module#SalesDirectModule'
+        loadChildren: '../inventory/sale-direct/sale-direct.module#SalesDirectModule'
       },
       {
         path: 'ims/bank',
@@ -146,10 +143,6 @@ const routes: Routes = [
         loadChildren: '../account/balance-sheet/balance-sheet-report.module#BalanceSheetReportModule'
       },
       {
-        path: 'organisation-profile',
-        component: OrganisationProfileComponent
-      },
-      {
         path: 'ims/report/sale-item',
         loadChildren: '../report/item-sale-report/item-sale-report.module#ItemSaleReportModule'
       },
@@ -177,10 +170,6 @@ const routes: Routes = [
       {
         path: 'common-menu/:code',
         loadChildren: '../start/common-menu/common-menu.module#CommonMenuModule'
-      },
-      {
-        path: 'owner/company',
-        loadChildren: '../start/company-profile/company-profile.module#CompanyProfileListModule'
       },
       {
         path: 'transaction-number',
@@ -258,8 +247,58 @@ const routes: Routes = [
         path: 'ims/report/journal-register',
         loadChildren: '../report/journal-register/journal-register.module#JournalRegisterModule'
       } ,
-      
-      //'ims/report/cashbook-day BankBookModule
+      {
+        path: 'ims/service',
+        loadChildren: '../transactionMaster/service-item/service-item.module#ServiceItemMasterModule'
+      } ,
+      {
+        path: 'ims/service-billing',
+        loadChildren: '../inventory/service-billing/serviceBilling.module#serviceBillingModule'
+      },
+      {
+        path: 'ims/sale-return',
+        loadChildren: '../inventory/sale-direct/sales-return/saleReturn.module#SaleDirectReturnModule'
+      },
+      {
+        path: 'ims/purchase-return',
+        loadChildren: '../inventory/purchase/purchase-return/purchaseReturn.module#PurchaseReturnModule'
+      },
+      {
+        path: 'report/gstr-anx-1-summary',
+        loadChildren: '../report/gstr-anx-1-list/gstr-anx-1-list.module#GstrAnx1ListModule'
+      },
+      {
+        path: 'report/gstr-anx-1-b2c-details',
+        loadChildren: '../report/gstr-anx-1-b2c-details/gstr-anx-1-b2c-details.module#GstrAnx1B2cDetailsModule'
+      },
+      {
+        path: 'report/gstr-anx-1-b2b-details',
+        loadChildren: '../report/gstr-anx-1-b2b-details/gstr-anx-1-b2b-details.module#GstrAnx1B2bDetailsModule'
+      },
+      {
+        path: 'report/gstr-anx-2-summary',
+        loadChildren: '../report/gstr-anx-2-list/gstr-anx-2-list.module#GstrAnx2ListModule'
+      },
+      {
+        path: 'report/gstr-anx-2-details',
+        loadChildren: '../report/gstr-anx-2-details/gstr-anx-2-details.module#GstrAnxTwoDetailsModule'
+      },
+      {
+        path: 'ims/Terms&Condition',
+        loadChildren: '../transactionMaster/terms-and-condition/terms-and-condition.module#TermsAndConditionModule'
+      },
+      {
+        path: 'report/msmed-outstanding',
+        loadChildren: '../report/msmed-outstanding/msmed-outstanding.module#MsmedOutstandingModule'
+      },
+      {
+        path: 'report/msmed-outstanding/:id/details',
+        loadChildren: '../report/msmed-outstanding-details/msmed-outstanding-details.module#MsmedOutstandingDetailsModule'
+      },
+      {
+        path: 'report/msmed-outstanding/details',
+        loadChildren: '../report/msmed-outstanding-details/msmed-outstanding-details.module#MsmedOutstandingDetailsModule'
+      }
     ]
   }
 ]

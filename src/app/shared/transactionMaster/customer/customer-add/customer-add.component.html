@@ -98,7 +98,7 @@
                               <label>CR/DR</label>
                               <div class="input-group adw_select">
                                 <div class="input-group adw_select">
-                                  <select2 [data]="selectCrDr" class="control_select" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="select2CrDrPlaceHolder" [value]="valueCRDR"></select2>
+                                  <select2 #crdrSelect2 [data]="selectCrDr" class="control_select" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="select2CrDrPlaceHolder" [value]="valueCRDR"></select2>
                                 </div>
                                 <!-- <div *ngIf="catagoryError">{{this.errormassage}}</div> -->
                               </div>

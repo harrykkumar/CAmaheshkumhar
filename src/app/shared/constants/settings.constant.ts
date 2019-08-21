@@ -17,10 +17,9 @@ export class Settings {
     window.localStorage['dateFormat'] = dateFormat
   }
   
-removeDateFormate (){
-  localStorage.removeItem('dateFormat');
-
-}
+  removeDateFormate() {
+    localStorage.removeItem('dateFormat');
+  }
 
 
 

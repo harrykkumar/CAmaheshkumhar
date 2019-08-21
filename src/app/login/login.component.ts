@@ -9,6 +9,7 @@ import { LoginService } from '../commonServices/login/login.services'
 import { TokenService } from '../commonServices/token.service'
 import { ToastrCustomService } from '../commonServices/toastr.service'
 import { GlobalService } from '../commonServices/global.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'auth-login',
@@ -16,7 +17,6 @@ import { GlobalService } from '../commonServices/global.service';
 })
 
 export class LoginComponent {
-
   loginForm: FormGroup
   submitClick: boolean
   invalidUser: boolean
@@ -26,9 +26,9 @@ export class LoginComponent {
   constructor (private _loginService: LoginService,
         private tokenService: TokenService,
         private _formBuilder: FormBuilder,
-        private _route: Router,
-        private gs: GlobalService,
-        private _toastrCustomService: ToastrCustomService
+        private router: Router,
+        private _toastrCustomService: ToastrCustomService,
+        private spinnerService: NgxSpinnerService        
     ) {
     this.loginForm = this._formBuilder.group({
       'username': [UIConstant.BLANK, Validators.required],
@@ -38,8 +38,9 @@ export class LoginComponent {
   }
 
   ngOnInit () {
+    this._loginService.destroyParametersOnLogin();
     if (this.tokenService.getToken() != null) {
-      this._route.navigate([URLConstant.ADMIN_URL])
+      this.router.navigate([URLConstant.ADMIN_URL])
     }
     this.invalidUser = false
   }
@@ -47,26 +48,22 @@ export class LoginComponent {
   login() {
     this.submitClick = true
     if (this.loginForm.valid) {
+      this.spinnerService.show();
       this._loginService.login(this.LoginParms()).subscribe(
         data => {
-          console.log('login : ', data)
-          if (data.Code === UIConstant.THOUSAND && data.Data) {
-            // this.settings.dateFormat = data.Data.DateFormat
-            // this.settings.catLevel = data.Data.CategoryLevel
-            // this.settings.industryId = data.Data.IndustryId
-          }
           if (data.Code === 5003) {
             this._toastrCustomService.showError('', data.Message)
+            this.spinnerService.hide();
           }
-          if (data.Code ===UIConstant.THOUSAND &&data.Data != null) {
+          if (data.Code ===UIConstant.THOUSAND && data.Data != null) {
             this.tokenService.saveToken(data.Data.Token)
-            // this.mapModules()
-            this.mapOrganizations();
+            this._loginService.mapOrganizations();
           } else {
             this.invalidUser = true
             this.errorMessage = ErrorConstant.INVALID_USER
             this.loginForm.controls.password.reset()
             this.submitClick = false
+            this.spinnerService.hide();
           }
         }
       )
@@ -85,27 +82,10 @@ export class LoginComponent {
   }
 
   forgotPassword () {
-    this._route.navigate([URLConstant.FORGOT_PASSWORD_URL])
+    this.router.navigate([URLConstant.FORGOT_PASSWORD_URL])
   }
 
   clearErrorValidation () {
     this.invalidUser = false
   }
-
- async mapOrganizations(){
-   await this._loginService.getUserOrganization();
-   if(this._loginService.userOrganizations.length === 0){
-    this._route.navigate(['no-organization'])
-   } else if(this._loginService.userOrganizations.length === 1) {
-    this._loginService.selectedOrganization = { ...this._loginService.userOrganizations[0] }
-    const token = await this._loginService.extendJwtToken({ OrgId : this._loginService.selectedOrganization.Id})
-    this.tokenService.saveToken(token)
-    await this.gs.getOrgDetails()
-    localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
-    this._loginService.mapModules(this._loginService.selectedOrganization);
-   } else {
-    this._route.navigate(['organizations']);
-   }
-  }
-
 }

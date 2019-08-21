@@ -122,6 +122,9 @@ export class PurchaseListComponent implements OnInit {
     this.commonService.openDelete(id, 'purchase', 'purchase')
     
     }
+    // if(action.type ===6){
+    // this.commonService.onActionPurchaseClicked(action) 
+    //   }
     
   }
   getPurchaseList () {
@@ -189,7 +192,9 @@ export class PurchaseListComponent implements OnInit {
     this.actionList = [
       { type: FormConstants.Print, id: 0, text: 'Print', printId: 'purchase_print_id' },
       { type: FormConstants.Edit, id: 0, text: 'Edit' },
-      { type: FormConstants.Cancel, id: 0, text: 'Cancel' }
+      { type: FormConstants.Cancel, id: 0, text: 'Cancel' },
+      { type: FormConstants.Return, id: 0, text: 'Return' }
+
     ]
     this.customFooter = [{ 
       colspan: 6, data: [

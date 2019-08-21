@@ -41,7 +41,7 @@ export class TrailBalanceReportComponent implements OnInit {
   loggedinUserData: any
   ngOnInit() {
     this.onload()
-    this.getbalancesheetdata(this.todateShowHtml, this.fromDateShow)
+    //this.getbalancesheetdata(this.todateShowHtml, this.fromDateShow)
  
 
   }

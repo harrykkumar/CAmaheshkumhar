@@ -1,17 +1,17 @@
+import { NgxSpinnerService } from 'ngx-spinner';
 import { MODULES_IMG_SRC } from './../../start/user-modules/user-modules-image-src';
 import { UIConstant } from './../../shared/constants/ui-constant'
 import { Injectable } from '@angular/core'
-import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { ApiConstant } from '../../shared/constants/api'
 import { BaseServices } from '../base-services'
 import * as _ from 'lodash'
 import { Router } from '@angular/router';
-import { map } from 'rxjs/operators';
+import { map} from 'rxjs/operators';
 import { TokenService } from '../token.service';
-import { filter } from 'rxjs/internal/operators';
-import { catchError } from 'rxjs/internal/operators/catchError';
 import { GlobalService } from '../global.service';
 import { ToastrCustomService } from '../toastr.service';
+import { Settings } from 'src/app/shared/constants/settings.constant';
 
 @Injectable({
   providedIn: 'root'
@@ -20,25 +20,33 @@ export class LoginService {
   permissionUpdated = new BehaviorSubject(false)
   selectedUserModule: any = {}
   selectedOrganization: any = {}
+  selectedFinYear: any = {}
+  selectedBranch: any = {}
+  finYearList: Array<any> = []
+  branchList: Array<any> = []
   userData: any = {}
-  userOrganizations: Array<any> = []
-  loginUserDetails:any = {}
+  organizationList: Array<any> = []
+  loginUserDetails: any = {}
   constructor(private _basesService: BaseServices,
     private router: Router,
     private gs: GlobalService,
     private tokenService: TokenService,
-    private toastrService: ToastrCustomService) { }
+    private toastrService: ToastrCustomService,
+    private _baseService: BaseServices,
+    private settings: Settings,
+    private spinner: NgxSpinnerService) { }
 
-  public login (params: any): Observable<any> {
+  public login(params: any): Observable<any> {
     return this._basesService.postRequest(ApiConstant.LOGIN_URL, params)
   }
 
   logOut() {
+    this.spinner.hide();
     this.tokenService.destroyToken()
     this.selectedUserModule = {}
     this.selectedOrganization = {}
     this.userData = {}
-    this.userOrganizations = []
+    this.organizationList = []
     this.loginUserDetails = {}
   }
 
@@ -56,12 +64,11 @@ export class LoginService {
           } else if (data.Code === 5018) {
             this.logOut()
             this.router.navigate(['login'])
-           
             resolve()
           }
         },
         (error) => {
-          console.log(error)
+          //console.log(error)
         }
       )
     })
@@ -169,21 +176,91 @@ export class LoginService {
     return new Promise((resolve, reject) => {
       this._basesService.getRequest(url).subscribe((res) => {
         if (res.Code === UIConstant.THOUSAND) {
-          this.userOrganizations = [...res.Data['OrganizationDetails']];
-          this.loginUserDetails = {...res.Data['LoginUserDetails'][0]}
-          resolve(this.userOrganizations);
-        } else if(res.Code === 5018) {
+          this.organizationList = [...res.Data['OrganizationDetails']];
+          this.loginUserDetails = { ...res.Data['LoginUserDetails'][0] }
+          localStorage.setItem('LOGIN_USER', JSON.stringify(this.loginUserDetails));
+          resolve(this.organizationList);
+        } else if (res.Code === 5018) {
           this.logOut()
         }
       },
         (error) => {
-          console.log(error)
+          //console.log(error)
         });
     })
   }
 
-  extendJwtToken(data){
-    return  this._basesService.postRequest(ApiConstant.EXTENDJWT, data).pipe(map(res => res.Data.Token)).toPromise();
+  extendJwtToken(data) {
+    return this._basesService.postRequest(ApiConstant.EXTENDJWT, data).
+      pipe(map((res) => {
+        if (!_.isEmpty(res.Data) && res.Data.Token) {
+          return res.Data.Token
+        }
+      })).toPromise();
+  }
+
+  mapOrganizations = async () => {
+    await this.getUserOrganization();
+    if (this.organizationList.length === 0) {
+      this.router.navigate(['no-organization'])
+    } else if (this.organizationList.length === 1) {
+      this.selectedOrganization = { ...this.organizationList[0] }
+      const token = await this.extendJwtToken({ OrgId: this.selectedOrganization.Id })
+      this.tokenService.saveToken(token)
+      await this.gs.getOrgDetails()
+      localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this.selectedOrganization))
+      this.mapBranch(this.selectedOrganization);
+    } else {
+      this.router.navigate(['organizations']);
+    }
+  }
+
+  mapBranch = async (selectedOrganization) => {
+    await this.getUserBranchsList(Number(selectedOrganization.Id));
+    if (this.branchList.length === 1) {
+      this.selectedBranch = { ...this.branchList[0] }
+      const token = await this.extendJwtToken(
+        {
+          OrgId: selectedOrganization.Id,
+          BranchId: this.selectedBranch.BranchId,
+          OfficeId: this.selectedBranch.OfficeId
+        });
+      if (token) {
+        this.tokenService.saveToken(token)
+        localStorage.setItem('SELECTED_BRANCH', JSON.stringify(this.selectedBranch))
+        const finYear = JSON.parse(localStorage.getItem('SELECTED_FIN_YEAR'));
+        if (!_.isEmpty(finYear) && selectedOrganization.Id === finYear.OrgId) {
+          this.mapModules(selectedOrganization);
+        } else {
+          localStorage.removeItem('SELECTED_FIN_YEAR');
+          this.mapFinYear(selectedOrganization);
+        }
+      }
+    } else {
+      this.router.navigate([`org-branches`]);
+    }
+  }
+
+  mapFinYear = async (selectedOrganization) => {
+    const data = {
+      OrgId: selectedOrganization.Id
+    };
+    await this.getFinancialYearList(data)
+    if (!_.isEmpty(this.finYearList)) {
+      this.selectedFinYear = { ...this.finYearList[this.finYearList.length - 1] }
+      const token = await this.extendJwtToken(
+        {
+          OrgId: this.selectedOrganization.Id,
+          Financialyear: this.selectedFinYear.Id
+        });
+      if (token) {
+        this.tokenService.saveToken(token)
+        this.settings.finFromDate = this.selectedFinYear.FromDate
+        this.settings.finToDate = this.selectedFinYear.ToDate
+        localStorage.setItem('SELECTED_FIN_YEAR', JSON.stringify(this.selectedFinYear))
+        this.mapModules(selectedOrganization);
+      }
+    }
   }
 
   mapModules = async (selectedOrganization) => {
@@ -199,21 +276,57 @@ export class LoginService {
     }
   }
 
-  getModuleSetting (id) {
+  getFinancialYearList(data) {
+    return new Promise((resolve, reject) => {
+      this._baseService.getRequest(`${ApiConstant.FIN_YEAR}?OrgId=${data.OrgId}`).subscribe(
+        (res: any) => {
+          if (res.Code === 1000) {
+            this.finYearList = [...res.Data];
+            resolve(this.finYearList);
+          }
+        }
+      )
+    })
+  }
+
+  getUserBranchsList(orgId) {
+    return new Promise((resolve, reject) => {
+      const url = `${ApiConstant.BRANCH_AUTH}?OrgId=${orgId}`
+      this._baseService.getRequest(url).subscribe(
+        (res: any) => {
+          if (res.Code === 1000) {
+            this.branchList = [...res.Data];
+            resolve(this.finYearList);
+          }
+        }
+      )
+    })
+  }
+
+  getModuleSetting(id) {
     return this._basesService.getRequest(ApiConstant.MODULE_SETTING_ON_TOP + id)
   }
 
-  getAllSettings (id): Promise<any> {
+  getAllSettings(id): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getModuleSetting(id).subscribe(async (data) => {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-          console.log('settings data : ', data)
-          this.gs.getAllSettings(data.Data, id)
+          await this.gs.getAllSettings(data.Data, id)
           resolve('')
         } else {
           resolve()
         }
       })
     })
+  }
+
+  destroyParametersOnLogin() {
+    window.localStorage.removeItem('token')
+    window.localStorage.clear();
+    this.selectedUserModule = {}
+    this.selectedOrganization = {}
+    this.userData = {}
+    this.organizationList = []
+    this.loginUserDetails = {}
   }
 }

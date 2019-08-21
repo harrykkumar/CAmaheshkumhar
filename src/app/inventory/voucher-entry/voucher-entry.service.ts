@@ -23,7 +23,9 @@ export class VoucherEntryServie {
     {type: 'payment', voucherNoManual: false, ReportFor: 'purchase', voucherType: 103},
     {type: 'receipt', voucherNoManual: false, ReportFor: 'sale', voucherType: 102},
     {type: 'contra', voucherNoManual:  false, voucherType: 112},
-    {type: 'journal', voucherNoManual: false, voucherType: 104}
+    {type: 'journal', voucherNoManual: false, voucherType: 104},
+    {type: UIConstant.EXPENSE_TYPE, voucherNoManual: false, ReportFor: 'purchase', voucherType: 103},
+    {type: UIConstant.INCOME_TYPE, voucherNoManual: false, ReportFor: 'sale', voucherType: 102},
   ]
   constructor(private baseService: BaseServices) {
   }
@@ -62,9 +64,13 @@ export class VoucherEntryServie {
   createVendors (array, type) {
     let newData = []
     if (type === UIConstant.CONTRA_TYPE) {
-      newData.push({ id: '0', text: 'Select Ledger  ' },{id:'-1',text:UIConstant.ADD_NEW_OPTION})
-    } else if (UIConstant.PAYMENT_TYPE) {
-      newData.push({ id: '0', text: 'Select Vendor / Customer'},{id:'-1',text:UIConstant.ADD_NEW_OPTION})
+      newData.push({ id: '0', text: 'Select Ledger  ' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION })
+    } else if (type === UIConstant.PAYMENT_TYPE) {
+      newData.push({ id: '0', text: 'Select Vendor / Customer' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION })
+    } else if (type === UIConstant.EXPENSE_TYPE) {
+      newData.push({ id: '0', text: 'Select Payment Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION })
+    } else if (type === UIConstant.INCOME_TYPE) {
+      newData.push({ id: '0', text: 'Select Receipt Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION })
     }
     array.forEach(data => {
       newData.push({
@@ -98,15 +104,36 @@ export class VoucherEntryServie {
     this.searchSub.next(text)
   }
 
-  allLedgerList (data) {
-    this.ledgerDataSub.next({data: data})
+  allLedgerList (data,Type) {
+    let object
+    let obj =[{id:-1,text:'+Add New'}]
+    if(data.length >0 && Type ==='journal'){
+      data.forEach(element => {
+        obj.push({
+            id:element.Id,
+            text:element.Name
+        })
+      });
+    }
+    object ={data: obj}
+    return  object
   }
 
   printReceiptPayment (obj): Observable<ResponseSale> {
-    return this.baseService.getRequest(`${ApiConstant.PAYMENT_RECEIPT_PRINT}?id=${obj.id}`)
+    return this.baseService.getRequest(`${ApiConstant.PAYMENT_RECEIPT_PRINT}?VoucherId=${obj.id}`)
   }
 
   deleteVouncherData = (id) =>{
     return this.baseService.deleteRequest(`${ApiConstant.LEDGER_SUMMARY}?id=` + id)
+  }
+
+  getBillNoForAdvancePayment(type) {
+    const url = `${ApiConstant.TRANSACTIONNO_VOUCHER}?TransactionType=${type}`
+    return this.baseService.getRequest(url)
+  }
+
+  getVoucherEntryDetails(Id) {
+    const url = `${ApiConstant.VOUCHER_ENTRY_DETAILS}?VoucherId=${Id}`
+    return this.baseService.getRequest(url)
   }
 }

@@ -158,7 +158,7 @@ export class TaxAddComponent {
               ValueType: element.ValueType,
               IsOptional: element.IsOptional,
               groupid: element.GroupId,
-              type:selectedTaxId
+              type: selectedTaxId
             })
 
           });
@@ -176,82 +176,73 @@ export class TaxAddComponent {
     let isValid = 1
     this.saveTaxRate = true
     this.taxTypeList.forEach((element, index) => {
-     
+
       if (this.taxTypeList[index].taxrate !== null && this.taxTypeList[index].taxrate !== '') {
-        if(this.taxTypeList[index].type ===1 ){
-        
-        
-        isValid = 1
-        AllrateZero = this.taxTypeList.filter(
-          rate => (rate.taxrate === 0 && rate.groupid === 1)
-        )
-        if (AllrateZero.length > 0) {
-          if (!AllrateZero[0].isForOtherState) {
-            if (AllrateZero[0].taxrate > 0 && AllrateZero[0].groupid === 1) {
-              //    this.taxTypeList[index]['taxrateFlag'] = false
+        if (this.taxTypeList[index].type === 1) {
+
+
+          isValid = 1
+          AllrateZero = this.taxTypeList.filter(
+            rate => (rate.taxrate === 0 && rate.groupid === 1)
+          )
+          if (AllrateZero.length > 0) {
+            if (!AllrateZero[0].isForOtherState) {
+              if (AllrateZero[0].taxrate > 0 && AllrateZero[0].groupid === 1) {
+              }
+              else {
+                isValid = 0
+              }
+            }
+
+          }
+          optiinalData = this.taxTypeList.filter(
+            val => (val.IsOptional === false && val.groupid === 2)
+          )
+          if (optiinalData.length > 0) {
+            if (optiinalData[0].taxrate > 0 && optiinalData[0].groupid === 2) {
+
             }
             else {
-              //  this.taxTypeList[index]['taxrateFlag'] = true
               isValid = 0
+
             }
           }
-
         }
-        optiinalData = this.taxTypeList.filter(
-          val => (val.IsOptional === false && val.groupid === 2)
-        )
-        if (optiinalData.length > 0) {
-          if (optiinalData[0].taxrate > 0 && optiinalData[0].groupid === 2) {
-            // this.taxTypeList[index]['taxrateFlag'] = false
-
+        else {
+          if (this.taxTypeList[index].taxrate > 0) {
           }
           else {
             isValid = 0
-            // this.taxTypeList[index]['taxrateFlag'] = true
-
           }
         }
-      }
-      else{
-        if(this.taxTypeList[index].taxrate >0){
-        }
-        else{
-          isValid = 0
-          //this.taxTypeList[index].type
-        }
-    
-        
-      }
       }
       else {
         this.taxTypeList[index].taxrate = 0
       }
     })
 
-
-
     return !!isValid
   }
 
 
   TaxRateEntry(event, groupId) {
-    if(groupId===1){
+    if (groupId === 1) {
       this.taxTypeList.forEach((element, index) => {
-        if (this.taxTypeList[index].ApplyMethod === UIConstant.GST_APPLY_METHOD_TYPE2 &&  this.taxTypeList[index].groupid===1 && this.taxTypeList[index].isForOtherState === true) {
+        if (this.taxTypeList[index].ApplyMethod === UIConstant.GST_APPLY_METHOD_TYPE2 && this.taxTypeList[index].groupid === 1 && this.taxTypeList[index].isForOtherState === true) {
           this.taxTypeList[index + 1].taxrate = event.target.value / 2
           this.taxTypeList[index + 2].taxrate = event.target.value / 2
-  
+
         }
-        else if (this.taxTypeList[index].ApplyMethod === UIConstant.GST_APPLY_METHOD_TYPE1 && this.taxTypeList[index].groupid===1 && this.taxTypeList[index].isForOtherState === false) {
-  
+        else if (this.taxTypeList[index].ApplyMethod === UIConstant.GST_APPLY_METHOD_TYPE1 && this.taxTypeList[index].groupid === 1 && this.taxTypeList[index].isForOtherState === false) {
+
           let a = this.taxTypeList[1].taxrate
           let b = this.taxTypeList[2].taxrate
           this.taxTypeList[0].taxrate = a + b
         }
-  
+
       })
     }
-   
+
 
   }
 
@@ -287,22 +278,22 @@ export class TaxAddComponent {
         console.log('tax-response :-', JSON.stringify(Data))
         if (Data.Data && Data.Data.TaxRates.length > 0) {
           this.taxTypeList = []
-          
+
           for (let i = 0; i < Data.Data.TaxRates.length; i++) {
-            if ( Data.Data.TaxRates[i].ApplyMethod === UIConstant.GST_APPLY_METHOD_TYPE1) {
+            if (Data.Data.TaxRates[i].ApplyMethod === UIConstant.GST_APPLY_METHOD_TYPE1) {
               this.IGSTDisabledBox = Data.Data.TaxRates[i].IsForOtherState === true ? true : false
             } else
-              if ( Data.Data.TaxRates[i].ApplyMethod === UIConstant.GST_APPLY_METHOD_TYPE2) {
+              if (Data.Data.TaxRates[i].ApplyMethod === UIConstant.GST_APPLY_METHOD_TYPE2) {
                 this.IGSTDisabledBox = Data.Data.TaxRates[i].IsForOtherState === true ? false : true
               }
-              else if ( Data.Data.TaxRates[i].ApplyMethod === 0) {
+              else if (Data.Data.TaxRates[i].ApplyMethod === 0) {
                 this.IGSTDisabledBox = false
               }
             this.taxTypeList.push({
               Name: Data.Data.TaxRates[i].Name,
               TaxTitleId: Data.Data.TaxRates[i].TaxTitleId,
               Id: Data.Data.TaxRates[i].Id,
-              DisabledBox:this.IGSTDisabledBox,
+              DisabledBox: this.IGSTDisabledBox,
               ApplyMethod: Data.Data.TaxRates[i].ApplyMethod,
               taxrate: Data.Data.TaxRates[i].TaxRate,
               isForOtherState: Data.Data.TaxRates[i].IsForOtherState,
@@ -310,7 +301,7 @@ export class TaxAddComponent {
               IsOptional: Data.Data.TaxRates[i].IsOptional,
               CurrencyName: Data.Data.TaxRates[i].ValueType,
               groupid: Data.Data.TaxRates[i].GroupId,
-              type :Data.Data.TaxSlabs[0].Type
+              type: Data.Data.TaxSlabs[0].Type
 
             })
             if (this.taxTypeList[i].isForOtherState === true) {
@@ -510,11 +501,7 @@ export class TaxAddComponent {
     this.taxrates = []
     this.saveTaxRate = true
     this.editFlg = true
-    let value = this.validateTaxRates()
-    console.log(value, 'JJJI')
-    /// if (value) {
     this.taxTypeList.forEach((element) => {
-      //   if (element.taxrate > 0) {
       this.taxrates.push({
         Id: element.Id,
         Rate: element.taxrate,
@@ -523,10 +510,7 @@ export class TaxAddComponent {
         ValueType: this.CurrencyId,
         IsotherState: element.isForOtherState
       })
-      // }
-
     });
-    //  }
     this.isForOtherState = true
 
   }

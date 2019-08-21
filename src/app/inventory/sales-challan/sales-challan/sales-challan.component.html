@@ -116,28 +116,30 @@
 <div class="modal" id="sales_Challan_print_id">   
 
     <div id="page-wrap">
-       <!-- <button type="button" (click)="printClose()" class="close" data-dismiss="modal" aria-label="Close"> -->
-              <!-- <span aria-hidden="true">&times;</span> -->
-            <!-- </button> -->
       <div style="width:100%; border: 1px solid #000; overflow: auto;">
         <div style="width:39%; padding: 20px 0 6px 10px; float:left">
-          <img src="{{orgImage}}" style="width: 58%;max-height: 120px;">
+          <img src="{{orgImageData}}" style="width: 58%;max-height: 120px;">
           </div>
           <div style="width:59%;  float:left">
-            <h1 align="center" style="margin-bottom:3px;text-align:right;">
-              <!-- {{ledgerinfos && ledgerinfos[0]?.OfficeName }} -->
+            <h1 class ="align:center" style="margin-bottom:3px;text-align:right;">
           </h1>
-            <p align="center" style="font-size:14px; margin:0px;text-align:right;">
-              {{orgAddress && orgAddress[0]?.AddressValue}}
-              {{orgAddress && orgAddress[0]?.AreaName}}
-              {{orgAddress && orgAddress[0]?.CityName}}
-              {{orgAddress && orgAddress[0]?.StateName}}
-              {{orgAddress && orgAddress[0]?.CountryName }}
-              <br>
-              <i class="fa fa-mobile"></i>&nbsp;
-              {{ContactOrgInfo && ContactOrgInfo[0]?.ContactNo }}, &nbsp;&nbsp; {{website && website[0]?.Name}} <br>
-           <!--    GSTIN :  -->
-            </p>
+          
+          <div class="col-md-6 text-right">
+              <div class="name name_size font-weight-bold" style="text-align:right;">
+                  {{ClientInfos && ClientInfos[0]?.OfficeName}}</div>
+                <p style="font-size:14px; margin:0px;text-align:right;">
+                  {{orgAddress && orgAddress[0]?.AddressValue}}
+                  {{orgAddress && orgAddress[0]?.AreaName}}
+                  {{orgAddress && orgAddress[0]?.CityName}}
+                  {{orgAddress && orgAddress[0]?.StateName}}
+                  {{orgAddress && orgAddress[0]?.CountryName }}
+                  <br>
+                  <i class="fa fa-mobile"></i>&nbsp;
+                  {{ContactOrgInfo && ContactOrgInfo[0]?.ContactNo }}, &nbsp;&nbsp; {{website && website[0]?.Name}} <br>
+               
+                </p>
+          </div>
+          
           </div>
         </div>
         <div style="clear:both"></div>
@@ -147,12 +149,6 @@
             <div class="invoiveN">
               <table class="invoice_table" width="100%">
                 <tbody>
-                 <!--  <tr>
-                    <td>Reverse Charge</td>
-                    <td colspan="2">
-                      {{salesData && salesData[0]?.reversCharge}}
-                    </td>
-                  </tr> -->
                   <tr>
                     <td>Challan No</td>
                     <td >{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillNo }}</td>
@@ -186,8 +182,6 @@
                           <td colspan="2">
                             <b>
                      {{InventoryTransactionSales && InventoryTransactionSales[0]?.CustomerName}} &nbsp;&nbsp;
-                   <!--   {{customerMobileData && customerMobileData[0]?.cust_mobile }} &nbsp;&nbsp;
-                     {{customerEmailData && customerEmailData[0]?.cust_email }}  -->
                                                     </b>
                           </td>
                         </tr>
@@ -206,8 +200,6 @@
                           </td>
                         </tr>
                         <tr>
-                          <!-- <td>GSTin</td> -->
-                          <!-- <td colspan="2">{{salesData && salesData[0]?.gstinNo}}</td> -->
                         </tr>
                       </tbody>
                     </table>
@@ -226,35 +218,33 @@
                 <tr>
                   <th>S.N.</th>
                   <th>Item</th>
-                  <th>Item Details</th>
+                  <th *ngIf="industryId === '2' " > Item Details</th>
                   <th style="text-align:right">Quantity</th>
+                  <th *ngIf="industryId === '3' " class="desc">Length x Height x Width </th>
+                      <ng-container *ngIf="industryId === '5' "> 
+                          <th class="desc">Batch No</th>
+                          <th class="desc">Expiry Date</th>
+                          <th class="desc">MF Date</th>
+
+                      </ng-container>
                 </tr>
                 <tr *ngFor="let item of ItemTransactionactions; let i=index">
                   <td>{{1+i}}</td>
                   <td>{{ item.ItemName}}</td>
-                  <td >{{itemAttbute && itemAttbute[i*3]?.attr}} ,{{itemAttbute && itemAttbute[i*3 + 1]?.attr}},
+                  <td *ngIf="industryId === '2' " >{{itemAttbute && itemAttbute[i*3]?.attr}} ,{{itemAttbute && itemAttbute[i*3 + 1]?.attr}},
                     ,{{itemAttbute && itemAttbute[i*3 + 2]?.attr}}
-
                   </td>
-
                  
                   <td style="text-align:right;">{{ item.Quantity}}</td>
-                   <!-- <td style="text-align:right;"></td>  -->
-                  <!-- <td style="text-align:right;">{{ salesItem.langiTax}}</td> -->
-                 <!--  <td style="text-align:right;">{{ salesItem.discountAmt}}</td>
-                  <td style="text-align:right;">{{ salesItem.svcFee}}</td>
-                  <td style="text-align:right; border-right:none;">{{ salesItem.totalAmount}} </td -->
+                  <td *ngIf="industryId === '3' ">
+                      {{ item.Length}}x{{ item.Height}}x{{ item.Width}}</td>
+                      <ng-container *ngIf="industryId === '5' ">
+                          <td>{{item.BatchNo}}</td>
+                          <td>{{item.ExpiryDate | dateFormat:clientDateFormat}}</td>
+                          <td>{{item.MfdDate | dateFormat:clientDateFormat}}</td>
+                      </ng-container>
                 </tr>
               </tbody>
-    <!--           <tfoot style="border: 1px solid #000;">
-                <tr >
-                  <td colspan=4 style="text-align:center">Total</td>
-                  <td style="text-align:right;"></td>
-                  <td style="text-align:right;">{{salesSummuryItemDatails &&  salesSummuryItemDatails[0]?.langiTax}}</td>
-                 
-                  </td>
-                </tr>
-              </tfoot> -->
             </table>
           </div>
           <div style="clear:both"></div>
@@ -265,25 +255,6 @@
           <div class="logo" style="bottom: 0px; position: absolute; right: 0px;">
             <table width="100%" class="payment">
               <tbody>
-              <!--   <tr style="background:#e9e9ea">
-                  <th>Total Amount Before Tax</th>
-                  <th style="text-align:right">
-                   {{salesSummuryItemDatails &&  salesSummuryItemDatails[0]?.totalAmount}}
-                  </th>
-                </tr> -->
-         <!--      
-                      <tr style="background:#e9e9ea; font-weight:bold;">
-                  <th>Discount :</th>
-                  <th style="text-align:right">
-                  {{salesSummuryItemDatails &&  salesSummuryItemDatails[0]?.discountAmt}}
-                  </th>
-                </tr> -->
-            <!--     <tr style="background:#e9e9ea">
-                  <th>SVC Fee</th>
-                  <th style="text-align:right">
-                   {{salesSummuryItemDatails &&  salesSummuryItemDatails[0]?.svcFee}}
-                  </th>
-                </tr> -->
           
                 <tr style="background:#e9e9ea">
                   <td>Total Quantity : </td>
@@ -302,19 +273,6 @@
           <div class="logo">
             <table class="payment" style="width: 100%;">
               <tbody>
-              <!--   <tr style="background:#e9e9ea; font-weight:bold;">
-                  <th>Total Amount After Tax :</th>
-                  <th style="text-align:right">
-                   {{netAmount}}
-                  </th>
-                </tr> -->
-              <!--   <tr style="background:#e9e9ea; font-weight:bold;">
-                  <th>BillAmount :</th>
-                  <th style="text-align:right">
-                   {{salesData && salesData[0]?.BillAmount}}
-                  </th>
-                </tr> -->
-      
               </tbody>
             </table>
           </div>
@@ -323,7 +281,11 @@
                             float: left; font-size: 14px;
                             padding: 13px;">
               <h3 style="    margin: 0px;">Term and Condition:</h3>
-             There is various terms & Condition according to rule of GOVT.
+              <div class="row" style="margin:0; font-size:.70rem;"
+                        *ngFor="let term of TermsConditions; let i= index">
+                        <div class="col-md-6">{{term.Terms}}</div>
+
+                    </div>
             </div>
             <div class="invoiveN" style="width: 40%;
                             float: right; text-align:right; font-size: 14px;
@@ -331,7 +293,7 @@
                    
               <!-- <h3>For,  {{ledgerinfos && ledgerinfos[0]?.OfficeName }} </h3> -->
               <h4 style="    margin-bottom: 0px;">
-                            Authorised Signatory
+                  {{ClientInfos && ClientInfos[0]?.OfficeName}} :      Authorised Signatory
                         </h4>
             </div>
           </div>
@@ -339,7 +301,7 @@
         </div>
         <div style="clear:both"></div>
         <div style="float:left;text-align:right;overflow:auto;min-height:20px; margin-top:5px;">
-          <span>Page No 1 of 1</span>
+          <!-- <span>Page No 1 of 1</span> -->
         </div>
       </div>
     </div>

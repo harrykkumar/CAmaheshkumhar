@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { Subscription } from 'rxjs'
+import { Subscription, from } from 'rxjs'
 import { FormGroup } from '@angular/forms'
 import { SaleTravel, AddCust } from '../../model/sales-tracker.model'
 import { UIConstant } from '../../shared/constants/ui-constant'
@@ -9,6 +9,7 @@ import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { Settings } from '../../shared/constants/settings.constant'
 import { LoginService } from './../../commonServices/login/login.services';
 import {SetUpIds} from 'src/app/shared/constants/setupIds.constant'
+import { Router } from '@angular/router'
 
 @Component({
   selector: 'app-balance-sheet-report',
@@ -26,12 +27,12 @@ export class BalanceSheetReportComponent implements OnInit {
   toDateShow : any
   fromDateShow : any
   clientDateFormat: any
-  constructor( public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+  constructor( public _router: Router,public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     //  this.getSaleChallanDetail()
   
     this.newDateSub = this._commonService.getsearchByDateForBalancesheetStatus().subscribe(
       (obj: any) => {
-        console.log(obj ,"blnc----------")
+       // console.log(obj ,"blnc----------")
         this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
         this.getModuleSettingData()
         this.toDateShow = obj.toDate
@@ -75,7 +76,7 @@ export class BalanceSheetReportComponent implements OnInit {
              }
              if (ele.id=== SetUpIds.dateFormat) {
               this.clientDateFormat =  ele.val[0].Val
-              console.log(this.clientDateFormat)
+              //console.log(this.clientDateFormat)
              }
    })
   }
@@ -105,6 +106,7 @@ export class BalanceSheetReportComponent implements OnInit {
   getbalancesheetdata (todate,fromdate) {
    this.mainData =[]
     this._commonService.getBalanceSheetList(todate,fromdate).subscribe(data => {
+      
       this.headervalue2 =0
       this.headervalue1 =0
       this.orgDetails ={}
@@ -128,13 +130,9 @@ export class BalanceSheetReportComponent implements OnInit {
             if( data.Data.ImageContents.length >0 && data.Data.OrganizationDetails.length >0 && data.Data.EmailDetails.length >0 &&  data.Data.AddressDetails.length >0 && data.Data.ContactInfoDetails.length >0){
             this.orgDetails =data.Data
             }
-
-  
         }
       })
   }
-  
-  
   
   viewFlag:boolean
   HtmlPrintId:any
@@ -161,10 +159,20 @@ export class BalanceSheetReportComponent implements OnInit {
       printWindow.print()
      printWindow.close() 
     //}
-    
     }, 100)
    
   }
+
+  openLedgerSummary (item){
+      if( item.LevelNo ===3){
+        this._commonService.ledgerSummary(item.GlId,item.GlName)
+       this._router.navigate(['/account/ledger-summary'])
+      }
+  }
+
+
+
+
 }
 
 

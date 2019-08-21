@@ -12,7 +12,9 @@ export class FormConstants {
   public static get Print (): number {
     return 2
   }
-
+  public static get ViewPrint (): number {
+    return 6
+  }
   public static get Purchase (): number {
     return 3
   }
@@ -28,7 +30,7 @@ export class FormConstants {
   public static get ProfitReport (): number {
     return 6
   }
-
+  
   public static get PurchaseForm (): number {
     return 7
   }
@@ -43,5 +45,8 @@ export class FormConstants {
 
   public static get VoucherForm (): number { 
     return 9
+  }
+  public static get PurchaseReturn (): number {
+    return 6
   }
 }

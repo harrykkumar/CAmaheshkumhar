@@ -1,9 +1,11 @@
 import { UserOrganizationsComponent } from './user-organizations.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { OrganizationGuard } from './organization.guard';
 
 const routes: Routes = [{
-  path: '', component: UserOrganizationsComponent
+  path: '', component: UserOrganizationsComponent,
+  canActivate: [OrganizationGuard]
 }];
 
 @NgModule({

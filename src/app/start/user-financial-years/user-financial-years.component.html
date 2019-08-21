@@ -1,0 +1,31 @@
+<div
+  class="modal fade right"
+  id="fin_year_select"
+  data-backdrop="static"
+  data-keyboard="false"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog " role="document">
+    <div class="modal-content">
+      <!-- Header -->
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Select Financial Year</h4>
+      </div>
+      <!-- Body -->
+      <div class="modal-body">
+        <div class="card-body">
+            <div class="row justify-content-md-center align-self-center h-100">
+            <div class="col-md-6" *ngFor="let item of _loginService?.finYearList">
+              <a (click)="navigateToModules(item)">
+                <div class="highlight_box">
+                    <strong>{{ item?.FinYear}}</strong>
+                </div>
+              </a>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

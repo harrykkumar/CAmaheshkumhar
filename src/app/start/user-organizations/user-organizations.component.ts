@@ -4,7 +4,16 @@ import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import * as _ from 'lodash'
 import { GlobalService } from '../../commonServices/global.service';
-
+import { NgxSpinnerService } from 'ngx-spinner';
+import { CompanyProfileService } from '../company-profile/company-profile.service';
+import {
+  ViewChild,
+  ViewContainerRef,
+  ComponentFactoryResolver,
+  ComponentRef,
+  ComponentFactory
+} from '@angular/core';
+import { CompanyProfileComponent } from '../company-profile/company-profile.component';
 
 @Component({
   selector: 'app-user-organizations',
@@ -12,66 +21,69 @@ import { GlobalService } from '../../commonServices/global.service';
   styleUrls: ['./user-organizations.component.css']
 })
 export class UserOrganizationsComponent implements OnInit {
+  @ViewChild('companyContainer', { read: ViewContainerRef }) companyContainerRef: ViewContainerRef;
+  companyComponentRef: any;
   loggedinUserData: any = {}
   modalData: { open: boolean; editId?: number };
-  organizationList: any = []
   constructor(private router: Router,
     public _loginService: LoginService,
     private tokenService: TokenService,
-    private gs: GlobalService
-  ) { }
+    private gs: GlobalService,
+    private spinnerService: NgxSpinnerService,
+    private resolver: ComponentFactoryResolver,
+    private orgProfileService: CompanyProfileService
+  ) { 
+    this.spinnerService.hide()
+  }
 
-  ngOnInit () {
+  createComponent(item?) {
+    this.companyContainerRef.clear();
+    const factory = this.resolver.resolveComponentFactory(CompanyProfileComponent);
+    this.companyComponentRef = this.companyContainerRef.createComponent(factory);
+    if (_.isEmpty(item)) {
+      this.companyComponentRef.instance.modalData = {
+        open: true
+      };
+    } else {
+      this.companyComponentRef.instance.modalData = {
+        open: true,
+        editId: item.Id
+      };
+    }
+    this.companyComponentRef.instance.closeModal.subscribe(
+      (data) => {
+        this.companyComponentRef.destroy();
+        if (!_.isEmpty(data)) {
+          this.initOrganizationList();
+        }
+      });
+  }
+
+  ngOnInit() {
     this.initOrganizationList()
   }
 
-  navigateTo = async (path, selectedOrganization, index) => {
-    const token = await this._loginService.extendJwtToken({ OrgId : selectedOrganization.Id})
-    console.log(token)
+  ngOnDestroy(): void {
+    if (!_.isEmpty(this.companyComponentRef)) {
+      this.companyComponentRef.destroy();
+    }
+  }
+
+  navigateTo = async (selectedOrganization) => {
+    this.spinnerService.show();
+    const token = await this._loginService.extendJwtToken({ OrgId: selectedOrganization.Id })
     this.tokenService.saveToken(token)
     this.gs.getOrgDetails()
     this._loginService.selectedOrganization = selectedOrganization
     localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
-    this._loginService.mapModules(selectedOrganization)
+    this._loginService.mapBranch(selectedOrganization);
   }
 
   initOrganizationList = async () => {
-    if (_.isEmpty(this._loginService.userOrganizations)) {
+    this.spinnerService.show();
+    if (_.isEmpty(this._loginService.organizationList)) {
       await this._loginService.getUserOrganization();
-      this.organizationList = [...this._loginService.userOrganizations];
-    } else {
-      this.organizationList = [...this._loginService.userOrganizations];
     }
-  }
-
-  addNewCompany = () => {
-    this.modalData = {
-      open: true
-    }
-  }
-
-  editCompany = (item) => {
-    this.modalData = {
-      open: true,
-      editId: item.Id
-    }
-  }
-
-  closeModal = async (data) => {
-    if (!data || (!_.isEmpty(this.modalData) && Number(data) === this.modalData.editId)) {
-      this.modalData = {
-        open: false
-      }
-      await this._loginService.getUserOrganization();
-      this.organizationList = [...this._loginService.userOrganizations];
-    } else if (data) {
-      const Id = Number(data)
-      const token = await this._loginService.extendJwtToken({ OrgId: Id })
-      this.tokenService.saveToken(token)
-      await this._loginService.getUserOrganization()
-      this._loginService.selectedOrganization = _.find(this._loginService.userOrganizations, { Id: Id });
-      localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
-      this.router.navigate(['organization/settings/setup']);
-    }
+    this.spinnerService.hide();
   }
 }

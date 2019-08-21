@@ -35,19 +35,25 @@
                   </div>
                 </div>
               </div>
+              <div class="form-group col-md-4 col-xl-2">
+                  <label> OutStanding Balance</label>
+                         <div class="discount">
+                       <input [disabled]='true'  type="text" class="form-control" id="e-way" placeholder="Amount"   class="form-control" name="outStandingBalance" [(ngModel)]="outStandingBalance">
+                         
+                          <select [disabled]='true' class="form-control discount_type drop_remove" id="InterestRate"   name="InterestRateType" >
+                            <option >{{setCRDR}}</option>
+                          </select>
+                        </div>
+                </div>
                <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label class="fw-500">Challan Date</label>
                 <datepicker-popup [disableInput]="editMode"
                 [toSetDate]="InvoiceDate" [isBackDate]="backDateEntry"
-                (dateInFormat)="InvoiceDate = $event;"
+                (dateInFormat)="InvoiceDate = $event;  PayDate = $event; getNewBillNo();"
                 [class]="submitSave && invalidObj?.InvoiceDate" >
                 </datepicker-popup>
-                <!-- <div class="timepicker-input input-icon ">
-                  <div class="input-group">
-                    <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                    <input [disabled]="Id !== 0" (ngModelChange)="changeBillDate($event)" (input)="checkValidation()" type="text" class="form-control start-date flatpickr" id="bill-date" placeholder="Challan Date" [ngClass]="{'errorSelecto': submitSave && invalidObjmain?.InvoiceDate }" data-provide="datepicker" [(ngModel)]="InvoiceDate" name="InvoiceDate">
-                  </div>
-                </div> -->
+           
+  
               </div>
              <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label>Organization Name</label>
@@ -63,14 +69,14 @@
                color: #2ea7d5; padding-left: 4px" *ngIf="isManualBillNoEntry && lastBillNo" id="previous-bill-container" > ( Last ChallanNo. is -{{lastBillNo}} )</label>
                 <input  type="text" placeholder="Bill Number" (input)="checkValidation()" [disabled]="!isManualBillNoEntry" [ngClass]="{'errorSelecto': submitSave && invalidObjmain?.BillNo }" class="form-control" name="BillNo" [(ngModel)]="BillNo">
               </div>
-              <div class="form-group col-md-4 col-lg-2 col-xl-2">
+              <!-- <div class="form-group col-md-4 col-lg-2 col-xl-2">
                   <label class="fw-500">Current Date</label>
                   <datepicker-popup [disableInput]="editMode"
                   [toSetDate]="CurrentDate" 
                   (dateInFormat)="CurrentDate = $event;"
                   [class]="submitSave && invalidObj?.CurrentDate" >
                   </datepicker-popup>
-                </div>
+                </div> -->
              
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label for="E-way">E-way Number</label>
@@ -93,7 +99,6 @@
                        </select2>
                 </div>
                 </div>
-                
             </div>
             <div class="card p-2 mb-2">
                 <h5  class="summery_text"> Items Details :  </h5>

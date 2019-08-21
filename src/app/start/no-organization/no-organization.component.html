@@ -4,9 +4,13 @@
     <ul class="nav-right">
       <li style="padding-top: 15px;">
         <div>
-            <span class="fsz-xsm c-grey-900">
-                {{_loginService?.loginUserDetails?.Name}}({{_loginService?.loginUserDetails?.Code}})
-            </span>
+          <span class="fsz-xsm c-grey-900">
+            <b
+              >{{ _loginService?.loginUserDetails?.Name }}({{
+                _loginService?.loginUserDetails?.Code
+              }})</b
+            >
+          </span>
         </div>
       </li>
       <li class="dropdown">
@@ -16,29 +20,14 @@
           data-toggle="dropdown"
         >
           <div class="peer mR-10">
-            <!-- <img
-              *ngIf="_loginService?.loginUserDetails?.DefaultImage;else defaultImage"
-              class="w-2r bdrs-50p"
-              [src]="_loginService?.loginUserDetails?.DefaultImage"
-            />
-            <ng-template #defaultImage> -->
-              <img
-                class="w-2r bdrs-50p"
-                src="https://randomuser.me/api/portraits/men/10.jpg"
-              />
-            <!-- </ng-template> -->
+            <img class="w-2r bdrs-50p" src="../../../assets/img/man.png" />
           </div>
         </a>
         <ul class="dropdown-menu fsz-sm">
-          <li>
-            <a href="email.html" class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"
-              ><i class="fas fa-envelope mR-10 cH-blue"></i
-              ><span>Messages</span></a
-            >
-          </li>
           <li role="separator" class="divider"></li>
           <li>
-            <a class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"
+            <a
+              class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"
               (click)="_loginService.logOut()"
               ><i class="fas fa-power-off mR-10 cH-blue"></i
               ><span>Logout</span></a
@@ -49,26 +38,45 @@
     </ul>
   </div>
 </div>
-<!-- header -->
 
-
-
-<main class="main-content bgc-grey">
-  <div id="mainContent">
-    <div class="container-fluid">
-        <div class="row justify-content-md-center align-self-center h-100">
-      <h4 class="c-grey-900">Welcome</h4></div>
-      <div class="row justify-content-md-center align-self-center h-100">
-         <h1> <a
-          class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"
-          (click)="addNewCompany()"
-          ><span>Create Organisation</span></a
-        ></h1>
+<main class="main-content2 bgc-grey">
+  <div class="container">
+    <div class="row justify-content-md-center pt-3">
+      <h3 class="c-grey-900 heading_welcome">
+        Welcome to <strong>Saniiro</strong>
+      </h3>
+    </div>
+    <div class="row">
+      <div class="col-md-8">
+        <div class="row head_sub">
+          <div class="col-md-12">
+            <h4 class="">Manage Your Accounting Online</h4>
+          </div>
+          <div class="col-md-12">
+            <p>This is process where can add multiple organization</p>
+          </div>
+        </div>
+        <div class="row justify-content-md-center align-self-center">
+          <img
+            src="../../../assets/img/saniiro-erp.png"
+            class="img-fluid m-auto text-center"
+          />
+        </div>
+      </div>
+      <div class="col-md-4 ">
+        <div class="card create_new_org text-center align-self-center p-3">
+          <a
+            (click)="createComponent()"
+            class="waves-effect waves-light justify-content-center"
+          >
+            <img src="../../assets/img/create.png"/>
+            <h4>Create Organization</h4>
+          </a>
+        </div>
       </div>
     </div>
   </div>
 </main>
+
 <app-footer></app-footer>
-
-
-<app-company-profile [modalData]="modalData" (closeModal)="closeModal($event)"></app-company-profile>
+<ng-template #companyContainer> </ng-template>

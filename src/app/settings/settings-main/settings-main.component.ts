@@ -19,6 +19,9 @@ export class SettingsMainComponent {
     private router: Router,
     public loginService: LoginService,
     private settings: Settings) {
+    if (_.isEmpty(this.loginService.loginUserDetails)) {
+      this.loginService.loginUserDetails = JSON.parse(localStorage.getItem('LOGIN_USER'));
+    }
     if (_.includes(this.router.url, 'organization')) {
       this.showHeader = true;
       const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))

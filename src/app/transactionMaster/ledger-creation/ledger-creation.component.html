@@ -63,7 +63,7 @@
                                     <td>{{item.Name}}</td>
                                     <td>{{item.GstinNo}}</td>
                                     <td>{{item.TaxType}}  </td>
-                                    <td class="text-right">{{item.OpeningBalance }}-{{item.Crdr === 0 ? 'DR' : 'CR'}}</td>
+                                    <td class="text-right">{{(item.OpeningBalance).toFixed(noOfDecimal) }}-{{item.Crdr === 0 ? 'DR' : 'CR'}}</td>
                                     
                                     <td class="text-center">
                                         <a    class="actionBtn" data-toggle="tooltip"  title=""

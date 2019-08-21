@@ -24,15 +24,11 @@ export class HeaderComponent {
     public _loginService: LoginService) {
     this.clientDateFormat = this.settings.dateFormat
     const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
-    this.loggedinUserData = Object.assign({}, this._loginService.userData,
-      {
-        'fromDate': this.settings.finFromDate,
-        'toDate': this.settings.finToDate,
-        'name': organization.Name
-      }
-    )
-    console.log(this.loggedinUserData)
-    console.log(this.loggedinUserData ,'Fin-year date')
+    this.loggedinUserData = {
+      'fromDate': this.settings.finFromDate,
+      'toDate': this.settings.finToDate,
+      'name': organization.Name
+    }
   }
   public siderbarMenu () {
     $('.app').toggleClass('is-collapsed')

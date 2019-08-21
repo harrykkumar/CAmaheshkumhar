@@ -1,6 +1,6 @@
 import { Select2Component } from 'ng2-select2';
 import { ToastrCustomService } from './../../../commonServices/toastr.service';
-import { OrganisationProfileService } from './../../../start/header/organisation-profile/organisation-profile.service';
+import { CompanyProfileService } from '../../../start/company-profile/company-profile.service';
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 declare var $: any
 import * as _ from 'lodash'
@@ -18,7 +18,7 @@ export class AddNewCityComponent implements OnInit {
   model: any = {}
   dummyModel: any = {}
   constructor(
-    private _profileService : OrganisationProfileService,
+    private _profileService : CompanyProfileService,
     private toastrService: ToastrCustomService,
   ) { }
 

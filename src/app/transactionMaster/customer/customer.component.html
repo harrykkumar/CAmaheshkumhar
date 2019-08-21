@@ -68,8 +68,8 @@
                                  <!--    <td>{{item.CustomerType}}</td> -->
                                     <td>{{item.ContactNo}} <br>{{item.EmailAddress}}</td>
                                     <td>{{item.GstinNo}}</td>
-                                    <td class="text-right">{{item.OpeningBalance}}</td>
-                                    <td class="text-right">{{item.CreditLimit}}</td>
+                                    <td class="text-right">{{(item.OpeningBalance ).toFixed(noOfDecimal)}}</td>
+                                    <td class="text-right">{{(item.CreditLimit).toFixed(noOfDecimal)}}</td>
                                      <td class="text-center">
                                         <a class="actionBtn" data-toggle="tooltip"  title=""
                                             data-original-title="Edit" (click)="editCoustomer(item.Id)"><i class="fa fa-edit fa-1x"

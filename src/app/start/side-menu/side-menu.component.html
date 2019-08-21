@@ -28,25 +28,22 @@
         <li class="nav-item dropdown">
           <div class="profile clearfix">
             <div class="profile_pic">
-              <img
-                *ngIf="
-                  (loggedinUserData?.ImageContents)[0]?.FilePath;
-                  else defaultImage
-                "
+              <!-- <img
+                *ngIf="loggedinUserData?.ImageContents[0]?.FilePath; else defaultImage"
                 class="img-circle profile_img"
                 src="loggedinUserData?.ImageContents[0]?.FilePath"
                 alt="loggedinUserData?.ImageContents[0]?.Name"
               />
-              <ng-template #defaultImage>
+              <ng-template #defaultImage> -->
                 <img
                   class="img-circle profile_img"
-                  src="https://randomuser.me/api/portraits/men/10.jpg"
+                  src="../../../assets/img/man.png"
                 />
-              </ng-template>
+              <!-- </ng-template> -->
             </div>
             <div class="profile_info">
               <span>Welcome,</span>
-              <h2>{{ (loggedinUserData?.LoginUserDetailsinfo)[0].Name }}</h2>
+              <h2>{{loggedinUserData?.LoginUserDetailsinfo[0].Name }}</h2>
             </div>
           </div>
         </li>

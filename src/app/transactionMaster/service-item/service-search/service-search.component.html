@@ -1,0 +1,66 @@
+ <div id="demo" class="collapse bgc-white" [ngStyle]="{'display': toShow ? 'block' : 'none'}" >
+    <form [formGroup]="searchForm" (ngSubmit)="search()" noValidate >
+        <div class="form-row bdrs-3 p-10 mB-5">
+            <div class="form-group col-md-5">
+                <label for="bill_no">Category</label>
+                <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                        <select2 [data]="categoryType" #cat_select2 class="control_select"
+                            (valueChanged)="selectedCategory($event)"
+                            tabindex="1"
+                            autocomplete="true" [options]="categoryPlaceHolder"
+                            [value]="cateGoryValue"
+                            [width]="500"
+                        ></select2>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="bill_no">Packing Type</label>
+                <div class="input-group adw_select">
+                    <select2 [data]="selectPackingType"
+                    #packingtype_select2 class="control_select" (valueChanged)="selectedPackingType($event)"
+                    autocomplete="true" [options]="packingTypePlaceHolder" [value]="packingTypeValue"></select2>
+                </div>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="bill_no">Item Type</label>
+                <div class="input-group adw_select">
+                    <select2 [data]="selectItemTpye" 
+                    #itemtype_select2 class="control_select" (valueChanged)="selectedItemType($event)"
+                    autocomplete="true" [options]="itemTpyePlaceHolder" [value]="itemDetailValue"></select2>
+                </div>
+            </div>
+            <div class="form-group col-md-3">
+                <label>Tax</label>
+                <div class="input-group adw_select">
+                    <select2 [data]="selectTax" #tax_select2 class="control_select" (valueChanged)="selectedTax($event)"
+                        autocomplete="true"
+                            [options]="taxTypePlaceHolder" [value]="taxValue"
+                        ></select2>
+                </div>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="bill_no">Unit</label>
+                <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                        <select2 [data]="selectUnitType" #unit_select2 class="control_select"
+                        (valueChanged)="selectedUnitTpye($event)"
+                        autocomplete="true" [options]="unitTypePlaceHolder" [value]="unitTypeValue"
+                        ></select2>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="org_code">HSN No. / Bar Code / Item Code</label>
+                <input type="text" class="form-control" formControlName="StrCodes" id="org_code" placeholder="search">
+            </div>
+            <div class="form-group col-md-1 pt-3">
+                <button type="submit" class="btn btn-primary waves-effect waves-light">Search</button>
+            </div>
+            <div class="form-group col-md-1 pt-3">
+                <button type="button" class="btn btn_close waves-effect" (click)="resetSearch()" >Reset</button>
+            </div>
+        </div>
+    </form>
+</div>

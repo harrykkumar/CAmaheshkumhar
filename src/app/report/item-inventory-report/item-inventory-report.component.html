@@ -166,11 +166,11 @@
           <div class="row justify-content-center p-0">
             <div class="balancesheet bgc-white col-md-11 p-0">
               <div class="row text-center bs_head p-2">
-                <div id="logo " class="col">
+                <div id="logo " class="col-md-3" style="text-align: left;">
                   <img height="75px" src="{{OrgDetails.ImageContents && OrgDetails.ImageContents[0]?.FilePath}}">
                 </div>
-                <div class="col">
-                  <div class="name text-center col-md-12 name_size font-weight-bold">
+                <div class="col-md-6">
+                  <div class="name text-center col-md-12 name_size font-weight-bold" style="font-size: 22px;">
                     {{OrgDetails.OrganizationDetails && OrgDetails.OrganizationDetails[0]?.OrgName}}</div>
                   <div class="text-center col-md-12">
                     {{OrgDetails.AddressDetails && OrgDetails.AddressDetails[0]?.CityName}}
@@ -184,18 +184,18 @@
                     {{model.toDateValue}} -->
                   </div>
                 </div>
-                <!-- <div class="col"></div> -->
+                <div class="col-md-3"></div>
 
               </div>
               <table class="table" cellspacing="0" cellpadding="0">
                 <thead>
                   <tr>
-                  <th rowspan="2" width="5%">SNo</th>
-                    <th width="20%" rowspan="2">Particulars</th>
-                    <th width="20" colspan="3" class="text-center">Opening Balance</th>
-                    <th width="20" colspan="3" class="text-center">Inwards</th>
-                    <th width="20" colspan="3" class="text-center">Outwards</th>
-                    <th width="20" colspan="3" class="text-center">Closing Balance</th>
+                  <th rowspan="2" width="5%">S.No.</th>
+                    <th width="15%" rowspan="2">Particulars</th>
+                    <th width="20%" colspan="3" class="text-center">Opening Balance</th>
+                    <th width="20%" colspan="3" class="text-center">Inwards</th>
+                    <th width="20%" colspan="3" class="text-center">Outwards</th>
+                    <th width="20%" colspan="3" class="text-center">Closing Balance</th>
                   </tr>
                   <tr>
                     <th>Qty</th>

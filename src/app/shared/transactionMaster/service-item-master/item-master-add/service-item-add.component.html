@@ -1,0 +1,140 @@
+<div class="modal right fade" id="service_item_form" role="dialog" aria-labelledby="item_form" aria-hidden="true"
+    data-backdrop="static" data-keyboard="false" >
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+        <div class="modal-content bgcH-grey-100">
+            <!--Header-->
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900">Service</h4>
+                <button type="button" class="close" (click)="closeItemMaster()" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span> </button>
+            </div>
+            <!-- <div class="modal-header primary-bg">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-3 left_side_head">
+                            <p class="heading_lead"><i class="far fa-building"></i>Service</p>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="btn_header">
+                                <button type="button" class="close" aria-label="Close" (click)="closeItemMaster()" ><span
+                                aria-hidden="true" class="white-text">×</span> </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+           
+            <!-- <div  class="modal-content" >
+                <div class="modal-body" style="height:inherit;" >
+                  <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+                </div>
+            </div> -->
+              <div class="modal-body"  >
+                <div>
+                    <form>
+                        <div class="form-row">
+                            <div class="col-md-12">
+                                <div class="form-row">
+           
+                                    <div class="form-group col-md-12">
+                                        <label>Service Name </label>
+                                        <div class="input-group">
+                                            <input type="text" #itemname
+                                            class="form-control" placeholder="Enter Item Name"
+                                            name="name"
+                                            [(ngModel)]="Name"
+                                            [ngClass]="{'errorSelecto': ( submitClick && invalidObj.Name ) || existsCodes.name, 'loading': pendingCheck1 }"
+                                            (input)="checkForValidation();"
+                                            (ngModelChange)="getItemNameStatus()"
+                                            >
+                                            <span [ngClass]="{'spinner_tick': !pendingCheck1}" *ngIf="Name.length > 0 && !pendingCheck1" >
+                                                <i class="fas fa-check hideMe" *ngIf="!existsCodes.name"></i>
+                                                <i *ngIf="existsCodes.name" class="fas fa-times hideMe"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label for="p_code">HSN/SAC Code</label>
+                                        <input type="text" class="form-control"
+                                        id="p_code" placeholder="Enter HSN/SAC Code"
+                                        name="HsnNo"
+                                        [(ngModel)]="HsnNo"
+                                        [ngClass]="{'errorSelecto': submitClick && invalidObj.HsnNo }" 
+                                        (input)="checkForValidation()"
+                                        >
+                                    </div>
+                                  
+                                    <div class="form-group col-md-12">
+                                        <label>Tax Rate</label>
+                                        <div class="input-group adw_select">
+                                            <select2 [data]="selectTax" #tax_select2 class="control_select" (valueChanged)="selectedTax($event)"
+                                                autocomplete="true"
+                                                 [options]="{placeholder:'Select Tax'}" [value]="taxValue"
+                                                [ngClass]="{'errorSelecto': submitClick && invalidObj.TaxId }"
+                                                ></select2>
+                                        </div>
+                                    </div>
+                                
+                                 
+                                
+                                    <div class="form-group col-md-12">
+                                        <label>Sale Rate</label>
+                                        <input type="text" appIncludeDecimal
+                                         class="form-control" placeholder="Enter Sale Rate" name="SaleRate"
+                                            [(ngModel)]="SaleRate">
+                                    </div>
+                                   
+                                </div>
+                            </div>
+                            <div class="col-md-12" >
+                                <div class="left_item">
+                                    <div class="custom-file-upload mB-20">
+                                        <a (click)="openImageModal()" #imagebutton class="custom-file-upload"><i class="fas fa-upload"></i> Image Upload </a>
+                                    </div>
+                                    <div *ngIf="ImageFiles && ImageFiles.length > 0">
+                                        <img id="center-img" [src]="ImageFiles[0].BaseString" (click)="openImageModal()" />
+                                        <div class="toast mB-5" *ngFor="let image of ImageFiles;let i = index;" >
+                                            <div class="toast-header">
+                                                <strong class="mr-auto">{{image.Name}}</strong>
+                                                <button type="button" class="image-cross-icon ml-2 mb-1 close"
+                                                (click)="removeImage(i)" >&times;</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="combo && combo.length > 0" >
+                                        <div class="toast-header toast mB-5 table-responsive" (click)="comboComp.openModal();" >
+                                            <label>Combo</label>
+                                            <table class="table table-hover" >
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Quantity</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let item of combo;let i = index;" >
+                                                        <td>
+                                                            <strong class="mr-auto">{{item.itemName}}</strong>
+                                                        </td>
+                                                        <td>
+                                                            <strong class="mr-auto">{{item.Quantity}}</strong>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- <button type="button" class="btn btn_close waves-effect" (click)="modeOfForm='reset';addNewServiceItemMaster('reset')">Reset</button> -->
+                <button type='button' class="btn btn-primary waves-effect" (click)="addNewServiceItemMaster('save')">Save</button>
+                <button  type='button' class="btn btn-info waves-effect" (click)="modeOfForm='reset';addNewServiceItemMaster('repeat')">Save
+                With add New</button>
+            </div>
+        </div>
+    </div>
+</div>

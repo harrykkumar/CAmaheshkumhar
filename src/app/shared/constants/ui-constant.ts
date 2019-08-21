@@ -12,7 +12,7 @@ export class UIConstant {
     public static get CUSTOMER_GLID (): number {
     return 5
   }
-  CUSTOMER_GLID
+  
   public static get TWO (): number {
     return 2
   }
@@ -221,5 +221,14 @@ export class UIConstant {
    }
    public static get GST_APPLY_METHOD_TYPE2 (): number{
     return 2
+  }
+  public static get SALE_SERVICE_TYPE (): string{
+    return 'SaleService'
+  }
+  public static get EXPENSE_TYPE (): string {
+    return 'Expences'
+  }
+  public static get INCOME_TYPE (): string {
+    return 'Income'
   }
 }

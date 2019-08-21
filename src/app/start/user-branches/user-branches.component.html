@@ -1,0 +1,102 @@
+<!-- header -->
+<div class="header navbar">
+  <div class="header-container">
+      <div class="nav-left align-self-center">
+          <div class="left_side_head ml-2">
+              <p class="heading_lead text-grey-100"><i class="fas fa-code-branch"></i>Select Branch</p>
+          </div>
+    </div>
+    <ul class="nav-right">
+      <li style="padding-top: 10px;" class="text-right">
+          <div>
+              <b>{{loggedinUserData?.Name}}</b>
+            </div>
+            <div>
+                <span class="fsz-xsm c-grey-900">
+                    <b>{{_loginService?.loginUserDetails?.Name}}({{_loginService?.loginUserDetails?.Code}})</b>
+              </span>
+              </div>
+      </li>
+      <li class="dropdown">
+        <a
+          href=""
+          class="dropdown-toggle no-after peers fxw-nw ai-c lh-1"
+          data-toggle="dropdown"
+        >
+          <div class="peer mR-10">
+              <!-- <img
+              *ngIf="_loginService?.loginUserDetails?.DefaultImage;else defaultImage"
+              class="w-2r bdrs-50p"
+              [src]="_loginService?.loginUserDetails?.DefaultImage"
+            />
+            <ng-template #defaultImage> -->
+              <img
+                class="w-2r bdrs-50p"
+                src="../../../assets/img/man.png"
+              />
+            <!-- </ng-template> -->
+          </div>
+        </a>
+        <ul class="dropdown-menu fsz-sm">
+          <li role="separator" class="divider"></li>
+          <li>
+              <a class="d-b td-n pY-5 bgcH-grey-100 c-grey-700" 
+               [routerLink]="[ '/organizations' ]" routerLinkActive="active">
+               <i class="fas fa-random mR-10 cH-blue"></i>
+               Switch Organization</a></li>
+          <li role="separator" class="divider"></li>
+          <li>
+            <a class="d-b td-n pY-5 bgcH-grey-100 c-grey-700"
+              (click)="_loginService.logOut()"
+              ><i class="fas fa-power-off mR-10 cH-blue"></i
+              ><span>Logout</span></a
+            >
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- header -->
+<main class="main-content2 bgc-grey">
+    <div class="container">
+      <div class="row justify-content-md-center pt-3">
+        <h3 class="c-grey-900 heading_welcome">
+          Welcome to <strong>Saniiro</strong>
+        </h3>
+      </div>
+      <div class="row">
+        <div class="col-md-7">
+          <div class="row head_sub">
+            <div class="col-md-12">
+              <h4>Manage Your Accounting Online</h4>
+            </div>
+            <div class="col-md-12">
+              <p>This is process where can add multiple organization</p>
+            </div>
+          </div>
+          <div class="row justify-content-md-center align-self-center">
+            <img
+              src="../../../assets/img/saniiro-erp.png"
+              class="img-fluid m-auto text-center"
+            />
+          </div>
+        </div>
+        <div class="col-md-5" >
+            <div  class="highlight_box2" *ngFor="let branch of _loginService?.branchList; let i = index">
+                <a (click)="navigateTo(branch)">
+                <div class="row m-0">
+                  <div  class="col-md-3 grid_left border-right">
+                      <i class="fas fa-code-branch"></i>
+                  </div>
+                  <div  class="col-md-9 align-self-center">
+                      <h3 class="text-center">{{ branch?.BranchName }}</h3>
+                  </div>
+                  </div>
+                </a>
+              </div>
+        </div>
+      </div>
+    </div>
+  </main>
+<app-footer></app-footer>

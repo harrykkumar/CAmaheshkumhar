@@ -10,6 +10,8 @@ import { CommonService } from '../../../commonServices/commanmaster/common.servi
 import { ToastrCustomService } from '../../../commonServices/toastr.service'
 import { PagingComponent } from '../../../shared/pagination/pagination.component'
 import { FormGroup, FormBuilder } from '@angular/forms'
+import { Settings } from '../../../shared/constants/settings.constant'
+
 @Component({
   selector: 'app-sales-challan',
   templateUrl: './sales-challan.component.html',
@@ -42,7 +44,7 @@ export class SalesChallanComponent  implements   OnInit  {
   customerEmailData: any[]
   orgMobileData: any[]
   orgEmailData: any[]
-  orgImageData: any[]
+  orgImageData: any=[]
   orgWebData: any[]
   orgImage: string
   totalTaxAmount: any
@@ -83,10 +85,16 @@ export class SalesChallanComponent  implements   OnInit  {
     'pharmacode',
     'codabar'
   ]
-  constructor (private _formBuilder : FormBuilder,private _coustomerServices: VendorServices,public _commonService : CommonService ,public _toastrCustomService :ToastrCustomService) {
+  clientDateFormat:any
+  dicimalDigitFormat:any =0
+  industryId:any
+  constructor ( public _settings: Settings,private _formBuilder : FormBuilder,private _coustomerServices: VendorServices,public _commonService : CommonService ,public _toastrCustomService :ToastrCustomService) {
     this.formSearch()
     this.itemIdCollection =[]
     this.generateBillFlagEnable = true
+    this.clientDateFormat = this._settings.dateFormat
+    this.dicimalDigitFormat = this._settings.noOfDecimal
+    this.industryId =this._settings.industryId
     this.getSaleChallanDetail()
     this.newBillSub = this._commonService.newSaleStatus().subscribe(
       (obj: any) => {
@@ -218,7 +226,7 @@ searchGetCall (term: string) {
   ContactCustInfo: any
   ContactOrgInfo: any
   onPrintButtonSaleChallan (id ,htmlId) {
-    this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
+    // this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
 //alert(id)
     let _self = this
     _self._commonService.printAndEditSaleChallan(id).subscribe(data => {
@@ -252,6 +260,12 @@ searchGetCall (term: string) {
           _self.itemAttributeDatails = []
 
         }
+        if (data.Data.ImageContent.length > 0) {
+          this.orgImageData = []
+          _self.orgImageData = data.Data.ImageContent[0].FilePath
+        } else {
+          this.orgImageData = []
+        }
            if (data.Data.ItemTransactionactions.length > 0) {
           _self.ItemTransactionactions = []
           _self.itemAttbute=[]
@@ -283,7 +297,18 @@ searchGetCall (term: string) {
           _self.customerAddress = []
           
         }
-
+        if (data.Data.TermsConditions.length > 0) {
+          this.TermsConditions = []
+          this.TermsConditions = data.Data.TermsConditions
+        } else {
+          this.TermsConditions = []
+        }
+        if (data.Data.Ledgerinfos.length > 0) {
+          this.ClientInfos = []
+          this.ClientInfos = data.Data.Ledgerinfos
+        } else {
+          this.ClientInfos = []
+        }
         if (data.Data.AddressOrgDetails.length > 0) {
           _self.orgAddress = [] 
            _self.orgAddress =data.Data.AddressOrgDetails
@@ -320,7 +345,9 @@ searchGetCall (term: string) {
     )
 
   }
-
+  TermsConditions:any =[]
+  // orgImageData:any=[]
+  ClientInfos:any =[]
   get values (): string[] {
     if (this.barcode) {
       return this.barcode.split('\n')
@@ -331,7 +358,7 @@ searchGetCall (term: string) {
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open('', '_blank', '')
     printWindow.document.open()
-    printWindow.document.write('<html><head><title>' + title + '</title><style>body{font-family:calibri;font-size:12px}#page-wrap{width:900px;margin:0 auto;background:#fff}#header{width:100%;text-align:center;color:#000;text-decoration:uppercase;letter-spacing:10px;padding:2px 0;font-size:16px;font-weight:600;border-bottom:1px solid #000}#header12{width:100%;text-align:center;color:#000;padding:2px 0;font-size:16px;font-weight:600;border-top:1px solid #000;border-bottom:1px solid #000}.invoice{border-bottom:1px solid #000;border-left:1px solid #000;border-right:1px solid #000;margin-top:10px;width:100%}.invoiveN{width:60%;float:left}.invoiveN span{padding:5px}.logo{width:40%;float:right}.invoice_table tr td{border:medium none}.invoice_table tr td{border:medium none}.state td{border:1px solid #000;padding:1px 10px}.billT th{border-top:1px solid #000;border-bottom:1px solid #000}.payment th{border:1px solid #000}.payment td{border:1px solid #000}.payment{font-family:calibri;text-align:right}.record th{border-right:1px solid #000;background:#e9e9ea;text-align:left;border-bottom:1px solid #000}.record td{border-right:1px solid #000}.bank{border:1px solid #000}tfoot td{border-top:1px solid #000!important;border-right:1px solid #000!important}table.record{font-size:14px}</style></head><body>')
+    printWindow.document.write('<html><head><title>' + title + '</title><style>h2.name{font-size:1.6em;font-weight:600;margin:0;text-transform:uppercase}.name_size{font-size:22px}body{font-family:calibri;font-size:12px}#page-wrap{width:900px;margin:0 auto;background:#fff}#header{width:100%;text-align:center;color:#000;text-decoration:uppercase;letter-spacing:10px;padding:2px 0;font-size:16px;font-weight:600;border-bottom:1px solid #000}#header12{width:100%;text-align:center;color:#000;padding:2px 0;font-size:16px;font-weight:600;border-top:1px solid #000;border-bottom:1px solid #000}.invoice{border-bottom:1px solid #000;border-left:1px solid #000;border-right:1px solid #000;margin-top:10px;width:100%}.invoiveN{width:60%;float:left}.invoiveN span{padding:5px}.logo{width:40%;float:right}.invoice_table tr td{border:medium none}.invoice_table tr td{border:medium none}.state td{border:1px solid #000;padding:1px 10px}.billT th{border-top:1px solid #000;border-bottom:1px solid #000}.payment th{border:1px solid #000}.payment td{border:1px solid #000}.payment{font-family:calibri;text-align:right}.record th{border-right:1px solid #000;background:#e9e9ea;text-align:left;border-bottom:1px solid #000}.record td{border-right:1px solid #000}.bank{border:1px solid #000}tfoot td{border-top:1px solid #000!important;border-right:1px solid #000!important}table.record{font-size:14px}</style></head><body>')
     printWindow.document.write(divElements)
     printWindow.document.write('</body></html>')
     printWindow.document.close()
@@ -341,7 +368,7 @@ searchGetCall (term: string) {
     setTimeout(function () {
       printWindow.print()
       printWindow.close()
-    }, 10)
+    }, 100)
 
   }
 
