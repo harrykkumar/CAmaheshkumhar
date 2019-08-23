@@ -1,0 +1,24 @@
+<div class="modal fade" id="confirmationPage1" role="dialog" aria-labelledby="comman_master" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+          <div class="modal-header close_popup">
+              <h4 class="modal-title w-100 c-grey-900">Confirmation </h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <div class="card-body">
+                  <div>
+                      <p style="font-size: 18px" class="bold text-center font_size"> Are you want to Print Bill </p>
+                  </div>
+              </div>
+          </div>
+          <div style="justify-content: center;"   class="modal-footer ">
+            <button id='yesFocus' type="button" class="btn btn-danger waves-effect" (click)="closeModal()">No </button>
+            <button type="button" class="btn btn-primary waves-effect" (click)="yesConfirmation()">Yes</button>
+
+        </div>
+      </div>
+  </div>
+</div>
+

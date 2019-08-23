@@ -78,8 +78,10 @@ export class PurchaseListComponent implements OnInit {
       }
     )
     this.clientDateFormat = this.settings.dateFormat
-  }
+    this.noOfDecimalPoint = this.settings.noOfDecimal
 
+  }
+  noOfDecimalPoint:any =0
   searchForStr (text) {
     this.isSearching = true
     this.searchGetCall(text).subscribe((data) => {
@@ -148,9 +150,12 @@ export class PurchaseListComponent implements OnInit {
     )
     .subscribe(data => {
       // console.log('purchase data: ', data)
-      if (data.PurchaseTransactions) {
+      if (data.PurchaseTransactions.length >0) {
+        this.notRecordFound = false
         this.createTableData(data.PurchaseTransactions, data.PurchaseTransactionsSummary)
       } else {
+        this.notRecordFound = true
+
       this.isSearching = false
       }
     },(error) => {
@@ -158,12 +163,15 @@ export class PurchaseListComponent implements OnInit {
       this.toastrService.showError(error, '')
     })
   }
-
+  notRecordFound:any
   createTableData (data, summary) {
     let customContent = [...data]
     customContent.forEach(element => {
       element.BillDate = this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
       element.PartyBillDate = this.gs.utcToClientDateFormat(element.PartyBillDate, this.clientDateFormat)
+      element.BillAmount = element.BillAmount.toFixed(this.noOfDecimalPoint)
+      element.Discount = element.Discount.toFixed(this.noOfDecimalPoint)
+      element.TaxAmount = element.TaxAmount.toFixed(this.noOfDecimalPoint)
     })
     this.customContent = customContent
     this.customHeader = [

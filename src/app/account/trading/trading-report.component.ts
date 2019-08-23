@@ -114,7 +114,9 @@ export class TradingReportComponent implements OnInit {
              }
           });
         }
-        if( data.Data.ImageContents.length >0 && data.Data.OrganizationDetails.length >0 && data.Data.EmailDetails.length >0 &&  data.Data.AddressDetails.length >0 && data.Data.ContactInfoDetails.length >0){
+        if( data.Data.ImageContents.length >0 || data.Data.OrganizationDetails.length >0 ||  data.Data.EmailDetails.length >0 ||  data.Data.AddressDetails.length >0 || data.Data.ContactInfoDetails.length >0){
+        
+        // if( data.Data.ImageContents.length >0 && data.Data.OrganizationDetails.length >0 && data.Data.EmailDetails.length >0 &&  data.Data.AddressDetails.length >0 && data.Data.ContactInfoDetails.length >0){
           this.orgDetails =data.Data
           }
       }
@@ -153,6 +155,7 @@ export class TradingReportComponent implements OnInit {
 
 
   openLedgerSummary (item){
+    console.log(item ,'LedgerSummay-redirect itam')
     if( item.LevelNo ===3){
       this._commonService.ledgerSummary(item.GlId,item.GlName)
      this._router.navigate(['/account/ledger-summary'])

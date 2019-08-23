@@ -28,7 +28,7 @@ export class SaleDirectReturnComponent {
   catLevel: number = 1
   categories: Array<{ placeholder: string, value: string, data: Array<Select2OptionData>, level: number }> = []
   data$: Subscription
-  attributesData: Array<Select2OptionData>
+  attributesData: Array<Select2OptionData>=[]
   taxProcessesData: Array<Select2OptionData>
   paymentModesData: Array<Select2OptionData>
   organisationsData: Array<Select2OptionData>
@@ -245,6 +245,7 @@ export class SaleDirectReturnComponent {
     private settings: Settings,
     private renderer: Renderer2,
     private gs: GlobalService) {
+      
     this.getFormDependency()
     this.commonService.getSaleDirectReturnStatus().subscribe(
       (status: AddCust) => {

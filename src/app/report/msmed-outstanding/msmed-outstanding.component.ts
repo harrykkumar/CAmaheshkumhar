@@ -101,4 +101,9 @@ export class MsmedOutstandingComponent implements OnInit {
           }
         });
   }
+
+  
+  export() {
+    this.excelService.exportByTableId('msmed_table', 'Msmed_Summary', 'msmedReport');
+  }
 }

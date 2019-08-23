@@ -146,9 +146,12 @@ export class serviceBillingListComponent implements OnInit {
     )
     .subscribe(data => {
       // console.log('purchase data: ', data)
-      if (data.SaleDetails) {
+      if (data.SaleDetails.length >0) {
+        this.notRecordFound = false
         this.createTableData(data.SaleDetails, data.SaleSummary)
       } else {
+        this.notRecordFound = true
+
       this.isSearching = false
       }
     },(error) => {
@@ -156,7 +159,7 @@ export class serviceBillingListComponent implements OnInit {
       this.toastrService.showError(error, '')
     })
   }
-
+  notRecordFound:any
   createTableData (data, summary) {
     let customContent = [...data]
     customContent.forEach(element => {

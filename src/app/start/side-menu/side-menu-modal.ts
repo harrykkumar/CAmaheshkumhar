@@ -466,5 +466,11 @@ export const SIDE_MENU_MODEL = [
     Name: "Msmed Bills",
     path: "report/msmed-outstanding/details",
     icon: ""
+  },
+  {
+    Id: 80,
+    Name: "Dues-Overdues OutStanding",
+    path: "report/dues-overdues-outstanding",
+    icon: ""
   }
 ];

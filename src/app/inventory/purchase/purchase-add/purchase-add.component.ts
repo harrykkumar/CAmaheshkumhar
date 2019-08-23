@@ -275,6 +275,7 @@ export class PurchaseAddComponent {
       data => {
         if (data.id && data.name && data.AttributeId) {
           let indexOfAttr = -1
+          if(this.attributesData.length >0){
           for (let i = 0; i < this.attributesData.length; i++) { if (this.attributesData[i]['attributeId'] === data.AttributeId) { indexOfAttr = i; break; } }
           if (indexOfAttr >= 0) {
             let itemAttributeTrans = JSON.parse(JSON.stringify(this.itemAttributeTrans))
@@ -296,6 +297,7 @@ export class PurchaseAddComponent {
               })
             }, 100)
           }
+        }
         }
       }
     )
@@ -938,6 +940,11 @@ export class PurchaseAddComponent {
     this.InterestType = others.InterestType
     this.OrderId = 0
     this.Advanceamount = 0
+    this.defaultCurrency = others.Currency
+    this.currencyValues = [
+      { id: '0', symbol: '%' },
+      { id: '1', symbol: this.defaultCurrency }
+    ]
     this.NetAmount = 0
     this.AddressId = +others.AddressId
     this.CreditDays = +others.CreditDays
@@ -2552,7 +2559,8 @@ export class PurchaseAddComponent {
   initialiseExtras() {
     this.BillAmount = 0
     this.PartyBillNo = ''
-    this.BillNo = ''
+    //this.BillNo = ''
+   this.outStandingBalance=0
     this.AddressId = 0
     this.ConvertedAmount = 0
     this.CurrencyRate = 0
@@ -3122,6 +3130,8 @@ export class PurchaseAddComponent {
                       _self.initCharge()
                       _self.initComp()
                       _self.initialiseExtras()
+                      this.getNewCurrentDate()
+                      this.getNewBillNo()
                     }
                   } else if (data.Code === UIConstant.THOUSANDONE) {
                     _self.toastrService.showError(data.Message, 'Please change Bill No.')
@@ -3168,6 +3178,8 @@ export class PurchaseAddComponent {
                   _self.initCharge()
                   _self.initComp()
                   _self.initialiseExtras()
+                  this.getNewCurrentDate()
+                  this.getNewBillNo()
                 }
               } else if (data.Code === UIConstant.THOUSANDONE) {
                 _self.toastrService.showError(data.Message, 'Please change Bill No.')
@@ -3387,7 +3399,13 @@ export class PurchaseAddComponent {
 
   @ViewChild('taxSlab_select2') taxSlabSelect2: Select2Component
   onTaxSlabSelect(evt) {
-    // console.log('on change of tax slab : ', evt)
+    if(+evt.value === 0){
+      this.TaxSlabId = 0
+      this.taxSlabName = ''
+      this.TaxSlabName =''
+      this.getTaxDetail(this.TaxSlabId)
+
+    }
     if (+evt.value === -1) {
       this.commonService.openTax('')
       this.taxSlabSelect2.selector.nativeElement.value = ''

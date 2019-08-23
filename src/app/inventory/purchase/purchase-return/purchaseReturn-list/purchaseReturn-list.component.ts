@@ -1,4 +1,4 @@
-/* File created by Dolly Garg */
+
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { Settings } from '../../../../shared/constants/settings.constant'
@@ -152,9 +152,11 @@ export class PurchaseReturnListComponent implements OnInit {
       map(data => data.Data)
     )
     .subscribe(data => {
-      if (data.PurchaseTransactions) {
+      if (data.PurchaseTransactions.length >0) {
+        this.notRecordFound = false
         this.createTableData(data.PurchaseTransactions, data.PurchaseTransactionsSummary)
       } else {
+        this.notRecordFound = true
       this._loaderService.hide()
       }
     },(error) => {
@@ -162,7 +164,7 @@ export class PurchaseReturnListComponent implements OnInit {
       this.toastrService.showError(error, '')
     })
   }
-
+  notRecordFound:any
   createTableData (data, summary) {
     let customContent = [...data]
     customContent.forEach(element => {

@@ -298,6 +298,14 @@ const routes: Routes = [
       {
         path: 'report/msmed-outstanding/details',
         loadChildren: '../report/msmed-outstanding-details/msmed-outstanding-details.module#MsmedOutstandingDetailsModule'
+      },
+      {
+        path: 'report/dues-overdues-outstanding',
+        loadChildren: '../report/dues-overdues-outstanding/dues-overdues-outstanding.module#DuesOverduesOutstandingModule'
+      },
+      {
+        path: 'change-password',
+        loadChildren: './change-password/change-password.module#ChangePasswordModule'
       }
     ]
   }

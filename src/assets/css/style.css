@@ -66,13 +66,12 @@ i.cH-blue {
 }
 
 .profile_pic {
-  width: 35%;
+  width: 40%;
   float: left;
 }
 
 .profile_info {
-  padding: 10px 10px 10px;
-  width: 65%;
+  width: 60%;
   float: left;
 }
 
@@ -547,7 +546,7 @@ img.blah {
 }
 
 .table_height {
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 213px);
   /* max-height: 100px; */
 }
 
@@ -5444,3 +5443,28 @@ table.table1 th {
  .ng-select.ng-select-single .ng-select-container {
    min-height: calc(2rem + 2px) !important;
 }
+
+.form-group.required label:after {
+  content:"*";
+  color:black;
+}
+.img_drop li a {
+  color: #000 !important;
+  padding: 5px;
+  position: relative;
+}
+
+.main-content3 {
+  min-height: calc(100vh - 176px);
+ }
+ .img_drop li a {
+  color: #000 !important;
+  padding: 5px;
+  position: relative;
+ }
+ .img_drop {
+  padding-left: 10px !important;
+  min-width: 125px;
+ }
+ 
+ /* dropdown-menu  bgc-white img_drop */

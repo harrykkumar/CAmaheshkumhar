@@ -154,7 +154,7 @@
                 <label> Interest Rate</label>
                        <div class="discount">
                         <input type="number" class="form-control Input_width" (keyup)="IntrestValidation($event)" appIncludeDecimal name="InterestRate"  placeholder="Interest Rate" [(ngModel)]="InterestRate">
-                        <select (ngModelChange)="changeIntrate($event)" class="form-control discount_type" id="InterestRate" [(ngModel)]="InterestRateType"  name="InterestRateType" >
+                        <select (ngModelChange)="changeIntrate($event)" class="form-control discount_type" id="InterestRate" [(ngModel)]="InterestType"  name="InterestType" >
                           <option *ngFor="let value of currencyValues;" [value]="value.id" >{{value.symbol}}</option>
                         </select>
                       </div>
@@ -405,9 +405,8 @@
                     </td>
                     <td>
                       <div class="discount">
-                        <select2 #taxSlab_select2 [data]="taxSlabsData" class="control_select"
+                        <select2 [disabled]='DisabledTaxSlab' #taxSlab_select2 [data]="taxSlabsData" class="control_select"
                           (valueChanged)="onTaxSlabSelect($event)" autocomplete="true"
-                          [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.TaxSlabId }"
                           [options]="{ placeholder: 'Select Tax Slab' }" [value]="taxSlabValue" ></select2>
                       </div>
                     </td>
@@ -542,7 +541,7 @@
                       </td>
                       <td>
                         <div class="input-group adw_select">
-                          <select2 #taxSlabCharge_select2 [data]="taxSlabsData" class="control_select"
+                          <select2 [disabled]='DisabledTaxSlab' #taxSlabCharge_select2 [data]="taxSlabsData" class="control_select"
                           (valueChanged)="onTaxSlabChargeSelect($event)"
                           autocomplete="true"
                           [ngClass]="{'errorSelecto': (submitSave || !clickCharge) && invalidObj?.TaxSlabChargeId }"

@@ -136,8 +136,6 @@
             <div class="name text-center col-md-12 font-weight-bold">Trial Balance </div>
             <!-- <div class="text-center col-md-12 font-weight-bold">As on Date {{dateShow | dateFormat:clientDateFormat }}</div> -->
             <div class="text-center col-md-12 font-weight-bold">As on 
-<!--               Date To From
-              {{fromDateShow  | dateFormat:clientDateFormat }} To  -->
               {{todateShowHtml  | dateFormat:clientDateFormat }}
             </div>
 
@@ -152,8 +150,9 @@
               <div class="col-md-12">
                 <div class="row" *ngFor="let item of mainData; let i =index">
                   <div class="col-md-8">
-                    <div *ngIf=' item.LevelNo ===1'
-                      [ngClass]="(item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'" class="panel-title">
+                    <div *ngIf='item.LevelNo !== 0 && item.LevelNo !== 3 && item.LevelNo !== 4'
+                      [ngClass]="(item.LevelNo ===1)?'level1':'level2'"
+                      class="panel-title">
                       <a data-toggle="collapse">{{item.GlName}}</a>
 
                     </div>
@@ -161,20 +160,32 @@
                   </div>
                   <div class="col-2">
                     <ng-container>
-                      <div class='text-right' *ngIf='item.HeadId === 1 && item.LevelNo === 1'
+                      <div class='text-right' *ngIf='item.HeadId === 1 && item.LevelNo ===1'
                         [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"
                         class="amount_bs">
                         {{(item.Amount1).toFixed(decimalDigit)}}
+
                       </div>
+                      <div class='text-right' *ngIf='item.HeadId === 1 && item.LevelNo === 2'
+                      [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"
+                      class="amount_bs">
+                      {{(item.Amount).toFixed(decimalDigit)}}
+
+                    </div>
                     </ng-container>
                   </div>
                   <div class="col-2">
                     <ng-container>
-                      <div class='text-right'
+                      <div class='text-right' *ngIf='item.HeadId === 2 && item.LevelNo === 1'
                         [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"
-                        *ngIf='item.HeadId === 2 && item.LevelNo === 1' class="amount_bs">
+                        class="amount_bs">
                         {{(item.Amount1).toFixed(decimalDigit)}}
                       </div>
+                      <div class='text-right'  *ngIf='item.HeadId === 2 && item.LevelNo === 2' 
+                      [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"
+                     class="amount_bs">
+                      {{(item.Amount).toFixed(decimalDigit)}}
+                    </div>
                     </ng-container>
                   </div>
 

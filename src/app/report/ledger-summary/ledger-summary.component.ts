@@ -36,7 +36,9 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
 
   private unSubscribe$ = new Subject<void>()
   newDateSub: Subscription
-  ledgerItemId:any =0
+  finToDate:any=''
+  finFromDate:any=''
+  ledgerItemId:any 
   constructor(
     public _globalService: GlobalService,
     public _settings: Settings,
@@ -46,9 +48,15 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
 
     this.clientDateFormat = this._settings.dateFormat
     this.noOfDecimal =this._settings.noOfDecimal
+    this.finToDate =this._settings.finToDate
+    this.finFromDate =this._settings.finFromDate
+    this.selectedLedgerId =0
+    this.redirectFlag = true
     this.getLedgerItemList();
     this.newDateSub = this._commonService.ledgerSummaryStatus().subscribe(
       (obj: any) => {
+        if(obj.open){
+        this.redirectFlag = false
         if(obj.id>0){ 
           this.model={
            selectedLedgerItem:{id:obj.id}
@@ -59,20 +67,27 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
            text:obj.name
          }
           this.onLedgerItemChange(event)
-          this.ledgerItemId = obj.id,
+          this.ledgerItemId = obj.id
+          this.selectedLedgerId =obj.id
+          this.model.fromDatevalue= this._globalService.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
+          this.model.toDateValue= this._globalService.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
           this.getLedgerSummaryData();
      
         }
-     
+      }
       }
     )
   }
+  redirectFlag:boolean
   noOfDecimal:any
   isViewPrint:boolean =false
   ngOnInit() {
     this.readyprintOn = false
     this.viewFlag=true
     this.isViewPrint= false
+    if(this.redirectFlag){
+      this.selectedLedgerId =0
+    }
     //this.getLedgerSummaryData();
     this._commonService.fixTableHF('cat-table')
     this._commonService.fixTableHF('fix-footer')
@@ -83,12 +98,14 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
     this.fromDate()
   }
   fromDate = () => {
-    $('#ledger-from-date').flatpickr({
-      dateFormat: this.clientDateFormat,
-      onOpen: () => {
-        this.model.fromDatevalue = ''
-      }
-    })
+    this.model.fromDatevalue= this._globalService.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
+
+  }
+  searchResetButton () {
+    this.model.toDateValue=''
+    this.model.fromDatevalue=''
+    this.selectedLedgerId=0
+    this.ledgerItemId =null
   }
   searchButton (){
     this.viewFlag=true
@@ -96,16 +113,11 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
     this.getLedgerSummaryData()
   }
   toDate = () => {
-    $('#ledger-to-date').flatpickr({
-      dateFormat: this.clientDateFormat,
-      onOpen: () => {
-        this.model.toDateValue = ''
-      }
-    })
+    this.model.toDateValue= this._globalService.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
   }
 
   viewDataMode (id) {
-    if(this.readyprintOn &&  this.model.toDateValue !==''  ){
+    if(  this.selectedLedgerId !==0  ){
       $('#'+id).modal(UIConstant.MODEL_SHOW)
     }
     else{
@@ -116,21 +128,15 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
   formTypeNmae:string='Select Ledger'
   selectedLedgerId:number=0
   LedgerName:any =''
-  readyprintOn:boolean = false
+  readyprintOn:boolean 
   onLedgerItemChange = (event) => {
     if(this.ledgerItemId !==null){
       this.isViewPrint= false
       if(event.id>0){
-       this.selectedLedgerId = +this.ledgerItemId
-        this.readyprintOn =true
+       this.selectedLedgerId = +event.id
         this.LedgerName=event.text
       }
     }
-    else{
-      this.readyprintOn =false
-    }
- 
-
   }
 
   getLedgerItemList = () => {
@@ -167,12 +173,14 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
       Page: this.pageNo,
       Size: this.pageSize
     }
+    
     this._commonService.getLedgerSummaryData(data).pipe(
       takeUntil(this.unSubscribe$)
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.LedgerStatements.length > 0) {
         this.ledgerSummary = response.Data;
        this.getValueFalg = false
+       this._commonService.closeRedirectLegderSummary(false)
        if(this.isViewPrint ){
           this.printLoad(this.htmlLoadid,this.isViewPrint)
       }

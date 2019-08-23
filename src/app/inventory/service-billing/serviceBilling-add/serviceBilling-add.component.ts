@@ -338,23 +338,23 @@ export class serviceBillingAddComponent {
         }
       }
     )
-    this.saleServiceBillingService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
-      data => {
-        if (data.data) {
-          this.organisationsData = data.data
+    // this.saleServiceBillingService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    //   data => {
+    //     if (data.data) {
+    //       this.organisationsData = data.data
 
-          if (this.organisationsData.length >= 1) {
-            this.OrgId = +this.organisationsData[0].id
-            this.organisationValue = +this.organisationsData[0].id
-            this.OrgGStType =   this.organisationsData[0]
-            if (this.isBillNoManuall) {
-              this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
-              this.getNewBillNo()
-            }
-          }
-        }
-      }
-    )
+    //       if (this.organisationsData.length >= 1) {
+    //         this.OrgId = +this.organisationsData[0].id
+    //         this.organisationValue = +this.organisationsData[0].id
+    //         this.OrgGStType =   this.organisationsData[0]
+    //         if (this.isBillNoManuall) {
+    //           this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
+    //           this.getNewBillNo()
+    //         }
+    //       }
+    //     }
+    //   }
+    // )
     this.saleServiceBillingService.godownsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
@@ -849,6 +849,11 @@ getTypeOfGST () {
     this.OrderId = 0
     this.Advanceamount = 0
     this.NetAmount = 0
+    this.defaultCurrency = others.Currency
+    this.currencyValues = [
+      { id: '0', symbol: '%' },
+      { id: '1', symbol: this.defaultCurrency }
+    ]
     this.AddressId = +others.AddressId
     this.CreditDays = +others.CreditDays
     this.CreditLimit = +others.CreditLimit
@@ -1479,7 +1484,7 @@ getTypeOfGST () {
       forkJoin(...observables).subscribe(
         data => {
           // console.log(data)
-          if(this.OrgGStType.type===1){
+          if(this.OrgGStType===1){
           data.forEach((element, index) => {
             let appliedTaxRatesCharge = []
             let taxChargeSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
@@ -1542,7 +1547,7 @@ getTypeOfGST () {
       forkJoin(...observables).subscribe(
         data => {
           // console.log(data)
-          if(this.OrgGStType.type===1){
+          if(this.OrgGStType===1){
           data.forEach((element, index) => {
             let appliedTaxRatesItem = []
             let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
@@ -2085,7 +2090,7 @@ this.taxTypeValue=0
     if (this.allItems && this.allItems.length > 0) {
       this.saleServiceBillingService.createItems(this.allItems)
     }
-    if (this.taxTypeSelect2) {
+    if (this.taxTypeSelect2 && this.taxTypeSelect2.setElementValue) {
       this.taxTypeSelect2.setElementValue(this.TaxType)
     }
     if (this.itemselect2) {
@@ -2225,6 +2230,7 @@ this.taxTypeValue=0
         _self.saleServiceBillingService.createOrganisations(data.Organizations)
         this.saleServiceBillingService.getGSTTypeOfOrgnazation(data.Organizations)
         _self.saleServiceBillingService.createGodowns(data.Godowns)
+        this.getOrgnization(data.Organizations)
         _self.saleServiceBillingService.createReferralTypes(data.ReferalTypes)
         _self.saleServiceBillingService.createSubUnits(data.SubUnits)
         _self.saleServiceBillingService.createTaxSlabs(data.TaxSlabs)
@@ -2251,7 +2257,22 @@ this.taxTypeValue=0
       }
     )
   }
+  orgnizationName:any 
+  getOrgnization(data){
+    console.log(data,'org-data')
+    if (data.length > 0) {
+      this.OrgId = +data[0].Id
+      this.orgnizationName =  data[0].Name
+      this.organisationValue = +data[0].Id
+       this.OrgGStType = +data[0].GstTypeId
+      if (this.isBillNoManuall) {
+        this.CurrentDate = this.gs.getDefaultDate(this.clientDateFormat)
+        this.getNewBillNo()
+      }
+    }
+  }
   initialiseExtras () {
+    this.getNewCurrentDate()
     this.BillAmount = 0
     this.PartyBillNo = ''
     this.BillNo = ''
@@ -2358,8 +2379,9 @@ this.taxTypeValue=0
     // this.setExpiryDate()
     this.setDueDate()
     // this.setMfdDate()
+ 
     this.getNewBillNo()
-    this.getNewCurrentDate()
+
   }
 
   getNewCurrentDate () {
@@ -2838,7 +2860,7 @@ this.taxTypeValue=0
       data => {
         //console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-          if(this.OrgGStType.type ===1){
+          if(this.OrgGStType ===1){
             this.taxChargeSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
             this.taxChargeRates = data.Data.TaxRates
           }
@@ -2914,7 +2936,13 @@ this.taxTypeValue=0
 
   @ViewChild('taxSlab_select2') taxSlabSelect2: Select2Component
   onTaxSlabSelect (evt) {
-    // console.log('on change of tax slab : ', evt)
+    if(+evt.value === 0){
+      this.TaxSlabId = 0
+      this.taxSlabName = ''
+      this.TaxSlabName = ''
+      this.getTaxDetail(this.TaxSlabId)
+
+    }
     if (+evt.value === -1) {
       this.commonService.openTax('')
       this.taxSlabSelect2.selector.nativeElement.value = ''
@@ -2934,7 +2962,7 @@ this.taxTypeValue=0
       data => {
        // console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-          if(this.OrgGStType.type ===1){
+          if(this.OrgGStType ===1){
             this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
             this.taxRates = data.Data.TaxRates
           }

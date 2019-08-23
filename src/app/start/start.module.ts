@@ -34,6 +34,8 @@ import { ConfirmationModule } from '../shared/transactionMaster/confirmation-mod
 import {ServiceItemAddModule} from '../shared/transactionMaster/service-item-master/item-master-add/service-item-add.module'
 import {TermsAndCondiAddModule} from '../shared/transactionMaster/termAndCondition/termAndCondition-add/termAndCondition-add.module'
 import {MatDatepickerModule} from '@angular/material';
+import { ConfirmationPrintModule}  from '../shared/transactionMaster/confirmation-print/confirmation-print.module'
+  import { from } from 'rxjs';
 // import {SaleDirectReturnModule} from '../inventory/sale-direct-return/saleReturn.module'
 @NgModule({
   declarations: [
@@ -76,7 +78,8 @@ import {MatDatepickerModule} from '@angular/material';
     ConfirmationModule,
     ServiceItemAddModule,
     TermsAndCondiAddModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    ConfirmationPrintModule
   ],
   bootstrap: []
 })

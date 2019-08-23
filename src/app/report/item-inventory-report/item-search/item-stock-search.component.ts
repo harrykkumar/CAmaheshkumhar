@@ -214,12 +214,14 @@ export class ItemStockSearchComponent implements OnInit, AfterViewInit, OnChange
   }
 
   search = () => {
+    debugger
     if (this.model.fromDatevalue) {
       this.model.formattedFromDatevalue = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
     }
     if (this.model.toDateValue) {
       this.model.formattedToDateValue = this._globalService.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
     }
+    this.model.isYes = true
     this.searchByFilter.emit(this.model);
   }
 
@@ -236,7 +238,6 @@ export class ItemStockSearchComponent implements OnInit, AfterViewInit, OnChange
     this.model.unitValue = 0
     this.model.fromDatevalue = ""
     this.model.toDateValue = ""
-   // this.categoryOption={}
   }
   reset(){
     debugger
@@ -244,8 +245,6 @@ export class ItemStockSearchComponent implements OnInit, AfterViewInit, OnChange
     this.model.formattedToDateValue = ""
     this.model.fromDatevalue = ""
     this.model.toDateValue = ""
-   // this.model.categoryValue = []
-    //this.model.itemValue = []
   this.model.selectedCategory = ""
   this.model.selectedItem = ""
   }

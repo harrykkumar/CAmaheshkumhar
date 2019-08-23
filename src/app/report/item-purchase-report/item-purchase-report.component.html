@@ -1,4 +1,4 @@
-<main class="main-content2 bgc-grey">
+<main class="main-content bgc-grey">
     <div id="mainContent">
         <div class="page-header p-0">
             <div class="container-fluid">
@@ -73,7 +73,10 @@
                                 </tr>      
                             </thead>
                             <tbody> 
-                              <tr *ngFor="let item of mainData; let i = index">
+                              <!-- <tr *ngFor="let item of mainData; let i = index"> -->
+                                    <tr *ngFor="let item of mainData
+                                    | paginate: { itemsPerPage: pageSize, currentPage: pageNo, totalItems: totalItemSize } ;
+                                    let i = index;">
                                 <td>{{i+1}}</td>
                                 <td>{{item.LedgerName}}</td>
                                 <td>{{item.BillNo}}</td>
@@ -119,6 +122,7 @@
                 </div>
             </div>
           </div>
-
     </div>
 </main>
+<app-pagination   #ledger_paging (lastValueEmitter)="onLastValueChange($event)" (pageNoEmitter)="onPageNoChange($event)"
+(pageSizeEmitter)="onPageSizeChange($event)"></app-pagination>

@@ -1,13 +1,11 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit,ViewChild } from '@angular/core'
 import { Subscription } from 'rxjs'
-import { FormGroup } from '@angular/forms'
-import { SaleTravel, AddCust } from '../../model/sales-tracker.model'
 import { UIConstant } from '../../shared/constants/ui-constant'
 declare const $: any
 import { CommonService } from '../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../commonServices/toastr.service'
+import { PagingComponent } from './../../shared/pagination/pagination.component';
 import { Settings } from '../../shared/constants/settings.constant'
-
 @Component({
   selector: 'app-item-sale-report',
   templateUrl: './item-sale-report.component.html',
@@ -23,21 +21,43 @@ export class ItemSaleReportComponent implements OnInit {
   dateShow: any
   clientDateFormat: any
   noOfDecimal:any
+  lastItemIndex: number = 0
+  pageSize: number = 20
+  pageNo: number = 1
+  totalItemSize: number = 0
 page:any=1
   constructor(public _settings: Settings ,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
    this.clientDateFormat = this._settings.dateFormat
     this.noOfDecimal = this._settings.noOfDecimal
-
     this.newBillSub = this._commonService.getSearchForStatus().subscribe(
       (obj: any) => {
-        console.log(obj ,'daa---------')
         this.getItemSaleDetails(UIConstant.SALE_TYPE ,obj.ledgerId,obj.categoryId,obj.itemId,obj.fromDate,obj.toDate,obj.batchNo ,1,10)
          this.dateShow = obj.date
       }
     )
 
   }
+  onLastValueChange = (event) => {
+    this.lastItemIndex = event
+  }
+  viewFlag:any
+  isViewPrint:boolean =false
+  onPageNoChange = (event) => {
+    this.isViewPrint= false
+    this.viewFlag=true
+    this.pageNo = event
+    this.getItemSaleDetails(UIConstant.SALE_TYPE ,0,'','','','','' ,this.page, this.pageNo)
 
+  }
+
+  onPageSizeChange = (event) => {
+    this.isViewPrint= false
+    this.viewFlag=true
+    this.pageSize = event
+    this.getItemSaleDetails(UIConstant.SALE_TYPE ,0,'','','','','' ,this.page, this.pageSize )
+    
+  }
+  @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   ngOnInit () {
     this._commonService.fixTableHF('cat-table')
     this.getItemSaleDetails(UIConstant.SALE_TYPE ,0,'','','','','' ,this.page,10)
@@ -46,12 +66,6 @@ page:any=1
   toShowSearch = false
   openSearchToggle ( ) {}
   toggleSearch() {
-
-    // $( function() {
-    //   $( "#button" ).on( "click", function() {
-    //     $( "#effect" ).toggleClass( "newClass", 1000 );
-    //   });
-    // } );
     this.toShowSearch = !this.toShowSearch
   }
   Attributelabel: any
@@ -133,9 +147,6 @@ page:any=1
         console.log(this.mainData, 'main value')
 
       }
-      // if(data.Code === UIConstant.SERVERERROR) {
-      //   this._toastrCustomService.showError('',data.Description)
-      // }
 
     })
 

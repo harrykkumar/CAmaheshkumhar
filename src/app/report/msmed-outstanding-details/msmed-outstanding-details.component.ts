@@ -29,27 +29,31 @@ export class MsmedOutstandingDetailsComponent implements OnInit {
     public _settings: Settings,
     private gs: GlobalService,
     private spinner: NgxSpinnerService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private excelService: ExcelService,
   ) {
-    this.commonService.getLedgerData(1).subscribe((res) => {
-      if (!_.isEmpty(res) && !_.isEmpty(res.Data) && !_.isEmpty(res.Data.LedgerExtra)) {
-        this.ledgerData = [...res.Data.LedgerExtra];
-      }
-    })
-    
+    this.model.reportType = 'MSMEDDUE'
+    this.model.type = 'Purchase'
     this.model.reportFor = this.reportForData[0]
     this.clientDateFormat = this._settings.dateFormat
     this.model.fromDatevalue = this.gs.utcToClientDateFormat(new Date(2019, 3, 1), this.clientDateFormat);
     this.model.toDateValue = this.gs.utcToClientDateFormat(new Date(2020, 2, 31), this.clientDateFormat);
     this.route.paramMap.subscribe((parmeters) => {
-      this.msmedId = parmeters.get('id')
+      this.model.LedgerId = Number(parmeters.get('id'))
     })
     this.route.queryParamMap.subscribe((queryParmeters) => {
-      if (!_.isEmpty(queryParmeters)) {
+      if (!_.isEmpty(queryParmeters.keys)) {
         this.model.reportFor = queryParmeters.get('ReportFor')
         this.model.fromDatevalue = queryParmeters.get('FromDate')
         this.model.toDateValue = queryParmeters.get('ToDate')
-        this.model.LedgerId = queryParmeters.get('LedgerId')
+        this.model.reportType = queryParmeters.get('ReportType')
+        this.model.type = queryParmeters.get('Type')
+      }
+    })
+    const ledgerType = this.model.reportType === 'DUE' ? 2 : 1
+    this.commonService.getLedgerData(ledgerType).subscribe((res) => {
+      if (!_.isEmpty(res) && !_.isEmpty(res.Data) && !_.isEmpty(res.Data.LedgerExtra)) {
+        this.ledgerData = [...res.Data.LedgerExtra];
       }
     })
   }
@@ -82,9 +86,9 @@ export class MsmedOutstandingDetailsComponent implements OnInit {
       toDate = this.gs.convertToSqlFormat(this.model.toDateValue)
     }
     const data = {
-      ReportFor:  this.model.reportFor ? this.model.reportFor : 0,
-      ReportType: 'MSMEDDUE',
-      Type: 'Purchase',
+      ReportFor: this.model.reportFor ? this.model.reportFor : 0,
+      ReportType: this.model.reportType ? this.model.reportType : '',
+      Type: this.model.type ? this.model.type : '',
       FromDate: fromDate,
       ToDate: toDate,
       LedgerId: this.model.LedgerId ? this.model.LedgerId : 0
@@ -99,5 +103,9 @@ export class MsmedOutstandingDetailsComponent implements OnInit {
       }
       this.spinner.hide()
     })
+  }
+
+  export() {
+    this.excelService.exportByTableId('msmed_details_table', 'Msmed_Details', 'msmedDetailReport');
   }
 }

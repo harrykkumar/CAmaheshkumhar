@@ -605,7 +605,7 @@ export class ItemAddComponent {
     }
     this.Name = ''
     this.HsnNo = ''
-    this.ItemCode = this.BarCode
+    // this.ItemCode = this.BarCode
     this.UnitId = 0
     this.TaxId = 0
     this.ItemType = 1
@@ -617,7 +617,7 @@ export class ItemAddComponent {
     this.MinStock = 0
     this.MaxStock = 0
     this.ReOrderQty = 0
-    this.BarCode = ''
+    // this.BarCode = ''
     this.PurchaseRate = 0
     this.OpeningStock = 0
     this.OpeningStockValue = 0

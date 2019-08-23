@@ -1,4 +1,3 @@
-/* File created by Dolly Garg */
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { Settings } from '../../../shared/constants/settings.constant'
@@ -147,16 +146,18 @@ export class SaleDirectListComponent implements OnInit {
     )
     .subscribe(data => {
       if (data.SaleDetails.length >0) {
+        this.notRecordFound= false
         this.createTableData(data.SaleDetails, data.SaleSummary)
       } else {
       this.isSearching = false
+      this.notRecordFound= true
       }
     },(error) => {
       this.isSearching = false
       this.toastrService.showError(error, '')
     })
   }
-
+  notRecordFound:any =true
   createTableData (data, summary) {
     let customContent = [...data]
     customContent.forEach(element => {

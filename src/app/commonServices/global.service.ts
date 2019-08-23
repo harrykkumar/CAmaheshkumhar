@@ -1,15 +1,12 @@
 import { Injectable } from '@angular/core'
 import { Settings } from '../shared/constants/settings.constant'
 import { SetUpIds } from '../shared/constants/setupIds.constant';
-import { CompanyProfileService } from '../start/company-profile/company-profile.service';
-import { UIConstant } from '../shared/constants/ui-constant';
-import { debug } from 'util';
 @Injectable({
   providedIn: 'root'
 })
 export class GlobalService {
   clientDateFormat: string = ''
-  constructor (private settings: Settings, private orgService: CompanyProfileService) {}
+  constructor (private settings: Settings) {}
   isValidDate (dateString) {
     // First check for the pattern
     if (!/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(dateString)) {
@@ -694,28 +691,6 @@ export class GlobalService {
         });
       }
       resolve('Setting set up success');
-    })
-  }
-
-  async getOrgDetails (): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.orgService.getCompanyProfileDetails().subscribe((data) => {
-        debugger
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-          console.log(data ,'company')
-          if(data.Data.OrganisationDetails.length>0 && data.Data.OrganisationDetails[0].ProcessId){
-            this.settings.industryId = data.Data.OrganisationDetails[0].ProcessId
-
-          }
-          this.settings.CompanyDetails = JSON.stringify(data.Data.Statutories[0])
-          resolve();
-        } else {
-          resolve(data.Description)
-        }
-      },
-      (error) => {
-        console.log(error)
-      });
     })
   }
 }

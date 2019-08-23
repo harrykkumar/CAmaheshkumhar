@@ -61,7 +61,7 @@
           novalidate
         >
           <div class="form row">
-            <div class="form-group col-md-4 ">
+            <div class="form-group col-md-3 ">
               <label>Ledger</label>
               <ng-select name="formTypeNmae" 
               [items]="ledgerItemList" 
@@ -71,18 +71,6 @@
               (change)="onLedgerItemChange($event)" 
               [(ngModel)]="ledgerItemId">
               </ng-select>
-              <!-- <div class="input-group adw_select">
-                <div class="input-group adw_select">
-                  <select2 #setTypeWise
-                    [data]="ledgerItemList"
-                    class="control_select"
-                    autocomplete="true"
-                    (valueChanged)="onLedgerItemChange($event)"
-                    [value]="ledgerItemId"
-                  >
-                  </select2>
-                </div>
-              </div> -->
             </div>
             <div class="form-group col-md-3 ">
               <label class="fw-500">From</label>
@@ -106,6 +94,10 @@
                 Search
               </button>
             </div>
+            <div class="form-group col-md-1 pt-3">
+              <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect">Reset</button>
+  
+          </div>
           </div>
         </form>
       </div>

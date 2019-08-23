@@ -1,5 +1,4 @@
-<!--File is created Dolly Garg-->
-<div class="row">
+<div class="row main-content3">
     <div class="col-md-12">
         <div class="bgc-white bdrs-3 mB-20">
             <div class="table-responsive table_height1">
@@ -50,12 +49,18 @@
                         <th></th>
                     </tr>
                 </tfoot>
+                <tfoot  *ngIf="notRecordFound" >
+                    <tr>
+                        <th style="padding-left: 505px !important;">Record Not Found</th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
-    <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-    (pageNoEmitter)="p = $event;getSaleDirectList();"
-    (pageSizeEmitter)="itemsPerPage = $event;getSaleDirectList();" >
-    </app-pagination>
+
     </div>
 </div>
+<app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+(pageNoEmitter)="p = $event;getSaleDirectList();"
+(pageSizeEmitter)="itemsPerPage = $event;getSaleDirectList();" >
+</app-pagination>

@@ -288,6 +288,7 @@ export class SaleDirectReturnComponent {
       data => {
         if (data.id && data.name && data.AttributeId) {
           let indexOfAttr = -1
+          if(this.attributesData.length >0){
           for (let i = 0; i < this.attributesData.length; i++) { if (this.attributesData[i]['attributeId'] === data.AttributeId) { indexOfAttr = i; break; } }
           if (indexOfAttr >= 0) {
             let itemAttributeTrans = JSON.parse(JSON.stringify(this.itemAttributeTrans))
@@ -309,6 +310,7 @@ export class SaleDirectReturnComponent {
               })
             }, 100)
           }
+        }
         }
       }
     )
@@ -387,23 +389,23 @@ export class SaleDirectReturnComponent {
         }
       }
     )
-    this._saleDirectReturnService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
-      data => {
-        if (data.data) {
-          this.organisationsData = data.data
-          if (this.organisationsData.length >= 1) {
-            this.OrgId = +this.organisationsData[0].id
-            this.organisationValue = +this.organisationsData[0].id
-            this.OrgGStType = this.organisationsData[0]
-            console.log(this.OrgGStType)
-            if (this.isBillNoManuall) {
-              this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
-              //this.getNewBillNo()
-            }
-          }
-        }
-      }
-    )
+    // this._saleDirectReturnService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    //   data => {
+    //     if (data.data) {
+    //       this.organisationsData = data.data
+    //       if (this.organisationsData.length >= 1) {
+    //         this.OrgId = +this.organisationsData[0].id
+    //         this.organisationValue = +this.organisationsData[0].id
+    //         this.OrgGStType = this.organisationsData[0]
+    //         console.log(this.OrgGStType)
+    //         if (this.isBillNoManuall) {
+    //           this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
+    //           //this.getNewBillNo()
+    //         }
+    //       }
+    //     }
+    //   }
+    // )
     this._saleDirectReturnService.godownsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
@@ -973,6 +975,11 @@ export class SaleDirectReturnComponent {
     this.OtherCharge = +others.OtherCharge
     this.GodownId = +others.GodownId
     this.CurrencyId = +others.CurrencyId
+    this.defaultCurrency = others.Currency
+    this.currencyValues = [
+      { id: '0', symbol: '%' },
+      { id: '1', symbol: this.defaultCurrency }
+    ]
     this.OrgId = +others.OrgId
     this.InterestRate = others.InterestRate
     this.InterestAmount = others.InterestAmount
@@ -1385,21 +1392,21 @@ export class SaleDirectReturnComponent {
         }
       )
   }
-  getOrgnization(data) {
-    if (data.data) {
-      this.organisationsData = data.data
-      if (this.organisationsData.length > 0) {
-        this.OrgId = +this.organisationsData[0].id
-        this.organisationValue = +this.organisationsData[0].id
-        this.OrgGStType = this.organisationsData[0]
-        if (this.isBillNoManuall) {
-          this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
-          //this.getNewBillNo()
-        }
+  orgnizationName:any
+  getOrgnization(data){
+    console.log(data,'org-data')
+    if (data.length > 0) {
+      this.OrgId = +data[0].Id
+      this.orgnizationName =  data[0].Name
+      this.organisationValue = +data[0].Id
+       this.OrgGStType = +data[0].GstTypeId
+      if (this.isBillNoManuall) {
+        this.CurrentDate = this.gs.getDefaultDate(this.clientDateFormat)
+        this.getNewBillNo()
       }
     }
   }
-
+ 
   unitSettingType: number = 1
   setPayDate() {
     this.PayDate = this.gs.getDefaultDate(this.clientDateFormat)
@@ -2093,7 +2100,7 @@ export class SaleDirectReturnComponent {
       forkJoin(...observables).subscribe(
         data => {
           // console.log(data)
-          if(this.OrgGStType.type===1){
+          if(this.OrgGStType===1){
           data.forEach((element, index) => {
             let appliedTaxRatesItem = []
             let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
@@ -3641,7 +3648,7 @@ export class SaleDirectReturnComponent {
         data => {
           console.log('tax slab data : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
-            if (this.OrgGStType.type === 1) {
+            if (this.OrgGStType === 1) {
             this.itemTaxListFlag = true
             this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
             this.taxRates = data.Data.TaxRates

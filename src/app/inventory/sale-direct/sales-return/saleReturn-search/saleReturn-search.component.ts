@@ -56,7 +56,6 @@ export class SaleReturnDirectSearchComponent {
   ngOnInit () {
     this.dataValues = [
       {id: '0', text: 'Bill Date'},
-      {id: '1', text: 'Party Bill Date'}
     ]
     this.createForm()
     this.getSuplier()
@@ -78,9 +77,9 @@ export class SaleReturnDirectSearchComponent {
   supplierPlaceHolder: Select2Options
   supplierValue: any
   getSuplier () {
-    this.supplierPlaceHolder = { placeholder: 'Select Supplier' }
-    let newData = [{ id: '0', text: 'Select Supplier' }]
-    this._ledgerServices.getVendor(4, '').subscribe(data => {
+    this.supplierPlaceHolder = { placeholder: 'Select Customer' }
+    let newData = [{ id: '0', text: 'Select Customer' }]
+    this._ledgerServices.getVendor(5, '').subscribe(data => {
       // console.log('supplier data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {

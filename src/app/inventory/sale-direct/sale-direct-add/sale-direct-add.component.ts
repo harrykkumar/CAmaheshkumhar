@@ -204,6 +204,7 @@ export class SaleDirectAddComponent {
   categoryId: number
   AddressId: number =0
   SupplyStateId :number=0
+  SupplyState:number=0
   editTransId: number = -1
   editItemId: number = -1
   editItemSno: number = 0
@@ -288,7 +289,9 @@ export class SaleDirectAddComponent {
       data => {
         if (data.id && data.name && data.AttributeId) {
           let indexOfAttr = -1
-          for (let i = 0; i < this.attributesData.length; i++) { if (this.attributesData[i]['attributeId'] === data.AttributeId) { indexOfAttr = i; break; } }
+          if(this.attributesData.length >0){
+            for (let i = 0; i < this.attributesData.length; i++) { if (this.attributesData[i]['attributeId'] === data.AttributeId) { indexOfAttr = i; break; } }
+          
           if (indexOfAttr >= 0) {
             let itemAttributeTrans = JSON.parse(JSON.stringify(this.itemAttributeTrans))
             let newData = Object.assign([], this.attributesData[indexOfAttr]['data'])
@@ -309,6 +312,7 @@ export class SaleDirectAddComponent {
               })
             }, 100)
           }
+        }
         }
       }
     )
@@ -449,7 +453,6 @@ export class SaleDirectAddComponent {
             { id: '0', symbol: '%' },
             { id: '1', symbol: this.defaultCurrency }
           ]
-          // console.log('currencyValues : ', this.currencyValues)
           this.convertToCurrencyData = [...this.currencyData]
           if (this.currencyData.length >= 1) {
             this.CurrencyId = +this.currencyData[0].id
@@ -487,16 +490,6 @@ export class SaleDirectAddComponent {
         }
       }
     )
-
-    // this.settings$ = this._saleDirectService.settingData1$.subscribe(
-    //   data => {
-    //     if (data.data) {
-    //       this.settingData = data.data
-    //       console.log('this.settingData : ', this.settingData)
-    //       this.getSetUpModules(this.settingData)
-    //     }
-    //   }
-    // )
 
     this.commonService.getCustStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
@@ -924,6 +917,18 @@ getOrgnization(data){
           return taxRate
         }
       })
+    //  let  taxRates;
+    //   if(taxRatesValue.length>0){
+    //     this.ItemTaxTrans.forEach(ele =>{
+    //        taxRates = taxRatesValue.filter((rateId) => {
+    //         if (rateId.Id === ele.TaxRateId) {
+    //           return rateId
+    //         }
+    //       })
+    //     })
+  
+    //   }
+  
       console.log('itemTaxTrans : ', itemTaxTrans)
       let itemAttributeTrans = []
       if (this.itemAttributesOthers.length > 0) {
@@ -1027,7 +1032,9 @@ getOrgnization(data){
       })
     }
   }
-
+  changeIntrate(e) {
+    this.InterestType = e === '0' ? 0 : 1
+  }
   other: any = {}
   createOther(others) {
     this.BillNo = others.BillNo
@@ -1072,6 +1079,11 @@ getOrgnization(data){
     this.OtherCharge = +others.OtherCharge
     this.GodownId = +others.GodownId
     this.CurrencyId = +others.CurrencyId
+    this.defaultCurrency = others.Currency
+    this.currencyValues = [
+      { id: '0', symbol: '%' },
+      { id: '1', symbol: this.defaultCurrency }
+    ]
     this.OrgId = +others.OrgId
     this.InterestRate = others.InterestRate
     this.InterestAmount = others.InterestAmount
@@ -1083,6 +1095,7 @@ getOrgnization(data){
     this.CreditDays = +others.CreditDays
     this.CreditLimit = +others.CreditLimit
     this.ConvertToCurrencyId = +others.ConvertedCurrencyId
+    this.convertToCurrencyValue  = +others.ConvertedCurrencyId
     this.LocationTo = others.LocationTo
     this.isOtherState = others.IsOtherStatemain === 1 ? true : false
     this.defaultCurrency = others.Currency
@@ -1131,9 +1144,11 @@ getOrgnization(data){
   backDateEntry: boolean = false
   isBillNoManuall: boolean = false
   applyCustomRateOnItemFlag:boolean
+  PrintWithSave:any =0
   taxCalInclusiveType: number = 2
   itemInStockFlag: number = 1
   DiscountFor100Perct:number =1
+  DisabledTaxSlab:number = 1
   getSetUpModules(settings) {
     this.applyCustomRateOnItemFlag = false
     console.log('settings : ', settings)
@@ -1167,6 +1182,12 @@ getOrgnization(data){
       }
       if (element.id === SetUpIds.itemInStockForSale) {
         this.itemInStockFlag = +element.val
+      }
+      if (element.id === SetUpIds.PrintWithSave) {
+        this.PrintWithSave = +element.val
+      }
+      if (element.id === SetUpIds.DisabledTaxSlab) {
+        this.DisabledTaxSlab = +element.val
       }
     })
     this.createModels(this.catLevel)
@@ -1284,6 +1305,7 @@ getOrgnization(data){
   isCaseSaleFlag:boolean
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
+    this.EwayBillNo=''
     this.isCaseSaleFlag =true
     this.caseSaleArrayId = [{ id: 6 }, { id: 5 }]
     this.SPUtilityData()
@@ -1565,8 +1587,9 @@ getOrgnization(data){
       if (Data.Code === UIConstant.THOUSAND) {
         if (Data.Data && Data.Data.SubUnitDetails && Data.Data.SubUnitDetails.length > 0) {
           this.filterUnitForItem(Data.Data.SubUnitDetails)
-          this.subUnitsValue =this.UnitId
+         
           this.unitSelect2.setElementValue(this.UnitId)
+          this.subUnitsValue =this.UnitId
           
         }
       }
@@ -1807,7 +1830,6 @@ notItemAddedOutOfStock:boolean = true
   }
 
   updateCatArray(id, levelNo) {
-    console.log('evt on updateCatArray of category : ', id, 'level : ', levelNo)
     if (levelNo < this.catLevel) {
       let categoryId = +id
       let newData = []
@@ -1820,9 +1842,7 @@ notItemAddedOutOfStock:boolean = true
           })
         }
       })
-      console.log('level no : ', levelNo, 'new data : ', newData)
       this.categories[levelNo].data = newData
-      // this.categories = Object.assign([], this.categories)
     }
   }
 
@@ -2052,6 +2072,7 @@ notItemAddedOutOfStock:boolean = true
       } else {
         if (evt.id > 0) {
           this.SupplyStateId = +evt.id
+          this.SupplyState= +evt.id
           this.checkForGST()
         }
       }
@@ -2070,7 +2091,6 @@ notItemAddedOutOfStock:boolean = true
       isOtherState= false
     }
     this.isOtherState = isOtherState
-    alert(this.isOtherState)
   }
   needToCheckItem: boolean = false
   needToCheckCharge: boolean = false
@@ -2726,7 +2746,6 @@ notItemAddedOutOfStock:boolean = true
     this.UnitId = 0
     this.unitName = ''
     this.categoryName = ''
-    this.EwayBillNo=''
     this.Length = 1
     this.Height = 1
     this.Width = 1
@@ -2859,7 +2878,7 @@ notItemAddedOutOfStock:boolean = true
     this.GodownId = 0
     this.CurrencyId = 0
     this.ConvertToCurrencyId = 0
-    this.OrgId = 0
+    //this.OrgId = 0
     this.initItem()
     this.initTransaction()
     this.initAttribute()
@@ -2890,7 +2909,9 @@ notItemAddedOutOfStock:boolean = true
   initialiseExtras() {
     this.BillAmount = 0
     this.PartyBillNo = ''
-    this.BillNo = ''
+   // this.BillNo = ''
+   this.outStandingBalance=0
+   this.EwayBillNo =''
     this.AddressId = 0
     this.ConvertedAmount = 0
     this.CurrencyRate = 0
@@ -3063,6 +3084,7 @@ notItemAddedOutOfStock:boolean = true
         NetAmount: 0,
         AddressId: this.AddressId,
         SupplyStateId :this.SupplyStateId,
+        SupplyState:this.SupplyState,
         ConvertedCurrencyId: this.ConvertToCurrencyId,
         ItemAttributeTrans: this.ItemAttributeTrans,
         ItemTaxTrans: this.ItemTaxTrans,
@@ -3407,6 +3429,7 @@ notItemAddedOutOfStock:boolean = true
     let dataToSend = this.saleDirectParams()
     let valid = 1
     if (!this.editMode) {
+      debugger
       this.commonService.checkForExistence(this.checkForExistence, dataToSend).subscribe(
         (data) => {
           console.log('existence : ', data)
@@ -3444,12 +3467,17 @@ notItemAddedOutOfStock:boolean = true
                     _self.commonService.newPurchaseAdd()
                     if (!this.keepOpen) {
                       _self.commonService.closePurchase()
+                      this.commonService.AfterSaveShowPrint(data)
                     } else {
+                      this.getNewCurrentDate()
+                      this.getNewBillNo()
                       _self.initItem()
                       _self.initTransaction()
                       _self.initCharge()
                       _self.initComp()
                       _self.initialiseExtras()
+                      this.editMode = false
+
                     }
                   } else if (data.Code === UIConstant.THOUSANDONE) {
                     _self.toastrService.showError(data.Message, 'Please change Bill No.')
@@ -3467,7 +3495,7 @@ notItemAddedOutOfStock:boolean = true
               )
             }
           } else {
-            this.toastrService.showError('The following are not unique', '')
+            this.toastrService.showError('Bill Number are not unique', '')
           }
         }
       )
@@ -3487,15 +3515,21 @@ notItemAddedOutOfStock:boolean = true
               console.log('data : ', data)
               if (data.Code === UIConstant.THOUSAND && data.Data) {
                 _self.toastrService.showSuccess('Saved Successfully', '')
-                _self.commonService.newPurchaseAdd()
+                this.commonService.AddedItem()
                 if (!this.keepOpen) {
                   _self.commonService.closePurchase()
+               _self.commonService.AfterSaveShowPrint(data)
+
                 } else {
+                  this.getNewCurrentDate()
+                  this.getNewBillNo()
                   _self.initItem()
                   _self.initTransaction()
                   _self.initCharge()
                   _self.initComp()
                   _self.initialiseExtras()
+                  this.editMode = false
+
                 }
               } else if (data.Code === UIConstant.THOUSANDONE) {
                 _self.toastrService.showError(data.Message, 'Please change Bill No.')
@@ -3513,7 +3547,8 @@ notItemAddedOutOfStock:boolean = true
           )
         }
       } else {
-        this.toastrService.showError('The following are not unique', '')
+        this.toastrService.showError('Bill Number are not unique', '')
+       
       }
     }
   }
@@ -3715,7 +3750,13 @@ notItemAddedOutOfStock:boolean = true
 
   @ViewChild('taxSlab_select2') taxSlabSelect2: Select2Component
   onTaxSlabSelect(evt) {
-    // console.log('on change of tax slab : ', evt)
+    if(+evt.value === 0){
+      this.TaxSlabId = 0
+      this.taxSlabName = ''
+      this.TaxSlabName = ''
+      this.getTaxDetail(this.TaxSlabId)
+
+    }
     if (+evt.value === -1) {
       this.commonService.openTax('')
       this.taxSlabSelect2.selector.nativeElement.value = ''

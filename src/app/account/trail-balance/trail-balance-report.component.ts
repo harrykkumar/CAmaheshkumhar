@@ -95,8 +95,6 @@ export class TrailBalanceReportComponent implements OnInit {
       if(data.Code === UIConstant.THOUSAND ){
         if(data.Data && data.Data.TrailBalance && data.Data.TrailBalance.length >0){
           this.mainData =  data.Data.TrailBalance
-          // this.headI1dData = data.Data.TrailBalance.filter(s=>s.HeadId ===1) 
-          // this.headI2dData = data.Data.TrailBalance.filter(s=>s.HeadId ===2)
         }
         if(data.Data && data.Data.TrailBalanceSummary.length>0){
           data.Data.TrailBalanceSummary.forEach(element => {

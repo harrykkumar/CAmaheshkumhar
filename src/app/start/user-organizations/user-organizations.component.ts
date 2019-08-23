@@ -73,7 +73,7 @@ export class UserOrganizationsComponent implements OnInit {
     this.spinnerService.show();
     const token = await this._loginService.extendJwtToken({ OrgId: selectedOrganization.Id })
     this.tokenService.saveToken(token)
-    this.gs.getOrgDetails()
+    this.orgProfileService.getOrgDetails()
     this._loginService.selectedOrganization = selectedOrganization
     localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
     this._loginService.mapBranch(selectedOrganization);

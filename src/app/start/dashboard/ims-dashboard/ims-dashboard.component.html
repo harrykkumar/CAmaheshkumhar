@@ -70,7 +70,7 @@
                       </div>
                       <div class="card-footer">
                         <a
-                          href='JavaScript:void(0);'
+                          [routerLink]="[ '/report/outstanding-receiables']"
                           class="text-right more_detail"
                           >More</a
                         >
@@ -119,7 +119,7 @@
                       </div>
                       <div class="card-footer">
                         <a
-                          href='JavaScript:void(0);'
+                        [routerLink]="[ '/report/outstanding-payables']"
                           class="text-right more_detail"
                           >More</a
                         >
@@ -166,7 +166,8 @@
                               class="custom-control-input"
                               id="customRadio"
                               name="example"
-                              value="customEx"
+                              [(ngModel)]="overDueValue"
+                              value="Sale"
                             />
                             <label class="custom-control-label" for="customRadio"
                               >Sale</label
@@ -181,7 +182,8 @@
                               class="custom-control-input"
                               id="customRadio2"
                               name="example"
-                              value="customEx"
+                              [(ngModel)]="overDueValue"
+                              value="Purchase"
                             />
                             <label class="custom-control-label" for="customRadio2"
                               >Purchase</label
@@ -211,7 +213,7 @@
                       </div>
                       <div class="card-footer">
                         <a
-                          href="JavaScript:void(0)"
+                          (click)="navigateTo()"
                           class="text-right more_detail"
                           >More</a
                         >

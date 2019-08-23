@@ -1,9 +1,11 @@
+import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 import { SIDE_MENU_MODEL } from './side-menu-modal'
 import { LoginService } from '../../commonServices/login/login.services'
 import { Component } from '@angular/core'
 import { Router } from '@angular/router'
 import * as _ from 'lodash'
 import { NgxSpinnerService } from 'ngx-spinner';
+import { ItemmasterServices } from 'src/app/commonServices/TransactionMaster/item-master.services';
 
 @Component({
   selector: 'app-side-menu',
@@ -11,15 +13,55 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrls: ['./side-menu.component.css']
 })
 export class SideMenuComponent {
+  imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
+  ImageFiles: any = []
   loggedinUserData: any = {}
   moduleList: Array<any> = []
   sideMenu: Array<any> = []
   constructor (private _route: Router,
-    private _loginService: LoginService,
-    private spinnerService: NgxSpinnerService
+    public _loginService: LoginService,
+    private spinnerService: NgxSpinnerService,
+    private itemMaster: ItemmasterServices,
+    private toaster: ToastrCustomService 
     ) {
+      this.profile_img = '../../../assets/img/man.png'
     this.initSideMenuData();
     this.initUpdatePermission()
+  }
+  profile_img:any
+  openImageModal() {
+    this.getUploadedImages()
+    this.itemMaster.openImageModal(this.imageList)
+  }
+
+  getUploadedImages = () => {
+    this.itemMaster.imageAdd$.subscribe((response)=> {
+      this.imageList = response;
+      this.createImageFiles()
+    })
+  }
+  createImageFiles() {
+    let ImageFiles = []
+    if (!_.isEmpty(this.imageList)) {
+      for (let i = 0; i < this.imageList['images'].length; i++) {
+        let obj = { Name: this.imageList['queue'][i], BaseString: this.imageList['images'][i], IsBaseImage: this.imageList['baseImages'][i] }
+        ImageFiles.push(obj)
+      }
+      this.ImageFiles = ImageFiles
+      if (!_.isEmpty(this.ImageFiles)) {
+        const data = {
+          "ImageFiles": this.ImageFiles
+        }
+        this._loginService.uploadUserImage(data).subscribe(
+          (res) => {
+            if (res.Status === 1000) {
+              this.toaster.showSuccess('', 'Image Changed Successfully')
+            } else {
+              this.toaster.showError('', res.Message)
+            }
+          })
+      }
+    }
   }
   Homepage(){
     this._route.navigate(['/dashboard'])

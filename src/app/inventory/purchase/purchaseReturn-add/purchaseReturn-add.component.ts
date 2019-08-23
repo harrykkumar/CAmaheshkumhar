@@ -278,6 +278,7 @@ export class PurchaseReturnComponent {
       data => {
         if (data.id && data.name && data.AttributeId) {
           let indexOfAttr = -1
+          if(this.attributesData.length >0){
           for (let i = 0; i < this.attributesData.length; i++) { if (this.attributesData[i]['attributeId'] === data.AttributeId) { indexOfAttr = i; break; } }
           if (indexOfAttr >= 0) {
             let itemAttributeTrans = JSON.parse(JSON.stringify(this.itemAttributeTrans))
@@ -299,6 +300,7 @@ export class PurchaseReturnComponent {
               })
             }, 100)
           }
+        }
         }
       }
     )
@@ -964,6 +966,11 @@ export class PurchaseReturnComponent {
     this.OrgId = +others.OrgId
     this.InterestRate = others.InterestRate
     this.InterestAmount = others.InterestAmount
+    this.defaultCurrency = others.Currency
+    this.currencyValues = [
+      { id: '0', symbol: '%' },
+      { id: '1', symbol: this.defaultCurrency }
+    ]
     this.InterestType = others.InterestType
     this.OrderId = 0
     this.Advanceamount = 0

@@ -23,6 +23,7 @@ export class ProfitAndLossReportComponent implements OnInit {
   totaltax: number
   totalBillAmount: number
   newDateSub: Subscription
+  newOpenForm:Subscription
   toDateShow: any
   fromDateShow: any
   clientDateFormat: any
@@ -37,15 +38,20 @@ export class ProfitAndLossReportComponent implements OnInit {
         this.fromDateShow = obj.fromDate
       }
     )
+    this.newOpenForm = this._commonService.newRefreshItemStatus().subscribe((data:any)=>{
+
+    })
 
   }
   loggedinUserData: any
   ngOnInit() {
     this.onload()
-   // this.getbalancesheetdata(this.toDateShow, this.fromDateShow)
-
-
   }
+  ngOnDestroy() { 
+    this.newOpenForm.unsubscribe();
+    this.newDateSub.unsubscribe();
+
+}
   decimalDigit: any
   onload() {
     this.headervalue2 = 0
@@ -116,8 +122,8 @@ export class ProfitAndLossReportComponent implements OnInit {
             }
           });
         }
+        if( data.Data.ImageContents.length >0 || data.Data.OrganizationDetails.length >0 ||  data.Data.EmailDetails.length >0 ||  data.Data.AddressDetails.length >0 || data.Data.ContactInfoDetails.length >0){
         
-        if( data.Data.ImageContents.length >0 && data.Data.OrganizationDetails.length >0 && data.Data.EmailDetails.length >0 &&  data.Data.AddressDetails.length >0 && data.Data.ContactInfoDetails.length >0){
           this.orgDetails =data.Data
           }
       }
@@ -157,9 +163,11 @@ export class ProfitAndLossReportComponent implements OnInit {
   openLedgerSummary (item){
     if( item.LevelNo ===3){
       this._commonService.ledgerSummary(item.GlId,item.GlName)
-   
      this._router.navigate(['/account/ledger-summary'])
     }
+    if(item.GlId ===-1){
+      this._router.navigate(['/account/trading'])
+     }
 }
 }
 

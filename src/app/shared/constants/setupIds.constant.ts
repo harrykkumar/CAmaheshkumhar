@@ -79,6 +79,15 @@ export class SetUpIds {
   public static get itemInStockForSale (): number {
     return 3
   }
+  public static get PrintWithSave (): number {
+    return 57
+  }
+  public static get DisabledTaxSlab (): number {
+    return 9
+  }
+  public static get PaidUnpaidOnBIllShow (): number {
+    return 65
+  }
   public static get DiscountFor100 (): number {
     return 2
   }

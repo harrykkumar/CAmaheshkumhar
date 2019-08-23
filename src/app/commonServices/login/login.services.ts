@@ -12,6 +12,7 @@ import { TokenService } from '../token.service';
 import { GlobalService } from '../global.service';
 import { ToastrCustomService } from '../toastr.service';
 import { Settings } from 'src/app/shared/constants/settings.constant';
+import { CompanyProfileService } from 'src/app/start/company-profile/company-profile.service';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +35,8 @@ export class LoginService {
     private toastrService: ToastrCustomService,
     private _baseService: BaseServices,
     private settings: Settings,
-    private spinner: NgxSpinnerService) { }
+    private spinner: NgxSpinnerService,
+    private companyProfileService: CompanyProfileService) { }
 
   public login(params: any): Observable<any> {
     return this._basesService.postRequest(ApiConstant.LOGIN_URL, params)
@@ -48,6 +50,10 @@ export class LoginService {
     this.userData = {}
     this.organizationList = []
     this.loginUserDetails = {}
+  }
+
+  changePassword(data) {
+    return this._baseService.postRequest(ApiConstant.CHANGE_PASSWORD, data)
   }
 
   /* Function to get user data, modules, menus and menu-permissions */
@@ -72,6 +78,10 @@ export class LoginService {
         }
       )
     })
+  }
+
+  uploadUserImage = (data) => {
+    return this._baseService.postRequest(ApiConstant.USER_PROFILE, data)
   }
 
   /* Function to map side menus and submenus */
@@ -207,7 +217,7 @@ export class LoginService {
       this.selectedOrganization = { ...this.organizationList[0] }
       const token = await this.extendJwtToken({ OrgId: this.selectedOrganization.Id })
       this.tokenService.saveToken(token)
-      await this.gs.getOrgDetails()
+      await this.companyProfileService.getOrgDetails()
       localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this.selectedOrganization))
       this.mapBranch(this.selectedOrganization);
     } else {

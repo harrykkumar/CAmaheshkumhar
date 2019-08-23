@@ -408,7 +408,7 @@
                       <div class="discount">
                         <select2 #taxSlab_select2 [data]="taxSlabsData" class="control_select"
                           (valueChanged)="onTaxSlabSelect($event)" autocomplete="true"
-                          [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.TaxSlabId }"
+                          
                           [options]="{ placeholder: 'Select Tax Slab' }" [value]="taxSlabValue" ></select2>
                       </div>
                     </td>

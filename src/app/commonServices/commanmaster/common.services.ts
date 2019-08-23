@@ -5,6 +5,7 @@ import { BaseServices } from '../base-services'
 import { ApiConstant } from '../../shared/constants/api'
 import { Router, NavigationEnd } from '@angular/router'
 import { map } from 'rxjs/operators';
+import { UIConstant } from 'src/app/shared/constants/ui-constant';
 declare const $: any
 
 @Injectable({
@@ -52,6 +53,7 @@ export class CommonService {
   private openSaleDirectReturnSubject = new BehaviorSubject<AddCust>({ 'open': false })
 
   private onsaleDirectActionClicked$ = new Subject()
+  private AfterSaveShowPrint$ = new Subject()
 
   public previousUrl: String;
   public currentUrl: String;
@@ -546,7 +548,13 @@ export class CommonService {
   getSaleDirectActionClickedStatus() {
     return this.onsaleDirectActionClicked$.asObservable()
   }
-  
+  AfterSaveShowPrint(action) {
+    this.AfterSaveShowPrint$.next(action)
+  }
+
+  AfterSaveShowPrintStatus() {
+    return this.AfterSaveShowPrint$.asObservable()
+  }
   
 
   getBranchTypeList = () => {
@@ -1203,6 +1211,9 @@ export class CommonService {
   ledgerSummary(ledgerid, name) {
     this.ledgerSummarySub.next({ 'open': true, 'id': ledgerid, 'name': name })
   }
+  closeRedirectLegderSummary(flag) {
+    this.ledgerSummarySub.next({ 'open': flag })
+  }
   openSaleDirectReturnStatus() {
     return this.openSaleDirectReturnSubject.asObservable()
   }
@@ -1302,5 +1313,18 @@ export class CommonService {
 
   getLedgerData(type) {
     return this.baseService.getRequest(`${ApiConstant.LEDGER_UTILITY}?Type=${type}`);
+  }
+
+  openModal(id) {
+    $(`#${id}`).modal({ backdrop: 'static', keyboard: false });
+    $(`#${id}`).modal(UIConstant.MODEL_SHOW);
+  }
+
+  closeModal(id) {
+    $(`#${id}`).modal(UIConstant.MODEL_HIDE);
+  }
+
+  getUserUtilityList(type) {
+    return this.baseService.getRequest(`${ApiConstant.USER_UTILITY}?Type=${type}`)
   }
 }

@@ -7,7 +7,7 @@
             <div class="peers ai-c fxw-nw">
               <div class="peer">
                 <div (click)="Homepage()" class="logo">
-                  <img  src="assets/static/images/logo.png" alt="" />
+                  <img src="assets/static/images/logo.png" alt="" />
                 </div>
               </div>
               <div class="peer peer-greed">
@@ -25,25 +25,40 @@
     </div>
     <div class=" sidebar-content">
       <ul class="sidebar-menu pos-r side_background">
-        <li class="nav-item dropdown">
+        <li class="nav-item ">
           <div class="profile clearfix">
-            <div class="profile_pic">
-              <!-- <img
-                *ngIf="loggedinUserData?.ImageContents[0]?.FilePath; else defaultImage"
-                class="img-circle profile_img"
-                src="loggedinUserData?.ImageContents[0]?.FilePath"
-                alt="loggedinUserData?.ImageContents[0]?.Name"
-              />
-              <ng-template #defaultImage> -->
-                <img
-                  class="img-circle profile_img"
-                  src="../../../assets/img/man.png"
+            <div class="dropdown dropright profile_pic">
+              <a
+                class="dropdown-toggle "
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                id="imageMenuLink"
+              >
+              <img
+              *ngIf="_loginService?.userData?.ImageContents && _loginService?.userData?.ImageContents[0]?.FilePath;else defaultImage"
+              class="img-circle profile_img"
+             [src]="_loginService?.userData?.ImageContents[0] &&_loginService?.userData?.ImageContents[0]?.FilePath" 
+
+            />
+  
+            <ng-template #defaultImage>
+                <img  class="img-circle profile_img"
+                src="../../../assets/img/man.png"
                 />
-              <!-- </ng-template> -->
+            </ng-template>
+              </a>
+                <ul class="dropdown-menu  bgc-white img_drop" aria-labelledby="imageMenuLink">
+                    <li>
+                        <a  class="d-b td-n pY-5"
+                        (click)="openImageModal()"
+                        >Change Image</a>
+                    </li>
+                </ul>
             </div>
             <div class="profile_info">
               <span>Welcome,</span>
-              <h2>{{loggedinUserData?.LoginUserDetailsinfo[0].Name }}</h2>
+              <h2>{{ (loggedinUserData?.LoginUserDetailsinfo)[0].Name }}</h2>
             </div>
           </div>
         </li>

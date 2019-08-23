@@ -64,7 +64,7 @@ export class TransactionNumberComponent implements OnInit {
     }
     this.dropDownList.transactionFormatList = await this._orgService.getTransactionFormat()
     if (!_.isEmpty(this.dropDownList.transactionFormatList) && this.dropDownList.transactionFormatList.length > 0) {
-      this.modal.transFormatValue = 1
+      this.modal.transFormatValue = 4
     }
     this.dropDownList.transactionPositionList = await this._orgService.getTransactionPosition()
     if (!_.isEmpty(this.dropDownList.transactionPositionList) && this.dropDownList.transactionPositionList.length > 0) {
@@ -150,7 +150,7 @@ export class TransactionNumberComponent implements OnInit {
       const today = new Date();
       date = this._globalService.utcToClientDateFormat(today.toUTCString(), format)
       dateArray = date.split('-')
-      this.modal.dateString = `${dateArray[1]}-${dateArray[2]}`
+      this.modal.dateString = `${dateArray[1]}${dateArray[2]}`
       if (!_.isEmpty(this.modal.selectedPosition) && Number(this.modal.selectedPosition.id) > 0) {
         this.generateDemoString()
       }

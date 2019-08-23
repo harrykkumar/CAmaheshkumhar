@@ -28,33 +28,26 @@ export class BalanceSheetReportComponent implements OnInit {
   fromDateShow : any
   clientDateFormat: any
   constructor( public _router: Router,public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
-    //  this.getSaleChallanDetail()
   
     this.newDateSub = this._commonService.getsearchByDateForBalancesheetStatus().subscribe(
       (obj: any) => {
-       // console.log(obj ,"blnc----------")
         this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
         this.getModuleSettingData()
         this.toDateShow = obj.toDate
         this.fromDateShow = obj.fromDate
         this.getbalancesheetdata(obj.toDate ,obj.fromDate)
-      
-     
- 
-
       }
     )
 
   }
+  ngOnDestroy() { 
+    this.detailRecivedSubscription.unsubscribe();
+    this.newDateSub.unsubscribe()
+}
   decimalDigit:any
   loggedinUserData: any
   ngOnInit () {
     this.onload()
-  //  this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
-   // this.getModuleSettingData()
-   // this.getbalancesheetdata(this.toDateShow,this.fromDateShow)
- 
-
   }
   onload(){
     this.headervalue2 =0
@@ -103,9 +96,10 @@ export class BalanceSheetReportComponent implements OnInit {
   headervalue2First:any=0
   headI1dData:any =[]
   headI2dData:any=[]
+  detailRecivedSubscription: Subscription;
   getbalancesheetdata (todate,fromdate) {
    this.mainData =[]
-    this._commonService.getBalanceSheetList(todate,fromdate).subscribe(data => {
+   this.detailRecivedSubscription = this._commonService.getBalanceSheetList(todate,fromdate).subscribe(data => {
       
       this.headervalue2 =0
       this.headervalue1 =0
@@ -127,7 +121,7 @@ export class BalanceSheetReportComponent implements OnInit {
              }
           });
         }
-            if( data.Data.ImageContents.length >0 && data.Data.OrganizationDetails.length >0 && data.Data.EmailDetails.length >0 &&  data.Data.AddressDetails.length >0 && data.Data.ContactInfoDetails.length >0){
+            if( data.Data.ImageContents.length >0 || data.Data.OrganizationDetails.length >0 ||  data.Data.EmailDetails.length >0 ||  data.Data.AddressDetails.length >0 || data.Data.ContactInfoDetails.length >0){
             this.orgDetails =data.Data
             }
         }
@@ -164,9 +158,17 @@ export class BalanceSheetReportComponent implements OnInit {
   }
 
   openLedgerSummary (item){
-      if( item.LevelNo ===3){
+    console.log(item)
+      if( item.LevelNo ===3 && item.GlId !==22){
         this._commonService.ledgerSummary(item.GlId,item.GlName)
        this._router.navigate(['/account/ledger-summary'])
+      }
+      if(item.GlId ===-999){
+       this._router.navigate(['/account/Profit-Loss'])
+      }
+      if(( item.LevelNo ===3 && item.GlId ===22 ) || (item.GlId ===22 )){
+        this._commonService.AddedItem()
+       this._router.navigate(['/ims/report/item-inventory'])
       }
   }
 

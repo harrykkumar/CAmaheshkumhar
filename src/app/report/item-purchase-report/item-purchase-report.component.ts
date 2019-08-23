@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit,ViewChild } from '@angular/core'
 import { Subscription } from 'rxjs'
 import { FormGroup } from '@angular/forms'
 import { SaleTravel, AddCust } from '../../model/sales-tracker.model'
@@ -8,6 +8,8 @@ import { CommonService } from '../../commonServices/commanmaster/common.services
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { Settings } from '../../shared/constants/settings.constant'
 import {animation,trigger,query, style, transition,animate ,group} from "@angular/animations";
+import { PagingComponent } from './../../shared/pagination/pagination.component';
+
 @Component({
   selector: 'app-item-purchase-report',
   templateUrl: './item-purchase-report.component.html',
@@ -28,6 +30,11 @@ export class ItemPurchaseReportComponent implements OnInit {
   totalBillAmount: number
   newBillSub: Subscription
   dateShow: any
+  lastItemIndex: number = 0
+  pageSize: number = 20
+  pageNo: number = 1
+  page:any=1
+  totalItemSize: number = 0
   clientDateFormat: any
   noOfDecimal:any
   constructor(public _settings: Settings ,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
@@ -43,17 +50,35 @@ export class ItemPurchaseReportComponent implements OnInit {
     )
 
   }
+  onLastValueChange = (event) => {
+    this.lastItemIndex = event
+  }
+  viewFlag:any
+  isViewPrint:boolean =false
+  onPageNoChange = (event) => {
+    this.isViewPrint= false
+    this.viewFlag=true
+    this.pageNo = event
+    this.getItemSaleDetails(UIConstant.SALE_TYPE ,0,'','','','','' ,this.page, this.pageNo)
 
+  }
+
+  onPageSizeChange = (event) => {
+    this.isViewPrint= false
+    this.viewFlag=true
+    this.pageSize = event
+    this.getItemSaleDetails(UIConstant.SALE_TYPE ,0,'','','','','' ,this.page, this.pageSize )
+    
+  }
   ngOnInit () {
     this._commonService.fixTableHF('cat-table')
     this.getItemSaleDetails(UIConstant.PURCHASE_TYPE ,0,'','','','','' ,1,10)
   }
+  @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
 
   toShowSearch = false
   simpleState = 'initial'
   toggleSearch() {
-    // this.simpleState = this.simpleState === 'initial' ? 'extended' : 'initial'
-    // this._commonService.openSearchToggle('')
     this.toShowSearch = !this.toShowSearch
   }
   Attributelabel: any

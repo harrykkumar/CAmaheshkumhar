@@ -53,28 +53,21 @@
                         </select>
                       </div>
               </div>
-            <div class="form-group col-md-3 col-lg-2 col-xl-2">
-                <label>Organisation Name</label>
-                <div class="input-group adw_select">
-                  <select2 #organisation_select2  id="organisation"
-                    [data]="organisationsData"
-                    [disabled]="editMode"
-                    class="control_select"
-                    (valueChanged)="onChangeOrganisationId($event)"
-                    autocomplete="true" 
-                    [options]="{placeholder: 'Select Organisation'}"
-                    [ngClass]="{'errorSelecto': submitSave && invalidObj?.OrgId }"
-                    [value]="organisationValue">
-                  </select2>
-                </div>
-              </div>
+           
+              <div class="form-group col-md-3 col-lg-2 col-xl-2">
+                <label for="orgnizationName">Organization Name</label>
+                <input readonly ='true' type="text" class="form-control" id="orgnizationName"
+                  placeholder="Orgnization Name" class="form-control"
+                  name="orgnizationName" [(ngModel)]="orgnizationName">
+            </div>
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label class="fw-500">Bill Date</label>
-              <!-- <ngbd-datepicker-popup [disableInput]="editMode"
-               [toSetDate]="'today'" [isBackDate]="backDateEntry"
-               (dateInFormat)="billDateChange($event)" 
-               [class]="submitSave && invalidObj?.BillDate"
-              ></ngbd-datepicker-popup> -->
+              
+              <!-- <datepicker2-popup [disableInput]="editMode"
+              [toSetDate]="CurrentDate" 
+              (dateInFormat)="CurrentDate = $event;  getNewBillNo();checkForValidation();"
+              [class]="submitSave && invalidObj?.CurrentDate" >
+            </datepicker2-popup> -->
               <datepicker-popup [disableInput]="editMode"
               [toSetDate]="CurrentDate" 
               (dateInFormat)="CurrentDate = $event;  getNewBillNo();checkForValidation();"
@@ -233,7 +226,7 @@
                       <div class="discount">
                         <select2 #taxSlab_select2 [data]="taxSlabsData" class="control_select"
                           (valueChanged)="onTaxSlabSelect($event)" autocomplete="true"
-                          [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.TaxSlabId }"
+                          
                           [options]="{ placeholder: 'Select Tax Slab' }" [value]="taxSlabValue" ></select2>
                       </div>
                     </td>

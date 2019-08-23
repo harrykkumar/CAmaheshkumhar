@@ -1,5 +1,3 @@
-// File is created by Dolly Garg
-
 import { Injectable } from '@angular/core'
 import { Subject, Observable } from 'rxjs'
 import { Select2OptionData } from 'ng2-select2'

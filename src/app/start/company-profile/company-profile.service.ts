@@ -1,3 +1,5 @@
+import { Settings } from 'src/app/shared/constants/settings.constant';
+import { GlobalService } from 'src/app/commonServices/global.service';
 /* Created by Bharat */
 import { CommonService } from '../../commonServices/commanmaster/common.services'
 import { Injectable } from '@angular/core'
@@ -17,7 +19,9 @@ export class CompanyProfileService {
   constructor (
     private _baseService: BaseServices,
     private _commonService: CommonService,
-    private _vendorService: VendorServices) {
+    private _vendorService: VendorServices,
+    private gs: GlobalService,
+    private setting: Settings) {
   }
 
    /* Funtion to update the organisation profile data  */
@@ -250,9 +254,11 @@ export class CompanyProfileService {
       pipe(
         map((data: any) => {
           const list = _.map(data.Data, (element) => {
+            const fromDate = this.gs.utcToClientDateFormat(new Date(element.FromDate), this.setting.dateFormat)
+            const toDate = this.gs.utcToClientDateFormat(new Date(element.ToDate), this.setting.dateFormat)
             return {
               id: element.Id,
-              text: element.FinYear,
+              text: `${fromDate}-${toDate}`,
               IsCurrent: element.IsCurrent
             }
           })
@@ -402,4 +408,25 @@ export class CompanyProfileService {
     return this._baseService.getRequest(url)
   }
 
+  async getOrgDetails (): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.getCompanyProfileDetails().subscribe((data) => {
+        debugger
+        if (data.Code === UIConstant.THOUSAND && data.Data) {
+          console.log(data ,'company')
+          if(data.Data.OrganisationDetails.length>0 && data.Data.OrganisationDetails[0].ProcessId){
+            this.setting.industryId = data.Data.OrganisationDetails[0].ProcessId
+
+          }
+          this.setting.CompanyDetails = JSON.stringify(data.Data.Statutories[0])
+          resolve();
+        } else {
+          resolve(data.Description)
+        }
+      },
+      (error) => {
+        console.log(error)
+      });
+    })
+  }
 }

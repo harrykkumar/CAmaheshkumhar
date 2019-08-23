@@ -157,6 +157,13 @@ export class SalesChallanComponent  implements   OnInit  {
       if (data.Code === UIConstant.THOUSAND ) {
       console.log('sales data: ', data)
         this.totalBillAmount = 0
+        if(data.Data.length>0){
+          this.notRecordFound = false
+        }
+        else{
+          this.notRecordFound = true
+
+        }
         this.saleTravelDetails = data.Data
         this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
 
@@ -170,6 +177,7 @@ export class SalesChallanComponent  implements   OnInit  {
       }
     })
   }
+  notRecordFound:any = true
 ngOnInit() {
   this._commonService.fixTableHF('table_challan')
    fromEvent(this.searchData.nativeElement, 'keyup').pipe(

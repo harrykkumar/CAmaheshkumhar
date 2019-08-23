@@ -17,6 +17,7 @@ import { parse } from 'path';
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { Router } from '@angular/router';
 // import { GlobalService } from '../../../commonServices/global.service'
 
 @Component({
@@ -27,10 +28,13 @@ import { NgxSpinnerService } from 'ngx-spinner';
 export class DashboardComponent {
   DateFormate: any
   noOfDecimal: any = 0
-
-  constructor(public gs:GlobalService,public _settings: Settings,
+  overDueValue:any = 'Sale'
+  constructor(
+    public gs: GlobalService,
+    public _settings: Settings,
     public _commonService: CommonService,
-    private spinnerService: NgxSpinnerService
+    private spinnerService: NgxSpinnerService,
+    private router: Router
   ) {
     this.spinnerService.hide()
   }
@@ -38,16 +42,13 @@ export class DashboardComponent {
   FinFromDate;
   ngOnInit() {
     this.getSetUpModules((JSON.parse(this._settings.moduleSettings).settings))
-
     this.spinnerService.hide();
     this.DateFormate = this._settings.dateFormat
     this.noOfDecimal = this._settings.noOfDecimal
-    this.finToDate = this._settings.finFromDate
-    this.FinFromDate = this._settings.finToDate
+    this.finToDate =  this._settings.finToDate 
+    this.FinFromDate = this._settings.finFromDate
     let todate = this.gs.utcToClientDateFormat( this.finToDate, this.clientDateFormat)
     let fromDate = this.gs.utcToClientDateFormat(this.FinFromDate, this.clientDateFormat)
-    console.log(todate,fromDate, 'yes-findate')
-
     this.getDashBoard(todate,fromDate)
    
   }
@@ -94,7 +95,7 @@ export class DashboardComponent {
   ChartflowLabelData:any =[]
   fincialdata:any=[]
   getDashBoard(todate ,fromDate) {
-    this.subscribe = this._commonService.getDashBoardData('?TypeWise=Month'+'&fromDate='+todate+'&todate='+fromDate).subscribe(resp => {
+    this.subscribe = this._commonService.getDashBoardData('?TypeWise=Month'+'&fromDate='+fromDate+'&todate='+todate).subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND) {
         console.log(resp.Data, 'Dashboard')
         this.AllDataDashboard = resp.Data
@@ -264,6 +265,20 @@ if(FincialData.length>0){
     if(labelData.length>0){
       this.cashflowLabels = labelData; 
     }
-  
   }
+
+  navigateTo() {
+    const fromDate = this.gs.utcToClientDateFormat(new Date(this.FinFromDate), this.clientDateFormat)
+    const toDate = this.gs.utcToClientDateFormat(new Date(this.finToDate), this.clientDateFormat)
+    this.router.navigate([`report/msmed-outstanding/details`],
+      {
+        queryParams: {
+          FromDate: fromDate,
+          ToDate: toDate,
+          ReportType: 'DUE',
+          Type: this.overDueValue ? this.overDueValue : ''
+        }
+      });
+  }
+
 }
