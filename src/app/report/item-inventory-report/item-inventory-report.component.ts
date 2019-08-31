@@ -9,6 +9,7 @@ import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { map, takeUntil } from 'rxjs/operators';
 import { Settings } from '../../shared/constants/settings.constant'
 import { GlobalService } from 'src/app/commonServices/global.service';
+import { ExcelService } from '../../commonServices/excel.service';
 
 // import { NgxExtendedPdfViewerService } from '../../projects/ngx-extended-pdf-viewer/src/lib/ngx-extended-pdf-viewer.service';
 @Component({
@@ -55,13 +56,11 @@ export class ItemInventoryReportComponent implements OnInit {
   setTodate: any
   setfromdate: any
   // public base64 = pdfBase64; // this.base64ToArrayBuffer(pdfBase64);
-  constructor(public gs: GlobalService, public _settings: Settings, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+  constructor(public excelService: ExcelService, public gs: GlobalService, public _settings: Settings, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     this.noOfDecimal = this._settings.noOfDecimal
     this.clientDateFormat = this._settings.dateFormat
     this.finToDate = this._settings.finToDate
     this.finFromDate = this._settings.finFromDate
-    this.setfromdate = this.gs.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
-    this.setTodate = this.gs.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
     this.RedirectFlag = true
     this._commonService.newRefreshItemStatus().subscribe(
       (obj: any) => {
@@ -69,6 +68,8 @@ export class ItemInventoryReportComponent implements OnInit {
         this.getOnLoad()
       }
     )
+    this.setfromdate = this.gs.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
+    this.setTodate = this.gs.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
   }
   getOnLoad() {
     let toDate = this.gs.clientToSqlDateFormat(this.setTodate, this.clientDateFormat)
@@ -112,6 +113,9 @@ export class ItemInventoryReportComponent implements OnInit {
   SummaryData: any = []
   ClosingStock: any
   OrgDetails: any = {}
+  mainDataExcel: any = []
+  ExcelHeaders: any
+  ExcelSummary:any
   getInventoryDetail(Value) {
     this._commonService.getReportItemInventory(Value).pipe(
       takeUntil(this.unSubscribe$)
@@ -121,6 +125,36 @@ export class ItemInventoryReportComponent implements OnInit {
         if (data.Code === UIConstant.THOUSAND && data.Data.InventoryItems.length > 0) {
           this.OrgDetails = data.Data
           this.mainData = data.Data.InventoryItems
+          let sumTatal =data.Data.InventoryItemsSummary
+          this.mainDataExcel = []
+          this.ExcelHeaders = ["SNo", "Item", "Opening Qty", "Opening Rate", "Opening Amount"
+            , "Purchase Qty", "Purchase Rate", "Purchase Amount", "Sale Qty", "Sale Rate", "Sale Amount"
+            , "Closing Qty", "Closing Rate", "Closing Amount"]
+            this.ExcelSummary = ["Total", "", 
+            sumTatal[0].OpeningQty,  "",  sumTatal[0].OpeningAmount.toFixed(this.noOfDecimal)
+            , sumTatal[0].PurchaseQty,"", sumTatal[0].PurchaseAmt.toFixed(this.noOfDecimal), 
+            sumTatal[0].SaleQty, "",sumTatal[0].SaleAmt.toFixed(this.noOfDecimal)
+            ,sumTatal[0].ClosingQty, "", sumTatal[0].ClosingAmt.toFixed(this.noOfDecimal)]
+          data.Data.InventoryItems.forEach((element, i) => {
+            this.mainDataExcel.push([
+              i + 1,
+              element.ItemName,
+              element.OpeningQty,
+              element.OpeningRate.toFixed(this.noOfDecimal),
+              element.OpeningAmount.toFixed(this.noOfDecimal),
+              element.PurchaseQty.toFixed(2),
+              element.PurchaseRate.toFixed(this.noOfDecimal),
+              element.PurchaseAmt.toFixed(this.noOfDecimal),
+              element.SaleQty.toFixed(2),
+              element.SaleRate.toFixed(this.noOfDecimal),
+              element.SaleAmt.toFixed(this.noOfDecimal),
+              element.ClosingQty.toFixed(2),
+              element.ClosingRate.toFixed(this.noOfDecimal),
+              element.ClosingAmt.toFixed(this.noOfDecimal),
+            ])
+
+          });
+
           this.SummaryData = data.Data.InventoryItemsSummary
           this.totalItemSize = data.Data.InventoryItems[0].TotalRows;
           if (this.isViewPrint) {
@@ -189,11 +223,14 @@ export class ItemInventoryReportComponent implements OnInit {
   }
 
   getItemStockReportList = () => {
+    this.setfromdate = this.filterParameters.formattedFromDatevalue ?  this.filterParameters.formattedFromDatevalue : ""
+    this.setTodate = this.filterParameters.formattedToDateValue ? this.filterParameters.formattedToDateValue : ""
+
     const data = {
       CategoryId: this.filterParameters.selectedCategory ? this.filterParameters.selectedCategory : "",
       ItemId: this.filterParameters.selectedItem ? this.filterParameters.selectedItem : "",
-      FromDate: this.filterParameters.formattedFromDatevalue ? this.filterParameters.formattedFromDatevalue : "",
-      ToDate: this.filterParameters.formattedToDateValue ? this.filterParameters.formattedToDateValue : "",
+      FromDate: this.setfromdate,
+      ToDate: this.setTodate,
       Page: this.filterParameters.pageNo ? this.filterParameters.pageNo : 1,
       Size: this.filterParameters.pageSize ? this.filterParameters.pageSize : 20,
       Type: 'ItemGroupWise'
@@ -242,6 +279,15 @@ export class ItemInventoryReportComponent implements OnInit {
 
     }, 100)
 
+  }
+
+  export() {
+    if (this.mainDataExcel.length > 0) {   this.excelService.generateExcel(this.OrgDetails.OrganizationDetails[0].OrgName,
+        this.OrgDetails.AddressDetails[0].CityName + ' ' + this.OrgDetails.AddressDetails[0].StateName + ' ' + this.OrgDetails.AddressDetails[0].CountryName,
+        this.ExcelHeaders, this.mainDataExcel, 'Item Inventory Report', 
+        this.setfromdate, this.setTodate ,this.ExcelSummary)
+
+    }
   }
 }
 

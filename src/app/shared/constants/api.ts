@@ -388,5 +388,8 @@ export class ApiConstant {
   public static get USER_UTILITY(): string { return this.BASE_URL + '/api/v1/setting/UserUtility' }
 
   public static get CHANGE_PASSWORD(): string { return this.BASE_URL + '/api/v1/ChangePassword' }
+
+  public static get ORG_DETAILS_PRINT(): string { return this.BASE_URL + '/api/v1/common/printutility' }
+
   
 }

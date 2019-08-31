@@ -133,7 +133,7 @@ export class serviceBillingService {
   }
 
   createPaymentModes (array) {
-    let newData = [{ id: '0', text: 'Select Payment Modes' }]
+    let newData = [{ id: '0', text: 'Select Payment Mode' }]
     array.forEach(data => {
       newData.push({
         id: data.Id,

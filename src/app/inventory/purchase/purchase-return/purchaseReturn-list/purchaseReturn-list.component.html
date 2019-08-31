@@ -42,16 +42,16 @@
                     <tr>
                         <ng-container *ngFor="let foot of customFooter;">
                             <th [colSpan]="foot.colspan"></th>
-                            <th class="text-right font-weight-bold" *ngFor="let data of foot.data" >{{data}}</th>
+                            <th class="text-right font-weight-bold" *ngFor="let data of foot.data" >{{data.toFixed(noOfDecimalPoint)}}</th>
                         </ng-container>
                         <th></th>
                     </tr>
                 </tfoot>
-                <tfoot  *ngIf="notRecordFound" >
+                <!-- <tfoot  *ngIf="notRecordFound" >
                     <tr>
                         <th style="padding-left: 505px !important;">Record Not Found</th>
                     </tr>
-                </tfoot>
+                </tfoot> -->
             </table>
         </div>
     </div>

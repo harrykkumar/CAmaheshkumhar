@@ -10,6 +10,7 @@ import * as _ from 'lodash'
 import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
+import { ExcelService } from '../../commonServices/excel.service';
 
 @Component({
   selector: 'app-sale-register',
@@ -29,24 +30,25 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
   private unSubscribe$ = new Subject<void>()
 
   constructor(
+    public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
     private _toastService: ToastrCustomService,
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this.noOfDecimal =this._settings.noOfDecimal
+    this.noOfDecimal = this._settings.noOfDecimal
     this.getLedgerItemList();
   }
-  noOfDecimal:any
+  noOfDecimal: any
   ngOnInit() {
-    this.viewFlag =true
-    this.isViewPrint=false
+    this.viewFlag = true
+    this.isViewPrint = false
     this.getSaleRegisterData();
     this._commonService.fixTableHF('cat-table')
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     this.toDate()
     this.fromDate()
   }
@@ -55,7 +57,7 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
   }
 
   toDate = () => {
-        this.model.toDateValue =   ''
+    this.model.toDateValue = ''
   }
 
   onLedgerItemChange = (event) => {
@@ -79,9 +81,9 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
       })
   }
   getValueFalg: boolean = true
-
+  ExcelHeaders: any
   getSaleRegisterData = () => {
-    this.saleRegister ={}
+    this.saleRegister = {}
     let fromDate, toDate
     if (this.model.fromDatevalue) {
       fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
@@ -92,7 +94,7 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
     const data = {
       FromDate: fromDate ? fromDate : '',
       ToDate: toDate ? toDate : '',
-      Type:'Sale ',
+      Type: 'Sale ',
       Page: this.pageNo,
       Size: this.pageSize
     }
@@ -101,40 +103,49 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.Itemstockdetails.length > 0) {
         this.saleRegister = response.Data;
-       this.getValueFalg = false
-        // if(this.isViewPrint ){
-        //   this.printLoad(this.htmlLoadid,this.isViewPrint)
-        // }
+        this.mainDataExcel = []
+        this.ExcelHeaders = ["SNo", "Months", "Sales Return", "Total Sales", "Net Sales"]
+
+        response.Data.Itemstockdetails.forEach((element, ind) => {
+          this.mainDataExcel.push([
+            ind + 1,
+            element.Month,
+            (element.Debit).toFixed(this.noOfDecimal),
+            (element.Credit).toFixed(this.noOfDecimal),
+            (element.Balance).toFixed(this.noOfDecimal),
+          ])
+        });
+        this.getValueFalg = false
       } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.Itemstockdetails.length === 0) {
         this.getValueFalg = true
         this.saleRegister = {
           Itemstockdetails: [],
           ItemstockdetailsSummary: [],
-          AddressDetails:[],
-          ContactInfoDetails:[],
-          EmailDetails:[],
-          OrganizationDetails:[],
-          ImageContents:[]
+          AddressDetails: [],
+          ContactInfoDetails: [],
+          EmailDetails: [],
+          OrganizationDetails: [],
+          ImageContents: []
         }
         this.totalItemSize = 0;
       } else {
         this._toastService.showError("Error in Data Fetching", '');
       }
-      console.log(this.saleRegister  ,'fff')
+      console.log(this.saleRegister, 'fff')
     }, (error) => {
       console.log(error);
     });
   }
 
   onPageNoChange = (event) => {
-    this.isViewPrint= false
+    this.isViewPrint = false
     this.pageNo = event
     this.getSaleRegisterData()
   }
 
   onPageSizeChange = (event) => {
     this.pageSize = event
-    this.isViewPrint= false
+    this.isViewPrint = false
     this.getSaleRegisterData()
   }
 
@@ -146,34 +157,34 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
-  searchResetButton (){
-    this.isViewPrint= false
-    this.viewFlag=true
-    this.model.toDateValue =''
-    this.model.fromDatevalue =''
+  searchResetButton() {
+    this.isViewPrint = false
+    this.viewFlag = true
+    this.model.toDateValue = ''
+    this.model.fromDatevalue = ''
     this.getSaleRegisterData()
   }
-  
-  isViewPrint:boolean = false
-  htmlLoadid:any =0
-  viewPrint:any
-  viewFlag:any
-  openPrint (HtmlId ,isViewPrint) {
-    this.viewFlag=false
-    this.isViewPrint =isViewPrint
-    this.htmlLoadid= HtmlId
-   //this.getSaleRegisterData()
-   this.printLoad(HtmlId,isViewPrint)
+
+  isViewPrint: boolean = false
+  htmlLoadid: any = 0
+  viewPrint: any
+  viewFlag: any
+  openPrint(HtmlId, isViewPrint) {
+    this.viewFlag = false
+    this.isViewPrint = isViewPrint
+    this.htmlLoadid = HtmlId
+    //this.getSaleRegisterData()
+    this.printLoad(HtmlId, isViewPrint)
   }
-  searchButton (){
-    this.viewFlag=true
-    this.isViewPrint= false
+  searchButton() {
+    this.viewFlag = true
+    this.isViewPrint = false
     this.getSaleRegisterData()
   }
-  closeBtn (){
-    this.viewFlag=true
+  closeBtn() {
+    this.viewFlag = true
   }
-  printLoad (cmpName,isViewForm) {
+  printLoad(cmpName, isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open()
@@ -183,16 +194,23 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
     printWindow.document.write('</body></html>')
     printWindow.document.close()
     printWindow.focus()
-    // $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
-    this.viewFlag=true
+    this.viewFlag = true
     setTimeout(function () {
- //   if(this.isViewForm){
-        document.getElementsByTagName('body')[0] .classList.add('hidden-print');
-     printWindow.print()
-     printWindow.close()
-    //}
-    
+      document.getElementsByTagName('body')[0].classList.add('hidden-print');
+      printWindow.print()
+      printWindow.close()
+
     }, 100)
-   
+
+  }
+  mainDataExcel: any = []
+  exportExcel() {
+    if (this.mainDataExcel.length > 0) {
+      this.excelService.generateExcel(this.saleRegister.OrganizationDetails[0].OrgName,
+        this.saleRegister.AddressDetails[0].CityName + ' ' +
+        this.saleRegister.AddressDetails[0].StateName + ' ' + this.saleRegister.AddressDetails[0].CountryName, this.ExcelHeaders,
+        this.mainDataExcel, 'Sale Register Report', this.model.fromDatevalue, this.model.toDateValue,[])
+
+    }
   }
 }

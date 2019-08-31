@@ -26,11 +26,15 @@ export class GstrAnx2ListComponent implements OnInit {
     public _settings: Settings,
     private router: Router,
     private gs: GlobalService,
-    private excelService : ExcelService
+    private excelService: ExcelService
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this.model.fromDatevalue = this.gs.utcToClientDateFormat(new Date(2019, 3, 1), this.clientDateFormat);
-    this.model.toDateValue = this.gs.utcToClientDateFormat(new Date(), this.clientDateFormat);
+    // this.model.fromDatevalue = this.gs.utcToClientDateFormat(new Date(2019, 3, 1), this.clientDateFormat);
+    // this.model.toDateValue = this.gs.utcToClientDateFormat(new Date(), this.clientDateFormat);
+
+    this.model.fromDatevalue = this.gs.utcToClientDateFormat(this._settings.finFromDate, this._settings.dateFormat)
+    this.model.toDateValue = this.gs.utcToClientDateFormat(this._settings.finToDate, this._settings.dateFormat)
+
   }
 
   ngOnInit() {
@@ -70,19 +74,19 @@ export class GstrAnx2ListComponent implements OnInit {
             this.gstrAnxTwoSummary[i].NoOfRecord = data.NoOfRecord ? data.NoOfRecord : 0
             this.gstrAnxTwoSummary[i].TaxableVal = data.TaxableVal ? data.TaxableVal : 0
           } else {
-            this.gstrAnxTwoSummary[i].NoOfRecord =  0
-            this.gstrAnxTwoSummary[i].TaxableVal =  0
+            this.gstrAnxTwoSummary[i].NoOfRecord = 0
+            this.gstrAnxTwoSummary[i].TaxableVal = 0
           }
           this.gstrAnxTwoSummary[i].dynamicHeaderList = JSON.parse(JSON.stringify(res.Data.TaxTitleDetails));
           _.forEach(this.gstrAnxTwoSummary[i].dynamicHeaderList, (taxItem, j) => {
-                const obj = _.find([...res.Data.GstrTaxSummary], {Rank: item.Rank, TaxTitleId: taxItem.Id});
-                if(!_.isEmpty(obj)){
-                  this.gstrAnxTwoSummary[i].dynamicHeaderList[j].TaxableVal = obj.TaxableVal ? obj.TaxableVal : 0
-                  this.gstrAnxTwoSummary[i].dynamicHeaderList[j].TaxRateName = obj.TaxRateName ? obj.TaxRateName : ''
-                } else {
-                  this.gstrAnxTwoSummary[i].dynamicHeaderList[j].TaxableVal = 0
-                  this.gstrAnxTwoSummary[i].dynamicHeaderList[j].TaxRateName = ''
-                }
+            const obj = _.find([...res.Data.GstrTaxSummary], { Rank: item.Rank, TaxTitleId: taxItem.Id });
+            if (!_.isEmpty(obj)) {
+              this.gstrAnxTwoSummary[i].dynamicHeaderList[j].TaxableVal = obj.TaxableVal ? obj.TaxableVal : 0
+              this.gstrAnxTwoSummary[i].dynamicHeaderList[j].TaxRateName = obj.TaxRateName ? obj.TaxRateName : ''
+            } else {
+              this.gstrAnxTwoSummary[i].dynamicHeaderList[j].TaxableVal = 0
+              this.gstrAnxTwoSummary[i].dynamicHeaderList[j].TaxRateName = ''
+            }
           })
         });
       } else {
@@ -106,5 +110,10 @@ export class GstrAnx2ListComponent implements OnInit {
 
   export() {
     this.excelService.exportByTableId('gstr_anx_2_table', 'Gstr_Anx2_Summary', 'gstrAnx2Summary');
+    // this.excelService.generateExcel(this.saleRegister.OrganizationDetails[0].OrgName,
+    //   this.saleRegister.AddressDetails[0].CityName + ' ' +
+    //   this.saleRegister.AddressDetails[0].StateName + ' ' + this.saleRegister.AddressDetails[0].CountryName, this.ExcelHeaders,
+    //   this.mainDataExcel, 'Sale Register Report', this.model.fromDatevalue, this.model.toDateValue)
+
   }
 }

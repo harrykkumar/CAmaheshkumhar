@@ -1327,4 +1327,27 @@ export class CommonService {
   getUserUtilityList(type) {
     return this.baseService.getRequest(`${ApiConstant.USER_UTILITY}?Type=${type}`)
   }
+  getOrgDetailsForPrintExcelPDF (){
+    return this.baseService.getRequest(`${ApiConstant.ORG_DETAILS_PRINT}`)
+  }
+  getNewBill (orgId, date, type) {
+    let queryString = ''
+    if (type === 1) {
+      queryString = 'TransactionType=' + type + '&&OrgId=' + orgId + '&&TransDate=' + date
+      return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_AUTO + queryString)
+    } else if (type === 2) {
+      queryString = 'Type=' + type + '&&BillDate=' + date + '&OrgId=' + orgId
+      return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_MANUAL + queryString)
+    }
+  }
+  // getOrgDetails (){
+  //   this.getOrgDetailsForPrintExcelPDF().subscribe(data=>{
+  //     if(data.Code === UIConstant.THOUSAND){
+  //       console.log(data.Data,"org-details")
+  //      return data.Data
+  //     }
+  //   })
+  // }
+
+
 }

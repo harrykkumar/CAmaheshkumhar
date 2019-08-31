@@ -29,8 +29,10 @@ export class GstrAnx1B2bDetailsComponent implements OnInit {
     private excelService: ExcelService
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this.model.fromDatevalue = this.gs.utcToClientDateFormat(new Date(2019, 3, 1), this.clientDateFormat);
-    this.model.toDateValue = this.gs.utcToClientDateFormat(new Date(), this.clientDateFormat);
+    // this.model.fromDatevalue = this.gs.utcToClientDateFormat(new Date(2019, 3, 1), this.clientDateFormat);
+    // this.model.toDateValue = this.gs.utcToClientDateFormat(new Date(), this.clientDateFormat);
+    this.model.fromDatevalue = this.gs.utcToClientDateFormat(this._settings.finFromDate, this._settings.dateFormat)
+    this.model.toDateValue = this.gs.utcToClientDateFormat(this._settings.finToDate, this._settings.dateFormat)
     this.route.queryParamMap.subscribe((params) => {
       this.model.Type = params.get('Type');
       this.model.ReportFor = params.get('ReportFor');
@@ -82,9 +84,9 @@ export class GstrAnx1B2bDetailsComponent implements OnInit {
         _.forEach(this.gstrAnx1B2bDetailSummary, (item, i) => {
           this.gstrAnx1B2bDetailSummary[i].dynamicHeaderList = JSON.parse(JSON.stringify(res.Data.TaxTitleDetails));
           _.forEach(this.gstrAnx1B2bDetailSummary[i].dynamicHeaderList, (taxItem, j) => {
-                const obj = _.find([...res.Data.GstrTaxSummary], {SaleId: item.SaleId, HsnCode: item.HsnCode, TaxTitleId: taxItem.Id});
+                const obj = _.find([...res.Data.GstrTaxSummary], {SaleId: item.SaleId, HsnCode: item.HsnCode, TaxTitleId: taxItem.Id, RowNumber: item.RowNumber});
                 if(!_.isEmpty(obj)){
-                  this.gstrAnx1B2bDetailSummary[i].dynamicHeaderList[j].TaxableVal = obj.TaxableVal ? obj.TaxableVal : 0
+                  this.gstrAnx1B2bDetailSummary[i].dynamicHeaderList[j].TaxableVal = obj.TaxableVal ? obj.TaxableVal : 0 
                   this.gstrAnx1B2bDetailSummary[i].dynamicHeaderList[j].TaxRateName = obj.TaxRateName ? obj.TaxRateName : ''
                 } else {
                   this.gstrAnx1B2bDetailSummary[i].dynamicHeaderList[j].TaxableVal = 0

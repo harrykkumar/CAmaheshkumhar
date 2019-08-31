@@ -859,7 +859,7 @@ export class PurchaseAddComponent {
             this.DiscountAmt = 0
           }
         }
-        this.AmountItem = this.AmountItem - this.DiscountAmt
+       // this.AmountItem = this.AmountItem - this.DiscountAmt
       }
       this.addItems()
       if (this.Items[this.Items.length - 1]) {
@@ -879,7 +879,7 @@ export class PurchaseAddComponent {
       * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
       * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
     )
-      //- (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
+      - (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
     return totalAmount
   }
 
@@ -1076,7 +1076,7 @@ export class PurchaseAddComponent {
     if (+this.OrgId > 0 && this.CurrentDate) {
       let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
       let type = (this.isBillNoManuall) ? 2 : 1
-      this.purchaseService.getNewBillNoPurchase(+this.OrgId, newBillDate, type).subscribe(
+      this.purchaseService.getNewBillNoPurchase(+this.OrgId, newBillDate, type,'Purchase').subscribe(
         data => {
           console.log('new bill no : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -1900,7 +1900,7 @@ export class PurchaseAddComponent {
         () => {
           if (this.AdditionalCharges.length === 0) {
             setTimeout(() => {
-              // this.updateTax()
+              this.calculate()
               this.getBillSummary()
             }, 100)
           } else {
@@ -1908,7 +1908,11 @@ export class PurchaseAddComponent {
           }
         }
       )
-    } else {
+    }
+    else if(this.Items.length ===0){
+        this.calculate()
+    } 
+     else {
       this.updateChargeTax()
     }
   }
@@ -1954,10 +1958,10 @@ export class PurchaseAddComponent {
     if (+event.value > 0 && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = +event.value
-      if (+event.value === 3) {
+      if (+event.value !== 1) {
         this.BankLedgerName = ''
         this.LedgerId = 0
-        this.setpaymentLedgerSelect2(0)
+        this.setpaymentLedgerSelect2(0,+event.value)
       } else if (+event.value === 1) {
         this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
         this.BankLedgerName = 'Cash'
@@ -1992,10 +1996,10 @@ export class PurchaseAddComponent {
     }
   }
 
-  setpaymentLedgerSelect2(i) {
+  setpaymentLedgerSelect2(i,paymentId) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this.commonService.getPaymentLedgerDetail(9).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+    this.commonService.getPaymentLedgerDetail(paymentId).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       // console.log('PaymentModeData : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
@@ -2020,7 +2024,7 @@ export class PurchaseAddComponent {
           this.ChequeNo = this.PaymentDetail[i].ChequeNo
           this.paymentSelect2.setElementValue(this.PayModeId)
           this.ledgerSelect2.setElementValue(this.LedgerId)
-          this.deleteItem(i, 'trans')
+          this.deleteItem(i, 'trans',false)
         }
       })
   }
@@ -2091,8 +2095,8 @@ export class PurchaseAddComponent {
 
   addTransactions() {
     //  && this.PayDate
-    if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
-      if ((+this.PayModeId === 3 && this.ChequeNo) || (+this.PayModeId === 1)) {
+   if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
+      if ((+this.PayModeId !== 1 ) || (+this.PayModeId === 1)) {
         if (this.checkValidationForAmount()) {
           this.addTransaction()
           this.clickTrans = true
@@ -2103,17 +2107,17 @@ export class PurchaseAddComponent {
         }
       } else {
         this.clickTrans = false
-        if (+this.PayModeId === 3) {
-          if (this.ChequeNo) {
-            this.invalidObj['ChequeNo'] = false
-          } else {
-            this.invalidObj['ChequeNo'] = true
-          }
-        } else {
-          this.invalidObj['ChequeNo'] = false
-        }
+        // if (+this.PayModeId === 3) {
+        //   if (this.ChequeNo) {
+        //     this.invalidObj['ChequeNo'] = false
+        //   } else {
+        //     this.invalidObj['ChequeNo'] = true
+        //   }
+        // } else {
+        //   this.invalidObj['ChequeNo'] = false
+        // }
       }
-    }
+   }
   }
 
   addTransaction() {
@@ -2274,7 +2278,7 @@ export class PurchaseAddComponent {
         this.chargeSelect2.setElementValue(LedgerChargeId)
         this.taxSlabChargeSelect2.setElementValue(this.TaxSlabChargeId)
         this.taxTypeChargeSelect2.setElementValue(this.TaxTypeCharge)
-        this.deleteItem(i, type)
+        this.deleteItem(i, type,false)
         this.validateCharge()
       }, 100)
     } else if (type === 'charge' && this.editChargeId !== -1) {
@@ -2283,10 +2287,10 @@ export class PurchaseAddComponent {
     if (type === 'trans' && this.editTransId === -1) {
       this.editTransId = editId
       i = i - 1
-      if (+this.PaymentDetail[i].PayModeId === 3) {
+      if (+this.PaymentDetail[i].PayModeId !== 1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
-        this.setpaymentLedgerSelect2(i)
+        this.setpaymentLedgerSelect2(i,+this.PaymentDetail[i].PayModeId)
       } else if (+this.PaymentDetail[i].PayModeId === 1) {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.Paymode = this.PaymentDetail[i].Paymode
@@ -2298,7 +2302,7 @@ export class PurchaseAddComponent {
         this.ChequeNo = this.PaymentDetail[i].ChequeNo
         this.paymentSelect2.setElementValue(this.PayModeId)
         this.ledgerSelect2.setElementValue(this.LedgerId)
-        this.deleteItem(i, type)
+        this.deleteItem(i, type,false)
       }
     } else if (type === 'trans' && this.editTransId !== -1) {
       this.toastrService.showInfo('', 'There is already one transaction to edit, please update it this first in order to edit others')
@@ -2356,14 +2360,14 @@ export class PurchaseAddComponent {
       setTimeout(() => {
         _self.itemselect2.setElementValue(ItemId)
         _self.ItemId = ItemId
-        _self.deleteItem(i, type)
+        _self.deleteItem(i, type,false)
       }, 1)
     } else if (type === 'items' && this.editItemId !== -1) {
       this.toastrService.showInfo('', 'There is already one item to edit, please update it this first in order to edit others')
     }
   }
 
-  deleteItem(i, forArr) {
+  deleteItem(i, forArr,flag) {
     if (forArr === 'trans') {
       this.PaymentDetail.splice(i, 1)
       this.checkValidationForAmount()
@@ -2377,7 +2381,7 @@ export class PurchaseAddComponent {
       console.log('after TaxAmount : ', this.TaxAmount)
     }
     if (forArr === 'charge') {
-      if (this.chargesData[i].disabled) {
+     if (flag) {
         this.alreadySelectCharge(this.AdditionalCharges[i].LedgerChargeId, this.AdditionalCharges[i].LedgerName, false)
       }
       this.AdditionalCharges.splice(i, 1)
@@ -2782,16 +2786,16 @@ export class PurchaseAddComponent {
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-      if (+this.PayModeId === 3) {
-        if (this.ChequeNo) {
-          this.invalidObj['ChequeNo'] = false
-        } else {
-          isValid = 0
-          this.invalidObj['ChequeNo'] = true
-        }
-      } else {
-        this.invalidObj['ChequeNo'] = false
-      }
+      // if (+this.PayModeId === 3) {
+      //   if (this.ChequeNo) {
+      //     this.invalidObj['ChequeNo'] = false
+      //   } else {
+      //     isValid = 0
+      //     this.invalidObj['ChequeNo'] = true
+      //   }
+      // } else {
+      //   this.invalidObj['ChequeNo'] = false
+      // }
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
@@ -3080,7 +3084,7 @@ export class PurchaseAddComponent {
     })
     return isValid
   }
-
+  DisabledSaveBtn:boolean = false
   manipulateData() {
     let _self = this
     this.submitSave = true
@@ -3116,11 +3120,13 @@ export class PurchaseAddComponent {
           this.checkValidationForAmount()
           if (valid) {
             if (this.checkForValidation() && this.isValidAmount && this.validItem && this.validTransaction) {
+              this.DisabledSaveBtn = true
               this.purchaseService.postPurchase(this.purchaseAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
                 data => {
                   console.log('data : ', data)
                   if (data.Code === UIConstant.THOUSAND && data.Data) {
                     _self.toastrService.showSuccess('Saved Successfully', '')
+                    this.DisabledSaveBtn= false
                     _self.commonService.newPurchaseAdd()
                     if (!this.keepOpen) {
                       _self.commonService.closePurchase()
@@ -3130,20 +3136,29 @@ export class PurchaseAddComponent {
                       _self.initCharge()
                       _self.initComp()
                       _self.initialiseExtras()
-                      this.getNewCurrentDate()
-                      this.getNewBillNo()
+                      this.editMode = false
+                       this.openModal()
+                       this.getNewCurrentDate()
+                       this.getNewBillNo()
+                       if(this.isBillNoManuall){
+                        this.BillNo =''
+                      }
                     }
                   } else if (data.Code === UIConstant.THOUSANDONE) {
+                    this.DisabledSaveBtn= false
                     _self.toastrService.showError(data.Message, 'Please change Bill No.')
                   
                     } else if (data.Code === UIConstant.REQUIRED_5020) {
+                      this.DisabledSaveBtn= false
                       _self.toastrService.showError(data.Message,'')
                     }
                   else {
+                    this.DisabledSaveBtn= false
                     _self.toastrService.showError(data.Message, '')
                   }
                 },
                 (error) => {
+                  this.DisabledSaveBtn= false
                   _self.toastrService.showError(error, '')
                 }
               )
@@ -3164,11 +3179,15 @@ export class PurchaseAddComponent {
       this.checkValidationForAmount()
       if (valid) {
         if (this.checkForValidation() && this.isValidAmount && this.validItem && this.validTransaction) {
+          this.DisabledSaveBtn = true
+
           this.purchaseService.postPurchase(this.purchaseAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
             data => {
               console.log('data : ', data)
               if (data.Code === UIConstant.THOUSAND && data.Data) {
                 _self.toastrService.showSuccess('Saved Successfully', '')
+              this.DisabledSaveBtn = false
+
                 _self.commonService.newPurchaseAdd()
                 if (!this.keepOpen) {
                   _self.commonService.closePurchase()
@@ -3178,16 +3197,25 @@ export class PurchaseAddComponent {
                   _self.initCharge()
                   _self.initComp()
                   _self.initialiseExtras()
+                  this.editMode = false
+                  this.openModal()
                   this.getNewCurrentDate()
                   this.getNewBillNo()
+                  if(this.isBillNoManuall){
+                    this.BillNo =''
+                  }
+               //   this.
                 }
               } else if (data.Code === UIConstant.THOUSANDONE) {
+                this.DisabledSaveBtn= false
                 _self.toastrService.showError(data.Message, 'Please change Bill No.')
               }
               else if (data.Code === UIConstant.REQUIRED_5020) {
+                this.DisabledSaveBtn= false
                 _self.toastrService.showError(data.Message,'')
               }
               else {
+                this.DisabledSaveBtn= false
                 _self.toastrService.showError(data.Message, '')
               }
             },
@@ -3197,6 +3225,7 @@ export class PurchaseAddComponent {
           )
         }
       } else {
+        this.DisabledSaveBtn= false
         this.toastrService.showError('The following are not unique', '')
       }
     }

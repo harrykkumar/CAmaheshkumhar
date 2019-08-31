@@ -12,6 +12,7 @@ import { GlobalService } from '../../../../../commonServices/global.service'
 import { Settings } from '../../../../../shared/constants/settings.constant'
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
 import {SetUpIds} from 'src/app/shared/constants/setupIds.constant'
+// import { SaleDirectReturnService } from '../../../../../../../../../../sales-return/saleReturn.service';
 
 declare var $: any
 declare const _: any
@@ -1722,8 +1723,12 @@ export class SalesChallanBillingComponent {
 
   }
 
-  setDueDate() {
-    this.DueDate = this._globalService.getDefaultDate(this.clientDateFormat)
+  setDueDate(setups) {
+    if (setups && setups.length > 0) {
+      this.DueDate  = this._globalService.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
+
+    }
+  //  this.DueDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
   setPayDate() {
     let _self = this
@@ -1736,12 +1741,30 @@ export class SalesChallanBillingComponent {
     this.MfdDate = ''
   }
   CurrentDate: any
-  setCurrentDate() {
-    this.CurrentDate = this._globalService.getDefaultDate(this.clientDateFormat)
+  getNewCurrentDate() {
+    this._commonService.getCurrentDate().subscribe(
+      data => {
+        console.log('current date : ', data)
+        if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+          this.setCurrentDate(data.Data)
+          this.setDueDate(data.Data)
+
+        }
+      }
+    )
   }
-  setBillDate() {
-    this.InvoiceDate = this._globalService.getDefaultDate(this.clientDateFormat)
+   setCurrentDate(setups) {
+    if (setups && setups.length > 0) {
+      this.InvoiceDate  = this._globalService.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
+
+    }
   }
+  // setCurrentDate(setups) {
+  //   this.CurrentDate = this._globalService.getDefaultDate(this.clientDateFormat)
+  // }
+  // setBillDate() {
+  //   this.InvoiceDate = this._globalService.getDefaultDate(this.clientDateFormat)
+  // }
   getOrgnization(data) {
     if (data.Data && data.Data.Organizations && data.Data.Organizations.length > 0) {
       this.setupOrganization = data
@@ -1773,7 +1796,7 @@ export class SalesChallanBillingComponent {
     this.RoundOffManual = 0
     this.inilizeAdditionCharge()
     this.clientNameId = ''
-    this.BillNo = ''
+  //  this.BillNo = ''
 
   }
 
@@ -2303,11 +2326,12 @@ export class SalesChallanBillingComponent {
     setTimeout(() => {
       this.clientSelect2.selector.nativeElement.focus()
     }, 1000)
-    this.setBillDate()
+    //this.setBillDate()
     this.setPayDate()
     this.setExpiryDate()
     this.setMFDate()
-    this.setDueDate()
+  //  this.setDueDate()
+  this.getNewCurrentDate()
   }
 
   closeModal() {
@@ -2722,6 +2746,7 @@ export class SalesChallanBillingComponent {
 
     })
   }
+  DisabledSaveBtn:boolean = false
   editAttributeDataSet2: any
   CurrencyRate: any = 0
   InterestRate: any
@@ -2738,6 +2763,7 @@ export class SalesChallanBillingComponent {
       this.addTransactions()
       this.addAdditionCharge()
       if (this.checkValidation()) {
+        this.DisabledSaveBtn = true
         console.log(JSON.stringify(this.items), 'Request')
         if (this.items.length !== 0) {
           if (this.InvoiceDate !== '') {
@@ -2757,24 +2783,16 @@ export class SalesChallanBillingComponent {
           }
           let obj = {}
           obj['Id'] = 0
-          //  obj['Commission'] = this.Commission
-          //  obj['CommissionType'] = this.CommissionTypeID
           obj['ChallanIds'] = this.ChallanIds
           obj['BillNo'] = this.BillNo
           obj['BillDate'] = this.InvoiceDateChngae
           obj['DueDate'] = this.DueDateChngae
-
           obj['BillAmount'] = this.netBillAmount,
-            // obj['ConvertedAmount'] = this.BillAmount,
             obj['CurrencyRate'] = this.CurrencyRate,
             obj['TotalDiscount'] = this.totalDiscount,
             obj['Freight'] = this.TotalFreight
           obj['FreightMode'] = this.freightById
           obj['PartyId'] = this.clientNameId
-          // obj['ReferId'] = this.referalsID
-          // obj['ReferTypeId'] = this.referalsTypeID
-          // obj['ReferralComission'] = this.BillAmount,
-          // obj['ReferralComissionTypeId'] = this.BillAmount,
           obj['ReverseCharge'] = 0
           obj['ReverseTax'] = 0
           obj['CessAmount'] = 0
@@ -2783,8 +2801,6 @@ export class SalesChallanBillingComponent {
             obj['TotalTaxAmount'] = this.totalTaxAmount,
             obj['TotalChallan'] = this.totalChallan,
             obj['stateId'] = this.stateId,
-            // obj['Drivername'] = this.BillAmount,
-            // obj['Transportation'] = this.BillAmount,
             obj['TotalQty'] = this.TotalQuantity,
             obj['OtherCharge'] = this.OtherCharge,
             obj['GodownId'] = this.godownId,
@@ -2803,7 +2819,6 @@ export class SalesChallanBillingComponent {
           obj['ItemAttributeTrans'] = this.sendAttributeData
           obj['AdditionalCharges'] = this.AdditionalChargeData
           obj['ItemTaxTrans'] = this.taxSlabSummery
-          // obj['CurrentDate'] = this.CurrentDateChngae
           obj['EwayBillNo']= this.EwayBillNo
           let _self = this
           console.log('sale-challan -bill-request : ', JSON.stringify(obj))
@@ -2811,6 +2826,7 @@ export class SalesChallanBillingComponent {
             (data: any) => {
               if (data.Code === UIConstant.THOUSAND) {
                 let saveName = this.MainEditID === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+                this.DisabledSaveBtn = false
 
                 _self.toastrService.showSuccess('', saveName)
                 _self._commonService.newSaleAdded()
@@ -2819,18 +2835,31 @@ export class SalesChallanBillingComponent {
                 } else {
                   _self.initComp()
                   _self.clearExtras()
+                  // this.openChallanModal()
+                  //    this.getNewBillNo()
+                  //    this.openChallanModal()
+
+                  // if(this.isManualBillNoEntry){
+                  //   this.BillNo = ''
+                  // }
                 }
               } else {
+                this.DisabledSaveBtn = false
+
                 _self.toastrService.showError(data.Code, data.Message)
               }
             }
           )
 
         } else {
+                this.DisabledSaveBtn = false
+
           this.toastrService.showError(UIConstant.ERROR, UIConstant.ADD_ITEM)
         }
       }
     } else {
+      this.DisabledSaveBtn = false
+
       this.toastrService.showWarning(UIConstant.WARNING, UIConstant.FIRST_SAVE_EDIT_ITEM)
     }
   }
@@ -3054,10 +3083,10 @@ export class SalesChallanBillingComponent {
         this.deleteEditPaymentFlag = false
         this.validateTransaction()
         // index = index - 1
-        if (+this.transactions[index].PayModeId === 3) {
+        if (+this.transactions[index].PayModeId !== 1) {
           this.paymodeSelect2.setElementValue('')
           this.ledgerSelect2.setElementValue('')
-          this.setpaymentLedgerSelect2(index)
+          this.setpaymentLedgerSelect2(index,+this.transactions[index].PayModeId)
         } else if (+this.transactions[index].PayModeId === 1) {
           this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
           this.Paymode = this.transactions[index].Paymode
@@ -3148,19 +3177,19 @@ export class SalesChallanBillingComponent {
         this.invalidObjPay['PayDate'] = true
       }
       
-      if (+this.PayModeId === 3) {
-        if (this.ChequeNo) {
-          this.invalidObjPay['ChequeNo'] = false
-          this.ChequeNoFlag = false
-        } else {
-          isValid = 0
-          this.invalidObjPay['ChequeNo'] = true
-          this.ChequeNoFlag = true
-        }
-      } else {
-        this.invalidObjPay['ChequeNo'] = false
-        this.ChequeNoFlag = false
-      }
+      // if (+this.PayModeId === 3) {
+      //   if (this.ChequeNo) {
+      //     this.invalidObjPay['ChequeNo'] = false
+      //     this.ChequeNoFlag = false
+      //   } else {
+      //     isValid = 0
+      //     this.invalidObjPay['ChequeNo'] = true
+      //     this.ChequeNoFlag = true
+      //   }
+      // } else {
+      //   this.invalidObjPay['ChequeNo'] = false
+      //   this.ChequeNoFlag = false
+      // }
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
@@ -3198,8 +3227,8 @@ export class SalesChallanBillingComponent {
     if (event.value && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = event.value
-      if (event.value === '3') {
-        this.setpaymentLedgerSelect2(0)
+      if (event.value !== '3') {
+        this.setpaymentLedgerSelect2(0,+event.value)
       } else if (event.value === '1') {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.ledgerName = 'Cash'
@@ -3220,11 +3249,11 @@ export class SalesChallanBillingComponent {
     }
     this.validateTransaction()
   }
-  setpaymentLedgerSelect2(i) {
+  setpaymentLedgerSelect2(i,paymentID) {
 
     this.ledgerPlaceHolder = { placeholder: 'Select Ledger' }
     let newData = [{ id: UIConstant.BLANK, text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this._commonService.getPaymentLedgerDetail(9).subscribe(data => {
+    this._commonService.getPaymentLedgerDetail(paymentID).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
           newData.push({
@@ -3917,7 +3946,6 @@ export class SalesChallanBillingComponent {
     let withoutTax = 0
     let totalTaxAmt = 0
     if (TaxArray.length > 0) {
-      //   let length = TaxArray.length 
       this.taxDetailsPerItem = []
       TaxArray.forEach(element => {
         let totalTaxAmt = 0

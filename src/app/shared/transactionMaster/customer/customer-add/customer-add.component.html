@@ -62,7 +62,7 @@
                               <label for="bill_no">Customer Type</label>
                               <div class="input-group adw_select">
                                 <div class="input-group adw_select">
-                                  <select2 #customer_type_select2 [data]="customerType" class="control_select" (valueChanged)="selectCustomerType($event)" autocomplete="true" [options]="coustmoerTypePlaceholder"  [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && customCustomer }" [value]="customerValue"></select2>
+                                  <select2 #customer_type_select2 [data]="customerType" class="control_select" (valueChanged)="selectCustomerType($event)" autocomplete="true" [options]="{placeholder :'Selcet Type'}"  [ngClass]="{ 'errorSelecto is-invalid': submitClick && customCustomer  }" [value]="customerValue"></select2>
                                 </div>
                               </div>
                             </div>

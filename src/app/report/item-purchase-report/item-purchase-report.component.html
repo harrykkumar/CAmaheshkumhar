@@ -24,12 +24,12 @@
                             </div>
                       <div class="btn_header">
                         <a>
-                          <img src="assets/img/printer.png">
+                          <img (click)="openPrint('open_Print_ItemPurchase')" src="assets/img/printer.png">
                         </a>
                         <a>
                           <img src="assets/img/pdf.png"></a>
                         <a>
-                          <img  src="assets/img/excel.png"></a>
+                          <img (click)="export()"  src="assets/img/excel.png"></a>
                        <!--      <button   type="button" class="btn btn-primary waves-effect waves-light" (click)="openSaleDirect('')" >
                           New invoice</button> -->
                         <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a>
@@ -62,9 +62,10 @@
                                     <th >ItemCode</th>
                                      <th  *ngFor ="let label of Attributelabel; let i= index"  colspan="1" rowspan="1" class="attribute_header ">{{label.Name}}</th>
                                     <th class="text-right" >Rate </th>
-                                    <th class="text-right">Qty</th>
 
                                     <th >BatchNo </th>
+                                    <th class="text-right">Qty</th>
+
                                     <th class="text-right"> Discount  </th>
                                     <th class="text-right">Tax Amount  </th>
                                     <th class="text-right">Sub Total Amount </th>
@@ -89,9 +90,10 @@
                                 <td *ngFor="let attributeValue  of item.attributeLabelValue; let a = index">{{item.attributeLabelValue[a] && item.attributeLabelValue[a]?.AttributeValueName }}
                                 </td>
                                 <td class="text-right">{{(item.SaleRate).toFixed(noOfDecimal)}}</td>
-                                <td class="text-right">{{item.Qty}}</td>
 
                                 <td>{{item.BatchNo}}</td>
+                                <td class="text-right">{{item.Qty}}</td>
+
                                 <td class="text-right" >{{(item.Discount).toFixed(noOfDecimal)}}</td>
                                 <td class="text-right">{{(item.TaxAmount).toFixed(noOfDecimal)}}</td>
                                 <td class="text-right">{{(item.SubTotalAmount).toFixed(noOfDecimal)}}</td>
@@ -107,9 +109,10 @@
                                     <th colspan="9"></th>
                                     <th class="attribute_header "   *ngFor ="let label of Attributelabel" ></th>
                                     <th colspan="1"></th>
-                                    <th class="text-right font-weight-bold">{{TotalQty}}</th>
 
                                     <th colspan="1"></th>
+                                    <th class="text-right font-weight-bold">{{TotalQty}}</th>
+
                                     <th class="text-right font-weight-bold">{{(totalDiscountAmt).toFixed(noOfDecimal)}}</th>
                                     <th class="text-right font-weight-bold">{{(totalTaxAmount).toFixed(noOfDecimal)}}</th>
                                     <th class="text-right font-weight-bold">{{(SubTotalAmount).toFixed(noOfDecimal)}}</th>
@@ -126,3 +129,106 @@
 </main>
 <app-pagination   #ledger_paging (lastValueEmitter)="onLastValueChange($event)" (pageNoEmitter)="onPageNoChange($event)"
 (pageSizeEmitter)="onPageSizeChange($event)"></app-pagination>
+
+<body id='open_Print_ItemPurchase'>
+        <div class="modal" id="mainContent">
+            <div class=" mt-2 main-balance">
+                <div class="row justify-content-center p-0">
+                    <div class="balancesheet bgc-white col-md-11 p-0">
+                        <div class="row text-center bs_head p-2">
+                                <div id="logo " class="col-md-3" style="text-align: left;">
+                                        <img height="75px" src="{{orgDetails && orgDetails.ImageContents && orgDetails.ImageContents[0]?.FilePath}}">
+                                    </div>
+                                <div class="col-md-6">
+                                    <div class="name text-center col-md-12 name_size font-weight-bold">
+                                        {{orgDetails && orgDetails.OrganizationDetails && orgDetails.OrganizationDetails[0]?.OrgName}}</div>
+                                      <div class="text-center col-md-12">{{orgDetails && orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.CityName}}
+                                        {{orgDetails && orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.StateName}}
+                                        {{orgDetails && orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.CountryName}}
+                                      </div>
+                                      <div class="name text-center col-md-12 font-weight-bold" style="font-size:18px; letter-spacing:3px;">
+                                            Item Purchase</div>
+                                      <div class="text-center col-md-12" style="font-weight:600;"> 
+                                        </div>
+                                </div>
+                                <div class="col-md-3"></div>
+                            </div>
+                            <table class="table cat-table cat-table fixTable2 table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th >SNo</th>
+                                            
+                                            <th >Ledger Name</th>
+                                            <th >Bill No</th>
+                                            <th >Bill Date </th>
+                                            <th >Category</th>
+                                            <th width="15%" >Item Name</th>
+                                             <th >Bar Code </th>
+                                            <th >HSN </th>
+                                            <th >ItemCode</th>
+                                             <th  *ngFor ="let label of Attributelabel; let i= index"  colspan="1" rowspan="1" class="attribute_header ">{{label.Name}}</th>
+                                            <th class="text-right" >Rate </th>
+        
+                                            <th >BatchNo </th>
+                                            <th class="text-right">Qty</th>
+
+                                            <th class="text-right"> Discount  </th>
+                                            <th class="text-right">Tax Amount  </th>
+                                            <th class="text-right">Sub Total Amount </th>
+                                            <th class="text-right" >Bill Amount  </th>
+        
+                                        </tr>      
+                                    </thead>
+                                    <tbody> 
+                                      <!-- <tr *ngFor="let item of mainData; let i = index"> -->
+                                            <tr *ngFor="let item of mainData
+                                            | paginate: { itemsPerPage: pageSize, currentPage: pageNo, totalItems: totalItemSize } ;
+                                            let i = index;">
+                                        <td>{{i+1}}</td>
+                                        <td>{{item.LedgerName}}</td>
+                                        <td>{{item.BillNo}}</td>
+                                        <td>{{item.BillDate | dateFormat:clientDateFormat}}</td>
+                                        <td>{{item.CategoryName}}</td>
+                                        <td>{{item.itemName}}</td>
+                                        <td>{{item.BarCode}}</td>
+                                        <td>{{item.HsnNo}}</td>
+                                        <td>{{item.ItemCode}}</td>
+                                        <td *ngFor="let attributeValue  of item.attributeLabelValue; let a = index">{{item.attributeLabelValue[a] && item.attributeLabelValue[a]?.AttributeValueName }}
+                                        </td>
+                                        <td class="text-right">{{(item.SaleRate).toFixed(noOfDecimal)}}</td>
+        
+                                        <td>{{item.BatchNo}}</td>
+                                        <td class="text-right">{{item.Qty}}</td>
+
+                                        <td class="text-right" >{{(item.Discount).toFixed(noOfDecimal)}}</td>
+                                        <td class="text-right">{{(item.TaxAmount).toFixed(noOfDecimal)}}</td>
+                                        <td class="text-right">{{(item.SubTotalAmount).toFixed(noOfDecimal)}}</td>
+                                        <td class="text-right">{{(item.BillAmount).toFixed(noOfDecimal)}}</td>
+                                        </tr>
+                                        <tr *ngIf='mainData.length ===0' class="text-center">
+                                                <!-- <td colspan="15"> No record Found</td> -->
+                                            <td class="recordNotFound" colspan="7"> No record Found</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="9"></th>
+                                            <th class="attribute_header "   *ngFor ="let label of Attributelabel" ></th>
+                                            <th colspan="1"></th>
+        
+                                            <th colspan="1"></th>
+                                            <th class="text-right font-weight-bold">{{TotalQty}}</th>
+
+                                            <th class="text-right font-weight-bold">{{(totalDiscountAmt).toFixed(noOfDecimal)}}</th>
+                                            <th class="text-right font-weight-bold">{{(totalTaxAmount).toFixed(noOfDecimal)}}</th>
+                                            <th class="text-right font-weight-bold">{{(SubTotalAmount).toFixed(noOfDecimal)}}</th>
+                                            <th colspan="1"></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+               
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>

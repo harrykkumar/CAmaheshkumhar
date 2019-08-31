@@ -56,10 +56,10 @@ export class PurchaseListComponent implements OnInit {
     )
     this.onTextEnteredSub = this.purchaseService.search$.subscribe(
       (text: string) => {
-        if (text.length > 0) {
+       // if (text.length > 0) {
           this.searchKey = text
           this.searchForStr(text)
-        }
+       // }
       }
     )
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
@@ -88,7 +88,9 @@ export class PurchaseListComponent implements OnInit {
       setTimeout(() => {
         this.isSearching = false
       }, 100)
-      this.createTableData(data.Data, '')
+      this.createTableData(data.Data.PurchaseTransactions, data.Data.PurchaseTransactionsSummary)
+
+      // this.createTableData(data.Data, '')
     },(err) => {
       setTimeout(() => {
         this.isSearching = false

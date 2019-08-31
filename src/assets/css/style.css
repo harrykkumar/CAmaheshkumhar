@@ -551,7 +551,7 @@ img.blah {
 }
 
 .table_height1 {
-  max-height: calc(100vh - 264px);
+  max-height: calc(100vh - 200px);
 }
 
 .record_data td,
@@ -5468,3 +5468,15 @@ table.table1 th {
  }
  
  /* dropdown-menu  bgc-white img_drop */
+
+ .modal-backdrop {
+  /* bug fix - no overlay */    
+  display: none;    
+}
+.Plus_tooltip i {
+  
+  border-radius: 0;
+  font-size: 35px;
+  color: #8a8383;
+ 
+}

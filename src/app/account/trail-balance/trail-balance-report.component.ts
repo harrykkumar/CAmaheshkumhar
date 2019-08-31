@@ -9,6 +9,7 @@ import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { LoginService } from './../../commonServices/login/login.services';
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { Settings } from '../../shared/constants/settings.constant'
+//import * as jsPDF from 'jspdf'
 
 @Component({
   selector: 'app-trail-balance-report',

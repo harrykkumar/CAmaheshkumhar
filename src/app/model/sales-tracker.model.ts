@@ -1017,6 +1017,7 @@ export class SaleDirectAdd {
 }
 
 export interface SaleDirectItem {
+  AmountItemBillDiscount: number;
   TransType: number
   TransId: number
   ChallanId: number

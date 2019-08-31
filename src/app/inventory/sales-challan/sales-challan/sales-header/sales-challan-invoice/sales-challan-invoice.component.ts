@@ -1408,8 +1408,12 @@ export class SalesChallanInvoiceComponent {
   setCurrentDate () {
     this.CurrentDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
-  setBillDate () {
-    this.InvoiceDate = this._globalService.getDefaultDate(this.clientDateFormat)
+  setBillDate (setups) {
+    if (setups && setups.length > 0) {
+      this.InvoiceDate  = this._globalService.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
+
+    }
+   // this.InvoiceDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
   setSupplyDate () {
     this.SupplyDate = this._globalService.getDefaultDate(this.clientDateFormat)
@@ -1677,7 +1681,8 @@ export class SalesChallanInvoiceComponent {
     this.getModuleSettingData()
 
     this.setSupplyDate()
-    this.setBillDate()
+    // this.setBillDate()
+    this.getNewCurrentDate()
     this.setExpiryDate()
     this.setMFDate()   
     this.setCurrentDate()
@@ -1693,7 +1698,18 @@ export class SalesChallanInvoiceComponent {
       $('#sale_challan_form1').modal(UIConstant.MODEL_HIDE)
     }
   }
+  getNewCurrentDate() {
+    this._commonService.getCurrentDate().subscribe(
+      data => {
+        console.log('current date : ', data)
+        if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+          this.setBillDate(data.Data)
+          //this.setDueDate(data.Data)
 
+        }
+      }
+    )
+  }
   closeInvoice () {
     this._commonService.closeInvoice()
   }
@@ -2010,6 +2026,7 @@ export class SalesChallanInvoiceComponent {
 
     })
   }
+  DisabledSaveBtn: boolean = false
   editAttributeDataSet: any
   InvoiceDateChngae: any
   sendAttributeData: any
@@ -2022,6 +2039,7 @@ export class SalesChallanInvoiceComponent {
       this.calculateTotalOfRow()
       this.calculateAllTotal()
       if (this.checkValidation()) {
+        this.DisabledSaveBtn = true
         if (this.items.length !== 0) {
 
           this.InvoiceDateChngae = this._globalService.clientToSqlDateFormat(this.InvoiceDate, this.clientDateFormat)
@@ -2061,6 +2079,7 @@ export class SalesChallanInvoiceComponent {
             (data: any) => {
               if (data.Code === UIConstant.THOUSAND) {
                 let saveName = this.MainEditID ===0 ? UIConstant.SAVED_SUCCESSFULLY :UIConstant.UPDATE_SUCCESSFULLY
+                this.DisabledSaveBtn = false
 
                 _self.toastrService.showSuccess('',saveName )
                 _self._commonService.newSaleAdded()
@@ -2070,11 +2089,18 @@ export class SalesChallanInvoiceComponent {
                 } else {
                   _self.initComp()
                   _self.clearExtras()
+                  this.openModalPopup()
+                  this.getNewCurrentDate()
+                  this.getNewBillNo()
                 }
               } else {
+                this.DisabledSaveBtn = false
+
                 _self.toastrService.showError(data.Code, data.Message)
               }
               if(data.Code === UIConstant.SERVERERROR){
+                this.DisabledSaveBtn = false
+
                 _self.toastrService.showError(data.Code, data.Message)
                 
               }
@@ -2082,10 +2108,14 @@ export class SalesChallanInvoiceComponent {
           )
 
         } else {
+          this.DisabledSaveBtn = false
+
           this.toastrService.showError('', 'Please Add Item')
         }
       }
     } else {
+      this.DisabledSaveBtn = false
+
       this.toastrService.showWarning('', 'First Save Item')
     }
   }

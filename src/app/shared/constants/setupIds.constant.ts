@@ -131,4 +131,7 @@ export class SetUpIds {
   public static get printFormate () : number {
     return 77
   }
+  public static get MultipleBillDiscount (): number {
+    return 20
+  }
 }

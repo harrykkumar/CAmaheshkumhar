@@ -888,7 +888,7 @@ export class PurchaseReturnComponent {
             this.DiscountAmt = 0
           }
         }
-        this.AmountItem = this.AmountItem - this.DiscountAmt
+       // this.AmountItem = this.AmountItem - this.DiscountAmt
       }
       this.addItems()
       if (this.Items[this.Items.length - 1]) {
@@ -908,7 +908,7 @@ export class PurchaseReturnComponent {
       * (isNaN(+this.Width) || +this.Width === 0 ? 0 : +this.Width)
       * (isNaN(+this.Height) || +this.Height === 0 ? 0 : +this.Height)
     )
-    //  - (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
+      - (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
     return totalAmount
   }
 
@@ -1173,7 +1173,7 @@ export class PurchaseReturnComponent {
     if (+this.OrgId > 0 && this.CurrentDate) {
       let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
       let type = (this.isBillNoManuall) ? 2 : 1
-      this._saleDirectReturnService.getNewBillNoPurchase(+this.OrgId, newBillDate, type).subscribe(
+      this._saleDirectReturnService.getNewBillNoPurchase(+this.OrgId, newBillDate, type ,'PurchaseReturn').subscribe(
         data => {
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             if (data.Data.length > 0) {
@@ -1302,7 +1302,7 @@ export class PurchaseReturnComponent {
     this._loaderService.show()
    
     let _self = this
-    this.TypeOfSP_API = this.editMode ===true ? 'SaleReturn' :'Sale' ;
+    this.TypeOfSP_API ='PurchaseReturn'
     this.commonService.getSPUtilityData(this.TypeOfSP_API)
       .pipe(
         filter(data => {
@@ -2144,10 +2144,10 @@ export class PurchaseReturnComponent {
     if (+event.value > 0 && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = +event.value
-      if (+event.value === 3) {
+      if (+event.value !== 1) {
         this.BankLedgerName = ''
         this.LedgerId = 0
-        this.setpaymentLedgerSelect2(0)
+        this.setpaymentLedgerSelect2(0,+event.value)
       } else if (+event.value === 1) {
         this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
         this.BankLedgerName = 'Cash'
@@ -2182,10 +2182,10 @@ export class PurchaseReturnComponent {
     }
   }
 
-  setpaymentLedgerSelect2(i) {
+  setpaymentLedgerSelect2(i,paymentID) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this.commonService.getPaymentLedgerDetail(9).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+    this.commonService.getPaymentLedgerDetail(paymentID).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       // console.log('PaymentModeData : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
@@ -2281,8 +2281,8 @@ export class PurchaseReturnComponent {
 
   addTransactions() {
     //  && this.PayDate
-    if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
-      if ((+this.PayModeId === 3 && this.ChequeNo) || (+this.PayModeId === 1)) {
+   if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
+      if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
         if (this.checkValidationForAmount()) {
           this.addTransaction()
           this.clickTrans = true
@@ -2293,17 +2293,17 @@ export class PurchaseReturnComponent {
         }
       } else {
         this.clickTrans = false
-        if (+this.PayModeId === 3) {
-          if (this.ChequeNo) {
-            this.invalidObj['ChequeNo'] = false
-          } else {
-            this.invalidObj['ChequeNo'] = true
-          }
-        } else {
-          this.invalidObj['ChequeNo'] = false
-        }
+        // if (+this.PayModeId === 3) {
+        //   if (this.ChequeNo) {
+        //     this.invalidObj['ChequeNo'] = false
+        //   } else {
+        //     this.invalidObj['ChequeNo'] = true
+        //   }
+        // } else {
+        //   this.invalidObj['ChequeNo'] = false
+        // }
       }
-    }
+   }
   }
 
   addTransaction() {
@@ -2436,7 +2436,7 @@ export class PurchaseReturnComponent {
     }, 1)
 
     if (this.editItemId !== -1) {
-      debugger
+      
      this.Items[this.Items.length - 1].Id = 0
     }
   }
@@ -2478,10 +2478,10 @@ export class PurchaseReturnComponent {
     if (type === 'trans') {
       this.editTransId = editId
       //i = i - 1
-      if (+this.PaymentDetail[i].PayModeId === 3) {
+      if (+this.PaymentDetail[i].PayModeId !== 1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
-        this.setpaymentLedgerSelect2(i)
+        this.setpaymentLedgerSelect2(i,+this.PaymentDetail[i].PayModeId)
       } else if (+this.PaymentDetail[i].PayModeId === 1) {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.Paymode = this.PaymentDetail[i].Paymode
@@ -2986,16 +2986,16 @@ export class PurchaseReturnComponent {
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-      if (+this.PayModeId === 3) {
-        if (this.ChequeNo) {
-          this.invalidObj['ChequeNo'] = false
-        } else {
-          isValid = 0
-          this.invalidObj['ChequeNo'] = true
-        }
-      } else {
-        this.invalidObj['ChequeNo'] = false
-      }
+      // if (+this.PayModeId === 3) {
+      //   if (this.ChequeNo) {
+      //     this.invalidObj['ChequeNo'] = false
+      //   } else {
+      //     isValid = 0
+      //     this.invalidObj['ChequeNo'] = true
+      //   }
+      // } else {
+      //   this.invalidObj['ChequeNo'] = false
+      // }
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
@@ -3317,7 +3317,7 @@ export class PurchaseReturnComponent {
     })
     return isValid
   }
-
+  DisabledSaveBtn :boolean = false
   savePurchaseReturn() {
     let _self = this
     this.submitSave = true
@@ -3336,6 +3336,7 @@ export class PurchaseReturnComponent {
             })
           }
           if (data.Code === UIConstant.REQUIRED_5020) {
+            this.DisabledSaveBtn= false
             this.toastrService.showError('', data.Message)
           }
         },
@@ -3353,12 +3354,18 @@ export class PurchaseReturnComponent {
           this.checkValidationForAmount()
           if (valid) {
             if (this.checkForValidation() && this.isValidAmount  && this.validTransaction) {
+            this.DisabledSaveBtn= true
+
               if( this.validateItem()){
+            this.DisabledSaveBtn= true
+
                 this._saleDirectReturnService.postPurchaseReturnList(this.purchaseReturnAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
                   data => {
                     console.log('data : ', data)
                     if (data.Code === UIConstant.THOUSAND && data.Data) {
                       _self.toastrService.showSuccess('Saved Successfully', '')
+            this.DisabledSaveBtn= false
+
                       _self.commonService.newPurchaseAdd()
                       if (!this.keepOpen) {
                         _self.commonService.closePurchaseReturn()
@@ -3371,23 +3378,33 @@ export class PurchaseReturnComponent {
                         _self.initialiseExtras()
                       }
                     } else if (data.Code === UIConstant.THOUSANDONE) {
+            this.DisabledSaveBtn= false
+
                       _self.toastrService.showError(data.Message, 'Please change Bill No.')
                     } else {
+            this.DisabledSaveBtn= false
+
                       _self.toastrService.showError(data.Message, '')
                     }
                   },
                   (error) => {
+            this.DisabledSaveBtn= false
+
                     _self.toastrService.showError(error, '')
                   }
                 )
               }
               else{
+            this.DisabledSaveBtn= false
+
             this.toastrService.showError('Return Quantity never more then Sale Quantity', '')
 
               }
               
             }
           } else {
+            this.DisabledSaveBtn= false
+
             this.toastrService.showError('The following are not unique', '')
           }
         }
@@ -3395,7 +3412,6 @@ export class PurchaseReturnComponent {
     } else {
       //this.addItems()
       this.addTransactions()
-     // this.addCharge()
       this.getBillSummary()
       this.calculateAllTotal()
      // this.validateItem()
@@ -3403,12 +3419,16 @@ export class PurchaseReturnComponent {
       this.checkValidationForAmount()
       if (valid) {
         if (this.checkForValidation() && this.isValidAmount  && this.validTransaction) {
+          this.DisabledSaveBtn= true
+
           if( this.validateItem()){
+            this.DisabledSaveBtn= true
             this._saleDirectReturnService.postPurchaseReturnList(this.purchaseReturnAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
               data => {
                 console.log('data : ', data)
                 if (data.Code === UIConstant.THOUSAND && data.Data) {
                   _self.toastrService.showSuccess('Saved Successfully', '')
+                this.DisabledSaveBtn= false
                   _self.commonService.newPurchaseAdd()
                   if (!this.keepOpen) {
                     _self.commonService.closePurchaseReturn()
@@ -3420,23 +3440,30 @@ export class PurchaseReturnComponent {
                     _self.initialiseExtras()
                   }
                 } else if (data.Code === UIConstant.THOUSANDONE) {
+            this.DisabledSaveBtn= false
                   _self.toastrService.showError(data.Message, 'Please change Bill No.')
                 } else {
+            this.DisabledSaveBtn= false
                   _self.toastrService.showError(data.Message, '')
                 }
               },
               (error) => {
+            this.DisabledSaveBtn= false
                 _self.toastrService.showError(error, '')
               }
             )
           }
           else{
+            this.DisabledSaveBtn= false
+
             this.toastrService.showError('Return Quantity never more then Sale Quantity', '')
 
           }
     
         }
       } else {
+        this.DisabledSaveBtn= false
+
         this.toastrService.showError('The following are not unique', '')
       }
     }
@@ -3697,7 +3724,6 @@ export class PurchaseReturnComponent {
   billSummary: Array<any> = []
   AdditionalChargesToShow: any = []
   getBillSummary() {
-    debugger
     let taxableValue = 0
     let ItemTaxTrans = []
     let itemtaxForSumry =[]
@@ -3705,18 +3731,6 @@ export class PurchaseReturnComponent {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
       taxableValue += +element.AmountItem
     });
-    // ItemTaxTrans.forEach(ele => {
-    
-    //   let  itemtax = this.appliedTaxRatesItem.filter(s=> s.TaxRateId  === ele.TaxRateId)
-  
-    //   if(itemtax.length>0){
-    //     itemtax[0]['Sno'] =ele.Sno
-    //     itemtaxForSumry.push(itemtax[0])
-    
-    //   }
-    // });
-    console.log(ItemTaxTrans,'kkk----111')
-
     this.TaxableValue = taxableValue
     this.billSummary = []
     let groupOnId = _.groupBy(ItemTaxTrans, (tax) => {
@@ -3761,7 +3775,6 @@ export class PurchaseReturnComponent {
   }
 
   calculateAllTotal() {
-
     let totalDiscount = 0
     let totalTax = 0
     let totalQuantity = 0

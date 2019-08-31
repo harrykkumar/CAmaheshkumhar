@@ -132,7 +132,7 @@ export class SaleDirectReturnService {
   }
 
   createPaymentModes (array) {
-    let newData = [{ id: '0', text: 'Select Payment ' }]
+    let newData = [{ id: '0', text: 'Select Payment Mode' }]
     array.forEach(data => {
       newData.push({
         id: data.Id,

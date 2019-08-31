@@ -11,7 +11,12 @@
             </div>
             <div class="col-md-9">
               <div class="btn_header">
-                <a class="btn btn-default waves-effect" #savebutton (click)="keepOpen=false;SaveSaleReturn()">Save </a>
+                  <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-default waves-effect"  #savebutton (click)="keepOpen=false;SaveSaleReturn()">
+                  
+                      {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
+                      </button>
+       
+                <!-- <a class="btn btn-default waves-effect" #savebutton (click)="keepOpen=false;SaveSaleReturn()">Save </a> -->
                 <!-- <a class="btn btn-info waves-effect" (click)="keepOpen=true;SaveSaleReturn()">Save and New</a> -->
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true" class="white-text" (click)="closePurchase()" >×</span>
@@ -409,7 +414,7 @@
                             <select2 name="Paymode" #payment_select2 [data]="paymentModesData" id="PayModeId"
                               class="control_select"
                               (valueChanged)="onPaymentModeSelect($event)"
-                              autocomplete="true" [options]="{placeholder: 'Select Payment Modes'}"
+                              autocomplete="true" [options]="{placeholder: 'Select Payment Mode'}"
                               [ngClass]="{'errorSelecto': invalidObj?.PayModeId && (submitSave || !clickTrans)  }"
                               [value]="paymode" ></select2>
                           </div>

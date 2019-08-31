@@ -11,6 +11,7 @@ import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
 
+import { ExcelService } from '../../commonServices/excel.service';
 
 @Component({
   selector: 'app-daybook',
@@ -29,26 +30,26 @@ export class DayBookComponent implements OnInit, AfterViewInit {
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
-  constructor(
+  constructor(public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
     private _toastService: ToastrCustomService,
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this.noOfDecimal =this._settings.noOfDecimal
+    this.noOfDecimal = this._settings.noOfDecimal
     this.getLedgerItemList();
   }
-  noOfDecimal:any
+  noOfDecimal: any
   ngOnInit() {
-    this.viewFlag =true
-    this.isViewPrint=false
+    this.viewFlag = true
+    this.isViewPrint = false
     this._commonService.fixTableHF('cat-table')
 
     this.DayBookData();
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     this.toDate()
     this.fromDate()
   }
@@ -57,7 +58,7 @@ export class DayBookComponent implements OnInit, AfterViewInit {
   }
 
   toDate = () => {
-        this.model.toDateValue =  ''
+    this.model.toDateValue = ''
   }
 
   onLedgerItemChange = (event) => {
@@ -81,14 +82,15 @@ export class DayBookComponent implements OnInit, AfterViewInit {
       })
   }
   getValueFalg: boolean = true
-
+  mainDataExcel: any = []
+  ExcelHeaders: any = []
   DayBookData = () => {
     let fromDate, toDate
     if (this.model.fromDatevalue) {
-       fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
+      fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
     }
     if (this.model.toDateValue) {
-       toDate = this._globalService.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
+      toDate = this._globalService.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
     }
     const data = {
       LedgerId: this.model.selectedLedgerItem ? this.model.selectedLedgerItem.id : 0,
@@ -96,49 +98,72 @@ export class DayBookComponent implements OnInit, AfterViewInit {
       ToDate: toDate ? toDate : '',
       Page: this.pageNo,
       Size: this.pageSize,
-      type:'Daily'
+      type: 'Daily'
     }
     this._commonService.getDayBook(data).pipe(
       takeUntil(this.unSubscribe$)
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.CashBook.length > 0) {
         this.DayBook = response.Data;
-       this.getValueFalg = false
+        this.ExcelHeaders = ["SNo", "Date", "Voucher Type Name", "Voucher No", "Debit Head", "Debit Amount", "Credit Head", "Credit Amount", "Narration"]
+        this.mainDataExcel = []
+        response.Data.CashBook.forEach((element, index) => {
+          let date = ''
+          if (element.OpeningFlag === 1) {
+            date = this._globalService.utcToClientDateFormat(element.CurrentDate, this.clientDateFormat)
+          }
+          else {
+            date = ''
+          }
+          this.mainDataExcel.push([
+            index + 1,
+            date,
+            element.VoucherTypeName,
+            element.VoucherNo,
+            element.DebitHead,
+            (element.DebitAmount).toFixed(this.noOfDecimal),
+            element.CreditHead,
+            (element.CreditAmount).toFixed(this.noOfDecimal),
+            element.Narration
+          ])
+        });
+
+        this.getValueFalg = false
         this.totalItemSize = response.Data.CashBook[0].TotalRows;
-        if(this.isViewPrint ){
-          this.printLoad(this.htmlLoadid,this.isViewPrint)
+        if (this.isViewPrint) {
+          this.printLoad(this.htmlLoadid, this.isViewPrint)
         }
       } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.CashBook.length === 0) {
         this.getValueFalg = true
         this.DayBook = {
           CashBook: [],
           CashBookSummary: [],
-          AddressDetails:[],
-          ContactInfoDetails:[],
-          EmailDetails:[],
-          OrganizationDetails:[],
-          ImageContents:[]
+          AddressDetails: [],
+          ContactInfoDetails: [],
+          EmailDetails: [],
+          OrganizationDetails: [],
+          ImageContents: []
         }
         this.totalItemSize = 0;
       } else {
         this._toastService.showError("Error in Data Fetching", '');
       }
-    
+
     }, (error) => {
       console.log(error);
     });
   }
 
   onPageNoChange = (event) => {
-    this.viewFlag=true
-    this.isViewPrint= false
+    this.viewFlag = true
+    this.isViewPrint = false
     this.pageNo = event
     this.DayBookData()
   }
 
   onPageSizeChange = (event) => {
-    this.viewFlag=true
-    this.isViewPrint= false
+    this.viewFlag = true
+    this.isViewPrint = false
     this.pageSize = event
     this.DayBookData()
   }
@@ -151,33 +176,33 @@ export class DayBookComponent implements OnInit, AfterViewInit {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
-  searchResetButton (){
-    this.viewFlag=true
-    this.isViewPrint= false
-    this.model.toDateValue =''
-    this.model.fromDatevalue =''
+  searchResetButton() {
+    this.viewFlag = true
+    this.isViewPrint = false
+    this.model.toDateValue = ''
+    this.model.fromDatevalue = ''
     this.DayBookData()
 
   }
-  isViewPrint:boolean = false
-  htmlLoadid:any =0
-  viewPrint:any
-  viewFlag:any
-  openPrint (HtmlId ,isViewPrint) {
-    this.viewFlag=false
-    this.isViewPrint =isViewPrint
-    this.htmlLoadid= HtmlId
-   this.DayBookData()
-  }
-  searchButton (){
-    this.viewFlag=true
-    this.isViewPrint= false
+  isViewPrint: boolean = false
+  htmlLoadid: any = 0
+  viewPrint: any
+  viewFlag: any
+  openPrint(HtmlId, isViewPrint) {
+    this.viewFlag = false
+    this.isViewPrint = isViewPrint
+    this.htmlLoadid = HtmlId
     this.DayBookData()
   }
-  closeBtn (){
-    this.viewFlag=true
+  searchButton() {
+    this.viewFlag = true
+    this.isViewPrint = false
+    this.DayBookData()
   }
-  printLoad (cmpName,isViewForm) {
+  closeBtn() {
+    this.viewFlag = true
+  }
+  printLoad(cmpName, isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open()
@@ -188,15 +213,20 @@ export class DayBookComponent implements OnInit, AfterViewInit {
     printWindow.document.close()
     printWindow.focus()
     // $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
-    this.viewFlag=true
+    this.viewFlag = true
     setTimeout(function () {
- //   if(this.isViewForm){
-        document.getElementsByTagName('body')[0] .classList.add('hidden-print');
-     printWindow.print()
-     printWindow.close()
-    //}
-    
+      //   if(this.isViewForm){
+      document.getElementsByTagName('body')[0].classList.add('hidden-print');
+      printWindow.print()
+      printWindow.close()
+      //}
+
     }, 100)
-   
+
+  }
+  exportExcel() {
+    if (this.mainDataExcel.length > 0) {
+      this.excelService.generateExcel(this.DayBook.OrganizationDetails[0].OrgName, this.DayBook.AddressDetails[0].CityName + ' ' + this.DayBook.AddressDetails[0].StateName + ' ' + this.DayBook.AddressDetails[0].CountryName, this.ExcelHeaders, this.mainDataExcel, 'Day Book', this.model.fromDatevalue, this.model.toDateValue,[])
+    }
   }
 }

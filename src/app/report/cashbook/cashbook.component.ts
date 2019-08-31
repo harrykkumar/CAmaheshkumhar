@@ -4,13 +4,15 @@ import { Settings } from './../../shared/constants/settings.constant';
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { ToastrCustomService } from './../../commonServices/toastr.service';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit,ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { map, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash'
 import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
-
+import * as jsPDF from 'jspdf'
+import { ExcelService } from '../../commonServices/excel.service';
+// import { PdfReaderService } from '../../commonServices/pdfviewer.service'
 @Component({
   selector: 'app-cashbook',
   templateUrl: './cashbook.component.html',
@@ -29,6 +31,7 @@ export class CashbookComponent implements OnInit, AfterViewInit {
   private unSubscribe$ = new Subject<void>()
 
   constructor(
+    public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
@@ -38,6 +41,7 @@ export class CashbookComponent implements OnInit, AfterViewInit {
     this.noOfDecimal =this._settings.noOfDecimal
     this.getLedgerItemList();
   }
+  
   noOfDecimal:any
   viewFlag:any
   ngOnInit() {
@@ -46,6 +50,14 @@ export class CashbookComponent implements OnInit, AfterViewInit {
     this._commonService.fixTableHF('cat-table')
     this.getCashBookData();
 
+  }
+
+
+
+
+  @ViewChild('reportContent') reportContent: ElementRef;
+  downloadPdf() {
+// this._pdfReaderService.generate()
   }
 
   ngAfterViewInit(){
@@ -57,8 +69,7 @@ export class CashbookComponent implements OnInit, AfterViewInit {
   }
 
   toDate = () => {
-    //this._globalService.getDefaultDate(this.clientDateFormat)
-        this.model.toDateValue =   ''
+        this.model.toDateValue = ''
   }
 
   onLedgerItemChange = (event) => {
@@ -82,6 +93,8 @@ export class CashbookComponent implements OnInit, AfterViewInit {
       })
   }
   getValueFalg: boolean = true
+  mainDataExcel:any =[]
+  ExcelHeaders:any=[]
 
   getCashBookData = () => {
     
@@ -105,8 +118,27 @@ export class CashbookComponent implements OnInit, AfterViewInit {
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.CashBook.length > 0) {
         this.cashBook = response.Data;
-        response.Data.CashBook.forEach(element => {
-        
+        this.mainDataExcel =[]
+        this.ExcelHeaders = [ "SNo","Date", "Voucher Type Name", "Voucher No", "Particulars","CashIn", "CashOut", "Narration"]
+
+        response.Data.CashBook.forEach((element,i) => {
+          let date =''
+          if(element.OpeningFlag ===1){
+             date =this._globalService.utcToClientDateFormat(element.CurrentDate, this.clientDateFormat)
+          }
+          else{
+            date =''
+          }
+          this.mainDataExcel.push([
+            i+1,
+            date,
+            element.VoucherTypeName,
+            element.VoucherNo,
+            element.Particulars,
+            (element.DebitAmount).toFixed(this.noOfDecimal),
+            (element.CreditAmount).toFixed(this.noOfDecimal),
+            element.Narration
+          ])
         });
        this.getValueFalg = false
         this.totalItemSize = response.Data.CashBook[0].TotalRows;
@@ -192,16 +224,18 @@ export class CashbookComponent implements OnInit, AfterViewInit {
     printWindow.document.write('</body></html>')
     printWindow.document.close()
     printWindow.focus()
-    // $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
     this.viewFlag=true
     setTimeout(function () {
- //   if(this.isViewForm){
         document.getElementsByTagName('body')[0] .classList.add('hidden-print');
      printWindow.print()
      printWindow.close()
-    //}
-    
+  
     }, 100)
    
+  }
+  exportExcel () {
+    if(this.mainDataExcel.length > 0){
+      this.excelService.generateExcel(this.cashBook.OrganizationDetails[0].OrgName ,this.cashBook.AddressDetails[0].CityName+ ' ' +this.cashBook.AddressDetails[0].StateName + ' ' + this.cashBook.AddressDetails[0].CountryName,this.ExcelHeaders,this.mainDataExcel,'Cash-Book',this.model.fromDatevalue, this.model.toDateValue,[])
+    }
   }
 }

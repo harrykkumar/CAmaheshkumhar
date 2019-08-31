@@ -7,6 +7,8 @@ import { CommonService } from 'src/app/commonServices/commanmaster/common.servic
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { map, takeUntil} from 'rxjs/operators';
 import * as _ from 'lodash'
+import { ExcelService } from '../../commonServices/excel.service';
+
 import { Subject } from 'rxjs';
 declare var $: any
 @Component({
@@ -26,7 +28,7 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
-  constructor(
+  constructor(public excelService:ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
@@ -104,6 +106,17 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.OutstandingDetails.length > 0) {
         this.outStandingPayable = response.Data;
+        this.ExcelSummary =[]
+        this.ExcelHeaders =["SNo","Party Name","Balance"]
+        this.ExcelSummary =["Total","",response.Data.OutstandingDetailsSummary[0].Balance.toFixed(this.noOfDecimal)]
+
+        response.Data.OutstandingDetails.forEach((element,int) => {
+          this.mainDataExcel.push([
+            int +1 ,
+            element.PartyName,
+            (element.Balance).toFixed(this.noOfDecimal)
+          ])
+        });
        this.getValueFalg = false
         this.totalItemSize = response.Data.OutstandingDetails[0].TotalRows;
         if(this.isViewPrint ){
@@ -200,4 +213,20 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
     }, 100)
    
   }
+  mainDataExcel: any =[]
+  ExcelHeaders:any
+  ExcelSummary:any
+  exportExcel (){
+    if(this.mainDataExcel.length > 0){
+      // this.excelService.exportAsExcelFile(this.mainDataExcel, 'Outstanding Receiables Report')
+      this.excelService.generateExcel(this.outStandingPayable.OrganizationDetails[0].OrgName,
+        this.outStandingPayable.AddressDetails[0].CityName + ' ' +
+        this.outStandingPayable.AddressDetails[0].StateName + ' ' + this.outStandingPayable.AddressDetails[0].CountryName, this.ExcelHeaders,
+        this.mainDataExcel, 'Outstanding Receiables Report', this.model.fromDatevalue, this.model.toDateValue,this.ExcelSummary)
+  
+  
+  
+
+    }
+}
 }

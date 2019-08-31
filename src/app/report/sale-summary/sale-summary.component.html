@@ -42,8 +42,8 @@
               </a>
               <a> <img src="assets/img/pdf.png" /></a>
 
-              <a>
-                <img src="assets/img/excel.png" />
+              <a> 
+                <img  src="assets/img/excel.png" />
               </a>
               <a class="btn btn-info" data-toggle="collapse" data-target="#ledger_search_form"><i
                   class="fas fa-search"></i>Search</a>
@@ -127,12 +127,12 @@
                       <ng-container *ngFor="let val of totalSummary; let k=index">
                           <th class="text-right position_relative">
                             <ng-container >
-                              {{val.balance}}
+                              {{val.balance.toFixed(this.noOfDecimal)}}
                             </ng-container>
                           </th>
                         </ng-container>
                         <ng-container>
-                            <th class="text-right ">{{allTotal}}</th>
+                            <th class="text-right ">{{allTotal.toFixed(this.noOfDecimal)}}</th>
                            
                 
                         </ng-container>

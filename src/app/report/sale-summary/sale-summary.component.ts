@@ -10,6 +10,7 @@ import * as _ from 'lodash'
 import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
+import { ExcelService } from '../../commonServices/excel.service';
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 
 @Component({
@@ -30,6 +31,7 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
   private unSubscribe$ = new Subject<void>()
 
   constructor(
+    public excelService:ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
@@ -211,7 +213,6 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
           let ledger = response.Data.Ledgers.filter(
             s => s.Id === element.Id)
           if (ledger.length > 0) {
-
             value.push({
               id: element.Id,
               month: element.Month,
@@ -220,7 +221,6 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
               name: ledger[0].Name,
               balance: element.Balance,
               type: element.ItemType
-
             })
           }
         });
@@ -293,7 +293,9 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
       }
       this.MonthlyData.push(obj)
     }
+    
     console.log(this.MonthlyData, 'monthlys')
+
   }
 
   totalSummary: any = []
@@ -414,4 +416,10 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
     }, 100)
 
   }
+  mainDataExcel:any =[]
+  exportExcel (){
+    if(this.MonthlyData.length > 0){
+      this.excelService.exportAsExcelFile(this.MonthlyData, 'Sale-summary Report')
+    }
+}
 }

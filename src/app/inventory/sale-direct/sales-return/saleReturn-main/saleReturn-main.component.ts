@@ -10,7 +10,8 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { map, filter, debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators';
 import { ToastrCustomService } from '../../../../commonServices/toastr.service';
 import { SaleDirectReturnComponent } from '../../saleReturn-add/saleReturn-add.component';
-
+import { ExcelService } from '../../../../commonServices/excel.service';
+import { GlobalService } from 'src/app/commonServices/global.service';
 declare const $: any
 declare const _: any
 @Component({
@@ -27,41 +28,59 @@ export class SaleReturnDirectMainComponent {
   clientDateFormat: string
   printData1: any = []
   industryId: number
+  queryStr$:Subscription
   loading = true
-  decimalNoPoint:any =0
-  constructor (private route: ActivatedRoute,
-     private commonService: CommonService,
-      private _saleDirectReturnService: SaleDirectReturnService,
-      private settings: Settings,
-      private toastrService: ToastrCustomService,
-      private _formBuilder: FormBuilder) {
-        this.loading = true
-        this.getSPUtilitySaleReturnData()
+  queryStr:string =''
+  decimalNoPoint: any = 0
+  constructor(
+    public gs: GlobalService,
+    public excelService: ExcelService,
+    private route: ActivatedRoute,
+    private commonService: CommonService,
+    private _saleDirectReturnService: SaleDirectReturnService,
+    private settings: Settings,
+    private toastrService: ToastrCustomService,
+    private _formBuilder: FormBuilder) {
+    this.loading = true
+    this.getSPUtilitySaleReturnData()
     this.data$ = this.commonService.getActionSaleReturnClickedStatus().subscribe(
       (action: any) => {
-     if (action.type === FormConstants.Print && action.formname === FormConstants.SaleForm) {
-          this.onPrintButton(action.id, action.printId,action.isViewForm)
+        if (action.type === FormConstants.Print && action.formname === FormConstants.SaleForm) {
+          this.onPrintButton(action.id, action.printId, action.isViewForm)
         }
       }
     )
+
+    this.queryStr$ = this._saleDirectReturnService.queryStr$.subscribe(
+      (str) => {
+        this.queryStr = str
+        //console.log( this.queryStr ,'jjjj')
+        this.toDate = 
+        this.fromDate = 
+       this.expoertExceldata()
+      }
+    )
+  
     this.formSearch()
     this.industryId = +this.settings.industryId
     this.clientDateFormat = this.settings.dateFormat
     this.decimalNoPoint = this.settings.noOfDecimal
   }
-
+  toDate :any =''
+  fromDate:any =''
   ngAfterContentInit() {
     //this.purchaseAdd.initComp()
   }
 
   @ViewChild('searchData') searchData: ElementRef
   searchForm: FormGroup
-  private formSearch () {
+  private formSearch() {
     this.searchForm = this._formBuilder.group({
       'searchKey': [UIConstant.BLANK]
     })
   }
-  ngOnInit () {
+  ngOnInit() {
+    this.getOrgDetailsData()
     this.sub = this.route.data.subscribe(data => {
       this.title = data.title
     })
@@ -74,122 +93,105 @@ export class SaleReturnDirectMainComponent {
       filter(res => res.length > 1 || res.length === 0),
       debounceTime(1000),
       distinctUntilChanged()
-      ).subscribe((text: string) => {
-        this._saleDirectReturnService.onTextEntered(text)
-      })
+    ).subscribe((text: string) => {
+      this._saleDirectReturnService.onTextEntered(text)
+    })
+    this.expoertExceldata()
   }
   @ViewChild('saleReturn_add') purchaseAdd: SaleDirectReturnComponent
-  getSPUtilitySaleReturnData () {
+  getSPUtilitySaleReturnData() {
     this.loading = true
     let _self = this
-    this.commonService.getSPUtilityData(UIConstant.SALE_TYPE)
-    .pipe(
-      filter(data => {
-        if (data.Code === UIConstant.THOUSAND) {
-          return true
-        } else {
-          throw new Error(data.Description)
-        }
-      }),
-      catchError(error => {
-        return throwError(error)
-      }),
-      map(data => data.Data)
-    ).subscribe(
-      data => {
-        console.log('sputility data : ', data)
-        if (data.AttributeValueResponses.length > 0) {
-          _self._saleDirectReturnService.generateAttributes(data)
-        }
-        if (data.ItemCategorys.length > 0) {
-      //    _self.purchaseAdd.getCatagoryDetail(data.ItemCategorys)
-        }
-      //  _self.purchaseAdd.allItems = [ ...data.Items ]
-        // console.log('allItems : ', this.allItems)
-        _self._saleDirectReturnService.createItems(data.Items)
-        _self._saleDirectReturnService.createVendors(data.Vendors)
-        _self._saleDirectReturnService.createTaxProcess(data.TaxProcesses)
-        _self._saleDirectReturnService.createPaymentModes(data.PaymentModes)
-        _self._saleDirectReturnService.createOrganisations(data.Organizations)
-        _self._saleDirectReturnService.createGodowns(data.Godowns)
-        _self._saleDirectReturnService.createReferralTypes(data.ReferalTypes)
-        _self._saleDirectReturnService.createSubUnits(data.SubUnits)
-        _self._saleDirectReturnService.createTaxSlabs(data.TaxSlabs)
-        _self._saleDirectReturnService.createReferral(data.Referals)
-        _self._saleDirectReturnService.createCurrencies(data.Currencies)
-        _self._saleDirectReturnService.createFreightBy(data.FreightModes)
-        _self._saleDirectReturnService.createCharges(data.LedgerCharges)
-      //  _self.purchaseAdd.clientStateId = data.ClientAddresses[0].StateId
-      // _self.purchaseAdd.TransactionNoSetups = data.TransactionNoSetups
-      },
-      (error) => {
-        console.log(error)
-        this.loading = false
-        this.toastrService.showError(error, '')
-      },
-      () => {
-        setTimeout(() => {
+    this.commonService.getSPUtilityData('SaleReturn')
+      .pipe(
+        filter(data => {
+          if (data.Code === UIConstant.THOUSAND) {
+            return true
+          } else {
+            throw new Error(data.Description)
+          }
+        }),
+        catchError(error => {
+          return throwError(error)
+        }),
+        map(data => data.Data)
+      ).subscribe(
+        data => {
+          console.log('sputility data : ', data)
+          if (data.AttributeValueResponses.length > 0) {
+            _self._saleDirectReturnService.generateAttributes(data)
+          }
+          if (data.ItemCategorys.length > 0) {
+            //    _self.purchaseAdd.getCatagoryDetail(data.ItemCategorys)
+          }
+          //  _self.purchaseAdd.allItems = [ ...data.Items ]
+          // console.log('allItems : ', this.allItems)
+          _self._saleDirectReturnService.createItems(data.Items)
+          _self._saleDirectReturnService.createVendors(data.Vendors)
+          _self._saleDirectReturnService.createTaxProcess(data.TaxProcesses)
+          _self._saleDirectReturnService.createPaymentModes(data.PaymentModes)
+          _self._saleDirectReturnService.createOrganisations(data.Organizations)
+          _self._saleDirectReturnService.createGodowns(data.Godowns)
+          _self._saleDirectReturnService.createReferralTypes(data.ReferalTypes)
+          _self._saleDirectReturnService.createSubUnits(data.SubUnits)
+          _self._saleDirectReturnService.createTaxSlabs(data.TaxSlabs)
+          _self._saleDirectReturnService.createReferral(data.Referals)
+          _self._saleDirectReturnService.createCurrencies(data.Currencies)
+          _self._saleDirectReturnService.createFreightBy(data.FreightModes)
+          _self._saleDirectReturnService.createCharges(data.LedgerCharges)
+          //  _self.purchaseAdd.clientStateId = data.ClientAddresses[0].StateId
+          // _self.purchaseAdd.TransactionNoSetups = data.TransactionNoSetups
+        },
+        (error) => {
+          console.log(error)
           this.loading = false
-        }, 1)
-      }
-    )
+          this.toastrService.showError(error, '')
+        },
+        () => {
+          setTimeout(() => {
+            this.loading = false
+          }, 1)
+        }
+      )
   }
 
-  ngOnDestroy () {
+  ngOnDestroy() {
     this.sub.unsubscribe()
     this.data$.unsubscribe()
   }
 
-  toggleSearch () {
+  toggleSearch() {
     this.toShowSearch = !this.toShowSearch
   }
 
-  openPurchase () {
-  //  this.purchaseAdd.initialiseExtras()
-    // this.commonService.openSaleDirectReturn('')
+  openPurchase() {
   }
 
   attributeKeys: any = []
-  // onPrintButton (id, htmlID) {
-  //  this.word = ''
-  //   let _self = this
-  //   _self.printData1 = []
-  //   _self._saleDirectReturnService.getPrintData(id).subscribe(data => {
-  //     console.log('print data : ', data)
-  //     if (data.Code === UIConstant.THOUSAND && data.Data) {
-      
-  //       let newItemTransaction = this.splitArray(data.Data.ItemTransactions, 18)
-  //       newItemTransaction.forEach((element, index) => {
-  //         data.Data.ItemTransactions = JSON.parse(JSON.stringify(element))
-  //         _self.printData1[index] = JSON.parse(JSON.stringify(data.Data))
-  //       })
-       
-  //     }
-  //   })
-  // }
+ 
   BillName: any
   customerAddress: any = []
   orgImageData: any
   ItemTransactionactions: any = []
-  billAmount: any=0
-  
+  billAmount: any = 0
+
   orgAddress: any
   inWordBillAmount: string = ''
   paidFlag: any
-  InventoryTransactionSales:any=[]
-  itemAttributeDatails:any
-  ItemTaxTrans:any
-  paymentModeData:any
-  paymentFlag:boolean
-  itemAttbute:any =[]
-          totalDiscountAmt :any= 0
-        totaltaxAmount :any= 0
-        subTotalAmount :any= 0
-        ContactCustInfo:any=[]
-        TermsConditions:any =[]
-        ContactOrgInfo:any
-        ClientInfos:any
-        onPrintButton(id, htmlId, isViewForm,) {
+  InventoryTransactionSales: any = []
+  itemAttributeDatails: any
+  ItemTaxTrans: any
+  paymentModeData: any
+  paymentFlag: boolean
+  itemAttbute: any = []
+  totalDiscountAmt: any = 0
+  totaltaxAmount: any = 0
+  subTotalAmount: any = 0
+  ContactCustInfo: any = []
+  TermsConditions: any = []
+  ContactOrgInfo: any
+  ClientInfos: any
+  onPrintButton(id, htmlId, isViewForm, ) {
     let _self = this
     _self.commonService.printSaleReturn(id).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
@@ -230,7 +232,7 @@ export class SaleReturnDirectMainComponent {
           _self.ItemTaxTrans = []
           _self.ItemTaxTrans = data.Data.ItemTaxTransDetails
         } else {
-          this.BillName =  'Bill-Return'
+          this.BillName = 'Bill-Return'
 
           _self.ItemTaxTrans = []
         }
@@ -376,7 +378,7 @@ export class SaleReturnDirectMainComponent {
       return this.barcode.split('\n')
     }
   }
-  barcode:any
+  barcode: any
   InitializedPrintForDirectSale(cmpName, isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
@@ -407,7 +409,7 @@ export class SaleReturnDirectMainComponent {
     this.HedShow = []
     let valueshow = []
     hsnTransaction.forEach(element => {
-      this.HedShow = hsnData.filter(d => d.HsnNo === element.HsnNo)
+      this.HedShow = hsnData.filter(d => d.HsnNo === element.HsnNo && d.TaxSlabId === element.TaxSlabId)
       if (this.HedShow.length > 0) {
         valueshow = []
         rate = this.HedShow.filter(item1 => item1.TaxRate)
@@ -429,13 +431,13 @@ export class SaleReturnDirectMainComponent {
     });
     console.log(this.mainData, 'Main-HSN')
   }
-Heading:any =[]
+  Heading: any = []
   headerKeys: any = []
   hsnToSHow: any = []
   // HedShow:any =[]
-  
 
-  splitArray (arr, len) {
+
+  splitArray(arr, len) {
     let newArr = []
     let start = 0
     let end = len
@@ -468,5 +470,55 @@ Heading:any =[]
   }
 
   word: string = ''
-  
+  mainDataExcel: any = []
+  getOrgDetailsData() {
+    this.getOrgDetails = {}
+    this.commonService.getOrgDetailsForPrintExcelPDF().subscribe(data => {
+      if (data.Code === UIConstant.THOUSAND) {
+        this.getOrgDetails = data.Data
+      }
+    })
+  }
+  exportExcel() {
+    if (this.mainDataExcel.length > 0) {
+      this.excelService.generateExcel(this.getOrgDetails.OrganizationDetails[0].OrgName, this.getOrgDetails.AddressDetails[0].CityName + ' ' + this.getOrgDetails.AddressDetails[0].StateName + ' ' + this.getOrgDetails.AddressDetails[0].CountryName, this.ExcelHeaders, this.mainDataExcel, 'Sale Return', "", "", this.ExcelSummary)
+    }
+    
+  }
+  getOrgDetails: any = {}
+  ExcelHeaders: any
+  ExcelSummary: any
+  expoertExceldata() {
+    this._saleDirectReturnService.getSaleReturnList('?StrSearch=' + ''+ this.queryStr).subscribe(data => {
+      if (data.Code === UIConstant.THOUSAND) {
+        this.mainDataExcel = []
+        this.ExcelSummary = []
+        this.ExcelSummary = ["Total", "",
+          "",
+          "",
+          data.Data.SaleSummary[0].TotalQty.toFixed(2),
+          data.Data.SaleSummary[0].Discount.toFixed(this.decimalNoPoint),
+          data.Data.SaleSummary[0].TaxAmount.toFixed(this.decimalNoPoint),
+          data.Data.SaleSummary[0].BillAmount.toFixed(this.decimalNoPoint)
+        ]
+        this.ExcelHeaders = ["SNo", "Party Details", "Invoice No.", "Invoice Date", "Quantity", "Discount", "Tax Amount", "Bill Amount"]
+        data.Data.SaleDetails.forEach((element, ind) => {
+          let date = this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
+
+          this.mainDataExcel.push([
+            ind + 1,
+            element.LedgerName,
+            element.BillNo,
+            date,
+            element.TotalQty.toFixed(2),
+            element.Discount.toFixed(this.decimalNoPoint),
+            element.TaxAmount.toFixed(this.decimalNoPoint),
+            element.BillAmount.toFixed(this.decimalNoPoint)
+          ])
+        });
+      }
+    })
+
+
+  }
 }

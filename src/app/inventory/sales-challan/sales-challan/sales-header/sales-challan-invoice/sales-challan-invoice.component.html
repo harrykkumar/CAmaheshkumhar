@@ -9,7 +9,16 @@
               </div>
               <div class="col-md-9">
                 <div class="btn_header">
-                  <a class="btn btn-default waves-effect" (click)="keepOpen=false;saveSaleChallan()">Save </a><a class="btn btn-info waves-effect" (click)="keepOpen=true;saveSaleChallan()">Save and New</a>
+                    <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-default waves-effect"  #savebutton (click)="keepOpen=false;saveSaleChallan()">
+                  
+                        {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
+                        </button>
+                        <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-info waves-effect"   (click)="keepOpen=true;saveSaleChallan()">
+                  
+                            {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save and AddNew' }}
+                            </button>
+                  <!-- <a class="btn btn-default waves-effect" (click)="keepOpen=false;saveSaleChallan()">Save </a>
+                    <a class="btn btn-info waves-effect" (click)="keepOpen=true;saveSaleChallan()">Save and New</a> -->
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">×</span> </button>
                 </div>
               </div>
@@ -23,7 +32,7 @@
                 <label>Party</label>
                 <div class="input-group adw_select">
                   <div class="input-group adw_select">
-                    <select2 [disabled]="Id !== 0 || localItemas.length > 0"
+                    <select2
                      #client_select2 id="client" 
                       [data]="clientNameSelect2" 
                       class="control_select"

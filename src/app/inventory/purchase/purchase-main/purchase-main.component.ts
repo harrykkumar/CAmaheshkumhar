@@ -10,6 +10,8 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { map, filter, debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators';
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { PurchaseAddComponent } from '../purchase-add/purchase-add.component';
+import { GlobalService } from 'src/app/commonServices/global.service'
+import { ExcelService } from '../../../commonServices/excel.service';
 
 declare const $: any
 declare const _: any
@@ -27,8 +29,12 @@ export class PurchaseMainComponent {
   clientDateFormat: string
   printData1: any = []
   industryId: number
+  queryStr:string =''
+  queryStr$: Subscription
   loading = true
-  constructor (private route: ActivatedRoute,
+  constructor (public excelService:ExcelService,
+    public gs: GlobalService,
+    private route: ActivatedRoute,
      private commonService: CommonService,
       private purchaseService: PurchaseService,
       private settings: Settings,
@@ -45,11 +51,19 @@ export class PurchaseMainComponent {
         }
       }
     )
+    this.queryStr$ = this.purchaseService.queryStr$.subscribe(
+      (str) => {
+        this.queryStr = str
+       this.expoertExceldata()
+      }
+    )
     this.formSearch()
     this.industryId = +this.settings.industryId
     this.clientDateFormat = this.settings.dateFormat
-  }
+    this.noOfDecimal = this.settings.noOfDecimal
 
+  }
+  noOfDecimal :any
   ngAfterContentInit() {
     this.purchaseAdd.initComp()
   }
@@ -62,6 +76,7 @@ export class PurchaseMainComponent {
     })
   }
   ngOnInit () {
+    this.getOrgDetails()
     this.sub = this.route.data.subscribe(data => {
       this.title = data.title
     })
@@ -77,6 +92,7 @@ export class PurchaseMainComponent {
       ).subscribe((text: string) => {
         this.purchaseService.onTextEntered(text)
       })
+      this.expoertExceldata()
   }
   @ViewChild('purchase_add') purchaseAdd: PurchaseAddComponent
   getSPUtilityData () {
@@ -165,7 +181,8 @@ export class PurchaseMainComponent {
         })
         _self.getDistinctTaxName(data.Data.HsnItemTaxTransDetails, data.Data.HsnItemTransactions, data.Data.PurchaseTransactions[0].Currency)
         _self.attributeKeys = data.Data.ItemTransactions[0].itemAttributes
-        _self.NumInWords(data.Data.PurchaseTransactions[0].BillAmount)
+        // _self.NumInWords(data.Data.PurchaseTransactions[0].BillAmount)
+         this.word = this.commonService.convertNumber(data.Data.PurchaseTransactions[0].BillAmount)
         let newItemTransaction = this.splitArray(data.Data.ItemTransactions, 18)
         newItemTransaction.forEach((element, index) => {
           data.Data.ItemTransactions = JSON.parse(JSON.stringify(element))
@@ -185,13 +202,12 @@ Heading:any =[]
   hsnToSHow: any = []
   HedShow:any =[]
   getDistinctTaxName (hsnData, hsnTransaction, currency) {
-    //TaxTitleId
 let rate=0
 this.hsnToSHow =[]
 this.HedShow=[]
 let valueshow=[]
      hsnTransaction.forEach(element => {
-      this.HedShow = hsnData.filter( d=>d.HsnNo ===element.HsnNo)
+      this.HedShow = hsnData.filter( d=>d.HsnNo ===element.HsnNo  && d.TaxSlabId === element.TaxSlabId)
       if(this.HedShow.length>0){
           valueshow=[]
          rate = this.HedShow.filter(item1 => item1.TaxRate)
@@ -417,5 +433,60 @@ let valueshow=[]
       this.word = 'zero'
     }
     return this.word
+  }
+
+  
+  mainDataExcel:any =[]
+  getOrgDetailsData:any ={}
+  exportExcel () {
+    if(this.mainDataExcel.length>0){
+      this.excelService.generateExcel(this.getOrgDetailsData.OrganizationDetails[0].OrgName , this.getOrgDetailsData.AddressDetails[0].CityName+ ' ' +this.getOrgDetailsData.AddressDetails[0].StateName + ' ' + this.getOrgDetailsData.AddressDetails[0].CountryName,this.ExcelHeaders,this.mainDataExcel,'Purchase',"", "",this.ExcelSummary)
+
+    }
+
+
+  }
+ 
+  getOrgDetails (){
+    this.getOrgDetailsData={}
+    this.commonService.getOrgDetailsForPrintExcelPDF().subscribe(data=>{
+      if(data.Code === UIConstant.THOUSAND){
+        console.log(data.Data,"org-details")
+        this.getOrgDetailsData = data.Data
+      }
+    })
+  }
+  ExcelHeaders:any
+  ExcelSummary:any
+  expoertExceldata () {
+    this.purchaseService.getPurchaseList('?StrSearch=' + ''+ this.queryStr).subscribe(data=>{
+      if(data.Code === UIConstant.THOUSAND){
+        this.mainDataExcel =[]
+        this.ExcelSummary =["Total","",""," ","  "," ",data.Data.PurchaseTransactionsSummary[0].TotalQty.toFixed(2),
+        data.Data.PurchaseTransactionsSummary[0].Discount.toFixed(this.noOfDecimal),
+        data.Data.PurchaseTransactionsSummary[0].TaxAmount.toFixed(this.noOfDecimal),
+        data.Data.PurchaseTransactionsSummary[0].BillAmount.toFixed(this.noOfDecimal)]
+       
+        this.ExcelHeaders =["SNo","Ledger Name","Bill No.","Bill Date","Party Bill No","Party Bill Date","Quantity","Discount","Tax Amount","Bill Amount"]
+        data.Data.PurchaseTransactions.forEach((element,ind) => {
+         let  date =this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
+         let  prtydate =this.gs.utcToClientDateFormat(element.PartyBillDate, this.clientDateFormat)
+          this.mainDataExcel.push([
+            ind+1,
+            element.LedgerName,
+            element.BillNo,
+            date,
+            element.PartyBillNo,
+            prtydate,
+            element.TotalQty.toFixed(2),
+            element.Discount.toFixed(this.noOfDecimal),
+            element.TaxAmount.toFixed(this.noOfDecimal),
+            element.BillAmount.toFixed(this.noOfDecimal)
+          ])
+        });
+      }
+    })
+   
+    
   }
 }

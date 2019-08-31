@@ -10,6 +10,7 @@ import * as _ from 'lodash'
 import { Subject } from 'rxjs';
 import { Subscription, from } from 'rxjs'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
+import { ExcelService } from '../../commonServices/excel.service';
 
 declare var $: any
 declare var flatpickr: any
@@ -30,16 +31,16 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
   pageSize: number = 20
   pageNo: number = 1
   totalItemSize: number = 0
-  
+
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
- 
+
 
   private unSubscribe$ = new Subject<void>()
   newDateSub: Subscription
-  finToDate:any=''
-  finFromDate:any=''
-  ledgerItemId:any 
-  constructor(
+  finToDate: any = ''
+  finFromDate: any = ''
+  ledgerItemId: any
+  constructor(public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
@@ -47,100 +48,100 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
   ) {
 
     this.clientDateFormat = this._settings.dateFormat
-    this.noOfDecimal =this._settings.noOfDecimal
-    this.finToDate =this._settings.finToDate
-    this.finFromDate =this._settings.finFromDate
-    this.selectedLedgerId =0
+    this.noOfDecimal = this._settings.noOfDecimal
+    this.finToDate = this._settings.finToDate
+    this.finFromDate = this._settings.finFromDate
+    this.selectedLedgerId = 0
     this.redirectFlag = true
     this.getLedgerItemList();
     this.newDateSub = this._commonService.ledgerSummaryStatus().subscribe(
       (obj: any) => {
-        if(obj.open){
-        this.redirectFlag = false
-        if(obj.id>0){ 
-          this.model={
-           selectedLedgerItem:{id:obj.id}
+        if (obj.open) {
+          this.redirectFlag = false
+          if (obj.id > 0) {
+            this.model = {
+              selectedLedgerItem: { id: obj.id }
+            }
+            this.selectedLedgerId = obj.id
+            let event = {
+              id: obj.id,
+              text: obj.name
+            }
+            this.onLedgerItemChange(event)
+            this.ledgerItemId = obj.id
+            this.selectedLedgerId = obj.id
+            this.model.fromDatevalue = this._globalService.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
+            this.model.toDateValue = this._globalService.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
+            this.getLedgerSummaryData();
+
           }
-          this.selectedLedgerId =obj.id
-         let event ={
-           id :obj.id,
-           text:obj.name
-         }
-          this.onLedgerItemChange(event)
-          this.ledgerItemId = obj.id
-          this.selectedLedgerId =obj.id
-          this.model.fromDatevalue= this._globalService.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
-          this.model.toDateValue= this._globalService.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
-          this.getLedgerSummaryData();
-     
         }
-      }
       }
     )
   }
-  redirectFlag:boolean
-  noOfDecimal:any
-  isViewPrint:boolean =false
+  redirectFlag: boolean
+  noOfDecimal: any
+  isViewPrint: boolean = false
   ngOnInit() {
     this.readyprintOn = false
-    this.viewFlag=true
-    this.isViewPrint= false
-    if(this.redirectFlag){
-      this.selectedLedgerId =0
+    this.viewFlag = true
+    this.isViewPrint = false
+    if (this.redirectFlag) {
+      this.selectedLedgerId = 0
     }
     //this.getLedgerSummaryData();
     this._commonService.fixTableHF('cat-table')
     this._commonService.fixTableHF('fix-footer')
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     this.toDate()
     this.fromDate()
   }
   fromDate = () => {
-    this.model.fromDatevalue= this._globalService.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
+    this.model.fromDatevalue = this._globalService.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
 
   }
-  searchResetButton () {
-    this.model.toDateValue=''
-    this.model.fromDatevalue=''
-    this.selectedLedgerId=0
-    this.ledgerItemId =null
+  searchResetButton() {
+    this.model.toDateValue = ''
+    this.model.fromDatevalue = ''
+    this.selectedLedgerId = 0
+    this.ledgerItemId = null
   }
-  searchButton (){
-    this.viewFlag=true
-    this.isViewPrint= false
+  searchButton() {
+    this.viewFlag = true
+    this.isViewPrint = false
     this.getLedgerSummaryData()
   }
   toDate = () => {
-    this.model.toDateValue= this._globalService.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
+    this.model.toDateValue = this._globalService.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
   }
 
-  viewDataMode (id) {
-    if(  this.selectedLedgerId !==0  ){
-      $('#'+id).modal(UIConstant.MODEL_SHOW)
+  viewDataMode(id) {
+    if (this.selectedLedgerId !== 0) {
+      $('#' + id).modal(UIConstant.MODEL_SHOW)
     }
-    else{
-      this._toastService.showError('','Please Select Ledger & Date')
+    else {
+      this._toastService.showError('', 'Please Select Ledger & Date')
     }
- 
+
   }
-  formTypeNmae:string='Select Ledger'
-  selectedLedgerId:number=0
-  LedgerName:any =''
-  readyprintOn:boolean 
+  formTypeNmae: string = 'Select Ledger'
+  selectedLedgerId: number = 0
+  LedgerName: any = ''
+  readyprintOn: boolean
   onLedgerItemChange = (event) => {
-    if(this.ledgerItemId !==null){
-      this.isViewPrint= false
-      if(event.id>0){
-       this.selectedLedgerId = +event.id
-        this.LedgerName=event.text
+    if (this.ledgerItemId !== null) {
+      this.isViewPrint = false
+      if (event.id > 0) {
+        this.selectedLedgerId = +event.id
+        this.LedgerName = event.text
       }
     }
   }
 
   getLedgerItemList = () => {
-    this.isViewPrint= false
+    this.isViewPrint = false
     this._commonService.getLedgerItemList().pipe(
       takeUntil(this.unSubscribe$),
       map((data: any) => {
@@ -157,7 +158,8 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
       })
   }
   getValueFalg: boolean = true
-
+  ExcelSummary:any 
+  mainDataExcel: any = []
   getLedgerSummaryData = () => {
     let fromDate, toDate
     if (this.model.fromDatevalue) {
@@ -167,62 +169,81 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
       toDate = this._globalService.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
     }
     const data = {
-      LedgerId:  this.selectedLedgerId,
+      LedgerId: this.selectedLedgerId,
       FromDate: fromDate ? fromDate : '',
       ToDate: toDate ? toDate : '',
       Page: this.pageNo,
       Size: this.pageSize
     }
-    
+
     this._commonService.getLedgerSummaryData(data).pipe(
       takeUntil(this.unSubscribe$)
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.LedgerStatements.length > 0) {
         this.ledgerSummary = response.Data;
-       this.getValueFalg = false
-       this._commonService.closeRedirectLegderSummary(false)
-       if(this.isViewPrint ){
-          this.printLoad(this.htmlLoadid,this.isViewPrint)
-      }
+        this.mainDataExcel = []
+        this.ExcelSummary =[]
+        this.ExcelHeaders = ["SNo", "Particulars", "Date", "Voucher No", "Voucher Type", "Narration", "Dr", "Cr"]
+        this.ExcelSummary = ["Total", "", "", "", "", "",
+         response.Data.LedgerStatementsSummary[0].Dr.toFixed(this.noOfDecimal),
+        response.Data.LedgerStatementsSummary[0].Cr.toFixed(this.noOfDecimal)]
+        response.Data.LedgerStatements.forEach((element, ind) => {
+          let date = this._globalService.utcToClientDateFormat(element.CurrentDate, this.clientDateFormat)
+          this.mainDataExcel.push([
+            ind + 1,
+            element.Particular,
+            date,
+            element.VoucherNo,
+            element.VoucherType,
+            element.Narration,
+            element.Dr.toFixed(this.noOfDecimal),
+            element.Cr.toFixed(this.noOfDecimal)
+          ])
+        });
+        this.getValueFalg = false
+        this._commonService.closeRedirectLegderSummary(false)
+        if (this.isViewPrint) {
+          this.printLoad(this.htmlLoadid, this.isViewPrint)
+        }
         this.totalItemSize = response.Data.LedgerStatements[0].TotalRows;
       } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.LedgerStatements.length === 0) {
         this.getValueFalg = true
         this.ledgerSummary = {
           LedgerStatements: [],
           LedgerStatementsSummary: [],
-          AddressDetails:[],
-          ContactInfoDetails:[],
-          EmailDetails:[],
-          OrganizationDetails:[],
-          ImageContents:[]
+          AddressDetails: [],
+          ContactInfoDetails: [],
+          EmailDetails: [],
+          OrganizationDetails: [],
+          ImageContents: []
         }
         this.totalItemSize = 0;
       } else {
         this._toastService.showError("Error in Data Fetching", '');
       }
-      console.log(this.ledgerSummary  ,'fff')
+      console.log(this.ledgerSummary, 'fff')
     }, (error) => {
       console.log(error);
     });
   }
 
   onPageNoChange = (event) => {
-    this.isViewPrint= false
-    this.viewFlag=true
+    this.isViewPrint = false
+    this.viewFlag = true
     this.pageNo = event
     this.getLedgerSummaryData()
   }
 
   onPageSizeChange = (event) => {
-    this.isViewPrint= false
-    this.viewFlag=true
+    this.isViewPrint = false
+    this.viewFlag = true
     this.pageSize = event
     this.getLedgerSummaryData()
   }
 
   onLastValueChange = (event) => {
-    this.isViewPrint= false
-    this.viewFlag=true
+    this.isViewPrint = false
+    this.viewFlag = true
     this.lastItemIndex = event
   }
 
@@ -230,19 +251,19 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
-  htmlLoadid:any
-  viewFlag:any
-  openPrint (HtmlId ,isViewPrint) {
-    this.viewFlag=false
-    this.isViewPrint =isViewPrint
-    this.htmlLoadid= HtmlId
-   this.getLedgerSummaryData()
+  htmlLoadid: any
+  viewFlag: any
+  openPrint(HtmlId, isViewPrint) {
+    this.viewFlag = false
+    this.isViewPrint = isViewPrint
+    this.htmlLoadid = HtmlId
+    this.getLedgerSummaryData()
   }
-  closeBtn (){
-    this.viewFlag=true
+  closeBtn() {
+    this.viewFlag = true
   }
   @ViewChild('setWise') setTypeWise: Select2Component
-  printLoad (cmpName,isViewForm) {
+  printLoad(cmpName, isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open()
@@ -253,15 +274,28 @@ export class LedgerSummaryComponent implements OnInit, AfterViewInit {
     printWindow.document.close()
     printWindow.focus()
     // $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
-    this.viewFlag=true
+    this.viewFlag = true
     setTimeout(function () {
- //   if(this.isViewForm){
-        document.getElementsByTagName('body')[0] .classList.add('hidden-print');
-     printWindow.print()
-     printWindow.close()
-    //}
-    
+      //   if(this.isViewForm){
+      document.getElementsByTagName('body')[0].classList.add('hidden-print');
+      printWindow.print()
+      printWindow.close()
+      //}
+
     }, 100)
-   
+
+  }
+  ExcelHeaders: any
+  exportExcel() {
+    if (this.mainDataExcel.length > 0) {
+      this.excelService.generateExcel(this.ledgerSummary.OrganizationDetails[0].OrgName,
+        this.ledgerSummary.AddressDetails[0].CityName + ' ' +
+        this.ledgerSummary.AddressDetails[0].StateName + ' ' + this.ledgerSummary.AddressDetails[0].CountryName, this.ExcelHeaders,
+        this.mainDataExcel, 'Ledger Statement Report', 
+        this.model.fromDatevalue, this.model.toDateValue ,this.ExcelSummary)
+
+
+    }
+
   }
 }

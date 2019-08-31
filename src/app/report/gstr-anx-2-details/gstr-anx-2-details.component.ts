@@ -29,8 +29,10 @@ export class GstrAnxTwoDetailsComponent implements OnInit {
     private excelService: ExcelService
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this.model.fromDatevalue = this.gs.utcToClientDateFormat(new Date(2019, 3, 1), this.clientDateFormat);
-    this.model.toDateValue = this.gs.utcToClientDateFormat(new Date(), this.clientDateFormat);
+    // this.model.fromDatevalue = this.gs.utcToClientDateFormat(new Date(2019, 3, 1), this.clientDateFormat);
+    // this.model.toDateValue = this.gs.utcToClientDateFormat(new Date(), this.clientDateFormat);
+    this.model.fromDatevalue = this.gs.utcToClientDateFormat(this._settings.finFromDate, this._settings.dateFormat)
+    this.model.toDateValue = this.gs.utcToClientDateFormat(this._settings.finToDate, this._settings.dateFormat)
     this.route.queryParamMap.subscribe((params) => {
       this.model.Type = params.get('Type');
       this.model.ReportFor = params.get('ReportFor');
@@ -82,14 +84,14 @@ export class GstrAnxTwoDetailsComponent implements OnInit {
         _.forEach(this.gstrAnx2DetailSummary, (item, i) => {
           this.gstrAnx2DetailSummary[i].dynamicHeaderList = JSON.parse(JSON.stringify(res.Data.TaxTitleDetails));
           _.forEach(this.gstrAnx2DetailSummary[i].dynamicHeaderList, (taxItem, j) => {
-                const obj = _.find([...res.Data.GstrTaxSummary], {SaleId: item.SaleId, HsnCode: item.HsnCode, TaxTitleId: taxItem.Id});
-                if(!_.isEmpty(obj)){
-                  this.gstrAnx2DetailSummary[i].dynamicHeaderList[j].TaxableVal = obj.TaxableVal ? obj.TaxableVal : 0
-                  this.gstrAnx2DetailSummary[i].dynamicHeaderList[j].TaxRateName = obj.TaxRateName ? obj.TaxRateName : ''
-                } else {
-                  this.gstrAnx2DetailSummary[i].dynamicHeaderList[j].TaxableVal = 0
-                  this.gstrAnx2DetailSummary[i].dynamicHeaderList[j].TaxRateName = ''
-                }
+            const obj = _.find([...res.Data.GstrTaxSummary], { SaleId: item.SaleId, HsnCode: item.HsnCode, TaxTitleId: taxItem.Id, RowNumber: item.RowNumber });
+            if (!_.isEmpty(obj)) {
+              this.gstrAnx2DetailSummary[i].dynamicHeaderList[j].TaxableVal = obj.TaxableVal ? obj.TaxableVal : 0
+              this.gstrAnx2DetailSummary[i].dynamicHeaderList[j].TaxRateName = obj.TaxRateName ? obj.TaxRateName : ''
+            } else {
+              this.gstrAnx2DetailSummary[i].dynamicHeaderList[j].TaxableVal = 0
+              this.gstrAnx2DetailSummary[i].dynamicHeaderList[j].TaxRateName = ''
+            }
           })
         });
       } else {

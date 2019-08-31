@@ -10,6 +10,7 @@ import * as _ from 'lodash'
 import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
+import { ExcelService } from '../../commonServices/excel.service';
 
 @Component({
   selector: 'app-cashbook-dayBalance',
@@ -29,6 +30,7 @@ export class CashbookDayBalanceComponent implements OnInit, AfterViewInit {
   private unSubscribe$ = new Subject<void>()
 
   constructor(
+    public excelService:ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
@@ -79,7 +81,8 @@ export class CashbookDayBalanceComponent implements OnInit, AfterViewInit {
       })
   }
   getValueFalg: boolean = true
-
+  mainDataExcel:any =[]
+  ExcelHeaders:any =[]
   getCashBookData = () => {
     let fromDate, toDate
     if (this.model.fromDatevalue) {
@@ -101,6 +104,19 @@ export class CashbookDayBalanceComponent implements OnInit, AfterViewInit {
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.CashBook.length > 0) {
         this.cashBook = response.Data;
+        this.mainDataExcel =[]
+        this.ExcelHeaders =["SNo","Date","Opening Balance","CashIn","CashOut","Closing Balance"]
+        response.Data.CashBook.forEach((element,i) => {
+         let  date =this._globalService.utcToClientDateFormat(element.CurrentDate, this.clientDateFormat)
+          this.mainDataExcel.push([
+            i+1,
+            date,
+            (element.OpeningBalance).toFixed(this.noOfDecimal),
+            (element.DebitAmount).toFixed(this.noOfDecimal),
+            (element.CreditAmount).toFixed(this.noOfDecimal),
+            (element.ClosingBalance).toFixed(this.noOfDecimal),
+          ])
+        });
        this.getValueFalg = false
         this.totalItemSize = response.Data.CashBook[0].TotalRows;
         if(this.isViewPrint ){
@@ -121,7 +137,7 @@ export class CashbookDayBalanceComponent implements OnInit, AfterViewInit {
       } else {
         this._toastService.showError("Error in Data Fetching", '');
       }
-      console.log(this.cashBook  ,'fff')
+     
     }, (error) => {
       console.log(error);
     });
@@ -195,4 +211,10 @@ export class CashbookDayBalanceComponent implements OnInit, AfterViewInit {
     }, 100)
    
   }
+  exportExcel (){
+    if(this.mainDataExcel.length > 0){
+        this.excelService.generateExcel(this.cashBook.OrganizationDetails[0].OrgName ,this.cashBook.AddressDetails[0].CityName+ ' ' +this.cashBook.AddressDetails[0].StateName + ' ' + this.cashBook.AddressDetails[0].CountryName,this.ExcelHeaders,this.mainDataExcel,'Cashbook Day-Balance',this.model.fromDatevalue, this.model.toDateValue,[])
+
+    }
+}
 }

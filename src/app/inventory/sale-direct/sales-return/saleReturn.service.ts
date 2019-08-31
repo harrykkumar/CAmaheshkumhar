@@ -104,12 +104,10 @@ export class SaleDirectReturnService {
         text: item.Name
       })
     })
-    // console.log('items: ', newData)
     this.itemDataSub.next({ 'data': JSON.parse(JSON.stringify(newData)) })
   }
 
   createVendors (array) {
-    // console.log(array)
     let newData = [{ id: '0', text: 'Select Customers' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     array.forEach(data => {
       newData.push({
@@ -132,7 +130,7 @@ export class SaleDirectReturnService {
   }
 
   createPaymentModes (array) {
-    let newData = [{ id: '0', text: 'Select Payment ' }]
+    let newData = [{ id: '0', text: 'Select Payment Mode ' }]
     array.forEach(data => {
       newData.push({
         id: data.Id,
@@ -537,13 +535,13 @@ export class SaleDirectReturnService {
     return this.baseService.postRequest(ApiConstant.RETURN_SALE_DIRECT, obj)
   }
 
-  getNewBillNoforSaleReturn (orgId, date, type) {
+  getNewBillNoforSaleReturn (orgId, date, type,formType) {
     let queryString = ''
     if (type === 1) {
-      queryString = 'TransactionType=' + 'sale' + '&&OrgId=' + orgId + '&&TransDate=' + date
+      queryString = 'TransactionType=' + formType + '&&OrgId=' + orgId + '&&TransDate=' + date
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_AUTO + queryString)
     } else if (type === 2) {
-      queryString = 'Type=' + 'sale' + '&&BillDate=' + date + '&OrgId=' + orgId
+      queryString = 'Type=' + formType + '&&BillDate=' + date + '&OrgId=' + orgId
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_MANUAL + queryString)
     }
   }

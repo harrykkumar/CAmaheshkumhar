@@ -29,13 +29,13 @@
             </div>
             <div class="btn_header">
               <a>
-                <img src="assets/img/printer.png" />
+                <img (click)="openPrint('open_Print_itemstock')" src="assets/img/printer.png" />
               </a>
-              <a> <img src="assets/img/pdf.png"/></a>
+              <a> <img  src="assets/img/pdf.png"/></a>
 
               <a>
                 <img
-             
+                (click)="export()"
                   src="assets/img/excel.png"
               /></a>
 
@@ -140,3 +140,99 @@
       (pageNoEmitter)="onPageNoChange($event)"
       (pageSizeEmitter)="onPageSizeChange($event)"
     ></app-pagination>
+
+    <body id='open_Print_itemstock'>
+      <div class="modal" id="mainContent">
+          <div class=" mt-2 main-balance">
+              <div class="row justify-content-center p-0">
+                  <div class="balancesheet bgc-white col-md-11 p-0">
+                      <div class="row text-center bs_head p-2">
+                              <div id="logo " class="col-md-3" style="text-align: left;">
+                                      <img height="75px" src="{{orgDetails && orgDetails.ImageContents && orgDetails.ImageContents[0]?.FilePath}}">
+                                  </div>
+                              <div class="col-md-6">
+                                  <div class="name text-center col-md-12 name_size font-weight-bold">
+                                      {{orgDetails && orgDetails.OrganizationDetails && orgDetails.OrganizationDetails[0]?.OrgName}}</div>
+                                    <div class="text-center col-md-12">{{orgDetails && orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.CityName}}
+                                      {{orgDetails && orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.StateName}}
+                                      {{orgDetails && orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.CountryName}}
+                                    </div>
+                                    <div class="name text-center col-md-12 font-weight-bold" style="font-size:18px; letter-spacing:3px;">
+                                          Item Stock</div>
+                                    <div class="text-center col-md-12" style="font-weight:600;"> 
+                                      </div>
+                              </div>
+                              <div class="col-md-3"></div>
+                          </div>
+                          <table class="table cat-table cat-table fixTable4  table-hover">
+                            <thead>
+                              <tr>
+                                <th width="50px" >SNo</th>
+                                <th width="200px">Category</th>
+                                <th width="200px">Item</th>
+                                <th>BarCode</th>
+                                <th >HSN</th>
+                                <th>ItemCode</th>
+                                <th>Attribute Details</th>
+                                <th class="text-right" >Opening</th>
+                                <th class="text-right" >Purchase</th>
+                                <th class="text-right">Sale</th>
+                                <th class="text-right">Purchase Return</th>
+                                <th class="text-right">Sale Return</th>
+                                <th class="text-right"> Dead Stock </th>
+                                <th class="text-right"> Westage Stock </th>
+                                <th class="text-right">Closing Stock </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let item of mainData| paginate: { itemsPerPage: pageSize, currentPage: pageNo, totalItems: totalItemSize };
+                                let i = index;">
+                                <td>{{ i + 1 }}</td>
+                                <td>{{ item?.CategoryName }}</td>
+                                <td>{{ item?.itemName }}</td>
+                                <td>{{ item?.barcode }}</td>
+                                <td>{{ item?.HsnNo }}</td>
+                                <td>{{ item?.ItemCode }}</td>
+                                <td>{{ item?.attributeData }}</td>
+                                <td class="text-right">
+                                  {{
+                                    item?.openingStock[0] && item?.openingStock[0]?.CurrentStock
+                                  }}
+                                </td>
+                                <td class="text-right">
+                                  {{ item?.purchase[0] && item?.purchase[0]?.CurrentStock }}
+                                </td>
+                                <td class="text-right">
+                                  {{ item?.sale[0] && item?.sale[0]?.CurrentStock }}
+                                </td>
+                                <td class="text-right">
+                                  {{
+                                    item?.purchaseReturn[0] &&
+                                      item?.purchaseReturn[0]?.CurrentStock
+                                  }}
+                                </td>
+                                <td class="text-right">
+                                  {{ item?.saleReturn[0] && item?.saleReturn[0]?.CurrentStock }}
+                                </td>
+                             
+                                <td class="text-right">
+                                  {{ item?.ItemsDeadStock[0] && item?.ItemsDeadStock[0]?.CurrentStock }}
+                                </td>
+                                <td class="text-right">
+                                  {{ item?.ItemsWestageStock[0] && item?.ItemsWestageStock[0]?.CurrentStock }}
+                                </td>
+                                <td class="text-right">
+                                  {{ item?.ClosingStock[0] && item?.ClosingStock[0]?.CurrentStock }}
+                                </td>
+                              </tr>
+                            </tbody>
+                            <tr *ngIf='mainData.length ===0' class="text-center">
+                            <td class="recordNotFound" colspan="12"> No record Found</td>
+                            </tr>
+                          </table>
+             
+                  </div>
+              </div>
+          </div>
+      </div>
+  </body>

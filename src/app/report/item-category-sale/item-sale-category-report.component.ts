@@ -10,6 +10,7 @@ import * as _ from 'lodash'
 import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
+import { ExcelService } from '../../commonServices/excel.service';
 
 
 @Component({
@@ -29,7 +30,7 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
-  constructor(
+  constructor(public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
@@ -98,6 +99,7 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
 
   //   })
   // }
+  mainDataExcel:any =[]
   saleCategory:any={}
   getSaleCategoryDetail = () => {
     let fromDate, toDate
@@ -109,8 +111,6 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
     }
     const data = {
       LedgerId: this.model.selectedLedgerItem ? this.model.selectedLedgerItem.id : 0,
-      // FromDate: fromDate ? fromDate : '',
-      // ToDate: toDate ? toDate : '',
       Page: this.pageNo,
       Size: this.pageSize,
       type:'sale'
@@ -122,7 +122,21 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.ItemAttributeReports.length > 0) {
         this.mainData = response.Data.ItemAttributeReports;
+        this.mainDataExcel =[]
         this.saleCategory =response.Data
+        this.ExcelHeaders =["SNo","Category Name" ,"Item Name","Quantity" ," Discount Amt","Tax Amount"," Bill Amount"]
+        response.Data.ItemAttributeReports.forEach((element,int) => {
+          this.mainDataExcel.push([
+            int+1,
+            element.ItemId === 0 ? element.Name : '' ,
+            element.ItemId !== 0 ? element.Name : '' ,
+            element.Quantity,
+            (element.DiscountAmt).toFixed(this.noOfDecimal),
+            (element.TaxAmount).toFixed(this.noOfDecimal),
+            (element.BillAmount).toFixed(this.noOfDecimal),
+        
+          ])
+        });
        this.getValueFalg = false
         //this.totalItemSize = response.Data.CashBook[0].TotalRows;
         if(this.isViewPrint ){
@@ -206,15 +220,12 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
     printWindow.document.write('</body></html>')
     printWindow.document.close()
     printWindow.focus()
-    // $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
     this.viewFlag=true
     setTimeout(function () {
- //   if(this.isViewForm){
         document.getElementsByTagName('body')[0] .classList.add('hidden-print');
      printWindow.print()
      printWindow.close()
-    //}
-    
+   
     }, 100)
    
   }
@@ -252,4 +263,16 @@ toggleItemdd(event,itemId,AttributeId ,index) {
 
 }
 catflag: boolean = false
+ExcelHeaders :any
+exportExcel () {
+  if(this.mainDataExcel.length > 0){
+    this.excelService.generateExcel(this.saleCategory.OrganizationDetails[0].OrgName,
+      this.saleCategory.AddressDetails[0].CityName + ' ' +
+      this.saleCategory.AddressDetails[0].StateName + ' ' + this.saleCategory.AddressDetails[0].CountryName, this.ExcelHeaders,
+      this.mainDataExcel, 'Item Category Report', this.model.fromDatevalue, this.model.toDateValue,[])
+
+
+
+  }
+}
 }

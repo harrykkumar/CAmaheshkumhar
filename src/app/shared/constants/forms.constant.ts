@@ -8,7 +8,9 @@ export class FormConstants {
   public static get Edit (): number {
     return 1
   }
-
+  public static get Excel (): number {
+    return 9
+  }
   public static get Print (): number {
     return 2
   }

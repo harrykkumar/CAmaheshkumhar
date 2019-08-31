@@ -55,10 +55,10 @@ export class SaleDirectListComponent implements OnInit {
     )
     this.onTextEnteredSub = this._saleDirectService.search$.subscribe(
       (text: string) => {
-        if (text.length > 0) {
+        //if (text.length > 0) {
           this.searchKey = text
           this.searchForStr(text)
-        }
+      // }
       }
     )
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
@@ -68,6 +68,12 @@ export class SaleDirectListComponent implements OnInit {
         }
       }
     ) 
+  this.commonService.newRefreshItemStatus().subscribe(
+      (obj) => {
+        this.getSaleDirectList()
+      }
+    ) 
+    
     this.queryStr$ = this._saleDirectService.queryStr$.subscribe(
       (str) => {
         console.log(str)
@@ -82,12 +88,15 @@ export class SaleDirectListComponent implements OnInit {
   }
 
   searchForStr (text) {
+    debugger
     this.isSearching = true
     this.searchGetCall(text).subscribe((data) => {
       setTimeout(() => {
         this.isSearching = false
       }, 100)
-      this.createTableData(data.Data, '')
+      // this.createTableData(data.Data, '')
+      this.createTableData(data.Data.SaleDetails, data.Data.SaleSummary)
+
     },(err) => {
       setTimeout(() => {
         this.isSearching = false
@@ -126,6 +135,7 @@ export class SaleDirectListComponent implements OnInit {
     
   }
   getSaleDirectList () {
+    console.log(this.customContent ,"ffff---")
     if (!this.searchKey || this.searchKey.length === 0) {
       this.searchKey = ''
     }
@@ -149,8 +159,13 @@ export class SaleDirectListComponent implements OnInit {
         this.notRecordFound= false
         this.createTableData(data.SaleDetails, data.SaleSummary)
       } else {
+        // this.createTableData(data.SaleDetails, data.SaleSummary)
       this.isSearching = false
       this.notRecordFound= true
+      // this.customHeader  =[]
+      // this.customFooter=[]
+      // this.customHeader=[]
+      // this.keys=[]
       }
     },(error) => {
       this.isSearching = false
@@ -159,6 +174,8 @@ export class SaleDirectListComponent implements OnInit {
   }
   notRecordFound:any =true
   createTableData (data, summary) {
+    this.notRecordFound = false
+  //if(data.length>0){
     let customContent = [...data]
     customContent.forEach(element => {
       element.BillDate = this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
@@ -211,6 +228,7 @@ export class SaleDirectListComponent implements OnInit {
     setTimeout(() => {
       this.isSearching = false
     }, 100)
+  //}
   }
 
   

@@ -163,7 +163,7 @@ export class BalanceSheetReportComponent implements OnInit {
         this._commonService.ledgerSummary(item.GlId,item.GlName)
        this._router.navigate(['/account/ledger-summary'])
       }
-      if(item.GlId ===-999){
+      if(item.GlId === -999){
        this._router.navigate(['/account/Profit-Loss'])
       }
       if(( item.LevelNo ===3 && item.GlId ===22 ) || (item.GlId ===22 )){

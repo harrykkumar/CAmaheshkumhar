@@ -5,7 +5,7 @@
         <div class="row">
           <div class="col-md-4 left_side_head">
             <p class="heading_lead c-grey-900 mb-0">
-              <i class="fa fa-chart-line"></i>Gstr Anx-2 Details
+              <i class="fa fa-chart-line"></i>GSTR ANX-2 Details
             </p>
           </div>
           <div class="col-md-8 right_saerch_side p-0">
@@ -94,14 +94,14 @@
               <thead>
                 <tr>
                   <th rowspan="2">SNo</th>
-                  <th rowspan="2">GSTIN of supplier *</th>
-                  <th  rowspan="2">Trade/Legal name</th>
-                  <th  rowspan="2">Type of inward supplies *</th>
-                  <th  rowspan="2">Document type *</th>
-                  <th  rowspan="2">Document number *</th>
-                  <th  rowspan="2">Document date *</th>
+                  <th rowspan="2">GSTIN of Supplier *</th>
+                  <th  rowspan="2">Trade/Legal Name</th>
+                  <th  rowspan="2">Type of Inward Supplies *</th>
+                  <th  rowspan="2">Document Type *</th>
+                  <th  rowspan="2">Document Number *</th>
+                  <th  rowspan="2">Document Date *</th>
                   <th  rowspan="2">Taxable Value (₹)</th>
-                  <th class="text-center" [colSpan]="dynamicHeaderList?.length">Tax amount (₹)</th>
+                  <th class="text-center" [colSpan]="dynamicHeaderList?.length">Tax Amount (₹)</th>
                 </tr>
                 <tr>
                     <th *ngFor="let list of dynamicHeaderList">{{list?.Name}}</th>

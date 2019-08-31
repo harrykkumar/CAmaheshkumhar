@@ -10,6 +10,7 @@ import * as _ from 'lodash'
 import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
+import { ExcelService } from '../../commonServices/excel.service';
 
 
 @Component({
@@ -29,7 +30,7 @@ export class ItemGroupStockReportComponent implements OnInit, AfterViewInit {
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
-  constructor(
+  constructor(public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
@@ -60,7 +61,7 @@ export class ItemGroupStockReportComponent implements OnInit, AfterViewInit {
   onLedgerItemChange = (event) => {
     this.model.selectedLedgerItem = event.data[0]
   }
-
+  ExcelSummary:any
   getLedgerItemList = () => {
     this._commonService.getLedgerItemList().pipe(
       takeUntil(this.unSubscribe$),
@@ -98,8 +99,25 @@ export class ItemGroupStockReportComponent implements OnInit, AfterViewInit {
       takeUntil(this.unSubscribe$)
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.LedgerStatements.length > 0) {
+        this.ExcelSummary =[]
         this.ledgerSummary = response.Data;
+     
+        this.ExcelSummary =[ "","Total :-","","","",response.Data.LedgerStatementsSummary[0].Dr.toFixed(this.noOfDecimal),response.Data.LedgerStatementsSummary[0].Cr.toFixed(this.noOfDecimal)]
+
+        this.ExcelHeaders =[ "SNo","Particulars","VoucherNo","VoucherType","Narration","Dr","Cr"]
        this.getValueFalg = false
+       response.Data.LedgerStatements.forEach((element,int) => {
+        this.mainDataExcel.push([
+          int +1 ,
+          element.Particular,
+          element.VoucherNo,
+          element.VoucherType,
+          element.Narration,
+          (element.Dr).toFixed(this.noOfDecimal),
+          (element.Cr).toFixed(this.noOfDecimal)
+
+        ])
+      });
         this.totalItemSize = response.Data.LedgerStatements[0].TotalRows;
       } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.LedgerStatements.length === 0) {
         this.getValueFalg = true
@@ -111,12 +129,12 @@ export class ItemGroupStockReportComponent implements OnInit, AfterViewInit {
       } else {
         this._toastService.showError("Error in Data Fetching", '');
       }
-      console.log(this.ledgerSummary  ,'fff')
+
     }, (error) => {
-      console.log(error);
+
     });
   }
-
+  ExcelHeaders:any =[]
   onPageNoChange = (event) => {
     this.pageNo = event
     this.getLedgerSummaryData()
@@ -135,5 +153,17 @@ export class ItemGroupStockReportComponent implements OnInit, AfterViewInit {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
+  mainDataExcel:any =[]
+  exportExcel (){
+    if(this.mainDataExcel.length > 0){  
+         this.excelService.generateExcel(this.ledgerSummary.OrganizationDetails[0].OrgName,
+        this.ledgerSummary.AddressDetails[0].CityName + ' ' +
+        this.ledgerSummary.AddressDetails[0].StateName + ' ' + this.ledgerSummary.AddressDetails[0].CountryName, this.ExcelHeaders,
+        this.mainDataExcel, 'Item Group Report', this.model.fromDatevalue, this.model.toDateValue,this.ExcelSummary)
+  
+  
+  
 
+    }
+}
 }

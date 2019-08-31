@@ -58,10 +58,10 @@ export class SaleReturnDirectListComponent implements OnInit {
     )
     this.onTextEnteredSub = this._saleDirectReturnService.search$.subscribe(
       (text: string) => {
-        if (text.length > 0) {
+        //if (text.length > 0) {
           this.searchKey = text
           this.searchForStr(text)
-        }
+       // }
       }
     )
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
@@ -80,8 +80,10 @@ export class SaleReturnDirectListComponent implements OnInit {
       }
     )
     this.clientDateFormat = this.settings.dateFormat
-  }
+    this.noOfDecimalPoint = this.settings.noOfDecimal
 
+  }
+  noOfDecimalPoint:any=0
   searchForStr (text) {
     this._loaderService.show()
 
@@ -90,7 +92,8 @@ export class SaleReturnDirectListComponent implements OnInit {
         this._loaderService.hide()
       
       }, 100)
-      this.createTableData(data.Data, '')
+      this.createTableData(data.Data.SaleDetails, data.Data.SaleSummary)
+      // this.createTableData(data.Data, '')
     },(err) => {
       setTimeout(() => {
         this._loaderService.hide()
@@ -171,6 +174,10 @@ export class SaleReturnDirectListComponent implements OnInit {
     customContent.forEach(element => {
       element.BillDate = this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
       element.PartyBillDate = this.gs.utcToClientDateFormat(element.PartyBillDate, this.clientDateFormat)
+      element.BillAmount = element.BillAmount.toFixed(this.noOfDecimalPoint)
+      element.Discount = element.Discount.toFixed(this.noOfDecimalPoint)
+      element.TaxAmount = element.TaxAmount.toFixed(this.noOfDecimalPoint)
+
     })
     this.customContent = customContent
     this.customHeader = [
@@ -198,7 +205,7 @@ export class SaleReturnDirectListComponent implements OnInit {
       { type: FormConstants.Cancel, id: 0, text: 'Cancel' }
     ]
     this.customFooter = [{ 
-      colspan: 5, data: [
+      colspan: 4, data: [
         +summary[0].TotalQty.toFixed(2),
         +summary[0].Discount.toFixed(2),
         +summary[0].TaxAmount.toFixed(2),

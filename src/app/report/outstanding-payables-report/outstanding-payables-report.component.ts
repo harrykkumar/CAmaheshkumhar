@@ -10,6 +10,7 @@ import * as _ from 'lodash'
 import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
+import { ExcelService } from '../../commonServices/excel.service';
 
 @Component({
   selector: 'app-outstanding-payables-report',
@@ -28,7 +29,7 @@ export class OutStandingPayablesReportComponent implements OnInit, AfterViewInit
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
-  constructor(
+  constructor( public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
@@ -82,7 +83,9 @@ export class OutStandingPayablesReportComponent implements OnInit, AfterViewInit
   }
   getValueFalg: boolean = true
   fromamount:number =0
+  mainDataExcel:any =[]
   toamount:number =0
+  ExcelSummary:any
   outStandingPayablesData = () => {
     let fromDate, toDate
     if (this.model.fromDatevalue) {
@@ -108,6 +111,18 @@ export class OutStandingPayablesReportComponent implements OnInit, AfterViewInit
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.OutstandingDetails.length > 0) {
         this.outStandingPayable = response.Data;
+        this.ExcelSummary =[]
+        this.ExcelHeaders =["SNo","Party Name","Balance"]
+        this.ExcelSummary =["Total","",response.Data.OutstandingDetailsSummary[0].Balance.toFixed(this.noOfDecimal)]
+       
+        this.mainDataExcel =[]
+        response.Data.OutstandingDetails.forEach((element,int) => {
+          this.mainDataExcel.push([
+            int+1,
+            element.PartyName,
+            (element.Balance).toFixed(this.noOfDecimal)
+          ])
+        });
        this.getValueFalg = false
         this.totalItemSize = response.Data.OutstandingDetails[0].TotalRows;
         if(this.isViewPrint ){
@@ -154,6 +169,7 @@ export class OutStandingPayablesReportComponent implements OnInit, AfterViewInit
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
+  ExcelHeaders:any
   searchReset(){
     this.viewFlag =true
     this.isViewPrint=false
@@ -204,4 +220,16 @@ export class OutStandingPayablesReportComponent implements OnInit, AfterViewInit
     }, 100)
    
   }
+
+  exportExcel (){
+    if(this.mainDataExcel.length > 0){
+      // this.excelService.exportAsExcelFile(this.mainDataExcel, 'Outstanding Payables Report')
+      this.excelService.generateExcel(this.outStandingPayable.OrganizationDetails[0].OrgName,
+        this.outStandingPayable.AddressDetails[0].CityName + ' ' +
+        this.outStandingPayable.AddressDetails[0].StateName + ' ' + this.outStandingPayable.AddressDetails[0].CountryName, this.ExcelHeaders,
+        this.mainDataExcel, 'Outstanding Payables Report', this.model.fromDatevalue, this.model.toDateValue,this.ExcelSummary)
+  
+  
+    }
+}
 }

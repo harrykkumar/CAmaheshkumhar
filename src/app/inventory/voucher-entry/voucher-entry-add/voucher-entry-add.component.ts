@@ -658,10 +658,10 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     if (+event.value > 0 && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = +event.value
-      if (+event.value === 3) {
+      if (+event.value !==1) {
         this.BankLedgerName = ''
         this.LedgerId = 0
-        this.setpaymentLedgerSelect2(0)
+        this.setpaymentLedgerSelect2(0,+event.value )
       } else if (+event.value === 1) {
         this.setLedgerSelectForCash();
       }
@@ -678,10 +678,10 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }
   }
 
-  setpaymentLedgerSelect2(i) {
+  setpaymentLedgerSelect2(i,paymentId) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this.commonService.getPaymentLedgerDetail(9).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+    this.commonService.getPaymentLedgerDetail(paymentId).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
           newData.push({

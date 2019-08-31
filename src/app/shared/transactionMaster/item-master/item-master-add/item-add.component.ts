@@ -40,7 +40,7 @@ export class ItemAddComponent {
 
   taxValue: any
   cateGoryValue: any
-  unitTypeValue: any =0
+  unitTypeValue: any = 0
   packingTypeValue: any
   itemDetailValue: any
   loading: boolean = true
@@ -72,7 +72,7 @@ export class ItemAddComponent {
   MinStock: number
   MaxStock: number
   ReOrderQty: number
-  BarCode: any
+  BarCode: any = ''
   PurchaseRate: number
   OpeningStock: number
   OpeningStockValue: number
@@ -103,13 +103,13 @@ export class ItemAddComponent {
 
   combo: Array<ComboItem> = []
   itemAttributeOpeningStockOpen: any = {};
-  constructor (private _itemmasterServices: ItemmasterServices,
+  constructor(private _itemmasterServices: ItemmasterServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
     private unitMasterService: UnitMasterServices,
     private renderer: Renderer2,
     private settings: Settings
-    ) {
+  ) {
     this.addedImages = { images: [], queue: [], safeUrls: [], baseImages: [] }
     this.modalOpen = this.commonService.getItemMasterStatus().subscribe(
       (status: any) => {
@@ -174,11 +174,13 @@ export class ItemAddComponent {
     this.newUnitAddSub = this.commonService.getUnitStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
-          // console.log('unit added : ', data)
           let newData = Object.assign([], this.selectUnitType)
           newData.push({ id: data.id, text: data.name })
-          this.selectUnitType = newData
-          this.unitTypeValue = data.id
+         // this.selectUnitType = newData
+         this.UnitIdForEDit = data.id
+          if (this.unitSettingType === 1) {
+            this.getUnitTypeDetail(0)
+          }
           setTimeout(() => {
             if (this.unitSelect2) {
               const element = this.renderer.selectRootElement(this.unitSelect2.selector.nativeElement, true)
@@ -192,7 +194,6 @@ export class ItemAddComponent {
     this.compositeUnitAddSub = this.commonService.getCompositeUnitStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
-          // console.log('routing added : ', data)
           let newData = Object.assign([], this.selectUnitType)
           newData.push({ id: data.id, text: data.name })
           this.selectUnitType = newData
@@ -216,7 +217,7 @@ export class ItemAddComponent {
     )
   }
 
-  removeImage (i) {
+  removeImage(i) {
     this.addedImages.images.splice(i, 1)
     this.addedImages.queue.splice(i, 1)
     this.addedImages.safeUrls.splice(i, 1)
@@ -225,7 +226,7 @@ export class ItemAddComponent {
     this.createImageFiles()
   }
 
-  createImageFiles () {
+  createImageFiles() {
     let ImageFiles = []
     for (let i = 0; i < this.addedImages.images.length; i++) {
       let obj = { Name: this.addedImages.queue[i], BaseString: this.addedImages.safeUrls[i], IsBaseImage: this.addedImages.baseImages[i], Id: this.addedImages.id[i] ? this.addedImages.id[i] : 0 }
@@ -235,7 +236,7 @@ export class ItemAddComponent {
     console.log('image files : ', this.ImageFiles)
   }
 
-  getEditData () {
+  getEditData() {
     this._itemmasterServices.getEditData(+this.Id).subscribe(
       (data) => {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -247,12 +248,12 @@ export class ItemAddComponent {
   }
 
   ItemAttributesTrans: any = []
-  createAttributes (attributes) {
+  createAttributes(attributes) {
     attributes.forEach((element, index) => {
       this.ItemAttributesTrans[index] = {
         ItemId: element.ItemId,
         ItemTransId: element.ItemTransId,
-        AttributeId:  element.AttributeId,
+        AttributeId: element.AttributeId,
         ParentTypeId: 21,
         name: element.AttributeName,
         Id: element.Id
@@ -260,7 +261,7 @@ export class ItemAddComponent {
     })
   }
 
-  createItems (ComboDetails) {
+  createItems(ComboDetails) {
     this.combo = []
     ComboDetails.forEach((element, index) => {
       let itemAttributeTrans = []
@@ -288,7 +289,7 @@ export class ItemAddComponent {
     console.log('combo : ', this.combo)
   }
 
-  createFormData (data) {
+  createFormData(data) {
     this.openModal()
     this.createAttributes(data.ItemAttributesTrans)
     this.createItems(data.ComboDetails)
@@ -347,7 +348,7 @@ export class ItemAddComponent {
 
   @ViewChild('itemname') itemname: ElementRef
   @ViewChild('barcode') barcode: ElementRef
-  openModal () {
+  openModal() {
     this.initComp()
     $('#item_form').removeClass('fadeInUp')
     $('#item_form').addClass('fadeInDown')
@@ -447,32 +448,32 @@ export class ItemAddComponent {
     }
   }
 
-  getBarStatus () {
-   if (this.HsnNo.trim()) {
-    this.pendingCheck = true
-    console.log('search text : ', this.HsnNo)
-    this._itemmasterServices.searchEntries(this.HsnNo.trim()).subscribe((data) => {
-      if (data.Code === UIConstant.THOUSAND) {
-        console.log('search data : ', data)
-        setTimeout(() => {
+  getBarStatus() {
+    if (this.HsnNo.trim()) {
+      this.pendingCheck = true
+      console.log('search text : ', this.HsnNo)
+      this._itemmasterServices.searchEntries(this.HsnNo.trim()).subscribe((data) => {
+        if (data.Code === UIConstant.THOUSAND) {
+          console.log('search data : ', data)
+          setTimeout(() => {
+            this.pendingCheck = false
+            this.existsCodes.barcode = data.Data[0].Status
+            if (this.existsCodes.barcode) {
+              $('.fas fa-check').addClass('hideMe')
+              // this.toastrService.showError('Oops', 'Bar Code is already taken')
+            } else {
+              $('.fas fa-times').addClass('hideMe')
+            }
+          }, 1000)
+        } else {
+          this.toastrService.showError('', data.Description)
           this.pendingCheck = false
-          this.existsCodes.barcode = data.Data[0].Status
-          if (this.existsCodes.barcode) {
-            $('.fas fa-check').addClass('hideMe')
-          // this.toastrService.showError('Oops', 'Bar Code is already taken')
-          } else {
-            $('.fas fa-times').addClass('hideMe')
-          }
-        }, 1000)
-      } else {
-        this.toastrService.showError('', data.Description)
-        this.pendingCheck = false
-      }
-    })
-   }
+        }
+      })
+    }
   }
 
-  getItemNameStatus () {
+  getItemNameStatus() {
     if (this.Name.trim()) {
       this.pendingCheck1 = true
       this._itemmasterServices.searchItemName(this.Name.trim()).subscribe((data) => {
@@ -495,7 +496,7 @@ export class ItemAddComponent {
   }
 
   @ViewChild('brand_select2') brandSelect2: Select2Component
-  initComp () {
+  initComp() {
     if (this.modeOfForm === 'new') {
       this.loading = true
     }
@@ -532,7 +533,7 @@ export class ItemAddComponent {
       this.packingTypeSelect2.setElementValue('1')
     }
     if (this.modeOfForm === 'new') {
-      this.unitTypeValue =0
+      this.unitTypeValue = 0
       this.getSetting(JSON.parse(this.settings.moduleSettings).settings)
       this.getUnitTypeDetail(0)
       this.getItemDetail(0)
@@ -552,7 +553,7 @@ export class ItemAddComponent {
     }
   }
 
-  initialiseExtras () {
+  initialiseExtras() {
     if (this.modeOfForm === 'new') {
       this.loading = true
     }
@@ -582,14 +583,14 @@ export class ItemAddComponent {
     this.addedImages = { images: [], queue: [], safeUrls: [], baseImages: [] }
   }
 
-  closeModal () {
+  closeModal() {
     if ($('#item_form').length > 0) {
       this.modeOfForm = new
-      $('#item_form').modal(UIConstant.MODEL_HIDE)
+        $('#item_form').modal(UIConstant.MODEL_HIDE)
     }
   }
 
-  ngOnDestroy () {
+  ngOnDestroy() {
     // this.modalOpen.unsubscribe()
     // this.newCategoryAddSub.unsubscribe()
     // this.newTaxAddSub.unsubscribe()
@@ -598,7 +599,7 @@ export class ItemAddComponent {
     // this.nameExistSub.unsubscribe()
   }
 
-  createForm () {
+  createForm() {
     this.Id = 0
     if (!this.toDisableCat) {
       this.CategoryId = 0
@@ -632,7 +633,7 @@ export class ItemAddComponent {
     this.addedImages = { images: [], queue: [], safeUrls: [], baseImages: [] }
   }
 
-  private itemAddParams (): ItemMasterAdd {
+  private itemAddParams(): ItemMasterAdd {
     // Nrv: +this.Nrv,
     const itemAddElement = {
       obj: {
@@ -668,7 +669,7 @@ export class ItemAddComponent {
     return itemAddElement.obj
   }
 
-  getCategoryDetails () {
+  getCategoryDetails() {
     this.categoryPlaceHolder = { placeholder: 'Select Category' }
     let newData = [{ id: '0', text: 'Select Category' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this._itemmasterServices.getAllSubCategories(1).subscribe(data => {
@@ -685,19 +686,19 @@ export class ItemAddComponent {
         this.categoryType = newData
       }
     },
-    (error) => {
-      console.log(error)
-      this.loading = false
-    },
-    () => {
-      this.loading = false
-    })
+      (error) => {
+        console.log(error)
+        this.loading = false
+      },
+      () => {
+        this.loading = false
+      })
   }
 
   @ViewChild('cat_select2') catSelect2: Select2Component
   @ViewChild('itemtype_select2') itemTypeSelect2: Select2Component
   @ViewChild('packingtype_select2') packingTypeSelect2: Select2Component
-  selectedCategory (event) {
+  selectedCategory(event) {
     if (event.value && event.data.length > 0) {
       // console.log('event on change of item : ', event)
       if (+event.value === -1) {
@@ -713,7 +714,7 @@ export class ItemAddComponent {
     }
   }
 
-  getTaxtDetail (value) {
+  getTaxtDetail(value) {
     this.taxTypePlaceHolder = { placeholder: 'Select Tax' }
     let newData = [{ id: '0', text: 'Select Tax' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this._itemmasterServices.getTaxDetail().subscribe(data => {
@@ -729,13 +730,13 @@ export class ItemAddComponent {
         this.selectTax = newData
       }
     },
-    (error) => {
-      console.log(error)
-    })
+      (error) => {
+        console.log(error)
+      })
   }
 
   @ViewChild('tax_select2') taxSelect2: Select2Component
-  selectedTax (event) {
+  selectedTax(event) {
     console.log('on select of tax : ', event)
     if (event.value && event.data.length > 0) {
       if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
@@ -748,14 +749,14 @@ export class ItemAddComponent {
       this.checkForValidation()
     }
   }
-
-  getUnitTypeDetail (value) {
-    debugger
+  GetAllPostData: any = []
+  getUnitTypeDetail(value) {
+    
     this.unitTypePlaceHolder = { placeholder: 'Select Unit' }
     let newData = [{ id: '0', text: 'Select Unit' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.unitMasterService.getSubUnits().subscribe(data => {
-      // console.log('units : ', data)
       if (data.Code === UIConstant.THOUSAND) {
+        this.GetAllPostData = data.Data;
         if (data.Data.length > 0) {
           data.Data.forEach(element => {
             newData.push({
@@ -766,12 +767,26 @@ export class ItemAddComponent {
         }
         this.selectUnitType = newData
       }
+      if (this.unitSettingType === 1) {
+        this.postDataForUnit(this.GetAllPostData)
+      }
     })
   }
+  UnitIdForEDit:any=0
+  postDataForUnit(data) {
+    if (data.length > 0) {
+      data.forEach(element => {
+        if ((element.PrimaryUnitId === element.SecondaryUnitId) && (element.SecondaryUnitId === JSON.parse(this.UnitIdForEDit )) && (element.PrimaryUnitId === JSON.parse( this.UnitIdForEDit))) {
+          this.UnitId = element.Id
+          this.unitTypeValue = element.Id
+          
+        }
+      });
+    }
 
+  }
   @ViewChild('unit_select2') unitSelect2: Select2Component
-  selectedUnitTpye (event) {
-    // console.log('on select of unit : ', event)
+  selectedUnitTpye(event) {
     if (event.value && event.data.length > 0) {
       if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
         this.unitSelect2.selector.nativeElement.value = ''
@@ -790,7 +805,7 @@ export class ItemAddComponent {
     }
   }
 
-  getBrandDetail (brand) {
+  getBrandDetail(brand) {
     this.selectBrand = []
     this._itemmasterServices.getBrandDetail().subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -807,36 +822,36 @@ export class ItemAddComponent {
         this.selectBrand = newData
       }
     },
-    (error) => {
-      console.log(error)
-    })
+      (error) => {
+        console.log(error)
+      })
   }
 
-  getpackingTypeDetail (value) {
+  getpackingTypeDetail(value) {
     this.packingTypePlaceHolder = { placeholder: 'Select packingType' }
-    this.selectPackingType = [{ id: '1',text: 'Packed' },{ id: '2',text: 'Loose' },{ id: '3',text: 'Combo' }]
+    this.selectPackingType = [{ id: '1', text: 'Packed' }, { id: '2', text: 'Loose' }, { id: '3', text: 'Combo' }]
   }
 
-  selectedPackingType (event) {
+  selectedPackingType(event) {
     this.PackingType = +event.value
     if (this.PackingType === 3) {
       this.packingTypeSelect2.selector.nativeElement.value = ''
       this.comboComp.openModal()
     }
   }
-  getItemDetail (value) {
+  getItemDetail(value) {
     this.itemTpyePlaceHolder = { placeholder: 'Select item' }
-    this.selectItemTpye = [{ id: '1', text: 'Stockable' },{ id: '2', text: 'Stockable Not Sale' }]
+    this.selectItemTpye = [{ id: '1', text: 'Stockable' }, { id: '2', text: 'Stockable Not Sale' }]
   }
-  selectedItemType (itemTypeCode) {
+  selectedItemType(itemTypeCode) {
     this.ItemType = +itemTypeCode.value
   }
 
-  closeItemMaster () {
+  closeItemMaster() {
     this.commonService.closeItemMaster('')
     this.initComp()
   }
-  addNewItemMaster (value) {
+  addNewItemMaster(value) {
     this.submitClick = true
     if (value === 'reset') {
       this.initComp()
@@ -858,7 +873,7 @@ export class ItemAddComponent {
               const dataToSend1 = { id: this.UnitId, name: this.unitName }
               const dataToSend2 = { id: this.TaxId, name: this.taxName }
               const dataToSend3 = { id: this.CategoryId, name: this.categoryName }
-              this.toastrService.showSuccess('Success','Saved Successfully')
+              this.toastrService.showSuccess('Success', 'Saved Successfully')
               this.commonService.onAddItemMaster()
               this.commonService.closeItemMaster(dataToSend)
               this.commonService.closeUnit(dataToSend1)
@@ -877,7 +892,7 @@ export class ItemAddComponent {
               this.submitClick = false
               this.loading = false
               //this.initComp()
-              this.toastrService.showSuccess('Success','Saved Successfully')
+              this.toastrService.showSuccess('Success', 'Saved Successfully')
               this.initialiseExtras()
             }
           } else {
@@ -888,10 +903,10 @@ export class ItemAddComponent {
     }
   }
 
-  openImageModal () {
+  openImageModal() {
     this._itemmasterServices.openImageModal(this.addedImages)
   }
-  checkForValidation (): boolean {
+  checkForValidation(): boolean {
     let isValid = 1
     if (!isNaN(+this.CategoryId) && +this.CategoryId > 0) {
       this.invalidObj['CategoryId'] = false
@@ -938,7 +953,7 @@ export class ItemAddComponent {
     return !!isValid
   }
 
-  getSetting (settings) {
+  getSetting(settings) {
     // console.log('settings : ', settings)
     settings.forEach(element => {
       if (element.id === SetUpIds.unitType) {
@@ -965,18 +980,18 @@ export class ItemAddComponent {
   public options: Select2Options
   public value: string[]
 
-  ngOnInit () {
+  ngOnInit() {
     this.options = {
       multiple: true
     }
   }
 
-  onBrandSelect (data: {value: string[]}) {
+  onBrandSelect(data: { value: string[] }) {
     this.BrandIds = data.value.join(',')
   }
 
   @ViewChild('imagebutton') imagebutton: ElementRef
-  onPressEnter (type) {
+  onPressEnter(type) {
     if (type === 1) {
       this.IsNotDiscountable = !this.IsNotDiscountable
     } else if (type === 2) {
@@ -986,7 +1001,7 @@ export class ItemAddComponent {
     }
   }
 
-  comboAdded (combo) {
+  comboAdded(combo) {
     console.log('combo : ', combo)
     this.combo = combo
     this.Items = []
@@ -999,7 +1014,7 @@ export class ItemAddComponent {
     console.log('combo ItemAttributeTrans : ', this.ItemAttributeTrans)
   }
 
-  getBarCodeSetting () {
+  getBarCodeSetting() {
     if (this.isBarCode) {
       this._itemmasterServices.getBarCode('ForBarCode').subscribe(
         (data: any) => {
@@ -1014,7 +1029,7 @@ export class ItemAddComponent {
   }
 
   onPurchaseRateChange = () => {
-    if(+this.OpeningStock > 0 && +this.PurchaseRate > 0) {
+    if (+this.OpeningStock > 0 && +this.PurchaseRate > 0) {
       this.OpeningStockValue = +(+this.OpeningStock * +this.PurchaseRate).toFixed(this.noOfDecimal)
     } else {
       this.OpeningStockValue = 0
@@ -1027,20 +1042,20 @@ export class ItemAddComponent {
   }
 
   onOpeningStockChange = () => {
-    if(+this.PurchaseRate > 0 && +this.OpeningStock > 0) {
+    if (+this.PurchaseRate > 0 && +this.OpeningStock > 0) {
       this.OpeningStockValue = +(+this.OpeningStock * +this.PurchaseRate).toFixed(this.noOfDecimal)
     } else {
       this.OpeningStockValue = 0
     }
-    if(+this.OpeningStockValue > 0 && +this.OpeningStock > 0) {
+    if (+this.OpeningStockValue > 0 && +this.OpeningStock > 0) {
       this.PurchaseRate = +(+this.OpeningStockValue / +this.OpeningStock).toFixed(this.noOfDecimal)
     } else {
       this.PurchaseRate = 0
-    } 
+    }
   }
 
   onOpeningStockValueChange = () => {
-    if(+this.OpeningStock > 0 && +this.OpeningStockValue > 0) {
+    if (+this.OpeningStock > 0 && +this.OpeningStockValue > 0) {
       this.PurchaseRate = +(+this.OpeningStockValue / +this.OpeningStock).toFixed(this.noOfDecimal)
     } else {
       this.PurchaseRate = 0

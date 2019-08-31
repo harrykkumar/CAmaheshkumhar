@@ -10,6 +10,7 @@ import * as _ from 'lodash'
 import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
+import { ExcelService } from '../../commonServices/excel.service';
 
 @Component({
   selector: 'app-journal-register',
@@ -29,26 +30,27 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
   private unSubscribe$ = new Subject<void>()
 
   constructor(
+    public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
     private _toastService: ToastrCustomService,
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this.noOfDecimal =this._settings.noOfDecimal
+    this.noOfDecimal = this._settings.noOfDecimal
     this.getLedgerItemList();
   }
-  noOfDecimal:any
-  viewFlag:any
+  noOfDecimal: any
+  viewFlag: any
   ngOnInit() {
-    this.viewFlag =true
-    this.isViewPrint=false
+    this.viewFlag = true
+    this.isViewPrint = false
     this._commonService.fixTableHF('cat-table')
     this.getCashBookData();
 
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     this.toDate()
     this.fromDate()
   }
@@ -58,7 +60,7 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
 
   toDate = () => {
     //this._globalService.getDefaultDate(this.clientDateFormat)
-        this.model.toDateValue =   ''
+    this.model.toDateValue = ''
   }
 
   onLedgerItemChange = (event) => {
@@ -82,9 +84,9 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
       })
   }
   getValueFalg: boolean = true
-
+  ExcelHeaders: any
   getCashBookData = () => {
-    
+
     let fromDate, toDate
     if (this.model.fromDatevalue) {
       fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
@@ -96,7 +98,7 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
       // LedgerId: this.model.selectedLedgerItem ? this.model.selectedLedgerItem.id : 0,
       FromDate: fromDate ? fromDate : '',
       ToDate: toDate ? toDate : '',
-      Type:'Voucher',
+      Type: 'Voucher',
       Page: this.pageNo,
       Size: this.pageSize
     }
@@ -105,52 +107,72 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.CashBook.length > 0) {
         this.cashBook = response.Data;
-        response.Data.CashBook.forEach(element => {
-        
+        this.mainDataExcel = []
+        this.ExcelHeaders = ["SNo", "Date", "Voucher Type", "Voucher No", "Particulars"
+          , "Debit Amount", "Credit Amount", "Narration"]
+        response.Data.CashBook.forEach((element, ind) => {
+          let date = ''
+          if (element.OpeningFlag === 1) {
+            date = this._globalService.utcToClientDateFormat(element.CurrentDate, this.clientDateFormat)
+          }
+          else {
+            date = ''
+          }
+          this.mainDataExcel.push([
+            ind + 1,
+            date,
+            element.VoucherTypeName,
+            element.VoucherNo,
+            element.Particulars,
+            (element.DebitAmount).toFixed(this.noOfDecimal),
+            (element.CreditAmount).toFixed(this.noOfDecimal),
+            element.Narration
+          ])
         });
-       this.getValueFalg = false
+
+        this.getValueFalg = false
         this.totalItemSize = response.Data.CashBook[0].TotalRows;
-        if(this.isViewPrint ){
-          this.printLoad(this.htmlLoadid,this.isViewPrint)
+        if (this.isViewPrint) {
+          this.printLoad(this.htmlLoadid, this.isViewPrint)
         }
       } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.CashBook.length === 0) {
         this.getValueFalg = true
         this.cashBook = {
           CashBook: [],
           CashBookSummary: [],
-          AddressDetails:[],
-          ContactInfoDetails:[],
-          EmailDetails:[],
-          OrganizationDetails:[],
-          ImageContents:[]
+          AddressDetails: [],
+          ContactInfoDetails: [],
+          EmailDetails: [],
+          OrganizationDetails: [],
+          ImageContents: []
         }
         this.totalItemSize = 0;
       } else {
         this._toastService.showError("Error in Data Fetching", '');
       }
-      console.log(this.cashBook  ,'fff')
+      console.log(this.cashBook, 'fff')
     }, (error) => {
       console.log(error);
     });
-    this.viewPrint=false
-   
+    this.viewPrint = false
+
   }
 
   onPageNoChange = (event) => {
     this.pageNo = event
-    this.isViewPrint= false
+    this.isViewPrint = false
 
     this.getCashBookData()
   }
 
   onPageSizeChange = (event) => {
     this.pageSize = event
-    this.isViewPrint= false
+    this.isViewPrint = false
     this.getCashBookData()
   }
-  searchButton (){
-    this.viewFlag=true
-    this.isViewPrint= false
+  searchButton() {
+    this.viewFlag = true
+    this.isViewPrint = false
     this.getCashBookData()
   }
   onLastValueChange = (event) => {
@@ -161,28 +183,28 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
-  
-  searchResetButton (){
-    this.viewFlag=true
-    this.isViewPrint= false
-    this.model.toDateValue =''
-    this.model.fromDatevalue =''
+
+  searchResetButton() {
+    this.viewFlag = true
+    this.isViewPrint = false
+    this.model.toDateValue = ''
+    this.model.fromDatevalue = ''
     this.getCashBookData()
   }
-  isViewPrint:boolean = false
-  htmlLoadid:any =0
-  viewPrint:any
-  openPrint (HtmlId ,isViewPrint) {
-    this.viewFlag=false
-    this.isViewPrint =isViewPrint
-    this.htmlLoadid= HtmlId
-   this.getCashBookData()
+  isViewPrint: boolean = false
+  htmlLoadid: any = 0
+  viewPrint: any
+  openPrint(HtmlId, isViewPrint) {
+    this.viewFlag = false
+    this.isViewPrint = isViewPrint
+    this.htmlLoadid = HtmlId
+    this.getCashBookData()
   }
-  closeBtn (){
-    this.viewFlag=true
+  closeBtn() {
+    this.viewFlag = true
   }
 
-  printLoad (cmpName,isViewForm) {
+  printLoad(cmpName, isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open()
@@ -193,15 +215,27 @@ export class JournalRegisterComponent implements OnInit, AfterViewInit {
     printWindow.document.close()
     printWindow.focus()
     // $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
-    this.viewFlag=true
+    this.viewFlag = true
     setTimeout(function () {
- //   if(this.isViewForm){
-        document.getElementsByTagName('body')[0] .classList.add('hidden-print');
-     printWindow.print()
-     printWindow.close()
-    //}
-    
+      //   if(this.isViewForm){
+      document.getElementsByTagName('body')[0].classList.add('hidden-print');
+      printWindow.print()
+      printWindow.close()
+      //}
+
     }, 100)
-   
+
+  }
+  mainDataExcel: any = []
+  exportExcel() {
+    if (this.mainDataExcel.length > 0) {
+      this.excelService.generateExcel(this.cashBook.OrganizationDetails[0].OrgName,
+        this.cashBook.AddressDetails[0].CityName + ' ' +
+        this.cashBook.AddressDetails[0].StateName + ' ' + this.cashBook.AddressDetails[0].CountryName, this.ExcelHeaders,
+        this.mainDataExcel, 'Journal Report', this.model.fromDatevalue, this.model.toDateValue,[])
+
+
+
+    }
   }
 }

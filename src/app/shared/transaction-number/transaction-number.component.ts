@@ -167,8 +167,7 @@ export class TransactionNumberComponent implements OnInit {
   }
 
   generateFormatString(item, index) {
-    if (this.modal.splitterString
-      && !_.isEmpty(this.modal.selectedPosition) && Number(this.modal.selectedPosition.id)
+    if (!_.isEmpty(this.modal.selectedPosition) && Number(this.modal.selectedPosition.id)
       && !_.isEmpty(this.modal.selectedFormat) && Number(this.modal.selectedFormat.id)
     ) {
       const position = Number(this.modal.selectedPosition.id)
@@ -181,7 +180,7 @@ export class TransactionNumberComponent implements OnInit {
       } else if (position === 4) {
         this.Concat_At_Position_4(item, index)
       }
-    } else if (this.modal.splitterString && (_.isEmpty(this.modal.selectedPosition) || !Number(this.modal.selectedPosition.id))) {
+    } else if ((_.isEmpty(this.modal.selectedPosition) || !Number(this.modal.selectedPosition.id))) {
       this.Concat_At_Position_0(item, index)
     }
   }
@@ -358,11 +357,9 @@ export class TransactionNumberComponent implements OnInit {
   }
 
   onSplitterChange(event) {
-    if (Number(event.value) > 0) {
       this.modal.selectedSplitterId = Number(event.value)
-      this.modal.splitterString = event.data[0]['text']
+      this.modal.splitterString = Number(event.value) === 0 ? '' : event.data[0]['text']
       this.generateDemoString()
-    }
   }
 
   getTransactionList() {

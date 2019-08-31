@@ -504,13 +504,13 @@ export class SaleDirectService {
     return this.baseService.postRequest(ApiConstant.SALE_DIRECT_BILLING_API, obj)
   }
 
-  getNewBillNoPurchase (orgId, date, type) {
+  getNewBillNoSale (orgId, date, type ,FormType) {
     let queryString = ''
     if (type === 1) {
-      queryString = 'TransactionType=' + 'sale' + '&&OrgId=' + orgId + '&&TransDate=' + date
+      queryString = 'TransactionType=' + FormType + '&&OrgId=' + orgId + '&&TransDate=' + date
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_AUTO + queryString)
     } else if (type === 2) {
-      queryString = 'Type=' + 'sale' + '&&BillDate=' + date + '&OrgId=' + orgId
+      queryString = 'Type=' +FormType + '&&BillDate=' + date + '&OrgId=' + orgId
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_MANUAL + queryString)
     }
   }

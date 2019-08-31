@@ -29,7 +29,7 @@
               <a>
                 <img src="assets/img/pdf.png"></a>
               <a>
-                <img src="assets/img/excel.png"></a>
+                <img (click)="exportExcel()" src="assets/img/excel.png"></a>
               <button type="button" class="btn btn-primary waves-effect waves-light" [disabled]="loading"
                 (click)="openPurchase()">New {{title}}</button>
               <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i

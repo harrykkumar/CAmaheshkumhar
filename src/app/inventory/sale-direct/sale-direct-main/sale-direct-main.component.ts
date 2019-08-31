@@ -11,6 +11,8 @@ import { map, filter, debounceTime, distinctUntilChanged, catchError } from 'rxj
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { SaleDirectAddComponent } from '../sale-direct-add/sale-direct-add.component';
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
+import { ExcelService } from '../../../commonServices/excel.service';
+import { GlobalService } from 'src/app/commonServices/global.service';
 
 declare const $: any
 declare const _: any
@@ -29,7 +31,10 @@ export class SaleDirectMainComponent {
   printData1: any = []
   industryId: number
   loading = true
-  constructor(private route: ActivatedRoute,
+  queryStr$: Subscription
+  constructor(public gs :GlobalService,
+    public excelService: ExcelService,
+    private route: ActivatedRoute,
     private commonService: CommonService,
     private _saleDirectService: SaleDirectService,
     private settings: Settings,
@@ -40,6 +45,7 @@ export class SaleDirectMainComponent {
 
     this.data$ = this.commonService.getSaleDirectActionClickedStatus().subscribe(
       (action: any) => {
+        debugger
         if (action.type === FormConstants.Print && action.formname === FormConstants.SaleForm) {
           this.onPrintForDirectSale(action.id, action.printId, action.viewPrint)
         }
@@ -51,10 +57,17 @@ export class SaleDirectMainComponent {
 
       }
     )
+    this.queryStr$ = this._saleDirectService.queryStr$.subscribe(
+      (str) => {
+        this.queryStr = str
+       this.expoertExceldata()
+      }
+    )
     this.formSearch()
     this.industryId = +this.settings.industryId
     this.clientDateFormat = this.settings.dateFormat
     this.dicimalDigitFormat = this.settings.noOfDecimal
+
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
   }
   openPrintConfirmationPopup(value) {
@@ -93,6 +106,7 @@ export class SaleDirectMainComponent {
     })
   }
   ngOnInit() {
+    this.getOrgDetailsData()
     this.sub = this.route.data.subscribe(data => {
       this.title = data.title
     })
@@ -108,6 +122,7 @@ export class SaleDirectMainComponent {
     ).subscribe((text: string) => {
       this._saleDirectService.onTextEntered(text)
     })
+    this.expoertExceldata()
   }
   @ViewChild('saleDirect_add') saledirectAdd: SaleDirectAddComponent
   SPUtilityData() {
@@ -480,7 +495,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
     this.HedShow = []
     let valueshow = []
     hsnTransaction.forEach(element => {
-      this.HedShow = hsnData.filter(d => d.HsnNo === element.HsnNo)
+      this.HedShow = hsnData.filter(d => d.HsnNo === element.HsnNo && d.TaxSlabId === element.TaxSlabId)
       if (this.HedShow.length > 0) {
         valueshow = []
         rate = this.HedShow.filter(item1 => item1.TaxRate)
@@ -537,7 +552,56 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
 
   word: string = ''
 
+  mainDataExcel:any =[]
+  getOrgDetailsData (){
+    this.getOrgDetails={}
+    this.commonService.getOrgDetailsForPrintExcelPDF().subscribe(data=>{
+      if(data.Code === UIConstant.THOUSAND){
+        this.getOrgDetails = data.Data
+      }
+    })
+  }
+  exportExcel () {
+    if(this.mainDataExcel.length>0){
+      this.excelService.generateExcel(this.getOrgDetails.OrganizationDetails[0].OrgName , this.getOrgDetails.AddressDetails[0].CityName+ ' ' +this.getOrgDetails.AddressDetails[0].StateName + ' ' + this.getOrgDetails.AddressDetails[0].CountryName,this.ExcelHeaders,this.mainDataExcel,'Sale Invoice',"", "",this.ExcelSummary)
 
+    }
+ 
+  }
+getOrgDetails:any={}
+  ExcelHeaders:any
+  ExcelSummary:any
+  expoertExceldata () { 
+    this._saleDirectService.getSaleDirectList('?StrSearch=' + ''+ this.queryStr).subscribe(data=>{
+      if(data.Code === UIConstant.THOUSAND){
+        this.mainDataExcel =[]
+        this.ExcelSummary=[]
+        this.ExcelSummary =["Total","",
+        "",
+        "",
+        data.Data.SaleSummary[0].TotalQty.toFixed(2),
+        data.Data.SaleSummary[0].Discount.toFixed(this.dicimalDigitFormat),
+        data.Data.SaleSummary[0].TaxAmount.toFixed(this.dicimalDigitFormat),
+        data.Data.SaleSummary[0].BillAmount.toFixed(this.dicimalDigitFormat)
+      ]
+        this.ExcelHeaders =["SNo","Party Details","Invoice No.","Invoice Date","Quantity","Discount","Tax Amount","Bill Amount"]
+        data.Data.SaleDetails.forEach((element,ind) => {
+         let  date =this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
 
+          this.mainDataExcel.push([
+            ind+1,
+            element.LedgerName,
+            element.BillNo,
+            date,
+            element.TotalQty.toFixed(2),
+            element.Discount.toFixed(this.dicimalDigitFormat),
+            element.TaxAmount.toFixed(this.dicimalDigitFormat),
+            element.BillAmount.toFixed(this.dicimalDigitFormat)
+          ])
+        });
+      }
+    })
 
+    
+  }
 }

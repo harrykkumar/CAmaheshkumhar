@@ -237,12 +237,23 @@
           data-toggle="dropdown"
         >
           <div class="peer mR-10">
-              <img
+              <!-- <img
                 class="w-2r bdrs-50p"
                 src="../../../assets/img/man.png"
-              />
+              /> -->
+              <img
+              *ngIf="_loginService?.userData?.ImageContents && _loginService?.userData?.ImageContents[0]?.FilePath;else defaultImage"
+              class="w-2r bdrs-50p"
+             [src]="_loginService?.userData?.ImageContents[0] &&_loginService?.userData?.ImageContents[0]?.FilePath" 
+
+            />
           </div>
-         
+          <ng-template #defaultImage>
+              <img 
+              class="w-2r bdrs-50p"
+              src="../../../assets/img/man.png"
+              />
+          </ng-template>
         </a>
         <ul class="dropdown-menu fsz-sm">
           <li role="separator" class="divider"></li>

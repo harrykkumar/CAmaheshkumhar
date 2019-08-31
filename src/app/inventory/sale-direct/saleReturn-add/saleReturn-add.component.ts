@@ -898,7 +898,7 @@ export class SaleDirectReturnComponent {
             this.DiscountAmt = 0
           }
         }
-        this.AmountItem = this.AmountItem - this.DiscountAmt
+       // this.AmountItem = this.AmountItem - this.DiscountAmt
       }
       this.addItems()
       console.log(this.Items ,'items-eddd')
@@ -920,7 +920,7 @@ export class SaleDirectReturnComponent {
       * (isNaN(+this.Width) || +this.Width === 0 ? 0 : +this.Width)
       * (isNaN(+this.Height) || +this.Height === 0 ? 0 : +this.Height)
     )
-      //- (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
+      - (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
     return totalAmount
   }
 
@@ -1212,7 +1212,7 @@ export class SaleDirectReturnComponent {
     if (+this.OrgId > 0 && this.CurrentDate) {
       let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
       let type = (this.isBillNoManuall) ? 2 : 1
-      this._saleDirectReturnService.getNewBillNoforSaleReturn(+this.OrgId, newBillDate, type).subscribe(
+      this._saleDirectReturnService.getNewBillNoforSaleReturn(+this.OrgId, newBillDate, type,'saleReturn').subscribe(
         data => {
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             if (data.Data.length > 0) {
@@ -1238,7 +1238,6 @@ export class SaleDirectReturnComponent {
 
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
-    debugger
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.getSPUtilitySaleReturnData()
     this.billSummary = []
@@ -1314,7 +1313,6 @@ export class SaleDirectReturnComponent {
   }
 
   setCurrentDate(setups) {
-    debugger
     if (setups && setups.length > 0) {
       this.CurrentDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
 
@@ -1335,9 +1333,8 @@ export class SaleDirectReturnComponent {
   TypeOfSP_API:any
   getSPUtilitySaleReturnData() {
     this._loaderService.show()
-
     let _self = this
-    this.TypeOfSP_API = this.editMode ===true ? 'SaleReturn' :'Sale' ;
+    this.TypeOfSP_API = 'SaleReturn' ;
 
     this.commonService.getSPUtilityData(this.TypeOfSP_API)
       .pipe(
@@ -2197,10 +2194,10 @@ export class SaleDirectReturnComponent {
     if (+event.value > 0 && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = +event.value
-      if (+event.value === 3) {
+      if (+event.value !== 1) {
         this.BankLedgerName = ''
         this.LedgerId = 0
-        this.setpaymentLedgerSelect2(0)
+        this.setpaymentLedgerSelect2(0,+event.value)
       } else if (+event.value === 1) {
         this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
         this.BankLedgerName = 'Cash'
@@ -2235,11 +2232,10 @@ export class SaleDirectReturnComponent {
     }
   }
 
-  setpaymentLedgerSelect2(i) {
+  setpaymentLedgerSelect2(i,paymentID) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this.commonService.getPaymentLedgerDetail(9).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
-      // console.log('PaymentModeData : ', data)
+    this.commonService.getPaymentLedgerDetail(paymentID).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
           newData.push({
@@ -2334,8 +2330,8 @@ export class SaleDirectReturnComponent {
 
   addTransactions() {
     //  && this.PayDate
-    if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
-      if ((+this.PayModeId === 3 && this.ChequeNo) || (+this.PayModeId === 1)) {
+   if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
+      if ((+this.PayModeId !== 1 ) || (+this.PayModeId === 1)) {
         if (this.checkValidationForAmount()) {
           this.addTransaction()
           this.clickTrans = true
@@ -2346,15 +2342,15 @@ export class SaleDirectReturnComponent {
         }
       } else {
         this.clickTrans = false
-        if (+this.PayModeId === 3) {
-          if (this.ChequeNo) {
-            this.invalidObj['ChequeNo'] = false
-          } else {
-            this.invalidObj['ChequeNo'] = true
-          }
-        } else {
-          this.invalidObj['ChequeNo'] = false
-        }
+        // if (+this.PayModeId === 3) {
+        //   if (this.ChequeNo) {
+        //     this.invalidObj['ChequeNo'] = false
+        //   } else {
+        //     this.invalidObj['ChequeNo'] = true
+        //   }
+        // } else {
+        //   this.invalidObj['ChequeNo'] = false
+        // }
       }
     }
   }
@@ -2533,10 +2529,10 @@ export class SaleDirectReturnComponent {
     if (type === 'trans') {
       this.editTransId = editId
       //i = i - 1
-      if (+this.PaymentDetail[i].PayModeId === 3) {
+      if (+this.PaymentDetail[i].PayModeId !==1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
-        this.setpaymentLedgerSelect2(i)
+        this.setpaymentLedgerSelect2(i,+this.PaymentDetail[i].PayModeId)
       } else if (+this.PaymentDetail[i].PayModeId === 1) {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.Paymode = this.PaymentDetail[i].Paymode
@@ -2594,29 +2590,16 @@ export class SaleDirectReturnComponent {
       this.itemAttributeTrans = this.Items[i].itemAttributeTrans
       this.appliedTaxRatesItem = this.Items[i].itemTaxTrans
       this.taxRates = this.Items[i].taxRates
-      //  this.getTaxDetail(this.TaxSlabId)
-
-      // this.unitSelect2.setElementValue(this.UnitId)
-      // this.taxSlabSelect2.setElementValue(this.TaxSlabId)
-      //  this.taxTypeSelect2.setElementValue(this.TaxType)
       if (this.attrSelect2.length > 0) {
         this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
           item.setElementValue(this.itemAttributeTrans[index].AttributeId)
         })
       }
       let ItemId = this.Items[i].ItemId
-      // this.updateCategories(this.categoryId)
-      //  this.checkForItems(this.categoryId)
       let _self = this
       setTimeout(() => {
-        // _self.itemselect2.setElementValue(ItemId)
-        //  _self.ItemId = ItemId
-        //  _self.deleteItem(i, type)
       }, 1)
     }
-    //else if (type === 'items' && this.editItemId !== -1) {
-    //this.toastrService.showInfo('', 'There is already one item to edit, please update it this first in order to edit others')
-    // }
   }
 
   deleteItem(i, forArr) {
@@ -2630,17 +2613,8 @@ export class SaleDirectReturnComponent {
       this.Items.forEach(item => {
         this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
       })
-      console.log('after TaxAmount : ', this.TaxAmount)
-    }
-    if (forArr === 'charge') {
-      if (this.chargesData[i].disabled) {
-        //  this.alreadySelectCharge(this.AdditionalCharges[i].LedgerChargeId, this.AdditionalCharges[i].LedgerName, false)
-      }
-      this.AdditionalCharges.splice(i, 1)
-    }
-    // this.calculate()
+    }  
   }
-
   closePurchase() {
     this.commonService.closeSaleDirectReturn()
   }
@@ -2677,9 +2651,7 @@ export class SaleDirectReturnComponent {
     this.categoryId = 0
     this.SubTotal = 0
     this.AmountItem = 0
-    // this.editItemId = -1
     this.clickItem = false
-    // console.log('categories : ', this.categories)
     if (this.allCategories && this.allCategories.length > 0) {
       this.getCatagoryDetail(this.allCategories)
     }
@@ -3040,16 +3012,16 @@ export class SaleDirectReturnComponent {
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-      if (+this.PayModeId === 3) {
-        if (this.ChequeNo) {
-          this.invalidObj['ChequeNo'] = false
-        } else {
-          isValid = 0
-          this.invalidObj['ChequeNo'] = true
-        }
-      } else {
-        this.invalidObj['ChequeNo'] = false
-      }
+      // if (+this.PayModeId === 3) {
+      //   if (this.ChequeNo) {
+      //     this.invalidObj['ChequeNo'] = false
+      //   } else {
+      //     isValid = 0
+      //     this.invalidObj['ChequeNo'] = true
+      //   }
+      // } else {
+      //   this.invalidObj['ChequeNo'] = false
+      // }
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
@@ -3310,7 +3282,7 @@ export class SaleDirectReturnComponent {
     })
     return isValid
   }
-
+ DisabledSaveBtn  :boolean = false
   SaveSaleReturn() {
     let _self = this
     this.submitSave = true
@@ -3329,6 +3301,7 @@ export class SaleDirectReturnComponent {
             })
           }
           if (data.Code === UIConstant.REQUIRED_5020) {
+            this.DisabledSaveBtn = false
             this.toastrService.showError('', data.Message)
           }
         },
@@ -3347,6 +3320,8 @@ export class SaleDirectReturnComponent {
           if (valid) {
             if (this.checkForValidation() && this.isValidAmount  && this.validTransaction) {
               if (this.validateItem()) {
+            this.DisabledSaveBtn = true
+
                 this._saleDirectReturnService.postSaleReturnData(this.saleReturnAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
                   data => {
                     console.log('data : ', data)
@@ -3364,23 +3339,33 @@ export class SaleDirectReturnComponent {
                         _self.initialiseExtras()
                       }
                     } else if (data.Code === UIConstant.THOUSANDONE) {
+            this.DisabledSaveBtn = false
+
                       _self.toastrService.showError(data.Message, 'Please change Bill No.')
                     } else {
+            this.DisabledSaveBtn = false
+
                       _self.toastrService.showError(data.Message, '')
                     }
                   },
                   (error) => {
+            this.DisabledSaveBtn = false
+
                     _self.toastrService.showError(error, '')
                   }
                 )
               }
               else {
+            this.DisabledSaveBtn = false
+
                 this.toastrService.showError('Return Quantity never more then Sale Quantity', '')
               }
 
             }
 
           } else {
+            this.DisabledSaveBtn = false
+
             this.toastrService.showError('The following are not unique', '')
           }
         }
@@ -3396,12 +3381,17 @@ export class SaleDirectReturnComponent {
       this.checkValidationForAmount()
       if (valid) {
         if ( this.checkForValidation() && this.isValidAmount && this.validTransaction) {
+          this.DisabledSaveBtn = true
           if (this.validateItem()) {
+            this.DisabledSaveBtn = true
+
             this._saleDirectReturnService.postSaleReturnData(this.saleReturnAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
               data => {
                 console.log('data : ', data)
                 if (data.Code === UIConstant.THOUSAND && data.Data) {
                   _self.toastrService.showSuccess('Saved Successfully', '')
+                  this.DisabledSaveBtn = true
+
                   _self.commonService.newPurchaseAdd()
                   this.commonService.AddedItem()
 
@@ -3414,22 +3404,32 @@ export class SaleDirectReturnComponent {
                     _self.initialiseExtras()
                   }
                 } else if (data.Code === UIConstant.THOUSANDONE) {
+            this.DisabledSaveBtn = false
+
                   _self.toastrService.showError(data.Message, 'Please change Bill No.')
                 } else {
+            this.DisabledSaveBtn = false
+
                   _self.toastrService.showError(data.Message, '')
                 }
               },
               (error) => {
+            this.DisabledSaveBtn = false
+
                 _self.toastrService.showError(error, '')
               }
             )
           }
           else{
+            this.DisabledSaveBtn = false
+
             this.toastrService.showError('Invalid Return Quantity', '')
           }
          
         }
       } else {
+        this.DisabledSaveBtn = false
+
         this.toastrService.showError('The following are not unique', '')
       }
     }

@@ -11,8 +11,16 @@
             </div>
             <div class="col-md-9">
               <div class="btn_header">
-                <a class="btn btn-default waves-effect" #savebutton (click)="keepOpen=false;manipulateData()">Save </a>
-                <a class="btn btn-info waves-effect" (click)="keepOpen=true;manipulateData()">Save and New</a>
+                  <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-default waves-effect"  #savebutton (click)="keepOpen=false;manipulateData()">
+                  
+                      {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
+                      </button>
+                      <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-info waves-effect" (click)="keepOpen=true;manipulateData()">
+                         
+                          {{DisabledSaveBtn === true  ? 'Please Wait..' :'  Save and AddNew' }}
+                        </button>
+                <!-- <a class="btn btn-default waves-effect" #savebutton (click)="keepOpen=false;manipulateData()">Save </a>
+                <a class="btn btn-info waves-effect" (click)="keepOpen=true;manipulateData()">Save and New</a> -->
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true" class="white-text" (click)="closePurchase()" >×</span>
                 </button>
@@ -76,7 +84,7 @@
             </div> -->
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label>P.V.No</label>
-              <a *ngIf="isBillNoManuall && previousBillNo && !editMode" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
+              <a *ngIf="isBillNoManuall && !editMode" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
                 <span class="tooltiptext">Last Bill No. used is - {{previousBillNo}}</span>
               </a>
               <input type="text" placeholder="Bill Number"
@@ -489,7 +497,7 @@
                     <tr class="default_row" *ngFor="let charge of AdditionalCharges; index as i;" >
                       <td  class="profile-pic1" >
                         <div class="edit1">
-                          <a (click)="deleteItem(i, 'charge', charge.Sno)" *ngIf="AdditionalCharges.length > 0" >
+                          <a (click)="deleteItem(i, 'charge', true)" *ngIf="AdditionalCharges.length > 0" >
                             <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
                           </a>
                           <a (click)="editItem(i+1, charge.Id, 'charge', charge.Sno)"
@@ -743,7 +751,7 @@
                             <select2 name="Paymode" #payment_select2 [data]="paymentModesData" id="PayModeId"
                               class="control_select"
                               (valueChanged)="onPaymentModeSelect($event)"
-                              autocomplete="true" [options]="{placeholder: 'Select Payment Modes'}"
+                              autocomplete="true" [options]="{placeholder: 'Select Payment Mode'}"
                               [ngClass]="{'errorSelecto': invalidObj?.PayModeId && (submitSave || !clickTrans)  }"
                               [value]="paymode" ></select2>
                           </div>

@@ -10,7 +10,8 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { map, filter, debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators';
 import { ToastrCustomService } from '../../../../commonServices/toastr.service';
 //import { PurchaseAddComponent } from '../../sales-direct/sales-header/saleReturn-add/saleReturn-add.component';
-
+import { ExcelService } from '../../../../commonServices/excel.service';
+import { GlobalService } from 'src/app/commonServices/global.service';
 declare const $: any
 declare const _: any
 @Component({
@@ -28,8 +29,12 @@ export class PurchaseReturnMainComponent {
   printData1: any = []
   industryId: number
   loading = true
+  p:any
   editId:any
-  constructor (private route: ActivatedRoute,
+  queryStr$: Subscription
+  queryStr:string=''
+  constructor (public gs: GlobalService,
+    public excelService: ExcelService, private route: ActivatedRoute,
      private commonService: CommonService,
       private _saleDirectReturnService: PurchaseService,
       private settings: Settings,
@@ -45,17 +50,23 @@ export class PurchaseReturnMainComponent {
         }
       }
     )
+
+    this.queryStr$ = this._saleDirectReturnService.queryStr$.subscribe(
+      (str) => {
+        this.queryStr = str
+       this.expoertExceldata()
+      }
+    )
     this.formSearch()
     this.industryId = +this.settings.industryId
     this.clientDateFormat = this.settings.dateFormat
     this.decimalNoPoint = this.settings.noOfDecimal
 
   }
+  Excelflag:any
   decimalNoPoint:any =0
   ngAfterContentInit() {
-    //this.purchaseAdd.initComp()
   }
-
   @ViewChild('searchData') searchData: ElementRef
   searchForm: FormGroup
   private formSearch () {
@@ -64,6 +75,7 @@ export class PurchaseReturnMainComponent {
     })
   }
   ngOnInit () {
+    this.getOrgDetails()
     this.sub = this.route.data.subscribe(data => {
       this.title = data.title
     })
@@ -78,14 +90,14 @@ export class PurchaseReturnMainComponent {
       ).subscribe((text: string) => {
         this._saleDirectReturnService.onTextEntered(text)
       })
+      this.expoertExceldata()
   }
   itemAttbute:any=[]
 
-  //@ViewChild('purchase_add') purchaseAdd: PurchaseAddComponent
   getSPUtilitySaleReturnData () {
     this.loading = true
     let _self = this
-    this.commonService.getSPUtilityData(UIConstant.SALE_TYPE)
+    this.commonService.getSPUtilityData('PurchaseReturn')
     .pipe(
       filter(data => {
         if (data.Code === UIConstant.THOUSAND) {
@@ -105,10 +117,7 @@ export class PurchaseReturnMainComponent {
           _self._saleDirectReturnService.generateAttributes(data)
         }
         if (data.ItemCategorys.length > 0) {
-      //    _self.purchaseAdd.getCatagoryDetail(data.ItemCategorys)
         }
-      //  _self.purchaseAdd.allItems = [ ...data.Items ]
-        // console.log('allItems : ', this.allItems)
         _self._saleDirectReturnService.createItems(data.Items)
         _self._saleDirectReturnService.createVendors(data.Vendors)
         _self._saleDirectReturnService.createTaxProcess(data.TaxProcesses)
@@ -122,8 +131,6 @@ export class PurchaseReturnMainComponent {
         _self._saleDirectReturnService.createCurrencies(data.Currencies)
         _self._saleDirectReturnService.createFreightBy(data.FreightModes)
         _self._saleDirectReturnService.createCharges(data.LedgerCharges)
-      //  _self.purchaseAdd.clientStateId = data.ClientAddresses[0].StateId
-      // _self.purchaseAdd.TransactionNoSetups = data.TransactionNoSetups
       },
       (error) => {
         console.log(error)
@@ -152,36 +159,6 @@ export class PurchaseReturnMainComponent {
   }
 
   attributeKeys: any = []
-  // onPrintButton (id, htmlID ,isViewPrint) {
-  //   // this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
-  //   this.word = ''
-  //   let _self = this
-  //   _self.printData1 = []
-  //   _self._saleDirectReturnService.getPrintData(id).subscribe(data => {
-  //     console.log('print data : ', data)
-  //     if (data.Code === UIConstant.THOUSAND && data.Data) {
-  //       data.Data.AddressDetailsOrg = this._saleDirectReturnService.getAddressForPrint(data.Data.AddressDetailsOrg[0])
-  //       data.Data.AddressDetails = this._saleDirectReturnService.getAddressForPrint(data.Data.AddressDetails[0])
-  //       data.Data.ItemTransactions.map(element => {
-  //         element['itemAttributes'] = data.Data.ItemAttributesTrans.filter(attr => attr.ItemTransId === element.Id)
-  //       })
-  //       _self.getDistinctTaxName(data.Data.HsnItemTaxTransDetails, data.Data.HsnItemTransactions, data.Data.PurchaseTransactions[0].Currency)
-  //       _self.attributeKeys = data.Data.ItemTransactions[0].itemAttributes
-  //       _self.NumInWords(data.Data.PurchaseTransactions[0].BillAmount)
-  //       let newItemTransaction = this.splitArray(data.Data.ItemTransactions, 18)
-  //       newItemTransaction.forEach((element, index) => {
-  //         data.Data.ItemTransactions = JSON.parse(JSON.stringify(element))
-  //         _self.printData1[index] = JSON.parse(JSON.stringify(data.Data))
-  //       })
-  //       console.log('print : ', _self.printData1)
-  //       _self.orgImage = (data.Data.ImageContents && data.Data.ImageContents.length > 0) ? data.Data.ImageContents[0].FilePath : ''
-  //       setTimeout(function () {
-  //         // $('#' + htmlID).modal(UIConstant.MODEL_SHOW)
-  //         _self.printComponent(htmlID)
-  //       }, 1000)
-  //     }
-  //   })
-  // }
   BillName: any
   customerAddress: any = []
   orgImageData: any
@@ -226,13 +203,6 @@ export class PurchaseReturnMainComponent {
         } else {
           _self.ItemTransactionactions = []
         }
-        // if (data.Data && data.Data.AdditionalChargeDetails.length > 0) {
-        //   _self.getAddtionalCharge = []
-        //   _self.getAddtionalCharge = data.Data.AdditionalChargeDetails
-        // } else {
-        //   _self.getAddtionalCharge = []
-        // }
-
         if (data.Data.AttributeValues.length > 0) {
           _self.itemAttributeDatails = []
           _self.itemAttributeDatails = data.Data.AttributeValues
@@ -421,7 +391,7 @@ export class PurchaseReturnMainComponent {
     this.HedShow = []
     let valueshow = []
     hsnTransaction.forEach(element => {
-      this.HedShow = hsnData.filter(d => d.HsnNo === element.HsnNo)
+      this.HedShow = hsnData.filter(d => d.HsnNo === element.HsnNo  && d.TaxSlabId === element.TaxSlabId)
       if (this.HedShow.length > 0) {
         valueshow = []
         rate = this.HedShow.filter(item1 => item1.TaxRate)
@@ -482,5 +452,56 @@ Heading:any =[]
 
   
   word: string = ''
+
+  mainDataExcel:any =[]
+  getOrgDetailsData:any ={}
+  exportExcel () {
+    if(this.mainDataExcel.length>0){
+        this.excelService.generateExcel(this.getOrgDetailsData.OrganizationDetails[0].OrgName , this.getOrgDetailsData.AddressDetails[0].CityName+ ' ' +this.getOrgDetailsData.AddressDetails[0].StateName + ' ' + this.getOrgDetailsData.AddressDetails[0].CountryName,this.ExcelHeaders,this.mainDataExcel,'Purchase',"", "",this.ExcelSummary)
+    }
+  }
+ 
+  getOrgDetails (){
+    this.getOrgDetailsData={}
+    this.commonService.getOrgDetailsForPrintExcelPDF().subscribe(data=>{
+      if(data.Code === UIConstant.THOUSAND){
+        this.getOrgDetailsData = data.Data
+      }
+    })
+  }
+  ExcelHeaders:any
+  ExcelSummary:any
+  expoertExceldata () {
+    this._saleDirectReturnService.getPurchaseReturnList('?StrSearch=' + ''+ this.queryStr).subscribe(data=>{
+      if(data.Code === UIConstant.THOUSAND){
+        this.mainDataExcel =[]
+        this.ExcelSummary =["Total","",""," ","  "," ",data.Data.PurchaseTransactionsSummary[0].TotalQty.toFixed(2),
+        data.Data.PurchaseTransactionsSummary[0].Discount.toFixed(this.decimalNoPoint),
+        data.Data.PurchaseTransactionsSummary[0].TaxAmount.toFixed(this.decimalNoPoint),
+        data.Data.PurchaseTransactionsSummary[0].BillAmount.toFixed(this.decimalNoPoint)]
+       
+        this.ExcelHeaders =["SNo","Ledger Name","Bill No.","Bill Date","Party Bill No","Party Bill Date","Quantity","Discount","Tax Amount","Bill Amount"]
+        data.Data.PurchaseTransactions.forEach((element,ind) => {
+         let  date =this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
+         let  prtydate =this.gs.utcToClientDateFormat(element.PartyBillDate, this.clientDateFormat)
+          this.mainDataExcel.push([
+            ind+1,
+            element.LedgerName,
+            element.BillNo,
+            date,
+            element.PartyBillNo,
+            prtydate,
+            element.TotalQty.toFixed(2),
+            element.Discount.toFixed(this.decimalNoPoint),
+            element.TaxAmount.toFixed(this.decimalNoPoint),
+            element.BillAmount.toFixed(this.decimalNoPoint)
+          ])
+        });
+      }
+    })
+
+    
+  }
+
 
 }

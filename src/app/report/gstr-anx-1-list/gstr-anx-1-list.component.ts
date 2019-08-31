@@ -33,8 +33,10 @@ export class GstrAnx1ListComponent implements OnInit {
     private spinner: NgxSpinnerService
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this.model.fromDatevalue = this.gs.utcToClientDateFormat(new Date(2019, 3, 1), this.clientDateFormat);
-    this.model.toDateValue = this.gs.utcToClientDateFormat(new Date(), this.clientDateFormat);
+    // this.model.fromDatevalue = this.gs.utcToClientDateFormat(new Date(2019, 3, 1), this.clientDateFormat);
+    // this.model.toDateValue = this.gs.utcToClientDateFormat(new Date(), this.clientDateFormat);
+    this.model.fromDatevalue = this.gs.utcToClientDateFormat(this._settings.finFromDate, this._settings.dateFormat)
+    this.model.toDateValue = this.gs.utcToClientDateFormat(this._settings.finToDate, this._settings.dateFormat)
   }
 
   ngOnInit() {

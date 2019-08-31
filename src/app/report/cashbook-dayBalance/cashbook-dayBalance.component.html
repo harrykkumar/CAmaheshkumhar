@@ -34,7 +34,7 @@
               </a>
               <a> <img src="assets/img/pdf.png"/></a>
               <a>
-                <img
+                <img (click) ='exportExcel()'
                   src="assets/img/excel.png"
               />
             </a>
@@ -190,7 +190,7 @@
       
                         </tr>
                       </tbody>
-                         <tfoot>
+                         <!-- <tfoot>
                 <tr *ngFor="let item of cashBook?.CashBookSummary">
                     <th colspan="2"></th>
                     <th class="text-right font-weight-bold">{{(item.OpeningBalance).toFixed(noOfDecimal)}}</th>
@@ -200,7 +200,7 @@
                   
 
                 </tr>
-            </tfoot>
+            </tfoot> -->
                     </table>
                   </div>
                 </div>

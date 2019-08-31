@@ -16,6 +16,7 @@ import { FormConstants } from 'src/app/shared/constants/forms.constant';
 import { takeUntil, catchError, filter, map } from 'rxjs/operators';
 import { element } from '@angular/core/src/render3';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { ThemeService } from 'ng2-charts';
 
 declare const $: any
 declare const _: any
@@ -940,6 +941,7 @@ getTypeOfGST () {
   setCRDR:any
   createAddress (array) {
     let newData = [{ id: '0', text: 'Select Address' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+    if(array.length>0){
     array.forEach(address => {
       let addressValue = this.saleServiceBillingService.getAddress(address)
       newData.push({
@@ -947,6 +949,7 @@ getTypeOfGST () {
         text: addressValue
       })
     })
+  }
     this.AddressData =newData
   }
   editAllgetAddress(vendorId){
@@ -964,10 +967,12 @@ getTypeOfGST () {
       }
     })
   }
+  NoAddressNeed:boolean = true
   getAllAddresses (vendorId) {
+    debugger
     this.saleServiceBillingService.getAllAddresses(vendorId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
-        if (data.Data.AddressDetails && data.Data.AddressDetails) {
+        if (data.Data && data.Data.AddressDetails.length>0) {
           this.allAddressData = data.Data.AddressDetails
          let value  = this.saleServiceBillingService.createAddress(data.Data.AddressDetails)
         this.AddressData = Object.assign([], value.data)
@@ -977,8 +982,13 @@ getTypeOfGST () {
         }
         this.AddressId = id
         this.addressValue = id
-
-
+        }
+        else{
+          this.isOtherState = false
+          this.AddressId =0
+          this.allAddressData=[]
+          this.NoAddressNeed = false
+          this.createAddress(data.Data.AddressDetails)
         }
         if (data.Data.LedgerDetails && data.Data.LedgerDetails.length > 0) {
           const LedgerDetails = data.Data.LedgerDetails[0]
@@ -988,6 +998,7 @@ getTypeOfGST () {
           this.setCRDR = data.Data.LedgerDetails[0].Crdr ===0 ? 'Dr' :'Cr' ;
         }
       }
+      this.checkForGST()
     })
   }
 
@@ -1040,6 +1051,7 @@ getTypeOfGST () {
         this.setBillNo(this.TransactionNoSetups)
       }
       this.setCurrentDate(this.TransactionNoSetups)
+      this.setDueDate(this.TransactionNoSetups)
       this.setBillDate()
       this.setPartyBillDate()
       this.setPayDate()
@@ -1096,7 +1108,6 @@ getTypeOfGST () {
       this.CurrentDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)   
     }
   }
-
   getCatLevel () {
     let _self = this
     this.commonService.getSettingById(SetUpIds.catLevel).pipe(takeUntil(this.onDestroy$)).subscribe(
@@ -1113,9 +1124,15 @@ getTypeOfGST () {
   setPayDate () {
     this.PayDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
-  setDueDate () {
-    this.DueDate = this.gs.getDefaultDate(this.clientDateFormat)
+  setDueDate (setups) {
+    if (setups && setups.length > 0) {
+      this.DueDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)   
+    }
   }
+  // setDueDate () {
+  //   this.DueDate = this.gs.getDefaultDate(this.clientDateFormat)
+  //   this.setCurrentDate()
+  // }
   setBillDate () {
     this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
@@ -1459,12 +1476,21 @@ getTypeOfGST () {
 
 
   checkForGST () {
+    debugger
     let isOtherState = true
-    this.allAddressData.forEach(element => {
-      if (element.Id === this.AddressId && element.StateId === this.clientStateId) {
-        isOtherState = false
+    if(this.allAddressData.length >0){
+      this.allAddressData.forEach(element => {
+        if (element.Id === this.AddressId && element.StateId === this.clientStateId) {
+          isOtherState = false
+        }
+      })
+    }
+    else{
+      if(!this.NoAddressNeed){
+        isOtherState= false
       }
-    })
+    }
+
     if(!this.isCaseSaleFlag){
       isOtherState= false
     }
@@ -1531,7 +1557,11 @@ getTypeOfGST () {
           }, 100)
         }
       )
-    } else {
+    } 
+    else if(this.AdditionalCharges.length ===0){
+      this.calculate()
+    }
+    else {
       this.getBillSummary()
     }
   }
@@ -1590,7 +1620,6 @@ getTypeOfGST () {
         () => {
           if (this.AdditionalCharges.length === 0) {
             setTimeout(() => {
-              // this.updateTax()
               this.getBillSummary()
             }, 100)
           } else {
@@ -1598,7 +1627,11 @@ getTypeOfGST () {
           }
         }
       )
-    } else {
+    }
+    else if(this.Items.length >0){
+          this.calculate()
+    }
+    else {
       this.updateChargeTax()
     }
   }
@@ -1644,10 +1677,10 @@ getTypeOfGST () {
     if (+event.value > 0 && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = +event.value
-      if (+event.value === 3) {
+      if (+event.value !== 1) {
         this.BankLedgerName = ''
         this.LedgerId = 0
-        this.setpaymentLedgerSelect2(0)
+        this.setpaymentLedgerSelect2(0,+event.value)
       } else if (+event.value === 1) {
         this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
         this.BankLedgerName = 'Cash'
@@ -1674,7 +1707,7 @@ getTypeOfGST () {
     let paymentTotal = this.getPaymentTotal()
     if (this.BillAmount === paymentTotal) {
       e.preventDefault()
-      this.manipulateData()
+      this.saveBilling()
     } else {
       this.addTransactions()
       setTimeout(() => {
@@ -1683,10 +1716,10 @@ getTypeOfGST () {
     }
   }
 
-  setpaymentLedgerSelect2 (i) {
+  setpaymentLedgerSelect2 (i,paymentID) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this.commonService.getPaymentLedgerDetail(9).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+    this.commonService.getPaymentLedgerDetail(paymentID).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       // console.log('PaymentModeData : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
@@ -1783,7 +1816,7 @@ getTypeOfGST () {
   addTransactions () {
     //  && this.PayDate
     if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
-      if ((+this.PayModeId === 3 && this.ChequeNo) || (+this.PayModeId === 1)) {
+      if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
         if (this.checkValidationForAmount()) {
           this.addTransaction()
           this.clickTrans = true
@@ -1794,15 +1827,15 @@ getTypeOfGST () {
         }
       } else {
         this.clickTrans = false
-        if (+this.PayModeId === 3) {
-          if (this.ChequeNo) {
-            this.invalidObj['ChequeNo'] = false
-          } else {
-            this.invalidObj['ChequeNo'] = true
-          }
-        } else {
-          this.invalidObj['ChequeNo'] = false
-        }
+        // if (+this.PayModeId === 3) {
+        //   if (this.ChequeNo) {
+        //     this.invalidObj['ChequeNo'] = false
+        //   } else {
+        //     this.invalidObj['ChequeNo'] = true
+        //   }
+        // } else {
+        //   this.invalidObj['ChequeNo'] = false
+        // }
       }
     }
   }
@@ -1953,10 +1986,10 @@ getTypeOfGST () {
     if (type === 'trans' && this.editTransId === -1) {
       this.editTransId = editId
       i = i - 1
-      if (+this.PaymentDetail[i].PayModeId === 3) {
+      if (+this.PaymentDetail[i].PayModeId !== 1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
-        this.setpaymentLedgerSelect2(i)
+        this.setpaymentLedgerSelect2(i,+this.PaymentDetail[i].PayModeId)
       } else if (+this.PaymentDetail[i].PayModeId === 1) {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.Paymode = this.PaymentDetail[i].Paymode
@@ -2275,7 +2308,8 @@ this.taxTypeValue=0
     this.getNewCurrentDate()
     this.BillAmount = 0
     this.PartyBillNo = ''
-    this.BillNo = ''
+    this.outStandingBalance =0
+    //this.BillNo = ''
     this.AddressId = 0
     this.ConvertedAmount = 0
     this.CurrencyRate = 0
@@ -2377,7 +2411,7 @@ this.taxTypeValue=0
     this.setPartyBillDate()
     this.setPayDate()
     // this.setExpiryDate()
-    this.setDueDate()
+    //this.setDueDate()
     // this.setMfdDate()
  
     this.getNewBillNo()
@@ -2390,6 +2424,7 @@ this.taxTypeValue=0
       //  console.log('current date : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
           this.setCurrentDate(data.Data)
+          this.setDueDate(data.Data)
         }
       }
     )
@@ -2480,16 +2515,16 @@ this.taxTypeValue=0
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-      if (+this.PayModeId === 3) {
-        if (this.ChequeNo) {
-          this.invalidObj['ChequeNo'] = false
-        } else {
-          isValid = 0
-          this.invalidObj['ChequeNo'] = true
-        }
-      } else {
-        this.invalidObj['ChequeNo'] = false
-      }
+      // if (+this.PayModeId === 3) {
+      //   if (this.ChequeNo) {
+      //     this.invalidObj['ChequeNo'] = false
+      //   } else {
+      //     isValid = 0
+      //     this.invalidObj['ChequeNo'] = true
+      //   }
+      // } else {
+      //   this.invalidObj['ChequeNo'] = false
+      // }
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
@@ -2543,16 +2578,16 @@ this.taxTypeValue=0
         this.invalidObj['CurrencyId'] = true
         isValid = 0
       }
-      if (this.isCaseSaleFlag  && this.AddressId) {
-        this.invalidObj['AddressId'] = false
-      } 
-      else if (!this.isCaseSaleFlag && this.AddressId ===0) {
-        this.invalidObj['AddressId'] = false
-      }
-      else {
-        this.invalidObj['AddressId'] = true
-        isValid = 0
-      }
+      // if (this.isCaseSaleFlag  && this.AddressId) {
+      //   this.invalidObj['AddressId'] = false
+      // } 
+      // else if (!this.isCaseSaleFlag && this.AddressId ===0) {
+      //   this.invalidObj['AddressId'] = false
+      // }
+      // else {
+      //   this.invalidObj['AddressId'] = true
+      //   isValid = 0
+      // }
       // if (this.AddressId) {
       //   this.invalidObj['AddressId'] = false
       // } else {
@@ -2632,8 +2667,8 @@ this.taxTypeValue=0
   }
 
 
-
-  manipulateData () {
+  DisabledSaveBtn: boolean = false
+  saveBilling () {
     let _self = this
     this.submitSave = true
     let dataToSend = this.ServiceBillingAddParams()
@@ -2650,6 +2685,10 @@ this.taxTypeValue=0
               }
             })
           }
+          if (data.Code === UIConstant.REQUIRED_5020) {
+            this.DisabledSaveBtn = false
+            this.toastrService.showError('', data.Message)
+          }
         },
         (error) => {
           console.log(error)
@@ -2665,33 +2704,53 @@ this.taxTypeValue=0
           this.checkValidationForAmount()
           if (valid) {
             if (this.checkForValidation() && this.isValidAmount && this.validItem && this.validTransaction) {
+            this.DisabledSaveBtn = true
+
               this.saleServiceBillingService.postServiceBilling(this.ServiceBillingAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
                 data => {
                  // console.log('data : ', data)
                   if (data.Code === UIConstant.THOUSAND && data.Data) {
                     _self.toastrService.showSuccess('Saved Successfully', '')
+                  this.DisabledSaveBtn = false
+
                     _self.commonService.newPurchaseAdd()
                     if (!this.keepOpen) {
                       _self.commonService.closePurchase()
                     } else {
+                     
                       _self.initItem()
                       _self.initTransaction()
                       _self.initCharge()
                       _self.initComp()
                       _self.initialiseExtras()
+                      this.editMode = false
+                      this.openModal()
+                      this.getNewCurrentDate()
+                      this.getNewBillNo()
+                      if(this.isBillNoManuall){
+                        this.BillNo =''
+                      }
                     }
                   } else if (data.Code === UIConstant.THOUSANDONE) {
+                  this.DisabledSaveBtn = false
+
                     _self.toastrService.showError(data.Message, 'Please change Bill No.')
                   } else {
+                  this.DisabledSaveBtn = false
+
                     _self.toastrService.showError(data.Description, '')
                   }
                 },
                 (error) => {
+                  this.DisabledSaveBtn = false
+
                   _self.toastrService.showError(error, '')
                 }
               )
             }
           } else {
+            this.DisabledSaveBtn = false
+
             this.toastrService.showError('The following are not unique', '')
           }
         }
@@ -2707,33 +2766,53 @@ this.taxTypeValue=0
       this.checkValidationForAmount()
       if (valid) {
         if (  this.isValidAmount && this.validItem && this.validTransaction) {
+          this.DisabledSaveBtn = true
+
           this.saleServiceBillingService.postServiceBilling(this.ServiceBillingAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
             data => {
            //   console.log('data : ', data)
               if (data.Code === UIConstant.THOUSAND && data.Data) {
                 _self.toastrService.showSuccess('Saved Successfully', '')
+                this.DisabledSaveBtn = false
+
                 _self.commonService.newPurchaseAdd()
                 if (!this.keepOpen) {
                   _self.commonService.closePurchase()
                 } else {
+                
                   _self.initItem()
                   _self.initTransaction()
                   _self.initCharge()
                   _self.initComp()
                   _self.initialiseExtras()
+                  this.editMode = false
+                  this.openModal()
+                  this.getNewCurrentDate()
+                  this.getNewBillNo()
+                  if(this.isBillNoManuall){
+                    this.BillNo =''
+                  }
                 }
               } else if (data.Code === UIConstant.THOUSANDONE) {
+                this.DisabledSaveBtn = false
+                
                 _self.toastrService.showError(data.Message, 'Please change Bill No.')
               } else {
+                this.DisabledSaveBtn = false
+
                 _self.toastrService.showError(data.Description, '')
               }
             },
             (error) => {
+              this.DisabledSaveBtn = false
+              
               _self.toastrService.showError(error, '')
             }
           )
         }
       } else {
+        this.DisabledSaveBtn = false
+
         this.toastrService.showError('The following are not unique', '')
       }
     }
@@ -2828,7 +2907,7 @@ this.taxTypeValue=0
   onChargeSelect (evt) {
     if (+evt.value === -1 && evt.data[0].selected) {
       this.chargeSelect2.selector.nativeElement.value = ''
-      this.commonService.openledgerCretion('', FormConstants.PurchaseForm)
+      this.commonService.openledgerCretion('', FormConstants.SaleForm)
 
     } else {
       this.LedgerChargeId = +evt.value

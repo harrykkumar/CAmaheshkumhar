@@ -359,10 +359,7 @@ export class CustomerAddComponent implements OnDestroy {
     this.select2VendorValue(UIConstant.ZERO)
     this.select2CrDrValue(1)
     this.crdrSelect2.setElementValue(1)
-
-
-
-    // this.getCustomerDetail()
+    this.customerTypeSelect2.setElementValue(0)
   }
   get add() { return this.adressForm.controls }
 
@@ -488,8 +485,8 @@ export class CustomerAddComponent implements OnDestroy {
   customerValue: any
   getCustomoerType(value) {
     this.subscribe = this._coustomerServices.getCommonValues('116').subscribe(Data => {
-      this.coustmoerTypePlaceholder = { placeholder: 'Select CustomerType' }
-      this.customerType = [{ id: UIConstant.BLANK, text: 'CustomerType' }]
+    //  this.coustmoerTypePlaceholder = { placeholder: 'Select CustomerType' }
+      this.customerType = [{ id: '0', text: 'Customer Type' }]
       Data.Data.forEach(element => {
         this.customerType.push({
           id: element.Id,
@@ -559,10 +556,19 @@ export class CustomerAddComponent implements OnDestroy {
     }
   }
 
-  customerTypeId: number
+  customerTypeId: number = 0
   selectCustomerType(event) {
-    this.customerTypeId = event.value
-    this.customCustomer = true
+    if(event.value >0){
+      this.customerTypeId = event.value
+      this.customCustomer = false
+      this.customerCustomRateFlag = false
+    }
+    else{
+      this.customerTypeId = 0
+  //    this.customerCustomRateFlag = false
+
+      //this.customCustomer = false
+    }
 
   }
   countryValue: any
@@ -857,13 +863,17 @@ export class CustomerAddComponent implements OnDestroy {
       this.customerRegistraionError = true
 
     }
-   
-    if (this.customerCustomRateFlag) {
-      this.customCustomer = false
-    } else {
+   debugger
+   if(this.customerCustomRateFlag){
+    if ( this.customerTypeId===0) {
       this.customCustomer = true
-
+     // this.customerCustomRateFlag = false
+    } else {
+      this.customCustomer = false
+      //this.customerCustomRateFlag = true
     }
+   }
+  
     if (!this.mobileRequirdForSetting) {
       this.mobileError = false
       this.reqEmailMobile = false

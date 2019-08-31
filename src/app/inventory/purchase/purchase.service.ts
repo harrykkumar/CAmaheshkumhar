@@ -140,7 +140,7 @@ export class PurchaseService {
   }
 
   createPaymentModes (array) {
-    let newData = [{ id: '0', text: 'Select Payment Modes' }]
+    let newData = [{ id: '0', text: 'Select Payment Mode' }]
     array.forEach(data => {
       newData.push({
         id: data.Id,
@@ -544,13 +544,13 @@ export class PurchaseService {
     return this.baseService.postRequest(ApiConstant.PURCHASE_LIST, obj)
   }
 
-  getNewBillNoPurchase (orgId, date, type) {
+  getNewBillNoPurchase (orgId, date, type,FormType) {
     let queryString = ''
     if (type === 1) {
-      queryString = 'TransactionType=' + 'purchase' + '&&OrgId=' + orgId + '&&TransDate=' + date
+      queryString = 'TransactionType=' + FormType+ '&&OrgId=' + orgId + '&&TransDate=' + date
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_AUTO + queryString)
     } else if (type === 2) {
-      queryString = 'Type=' + 'purchase' + '&&BillDate=' + date + '&OrgId=' + orgId
+      queryString = 'Type=' + FormType+ '&&BillDate=' + date + '&OrgId=' + orgId
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_MANUAL + queryString)
     }
   }
