@@ -116,7 +116,7 @@ export class ItemInventoryReportComponent implements OnInit {
   mainDataExcel: any = []
   ExcelHeaders: any
   ExcelSummary:any
-  getInventoryDetail(Value) {
+  getInventoryDetail(Value:any) {
     this._commonService.getReportItemInventory(Value).pipe(
       takeUntil(this.unSubscribe$)
     ).subscribe((data: any) => {
@@ -135,7 +135,7 @@ export class ItemInventoryReportComponent implements OnInit {
             , sumTatal[0].PurchaseQty,"", sumTatal[0].PurchaseAmt.toFixed(this.noOfDecimal), 
             sumTatal[0].SaleQty, "",sumTatal[0].SaleAmt.toFixed(this.noOfDecimal)
             ,sumTatal[0].ClosingQty, "", sumTatal[0].ClosingAmt.toFixed(this.noOfDecimal)]
-          data.Data.InventoryItems.forEach((element, i) => {
+          data.Data.InventoryItems.forEach((element:any, i:any) => {
             this.mainDataExcel.push([
               i + 1,
               element.ItemName,
@@ -177,7 +177,7 @@ export class ItemInventoryReportComponent implements OnInit {
     })
   }
 
-  onPageNoChange = (event) => {
+  onPageNoChange = (event:any) => {
     this.viewFlag = true
     this.isViewPrint = false
     this.pageNo = event
@@ -192,7 +192,7 @@ export class ItemInventoryReportComponent implements OnInit {
     }
   }
 
-  onPageSizeChange = (event) => {
+  onPageSizeChange (event:any) {
     this.viewFlag = true
     this.isViewPrint = false
     this.pageSize = event
@@ -207,11 +207,11 @@ export class ItemInventoryReportComponent implements OnInit {
     }
   }
 
-  onLastValueChange = (event) => {
+  onLastValueChange = (event:any) => {
     this.lastItemIndex = event
   }
   RedirectFlag: boolean
-  search = (data) => {
+  search = (data:any) => {
     console.log(data)
     this.viewFlag = true
     this.isViewPrint = false
@@ -244,7 +244,7 @@ export class ItemInventoryReportComponent implements OnInit {
   htmlLoadid: any = 0
   viewPrint: any
   viewFlag: any
-  openPrint(HtmlId, isViewPrint) {
+  openPrint(HtmlId:any, isViewPrint:any) {
     this.viewFlag = false
     this.isViewPrint = isViewPrint
     this.htmlLoadid = HtmlId
@@ -258,7 +258,7 @@ export class ItemInventoryReportComponent implements OnInit {
   closeBtn() {
     this.viewFlag = true
   }
-  printLoad(cmpName, isViewForm) {
+  printLoad(cmpName:any, isViewForm:any) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open()

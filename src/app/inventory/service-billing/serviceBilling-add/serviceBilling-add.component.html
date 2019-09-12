@@ -7,7 +7,7 @@
           <div class="row">
             <div class="col-md-3 left_side_head">
               <p class="heading_lead">
-                <i class="fas fa-shopping-cart" aria-hidden="true"></i>Service</p>
+                <i class="fas fa-shopping-cart" aria-hidden="true"></i>Service Invoice</p>
             </div>
             <div class="col-md-9">
               <div class="btn_header">
@@ -403,6 +403,35 @@
           <div class="form-row mt-2" >
             <div class="col-md-12 card p-2" >
               <div class="form-row mt-2" >
+                  <div class="col-md-6">
+                      <div class="">
+                        <div class="form-row">
+                          <div class=" form-group  col-md-2 pt-2">
+                            <label>Bill Discount</label>
+                          </div>
+                          <div class=" form-group  col-md-4">
+                           
+                            <div class="discount">
+                              <input [disabled] ="MultipleBillDiscount || addItemDisbaled" type="number" class="form-control" placeholder="Bill Discount" appIncludeDecimal
+                                name="BillDiscount" [(ngModel)]="BillDiscount" min="0" max="100"
+                                (keyup)="BillDiscountValidation($event);BillDiscountCalculate();"
+                                [ngClass]="{'errorSelecto': invalidObj?.Discount }">
+                              <select *ngIf='!MultipleBillDiscount' style="width: 70px !important;" class="form-control discount_type" id="BillDiscountType"
+                                [(ngModel)]="BillDiscountType" (ngModelChange)="BillDiscountCalculate()" name="BillDiscountType">
+                                <option *ngFor="let value of currencyValues;" [value]="value.id">{{value.symbol}}</option>
+                              </select>
+                              <div  *ngIf='MultipleBillDiscount'>
+                                    <a  [class.disabled]="addItemDisbaled"  (click)="openDiscountMaster()"  class="Plus_tooltip"><i
+                                      class="fas fa-plus-square "></i></a>
+                              </div>
+                            
+                            </div>
+    
+                          </div>
+                         
+                        </div>
+                      </div>
+                    </div>
                   <div class="col-md-8 card p-2">
                       <div class="form-row">
                           <h5 class="summery_text" >Payment Details</h5>
@@ -521,6 +550,10 @@
                             <ng-container *ngIf="TaxableValue > 0" >
                               <div class="col-md-6 labal_text">Taxable Value</div>
                               <div class="col-md-6 value_text">{{TaxableValue.toFixed(noOfDecimalPoint)}}</div>
+                            </ng-container>
+                            <ng-container *ngIf="totalBillDiscount > 0">
+                              <div class="col-md-6 labal_text">Total Bill Discount</div>
+                              <div class="col-md-6 value_text">{{totalBillDiscount.toFixed(noOfDecimalPoint)}}</div>
                             </ng-container>
                             <ng-container *ngFor="let charge of AdditionalChargesToShow" >
                               <div class="col-md-6 labal_text">{{charge.LedgerName}}</div>

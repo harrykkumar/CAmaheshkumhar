@@ -284,36 +284,7 @@ export class SaleDirectReturnComponent {
         }
       }
     )
-    this.commonService.getAttributeStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-      data => {
-        if (data.id && data.name && data.AttributeId) {
-          let indexOfAttr = -1
-          if(this.attributesData.length >0){
-          for (let i = 0; i < this.attributesData.length; i++) { if (this.attributesData[i]['attributeId'] === data.AttributeId) { indexOfAttr = i; break; } }
-          if (indexOfAttr >= 0) {
-            let itemAttributeTrans = JSON.parse(JSON.stringify(this.itemAttributeTrans))
-            let newData = Object.assign([], this.attributesData[indexOfAttr]['data'])
-            newData.push({ id: +data.id, text: data.name });
-            this.attributesData[indexOfAttr]['data'] = Object.assign([], newData)
-            console.log('this.attributesData : ', this.attributesData)
-            setTimeout(() => {
-              this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-                if (index === indexOfAttr) {
-                  attr.setElementValue(data.id)
-                  $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-                } else if (itemAttributeTrans[index].AttributeId) {
-                  attr.setElementValue(itemAttributeTrans[index].AttributeId)
-                  $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-                } else {
-                  $('#' + $('.attr')[index].id).addClass('errorSelecto')
-                }
-              })
-            }, 100)
-          }
-        }
-        }
-      }
-    )
+  
 
     this.commonService.getledgerCretionStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
@@ -334,34 +305,14 @@ export class SaleDirectReturnComponent {
       }
     )
 
-    this.commonService.getCategoryStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-      (data: AddCust) => {
-        if (data.id && data.name) {
-          let categoryId = data.id
-          let categoryName = data.name
-          this.isAddNew = true
-          this.getAllCategories(categoryName, categoryId, this.isAddNew)
-        }
-      }
-    )
+    
 
     this.fromReady$.pipe(takeUntil(this.onDestroy$)).subscribe(
       (formReady) => {
         if (formReady) {
-          //  this.loading = false
           this._loaderService.hide()
-          //if (this.editMode) {
           this.vendorValue = this.PartyId
           this.organisationValue = this.OrgId
-          // this.vendorSelect2.setElementValue(this.PartyId)
-          // this.organisationSelect2.setElementValue(this.OrgId)
-          // this.godownSelect2.setElementValue(this.GodownId)
-          // this.addressSelect2.setElementValue(this.AddressId)
-          // this.currencySelect2.setElementValue(this.CurrencyId)
-          // this.convertToSelect2.setElementValue(this.ConvertToCurrencyId)
-          // this.referralSelect2.setElementValue(this.ReferralId)
-          // this.referraltypeSelect2.setElementValue(this.ReferralTypeId)
-          //}
         }
       }
     )
@@ -389,23 +340,7 @@ export class SaleDirectReturnComponent {
         }
       }
     )
-    // this._saleDirectReturnService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
-    //   data => {
-    //     if (data.data) {
-    //       this.organisationsData = data.data
-    //       if (this.organisationsData.length >= 1) {
-    //         this.OrgId = +this.organisationsData[0].id
-    //         this.organisationValue = +this.organisationsData[0].id
-    //         this.OrgGStType = this.organisationsData[0]
-    //         console.log(this.OrgGStType)
-    //         if (this.isBillNoManuall) {
-    //           this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
-    //           //this.getNewBillNo()
-    //         }
-    //       }
-    //     }
-    //   }
-    // )
+    
     this._saleDirectReturnService.godownsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
@@ -508,162 +443,8 @@ export class SaleDirectReturnComponent {
       }
     )
 
-    // this.settings$ = this.purchaseService.settingData1$.subscribe(
-    //   data => {
-    //     if (data.data) {
-    //       this.settingData = data.data
-    //       console.log('this.settingData : ', this.settingData)
-    //       this.getSetUpModules(this.settingData)
-    //     }
-    //   }
-    // )
-
-    this.commonService.getVendStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-      (data: AddCust) => {
-        if (data.id && data.name) {
-          let newData = Object.assign([], this.vendorData)
-          newData.push({ id: data.id, text: data.name })
-          this.vendorData = newData
-          this.PartyId = +data.id
-          this.vendorValue = data.id
-          //   this.vendorGSTType = data.gstType
-          this.CreditLimit = 0
-          this.CreditDays = 0
-          setTimeout(() => {
-            if (this.vendorSelect2) {
-              const element = this.renderer.selectRootElement(this.vendorSelect2.selector.nativeElement, true)
-              element.focus({ preventScroll: false })
-            }
-          }, 2000)
-        }
-      }
-    )
-
-    this.commonService.getAddressStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-      (data: AddCust) => {
-        if (data.id && data.name) {
-          let newData = Object.assign([], this.AddressData)
-          newData.push({ id: data.id, text: data.name })
-          this.AddressData = newData
-          this.AddressId = +data.id
-          this.addressValue = data.id
-          this.loadingSummary = true
-          this.checkForGST()
-          setTimeout(() => {
-            if (this.addressSelect2) {
-              const element = this.renderer.selectRootElement(this.addressSelect2.selector.nativeElement, true)
-              element.focus({ preventScroll: false })
-            }
-          }, 2000)
-        }
-      }
-    )
-
-    this.commonService.getCompositeUnitStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-      (data: AddCust) => {
-        if (data.id && data.name) {
-          let newData = Object.assign([], this.subUnitsData)
-          newData.push({ id: +data.id, text: data.name })
-          this.subUnitsData = newData
-          this.UnitId = +data.id
-          this.subUnitsValue = data.id
-          setTimeout(() => {
-            if (this.unitSelect2) {
-              const element = this.renderer.selectRootElement(this.unitSelect2.selector.nativeElement, true)
-              element.focus({ preventScroll: false })
-            }
-          }, 2000)
-        }
-      }
-    )
-
-    this.commonService.getUnitStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-      (data: AddCust) => {
-        if (data.id && data.name) {
-          let newData = Object.assign([], this.subUnitsData)
-          newData.push({ id: +data.id, text: data.name })
-          this.subUnitsData = newData
-          this.UnitId = +data.id
-          this.subUnitsValue = data.id
-          setTimeout(() => {
-            if (this.unitSelect2) {
-              const element = this.renderer.selectRootElement(this.unitSelect2.selector.nativeElement, true)
-              element.focus({ preventScroll: false })
-            }
-          }, 2000)
-        }
-      }
-    )
-
-    this.commonService.getItemMasterStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-      (data: AddCust) => {
-        if (data.id && data.name && data.categoryId) {
-          let newData = Object.assign([], this.itemData)
-          newData.push({ id: data.id, text: data.name })
-          this.itemData = Object.assign([], newData)
-          this.allItems.push({
-            Id: +data.id,
-            Name: data.name,
-            CategoryId: +data.categoryId
-          })
-          this.ItemId = +data.id
-          this.itemValue = data.id
-          setTimeout(() => {
-            if (this.itemselect2) {
-              const element = this.renderer.selectRootElement(this.itemselect2.selector.nativeElement, true)
-              element.focus({ preventScroll: false })
-            }
-          }, 2000)
-        }
-      }
-    )
-
-    this.commonService.getLedgerStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-      (data: AddCust) => {
-        if (data.id && data.name) {
-          let newData = Object.assign([], this.paymentLedgerselect2)
-          newData.push({ id: data.id, text: data.name })
-          this.paymentLedgerselect2 = newData
-          this.LedgerId = +data.id
-          this.ledger = data.id
-          setTimeout(() => {
-            if (this.ledgerSelect2) {
-              const element = this.renderer.selectRootElement(this.ledgerSelect2.selector.nativeElement, true)
-              element.focus({ preventScroll: false })
-            }
-          }, 2000)
-        }
-      }
-    )
-
-    this.commonService.getTaxStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-      (data: AddCust) => {
-        if (data.id && data.name) {
-          let newData = Object.assign([], this.taxSlabsData)
-          newData.push({ id: data.id, text: data.name })
-          this.taxSlabsData = newData
-          if (this.TaxSlabId === -1) {
-            this.TaxSlabId = +data.id
-            this.taxSlabValue = data.id
-            setTimeout(() => {
-              if (this.taxSlabSelect2) {
-                const element = this.renderer.selectRootElement(this.taxSlabSelect2.selector.nativeElement, true)
-                element.focus({ preventScroll: false })
-              }
-            }, 2000)
-          } else if (this.TaxSlabChargeId === -1) {
-            this.TaxSlabChargeId = +data.id
-            this.taxSlabChargeValue = data.id
-            setTimeout(() => {
-              if (this.taxSlabChargeSelect2) {
-                const element = this.renderer.selectRootElement(this.taxSlabChargeSelect2.selector.nativeElement, true)
-                element.focus({ preventScroll: false })
-              }
-            }, 2000)
-          }
-        }
-      }
-    )
+ 
+   
   }
   customerName: any = ''
   BillingAddress: any = ''
@@ -886,7 +667,7 @@ export class SaleDirectReturnComponent {
       this.SubTotal =  this.editMode === true ? element.SubTotal : 0
       this.itemAttributeTrans = itemAttributeTrans
       this.taxSlabType = element.TaxSlabType
-      this.taxRates = taxRates
+      this.taxRates = this.OrgGStType===1 ? taxRates : []
       this.editItemId = this.editMode === true ? element.Id : 0
       this.AmountItem = (+element.TaxType === 0) ? this.calcTotal() : +this.SubTotal - this.TaxAmount
       if (+element.TaxType === 1 && this.taxCalInclusiveType === 2) {
@@ -2394,9 +2175,9 @@ export class SaleDirectReturnComponent {
     // if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
 
     if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && this.SaleRate > 0) {
-      if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
-        || (this.industryId === 3)
-        || (this.industryId === 2 || this.industryId === 6)) {
+      // if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
+      //   || (this.industryId === 3)
+      //   || (this.industryId === 2 || this.industryId === 6)) {
         this.addItem()
         this.clickItem = true
         console.log('items : ', this.Items)
@@ -2408,7 +2189,7 @@ export class SaleDirectReturnComponent {
           // this.setExpiryDate()
           // this.setMfdDate()
         }
-      }
+    //  }
     }
   }
 
@@ -2437,6 +2218,7 @@ export class SaleDirectReturnComponent {
       element['Sno'] = Sno
       element['ItemTransId'] = Sno
     })
+  // if(this.editMode && this.ReturnQuantity !==0  ){
     this.Items.push({
       Id: 0,
       Sno: Sno,
@@ -2481,7 +2263,7 @@ export class SaleDirectReturnComponent {
       categoryName: this.categoryName,
       selected: false
     })
-
+ // }
     setTimeout(() => {
       this.commonService.fixTableHFL('item-table')
     }, 1)

@@ -1,88 +1,87 @@
 <main class="main-content bgc-grey">
-        <div id="mainContent">
-            <div class="page-header p-0">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-4 left_side_head">
-                            <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-user-tie"></i>Ledger Creation</p>
-                    </div>
-                    <div class="col-md-8 right_saerch_side p-0">
-                        <div class="mr-2">
-                            <form [formGroup]="searchForm">
-                                <div id="custom-search-input" class="btn_header1">
-                                    <div class="input-group col-md-12">
-                                        <input type="text" 
-                                        class="form-control input-lg"
-                                        placeholder="Search"
-                                        formControlName="searckKey"
-                                        #searchData
-                                        />
-                                        <span class="input-group-btn">
-                                            <a>
-                                                <i class="fas fa-search"></i>
-                                            </a>
-                                        </span>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="btn_header">
-                            <a><img src="assets/img/printer.png"> </a>
-                            <a><img src="assets/img/pdf.png"></a>
-                            <a><img src="assets/img/excel.png"></a>
-                            <button type="button" class="btn btn-primary waves-effect waves-light" (click)="addledgerCretion()">Add
-                                New</button>
-                            <!-- <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a> -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- <app-bank-search [toShow]="openSearch" ></app-bank-search> -->
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
         <div class="row">
-            <div class="col-md-12">
-                <div class="bgc-white bdrs-3 pb-3 mB-20">
-                    <div class="table-responsive table_height">
-                        <table class="table cat-table table-hover">
-                            <thead>
-                                <tr>
-                                    <th width="7%">S.NO</th>
-                                    <th width="15%">Group Name</th>
-                                    <th width="30%">Ledger Name</th>
-                                    <th width="15%">GSTIN Number</th>
-                                    <th width="10%">Register Type</th>
-                                    <th width="15%" class="text-right">Opening Balance</th>
-                                    <th width="8%">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                    <tr *ngFor="let item of ledgerDetails | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index">
-                                    
-                                    <td>{{lastItemIndex + i + 1}}</td>                                    
-                                    <td>{{item.GlName}}</td>
-                                    <td>{{item.Name}}</td>
-                                    <td>{{item.GstinNo}}</td>
-                                    <td>{{item.TaxType}}  </td>
-                                    <td class="text-right">{{(item.OpeningBalance).toFixed(noOfDecimal) }}-{{item.Crdr === 0 ? 'DR' : 'CR'}}</td>
-                                    
-                                    <td class="text-center">
-                                        <a    class="actionBtn" data-toggle="tooltip"  title=""
-                                            data-original-title="Edit" (click)="editledgerCretion(item.Id)"><i class="fa fa-edit fa-1x"
-                                            aria-hidden="true"></i></a>
-                                        <a  *ngIf="item.Id > 1000"  class="actionBtn" data-toggle="tooltip"  title=""
-                                            data-original-title="Delete" (click)="delteCustomerPopup(item.Id)"><i
-                                            class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-user-tie"></i>Ledger Creation</p>
+          </div>
+          <div class="col-md-8 right_saerch_side p-0">
+            <div class="mr-2">
+              <form [formGroup]="searchForm">
+                <div id="custom-search-input" class="btn_header1">
+                  <div class="input-group col-md-12">
+                    <input type="text" class="form-control input-lg" placeholder="Search" formControlName="searckKey"
+                      #searchData />
+                    <span class="input-group-btn">
+                      <a>
+                        <i class="fas fa-search"></i>
+                      </a>
+                    </span>
+                  </div>
                 </div>
-               
+              </form>
             </div>
+            <div class="btn_header">
+              <a><img src="assets/img/printer.png"> </a>
+              <a><img src="assets/img/pdf.png"></a>
+              <a><img src="assets/img/excel.png"></a>
+              <button type="button" class="btn btn-primary waves-effect waves-light" (click)="onImportLedger()">Import
+                Ledgers</button>
+              <button type="button" class="btn btn-primary waves-effect waves-light" (click)="addledgerCretion()">Add
+                New</button>
+              <!-- <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a> -->
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+    <!-- <app-bank-search [toShow]="openSearch" ></app-bank-search> -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="bgc-white bdrs-3 pb-3 mB-20">
+          <div class="table-responsive table_height">
+            <table class="table cat-table table-hover">
+              <thead>
+                <tr>
+                  <th width="7%">S.NO</th>
+                  <th width="15%">Group Name</th>
+                  <th width="30%">Ledger Name</th>
+                  <th width="15%">GSTIN Number</th>
+                  <th width="10%">Register Type</th>
+                  <th width="15%" class="text-right">Opening Balance</th>
+                  <th width="8%">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let item of ledgerDetails | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index">
+
+                  <td>{{lastItemIndex + i + 1}}</td>
+                  <td>{{item.GlName}}</td>
+                  <td>{{item.Name}}</td>
+                  <td>{{item.GstinNo}}</td>
+                  <td>{{item.TaxType}} </td>
+                  <td class="text-right">
+                    {{(item.OpeningBalance).toFixed(noOfDecimal) }}-{{item.Crdr === 0 ? 'DR' : 'CR'}}</td>
+
+                  <td class="text-center">
+                    <a class="actionBtn" data-toggle="tooltip" title="" data-original-title="Edit"
+                      (click)="editledgerCretion(item.Id)"><i class="fa fa-edit fa-1x" aria-hidden="true"></i></a>
+                    <a *ngIf="item.Id > 1000" class="actionBtn" data-toggle="tooltip" title=""
+                      data-original-title="Delete" (click)="delteCustomerPopup(item.Id)"><i class="fa fa-trash fa-1x"
+                        aria-hidden="true"></i></a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-(pageNoEmitter)="p = $event;getLedgerDetail();"
-(pageSizeEmitter)="itemsPerPage = $event;getLedgerDetail();" ></app-pagination>
+  (pageNoEmitter)="p = $event;getLedgerDetail();" (pageSizeEmitter)="itemsPerPage = $event;getLedgerDetail();">
+</app-pagination>
+<ledger-import></ledger-import>

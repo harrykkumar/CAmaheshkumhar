@@ -1,21 +1,12 @@
 
 // import * as CanvasJS from '../../../../assets/js/canvasjs.min';
 import { CommonService } from '../../../commonServices/commanmaster/common.services'
-import { Component, Renderer2, ViewChild, ViewChildren, QueryList } from '@angular/core'
+import { Component} from '@angular/core'
 import { Subscription } from 'rxjs'
-import { AddCust, ResponseSale } from '../../../model/sales-tracker.model'
-import { Select2OptionData, Select2Component } from 'ng2-select2'
-import { VendorServices } from '../../../commonServices/TransactionMaster/vendoer-master.services'
-import { ToastrCustomService } from '../../../commonServices/toastr.service'
 import { UIConstant } from '../../../shared/constants/ui-constant'
-import { ItemmasterServices } from '../../../commonServices/TransactionMaster/item-master.services'
 import { GlobalService } from '../../../commonServices/global.service'
 import { Settings } from '../../../shared/constants/settings.constant'
-import { FormConstants } from 'src/app/shared/constants/forms.constant';
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
-import { parse } from 'path';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Router } from '@angular/router';
 // import { GlobalService } from '../../../commonServices/global.service'
@@ -38,8 +29,8 @@ export class DashboardComponent {
   ) {
     this.spinnerService.hide()
   }
-  finToDate;
-  FinFromDate;
+  finToDate:any;
+  FinFromDate:any;
   ngOnInit() {
     this.getSetUpModules((JSON.parse(this._settings.moduleSettings).settings))
     this.spinnerService.hide();
@@ -53,9 +44,9 @@ export class DashboardComponent {
    
   }
   clientDateFormat:any =''
-  getSetUpModules(settings) {
-    console.log('settings : ', settings)
-    settings.forEach(element => {
+  getSetUpModules(settings:any) {
+    // console.log('settings : ', settings)
+    settings.forEach((element:any) => {
       if (element.id === SetUpIds.dateFormat) {
         this.clientDateFormat = element.val[0].Val
       }
@@ -65,17 +56,17 @@ export class DashboardComponent {
   subscribe: Subscription
   AssestsPoints: any
   AllDataDashboard: any
-  changeType(value) {
+  changeType(value:any) {
     if (value === 'sale') {
       this.SaleOverDueItem = []
-      let SaleOverDue = this.AllDataDashboard.OverDueDetails.filter(d => (d.Type).toUpperCase() === "SALE")
+      let SaleOverDue = this.AllDataDashboard.OverDueDetails.filter((d:any) => (d.Type).toUpperCase() === "SALE")
       if (SaleOverDue.length > 0) {
         this.SaleOverDueItem = SaleOverDue
       }
     }
     else if (value === 'purchase') {
       this.SaleOverDueItem = []
-      let PurchaseOverDue = this.AllDataDashboard.OverDueDetails.filter(d => (d.Type).toUpperCase() === "PURCHASE")
+      let PurchaseOverDue = this.AllDataDashboard.OverDueDetails.filter((d:any) => (d.Type).toUpperCase() === "PURCHASE")
       if (PurchaseOverDue.length > 0) {
         this.SaleOverDueItem = PurchaseOverDue
 
@@ -94,7 +85,7 @@ export class DashboardComponent {
   ChartFlowdata:any =[]
   ChartflowLabelData:any =[]
   fincialdata:any=[]
-  getDashBoard(todate ,fromDate) {
+  getDashBoard(todate:any ,fromDate:any) {
     this.subscribe = this._commonService.getDashBoardData('?TypeWise=Month'+'&fromDate='+fromDate+'&todate='+todate).subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND) {
         console.log(resp.Data, 'Dashboard')
@@ -104,7 +95,7 @@ export class DashboardComponent {
         this.libiabititsLabelData = []
         this.ChartFlowdata =[]
         this.ChartflowLabelData=[]
-        resp.Data.AssestsLiabilities.forEach(element => {
+        resp.Data.AssestsLiabilities.forEach((element:any) => {
           if (element.HeadId === 2) {
             this.libiabititsAmountData.push(
               element.Amount1
@@ -122,7 +113,7 @@ export class DashboardComponent {
           }
         });
         //CashFlow
-        resp.Data.CashFlow.forEach(element => {
+        resp.Data.CashFlow.forEach((element:any) => {
           this.ChartFlowdata.push({
             label: element.Status,
             backgroundColor: "#3e95cd",
@@ -132,9 +123,9 @@ export class DashboardComponent {
         });
         console.log(this.ChartFlowdata,'Data-cash flow')
          this.fincialdata=[]
-        let fincialLable=[]
-        let data=[]
-        resp.Data.Finance.forEach(element => {
+        let fincialLable:any=[]
+        let data:any=[]
+        resp.Data.Finance.forEach((element:any) => {
           if(element.GlId ===18 || element.GlId ===17 || element.GlId === -999){
             this.fincialdata.push({
               label:element.GlName,
@@ -160,8 +151,8 @@ export class DashboardComponent {
         this.ChartForFinance(this.fincialdata,fincialLable)
         console.log(resp.Data, 'kkk')
         this.AssestsPoints = []
-        let assets = []
-        resp.Data.Assests.forEach(element => {
+        let assets :any= []
+        resp.Data.Assests.forEach((element:any) => {
           assets.push({
             y: element.TotalAsset,
             name: element.LedgerName
@@ -182,10 +173,10 @@ export class DashboardComponent {
       }
     })
   }
-  finacialLabels;
-  finacialchartOptions;
-  finacialchartData;
-  ChartForFinance(FincialData,label) {
+  finacialLabels:any;
+  finacialchartOptions:any;
+  finacialchartData:any;
+  ChartForFinance(FincialData:any,label:any) {
     this.finacialchartOptions = {
       responsive: true
     };
@@ -206,13 +197,13 @@ if(FincialData.length>0){
 
     }
   }
-  AssetschartOptions;
-  assetschartData;
-  assetschartLabels;
+  AssetschartOptions:any;
+  assetschartData:any;
+  assetschartLabels:any;
   onChartFinacilClick() {
 
   }
-  chartForAssets(AmountData,LabelData) {
+  chartForAssets(AmountData:any,LabelData:any) {
     this.AssetschartOptions = {
       responsive: true
     };
@@ -228,17 +219,17 @@ if(FincialData.length>0){
 
 
 
-  onChartClick(event) {
+  onChartClick(event:any) {
     console.log(event);
   }
   onChartLibiClick() {
 
   }
 
-  LiabilitieschartOptions;
-  LiabilitieschartData;
-  LiabilitieschartLabels;
-  ChartLiabilities(AmountData, labelData) {
+  LiabilitieschartOptions:any;
+  LiabilitieschartData:any;
+  LiabilitieschartLabels:any;
+  ChartLiabilities(AmountData:any, labelData:any) {
     this.LiabilitieschartOptions = {
       responsive: true
     };
@@ -252,10 +243,10 @@ if(FincialData.length>0){
     }
   
   }
-  cashflowLabels;
-  cashflowchartOptions;
-  cashflowchartData;
-  chartForCashFlow(AmountData,labelData) {
+  cashflowLabels:any;
+  cashflowchartOptions:any;
+  cashflowchartData:any;
+  chartForCashFlow(AmountData:any,labelData:any) {
     this.cashflowchartOptions = {
       responsive: true
     };

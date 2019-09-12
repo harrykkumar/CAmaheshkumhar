@@ -9,9 +9,9 @@
                             <th *ngFor="let title of customHeader;" [ngClass]="{'text-right': title.isRightAligned}" >{{title.text}}</th>
                         </tr>
                     </thead>
-                    <tbody *ngIf="isSearching" style="height:100px;" >
+                    <!-- <tbody *ngIf="isSearching" style="height:100px;" >
                         <img src="assets/img/loader.gif" alt="loading screen" style="width: 70px;height: 70px;position: absolute;left: 46%;top:46%;" />
-                    </tbody>
+                    </tbody> -->
                     <tbody>
                         <tr *ngFor="let item of customContent | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index">
                         <td>{{lastItemIndex + i + 1}}</td>
@@ -24,7 +24,9 @@
                                     <li *ngFor="let action of actionList">
                                         <a  class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="onActionClicked(action, item.Id)" >
                                         <i class="fas mR-10 cH-blue"
-                                            [ngClass]="{'fa-print': action.type === 2,
+                                            [ngClass]="{
+                                            'fa-print': action.type === 2,
+                                            'far fa-file-alt': action.type === 6,
                                             'fa-edit': action.type === 1,
                                             'fa-trash': action.type === 4,
                                             'fa-arrow': action.type === 5

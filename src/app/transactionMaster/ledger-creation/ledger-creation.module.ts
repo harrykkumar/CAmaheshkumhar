@@ -6,6 +6,7 @@ import { PagingUtilityModule } from '../../shared/pagination/pagination.module'
 import { NgxPaginationModule } from 'ngx-pagination'
 import { LedgerCreationRoutingModule } from './ledger-creation.routing.module'
 import { LedgerCreationComponent } from './ledger-creation.component'
+import { LedgerImportModule } from '../../shared/transactionMaster/ledger-creation/ledger-import/ledger-import.module';
 @NgModule({
   imports: [
     CommonModule,
@@ -14,7 +15,8 @@ import { LedgerCreationComponent } from './ledger-creation.component'
     Select2Module,
     LedgerCreationRoutingModule,
     PagingUtilityModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    LedgerImportModule
   ],
   declarations: [
     LedgerCreationComponent

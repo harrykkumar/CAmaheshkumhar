@@ -134,4 +134,13 @@ export class SetUpIds {
   public static get MultipleBillDiscount (): number {
     return 20
   }
+  public static get MultipleBillDiscountPurchase (): number {
+    return 30
+  }
+  public static get BillDiscountOnPrint (): number {
+    return 27
+  }
+  public static get multipleBillSettlement (): number {
+    return 78
+  }
 }

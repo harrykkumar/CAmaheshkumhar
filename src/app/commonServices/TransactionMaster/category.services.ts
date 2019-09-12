@@ -51,4 +51,8 @@ export class CategoryServices {
   public getCategoryLevel () {
     return this._basesService.getRequest(ApiConstant.SETTING_SETUP)
   }
+
+  postCatImport (data) {
+    return this._basesService.postRequest(ApiConstant.POST_CAT_IMPORT, data)
+  }
 }

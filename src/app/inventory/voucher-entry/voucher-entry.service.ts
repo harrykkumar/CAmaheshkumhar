@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, Inject } from "@angular/core";
 import { BaseServices } from '../../commonServices/base-services';
 import { ApiConstant } from '../../shared/constants/api';
 import { Observable, Subject } from 'rxjs';
@@ -27,7 +27,7 @@ export class VoucherEntryServie {
     {type: UIConstant.EXPENSE_TYPE, voucherNoManual: false, ReportFor: 'purchase', voucherType: 103},
     {type: UIConstant.INCOME_TYPE, voucherNoManual: false, ReportFor: 'sale', voucherType: 102},
   ]
-  constructor(private baseService: BaseServices) {
+  constructor(@Inject(BaseServices) private baseService) {
   }
   getLedgerSummaryData (queryStr): Observable<ResponseSale> {
     return this.baseService.getRequest(`${ApiConstant.LEDGER_SUMMARY}` + queryStr)
@@ -45,12 +45,14 @@ export class VoucherEntryServie {
     }
   }
 
-  createCustomers (array, type) {
+  createCustomers (array, type, isMulti) {
     let newData = []
     if (type === UIConstant.CONTRA_TYPE) {
       newData.push({ id: '0', text: 'Select Ledger' },{id:'-1',text:UIConstant.ADD_NEW_OPTION})
     } else if (UIConstant.RECEIPT_TYPE) {
-      newData.push({ id: '0', text: 'Select Party ' },{id:'-1',text:UIConstant.ADD_NEW_OPTION})
+      if (!isMulti) {
+        newData.push({id:'-1',text:UIConstant.ADD_NEW_OPTION}, { id: '0', text: 'Select Party ' })
+      }
     }
     array.forEach(data => {
       newData.push({

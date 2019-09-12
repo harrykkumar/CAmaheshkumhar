@@ -391,5 +391,11 @@ export class ApiConstant {
 
   public static get ORG_DETAILS_PRINT(): string { return this.BASE_URL + '/api/v1/common/printutility' }
 
-  
+  public static get GET_DISCOUNT_FOR_APPLY ():string { return this.BASE_URL +'/api/v1/Ims/Discount'}
+
+  public static get POST_CAT_IMPORT (): string { return this.BASE_URL + '/api/v1/CategoryImport' }
+
+  public static get POST_LEDGER_IMPORT (): string { return this.BASE_URL + '/api/v1/ledgerimport' }
+
+  public static get SUPER_ADMIN_MODULES_LIST (): string { return this.BASE_URL + '/api/v1/Modules' }
 }

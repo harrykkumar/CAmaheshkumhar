@@ -9,6 +9,7 @@ import { FormGroup, FormBuilder } from '@angular/forms'
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { PagingComponent } from '../../shared/pagination/pagination.component'
 import { Settings } from './../../shared/constants/settings.constant';
+import { LedgerCreationService } from './ledger-creation.service'
 
 declare var $: any
 //ledger-creation.component
@@ -36,7 +37,8 @@ export class LedgerCreationComponent implements OnInit {
     private commonService: CommonService,
     private _settings:Settings,
     private toastrService: ToastrCustomService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private ledgerService: LedgerCreationService) {
       this.noOfDecimal =this._settings.noOfDecimal
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
@@ -50,6 +52,10 @@ export class LedgerCreationComponent implements OnInit {
           this.getLedgerDetail()
       }
     )
+
+    this.upateListSub = this.ledgerService.onSaveLedgerImport$.subscribe(() => {
+      this.getLedgerDetail()
+    })
     
 
     this.queryStr$ = this._coustomerServices.queryStr$.subscribe(
@@ -137,6 +143,7 @@ export class LedgerCreationComponent implements OnInit {
 
   ngOnDestroy () {
     this.subscribe.unsubscribe()
+    this.upateListSub.unsubscribe()
   }
 
   addledgerCretion () {
@@ -167,5 +174,9 @@ export class LedgerCreationComponent implements OnInit {
 
   delteCustomerPopup (id) {
     this.commonService.openDelete(id, 'ledgerCretion', 'ledger-Cretion')
+  }
+
+  onImportLedger () {
+    this.ledgerService.openLedgerImport()
   }
 }

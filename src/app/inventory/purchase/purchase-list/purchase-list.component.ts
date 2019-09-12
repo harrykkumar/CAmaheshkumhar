@@ -26,7 +26,7 @@ export class PurchaseListComponent implements OnInit {
   actionList: any = []
   customFooter: any = []
   newPurchaseSub: Subscription
-  deleteSub:Subscription
+  deleteSub: Subscription
   formName: number
   clientDateFormat: string
   p: number = 1
@@ -42,12 +42,12 @@ export class PurchaseListComponent implements OnInit {
   searchKey: string = ''
   queryStr: string = ''
   queryStr$: Subscription
-  constructor (private purchaseService: PurchaseService,
+  constructor(private purchaseService: PurchaseService,
     private commonService: CommonService,
     private settings: Settings,
     private gs: GlobalService,
     private toastrService: ToastrCustomService
-    ) {
+  ) {
     this.getPurchaseList()
     this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
       () => {
@@ -56,10 +56,10 @@ export class PurchaseListComponent implements OnInit {
     )
     this.onTextEnteredSub = this.purchaseService.search$.subscribe(
       (text: string) => {
-       // if (text.length > 0) {
-          this.searchKey = text
-          this.searchForStr(text)
-       // }
+        // if (text.length > 0) {
+        this.searchKey = text
+        this.searchForStr(text)
+        // }
       }
     )
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
@@ -68,7 +68,7 @@ export class PurchaseListComponent implements OnInit {
           this.deleteItem(obj.id)
         }
       }
-    ) 
+    )
     this.queryStr$ = this.purchaseService.queryStr$.subscribe(
       (str) => {
         console.log(str)
@@ -81,8 +81,8 @@ export class PurchaseListComponent implements OnInit {
     this.noOfDecimalPoint = this.settings.noOfDecimal
 
   }
-  noOfDecimalPoint:any =0
-  searchForStr (text) {
+  noOfDecimalPoint: any = 0
+  searchForStr(text) {
     this.isSearching = true
     this.searchGetCall(text).subscribe((data) => {
       setTimeout(() => {
@@ -90,22 +90,21 @@ export class PurchaseListComponent implements OnInit {
       }, 100)
       this.createTableData(data.Data.PurchaseTransactions, data.Data.PurchaseTransactionsSummary)
 
-      // this.createTableData(data.Data, '')
-    },(err) => {
+    }, (err) => {
       setTimeout(() => {
         this.isSearching = false
       }, 100)
-      console.log('error',err)
+      console.log('error', err)
     },
-    () => {
-      setTimeout(() => {
-        this.isSearching = false
-      }, 100)
-    })
+      () => {
+        setTimeout(() => {
+          this.isSearching = false
+        }, 100)
+      })
   }
 
-    
-  searchGetCall (term: string) {
+
+  searchGetCall(term: string) {
     if (!term) {
       term = ''
     }
@@ -113,60 +112,55 @@ export class PurchaseListComponent implements OnInit {
     return this.purchaseService.getPurchaseList('?StrSearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
   }
 
-  ngOnInit () {
+  ngOnInit() {
     setTimeout(() => {
       this.commonService.fixTableHF('cat-table')
     }, 1000)
   }
-  onActionClicked (action, id) {
+  onActionClicked(action, id) {
     action.id = id
     action['formname'] = this.formName
     this.commonService.onActionClicked(action)
-    if(action.type ===4){
-    this.commonService.openDelete(id, 'purchase', 'purchase')
-    
+    if (action.type === 4) {
+      this.commonService.openDelete(id, 'purchase', 'purchase')
+
     }
-    // if(action.type ===6){
-    // this.commonService.onActionPurchaseClicked(action) 
-    //   }
-    
   }
-  getPurchaseList () {
+  getPurchaseList() {
     if (!this.searchKey || this.searchKey.length === 0) {
       this.searchKey = ''
     }
     this.isSearching = true
     this.purchaseService.getPurchaseList('?StrSearch=' + this.searchKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
-    .pipe(
-      filter(data => {
-        if (data.Code === UIConstant.THOUSAND) {
-          return true
+      .pipe(
+        filter(data => {
+          if (data.Code === UIConstant.THOUSAND) {
+            return true
+          } else {
+            throw new Error(data.Description)
+          }
+        }),
+        catchError(error => {
+          return throwError(error)
+        }),
+        map(data => data.Data)
+      )
+      .subscribe(data => {
+        if (data.PurchaseTransactions.length > 0) {
+          this.notRecordFound = false
+          this.createTableData(data.PurchaseTransactions, data.PurchaseTransactionsSummary)
         } else {
-          throw new Error(data.Description)
+          this.createTableData(data.PurchaseTransactions, data.PurchaseTransactionsSummary)
+          this.notRecordFound = true
+          this.isSearching = false
         }
-      }),
-      catchError(error => {
-        return throwError(error)
-      }),
-      map(data => data.Data)
-    )
-    .subscribe(data => {
-      // console.log('purchase data: ', data)
-      if (data.PurchaseTransactions.length >0) {
-        this.notRecordFound = false
-        this.createTableData(data.PurchaseTransactions, data.PurchaseTransactionsSummary)
-      } else {
-        this.notRecordFound = true
-
-      this.isSearching = false
-      }
-    },(error) => {
-      this.isSearching = false
-      this.toastrService.showError(error, '')
-    })
+      }, (error) => {
+        this.isSearching = false
+        this.toastrService.showError(error, '')
+      })
   }
-  notRecordFound:any
-  createTableData (data, summary) {
+  notRecordFound: any
+  createTableData(data, summary) {
     let customContent = [...data]
     customContent.forEach(element => {
       element.BillDate = this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
@@ -200,19 +194,21 @@ export class PurchaseListComponent implements OnInit {
       { text: 'TaxAmount', isRightAligned: true },
       { text: 'BillAmount', isRightAligned: true }]
     this.actionList = [
-      { type: FormConstants.Print, id: 0, text: 'Print', printId: 'purchase_print_id' },
+      { type: FormConstants.Print, id: 0, text: 'Print', printId: 'purchase_print_id' ,isViewPrint :false },
+      { type: FormConstants.ViewPrint, id: 0, text: 'View Print', printId: 'purchase_print_id' ,isViewPrint :true},
       { type: FormConstants.Edit, id: 0, text: 'Edit' },
       { type: FormConstants.Cancel, id: 0, text: 'Cancel' },
       { type: FormConstants.Return, id: 0, text: 'Return' }
 
     ]
-    this.customFooter = [{ 
+    this.customFooter = [{
       colspan: 6, data: [
         +summary[0].TotalQty.toFixed(2),
         +summary[0].Discount.toFixed(2),
         +summary[0].TaxAmount.toFixed(2),
         +summary[0].BillAmount.toFixed(2)
-      ] }]
+      ]
+    }]
     // console.log('footer : ', this.customFooter)
     this.formName = FormConstants.Purchase
     this.total = data[0] ? data[0].TotalRows : 0
@@ -221,8 +217,8 @@ export class PurchaseListComponent implements OnInit {
     }, 100)
   }
 
-  
-  deleteItem (id) {
+
+  deleteItem(id) {
     if (id) {
       this.commonService.cancelPurchase(id).pipe(
         takeUntil(this.unSubscribe$)

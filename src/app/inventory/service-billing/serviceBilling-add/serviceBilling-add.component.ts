@@ -71,7 +71,9 @@ export class serviceBillingAddComponent {
   TaxSlabChargeValue: number
   TaxAmountChargeValue: number
   TotalAmountChargeValue: number
-
+  BillDiscount: number
+  BillDiscountType: number
+  BillDiscountAmt: number
   ledgerChargeValue: number
   taxSlabChargeValue: number
 
@@ -255,10 +257,21 @@ export class serviceBillingAddComponent {
     private renderer: Renderer2,
     private gs: GlobalService) {
     this.getFormDependency()
+    this.commonService.openDiscountMasterStatus().subscribe(
+      (data: AddCust) => {
+        if (data.open === false && data && data.data) {
+          console.log(data, 'Discount-data')
+          this.TaxableValue = this.localTaxableValue
+          this.BillDiscountApplied = []
+          this.BillDiscount = 0
+          this.BillDiscountArray = []
+          this.BillDiscountApplied = data.data
+          this.MultipleDiscountCalculate(data.data)
+        }
+      })
     this.commonService.getPurchaseStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (status: AddCust) => {
         if (status.open) {
-          
           if (status.editId !== '') {
             this.creatingForm = true
             this.editMode = true
@@ -592,9 +605,10 @@ export class serviceBillingAddComponent {
      })
     }
   }
-
+  BillDiscountApplied: any = []
   createForm (data) {
     debugger
+    this.OrgGStType
     this.dataForEdit = data
     this.other = {}
     this.Items = []
@@ -618,6 +632,12 @@ export class serviceBillingAddComponent {
     }, 1000)
     this.getBillSummary()
     this.creatingForm = false
+    this.BillDiscountApplied = []
+    data.DiscountTrans.forEach((ele,indx) => {
+      data.DiscountTrans[indx]['isChecked'] = true
+    });
+    this.BillDiscountApplied = data.DiscountTrans
+    this.MultipleDiscountCalculate(data.DiscountTrans)
   }
 
   createItemTaxTrans (taxRates) {
@@ -720,7 +740,7 @@ getTypeOfGST () {
           return taxRate
         }
       })
-      console.log('itemTaxTrans : ', itemTaxTrans)
+      //console.log('itemTaxTrans : ', itemTaxTrans)
       let itemAttributeTrans = []
       if (this.itemAttributesOthers.length > 0) {
         itemAttributeTrans = this.itemAttributesOthers.filter((attr) => {
@@ -734,7 +754,6 @@ getTypeOfGST () {
       } else {
         this.taxTypeName = 'Inclusive'
       }
-      console.log('itemAttributeTrans : ', itemAttributeTrans)
       this.TransType = element.TransType
       this.TransId = element.TransId
       this.ChallanId = element.ChallanId
@@ -756,7 +775,7 @@ getTypeOfGST () {
       this.SubTotal = +element.SubTotal
       this.itemAttributeTrans = itemAttributeTrans
       this.taxSlabType = element.TaxSlabType
-      this.taxRates = taxRates
+      this.taxRates = this.OrgGStType===1 ? taxRates : []
       this.editItemId = element.Id
       this.AmountItem = (+element.TaxType === 0) ? this.calcTotal() : +this.SubTotal - this.TaxAmount
       if (this.taxCalInclusiveType === 2) {
@@ -772,7 +791,7 @@ getTypeOfGST () {
       this.addItems()
       if (this.Items[this.Items.length - 1]) {
         this.Items[this.Items.length - 1].Id = element.Id
-        this.Items[this.Items.length - 1].itemTaxTrans = itemTaxTrans
+        this.Items[this.Items.length - 1].itemTaxTrans = itemTaxTrans 
       } else {
         this.toastrService.showError('Not getting enough data for edit', '')
       }
@@ -827,6 +846,8 @@ getTypeOfGST () {
     this.CurrencyRate = +others.CurrencyRate
     this.TotalDiscount = 0
     this.PartyId = +others.LedgerId
+    this.editAllgetAddress(+others.LedgerId)
+
     this.ReferralId = others.ReferralId
     this.ReferralTypeId = others.ReferralTypeId
     this.ReverseCharge = 0
@@ -877,6 +898,8 @@ getTypeOfGST () {
   backDateEntry: boolean = false
   isBillNoManuall: boolean = false
   taxCalInclusiveType: number = 2
+  MultipleBillDiscount: number = 1
+
   getSetUpModules (settings) {
     console.log('settings : ', settings)
     settings.forEach(element => {
@@ -903,10 +926,33 @@ getTypeOfGST () {
       if (element.id === SetUpIds.taxCalInclusive) {
         this.taxCalInclusiveType = +element.val
       }
+      if (element.id === SetUpIds.MultipleBillDiscount) {
+        this.MultipleBillDiscount = +element.val
+      }
     })
 
   }
+  BillDiscountValidation(e) {
+    
+    if ('' + this.BillDiscountType === '0') {
+      if (e === '0') {
+        this.BillDiscount = 0
+      }
+      else {
+        if (Number(e.target.value) > Number(99.999990) &&
+          e.keyCode != 46 // delete
+          &&
+          e.keyCode != 8 // backspace
+        ) {
+          e.preventDefault();
+          this.BillDiscount = 0
+        } else {
+          this.BillDiscount = Number(e.target.value);
+        }
+      }
+    }
 
+  }
   onCustomerSelect(event) {
     if (event.value && event.data.length > 0) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
@@ -957,6 +1003,11 @@ getTypeOfGST () {
       if (data.Data.AddressDetails &&  data.Data.AddressDetails.length >0) {
         this.allAddressData = data.Data.AddressDetails
       this.createAddress(data.Data.AddressDetails)
+      }
+      else {
+        this.createAddress(data.Data.AddressDetails)
+        this.isOtherState = false
+        this.AddressId = 0
       }
       if (data.Data.LedgerDetails && data.Data.LedgerDetails.length > 0) {
         const LedgerDetails = data.Data.LedgerDetails[0]
@@ -1030,6 +1081,7 @@ getTypeOfGST () {
   caseSaleArrayId:any =[]
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal () {
+    this.addItemDisbaled = this.editMode === true ? false : true   
     this.caseSaleArrayId = [{ id: 6 }, { id: 5 }]
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.getSpUtilitySaleServiceData()
@@ -1262,13 +1314,13 @@ getTypeOfGST () {
         this.Discount =0
       }
       else{
-        if (Number(e.target.value) > Number(100) &&
+        if (Number(e.target.value) > Number(99.99999) &&
         e.keyCode != 46 
         &&
         e.keyCode != 8 
       ) {
         e.preventDefault();
-        this.Discount =100
+        this.Discount =0
       } else {
         this.Discount = Number(e.target.value);
       }
@@ -1879,9 +1931,14 @@ getTypeOfGST () {
     if (this.validDiscount && +this.ItemId > 0    && this.SaleRate > 0 &&  this.SubTotal >=0) {
         this.addItem()
         this.clickItem = true
-       // console.log('items : ', this.Items)
-        if (!this.editMode) {
+        //if (!this.editMode) {
           this.calculateAllTotal()
+          
+        //}
+        if (!this.editMode) {
+          this.BillDiscount = 0
+          this.BillDiscountArray = []
+          this.BillDiscountCalculate()
         }
         this.initItem()
 
@@ -1937,9 +1994,10 @@ getTypeOfGST () {
       AmountItem: this.AmountItem,
       taxSlabType: this.taxSlabType,
       taxRates: this.taxRates,
-      itemTaxTrans: this.appliedTaxRatesItem
+      itemTaxTrans: this.appliedTaxRatesItem,
+      AmountItemBillDiscount: this.AmountItemBillDiscount
     })
-
+    this.addItemDisbaled = false
     setTimeout(() => {
       this.commonService.fixTableHFL('item-table')
     }, 1)
@@ -2047,6 +2105,9 @@ getTypeOfGST () {
       }
       let ItemId = this.Items[i].ItemId
       let _self = this
+      this.BillDiscount = 0
+      this.BillDiscountArray = []
+      this.BillDiscountCalculate()
       setTimeout(() => {
         _self.itemselect2.setElementValue(ItemId)
         _self.ItemId = ItemId
@@ -2056,7 +2117,7 @@ getTypeOfGST () {
       this.toastrService.showInfo('', 'Please First Edit Item')
     }
   }
-
+  addItemDisbaled :boolean =true
   deleteItem (i, forArr) {
     if (forArr === 'trans') {
       this.PaymentDetail.splice(i,1)
@@ -2065,11 +2126,18 @@ getTypeOfGST () {
     if (forArr === 'items') {
       this.Items.splice(i,1)
       this.ItemAttributeTrans = []
-
-     // console.log('after TaxAmount : ', this.TaxAmount)
+      this.BillDiscount = 0
+      this.BillDiscountArray = []
+      this.BillDiscountCalculate()
+      if (this.Items.length > 0) {
+        this.addItemDisbaled = false
+      }
+      else {
+        this.addItemDisbaled = true
+      }
     }
     if (forArr === 'charge') {
-      debugger
+      
       let j = i+2
      if (+this.chargesData[j].id >0) {
         this.alreadySelectCharge(this.AdditionalCharges[i].LedgerChargeId, this.AdditionalCharges[i].LedgerName, false)
@@ -2080,6 +2148,7 @@ getTypeOfGST () {
   }
 
   closePurchase () {
+    this.BillDiscountApplied =[]
     this.commonService.closePurchase()
   }
   taxTypeChargeValue:any=0
@@ -2094,6 +2163,8 @@ getTypeOfGST () {
     this.unitName = ''
     this.categoryName = ''
     this.Length = 1
+    this.BillDiscountType = this.editMode === true ? 1 : 0
+    this.BillDiscount = 0
     this.Height = 1
     this.Width = 1
     this.Quantity = 1
@@ -2304,12 +2375,14 @@ this.taxTypeValue=0
       }
     }
   }
+  totalBillDiscount:number =0
+
   initialiseExtras () {
     this.getNewCurrentDate()
     this.BillAmount = 0
     this.PartyBillNo = ''
     this.outStandingBalance =0
-    //this.BillNo = ''
+    this.totalBillDiscount = 0
     this.AddressId = 0
     this.ConvertedAmount = 0
     this.CurrencyRate = 0
@@ -2431,7 +2504,7 @@ this.taxTypeValue=0
   }
 
   private ServiceBillingAddParams (): ServiceBillingAdd {
-    debugger
+    
   //  let BillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
     let CurrentDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
     let PartyBillDate = this.gs.clientToSqlDateFormat(this.PartyBillDate, this.clientDateFormat)
@@ -2475,7 +2548,9 @@ this.taxTypeValue=0
         AddressId: this.AddressId,
         ConvertedCurrencyId: this.ConvertToCurrencyId,
         ItemTaxTrans: this.ItemTaxTrans,
-        AdditionalCharges: this.AdditionalCharges
+        AdditionalCharges: this.AdditionalCharges,
+        DiscountTrans: this.BillDiscountArray
+
       } as ServiceBillingAdd
     }
    // console.log('obj : ', JSON.stringify(ServiceBillingAddParams.obj))
@@ -2712,6 +2787,7 @@ this.taxTypeValue=0
                   if (data.Code === UIConstant.THOUSAND && data.Data) {
                     _self.toastrService.showSuccess('Saved Successfully', '')
                   this.DisabledSaveBtn = false
+                  this.BillDiscountApplied =[]
 
                     _self.commonService.newPurchaseAdd()
                     if (!this.keepOpen) {
@@ -2724,6 +2800,8 @@ this.taxTypeValue=0
                       _self.initComp()
                       _self.initialiseExtras()
                       this.editMode = false
+                       this.BillDiscountApplied =[]
+
                       this.openModal()
                       this.getNewCurrentDate()
                       this.getNewBillNo()
@@ -2774,7 +2852,7 @@ this.taxTypeValue=0
               if (data.Code === UIConstant.THOUSAND && data.Data) {
                 _self.toastrService.showSuccess('Saved Successfully', '')
                 this.DisabledSaveBtn = false
-
+                this.BillDiscountApplied =[]
                 _self.commonService.newPurchaseAdd()
                 if (!this.keepOpen) {
                   _self.commonService.closePurchase()
@@ -2784,6 +2862,7 @@ this.taxTypeValue=0
                   _self.initTransaction()
                   _self.initCharge()
                   _self.initComp()
+                  this.BillDiscountApplied =[]
                   _self.initialiseExtras()
                   this.editMode = false
                   this.openModal()
@@ -2937,7 +3016,6 @@ this.taxTypeValue=0
   getTaxChargeDetail (TaxSlabId) {
     this.saleServiceBillingService.getSlabData(TaxSlabId).subscribe(
       data => {
-        //console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           if(this.OrgGStType ===1){
             this.taxChargeSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
@@ -3073,6 +3151,7 @@ this.taxTypeValue=0
 
   NetBillAmount = 0
   TaxableValue = 0
+  localTaxableValue = 0
   billSummary: Array<any> = []
   AdditionalChargesToShow: any = []
   getBillSummary () {
@@ -3105,6 +3184,7 @@ this.taxTypeValue=0
       }
     }
     this.TaxableValue = taxableValue
+    this.localTaxableValue = taxableValue
     this.billSummary = []
     if (!this.creatingForm) {
       this.ItemTaxTrans = JSON.parse(JSON.stringify(ItemTaxTrans))
@@ -3200,5 +3280,190 @@ this.taxTypeValue=0
   ngOnDestroy () {
     this.onDestroy$.next()
     this.onDestroy$.complete()
+  }
+
+  BillDiscountArray :any  =[]
+  localTaxableValueled: any = 0
+  MultipleDiscountCalculate(multipleDiscount) {
+    debugger
+    this.localTaxableValueled = this.TaxableValue
+    if (multipleDiscount.length > 0) {
+      multipleDiscount.forEach(element => {
+        let multiDiscountAmt;
+        if (element.ValueType === 0) {
+          multiDiscountAmt = (this.localTaxableValueled * element.Value) / 100
+          this.localTaxableValueled = this.localTaxableValueled - multiDiscountAmt
+        }
+        else {
+          multiDiscountAmt = element.Value
+        }
+        this.BillDiscountArray.push({
+          "Id": element.Id === 0 ? 0 : element.Id,
+          "DiscountId": element.DiscountId,
+          "Value": element.Value,
+          "ValueType": element.ValueType,
+          "Name": element.Name,
+          "Amount": multiDiscountAmt
+        })
+        this.BillDiscount = this.BillDiscount + +multiDiscountAmt
+
+      });
+    }
+    else {
+      this.BillDiscount = 0
+    }
+    this.BillDiscountType = 1
+    this.BillDiscountCalculate()
+
+  }
+
+  BillDiscountCalculate() {
+    debugger
+    if ('' + this.BillDiscountType === '0') {
+      if (+this.BillDiscount <= 100 && +this.BillDiscount >= 0) {
+        this.PerItemDiscountPerCentage = isNaN(+this.BillDiscount) ? 0 : +this.BillDiscount
+      } else {
+        this.PerItemDiscountPerCentage = 0
+      }
+    } else {
+      this.PerItemDiscountPerCentage = ((this.BillDiscount * 100) / (this.TaxableValue)).toFixed(this.noOfDecimalPoint)
+      if (this.PerItemDiscountPerCentage === 'Infinity') {
+        this.BillDiscount = 0
+        this.PerItemDiscountPerCentage = 0
+      }
+
+    }
+    this.updateAfterBillDiscount()
+  }
+  PerItemDiscountPerCentage: any = 0
+  AmountItemBillDiscount: number = 0
+  updateAfterBillDiscount() {
+    if (this.Items.length > 0) {
+      const observables = [];
+      for (const item of this.Items) {
+        if (item.TaxSlabId !== 0) {
+          observables.push(this.saleServiceBillingService.getSlabData(item.TaxSlabId));
+        }
+      }
+      forkJoin(...observables).subscribe(
+        data => {
+          if (this.OrgGStType === 1) {
+            this.totalBillDiscount = 0
+            data.forEach((element, index) => {
+              let appliedTaxRatesItem = []
+              let AmountItem = 0
+              let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
+              if (+this.PerItemDiscountPerCentage > 0) {
+                this.BillDiscountAmt = +((this.PerItemDiscountPerCentage / 100) * (this.Items[index].AmountItem)).toFixed(this.noOfDecimalPoint)
+              }
+              else {
+                this.totalBillDiscount = 0
+                this.BillDiscountAmt = 0
+              }
+              this.totalBillDiscount = this.totalBillDiscount + +this.BillDiscountAmt
+              if (this.Items.length > 0) {
+                AmountItem = this.Items[index].AmountItem - this.BillDiscountAmt
+                this.AmountItemBillDiscount = AmountItem
+                this.Items[index]['AmountItemBillDiscount'] = AmountItem
+                if (element.Data.TaxRates.length > 0 && +AmountItem > 0) {
+                  if (this.Items[index].TaxType === 1) {
+                    let returnTax = this.saleServiceBillingService.taxCalCulationForInclusive(element.Data.TaxRates,
+                      taxSlabType,
+                      +AmountItem,
+                      this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
+                    this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                    appliedTaxRatesItem = returnTax.appliedTaxRates
+                  } else if (this.Items[index].TaxType === 0) {
+                    let returnTax = this.saleServiceBillingService.taxCalculation(element.Data.TaxRates,
+                      taxSlabType,
+                      +AmountItem,
+                      this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
+                    this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                    appliedTaxRatesItem = returnTax.appliedTaxRates
+                  }
+                  if (appliedTaxRatesItem.length > 0) {
+                    appliedTaxRatesItem.forEach((taxRate) => {
+                      if (this.Items[index].Id !== 0) {
+                        taxRate['ItemTransTaxId'] = this.Items[index].Id
+                      } else {
+                        taxRate['ItemTransTaxId'] = this.Items[index].Sno
+                      }
+                    })
+                  }
+                  this.Items[index].itemTaxTrans = appliedTaxRatesItem
+                }
+                this.Items[index]['SubTotal'] = +AmountItem + +this.Items[index]['TaxAmount']
+              }
+            });
+          }
+          if (!this.MultipleBillDiscount) {
+            this.BillDiscountArray = [{
+              "Id": 0,
+              "DiscountId": 0,
+              "Value": this.BillDiscount,
+              "ValueType": this.BillDiscountType,
+              "Name": "Bill Discount",
+              "Amount": this.totalBillDiscount
+            }]
+          }
+          this.UpdateBillDiscountHistory()
+          this.calculateAllTotal()
+        }
+      )
+    }
+  }
+  UpdateBillDiscountHistory() {
+    let taxableValue = 0
+    let ItemTaxTrans = []
+    this.Items.forEach(element => {
+      ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
+      taxableValue += +element.AmountItemBillDiscount
+    });
+    if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
+      taxableValue += +this.AmountItem
+      if (this.appliedTaxRatesItem.length > 0) {
+        ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
+      }
+    }
+    this.TaxableValue = taxableValue
+    this.billSummary = []
+    if (!this.creatingForm) {
+      this.ItemTaxTrans = JSON.parse(JSON.stringify(ItemTaxTrans))
+    }
+    let groupOnId = _.groupBy(ItemTaxTrans, (tax) => {
+      return tax.TaxRateId
+    })
+    for (const rateId in groupOnId) {
+      if (groupOnId.hasOwnProperty(rateId)) {
+        const element = groupOnId[rateId];
+        let obj = {}
+        obj['name'] = element[0]['TaxRateNameTax']
+        let sum = 0
+        element.forEach(tax => {
+          sum += +tax.AmountTax
+        })
+        obj['total'] = sum
+        this.billSummary.push(obj)
+      }
+    }
+    this.loadingSummary = false
+    this.calculateBillTotal()
+  }
+  openDiscountMaster() {
+    let BillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+    let DiscountData = {
+      Qty: this.TotalQty,
+      BillAmount: this.BillAmount,
+      LedgerId: this.PartyId,
+      BillDate: BillDate,
+      Type: 'Transaction',
+      isChecked: true
+    }
+
+    let editDiscountValue = this.BillDiscountApplied.length === 0 ? [] : this.BillDiscountApplied
+
+
+    debugger
+    this.commonService.openDiscountMaster('', true, DiscountData, editDiscountValue)
   }
 }

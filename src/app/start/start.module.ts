@@ -35,8 +35,8 @@ import {ServiceItemAddModule} from '../shared/transactionMaster/service-item-mas
 import {TermsAndCondiAddModule} from '../shared/transactionMaster/termAndCondition/termAndCondition-add/termAndCondition-add.module'
 import {MatDatepickerModule} from '@angular/material';
 import { ConfirmationPrintModule}  from '../shared/transactionMaster/confirmation-print/confirmation-print.module'
-  import { from } from 'rxjs';
-// import {SaleDirectReturnModule} from '../inventory/sale-direct-return/saleReturn.module'
+import {DiscountMasterAddModule} from '../shared/transactionMaster/discountMaster/discountMaster-add/discountMaster-add.module'
+import { CategoryImportModule } from '../shared/transactionMaster/category/category-import/category-import.module';
 @NgModule({
   declarations: [
     SideMenuComponent,
@@ -79,7 +79,9 @@ import { ConfirmationPrintModule}  from '../shared/transactionMaster/confirmatio
     ServiceItemAddModule,
     TermsAndCondiAddModule,
     MatDatepickerModule,
-    ConfirmationPrintModule
+    ConfirmationPrintModule,
+    DiscountMasterAddModule,
+    CategoryImportModule
   ],
   bootstrap: []
 })

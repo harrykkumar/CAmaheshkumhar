@@ -93,7 +93,6 @@ export class SaleReturnDirectListComponent implements OnInit {
       
       }, 100)
       this.createTableData(data.Data.SaleDetails, data.Data.SaleSummary)
-      // this.createTableData(data.Data, '')
     },(err) => {
       setTimeout(() => {
         this._loaderService.hide()
@@ -159,9 +158,9 @@ export class SaleReturnDirectListComponent implements OnInit {
         this.notRecordFound = false
         this.createTableData(data.SaleDetails, data.SaleSummary)
       } else {
+        this.createTableData(data.SaleDetails, data.SaleSummary)
         this.notRecordFound = true
-
-      this._loaderService.hide()
+        this._loaderService.hide()
       }
     },(error) => {
       this._loaderService.hide()
@@ -200,7 +199,8 @@ export class SaleReturnDirectListComponent implements OnInit {
       { text: 'TaxAmount', isRightAligned: true },
       { text: 'BillAmount', isRightAligned: true }]
     this.actionList = [
-      { type: FormConstants.Print, id: 0, text: 'Print', printId: 'SaleReturn_print_id',isViewForm: true },
+      { type: FormConstants.Print, id: 0, text: 'Print', printId: 'SaleReturn_print_id',isViewForm: false },
+      { type: FormConstants.ViewPrint, id: 0, text: 'View Print', printId: 'SaleReturn_print_id',isViewForm: true },
       { type: FormConstants.Edit, id: 0, text: 'Edit' },
       { type: FormConstants.Cancel, id: 0, text: 'Cancel' }
     ]

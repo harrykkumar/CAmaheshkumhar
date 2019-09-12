@@ -10,6 +10,7 @@ export interface VoucherAddModel {
   VoucherDatas: Array<VoucherData>,
   PaymentDetails: Array<VoucherTransaction>,
   IsIncomeExpence?:number
+  IsGroupTransaction?: number
 }
 
 export interface VoucherTransaction {

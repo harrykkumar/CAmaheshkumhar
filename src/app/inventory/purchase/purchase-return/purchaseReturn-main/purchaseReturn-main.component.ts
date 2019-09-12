@@ -48,6 +48,10 @@ export class PurchaseReturnMainComponent {
      if (action.type === FormConstants.Print && action.formname === 3) {
          this.onPrintButton(action.id, action.printId,action.isViewPrint)
         }
+            
+     if (action.type === FormConstants.ViewPrint && action.formname === 3) {
+      this.onPrintButton(action.id, action.printId,action.isViewPrint)
+     }
       }
     )
 
@@ -253,19 +257,14 @@ export class PurchaseReturnMainComponent {
             .map(item1 => parseFloat(item1.SubTotalAmount))
             .reduce((sum, current) => sum + current, 0)
           this.subTotalAmount = (subTotalAmount).toFixed(this.decimalNoPoint)
-          _self.ItemTransactionactions = data.Data.ItemTransactions
-          for (let i = 0; i < data.Data.ItemTransactions.length; i++) {
-            for (let j = 0; j < data.Data.ItemAttributesTrans.length; j++) {
-              if (data.Data.ItemTransactions[i].Id === data.Data.ItemAttributesTrans[j].ItemTransId) {
-                this.itemAttbute.push({
-                  attr: data.Data.ItemAttributesTrans[j].AttributeName,
-                  ItemId: data.Data.ItemAttributesTrans[j].ItemId,
-                  rowId: data.Data.ItemAttributesTrans[j].ItemTransId,
-                  Id: data.Data.ItemAttributesTrans[j].Id
-                })
-              }
+      //    _self.ItemTransactionactions = data.Data.ItemTransactions
+          data.Data.ItemTransactions.forEach((element,index) => {
+            let attributeValue = data.Data.ItemAttributesTrans.filter(d => (d.ItemTransId === element.Id))
+            if (attributeValue.length > 0) {
+              data.Data.ItemTransactions[index]['Attribute']=attributeValue
             }
-          }
+          });
+          _self.ItemTransactionactions = data.Data.ItemTransactions
         } else {
           _self.ItemTransactionactions = []
 

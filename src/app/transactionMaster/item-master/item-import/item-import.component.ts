@@ -7,7 +7,6 @@ import { UIConstant } from '../../../shared/constants/ui-constant'
 import { ImportExportItem, AddCust } from '../../../model/sales-tracker.model'
 import { ItemmasterServices } from 'src/app/commonServices/TransactionMaster/item-master.services'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
-import { ExcelService } from '../../../commonServices/excel.service'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 declare var $: any
 @Component({
@@ -56,8 +55,7 @@ export class ItemImportComponent implements OnDestroy {
   modeOfForm: string = 'new'
   constructor (private commonService: CommonService,
      private gs: GlobalService, private toastrService: ToastrCustomService,
-     private _itemmasterServices: ItemmasterServices,
-     private excelService: ExcelService
+     private _itemmasterServices: ItemmasterServices
      ) {
     this.modalOpen = this.commonService.getItemImportStatus().subscribe(
       (status: any) => {
@@ -92,9 +90,15 @@ export class ItemImportComponent implements OnDestroy {
         }
       }
     )
+
+    this.newCategoryAddSub = this.commonService.getCatImportAddStatus.subscribe(
+      () => {
+        this.getCategoryDetails()
+      }
+    )
   }
 
-  toggleSelect (evt) {
+  toggleSelect (evt:any) {
     // console.log('event : ', evt.target.checked)
     for (let i = 0;i <= this.masterData.length - 1;i++) {
       $('.item-container')[i].checked = evt.target.checked
@@ -109,7 +113,7 @@ export class ItemImportComponent implements OnDestroy {
     }
   }
 
-  onItemToggle (index, SNO, evt) {
+  onItemToggle (index:any, SNO:any, evt:any) {
     // console.log('index : ', index)
     console.log('evt : ', evt.target.id)
     if (index > -1) {
@@ -127,8 +131,8 @@ export class ItemImportComponent implements OnDestroy {
   }
 
   addToQueue () {
-    let itemImport = []
-    this.selectedItems.forEach(item => {
+    let itemImport:any = []
+    this.selectedItems.forEach((item:any) => {
       for (let i = 0; i < this.masterData.length; i++) {
         if (item === this.masterData[i]['SNO']) {
           itemImport.push(this.masterData[i])
@@ -138,7 +142,7 @@ export class ItemImportComponent implements OnDestroy {
         }
       }
     })
-    this.selectedItems.forEach(item => {
+    this.selectedItems.forEach((item:any) => {
       for (let i = 0; i < this.masterData.length; i++) {
         if (item === this.masterData[i]['SNO']) {
           this.masterData.splice(i, 1)
@@ -158,7 +162,8 @@ export class ItemImportComponent implements OnDestroy {
     this.masterData = this.gs.mergesort(this.masterData)
     // console.log('new master data : ', this.masterData)
     let itemImportKeys = { ...this.masterKeys }
-    this.itemImportKeys = Object.values(itemImportKeys)
+   // this.itemImportKeys = Object.values(itemImportKeys)
+   this.itemImportKeys = Object.keys(itemImportKeys).map(key => itemImportKeys[key])
     // console.log('itemImportKeys : ', this.itemImportKeys)
     this.itemImportKeys.push('CATEGORY')
     this.itemImportKeys.push('TAXID')
@@ -176,7 +181,7 @@ export class ItemImportComponent implements OnDestroy {
     // console.log('duplicates : ', this.duplicateTuples)
   }
 
-  removeItem (index, item) {
+  removeItem (index:any, item:any) {
     this.masterData.splice(index,1)
     this.itemImport.splice(index,1)
     for (let i = 0; i < this.duplicateTuples.length; i++) {
@@ -189,7 +194,7 @@ export class ItemImportComponent implements OnDestroy {
   }
 
   @ViewChild('cat_select2') catSelect2: Select2Component
-  selectCategory (event) {
+  selectCategory (event:any) {
     // console.log('on select of category : ', event)
     if (event.value && event.data.length > 0) {
       if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
@@ -204,7 +209,7 @@ export class ItemImportComponent implements OnDestroy {
   }
 
   @ViewChild('tax_select2') taxSelect2: Select2Component
-  selectedTax (event) {
+  selectedTax (event:any) {
     // console.log('on select of tax : ', event)
     if (event.value && event.data.length > 0) {
       if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
@@ -238,7 +243,7 @@ export class ItemImportComponent implements OnDestroy {
     )
   }
 
-  generateList (list) {
+  generateList (list:any) {
     let _self = this
     this.masterData = []
     let index = 0
@@ -256,7 +261,7 @@ export class ItemImportComponent implements OnDestroy {
       'MINSTOCK', 'MAXSTOCK', 'REORDERQTY',
       'ISNOTDISCOUNTABLE', 'ISVOLUMEDISCOUNTAPPLY', 'ISTRADEDISCOUNTAPPLY']
     this.itemImportKeys = [...this.masterKeys]
-    list.forEach(element => {
+    list.forEach((element:any) => {
       index += 1
       let newRow = {}
       for (let j = 0; j < masterKeys.length; j++) {
@@ -287,12 +292,13 @@ export class ItemImportComponent implements OnDestroy {
     this._itemmasterServices.getAllSubCategories(1).subscribe(data => {
       // console.log('categories : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
-        data.Data.forEach(element => {
+        data.Data.forEach((element:any) => {
           newData.push({
             id: element.Id,
             text: element.Name
           })
         })
+        newData = Object.assign([], newData)
         this.categoryType = newData
       }
     },
@@ -304,12 +310,12 @@ export class ItemImportComponent implements OnDestroy {
     })
   }
 
-  getTaxtDetail (value) {
+  getTaxtDetail (value:any) {
     this.taxPlaceholder = { placeholder: 'select Tax' }
     let newData = [{ id: UIConstant.BLANK, text: 'Select Tax' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this._itemmasterServices.getTaxDetail().subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.TaxSlabs) {
-        data.Data.TaxSlabs.forEach(element => {
+        data.Data.TaxSlabs.forEach((element:any) => {
           newData.push({
             id: element.Id,
             text: element.Slab
@@ -327,15 +333,15 @@ export class ItemImportComponent implements OnDestroy {
 
   }
 
-  getBrandDetail (brand) {
+  getBrandDetail (brand:any) {
     this.brandTypes = []
     this._itemmasterServices.getBrandDetail().subscribe(data => {
       // console.log('brand types : ', data)
       if (data && data.Data) {
         this.brandPlaceholder = [{ id: UIConstant.BLANK, text: 'SelectBrand' }]
         if (data.Data && data.Code === UIConstant.THOUSAND) {
-          let newData = []
-          data.Data.forEach(element => {
+          let newData :any= []
+          data.Data.forEach((element:any) => {
             newData.push({
               id: element.Id,
               text: element.Name
@@ -411,7 +417,7 @@ export class ItemImportComponent implements OnDestroy {
     }
   }
 
-  saveItemImport (value) {
+  saveItemImport (value:any) {
     if (this.isPending) {
       this._itemmasterServices.postPendingList(this.itemImportParams()).subscribe(data => {
         console.log('item import : ', data)
@@ -506,7 +512,7 @@ export class ItemImportComponent implements OnDestroy {
       this.sheetname = workbook.SheetNames
       this.firstSheetName = workbook.SheetNames[0]
       let worksheet = workbook.Sheets[this.firstSheetName]
-      let masterTableArray = []
+      let masterTableArray :any= []
       if (this.sheetname[0] === 'data') {
         // this.masterTableArray = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
         masterTableArray = XLSX.utils.sheet_to_json(worksheet, { raw: true })
@@ -516,6 +522,10 @@ export class ItemImportComponent implements OnDestroy {
       // check validation
       if (this.masterTableArray.length > 0) {
         let keysArr = Object.values(XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0])
+       //let keysArr =Object.keys(itemImportKeys).map(key => itemImportKeys[key])
+        
+  // this.itemImportKeys = Object.keys(itemImportKeys).map(key => itemImportKeys[key])
+
         keysArr = this.gs.removeSpecialCharacters(keysArr)
         // console.log('keysArr : ', keysArr)
         const mandatoryKeys = ['NAME', 'HSNNO', 'BARCODE', 'ITEMCODE',
@@ -636,6 +646,11 @@ export class ItemImportComponent implements OnDestroy {
   //   }]
   //   this.excelService.exportAsExcelFile(datatoexport, 'Sample_Item_Master')
   // }
+
+  
+  opeCatImport () {
+    this.commonService.openCatImport()
+  }
 
   closeImportModal () {
     this.reset()

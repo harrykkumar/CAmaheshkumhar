@@ -218,7 +218,7 @@
                           <th>S.No.</th>
                           <th class="desc" style="width:15%;">Category</th>
                           <th class="desc" style="width:15%;">Item Name</th>
-                          <th *ngIf="industryId === 2 && itemAttbute.length >0" class="desc">Item Description</th>
+                          <th *ngIf="industryId === 2" class="desc">Item Description</th>
                           <th class="desc" style="width:12%;">HSN/SAC</th>
                           <th *ngIf="industryId === 3 " class="desc">Length x Height x Width</th>
                           <ng-container *ngIf="industryId === 5 ">
@@ -242,11 +242,13 @@
                           <td>{{1+i}}</td>
                           <td>{{ item.CategoryName}}</td>
                           <td>{{ item.ItemName}}<br> {{item.Remark}}</td>
-                          <td *ngIf="industryId === 2 && itemAttbute.length >0 ">
-                              {{itemAttbute && itemAttbute[i*3]?.attr}}
-                              ,{{itemAttbute && itemAttbute[i*3 + 1]?.attr}},
-                              ,{{itemAttbute && itemAttbute[i*3 + 2]?.attr}}
-                          </td>
+                          <ng-container *ngIf="industryId === 2 ">
+                                <td>
+                                    <span *ngFor="let attr of  item.Attribute; let isLast=last">
+                                         {{attr.AttributeName}}{{isLast ? '' : ', '}}
+                                         </span>
+                                </td>
+                            </ng-container>
                           <td>{{ item.HsnNo}}</td>
                           <td *ngIf="industryId === 3 ">{{ item.Length}}x{{ item.Height}}x{{ item.Width}}</td>
                           <ng-container *ngIf="industryId === 5">

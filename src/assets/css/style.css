@@ -224,7 +224,7 @@ p.heading_lead {
 .input-group-addon.bgc-white.bd.bdwR-0 {
   box-shadow: none !important;
   border: 1px solid #ccc !important;
-  border-right: none !important;
+  border-left: none !important;
   padding: 6px 6px 0px;
 }
 

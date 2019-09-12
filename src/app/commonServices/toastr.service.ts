@@ -16,6 +16,18 @@ export class ToastrCustomService {
     })
   }
 
+  showErrorLong (mess1, mess2) {
+    this.toastr.error(mess1, mess2, {
+      timeOut: 5000 
+    })
+  }
+
+  showWarningLong (mess1, mess2) {
+    this.toastr.warning(mess1, mess2, {
+      timeOut: 5000 
+    })
+  }
+
   showInfo (mess1, mess2) {
     this.toastr.info(mess1, mess2, {
       timeOut: 1000

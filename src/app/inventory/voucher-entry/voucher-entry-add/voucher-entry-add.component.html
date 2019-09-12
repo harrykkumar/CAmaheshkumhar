@@ -190,22 +190,17 @@
                   <label *ngIf="tabId === 2">Party</label>
                   <label *ngIf="tabId === 1">Vendor</label>
                   <div class="input-group adw_select">
-                    <div class="input-group adw_select">
-                      <select2
-                        #party_select2
-                        id="vendor"
-                        [data]="ledgerData"
-                        [disabled] = "editId"
-                        class="control_select"
-                        (valueChanged)="
-                          PartyId = +$event.value; getVoucherList()
-                        "
-                        autocomplete="true"
-                        [options]="ledgerPlaceholder"
-                        [value]="ledgerValue"
-                      >
-                      </select2>
-                    </div>
+                    <select2
+                      [options]="ledgerPlaceholder"
+                      #party_select2
+                      id="vendor"
+                      [data]="ledgerData"
+                      [disabled] = "editId"
+                      class="control_select"
+                      (valueChanged)="onPartySelect($event)"
+                      autocomplete="true"
+                      [value]="ledgerValue">
+                    </select2>
                   </div>
                 </div>
 
@@ -393,13 +388,10 @@
                           />
                         </td>
                       </tr>
-                      <tr *ngIf="advancePayment > 0">
+                      <tr *ngIf="advancePayment > 0 && !(tabId === 2 && multipleBillSettlement)">
                         <td class="text-right" colspan="3">
                           {{ advanceBillNo }} -
-                          <span
-                            >Advance
-                            {{ tabId === 1 ? "Payment" : "Receipt" }}</span
-                          >
+                          <span>Advance {{ tabId === 1 ? "Payment" : "Receipt" }}</span>
                         </td>
                         <td>
                           {{ VoucherDate | dateFormat: clientDateFormat }}

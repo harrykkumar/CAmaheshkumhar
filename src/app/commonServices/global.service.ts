@@ -130,21 +130,29 @@ export class GlobalService {
 
   removeSpecialCharacters (arr) {
     for (let i = 0; i <= arr.length - 1; i++) {
-      arr[i] = arr[i].replace(/[^\w\s\r\t\n]/gi, '')
-      arr[i] = arr[i].trim().toUpperCase()
+      if (arr[i]) {
+        arr[i] = arr[i].replace(/[^\w\s\r\t\n]/gi, '')
+        arr[i] = arr[i].trim().toUpperCase()
+      } else {
+        arr[i] = ''
+      }
     }
     return arr
   }
 
   removeSpecialCharacter (str) {
-    str = str.replace(/[^\w\s\r\t\n]/gi, '')
-    str = str.trim().toUpperCase()
-    return str
+    if (str) {
+      str = str.replace(/[^\w\s\r\t\n]/gi, '')
+      str = str.trim()
+      return str
+    } else {
+      return ''
+    }
   }
 
   checkForEqualityInArray (arr1, arr2): string {
-    arr1 = arr1.sort()
-    arr2 = arr2.sort()
+    arr1 = arr1.splice(0).sort()
+    arr2 = arr2.splice(0).sort()
     // console.log('arr1 : ', arr1)
     // console.log('arr2 : ', arr2)
     for (let i = 0; i <= arr1.length - 1; i++) {
@@ -218,17 +226,37 @@ export class GlobalService {
   case - CLIENTDATEFORMAT TO SQLDATEFORMAT - 2
   case - SQLDATEFORMAT TO UTC - 3
   case - DEFAULT DATE - 4
+  case - DATE IN PARTS - 5
+  case - CHECK FOR FORMAT - 6
+  case - GET PLACEHOLDER - 7
+  case - GET CHARACTERS - 8
   */
 
-  utcToClientDateFormat (utcDate, clientDateFormat): string {
+  utcToClientDateFormat (utcDate, clientDateFormat): any {
     return this.checkForFormat(1, utcDate, clientDateFormat)
   }
 
-  clientToSqlDateFormat (clientFormatDate, clientDateFormat): string {
+  clientToSqlDateFormat (clientFormatDate, clientDateFormat): any {
     return this.checkForFormat(2, clientFormatDate, clientDateFormat)
   }
 
-  checkForFormat (type, date, clientDateFormat) {
+  checkForFormatType (clientDateFormat): any {
+    return this.checkForFormat(6, '', clientDateFormat)
+  }
+
+  convertToInParts (clientFormatDate, clientDateFormat): any {
+    return this.checkForFormat(5, clientFormatDate, clientDateFormat)
+  }
+
+  getPlaceholder (clientDateFormat): string {
+    return this.checkForFormat(7, '', clientDateFormat)
+  }
+
+  getCharaters (clientDateFormat): any {
+    return this.checkForFormat(8, '', clientDateFormat)
+  }
+
+  checkForFormat (type, date, clientDateFormat): any {
     if (clientDateFormat === 'd-m-Y') {
       if (type === 1) {
         return this.convertToClientDateFormat(date, '-', 'd', 'm', 'Y')
@@ -238,6 +266,14 @@ export class GlobalService {
         return '-'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '-', 'd', 'm', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '-', 'd', 'm', 'Y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'DD-MM-YYYY'
+      } else if (type === 8) {
+        return [2, 2, 4]
       }
     }
     if (clientDateFormat === 'd-m-y') {
@@ -249,6 +285,14 @@ export class GlobalService {
         return '-'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '-', 'd', 'm', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '-', 'd', 'm', 'y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'DD-MM-YY'
+      } else if (type === 8) {
+        return [2, 2, 2]
       }
     }
 
@@ -261,6 +305,14 @@ export class GlobalService {
         return '-'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '-', 'm', 'd', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '-', 'm', 'd', 'Y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'MM-DD-YYYY'
+      } else if (type === 8) {
+        return [2, 2, 4]
       }
     }
     if (clientDateFormat === 'm-d-y') {
@@ -272,6 +324,14 @@ export class GlobalService {
         return '-'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '-', 'm', 'd', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '-', 'm', 'd', 'y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'MM-DD-YY'
+      } else if (type === 8) {
+        return [2, 2, 2]
       }
     }
     if (clientDateFormat === 'm/d/Y') {
@@ -283,6 +343,14 @@ export class GlobalService {
         return '/'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '/', 'm', 'd', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '/', 'm', 'd', 'Y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'MM/DD/YYYY'
+      } else if (type === 8) {
+        return [2, 2, 4]
       }
     }
     if (clientDateFormat === 'm/d/y') {
@@ -294,6 +362,14 @@ export class GlobalService {
         return '/'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '/', 'm', 'd', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '/', 'm', 'd', 'y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'MM/DD/YY'
+      } else if (type === 8) {
+        return [2, 2, 2]
       }
     }
 
@@ -306,6 +382,14 @@ export class GlobalService {
         return '/'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '/', 'd', 'm', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '/', 'd', 'm', 'Y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'DD/MM/YYYY'
+      } else if (type === 8) {
+        return [2, 2, 4]
       }
     }
     if (clientDateFormat === 'd/m/y') {
@@ -317,6 +401,14 @@ export class GlobalService {
         return '/'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '/', 'd', 'm', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '/', 'd', 'm', 'y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'DD/MM/YY'
+      } else if (type === 8) {
+        return [2, 2, 2]
       }
     }
     if (clientDateFormat === 'M d y') {
@@ -328,6 +420,14 @@ export class GlobalService {
         return ' '
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, ' ', 'M', 'd', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, ' ', 'M', 'd', 'y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'MMM DD YY'
+      } else if (type === 8) {
+        return [3, 2, 2]
       }
     }
     if (clientDateFormat === 'M d Y') {
@@ -339,6 +439,14 @@ export class GlobalService {
         return ' '
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, ' ', 'M', 'd', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, ' ', 'M', 'd', 'Y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'MMM DD YYYY'
+      } else if (type === 8) {
+        return [3, 2, 4]
       }
     }
     if (clientDateFormat === 'd M y') {
@@ -350,6 +458,14 @@ export class GlobalService {
         return ' '
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, ' ', 'd', 'M', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, ' ', 'd', 'M', 'y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'DD MMM YY'
+      } else if (type === 8) {
+        return [2, 3, 2]
       }
     }
     if (clientDateFormat === 'd M Y') {
@@ -361,6 +477,14 @@ export class GlobalService {
         return ' '
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, ' ', 'd', 'M', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, ' ', 'd', 'M', 'Y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'DD MMM YYYY'
+      } else if (type === 8) {
+        return [2, 3, 4]
       }
     }
 
@@ -373,6 +497,14 @@ export class GlobalService {
         return '-'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '-', 'M', 'd', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '-', 'M', 'd', 'y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'MMM-DD-YY'
+      } else if (type === 8) {
+        return [3, 2, 2]
       }
     }
     if (clientDateFormat === 'M-d-Y') {
@@ -384,6 +516,14 @@ export class GlobalService {
         return '-'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '-', 'M', 'd', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '-', 'M', 'd', 'Y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'MMM-DD-YYYY'
+      } else if (type === 8) {
+        return [3, 2, 4]
       }
     }
     if (clientDateFormat === 'd-M-y') {
@@ -395,6 +535,14 @@ export class GlobalService {
         return '-'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '-', 'd', 'M', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '-', 'd', 'M', 'y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'DD-MMM-YY'
+      } else if (type === 8) {
+        return [2, 3, 2]
       }
     }
     if (clientDateFormat === 'd-M-Y') {
@@ -406,6 +554,14 @@ export class GlobalService {
         return '-'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '-', 'd', 'M', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '-', 'd', 'M', 'Y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'DD-MMM-YYYY'
+      } else if (type === 8) {
+        return [2, 3, 4]
       }
     }
     if (clientDateFormat === 'M/d/y') {
@@ -417,6 +573,14 @@ export class GlobalService {
         return '/'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '/', 'M', 'd', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '/', 'M', 'd', 'y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'MMM/DD/YY'
+      } else if (type === 8) {
+        return [3, 2, 2]
       }
     }
     if (clientDateFormat === 'M/d/Y') {
@@ -428,6 +592,14 @@ export class GlobalService {
         return '/'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '/', 'M', 'd', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '/', 'M', 'd', 'Y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'MMM/DD/YYYY'
+      } else if (type === 8) {
+        return [3, 2, 4]
       }
     }
     if (clientDateFormat === 'd/M/y') {
@@ -439,6 +611,14 @@ export class GlobalService {
         return '/'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '/', 'd', 'M', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '/', 'd', 'M', 'y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'DD/MMM/YY'
+      } else if (type === 8) {
+        return [2, 3, 2]
       }
     }
     if (clientDateFormat === 'd/M/Y') {
@@ -450,6 +630,14 @@ export class GlobalService {
         return '/'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '/', 'd', 'M', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '/', 'd', 'M', 'Y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'DD/MMM/YYYY'
+      } else if (type === 8) {
+        return [2, 3, 4]
       }
     }
     if (clientDateFormat === 'M.d.y') {
@@ -461,6 +649,14 @@ export class GlobalService {
         return '.'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '.', 'M', 'd', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '.', 'M', 'd', 'y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'MMM.DD.YY'
+      } else if (type === 8) {
+        return [3, 2, 2]
       }
     }
     if (clientDateFormat === 'M.d.Y') {
@@ -472,6 +668,14 @@ export class GlobalService {
         return '.'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '.', 'M', 'd', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '.', 'M', 'd', 'Y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'MMM.DD.YYYY'
+      } else if (type === 8) {
+        return [3, 2, 4]
       }
     }
     if (clientDateFormat === 'd.M.y') {
@@ -483,6 +687,14 @@ export class GlobalService {
         return '.'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '.', 'd', 'M', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '.', 'd', 'M', 'y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'DD.MMM.YY'
+      } else if (type === 8) {
+        return [2, 3, 2]
       }
     }
     if (clientDateFormat === 'd.M.Y') {
@@ -494,6 +706,14 @@ export class GlobalService {
         return '.'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '.', 'd', 'M', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '.', 'd', 'M', 'Y')
+      } else if (type === 6) {
+        return 2
+      } else if (type === 7) {
+        return 'DD.MMM.YYYY'
+      } else if (type === 8) {
+        return [2, 3, 4]
       }
     }
     if (clientDateFormat === 'd.m.Y') {
@@ -505,6 +725,14 @@ export class GlobalService {
         return '.'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '.', 'd', 'm', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '.', 'd', 'm', 'Y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'DD.MM.YYYY'
+      } else if (type === 8) {
+        return [2, 2, 4]
       }
     }
     if (clientDateFormat === 'd.m.y') {
@@ -516,6 +744,14 @@ export class GlobalService {
         return '.'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '.', 'd', 'm', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '.', 'd', 'm', 'y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'DD.MM.YY'
+      } else if (type === 8) {
+        return [2, 2, 2]
       }
     }
     if (clientDateFormat === 'm.d.Y') {
@@ -527,6 +763,14 @@ export class GlobalService {
         return '.'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '.', 'm', 'd', 'Y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '.', 'm', 'd', 'Y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'MM.DD.YYYY'
+      } else if (type === 8) {
+        return [2, 2, 4]
       }
     }
     if (clientDateFormat === 'm.d.y') {
@@ -538,7 +782,40 @@ export class GlobalService {
         return '.'
       } else if (type === 4) {
         return this.convertToClientDateFormat(date, '.', 'm', 'd', 'y')
+      } else if (type === 5) {
+        return this.dateInParts(date, '.', 'm', 'd', 'y')
+      } else if (type === 6) {
+        return 1
+      } else if (type === 7) {
+        return 'MM.DD.YY'
+      } else if (type === 8) {
+        return [2, 2, 2]
       }
+    }
+  }
+
+  dateInParts (date, splitter, first, second, last): any {
+    let day = -1
+    let month = -1
+    let year = -1
+    let parts = date.split(splitter)
+    year = parseInt(parts[2], 10)
+    if (first === 'd' && second === 'm') {
+      day = parseInt(parts[0], 10)
+      month = parseInt(parts[1], 10)
+    } else if (first === 'm' && second === 'd') {
+      day = parseInt(parts[1], 10)
+      month = parseInt(parts[0], 10)
+    }
+    if (last === 'y') {
+      let newDate = month + '/' + day + '/' + year
+      year = new Date(this.sqlToUtc(newDate)).getFullYear()
+    }
+    const isValidDate = this.isValidDate(month + '/' + day + '/' + year)
+    if (isValidDate) {
+      return [year, month - 1, day]
+    } else {
+      return ''
     }
   }
 
@@ -637,16 +914,16 @@ export class GlobalService {
       let setting = []
       let setupMasters = settings.SetupMasters
       let setupClient = settings.SetupClients
+      // console.log(setupClient, setupMasters)
       await  setupMasters.forEach(
        async (element) => {
         let val: string | Array<any> | boolean | number
         let name = element.SetupName
         if (+element.Type === SetUpIds.singleId) {
           let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-          if(setupclient.length>0){
+          if(setupclient.length>0) {
             val = setupclient[0].Id
           }
-         
         }
         if (+element.Type === SetUpIds.singleVal) {
           let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
@@ -654,20 +931,20 @@ export class GlobalService {
         }
         if (+element.Type === SetUpIds.getStrOrNum || +element.Type === SetUpIds.baseTypeNum) {
           let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-          if(setupclient.length >0){
+          if(setupclient.length > 0) {
             val = setupclient[0].Val
           }
-        
-        } else if (+element.Type === SetUpIds.multiple) {
+        }
+        if (+element.Type === SetUpIds.multiple) {
           let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-          console.log(setupclient) /*setupclient[0].Val.split(',') */
+          // console.log(setupclient) /*setupclient[0].Val.split(',') */
           val = setupclient
-        } else if (+element.Type === SetUpIds.getBoolean) {
+        }
+        if (+element.Type === SetUpIds.getBoolean) {
           let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-          if(setupclient.length>0){
+          if(setupclient.length > 0) {
             val = !!(+setupclient[0].Val)
           }
-     
         }
         await setting.push({
           id: element.Id,
@@ -677,12 +954,12 @@ export class GlobalService {
       })
       this.settings.moduleSettings = JSON.stringify({settings: setting, moduleId: moduleId})
       if (setting.length > 0) {
-      await  setting.forEach(
+      await setting.forEach(
         (element) => {
           if (+element.id === +SetUpIds.dateFormat) {
             this.clientDateFormat = element.val[0].Val
             this.settings.dateFormat = element.val[0].Val
-            return 
+            return
           }
           if (+element.id === +SetUpIds.noOfDecimalPoint) {
               this.settings.noOfDecimal = element.val
@@ -692,5 +969,16 @@ export class GlobalService {
       }
       resolve('Setting set up success');
     })
+  }
+
+  convertToClient (date, clientDateFormat): string {
+    let newDate = '' + (new Date(date))
+    console.log(newDate)
+    if (newDate !== 'Invalid Date') {
+      const toReturn = this.utcToClientDateFormat(this.sqlToUtc(date), clientDateFormat)
+      return toReturn
+    } else {
+      return ''
+    }
   }
 }

@@ -277,21 +277,28 @@ searchGetCall (term: string) {
            if (data.Data.ItemTransactionactions.length > 0) {
           _self.ItemTransactionactions = []
           _self.itemAttbute=[]
-          _self.ItemTransactionactions = data.Data.ItemTransactionactions
-          for(let i=0; i < data.Data.ItemTransactionactions.length; i++) {
-             for(let j=0; j < data.Data.ItemAttributesTransactions.length; j++) {
-            if(data.Data.ItemTransactionactions[i].Id === data.Data.ItemAttributesTransactions[j].ItemTransId){
-               this.itemAttbute.push({
-                 attr:data.Data.ItemAttributesTransactions[j].AttributeName,
-                 ItemId:data.Data.ItemAttributesTransactions[j].ItemId,
-                 rowId :data.Data.ItemAttributesTransactions[j].ItemTransId,
-                 Id:data.Data.ItemAttributesTransactions[j].Id
-               })
-               console.log(this.itemAttbute ,"colorr")
+        //  _self.ItemTransactionactions = data.Data.ItemTransactionactions
+          data.Data.ItemTransactionactions.forEach((element,index) => {
+            let attributeValue = data.Data.ItemAttributesTransactions.filter(d => (d.ItemTransId === element.Id))
+            if (attributeValue.length > 0) {
+              data.Data.ItemTransactionactions[index]['Attribute']=attributeValue
             }
-             }
+          });
+          _self.ItemTransactionactions = data.Data.ItemTransactionactions
+          // for(let i=0; i < data.Data.ItemTransactionactions.length; i++) {
+          //    for(let j=0; j < data.Data.ItemAttributesTransactions.length; j++) {
+          //   if(data.Data.ItemTransactionactions[i].Id === data.Data.ItemAttributesTransactions[j].ItemTransId){
+          //      this.itemAttbute.push({
+          //        attr:data.Data.ItemAttributesTransactions[j].AttributeName,
+          //        ItemId:data.Data.ItemAttributesTransactions[j].ItemId,
+          //        rowId :data.Data.ItemAttributesTransactions[j].ItemTransId,
+          //        Id:data.Data.ItemAttributesTransactions[j].Id
+          //      })
+          //      console.log(this.itemAttbute ,"colorr")
+          //   }
+          //    }
 
-          }
+          // }
         } else {
           _self.ItemTransactionactions = []
 
@@ -346,7 +353,7 @@ searchGetCall (term: string) {
         }
         setTimeout(function () {
           _self.printCourierParcel(htmlId)
-        }, 0)
+        }, 10)
         $('#printCourierParcel_id').modal(UIConstant.MODEL_SHOW)
       }
     }
@@ -372,11 +379,10 @@ searchGetCall (term: string) {
     printWindow.document.close()
     printWindow.focus()
     $('#printCourierParcel_id').modal(UIConstant.MODEL_HIDE)
-
     setTimeout(function () {
       printWindow.print()
       printWindow.close()
-    }, 100)
+    }, 60)
 
   }
 

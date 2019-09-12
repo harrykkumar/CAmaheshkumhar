@@ -1,8 +1,8 @@
-import { Component, ViewChild, OnDestroy, ViewChildren, QueryList, HostListener, ElementRef, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, ViewChild, OnDestroy, ViewChildren, QueryList, ElementRef, Output, EventEmitter, OnInit } from '@angular/core';
 import { Subject, throwError } from 'rxjs';
 import { CommonService } from "src/app/commonServices/commanmaster/common.services";
 import { takeUntil, filter, catchError, map } from 'rxjs/internal/operators';
-import { AddCust } from '../../../model/sales-tracker.model';
+import { AddCust, ResponseSale } from '../../../model/sales-tracker.model';
 import { UIConstant } from '../../../shared/constants/ui-constant';
 import { Select2OptionData, Select2Component } from 'ng2-select2';
 import { PurchaseService } from '../../purchase/purchase.service';
@@ -16,10 +16,6 @@ import { Subscription } from 'rxjs/Subscription';
 declare const $: any
 import * as _ from 'lodash'
 declare const flatpickr: any
-export enum KEY_CODE {
-  RIGHT_ARROW = 39,
-  LEFT_ARROW = 37
-}
 @Component({
   selector: 'voucher-entry-add',
   templateUrl: './voucher-entry-add.component.html'
@@ -108,7 +104,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
                 +this.voucherDataJ[index]['LedgerId'] > 0) {
                 this.voucherDataJ[this.voucherDataJ.length - 1].data = this.allLedgerList
                 this.voucherDataJ[this.voucherDataJ.length - 1].LedgerId = Number(data.id)
-
               }
             })
           }
@@ -156,7 +151,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           this.allLedgerList = newData1
           this.LedgerId = +data.id
           this.ledgerValue = data.id
-
           if (this.voucherDataJ.length === 1) {
             this.voucherDataJ = [{
               LedgerId: +data.id,
@@ -172,7 +166,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
                 +this.voucherDataJ[index]['LedgerId'] > 0) {
                 this.voucherDataJ[this.voucherDataJ.length - 1].data = this.allLedgerList
                 this.voucherDataJ[this.voucherDataJ.length - 1].LedgerId = +data.id
-
               }
             })
           }
@@ -181,13 +174,11 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
             this.partySelect2.selector.nativeElement.focus()
           }, 600)
         }
-
       }
     )
     this.commonService.getVendStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
-
           this.addNewLedgerFlag = false
           this.getListledger = data
           let newData = Object.assign([], this.ledgerData)
@@ -213,7 +204,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
                 +this.voucherDataJ[index]['LedgerId'] > 0) {
                 this.voucherDataJ[this.voucherDataJ.length - 1].data = this.allLedgerList
                 this.voucherDataJ[this.voucherDataJ.length - 1].LedgerId = +data.id
-
               }
             })
           }
@@ -223,8 +213,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
               this.partySelect2.selector.nativeElement.focus()
             }
           }, 600)
-
-
         }
       }
     )
@@ -357,7 +345,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       })
   }
 
-  goToTab(){
+  goToTab() {
     switch (this.editType) {
       case 'Payment':
         $('#vendorPaymentTabLink').click()
@@ -531,11 +519,11 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
             if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.PAYMENT_TYPE) {
               _self.voucherService.createVendors(data.Vendors, UIConstant.PAYMENT_TYPE)
             } else if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.RECEIPT_TYPE) {
-              _self.voucherService.createCustomers(data.Customers, UIConstant.RECEIPT_TYPE)
+              _self.voucherService.createCustomers(data.Customers, UIConstant.RECEIPT_TYPE, this.multipleBillSettlement)
             }
           } else if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.CONTRA_TYPE) {
             _self.voucherService.createVendors(data.Vendors, UIConstant.CONTRA_TYPE)
-            _self.voucherService.createCustomers(data.Customers, UIConstant.CONTRA_TYPE)
+            _self.voucherService.createCustomers(data.Customers, UIConstant.CONTRA_TYPE, this.multipleBillSettlement)
           } else if (_self.tabId === 5 || _self.tabId === 6) {
             _self.voucherService.createVendors(data.Vendors, _self.voucherService.tabs[_self.tabId - 1].type)
           }
@@ -554,53 +542,67 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   }
 
   billSettlementType: number = 1
+  multipleBillSettlement: boolean = false
   getSetUpModules(settings) {
     if (this.tabId === 1 || this.tabId === 2) {
       settings.forEach(element => {
         if (element.id === SetUpIds.paymentAutoVoucher) {
-          this.voucherService.tabs[0].voucherNoManual = !!(+element.val)
+          this.voucherService.tabs[0].voucherNoManual = element.val
         }
         if (element.id === SetUpIds.receiptAutoVoucher) {
-          this.voucherService.tabs[1].voucherNoManual = !!(+element.val)
+          this.voucherService.tabs[1].voucherNoManual = element.val
         }
         if (element.id === SetUpIds.billSettlementType) {
           this.billSettlementType = +element.val
+        }
+        if (element.id === SetUpIds.multipleBillSettlement) {
+          this.multipleBillSettlement = element.val
         }
       })
     }
   }
 
+  updatePartyId (data) {
+    data.forEach(element => {
+      element['PartyId'] = this.PartyId
+    })
+    return data
+  }
+
   getVoucherList() {
     if (!this.editId) {
       if (this.PartyId > 0 && +this.OrgId > 0) {
-        this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor, 'Billwise', this.PartyId, +this.OrgId).pipe(takeUntil(this.onDestroy$), filter(data => {
-          if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-        }), catchError(error => { return throwError(error) }), map(data => data.Data),
-          map(data => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
-            data => {
-              if (!_.isEmpty(data)) {
-                this.voucherList = data
-              } else {
-                this.voucherList = []
-                this.Amount = 0
-                this.advancePayment = 0
-                this.advanceBillNo = 0
+        return new Promise((resolve, reject) => {
+          this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor, 'Billwise', this.PartyId, +this.OrgId).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
+            if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
+          }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data),
+            map((data: any) => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
+              data => {
+                console.log('voucher data : ', data)
+                if (!_.isEmpty(data)) {
+                  data = this.updatePartyId(data)
+                  this.voucherList = data
+                } else {
+                  this.voucherList = []
+                  this.Amount = 0
+                  this.advancePayment = 0
+                  this.advanceBillNo = 0
+                }
+                this.updateAmount()
+                this.checkForValidation()
+                resolve('done')
+              },
+              (error) => {
+                this.toastrService.showError(error, '')
+                reject()
               }
-              this.updateAmount()
-              this.checkForValidation()
-            },
-            (error) => {
-              this.toastrService.showError(error, '')
-            }
-          )
+            )
+        })
       }
       else if (this.addNewLedgerFlag) {
         if (this.PartyId === -1) {
           this.partySelect2.selector.nativeElement.value = ''
           this.commonService.openConfirmation(false, ' ')
-          // this.commonService.openledgerCretion('', 0)
-
-
         } else {
           this.voucherList = []
         }
@@ -611,10 +613,10 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   getVoucherList_Payment_recipt() {
     if (!this.editId) {
       if (this.PartyId > 0 && +this.OrgId > 0) {
-        this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor, 'Billwise', this.PartyId, +this.OrgId).pipe(takeUntil(this.onDestroy$), filter(data => {
+        this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor, 'Billwise', this.PartyId, +this.OrgId).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
           if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-        }), catchError(error => { return throwError(error) }), map(data => data.Data),
-          map(data => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
+        }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data),
+          map((data: any) => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
             data => {
               if (!_.isEmpty(data)) {
                 this.voucherList = data
@@ -658,10 +660,10 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     if (+event.value > 0 && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = +event.value
-      if (+event.value !==1) {
+      if (+event.value !== 1) {
         this.BankLedgerName = ''
         this.LedgerId = 0
-        this.setpaymentLedgerSelect2(0,+event.value )
+        this.setpaymentLedgerSelect2(0, +event.value)
       } else if (+event.value === 1) {
         this.setLedgerSelectForCash();
       }
@@ -678,7 +680,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }
   }
 
-  setpaymentLedgerSelect2(i,paymentId) {
+  setpaymentLedgerSelect2(i, paymentId) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.commonService.getPaymentLedgerDetail(paymentId).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
@@ -782,6 +784,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     this.voucherList = []
     this.invalidObj = {}
     this.voucherDatas = []
+    this.idsBefore = []
     this.submitSave = false
     this.dateStatus = false
   }
@@ -818,9 +821,9 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     this.submitSave = false
     this.dateStatus = false
     if ((this.tabId === 1 || this.tabId === 2 || this.tabId === 5 || this.tabId === 6)
-     && !_.isEmpty(Data) && !_.isEmpty(Data.ReceiptPaymentTransaction)) {
+      && !_.isEmpty(Data) && !_.isEmpty(Data.ReceiptPaymentTransaction)) {
       const advancePaymentRowIndex = _.findIndex(Data.ReceiptPaymentTransaction, { BalanceType: 'AD' });
-      const advancePaymentRow = Data.ReceiptPaymentTransaction[advancePaymentRowIndex]
+      // const advancePaymentRow = Data.ReceiptPaymentTransaction[advancePaymentRowIndex]
       if (advancePaymentRowIndex !== -1) {
         Data.ReceiptPaymentTransaction.splice(advancePaymentRowIndex, 1);
       }
@@ -884,7 +887,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
         voucher['ParentId'] = voucher.Id
         voucher['Amount'] = +voucher.PaymentAmount
       })
-      if (+this.advancePayment > 0) {
+      if (+this.advancePayment > 0 && !(this.tabId === 2 && this.multipleBillSettlement)) {
         voucherList.push({
           IsAdvance: 1,
           Amount: this.advancePayment
@@ -909,6 +912,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           PartyId: this.PartyId,
           TotalAmount: +this.Amount,
           VoucherDate: VoucherDate,
+          IsGroupTransaction: +this.multipleBillSettlement,
           VoucherDatas: voucherList,
           PaymentDetails: paymentDetails
         } as VoucherAddModel
@@ -967,9 +971,9 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     this.submitSave = true
     if (this.checkForValidation()) {
       if (this.tabId === 2 || this.tabId === 1 || this.tabId === 6 || this.tabId === 5) {
-        this.voucherService.postVoucher(this.voucherAddParams()).pipe(takeUntil(this.onDestroy$), filter(data => {
+        this.voucherService.postVoucher(this.voucherAddParams()).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
           if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-        }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
+        }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data)).subscribe(
           data => {
             if (data) {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
@@ -984,9 +988,9 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           }
         )
       } else if (this.tabId === 3 || this.tabId === 4) {
-        this.voucherService.postVoucherContraJournal(this.voucherAddParams()).pipe(takeUntil(this.onDestroy$), filter(data => {
+        this.voucherService.postVoucherContraJournal(this.voucherAddParams()).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
           if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-        }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
+        }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data)).subscribe(
           data => {
             if (data) {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
@@ -1061,7 +1065,8 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   }
 
   setAdvancePaymentForNoVoucherList(event) {
-    if (event.target.value && (this.tabId === 1 || this.tabId === 2) && this.PartyId && _.isEmpty(this.voucherList)) {
+    if (event.target.value && (this.tabId === 1 || this.tabId === 2 && !(this.tabId === 2 && this.multipleBillSettlement))
+      && this.PartyId > 0 && _.isEmpty(this.voucherList)) {
       if (event.target.value > 0) {
         this.getAdvancePaymentBillNo(event.target.value)
       }
@@ -1071,7 +1076,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   getAdvancePaymentBillNo(amount) {
     const request = this.tabId === 1 ? 'ADVANCEPAYMENT' : 'ADVANCERECEIPT';
     this.voucherService.getBillNoForAdvancePayment(request).subscribe((res) => {
-      if (res.Code === 1000 && !_.isEmpty(res.Data)) {
+      if (res.Code === UIConstant.THOUSAND && !_.isEmpty(res.Data)) {
         this.advanceBillNo = Number(res.Data[0].BillNo);
         this.advancePayment = amount;
       } else {
@@ -1272,7 +1277,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
         let newData = Object.assign([], this.allLedgerList)
         newData.push({ id: ledgerId, text: text, disabled: toDisable })
         this.allLedgerList = newData
-
       }
     }
   }
@@ -1285,20 +1289,19 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }, 900)
   }
 
- async onTabClick(tabId) {
+  async onTabClick(tabId) {
     this.initParams();
     this.tabId = tabId;
     await this.getSPUitilityData();
     this.getNewBillNo();
     if (this.tabId === 1) {
-      this.ledgerPlaceholder = { placeholder: 'Select Party' };
+      this.ledgerPlaceholder = { placeholder: 'Select Vendor / Customer' }
     }
     if (this.tabId === 2) {
-      this.ledgerPlaceholder = { placeholder: 'Select Vendor / Customer' }
+      this.ledgerPlaceholder = { multiple: this.multipleBillSettlement, placeholder: 'Select Party' }
     }
     if (this.tabId === 4) {
       this.ledgerPlaceholder = { placeholder: 'Select Ledger' }
-
     }
     if (this.tabId === 5) {
       this.ledgerPlaceholder = { placeholder: 'Select Expenses' }
@@ -1306,10 +1309,41 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     if (this.tabId === 6) {
       this.ledgerPlaceholder = { placeholder: 'Select Income' }
     }
-   if (this.editId) {
-     this.assignVoucherData(this.editData)
-   }
+    if (this.editId) {
+      this.assignVoucherData(this.editData)
+    }
     this.setFocus()
+  }
+
+  idsBefore: any = []
+  async onPartySelect (evt: any) {
+    console.log('on select : ', evt)
+    if (!this.multipleBillSettlement || this.tabId === 1) {
+      this.addNewLedgerFlag = true
+      this.PartyId = +evt.value;
+      this.getVoucherList()
+    } else {
+      this.addNewLedgerFlag = false
+      let diff = _.differenceWith(evt.value, this.idsBefore)
+      console.log('diff : ', diff)
+      if(!_.isEmpty(diff)) {
+        this.PartyId = +(diff[diff.length - 1])
+        let voucherList = this.voucherList
+        await this.getVoucherList()
+        this.voucherList = this.voucherList.concat(voucherList)
+      } else {
+        let diff = _.differenceWith(this.idsBefore, evt.value)
+        console.log('diff : ', diff)
+        let partyId = +(diff[diff.length - 1])
+        let voucherList = JSON.parse(JSON.stringify(this.voucherList))
+        let _voucherList = _.filter(voucherList, (element) => {
+          return element.PartyId !== partyId
+        })
+        this.voucherList = _voucherList
+        console.log('newVoucher list : ', this.voucherList)
+      }
+      this.idsBefore = evt.value
+    }
   }
 
   setTypeForOther(index) {

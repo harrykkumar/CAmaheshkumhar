@@ -24,8 +24,10 @@
                                     <li *ngFor="let action of actionList">
                                         <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="onActionClicked(action, item.Id)" >
                                         <i class="fas mR-10 cH-blue"
-                                            [ngClass]="{'fa-print': action.type === 2,
+                                            [ngClass]="{
+                                           'fa-print': action.type === 2,
                                             'fa-edit': action.type === 1,
+                                            'far fa-file-alt': action.type === 6,
                                             'fa-trash': action.type === 4,
                                             'fa-arrow': action.type === 5
                                             }"

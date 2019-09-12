@@ -378,22 +378,26 @@ export class SalesChallanInvoiceComponent {
   categorylabels: any
   lastBillNo: any
   officeAddressId: any
+  OrgnizationName:any =''
   SPUtilityData() {
 
     this.subscribe = this._commonService.getSPUtilityData(UIConstant.SALE_CHALLAN_TYPE).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
-
+        if (data.Data && data.Data.Organizations.length > 0) {
+          this.orgNameId = data.Data.Organizations[0].Id
+          this.OrgnizationName= data.Data.Organizations[0].Name
+         }
         if (data.Data.TransactionNoSetups.length > 0) {
           if (!this.editMode) {
             this.BillNo = data.Data.TransactionNoSetups[0].BillNo
-            if (this.isManualBillNoEntry) {
-              this.BillNo = ''
-              this.updateLastBillNo(this.InvoiceDate , this.orgNameId)
+            // if (this.isManualBillNoEntry) {
+            //   this.BillNo = ''
+            //   this.updateLastBillNo(this.InvoiceDate , this.orgNameId)
 
-            } else {
-              this.BillNo = data.Data.TransactionNoSetups[0].BillNo
+            // } else {
+            //   this.BillNo = data.Data.TransactionNoSetups[0].BillNo
 
-            }
+            // }
           }
 
         }
@@ -415,9 +419,7 @@ export class SalesChallanInvoiceComponent {
         if (data.Data && data.Data.ClientAddresses.length > 0) {
           this.officeAddressId = data.Data.ClientAddresses[0].StateId
         }
-        if (data.Data && data.Data.Organizations.length > 0) {
-          this.getOrgnization(data)
-        }
+     
         this.unitDataType = []
         this.unitPlaceHolder = { placeholder: 'Select Unit' }
         let newdataunit = [{ id: UIConstant.BLANK, text: 'Select  Unit' }, { id: '-1', text: '+Add New' }]
@@ -552,26 +554,7 @@ export class SalesChallanInvoiceComponent {
     })
   }
  
-  getOrgnization(data){
-    
-    if (data.Data && data.Data.Organizations && data.Data.Organizations.length > 0) {
-      this.setupOrganization = data
-      this.organizationData = []
-      let newTempOrg =[]
-      this.orgnazationPlaceHolder = { placeholder: 'Select Organization' }
-      newTempOrg = [{ id: UIConstant.BLANK, text: 'Select  Organization' }]
-        data.Data.Organizations.forEach(ele => {
-          newTempOrg.push({
-            id: ele.Id,
-            text: ele.Name
-          })
-        })
-        this.organizationData = newTempOrg
-        this.orgNameId = this.organizationData[1].id
-        this.orgnizationSelect2.setElementValue(this.orgNameId)
-        
-    }
-  }
+ 
   TaxTypeId: any
   taxTypeSelectData: any
   getTaxTypeExcluInclusiv () {
@@ -940,17 +923,17 @@ export class SalesChallanInvoiceComponent {
     this.MrpRate = 0
     this.subscribe = this._commonService.getItemRateByLedgerAPI(ItemId, CustomerId).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
-        if (this.applyCustomRateOnItemFlag) {
           if (Data.Data && Data.Data.ItemCustomRateWithItemDetails.length > 0) {
-            this.Rate = Data.Data.ItemCustomRateWithItemDetails[0].SaleRate
-            this.MrpRate = Data.Data.ItemCustomRateWithItemDetails[0].Mrp
-            this.taxSlabId = Data.Data.ItemCustomRateWithItemDetails[0].TaxId
-            this.unitId = Data.Data.ItemCustomRateWithItemDetails[0].UnitId
-            this.UnitName = Data.Data.ItemCustomRateWithItemDetails[0].UnitName
-            this.unitSelect2.setElementValue(this.unitId)
+            if (this.applyCustomRateOnItemFlag) {
+              this.Rate = Data.Data.ItemCustomRateWithItemDetails[0].SaleRate
+              this.MrpRate = Data.Data.ItemCustomRateWithItemDetails[0].Mrp
+              this.taxSlabId = Data.Data.ItemCustomRateWithItemDetails[0].TaxId
+              this.unitId = Data.Data.ItemCustomRateWithItemDetails[0].UnitId
+              this.UnitName = Data.Data.ItemCustomRateWithItemDetails[0].UnitName
+              this.unitSelect2.setElementValue(this.unitId)
+            }
           }
-        }
-        if (Data.Data && Data.Data.ItemDetails.length > 0) {
+       else if (Data.Data && Data.Data.ItemDetails.length > 0) {
           this.unitId = Data.Data.ItemDetails[0].UnitId
           this.taxSlabId = Data.Data.ItemDetails[0].TaxId
           this.UnitName = Data.Data.ItemDetails[0].UnitName
@@ -973,55 +956,21 @@ export class SalesChallanInvoiceComponent {
 
 
   getNewBillNo () {
-    let dateChnage = this._globalService.clientToSqlDateFormat(this.InvoiceDate, this.clientDateFormat)
-    this.subscribe = this._commonService.getsettingforOrgnizationData(this.orgNameId, UIConstant.SALE_TYPE, dateChnage).subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
-        this.BillNo = data.Data[0].BillNo
-        if (this.isManualBillNoEntry) {
-          this.BillNo = ''
-          this.updateLastBillNo(this.InvoiceDate ,this.orgNameId)
-        } else {
-          this.lastBillNo = data.Data[0].BillNo
+    if(this.InvoiceDate !=='' && this.orgNameId>0){
+      let dateChnage = this._globalService.clientToSqlDateFormat(this.InvoiceDate, this.clientDateFormat)
+      this.subscribe = this._commonService.getsettingforOrgnizationData(this.orgNameId, 'SaleChallan ', dateChnage).subscribe(data => {
+        if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+          this.BillNo = data.Data[0].BillNo
         }
-      }
-
-    })
-  }
-
-  orgNameId: any
-  OrgId: any
-  onChangeOrganizationId (e) {
-    let dateChnage 
-    if (e.data.length > 0) {
-      if (e.data[0].id !== '') {
-
-        if (this.InvoiceDate !== '') {
-          dateChnage = this._globalService.clientToSqlDateFormat(this.InvoiceDate, this.clientDateFormat)
-        } else {
-          dateChnage = ''
-        }
-        this.orgNameId = e.value
-        this.checkValidation()
-        this.subscribe = this._commonService.getsettingforOrgnizationData(this.orgNameId, 'SaleChallan', dateChnage).subscribe(data => {
-          if (data.Code === 1000 && data.Data.length > 0) {
-            this.OrgId = data.Data[0].Id
-            this.BillNo = data.Data[0].BillNo
-            if (this.isManualBillNoEntry) {
-              this.BillNo = ''
-              this.updateLastBillNo(this.InvoiceDate ,this.orgNameId)
-            } else {
-              this.lastBillNo = data.Data[0].BillNo
-            }
-          }
-
-        })
-      } else {
-        this.orgNameId = 0
-
-      }
+  
+      })
     }
-
+  
   }
+
+  orgNameId: any =0
+  OrgId: any
+  
   updateLastBillNo (date,orgNo) {
     let dateChnage = this._globalService.clientToSqlDateFormat(date, this.clientDateFormat)
     this._commonService.getLastBillNo(UIConstant.SALE_TYPE,dateChnage,orgNo).subscribe(data => {
@@ -1405,9 +1354,9 @@ export class SalesChallanInvoiceComponent {
           this.MfdDate =''    
   }
   CurrentDate: any
-  setCurrentDate () {
-    this.CurrentDate = this._globalService.getDefaultDate(this.clientDateFormat)
-  }
+  // setCurrentDate () {
+  //   this.CurrentDate = this._globalService.getDefaultDate(this.clientDateFormat)
+  // }
   setBillDate (setups) {
     if (setups && setups.length > 0) {
       this.InvoiceDate  = this._globalService.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
@@ -1427,8 +1376,6 @@ export class SalesChallanInvoiceComponent {
     this.BillNo = ''
     this.clientNameSelect2 = []
     this.organizationData = []
-    //this.SPUtilityData()
-    this.getOrgnization(this.setupOrganization)
 
     this.inilizeAdditionCharge()
 
@@ -1676,16 +1623,20 @@ export class SalesChallanInvoiceComponent {
     this.trsnItemId = 1
     this.itemsAttribute = []
     this.SPUtilityData()
+    this.getNewCurrentDate()
+    this.getNewBillNo()
     this.editItemId = 0
     this.initComp()
     this.getModuleSettingData()
-
+    
     this.setSupplyDate()
     // this.setBillDate()
-    this.getNewCurrentDate()
+   
     this.setExpiryDate()
     this.setMFDate()   
-    this.setCurrentDate()
+    //this.setCurrentDate()
+   
+
     this.AdditionalChargeData =[]
     $('#sale_challan_form1').modal(UIConstant.MODEL_SHOW)
     setTimeout(() => {
@@ -1701,7 +1652,6 @@ export class SalesChallanInvoiceComponent {
   getNewCurrentDate() {
     this._commonService.getCurrentDate().subscribe(
       data => {
-        console.log('current date : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
           this.setBillDate(data.Data)
           //this.setDueDate(data.Data)
@@ -1751,12 +1701,7 @@ export class SalesChallanInvoiceComponent {
       this.invalidObjmain['clientNameId'] = true
       isValid = 0
     }
-    if (this.orgNameId) {
-      this.invalidObjmain['orgNameId'] = false
-    } else {
-      this.invalidObjmain['orgNameId'] = true
-      isValid = 0
-    }
+   
     if (this.BillNo) {
       this.invalidObjmain['BillNo'] = false
     } else {
@@ -2091,7 +2036,7 @@ export class SalesChallanInvoiceComponent {
                   _self.clearExtras()
                   this.openModalPopup()
                   this.getNewCurrentDate()
-                  this.getNewBillNo()
+                 this.getNewBillNo()
                 }
               } else {
                 this.DisabledSaveBtn = false
@@ -2521,9 +2466,9 @@ this.AlreadySelectCategoryName = evt.data[0].text
             //   this.industryId =JSON.parse(ele.val) 
             //  }
           
-             if (ele.id === SetUpIds.isManualBillNoEntryForsale) {
-              this.isManualBillNoEntry = !!(+ele.val)
-            }
+            //  if (ele.id === SetUpIds.isManualBillNoEntryForsale) {
+            //   this.isManualBillNoEntry = !!(+ele.val)
+            // }
             if (ele.id === SetUpIds.backDateEntryForSale) {
               this.backDateEntry = !!(+ele.val)
             }
@@ -2567,46 +2512,77 @@ this.AlreadySelectCategoryName = evt.data[0].text
       item.selector.nativeElement.focus()
     }, 10)
   }
-  CreateDynamicAttributes (data) {
-    this.allAttributeData = []
-   this.attributesLabels = []
-   let obj = {}
-  let attributeKeys = []
-  let attributesData = []
-  data.AttributeValueResponses.forEach(attribute => {
-    attributeKeys.push({'label':attribute.Name ,'AttributeId':attribute.AttributeId})
-
-    obj['name'] = attribute.Name
-    obj['len'] = attribute.AttributeValuesResponse.length
-    obj['data'] = [{ id: '0', text: 'Select ' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    obj['attributeId'] = attribute.AttributeId
-    obj['id'] = 0
-    attributesData.push({ ...obj })
-  })
-  let j = 0
-  let index = 0
-  for (let i = 0; i < data.AttributeValues.length; i++) {
-    const attr = data.AttributeValues[i]
-    let obj1 = {}
-    obj1['id'] = attr.Id
-    obj1['text'] = attr.Name
-    if (attributesData[j].len === index) {
-      j++
-      index = 0
+  CreateDynamicAttributes(data) {
+    let obj = {}
+    let attributeKeys = []
+    let attributesData = []
+    data.AttributeValueResponses.forEach(attribute => {
+      attributeKeys.push(attribute.Name)
+      obj['name'] = attribute.Name
+      obj['len'] = attribute.AttributeValuesResponse.length - 1
+      obj['data'] = [{ id: '0', text: 'Select Attribute' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+      obj['attributeId'] = attribute.AttributeId
+      obj['id'] = 0
+      attributesData.push({ ...obj })
+    })
+    for (let i = 0; i < data.AttributeValues.length; i++) {
+      const attr = data.AttributeValues[i]
+      let obj1 = {}
+      obj1['id'] = attr.Id
+      obj1['text'] = attr.Name
+      for (let j = 0; j < attributesData.length; j++) {
+        if (attributesData[j].attributeId === data.AttributeValues[i].AttributeId) {
+          if (attributesData[j]) {
+            attributesData[j].data.push({ ...obj1 })
+          }
+        }
+      }
     }
-    index++
-    if (attributesData[j]) {
-      attributesData[j].data.push({ ...obj1 })
-    } else {
-      this.toastrService.showError('Server on error', '')
-    }
-  }
-     let attibutesDataToSend = Object.assign([], attributesData)
-  
-     let  returnObject = { 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend }
+    let attibutesDataToSend = Object.assign([], attributesData)
+       let  returnObject = { 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend }
  
      return returnObject
   }
+  // CreateDynamicAttributes (data) {
+  //   this.allAttributeData = []
+  //  this.attributesLabels = []
+  //  let obj = {}
+  // let attributeKeys = []
+  // let attributesData = []
+  // data.AttributeValueResponses.forEach(attribute => {
+  //   attributeKeys.push({'label':attribute.Name ,'AttributeId':attribute.AttributeId})
+
+  //   obj['name'] = attribute.Name
+  //   obj['len'] = attribute.AttributeValuesResponse.length
+  //   obj['data'] = [{ id: '0', text: 'Select ' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+  //   obj['attributeId'] = attribute.AttributeId
+  //   obj['id'] = 0
+  //   attributesData.push({ ...obj })
+  // })
+  // let j = 0
+  // let index = 0
+  // for (let i = 0; i < data.AttributeValues.length; i++) {
+  //   const attr = data.AttributeValues[i]
+  //   let obj1 = {}
+  //   obj1['id'] = attr.Id
+  //   obj1['text'] = attr.Name
+  //   if (attributesData[j].len === index) {
+  //     j++
+  //     index = 0
+  //   }
+  //   index++
+  //   if (attributesData[j]) {
+  //     attributesData[j].data.push({ ...obj1 })
+  //   } else {
+  //     this.toastrService.showError('Server on error', '')
+  //   }
+  // }
+  //    let attibutesDataToSend = Object.assign([], attributesData)
+  
+  //    let  returnObject = { 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend }
+ 
+  //    return returnObject
+  // }
   additionChargeId: any
   additionaChargeName: any
   @ViewChild('charge_select2') chargeSelect2 : Select2Component

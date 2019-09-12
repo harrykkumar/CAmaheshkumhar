@@ -76,7 +76,6 @@ export class SaleDirectListComponent implements OnInit {
     
     this.queryStr$ = this._saleDirectService.queryStr$.subscribe(
       (str) => {
-        console.log(str)
         this.queryStr = str
         this.p = 1
         this.getSaleDirectList()
@@ -88,20 +87,17 @@ export class SaleDirectListComponent implements OnInit {
   }
 
   searchForStr (text) {
-    debugger
     this.isSearching = true
     this.searchGetCall(text).subscribe((data) => {
       setTimeout(() => {
         this.isSearching = false
       }, 100)
-      // this.createTableData(data.Data, '')
       this.createTableData(data.Data.SaleDetails, data.Data.SaleSummary)
 
     },(err) => {
       setTimeout(() => {
         this.isSearching = false
       }, 100)
-      console.log('error',err)
     },
     () => {
       setTimeout(() => {
@@ -135,7 +131,7 @@ export class SaleDirectListComponent implements OnInit {
     
   }
   getSaleDirectList () {
-    console.log(this.customContent ,"ffff---")
+    debugger
     if (!this.searchKey || this.searchKey.length === 0) {
       this.searchKey = ''
     }
@@ -159,13 +155,10 @@ export class SaleDirectListComponent implements OnInit {
         this.notRecordFound= false
         this.createTableData(data.SaleDetails, data.SaleSummary)
       } else {
-        // this.createTableData(data.SaleDetails, data.SaleSummary)
+        this.createTableData(data.SaleDetails, data.SaleSummary)
+
       this.isSearching = false
       this.notRecordFound= true
-      // this.customHeader  =[]
-      // this.customFooter=[]
-      // this.customHeader=[]
-      // this.keys=[]
       }
     },(error) => {
       this.isSearching = false
@@ -175,7 +168,6 @@ export class SaleDirectListComponent implements OnInit {
   notRecordFound:any =true
   createTableData (data, summary) {
     this.notRecordFound = false
-  //if(data.length>0){
     let customContent = [...data]
     customContent.forEach(element => {
       element.BillDate = this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
@@ -208,8 +200,7 @@ export class SaleDirectListComponent implements OnInit {
       { text: 'BillAmount', isRightAligned: true }]
     this.actionList = [
       { type: FormConstants.Print, id: 0, text: 'Print', printId: 'saleDirect_Print' ,viewPrint: false },
-      { type: FormConstants.Print, id: 0, text: 'View Print', printId: 'saleDirect_Print' ,viewPrint: true },
-
+      { type: FormConstants.ViewPrint, id: 0, text: 'View Print', printId: 'saleDirect_Print' ,viewPrint: true },
       { type: FormConstants.Edit, id: 0, text: 'Edit' },
       { type: FormConstants.Cancel, id: 0, text: 'Cancel' },
       { type: FormConstants.Return, id: 0, text: 'Return' }
@@ -222,7 +213,6 @@ export class SaleDirectListComponent implements OnInit {
         +summary[0].TaxAmount.toFixed(2),
         +summary[0].BillAmount.toFixed(2)
       ] }]
-    // console.log('footer : ', this.customFooter)
     this.formName = FormConstants.SaleForm
     this.total = data[0] ? data[0].TotalRows : 0
     setTimeout(() => {

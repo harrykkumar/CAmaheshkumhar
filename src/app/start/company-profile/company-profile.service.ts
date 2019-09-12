@@ -118,7 +118,7 @@ export class CompanyProfileService {
         map((data: any) => {
           const list = _.map(data.Data, (element) => {
             return {
-              id: element.Id,
+              id: element.UId,
               text: element.CommonDesc
             }
           })

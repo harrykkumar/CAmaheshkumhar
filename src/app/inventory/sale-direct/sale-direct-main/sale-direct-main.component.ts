@@ -32,7 +32,7 @@ export class SaleDirectMainComponent {
   industryId: number
   loading = true
   queryStr$: Subscription
-  constructor(public gs :GlobalService,
+  constructor(public gs: GlobalService,
     public excelService: ExcelService,
     private route: ActivatedRoute,
     private commonService: CommonService,
@@ -40,6 +40,7 @@ export class SaleDirectMainComponent {
     private settings: Settings,
     private toastrService: ToastrCustomService,
     private _formBuilder: FormBuilder) {
+    this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.loading = true
     this.SPUtilityData()
 
@@ -47,7 +48,12 @@ export class SaleDirectMainComponent {
       (action: any) => {
         debugger
         if (action.type === FormConstants.Print && action.formname === FormConstants.SaleForm) {
-          this.onPrintForDirectSale(action.id, action.printId, action.viewPrint)
+          let Html_id = this.onLoadPrint()
+          this.onPrintForDirectSale(action.id, Html_id, action.viewPrint)
+        }
+        if (action.type === FormConstants.ViewPrint && action.formname === FormConstants.SaleForm) {
+          let Html_id = this.onLoadPrint()
+          this.onPrintForDirectSale(action.id, Html_id, action.viewPrint)
         }
       }
     )
@@ -60,15 +66,13 @@ export class SaleDirectMainComponent {
     this.queryStr$ = this._saleDirectService.queryStr$.subscribe(
       (str) => {
         this.queryStr = str
-       this.expoertExceldata()
+        this.expoertExceldata()
       }
     )
     this.formSearch()
     this.industryId = +this.settings.industryId
     this.clientDateFormat = this.settings.dateFormat
     this.dicimalDigitFormat = this.settings.noOfDecimal
-
-    this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
   }
   openPrintConfirmationPopup(value) {
     if (this.PrintWithSave) {
@@ -86,11 +90,25 @@ export class SaleDirectMainComponent {
     }, 150);
 
   }
-  printShow () {
-    this.onPrintForDirectSale(this.PrintId,'saleDirect_Print', false)
+  printShow() {
+    this.onPrintForDirectSale(this.PrintId, 'saleDirect_Print', false)
 
   }
+  onLoadPrint() {
+    if (this.PrintFormateType === 1) {
+      return 'saleDirect_PrintType1'
+    }
+    if (this.PrintFormateType === 2) {
+      return 'saleDirect_PrintType2'
+    }
+    if (this.PrintFormateType === 3) {
+      return 'saleDirect_PrintType3'
+    }
+    if (this.PrintFormateType === 4) {
+      return 'saleDirect_PrintType4'
+    }
 
+  }
   closeModal() {
     $('#confirmationPage1').modal(UIConstant.MODEL_HIDE)
   }
@@ -189,15 +207,18 @@ export class SaleDirectMainComponent {
     this.saledirectAdd.initialiseExtras()
     this.commonService.openPurchase('')
   }
-
+  DiscountTrans: any = []
   attributeKeys: any = []
+  totalBillDiscountAmt: number = 0
   onPrintForDirectSale(id, htmlId, isViewForm) {
+    debugger
     let _self = this
     _self.commonService.printDirectSale(id).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data && data.Data.SaleTransactionses.length > 0) {
           _self.InventoryTransactionSales = []
           this.billAmount = 0
+          this.totalBillDiscountAmt = data.Data.SaleTransactionses.BillDiscount
           _self.InventoryTransactionSales = data.Data.SaleTransactionses
           this.paidFlag = data.Data.SaleTransactionses[0].OutStanding === 0 ? 'PAID' : 'UNPAID'
           _self.barcode = data.Data.SaleTransactionses[0].BarcodeBill
@@ -270,19 +291,16 @@ export class SaleDirectMainComponent {
             .map(item1 => parseFloat(item1.SubTotalAmount))
             .reduce((sum, current) => sum + current, 0)
           this.subTotalAmount = (subTotalAmount).toFixed(this.dicimalDigitFormat)
-          _self.ItemTransactionactions = data.Data.ItemTransactions
-          for (let i = 0; i < data.Data.ItemTransactions.length; i++) {
-            for (let j = 0; j < data.Data.ItemAttributesTrans.length; j++) {
-              if (data.Data.ItemTransactions[i].Id === data.Data.ItemAttributesTrans[j].ItemTransId) {
-                this.itemAttbute.push({
-                  attr: data.Data.ItemAttributesTrans[j].AttributeName,
-                  ItemId: data.Data.ItemAttributesTrans[j].ItemId,
-                  rowId: data.Data.ItemAttributesTrans[j].ItemTransId,
-                  Id: data.Data.ItemAttributesTrans[j].Id
-                })
-              }
+        //  _self.ItemTransactionactions = data.Data.ItemTransactions
+
+          data.Data.ItemTransactions.forEach((element,index) => {
+            let attributeValue = data.Data.ItemAttributesTrans.filter(d => (d.ItemTransId === element.Id))
+            if (attributeValue.length > 0) {
+              data.Data.ItemTransactions[index]['Attribute']=attributeValue
             }
-          }
+          });
+          _self.ItemTransactionactions = data.Data.ItemTransactions
+
         } else {
           _self.ItemTransactionactions = []
 
@@ -328,6 +346,12 @@ export class SaleDirectMainComponent {
           this.ContactOrgInfo = data.Data.ContactInfosOrg
         } else {
           this.ContactOrgInfo = []
+        }
+        if (data.Data.DiscountTrans.length > 0) {
+          this.DiscountTrans = []
+          this.DiscountTrans = data.Data.DiscountTrans
+        } else {
+          this.DiscountTrans = []
         }
         if (data.Data.EmailsOrg.length > 0) {
           this.EmailsOrg = []
@@ -416,7 +440,6 @@ export class SaleDirectMainComponent {
   hsntaxItem: any = []
   PrintWithSave: any = 0
   getSetUpModules(settings) {
-    debugger
     settings.forEach(element => {
       if (element.id === SetUpIds.printFormate) {
         if (element.val) {
@@ -431,10 +454,16 @@ export class SaleDirectMainComponent {
         this.setUpPaidUnPaid = +element.val
         //get val 1 then print on save button
       }
+      if (element.id === SetUpIds.BillDiscountOnPrint) {
+        this.BillDiscountOnPrint = +element.val
+        //  alert( this.BillDiscountOnPrint)
+        //get val 1 then print on save button
+      }
     })
 
   }
-  setUpPaidUnPaid:any =0
+  setUpPaidUnPaid: any = 0
+  BillDiscountOnPrint: any = 0
   get values(): string[] {
     if (this.barcode) {
       return this.barcode.split('\n')
@@ -478,7 +507,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
     $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
     setTimeout(function () {
       if (!isViewForm) {
-      //  document.getElementsByTagName('body')[0].classList.add('hidden-print');
+        document.getElementsByTagName('body')[0].classList.add('hidden-print');
         printWindow.print()
         printWindow.close()
       }
@@ -552,44 +581,44 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
 
   word: string = ''
 
-  mainDataExcel:any =[]
-  getOrgDetailsData (){
-    this.getOrgDetails={}
-    this.commonService.getOrgDetailsForPrintExcelPDF().subscribe(data=>{
-      if(data.Code === UIConstant.THOUSAND){
+  mainDataExcel: any = []
+  getOrgDetailsData() {
+    this.getOrgDetails = {}
+    this.commonService.getOrgDetailsForPrintExcelPDF().subscribe(data => {
+      if (data.Code === UIConstant.THOUSAND) {
         this.getOrgDetails = data.Data
       }
     })
   }
-  exportExcel () {
-    if(this.mainDataExcel.length>0){
-      this.excelService.generateExcel(this.getOrgDetails.OrganizationDetails[0].OrgName , this.getOrgDetails.AddressDetails[0].CityName+ ' ' +this.getOrgDetails.AddressDetails[0].StateName + ' ' + this.getOrgDetails.AddressDetails[0].CountryName,this.ExcelHeaders,this.mainDataExcel,'Sale Invoice',"", "",this.ExcelSummary)
+  exportExcel() {
+    if (this.mainDataExcel.length > 0) {
+      this.excelService.generateExcel(this.getOrgDetails.OrganizationDetails[0].OrgName, this.getOrgDetails.AddressDetails[0].CityName + ' ' + this.getOrgDetails.AddressDetails[0].StateName + ' ' + this.getOrgDetails.AddressDetails[0].CountryName, this.ExcelHeaders, this.mainDataExcel, 'Sale Invoice', "", "", this.ExcelSummary)
 
     }
- 
+
   }
-getOrgDetails:any={}
-  ExcelHeaders:any
-  ExcelSummary:any
-  expoertExceldata () { 
-    this._saleDirectService.getSaleDirectList('?StrSearch=' + ''+ this.queryStr).subscribe(data=>{
-      if(data.Code === UIConstant.THOUSAND){
-        this.mainDataExcel =[]
-        this.ExcelSummary=[]
-        this.ExcelSummary =["Total","",
-        "",
-        "",
-        data.Data.SaleSummary[0].TotalQty.toFixed(2),
-        data.Data.SaleSummary[0].Discount.toFixed(this.dicimalDigitFormat),
-        data.Data.SaleSummary[0].TaxAmount.toFixed(this.dicimalDigitFormat),
-        data.Data.SaleSummary[0].BillAmount.toFixed(this.dicimalDigitFormat)
-      ]
-        this.ExcelHeaders =["SNo","Party Details","Invoice No.","Invoice Date","Quantity","Discount","Tax Amount","Bill Amount"]
-        data.Data.SaleDetails.forEach((element,ind) => {
-         let  date =this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
+  getOrgDetails: any = {}
+  ExcelHeaders: any
+  ExcelSummary: any
+  expoertExceldata() {
+    this._saleDirectService.getSaleDirectList('?StrSearch=' + '' + this.queryStr).subscribe(data => {
+      if (data.Code === UIConstant.THOUSAND) {
+        this.mainDataExcel = []
+        this.ExcelSummary = []
+        this.ExcelSummary = ["Total", "",
+          "",
+          "",
+          data.Data.SaleSummary[0].TotalQty.toFixed(2),
+          data.Data.SaleSummary[0].Discount.toFixed(this.dicimalDigitFormat),
+          data.Data.SaleSummary[0].TaxAmount.toFixed(this.dicimalDigitFormat),
+          data.Data.SaleSummary[0].BillAmount.toFixed(this.dicimalDigitFormat)
+        ]
+        this.ExcelHeaders = ["SNo", "Party Details", "Invoice No.", "Invoice Date", "Quantity", "Discount", "Tax Amount", "Bill Amount"]
+        data.Data.SaleDetails.forEach((element, ind) => {
+          let date = this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
 
           this.mainDataExcel.push([
-            ind+1,
+            ind + 1,
             element.LedgerName,
             element.BillNo,
             date,
@@ -602,6 +631,6 @@ getOrgDetails:any={}
       }
     })
 
-    
+
   }
 }

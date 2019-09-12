@@ -305,7 +305,8 @@ export interface AddCust {
   imageType?:string
   headId?:any
   gstType?:any
-  
+  discountParam?:any
+  editData?:any
 }
 
 export interface ResponseSale {
@@ -589,6 +590,7 @@ export interface PurchaseItem {
   ReturnQuantity?:number
   fixPurchaseRate?:number
   SaleTransId?:number
+  AmountItemBillDiscount?:any
 
 }
 
@@ -788,7 +790,8 @@ export interface ServiceBilling {
   taxSlabType: number
   AmountItem: number
   taxRates: any
-  itemTaxTrans?: Array<ItemTaxTrans>
+  itemTaxTrans?: Array<ItemTaxTrans>,
+  AmountItemBillDiscount:any
 }
 
 //selected

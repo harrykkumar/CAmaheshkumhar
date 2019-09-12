@@ -42,14 +42,11 @@
                           </select>
                         </div>
                 </div>
-               <div class="form-group col-md-4 col-lg-2 col-xl-2">
-                  <label>Organization Name</label>
-                  <div class="input-group adw_select">
-                    <div class="input-group adw_select">
-                      <select2 [disabled]="Id !== 0" #orgnization_select2  id="organization" [data]="organizationData" class="control_select" (valueChanged)="onChangeOrganizationId($event)" autocomplete="true" [options]="orgnazationPlaceHolder"  [value]="orgNameId"  [ngClass]="{'errorSelecto': submitSave && invalidObjmain?.orgNameId }"></select2>
-                    </div>
+                <div class="form-group col-md-4 col-lg-2 col-xl-2">
+                    <label>Organization Name</label>
+                    <input  type="text" [disabled]='true' placeholder="Organization Name"   class="form-control" name="OrgnizationName" [(ngModel)]="OrgnizationName">
+    
                   </div>
-               </div>
               <div class="form-group col-md-4 col-lg-2 col-xl-2">
                 <label class="fw-500">Bill Date</label>
                 <datepicker-popup 

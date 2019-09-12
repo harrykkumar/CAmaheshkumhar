@@ -121,7 +121,7 @@ export class serviceBillingListComponent implements OnInit {
     this.commonService.onActionClicked(action)
     if(action.type ===4){
     this.commonService.openDelete(id, 'Service', 'Service')
-    
+  
     }
     
   }
@@ -145,14 +145,13 @@ export class serviceBillingListComponent implements OnInit {
       map(data => data.Data)
     )
     .subscribe(data => {
-      // console.log('purchase data: ', data)
       if (data.SaleDetails.length >0) {
         this.notRecordFound = false
         this.createTableData(data.SaleDetails, data.SaleSummary)
       } else {
         this.notRecordFound = true
-
-      this.isSearching = false
+        this.createTableData(data.SaleDetails, data.SaleSummary)
+        this.isSearching = false
       }
     },(error) => {
       this.isSearching = false
@@ -175,9 +174,6 @@ export class serviceBillingListComponent implements OnInit {
       { text: 'Ledger Name', isRightAligned: false },
       { text: 'Bill No.', isRightAligned: false },
       { text: 'Bill Date', isRightAligned: false },
-      // { text: 'Party Bill No', isRightAligned: false },
-      // { text: 'Party Bill Date', isRightAligned: false },
-      // { text: 'Quantity', isRightAligned: true },
       { text: 'Discount', isRightAligned: true },
       { text: 'TaxAmount', isRightAligned: true },
       { text: 'Bill Amount', isRightAligned: true },
@@ -187,16 +183,15 @@ export class serviceBillingListComponent implements OnInit {
       { text: 'LedgerName', isRightAligned: false },
       { text: 'BillNo', isRightAligned: false },
       { text: 'BillDate', isRightAligned: false },
-      // { text: 'PartyBillNo', isRightAligned: false },
-      // { text: 'PartyBillDate', isRightAligned: false },
-      // { text: 'TotalQty', isRightAligned: true },
       { text: 'Discount', isRightAligned: true },
       { text: 'TaxAmount', isRightAligned: true },
       { text: 'BillAmount', isRightAligned: true }]
     this.actionList = [
-      { type: FormConstants.Print, id: 0, text: 'Print', printId: 'purchase_print_id' },
+      { type: FormConstants.Print, id: 0, text: 'Print', printId: 'purchase_print_id' , isViewPrint:false},
+      { type: FormConstants.ViewPrint, id: 0, text: 'View Print', printId: 'purchase_print_id' , isViewPrint:true},
       { type: FormConstants.Edit, id: 0, text: 'Edit' },
       { type: FormConstants.Cancel, id: 0, text: 'Cancel' }
+      
     ]
     this.customFooter = [{ 
       colspan: 4, data: [
@@ -204,7 +199,6 @@ export class serviceBillingListComponent implements OnInit {
         +summary[0].TaxAmount.toFixed(2),
         +summary[0].BillAmount.toFixed(2)
       ] }]
-    // console.log('footer : ', this.customFooter)
     this.formName = FormConstants.Purchase
     this.total = data[0] ? data[0].TotalRows : 0
     setTimeout(() => {

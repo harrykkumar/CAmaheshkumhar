@@ -232,9 +232,13 @@
                 <tr *ngFor="let item of ItemTransactionactions; let i=index">
                   <td>{{1+i}}</td>
                   <td>{{ item.ItemName}}</td>
-                  <td *ngIf="industryId === '2' " >{{itemAttbute && itemAttbute[i*3]?.attr}} ,{{itemAttbute && itemAttbute[i*3 + 1]?.attr}},
-                    ,{{itemAttbute && itemAttbute[i*3 + 2]?.attr}}
-                  </td>
+                  <ng-container *ngIf="industryId === '2' ">
+                      <td>
+                          <span *ngFor="let attr of  item.Attribute; let isLast=last">
+                               {{attr.AttributeName}}{{isLast ? '' : ', '}}
+                               </span>
+                      </td>
+                  </ng-container>
                  
                   <td style="text-align:right;">{{ item.Quantity}}</td>
                   <td *ngIf="industryId === '3' ">

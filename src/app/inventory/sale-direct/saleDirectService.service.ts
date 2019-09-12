@@ -11,98 +11,92 @@ import { SetUpIds } from '../../shared/constants/setupIds.constant';
   providedIn: 'root'
 })
 export class SaleDirectService {
-  attributesDataSub = new Subject<{attributeKeys: Array<string>, attributesData: Array<any>}>()
+  attributesDataSub = new Subject<{ attributeKeys: Array<string>, attributesData: Array<any> }>()
   attributesData$ = this.attributesDataSub.asObservable()
-  itemDataSub = new Subject<{data: Array<Select2OptionData>}>()
+  itemDataSub = new Subject<{ data: Array<Select2OptionData> }>()
   itemData$ = this.itemDataSub.asObservable()
-  vendorDataSub = new Subject<{data: Array<Select2OptionData>}>()
+  vendorDataSub = new Subject<{ data: Array<Select2OptionData> }>()
   vendorData$ = this.vendorDataSub.asObservable()
-  taxProcessesData = new Subject<{data: Array<Select2OptionData>}>()
+  taxProcessesData = new Subject<{ data: Array<Select2OptionData> }>()
   taxProcessesData$ = this.taxProcessesData.asObservable()
-  paymentModesData = new Subject<{data: Array<Select2OptionData>}>()
+  paymentModesData = new Subject<{ data: Array<Select2OptionData> }>()
   paymentModesData$ = this.paymentModesData.asObservable()
-  organisationsData = new Subject<{data: Array<Select2OptionData>}>()
+  organisationsData = new Subject<{ data: Array<Select2OptionData> }>()
   organisationsData$ = this.organisationsData.asObservable()
-  godownsData = new Subject<{data: Array<Select2OptionData>}>()
+  godownsData = new Subject<{ data: Array<Select2OptionData> }>()
   godownsData$ = this.godownsData.asObservable()
-  referralTypesData = new Subject<{data: Array<Select2OptionData>}>()
+  referralTypesData = new Subject<{ data: Array<Select2OptionData> }>()
   referralTypesData$ = this.referralTypesData.asObservable()
-  subUnitsData = new Subject<{data: Array<Select2OptionData>}>()
+  subUnitsData = new Subject<{ data: Array<Select2OptionData> }>()
   subUnitsData$ = this.subUnitsData.asObservable()
-  referralData = new Subject<{data: Array<Select2OptionData>}>()
+  referralData = new Subject<{ data: Array<Select2OptionData> }>()
   referralData$ = this.referralData.asObservable()
-  taxSlabsData = new Subject<{data: Array<Select2OptionData>}>()
+  taxSlabsData = new Subject<{ data: Array<Select2OptionData> }>()
   taxSlabsData$ = this.taxSlabsData.asObservable()
-  currencyData = new Subject<{data: Array<Select2OptionData>}>()
+  currencyData = new Subject<{ data: Array<Select2OptionData> }>()
   currencyData$ = this.currencyData.asObservable()
-  freightData = new Subject<{data: Array<Select2OptionData>}>()
+  freightData = new Subject<{ data: Array<Select2OptionData> }>()
   freightData$ = this.freightData.asObservable()
-  addressData = new Subject<{data: Array<Select2OptionData>}>()
+  addressData = new Subject<{ data: Array<Select2OptionData> }>()
   addressData$ = this.addressData.asObservable()
-  settingData = new Subject<{data: Array<any>}>()
+  settingData = new Subject<{ data: Array<any> }>()
   settingData$ = this.settingData.asObservable()
-  settingData1 = new Subject<{data: Array<any>}>()
+  settingData1 = new Subject<{ data: Array<any> }>()
   settingData1$ = this.settingData1.asObservable()
-  chargestData = new Subject<{data: Array<Select2OptionData>}>()
+  chargestData = new Subject<{ data: Array<Select2OptionData> }>()
   chargestData$ = this.chargestData.asObservable()
   searchSub = new Subject<string>()
   search$ = this.searchSub.asObservable()
   private queryStrSub = new Subject<string>()
   public queryStr$ = this.queryStrSub.asObservable()
 
-  constructor (private baseService: BaseServices, private toastrService: ToastrCustomService) {}
-  getSaleDirectList (queryParams) {
+  constructor(private baseService: BaseServices, private toastrService: ToastrCustomService) { }
+  getSaleDirectList(queryParams) {
     return this.baseService.getRequest(ApiConstant.SALE_DIRECT_BILLING_API + queryParams)
   }
 
-  postPurchaseList (obj) {
+  postPurchaseList(obj) {
     return this.baseService.postRequest(ApiConstant.PURCHASE_LIST, obj)
   }
   //retrun Api Purchase
-  postPurchaseReturnList (obj) {
+  postPurchaseReturnList(obj) {
     return this.baseService.postRequest(ApiConstant.RERTURN_PURCHASE_LIST, obj)
   }
-  getPurchaseReturnList (queryParams) {
+  getPurchaseReturnList(queryParams) {
     return this.baseService.getRequest(ApiConstant.RERTURN_PURCHASE_LIST + queryParams)
   }
 
-  generateAttributes (data) {
+  generateAttributes(data) {
     let obj = {}
     let attributeKeys = []
     let attributesData = []
     data.AttributeValueResponses.forEach(attribute => {
       attributeKeys.push(attribute.Name)
       obj['name'] = attribute.Name
-      obj['len'] = attribute.AttributeValuesResponse.length -1
+      obj['len'] = attribute.AttributeValuesResponse.length - 1
       obj['data'] = [{ id: '0', text: 'Select Attribute' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
       obj['attributeId'] = attribute.AttributeId
       obj['id'] = 0
       attributesData.push({ ...obj })
     })
-    let j = 0
-    let index = 0
     for (let i = 0; i < data.AttributeValues.length; i++) {
       const attr = data.AttributeValues[i]
       let obj1 = {}
       obj1['id'] = attr.Id
       obj1['text'] = attr.Name
-      if (attributesData[j].len === index) {
-        j++
-        index = 0
-      }
-      index++
-      if (attributesData[j]) {
-        attributesData[j].data.push({ ...obj1 })
-      } else {
-        this.toastrService.showError('Fetching data error ', '')
+      for (let j = 0; j < attributesData.length; j++) {
+        if (attributesData[j].attributeId === data.AttributeValues[i].AttributeId) {
+          if (attributesData[j]) {
+            attributesData[j].data.push({ ...obj1 })
+          }
+        }
       }
     }
-    console.log(attributesData)
     let attibutesDataToSend = Object.assign([], attributesData)
     this.attributesDataSub.next({ 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend })
   }
 
-  createItems (items) {
+  createItems(items) {
     let newData = [{ id: '0', text: 'Select Items' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     items.forEach(item => {
       newData.push({
@@ -114,7 +108,7 @@ export class SaleDirectService {
     this.itemDataSub.next({ 'data': JSON.parse(JSON.stringify(newData)) })
   }
 
-  createCustomers (array) {
+  createCustomers(array) {
     // console.log(array)
     let newData = [{ id: '0', text: 'Select Customers' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     array.forEach(data => {
@@ -126,7 +120,7 @@ export class SaleDirectService {
     this.vendorDataSub.next({ 'data': newData })
   }
 
-  createTaxProcess (array) {
+  createTaxProcess(array) {
     let newData = [{ id: '0', text: 'Select Tax Process' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     array.forEach(data => {
       newData.push({
@@ -137,7 +131,7 @@ export class SaleDirectService {
     this.taxProcessesData.next({ 'data': newData })
   }
 
-  createPaymentModes (array) {
+  createPaymentModes(array) {
     let newData = [{ id: '0', text: 'Select Modes' }]
     array.forEach(data => {
       newData.push({
@@ -150,7 +144,7 @@ export class SaleDirectService {
 
 
 
-  createGodowns (array) {
+  createGodowns(array) {
     let newData = []
     array.forEach(data => {
       newData.push({
@@ -162,7 +156,7 @@ export class SaleDirectService {
   }
 
 
-  createSubUnits (array) {
+  createSubUnits(array) {
     let newData = [{ id: '0', text: 'Select Unit' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     array.forEach(data => {
       newData.push({
@@ -175,7 +169,7 @@ export class SaleDirectService {
 
 
 
-  createTaxSlabs (array) {
+  createTaxSlabs(array) {
     let newData = [{ id: '0', text: 'Select Tax Slab' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     array.forEach(data => {
       newData.push({
@@ -186,7 +180,7 @@ export class SaleDirectService {
     this.taxSlabsData.next({ 'data': newData })
   }
 
-  createCurrencies (array) {
+  createCurrencies(array) {
     let newData = []
     array.forEach(data => {
       newData.push({
@@ -198,7 +192,7 @@ export class SaleDirectService {
   }
 
 
-  createAddress (array) {
+  createAddress(array) {
     let newData = [{ id: '0', text: 'Select Address' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     array.forEach(address => {
       let addressValue = this.getAddress(address)
@@ -210,42 +204,42 @@ export class SaleDirectService {
     this.addressData.next({ 'data': newData })
   }
 
-  getAddress (address) {
+  getAddress(address) {
     return address.AddressTypeName + ' - ' + address.AddressValue
-    + ' ' + ((typeof (address.AreaName) === 'object' || address.AreaName === '' || typeof (address.AreaName) === 'undefined') ? '' : address.AreaName)
-    + ' ' + ((typeof (address.CityName) === 'object' || address.CityName === '' || typeof (address.CityName) === 'undefined') ? '' : address.CityName)
-    + ' ' + ((typeof (address.StateName) === 'object' || address.StateName === '' || typeof (address.StateName) === 'undefined') ? '' : address.StateName)
-    + ' ' + ((typeof (address.CountryName) === 'object' || address.CountryName === '' || typeof (address.CountryName) === 'undefined') ? '' : address.CountryName)
-    + ' ' + ((typeof (address.PostCode) === 'object' || address.PostCode === '' || typeof (address.PostCode) === 'undefined') ? '' : address.PostCode)
+      + ' ' + ((typeof (address.AreaName) === 'object' || address.AreaName === '' || typeof (address.AreaName) === 'undefined') ? '' : address.AreaName)
+      + ' ' + ((typeof (address.CityName) === 'object' || address.CityName === '' || typeof (address.CityName) === 'undefined') ? '' : address.CityName)
+      + ' ' + ((typeof (address.StateName) === 'object' || address.StateName === '' || typeof (address.StateName) === 'undefined') ? '' : address.StateName)
+      + ' ' + ((typeof (address.CountryName) === 'object' || address.CountryName === '' || typeof (address.CountryName) === 'undefined') ? '' : address.CountryName)
+      + ' ' + ((typeof (address.PostCode) === 'object' || address.PostCode === '' || typeof (address.PostCode) === 'undefined') ? '' : address.PostCode)
   }
 
-  getAddressForPrint (address) {
+  getAddressForPrint(address) {
     return address.AddressValue
-    + ' ' + ((typeof (address.AreaName) === 'object' || address.AreaName === '' || typeof (address.AreaName) === 'undefined') ? '' : address.AreaName)
-    + ' ' + ((typeof (address.CityName) === 'object' || address.CityName === '' || typeof (address.CityName) === 'undefined') ? '' : address.CityName)
-    + ' ' + ((typeof (address.StateName) === 'object' || address.StateName === '' || typeof (address.StateName) === 'undefined') ? '' : address.StateName)
-    + ' ' + ((typeof (address.CountryName) === 'object' || address.CountryName === '' || typeof (address.CountryName) === 'undefined') ? '' : address.CountryName)
-    + ' ' + ((typeof (address.PostCode) === 'object' || address.PostCode === '' || typeof (address.PostCode) === 'undefined') ? '' : address.PostCode)
+      + ' ' + ((typeof (address.AreaName) === 'object' || address.AreaName === '' || typeof (address.AreaName) === 'undefined') ? '' : address.AreaName)
+      + ' ' + ((typeof (address.CityName) === 'object' || address.CityName === '' || typeof (address.CityName) === 'undefined') ? '' : address.CityName)
+      + ' ' + ((typeof (address.StateName) === 'object' || address.StateName === '' || typeof (address.StateName) === 'undefined') ? '' : address.StateName)
+      + ' ' + ((typeof (address.CountryName) === 'object' || address.CountryName === '' || typeof (address.CountryName) === 'undefined') ? '' : address.CountryName)
+      + ' ' + ((typeof (address.PostCode) === 'object' || address.PostCode === '' || typeof (address.PostCode) === 'undefined') ? '' : address.PostCode)
   }
 
-  getAllAddresses (vendorId) {
+  getAllAddresses(vendorId) {
     return this.baseService.getRequest(ApiConstant.GET_ADDRESS_OF_VENDOR + vendorId)
   }
 
-  getItemDetail (itemId) {
+  getItemDetail(itemId) {
     return this.baseService.getRequest(ApiConstant.GET_ITEM_DETAIL + itemId)
   }
 
-  getSlabData (id) {
+  getSlabData(id) {
     console.log('id tax slab : ', id)
     return this.baseService.getRequest(ApiConstant.GET_TAX_SLAB_DATA + id)
   }
 
-  getAllSettings (settings) {
+  getAllSettings(settings) {
     this.settingData1.next({ 'data': settings })
   }
 
-  taxCalculation (taxRates, taxSlabType, rate, isOtherState, parentType, slabName) {
+  taxCalculation(taxRates, taxSlabType, rate, isOtherState, parentType, slabName) {
     let taxAmount = 0
     let singleTaxRateAmount = 0
     let appliedTaxRates = []
@@ -306,10 +300,10 @@ export class SaleDirectService {
       }
     }
     // console.log(appliedTaxRates);
-    return {'taxAmount': taxAmount, 'appliedTaxRates': appliedTaxRates}
+    return { 'taxAmount': taxAmount, 'appliedTaxRates': appliedTaxRates }
   }
 
-  calcTaxableAmountType1 (taxRates, taxSlabType, rate, isOtherState): number {
+  calcTaxableAmountType1(taxRates, taxSlabType, rate, isOtherState): number {
     let sumOfAllRates = 0
     if (taxRates.length > 0) {
       if ((+taxSlabType === 1 && isOtherState) || +taxSlabType === 2 || +taxSlabType === 3) {
@@ -332,7 +326,7 @@ export class SaleDirectService {
     return baseRate
   }
 
-  calcTaxableAmountType2 (taxRates, taxSlabType, rate, isOtherState): number {
+  calcTaxableAmountType2(taxRates, taxSlabType, rate, isOtherState): number {
     let sumOfAllRates = 0
     if (taxRates.length > 0) {
       if ((+taxSlabType === 1 && isOtherState) || +taxSlabType === 2 || +taxSlabType === 3) {
@@ -355,7 +349,7 @@ export class SaleDirectService {
     return baseRate
   }
 
-  taxCalCulationForInclusiveType2 (taxRates, taxSlabType, rate, isOtherState, parentType, slabName) {
+  taxCalCulationForInclusiveType2(taxRates, taxSlabType, rate, isOtherState, parentType, slabName) {
     let singleTaxRateAmount = 0
     const baseRate = +rate
     let taxAmount = 0
@@ -419,10 +413,10 @@ export class SaleDirectService {
       }
     }
     console.log(appliedTaxRates);
-    return {'taxAmount': taxAmount, 'appliedTaxRates': appliedTaxRates}
+    return { 'taxAmount': taxAmount, 'appliedTaxRates': appliedTaxRates }
   }
 
-  taxCalCulationForInclusive (taxRates, taxSlabType, rate, isOtherState, parentType, slabName) {
+  taxCalCulationForInclusive(taxRates, taxSlabType, rate, isOtherState, parentType, slabName) {
     let singleTaxRateAmount = 0
     const baseRate = +rate
     let taxAmount = 0
@@ -486,11 +480,11 @@ export class SaleDirectService {
       }
     }
     console.log(appliedTaxRates);
-    return {'taxAmount': taxAmount, 'appliedTaxRates': appliedTaxRates}
+    return { 'taxAmount': taxAmount, 'appliedTaxRates': appliedTaxRates }
   }
 
-  createCharges (array) {
-    let newData = [ {id: '0', text: 'Select Charge'}, {id: '-1', text: UIConstant.ADD_NEW_OPTION} ]
+  createCharges(array) {
+    let newData = [{ id: '0', text: 'Select Charge' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     array.forEach(data => {
       newData.push({
         id: data.Id,
@@ -504,13 +498,13 @@ export class SaleDirectService {
     return this.baseService.postRequest(ApiConstant.SALE_DIRECT_BILLING_API, obj)
   }
 
-  getNewBillNoSale (orgId, date, type ,FormType) {
+  getNewBillNoSale(orgId, date, type, FormType) {
     let queryString = ''
     if (type === 1) {
       queryString = 'TransactionType=' + FormType + '&&OrgId=' + orgId + '&&TransDate=' + date
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_AUTO + queryString)
     } else if (type === 2) {
-      queryString = 'Type=' +FormType + '&&BillDate=' + date + '&OrgId=' + orgId
+      queryString = 'Type=' + FormType + '&&BillDate=' + date + '&OrgId=' + orgId
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_MANUAL + queryString)
     }
   }
@@ -518,24 +512,24 @@ export class SaleDirectService {
   // getReturnPurchaseEdit (type,id): Observable<ResponseSale> {
   //   return this.baseService.getRequest(ApiConstant.RETURN_PURCHASE_BY_ID+ type + id)
   // }
-  getEditsaleDirect (id): Observable<ResponseSale> {
-    return this.baseService.getRequest(ApiConstant.DIRECT_SALE_EDIT_GET_API+ id)
+  getEditsaleDirect(id): Observable<ResponseSale> {
+    return this.baseService.getRequest(ApiConstant.DIRECT_SALE_EDIT_GET_API + id)
   }
-  
 
-  getPrintData (id): Observable<ResponseSale> {
+
+  getPrintData(id): Observable<ResponseSale> {
     return this.baseService.getRequest(ApiConstant.GET_PURCHASE_PRINT_DATA + id)
   }
 
-  onTextEntered (text: string) {
+  onTextEntered(text: string) {
     this.searchSub.next(text)
   }
 
-  setSearchQueryParamsStr (str) {
+  setSearchQueryParamsStr(str) {
     this.queryStrSub.next(str)
   }
 
-  getCurrentDate (): Observable<ResponseSale> {
+  getCurrentDate(): Observable<ResponseSale> {
     return this.baseService.getRequest(ApiConstant.GET_CURRENT_DATE)
   }
 

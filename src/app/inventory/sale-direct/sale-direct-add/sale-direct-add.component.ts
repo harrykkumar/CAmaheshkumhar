@@ -141,11 +141,11 @@ export class SaleDirectAddComponent {
   TaxType: number
   TaxAmount: number
   DiscountType: number
-  BillDiscountType:number
   Discount: number
-  BillDiscount:number
   DiscountAmt: number
-  BillDiscountAmt:number
+  BillDiscount: number
+  BillDiscountType: number
+  BillDiscountAmt: number
   ExpiryDate: string
   MfdDate: string
   BatchNo: string
@@ -204,7 +204,7 @@ export class SaleDirectAddComponent {
   ItemAttributeTrans: Array<PurchaseAttribute> = []
   PaymentDetail: Array<PurchaseTransaction> = []
   AdditionalCharges: Array<AdditionalCharges> = []
-  BillDiscountArray:any =[]
+  BillDiscountArray: any = []
   Items: Array<SaleDirectItem> = []
   categoryId: number
   AddressId: number = 0
@@ -248,9 +248,8 @@ export class SaleDirectAddComponent {
   previousBillNo: string = ''
   keepOpen: boolean = false
   isAddNew: boolean = false
-
+  BillDiscountApplied: any = []
   creatingForm: boolean = false
-
   TransactionNoSetups: any
   loadingSummary: boolean = false
   constructor(private commonService: CommonService,
@@ -261,6 +260,23 @@ export class SaleDirectAddComponent {
     private renderer: Renderer2,
     private gs: GlobalService) {
     this.getFormDependency()
+    this.commonService.openDiscountMasterStatus().subscribe(
+      (data: AddCust) => {
+        if (data.open === false && data && data.data) {
+          console.log(data, 'sale-Discount-data')
+          this.TaxableValue = this.localTaxableValue
+          this.BillDiscountApplied = []
+          this.BillDiscount = 0
+          this.BillDiscountArray = []
+          // this.BillDiscountApplied = this.editMode ===true ? [] : data.data
+          this.BillDiscountApplied = data.data
+
+          this.MultipleDiscountCalculate(data.data)
+
+        }
+
+
+      })
     this.commonService.getPurchaseStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (status: AddCust) => {
         if (status.open) {
@@ -302,7 +318,6 @@ export class SaleDirectAddComponent {
               let newData = Object.assign([], this.attributesData[indexOfAttr]['data'])
               newData.push({ id: +data.id, text: data.name });
               this.attributesData[indexOfAttr]['data'] = Object.assign([], newData)
-              console.log('this.attributesData : ', this.attributesData)
               setTimeout(() => {
                 this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
                   if (index === indexOfAttr) {
@@ -372,7 +387,6 @@ export class SaleDirectAddComponent {
       data => {
         if (data.data) {
           this.customersData = data.data
-          console.log('this.vendorData : ', this.customersData)
         }
       }
     )
@@ -646,10 +660,8 @@ export class SaleDirectAddComponent {
   }
 
   getSaleEditData() {
-    console.log('edit id : ', this.Id)
     this._saleDirectService.getEditsaleDirect(this.Id).pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
-        console.log('edit data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           // this.allAddressData = data.Data.AddressDetails
           // this._saleDirectService.createAddress(data.Data.AddressDetails)
@@ -680,7 +692,7 @@ export class SaleDirectAddComponent {
       ).subscribe(
         data => {
           if (data.AttributeValueResponses.length > 0) {
-            _self._saleDirectService.generateAttributes(data)
+           this._saleDirectService.generateAttributes(data)
           }
           if (data.ItemCategorys.length > 0) {
             //     _self.saledirectAdd.getCatagoryDetail(data.ItemCategorys)
@@ -712,7 +724,6 @@ export class SaleDirectAddComponent {
       )
   }
   getOrgnization(data) {
-    console.log(data, 'org-data')
     if (data.length > 0) {
       this.OrgId = +data[0].Id
       this.orgnizationName = data[0].Name
@@ -778,9 +789,7 @@ export class SaleDirectAddComponent {
       this.countryCodeselect2.setElementValue(data[0].CountryCode)
     }
   }
-  //TaxRates
   createForm(data) {
-    // this.editModeForCaseparty = false
     this.dataForEdit = data
     this.other = {}
     this.Items = []
@@ -805,6 +814,12 @@ export class SaleDirectAddComponent {
     }, 1000)
     this.getBillSummary()
     this.creatingForm = false
+    this.BillDiscountApplied = []
+    data.DiscountTrans.forEach((ele,indx) => {
+      data.DiscountTrans[indx]['isChecked'] = true
+    });
+    this.BillDiscountApplied = data.DiscountTrans
+    this.MultipleDiscountCalculate(data.DiscountTrans)
   }
 
   createItemTaxTrans(taxRates) {
@@ -826,13 +841,11 @@ export class SaleDirectAddComponent {
       }
     })
 
-  
+
   }
 
   createAdditionalCharges(charges) {
     if (charges.length > 0) {
-
-
       charges.forEach(element => {
         let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.ChargeForm && taxRate.SlabId === element.TaxSlabChargeId)
         let itemTaxTrans = []
@@ -846,7 +859,7 @@ export class SaleDirectAddComponent {
         } else {
           this.taxTypeChargeName = 'Inclusive'
         }
-        
+
 
         this.LedgerChargeId = element.LedgerChargeId
         this.LedgerName = element.LedgerName
@@ -869,7 +882,7 @@ export class SaleDirectAddComponent {
         }
       })
     }
-  
+
   }
 
   itemAttributesOthers: any = []
@@ -885,7 +898,7 @@ export class SaleDirectAddComponent {
         Sno: index + 1
       }
     })
-   
+
   }
   DiscountValidation(e) {
     if ('' + this.DiscountType === '0') {
@@ -893,13 +906,13 @@ export class SaleDirectAddComponent {
         this.Discount = 0
       }
       else {
-        if (Number(e.target.value) > Number(100) &&
+        if (Number(e.target.value) > Number(99.999990) &&
           e.keyCode != 46 // delete
           &&
           e.keyCode != 8 // backspace
         ) {
           e.preventDefault();
-          this.Discount = 100
+          this.Discount = 0
         } else {
           this.Discount = Number(e.target.value);
         }
@@ -909,19 +922,18 @@ export class SaleDirectAddComponent {
   }
 
   BillDiscountValidation(e) {
-    debugger
     if ('' + this.BillDiscountType === '0') {
       if (e === '0') {
         this.BillDiscount = 0
       }
       else {
-        if (Number(e.target.value) > Number(100) &&
+        if (Number(e.target.value) > Number(99.999990) &&
           e.keyCode != 46 // delete
           &&
           e.keyCode != 8 // backspace
         ) {
           e.preventDefault();
-          this.BillDiscount = 100
+          this.BillDiscount = 0
         } else {
           this.BillDiscount = Number(e.target.value);
         }
@@ -930,7 +942,6 @@ export class SaleDirectAddComponent {
 
   }
   createItems(ItemTransactions) {
-
     ItemTransactions.forEach(element => {
       let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.SaleForm && taxRate.SlabId === element.TaxSlabId)
       let total = +(isNaN(+element.SaleRate) ? 0 : +element.SaleRate)
@@ -945,7 +956,7 @@ export class SaleDirectAddComponent {
           return taxRate
         }
       })
-     
+
       let itemAttributeTrans = []
       if (this.itemAttributesOthers.length > 0) {
         itemAttributeTrans = this.itemAttributesOthers.filter((attr) => {
@@ -959,7 +970,6 @@ export class SaleDirectAddComponent {
       } else {
         this.taxTypeName = 'Inclusive'
       }
-      console.log('itemAttributeTrans : ', itemAttributeTrans)
       this.TransType = element.TransType
       this.TransId = element.TransId
       this.ChallanId = element.ChallanId
@@ -972,7 +982,6 @@ export class SaleDirectAddComponent {
       this.Quantity = +element.Quantity
       this.SaleRate = element.SaleRate
       this.MrpRate = element.MrpRate
-      // this.SaleRate = +element.SaleRate
       this.TotalRate = +element.Total
       this.TaxSlabId = element.TaxSlabId
       this.TaxType = element.TaxType
@@ -992,7 +1001,7 @@ export class SaleDirectAddComponent {
       this.SubTotal = +element.SubTotal
       this.itemAttributeTrans = itemAttributeTrans
       this.taxSlabType = element.TaxSlabType
-      this.taxRates = taxRates
+      this.taxRates = this.OrgGStType === 1 ? taxRates : []
       this.editItemId = element.Id
 
       this.AmountItem = (+element.TaxType === 0) ? this.calcTotal() : +this.SubTotal - this.TaxAmount
@@ -1013,7 +1022,6 @@ export class SaleDirectAddComponent {
       if (this.Items[this.Items.length - 1]) {
         this.Items[this.Items.length - 1].Id = element.Id
         this.Items[this.Items.length - 1].itemTaxTrans = itemTaxTrans
-        console.log('items0000 : ', this.Items)
       } else {
         this.toastrService.showError('Data Feching Error', '')
       }
@@ -1071,7 +1079,9 @@ export class SaleDirectAddComponent {
     this.PartyBillNo = others.PartyBillNo
     this.ConvertedAmount = +others.ConvertedAmount
     this.CurrencyRate = +others.CurrencyRate
+    this.BillDiscount =
     this.TotalDiscount = 0
+    this.editAllgetAddress(+others.LedgerId)
     this.PartyId = +others.LedgerId
     this.EwayBillNo = others.EwayBillNo
     let caseId = this.caseSaleArrayId.filter(s => s.id === this.PartyId)
@@ -1082,10 +1092,8 @@ export class SaleDirectAddComponent {
     }
     else {
       this.isCaseSaleFlag = true
-
     }
     this.vendorSelect2.setElementValue(this.PartyId)
-
     this.ReferralId = others.ReferralId
     this.ReferralTypeId = others.ReferralTypeId
     this.ReverseCharge = 0
@@ -1124,7 +1132,7 @@ export class SaleDirectAddComponent {
     this.defaultCurrency = others.Currency
     this.setPayDate()
     this.other = others
-    this.editAllgetAddress(+others.LedgerId)
+
     this.AddressId = +others.AddressId
     this.SupplyStateId = +others.SupplyState
     this.addressBillingValue = +others.AddressId
@@ -1152,8 +1160,6 @@ export class SaleDirectAddComponent {
               item.setElementValue(this.categoryId)
             }
           })
-          // this.updateCategories(categoryId)
-          // console.log('categoryname : ', this.categoryName)
           let evt = { value: categoryId, data: [{ text: categoryName }] }
           this.onSelectCategory(evt, levelNo)
         }
@@ -1172,15 +1178,16 @@ export class SaleDirectAddComponent {
   itemInStockFlag: number = 1
   DiscountFor100Perct: number = 1
   DisabledTaxSlab: number = 1
-  MultipleBillDiscount:number = 1
+  MultipleBillDiscount: number = 1
   getSetUpModules(settings) {
+    debugger
     this.applyCustomRateOnItemFlag = false
-    console.log('settings : ', settings)
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
         this.catLevel = +element.val
       }
       if (element.id === SetUpIds.applyCustomRateOnItemForSale) {
+       // alert(SetUpIds.applyCustomRateOnItemForSale)
         this.applyCustomRateOnItemFlag = JSON.parse(element.val) === 0 ? false : true
       }
       if (element.id === SetUpIds.dateFormat) {
@@ -1273,18 +1280,23 @@ export class SaleDirectAddComponent {
         this.allAddressData = data.Data.AddressDetails
         this.createAddress(data.Data.AddressDetails)
       }
+      else {
+
+        this.createAddress(data.Data.AddressDetails)
+        this.isOtherState = false
+        this.AddressId = 0
+
+      }
       if (data.Data.LedgerDetails && data.Data.LedgerDetails.length > 0) {
         const LedgerDetails = data.Data.LedgerDetails[0]
         this.CreditLimit = LedgerDetails.CreditLimit
         this.CreditDays = LedgerDetails.CreditDays
-        
         this.outStandingBalance = (data.Data.LedgerDetails[0].OpeningAmount).toFixed(this.noOfDecimalPoint)
         this.setCRDR = data.Data.LedgerDetails[0].Crdr === 0 ? 'Dr' : 'Cr';
       }
     })
   }
   getAllAddresses(vendorId) {
-    debugger
     this._saleDirectService.getAllAddresses(vendorId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.AddressDetails && data.Data.AddressDetails.length > 0) {
@@ -1318,9 +1330,8 @@ export class SaleDirectAddComponent {
     if (+this.OrgId > 0 && this.CurrentDate) {
       let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
       let type = (this.isBillNoManuall) ? 2 : 1
-      this._saleDirectService.getNewBillNoSale(+this.OrgId, newBillDate, type,'Sale').subscribe(
+      this._saleDirectService.getNewBillNoSale(+this.OrgId, newBillDate, type, 'Sale').subscribe(
         data => {
-          console.log('new bill no : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             if (data.Data.length > 0) {
               if (!this.isBillNoManuall) {
@@ -1344,6 +1355,7 @@ export class SaleDirectAddComponent {
   NoAddressNeed: boolean = true
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
+    this.addItemDisbaled = this.editMode === true ? false : true   
     this.EwayBillNo = ''
     this.isCaseSaleFlag = true
     this.caseSaleArrayId = [{ id: 6 }, { id: 5 }]
@@ -1390,7 +1402,8 @@ export class SaleDirectAddComponent {
   checkForExistence: any = []
   getFormDependency() {
     this.commonService.getFormDependency(UIConstant.PURCHASE_TYPE).pipe(takeUntil(this.onDestroy$), filter(data => {
-      if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
+      if (data.Code === UIConstant.THOUSAND) { return true } else { 
+        console.log(data); throw new Error(data.Description) }
     }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
       data => {
         if (data) {
@@ -1414,7 +1427,7 @@ export class SaleDirectAddComponent {
 
   setBillNo(setups) {
     if (setups && setups.length > 0) {
-         this.BillNo = setups[0].BillNo
+      this.BillNo = setups[0].BillNo
     }
   }
 
@@ -1440,9 +1453,9 @@ export class SaleDirectAddComponent {
   setPayDate() {
     this.PayDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
-  setDueDate (setups) {
+  setDueDate(setups) {
     if (setups && setups.length > 0) {
-      this.DueDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)   
+      this.DueDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
     }
   }
   setBillDate() {
@@ -1627,28 +1640,28 @@ export class SaleDirectAddComponent {
   }
   notItemAddedOutOfStock: boolean = true
   getItemRateByLedgerData(ItemId, CustomerId) {
+    debugger
     this.commonService.getItemRateByLedgerAPI(ItemId, CustomerId).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
-        if (this.applyCustomRateOnItemFlag) {
           if (Data.Data && Data.Data.ItemCustomRateWithItemDetails.length > 0) {
-            this.categoryName = Data.Data.ItemCustomRateWithItemDetails[0].CategoryName
-            this.updateCategories(Data.Data.ItemCustomRateWithItemDetails[0].CategoryId)
-            this.categoryId = Data.Data.ItemCustomRateWithItemDetails[0].CategoryId
-            this.SaleRate = Data.Data.ItemCustomRateWithItemDetails[0].SaleRate
-            this.MrpRate = Data.Data.ItemCustomRateWithItemDetails[0].Mrp
-            this.UnitId = Data.Data.ItemCustomRateWithItemDetails[0].UnitId
-            this.TaxSlabId = Data.Data.ItemCustomRateWithItemDetails[0].TaxId
-            this.unitName = Data.Data.ItemCustomRateWithItemDetails[0].UnitName
-            this.taxSlabName = Data.Data.ItemCustomRateWithItemDetails[0].TaxSlab
-            this.taxSlabSelect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].TaxId)
-            this.unitSelect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].UnitId)
-
+            if (this.applyCustomRateOnItemFlag) {
+              this.categoryName = Data.Data.ItemCustomRateWithItemDetails[0].CategoryName
+              this.updateCategories(Data.Data.ItemCustomRateWithItemDetails[0].CategoryId)
+              this.categoryId = Data.Data.ItemCustomRateWithItemDetails[0].CategoryId
+              this.SaleRate = Data.Data.ItemCustomRateWithItemDetails[0].SaleRate
+              this.MrpRate = Data.Data.ItemCustomRateWithItemDetails[0].Mrp
+              this.UnitId = Data.Data.ItemCustomRateWithItemDetails[0].UnitId
+              this.TaxSlabId = Data.Data.ItemCustomRateWithItemDetails[0].TaxId
+              this.unitName = Data.Data.ItemCustomRateWithItemDetails[0].UnitName
+              this.taxSlabName = Data.Data.ItemCustomRateWithItemDetails[0].TaxSlab
+              this.taxSlabSelect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].TaxId)
+              this.unitSelect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].UnitId)
+            }
           }
-        }
-        else if (Data.Data && Data.Data.ItemDetails.length > 0) {
+         else if (Data.Data && Data.Data.ItemDetails.length > 0) {
           this.categoryName = Data.Data.ItemDetails[0].CategoryName
-          this.updateCategories(Data.Data.ItemDetails[0].CategoryId)
           this.categoryId = Data.Data.ItemDetails[0].CategoryId
+          this.updateCategories(Data.Data.ItemDetails[0].CategoryId)
           this.UnitId = Data.Data.ItemDetails[0].UnitId
           this.TaxSlabId = Data.Data.ItemDetails[0].TaxId
           this.unitName = Data.Data.ItemDetails[0].UnitName
@@ -1685,7 +1698,7 @@ export class SaleDirectAddComponent {
   filteredUniTForItem: any
   getItemDetail(id) {
     this._saleDirectService.getItemDetail(id).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
-      console.log('item detail : ', data)
+      
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.length > 0) {
           this.categoryName = data.Data[0].CategoryName
@@ -1716,7 +1729,6 @@ export class SaleDirectAddComponent {
   }
 
   onAttributeSelect(evt, index, attributeId) {
-    // console.log('evt on change of attribute : ', evt)
     if (+evt.value > 0 && evt.data.length > 0) {
       let Sno = 0
       if (this.Items.length === 0) {
@@ -1826,16 +1838,8 @@ export class SaleDirectAddComponent {
     })
     return parentId
   }
-  // this.catSelect2.forEach((item: Select2Component, index: number) => {
-  //   if (index !== 0) {
-  //     this.updateCatArray(pattern[index - 1], index)
-  //   }
-  // })
-  //console.log('new cateogries : ', this.categories)
   @ViewChildren('cat_select2') catSelect2: QueryList<Select2Component>
   updateCategories(childmostId) {
-    console.log('childmostId id : ', childmostId)
-    console.log('this.categoryId id : ', this.categoryId)
     if (this.categoryId !== childmostId || this.editItemId !== -1) {
       let pattern = [childmostId]
       this.catSelect2.forEach(() => {
@@ -1870,167 +1874,205 @@ export class SaleDirectAddComponent {
       this.categories[levelNo].data = newData
     }
   }
-  UpdateBillDiscountHistory() {
-    
-      let taxableValue = 0
-      let ItemTaxTrans = []
-      this.Items.forEach(element => {
-        ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
-        taxableValue += +element.AmountItemBillDiscount
-      });
-      if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
-        taxableValue += +this.AmountItem
-        if (this.appliedTaxRatesItem.length > 0) {
-          ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
-        }
-      }
-      this.AdditionalChargesToShow = JSON.parse(JSON.stringify(this.AdditionalCharges))
-      this.AdditionalCharges.forEach(element => {
-        ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
-      });
-      if (!this.clickCharge && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
-        if (this.appliedTaxRatesCharge.length > 0) {
-          ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesCharge)
-        }
-        if (!this.creatingForm) {
-          this.AdditionalChargesToShow.push({
-            'LedgerName': this.LedgerName,
-            'TaxableAmountCharge': +this.TaxableAmountCharge
-          })
-        }
-      }
-      this.TaxableValue = taxableValue
-      this.billSummary = []
-      if (!this.creatingForm) {
-        this.ItemTaxTrans = JSON.parse(JSON.stringify(ItemTaxTrans))
-      }
-      let groupOnId = _.groupBy(ItemTaxTrans, (tax) => {
-        return tax.TaxRateId
-      })
-      for (const rateId in groupOnId) {
-        if (groupOnId.hasOwnProperty(rateId)) {
-          const element = groupOnId[rateId];
-          let obj = {}
-          obj['name'] = element[0]['TaxRateNameTax']
-          let sum = 0
-          element.forEach(tax => {
-            sum += +tax.AmountTax
-          })
-          obj['total'] = sum
-          this.billSummary.push(obj)
-        }
-      }
-      this.loadingSummary = false
-      this.calculateBillTotal()
+  openDiscountMaster() {
+  let editDiscountValue =[]
+    let BillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+    let DiscountData = {
+      Qty: this.TotalQty,
+      BillAmount: this.BillAmount,
+      LedgerId: this.PartyId,
+      BillDate: BillDate,
+      Type: 'Transaction',
+      isChecked: true
     }
-  PerItemDiscountPerCentage:any = 0
-  totalBillDiscount:any =0
-      BillDiscountCalculate (){
-        if ('' + this.BillDiscountType === '0') {
-          if (+this.BillDiscount <= 100 && +this.BillDiscount >= 0) {
-            this.PerItemDiscountPerCentage = isNaN(+this.BillDiscount) ? 0 : +this.BillDiscount
-          } else {
-            this.PerItemDiscountPerCentage = 0
-          }
-        } else {
-          this.PerItemDiscountPerCentage = ((this.BillDiscount*100)/(this.TaxableValue)).toFixed(this.noOfDecimalPoint) 
-          if(this.PerItemDiscountPerCentage === Infinity){
-            this.PerItemDiscountPerCentage =0
-          }
-         
-        }
-        this.updateAfterBillDiscount() 
 
-      
+    editDiscountValue = this.BillDiscountApplied.length === 0 ? [] : this.BillDiscountApplied
+
+
+    this.commonService.openDiscountMaster('', true, DiscountData, editDiscountValue)
+  }
+
+  UpdateBillDiscountHistory() {
+    let taxableValue = 0
+    let ItemTaxTrans = []
+    this.Items.forEach(element => {
+      ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
+      taxableValue += +element.AmountItemBillDiscount
+    });
+    if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
+      taxableValue += +this.AmountItem
+      if (this.appliedTaxRatesItem.length > 0) {
+        ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
       }
-      AmountItemBillDiscount:number =0
-      updateAfterBillDiscount() {
-        if (this.Items.length > 0) {
-          const observables = [];
-          for (const item of this.Items) {
-            if (item.TaxSlabId !== 0) {
-              observables.push(this._saleDirectService.getSlabData(item.TaxSlabId));
-            }
-          }
-          forkJoin(...observables).subscribe(
-            data => {
-              if (this.OrgGStType === 1) {
-                this.totalBillDiscount =0
-                data.forEach((element, index) => {
-                  let appliedTaxRatesItem = []
-                  let AmountItem =0
-                  let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
-                 if(this.PerItemDiscountPerCentage>0){
-                   debugger
-                  this.BillDiscountAmt = +((+this.PerItemDiscountPerCentage / 100) * (this.Items[index].TotalRate)).toFixed(this.noOfDecimalPoint)
-                    
+    }
 
-                 }
-                 else{
-                  this.totalBillDiscount =0
-                  this.BillDiscountAmt  =0
-                 }
-                 this.totalBillDiscount = this.totalBillDiscount + +this.BillDiscountAmt
-                    
-                 AmountItem = this.Items[index].AmountItem - this.BillDiscountAmt 
-              this.AmountItemBillDiscount = AmountItem
-                 this.Items[index]['AmountItemBillDiscount'] =  AmountItem
-                  if (element.Data.TaxRates.length > 0 && +AmountItem > 0) {
-                    if (this.Items[index].TaxType === 1) {
-                      let returnTax = this._saleDirectService.taxCalCulationForInclusive(element.Data.TaxRates,
-                        taxSlabType,
-                        +AmountItem,
-                        this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
-                      this.Items[index]['TaxAmount'] = returnTax.taxAmount
-                      appliedTaxRatesItem = returnTax.appliedTaxRates
-                    } else if (this.Items[index].TaxType === 0) {
-                      let returnTax = this._saleDirectService.taxCalculation(element.Data.TaxRates,
-                        taxSlabType,
-                        +AmountItem,
-                        this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
-                      this.Items[index]['TaxAmount'] = returnTax.taxAmount
-                      appliedTaxRatesItem = returnTax.appliedTaxRates
-                    }
-                    if (appliedTaxRatesItem.length > 0) {
-                      appliedTaxRatesItem.forEach((taxRate) => {
-                        if (this.Items[index].Id !== 0) {
-                          taxRate['ItemTransTaxId'] = this.Items[index].Id
-                        } else {
-                          taxRate['ItemTransTaxId'] = this.Items[index].Sno
-                        }
-                      })
-                    }
-                    this.Items[index].itemTaxTrans = appliedTaxRatesItem
-                  }
-                  this.Items[index]['SubTotal'] = +AmountItem + +this.Items[index]['TaxAmount']
-                });
+    this.TaxableValue = taxableValue
+    this.billSummary = []
+    if (!this.creatingForm) {
+      this.ItemTaxTrans = JSON.parse(JSON.stringify(ItemTaxTrans))
+    }
+    let groupOnId = _.groupBy(ItemTaxTrans, (tax) => {
+      return tax.TaxRateId
+    })
+    for (const rateId in groupOnId) {
+      if (groupOnId.hasOwnProperty(rateId)) {
+        const element = groupOnId[rateId];
+        let obj = {}
+        obj['name'] = element[0]['TaxRateNameTax']
+        let sum = 0
+        element.forEach(tax => {
+          sum += +tax.AmountTax
+        })
+        obj['total'] = sum
+        this.billSummary.push(obj)
+      }
+    }
+    this.loadingSummary = false
+    this.calculateBillTotal()
+  }
+  PerItemDiscountPerCentage: any = 0
+  multiDiscountPercentage: any = 0
+  totalBillDiscount: any = 0
+  calTaxableValue(rateData, TaxableValue) {
+    let discountAmt = 0
+    if (rateData.ValueType === 0) {
+      discountAmt = (TaxableValue * rateData.Value) / 100
+    }
+    else {
+      discountAmt = rateData.Value
+    }
+    return discountAmt
+  }
+
+  localTaxableValueled: any = 0
+  MultipleDiscountCalculate(multipleDiscount) {
+    debugger
+    this.localTaxableValueled = this.TaxableValue
+    if (multipleDiscount.length > 0) {
+      multipleDiscount.forEach(element => {
+        let multiDiscountAmt;
+        if (element.ValueType === 0) {
+          multiDiscountAmt = (this.localTaxableValueled * element.Value) / 100
+          this.localTaxableValueled = this.localTaxableValueled - multiDiscountAmt
+        }
+        else {
+          multiDiscountAmt = element.Value
+        }
+        this.BillDiscountArray.push({
+          "Id": element.Id === 0 ? 0 : element.Id,
+          "DiscountId": element.DiscountId,
+          "Value": element.Value,
+          "ValueType": element.ValueType,
+          "Name": element.Name,
+          "Amount": multiDiscountAmt
+        })
+        this.BillDiscount = this.BillDiscount + +multiDiscountAmt
+
+      });
+    }
+    else {
+      this.BillDiscount = 0
+    }
+    this.BillDiscountType = 1
+    this.BillDiscountCalculate()
+
+  }
+
+
+  BillDiscountCalculate() {
+    if ('' + this.BillDiscountType === '0') {
+      if (+this.BillDiscount <= 100 && +this.BillDiscount >= 0) {
+        this.PerItemDiscountPerCentage = isNaN(+this.BillDiscount) ? 0 : +this.BillDiscount
+      } else {
+        this.PerItemDiscountPerCentage = 0
+      }
+    } else {
+      this.PerItemDiscountPerCentage = ((this.BillDiscount * 100) / (this.TaxableValue)).toFixed(this.noOfDecimalPoint)
+      if (this.PerItemDiscountPerCentage === 'Infinity') {
+        this.BillDiscount = 0
+        this.PerItemDiscountPerCentage = 0
+      }
+
+    }
+    this.updateAfterBillDiscount()
+  }
+  AmountItemBillDiscount: number = 0
+  updateAfterBillDiscount() {
+    if (this.Items.length > 0) {
+      const observables = [];
+      for (const item of this.Items) {
+        if (item.TaxSlabId !== 0) {
+          observables.push(this._saleDirectService.getSlabData(item.TaxSlabId));
+        }
+      }
+      forkJoin(...observables).subscribe(
+        data => {
+          if (this.OrgGStType === 1) {
+            this.totalBillDiscount = 0
+            data.forEach((element, index) => {
+              let appliedTaxRatesItem = []
+              let AmountItem = 0
+              let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
+              if (+this.PerItemDiscountPerCentage > 0) {
+                this.BillDiscountAmt = +((this.PerItemDiscountPerCentage / 100) * (this.Items[index].AmountItem)).toFixed(this.noOfDecimalPoint)
               }
-              this.BillDiscountArray={
-                "Id":0,
-                "DiscountId":0,
-                "Value":this.BillDiscount,
-                "ValueType":this.BillDiscountType,
-                "Name":"Bill Discount",
-                "Amount": this.totalBillDiscount
+              else {
+                this.totalBillDiscount = 0
+                this.BillDiscountAmt = 0
+              }
+              this.totalBillDiscount = this.totalBillDiscount + +this.BillDiscountAmt
+              if (this.Items.length > 0) {
+                AmountItem = this.Items[index].AmountItem - this.BillDiscountAmt
+                this.AmountItemBillDiscount = AmountItem
+                this.Items[index]['AmountItemBillDiscount'] = AmountItem
+                if (element.Data.TaxRates.length > 0 && +AmountItem > 0) {
+                  if (this.Items[index].TaxType === 1) {
+                    let returnTax = this._saleDirectService.taxCalCulationForInclusive(element.Data.TaxRates,
+                      taxSlabType,
+                      +AmountItem,
+                      this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
+                    this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                    appliedTaxRatesItem = returnTax.appliedTaxRates
+                  } else if (this.Items[index].TaxType === 0) {
+                    let returnTax = this._saleDirectService.taxCalculation(element.Data.TaxRates,
+                      taxSlabType,
+                      +AmountItem,
+                      this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
+                    this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                    appliedTaxRatesItem = returnTax.appliedTaxRates
+                  }
+                  if (appliedTaxRatesItem.length > 0) {
+                    appliedTaxRatesItem.forEach((taxRate) => {
+                      if (this.Items[index].Id !== 0) {
+                        taxRate['ItemTransTaxId'] = this.Items[index].Id
+                      } else {
+                        taxRate['ItemTransTaxId'] = this.Items[index].Sno
+                      }
+                    })
+                  }
+                  this.Items[index].itemTaxTrans = appliedTaxRatesItem
                 }
-             this.UpdateBillDiscountHistory()
-              this.calculateAllTotal()
-            }
-          )
+                this.Items[index]['SubTotal'] = +AmountItem + +this.Items[index]['TaxAmount']
+              }
+            });
+          }
+          if (!this.MultipleBillDiscount) {
+            this.BillDiscountArray = [{
+              "Id": 0,
+              "DiscountId": 0,
+              "Value": this.BillDiscount,
+              "ValueType": this.BillDiscountType,
+              "Name": "Bill Discount",
+              "Amount": this.totalBillDiscount
+            }]
+          }
+          this.UpdateBillDiscountHistory()
+          this.calculateAllTotal()
         }
-        else{
-         // this.calculate()
-        }
-      
-      }
-  // this.BillDiscountArry= {
-  //   "Id":"0 or Id",
-  //   "DiscountId":"0", 
-  //   "Value":"decimal",
-  //   "ValueType":"int 0 or 1 ",
-  //   "Name":"string",
-  //   "Amount":"Bill Discount Amount"
-  //   }
+      )
+    }
+  }
+
   appliedTaxRatesItem: any = []
   appliedTaxRatesCharge: any = []
   calculate() {
@@ -2041,7 +2083,7 @@ export class SaleDirectAddComponent {
       * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
     this.TotalRate = +total.toFixed(this.noOfDecimalPoint)
     if (this.validDiscount) {
-      if ('' + this.DiscountType === '0' ) {
+      if ('' + this.DiscountType === '0') {
         if (+this.Discount <= 100 && +this.Discount >= 0) {
           this.DiscountAmt = +((+this.Discount / 100) * (total)).toFixed(this.noOfDecimalPoint)
         } else {
@@ -2064,7 +2106,7 @@ export class SaleDirectAddComponent {
           }
 
         } else {
-         discountedAmount = total - this.DiscountAmt 
+          discountedAmount = total - this.DiscountAmt
           this.AmountItem = discountedAmount
         }
         if (this.TaxType === 0) {
@@ -2131,7 +2173,6 @@ export class SaleDirectAddComponent {
         if (this.TaxTypeCharge === 1) {
           let AmountCharge = this._saleDirectService.calcTaxableAmountType1(this.taxChargeRates,
             this.taxChargeSlabType, +this.AmountCharge, this.isOtherState)
-          console.log('amount charge : ', AmountCharge)
           this.TaxableAmountCharge = +AmountCharge.toFixed(this.noOfDecimalPoint)
           let returnTax = this._saleDirectService.taxCalCulationForInclusive(this.taxChargeRates,
             this.taxChargeSlabType,
@@ -2144,7 +2185,6 @@ export class SaleDirectAddComponent {
     } else if (this.editChargeId === -1) {
       this.TaxAmountCharge = 0
     }
-    // console.log('TaxAmountCharge : ', this.TaxAmountCharge)
     if (+this.AmountCharge > 0) {
       this.TotalAmountCharge = +(+this.AmountCharge + + ((this.TaxTypeCharge === 0) ? (isNaN(+this.TaxAmountCharge) ? 0 : +this.TaxAmountCharge) : 0)).toFixed(this.noOfDecimalPoint)
     } else {
@@ -2199,7 +2239,6 @@ export class SaleDirectAddComponent {
 
   @ViewChild('organisation_select2') organisationSelect2: Select2Component
   onChangeOrganisationId(evt) {
-    // console.log('on org select : ', evt)
     if (evt.value && evt.data.length > 0) {
       if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
         this.OrgId = +evt.value
@@ -2212,7 +2251,6 @@ export class SaleDirectAddComponent {
   newDate: string = ''
   @ViewChild('godown_select2') godownSelect2: Select2Component
   onGodownSelect(evt) {
-    // console.log(evt)
     if (evt.value && evt.data.length > 0) {
       if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
         this.GodownId = +evt.value
@@ -2291,10 +2329,10 @@ export class SaleDirectAddComponent {
       isOtherState = false
     }
     this.isOtherState = isOtherState
-    if(this.BillDiscount>0){
+    if (this.BillDiscount > 0) {
       this.updateAfterBillDiscount()
     }
-    else{
+    else {
       this.updateItemTax()
 
     }
@@ -2310,7 +2348,6 @@ export class SaleDirectAddComponent {
       }
       forkJoin(...observables).subscribe(
         data => {
-          // console.log(data)
           if (this.OrgGStType === 1) {
             data.forEach((element, index) => {
               let appliedTaxRatesCharge = []
@@ -2369,7 +2406,6 @@ export class SaleDirectAddComponent {
   }
 
   updateItemTax() {
-    debugger
     if (this.Items.length > 0) {
       const observables = [];
       for (const item of this.Items) {
@@ -2381,7 +2417,6 @@ export class SaleDirectAddComponent {
         data => {
           if (this.OrgGStType === 1) {
             data.forEach((element, index) => {
-              debugger
               let appliedTaxRatesItem = []
               let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
               if (element.Data.TaxRates.length > 0 && +this.Items[index].AmountItem > 0) {
@@ -2423,7 +2458,6 @@ export class SaleDirectAddComponent {
           this.calculateAllTotal()
         },
         (error) => {
-          console.log(error)
         },
         () => {
           if (this.AdditionalCharges.length === 0) {
@@ -2447,19 +2481,16 @@ export class SaleDirectAddComponent {
   }
 
   onCurrencySelect(evt) {
-    // console.log('selected currency : ', evt)
     if (evt.value > 0 && evt.data && evt.data.length > 0 && evt.data[0].text) {
       this.CurrencyId = +evt.value
       this.defaultCurrency = evt.data[0].text
       this.currencyValues[1] = { id: '1', symbol: evt.data[0].text }
-      // console.log('currencyValues : ', this.currencyValues)
     }
     this.checkForValidation()
   }
 
   @ViewChild('referraltype_select2') referraltypeSelect2: Select2Component
   onReferralTypeSelect(evt) {
-    // console.log(evt)
     if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
       this.ReferralTypeId = +evt.value
     }
@@ -2467,7 +2498,6 @@ export class SaleDirectAddComponent {
 
   ConvertToCurrencyId: number
   onConvertToCurrencySelect(evt) {
-    // console.log(evt)
     if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
       this.ConvertToCurrencyId = +evt.value
     }
@@ -2483,14 +2513,13 @@ export class SaleDirectAddComponent {
 
   @ViewChild('payment_select2') paymentSelect2: Select2Component
   onPaymentModeSelect(event) {
-    // console.log('payment method select: ', event)
     if (+event.value > 0 && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = +event.value
       if (+event.value !== 1) {
         this.BankLedgerName = ''
         this.LedgerId = 0
-        this.setpaymentLedgerSelect2(0,+event.value)
+        this.setpaymentLedgerSelect2(0, +event.value)
       } else if (+event.value === 1) {
         this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
         this.BankLedgerName = 'Cash'
@@ -2525,7 +2554,7 @@ export class SaleDirectAddComponent {
     }
   }
 
-  setpaymentLedgerSelect2(i,paymentId) {
+  setpaymentLedgerSelect2(i, paymentId) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.commonService.getPaymentLedgerDetail(paymentId).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
@@ -2552,14 +2581,13 @@ export class SaleDirectAddComponent {
           this.ChequeNo = this.PaymentDetail[i].ChequeNo
           this.paymentSelect2.setElementValue(this.PayModeId)
           this.ledgerSelect2.setElementValue(this.LedgerId)
-          this.deleteItem(i, 'trans',false)
+          this.deleteItem(i, 'trans', false)
         }
       })
   }
 
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
   onPaymentLedgerSelect(event) {
-    // console.log('payment ledger id : ', event)
     if (+event.value === -1) {
       this.commonService.openLedger('')
       this.ledgerSelect2.selector.nativeElement.value = ''
@@ -2642,15 +2670,13 @@ export class SaleDirectAddComponent {
   }
 
   addTransactions() {
-   if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
+    if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
       if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
 
         if (this.checkValidationForAmount()) {
           this.addTransaction()
           this.clickTrans = true
           this.initialiseTransaction()
-          // console.log('transactions : ', this.PaymentDetail)
-          // this.setPayDate()
           this.calculatePaymentAmount()
         }
       } else {
@@ -2708,43 +2734,43 @@ export class SaleDirectAddComponent {
     // if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
 
     if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && this.SaleRate > 0) {
-      if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
-        || (this.industryId === 3 && this.Length && this.Width && this.Height)
-        || (this.industryId === 2 || this.industryId === 6)) {
-        if (this.notItemAddedOutOfStock) {
-          this.addItem()
-          this.clickItem = true
-          console.log('items : ', this.Items)
-          this.calculateAllTotal()
-          this.initItem()
-          this.BillDiscount =0
-      this.BillDiscountArray =[]
-
+      // if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
+      //   || (this.industryId === 3 && this.Length && this.Width && this.Height)
+      //   || (this.industryId === 2 || this.industryId === 6)) {
+      if (this.notItemAddedOutOfStock) {
+        this.addItem()
+        this.clickItem = true
+        this.calculateAllTotal()
+        this.initItem()
+        if (!this.editMode) {
+          this.BillDiscount = 0
+          this.BillDiscountArray = []
           this.BillDiscountCalculate()
-          if (this.industryId === 5) {
-            // this.setExpiryDate()
-            // this.setMfdDate()
-          }
         }
-        else {
-          this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
 
+        if (this.industryId === 5) {
+          // this.setExpiryDate()
+          // this.setMfdDate()
         }
+      }
+      else {
+        this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
 
       }
+
+      // }
     }
   }
-
+  addItemDisbaled: boolean = true
   addItem() {
-    this.addItemBasedOnIndustry()
+    this.createAddedItem()
     this.ItemAttributeTrans = this.ItemAttributeTrans.concat(this.itemAttributeTrans)
     if (this.appliedTaxRatesItem.length > 0) {
       this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesItem)
     }
-    console.log('ItemTaxTrans : ', this.ItemTaxTrans)
   }
 
-  addItemBasedOnIndustry() {
+  createAddedItem() {
     let Sno = 0
     if (this.Items.length === 0) {
       Sno = 1
@@ -2797,9 +2823,9 @@ export class SaleDirectAddComponent {
       taxSlabType: this.taxSlabType,
       taxRates: this.taxRates,
       itemTaxTrans: this.appliedTaxRatesItem,
-      AmountItemBillDiscount:this.AmountItemBillDiscount
+      AmountItemBillDiscount: this.AmountItemBillDiscount
     })
-
+    this.addItemDisbaled = false
     setTimeout(() => {
       this.commonService.fixTableHFL('item-table')
     }, 1)
@@ -2808,10 +2834,9 @@ export class SaleDirectAddComponent {
       this.Items[this.Items.length - 1].Id = this.editItemId
     }
   }
-  editchargeFlag:boolean = true
+  editchargeFlag: boolean = true
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
-    console.log('editId : ', editId)
     if (type === 'charge' && this.editChargeId === -1) {
       this.editChargeId = editId
       this.editChargeSno = sno
@@ -2835,7 +2860,7 @@ export class SaleDirectAddComponent {
         this.LedgerChargeId = LedgerChargeId
         this.taxSlabChargeSelect2.setElementValue(this.TaxSlabChargeId)
         this.taxTypeChargeSelect2.setElementValue(this.TaxTypeCharge)
-        this.deleteItem(i, type,false)
+        this.deleteItem(i, type, false)
         this.validateCharge()
         this.ledgerChargeValue = this.LedgerChargeId
         this.chargeSelect2.setElementValue(this.LedgerChargeId)
@@ -2851,7 +2876,7 @@ export class SaleDirectAddComponent {
       if (+this.PaymentDetail[i].PayModeId !== 1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
-        this.setpaymentLedgerSelect2(i,+this.PaymentDetail[i].PayModeId)
+        this.setpaymentLedgerSelect2(i, +this.PaymentDetail[i].PayModeId)
       } else if (+this.PaymentDetail[i].PayModeId === 1) {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.Paymode = this.PaymentDetail[i].Paymode
@@ -2863,16 +2888,12 @@ export class SaleDirectAddComponent {
         this.ChequeNo = this.PaymentDetail[i].ChequeNo
         this.paymentSelect2.setElementValue(this.PayModeId)
         this.ledgerSelect2.setElementValue(this.LedgerId)
-        this.deleteItem(i, type,false)
+        this.deleteItem(i, type, false)
       }
     } else if (type === 'trans' && this.editTransId !== -1) {
       this.toastrService.showInfo('', 'Payment is already in editable mode ,Please Add it')
     }
     if (type === 'items' && this.editItemId === -1) {
-      this.BillDiscount=0
-      this.BillDiscountArray =[]
-
-      this.BillDiscountCalculate()
       this.editItemId = editId
       this.editItemSno = sno
       i = i - 1
@@ -2923,18 +2944,21 @@ export class SaleDirectAddComponent {
       let ItemId = this.Items[i].ItemId
       this.updateCategories(this.categoryId)
       this.checkForItems(this.categoryId)
+      this.BillDiscount = 0
+      this.BillDiscountArray = []
+      this.BillDiscountCalculate()
       let _self = this
       setTimeout(() => {
         _self.itemselect2.setElementValue(ItemId)
         _self.ItemId = ItemId
-        _self.deleteItem(i, type,false)
+        _self.deleteItem(i, type, false)
       }, 1)
     } else if (type === 'items' && this.editItemId !== -1) {
       this.toastrService.showInfo('', 'Item is already in editable mode ,Please Add it')
     }
   }
 
-  deleteItem(i, forArr,flag) {
+  deleteItem(i, forArr, flag) {
     if (forArr === 'trans') {
       this.PaymentDetail.splice(i, 1)
       this.checkValidationForAmount()
@@ -2945,10 +2969,15 @@ export class SaleDirectAddComponent {
       this.Items.forEach(item => {
         this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
       })
-      this.BillDiscount=0
-      this.BillDiscountArray =[]
+      this.BillDiscount = 0
+      this.BillDiscountArray = []
       this.BillDiscountCalculate()
-     
+      if (this.Items.length > 0) {
+        this.addItemDisbaled = false
+      }
+      else {
+        this.addItemDisbaled = true
+      }
 
     }
     if (forArr === 'charge') {
@@ -2956,16 +2985,17 @@ export class SaleDirectAddComponent {
         this.alreadySelectCharge(this.AdditionalCharges[i].LedgerChargeId, this.AdditionalCharges[i].LedgerName, false)
       }
       this.AdditionalCharges.splice(i, 1)
-       }
+    }
     this.calculate()
   }
 
   closePurchase() {
+    this.BillDiscountApplied = []
     this.addressBillingValue = null
     this.addressShippingValue = null
     this.closeModal()
     this.commonService.closePurchase()
-   
+
   }
 
   initItem() {
@@ -2986,7 +3016,8 @@ export class SaleDirectAddComponent {
     this.MrpRate = 0
     this.PurchaseRate = 0
     this.DiscountType = 0
-    this.BillDiscountType =0
+    this.BillDiscountType = this.editMode === true ? 1 : 0
+    this.BillDiscount = 0
     this.Discount = 0
     this.DiscountAmt = 0
     this.TaxSlabId = 0
@@ -3003,7 +3034,6 @@ export class SaleDirectAddComponent {
     this.editItemId = -1
     this.clickItem = false
 
-    // console.log('categories : ', this.categories)
     if (this.allCategories && this.allCategories.length > 0) {
       this.getCatagoryDetail(this.allCategories)
     }
@@ -3139,16 +3169,16 @@ export class SaleDirectAddComponent {
   }
 
   initialiseExtras() {
+   // this.BillDiscountApplied = []
     this.BillAmount = 0
     this.PartyBillNo = ''
-    // this.BillNo = ''
     this.outStandingBalance = 0
     this.EwayBillNo = ''
     this.AddressId = 0
     this.ConvertedAmount = 0
     this.CurrencyRate = 0
     this.TotalDiscount = 0
-    this.totalBillDiscount =0
+    this.totalBillDiscount = 0
     this.PartyId = 0
     this.ReferralId = 0
     this.ReferralTypeId = 0
@@ -3239,7 +3269,7 @@ export class SaleDirectAddComponent {
     this.setBillDate()
     this.setPayDate()
     // this.setExpiryDate()
- //   this.setDueDate()
+    //   this.setDueDate()
     // this.setMfdDate()
     this.getNewBillNo()
     this.getNewCurrentDate()
@@ -3248,7 +3278,6 @@ export class SaleDirectAddComponent {
   getNewCurrentDate() {
     this._saleDirectService.getCurrentDate().subscribe(
       data => {
-        console.log('current date : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
           this.setCurrentDate(data.Data)
           this.setDueDate(data.Data)
@@ -3259,7 +3288,7 @@ export class SaleDirectAddComponent {
   EwayBillNo: any = ''
   private saleDirectParams(): SaleDirectAdd {
     let BillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
-    let CurrentDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+    // let CurrentDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
     //  let PartyBillDate = this.gs.clientToSqlDateFormat(this.PartyBillDate, this.clientDateFormat)
     let DueDate = this.gs.clientToSqlDateFormat(this.DueDate, this.clientDateFormat)
     let Items = JSON.parse(JSON.stringify(this.Items))
@@ -3328,7 +3357,6 @@ export class SaleDirectAddComponent {
 
       } as SaleDirectAdd
     }
-    console.log('obj : ', JSON.stringify(saleDirectParams.obj))
     return saleDirectParams.obj
   }
 
@@ -3657,8 +3685,8 @@ export class SaleDirectAddComponent {
     })
     return isValid
   }
-  SaveName:string ='Save'
-  DisabledSaveBtn:any =false
+  SaveName: string = 'Save'
+  DisabledSaveBtn: any = false
   saveSaleDirect() {
     let _self = this
     this.submitSave = true
@@ -3668,7 +3696,6 @@ export class SaleDirectAddComponent {
 
       this.commonService.checkForExistence(this.checkForExistence, dataToSend).subscribe(
         (data) => {
-          console.log('existence : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             data.Data.forEach(element => {
               if (+element.Status === 1) {
@@ -3683,7 +3710,6 @@ export class SaleDirectAddComponent {
           }
         },
         (error) => {
-          console.log(error)
         },
         () => {
           this.addItems()
@@ -3699,14 +3725,14 @@ export class SaleDirectAddComponent {
               this.DisabledSaveBtn = true
               this._saleDirectService.postSaleDirect(this.saleDirectParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
                 data => {
-                  console.log('data : ', data)
                   if (data.Code === UIConstant.THOUSAND && data.Data) {
                     _self.toastrService.showSuccess('Saved Successfully', '')
-                   this.DisabledSaveBtn = false
+                    this.DisabledSaveBtn = false
                     this.SaveName
                     this.commonService.AddedItem()
                     this.addressBillingValue = null
                     this.addressShippingValue = null
+                    this.BillDiscountApplied =[]
                     _self.commonService.newPurchaseAdd()
                     if (!this.keepOpen) {
                       _self.commonService.closePurchase()
@@ -3717,12 +3743,13 @@ export class SaleDirectAddComponent {
                       _self.initCharge()
                       _self.initComp()
                       _self.initialiseExtras()
+                      this.BillDiscountApplied =[]
                       this.editMode = false
                       this.openModal()
                       this.getNewCurrentDate()
                       this.getNewBillNo()
-                      if(this.isBillNoManuall){
-                        this.BillNo =''
+                      if (this.isBillNoManuall) {
+                        this.BillNo = ''
                       }
 
                     }
@@ -3765,13 +3792,13 @@ export class SaleDirectAddComponent {
           this.DisabledSaveBtn = true
           this._saleDirectService.postSaleDirect(this.saleDirectParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
             data => {
-              console.log('data : ', data)
               if (data.Code === UIConstant.THOUSAND && data.Data) {
                 _self.toastrService.showSuccess('Saved Successfully', '')
-                 this.DisabledSaveBtn = false
+                this.DisabledSaveBtn = false
                 this.addressBillingValue = null
                 this.addressShippingValue = null
                 this.commonService.AddedItem()
+                this.BillDiscountApplied =[]
                 if (!this.keepOpen) {
                   _self.commonService.closePurchase()
                   _self.commonService.AfterSaveShowPrint(data)
@@ -3782,11 +3809,13 @@ export class SaleDirectAddComponent {
                   _self.initComp()
                   _self.initialiseExtras()
                   this.editMode = false
+                 
+
                   this.openModal()
                   this.getNewCurrentDate()
                   this.getNewBillNo()
-                  if(this.isBillNoManuall){
-                    this.BillNo =''
+                  if (this.isBillNoManuall) {
+                    this.BillNo = ''
                   }
 
                 }
@@ -3844,7 +3873,6 @@ export class SaleDirectAddComponent {
       this.addCustomCharge()
       this.clickCharge = true
       this.initCharge()
-      console.log('charge : ', this.AdditionalCharges)
     }
   }
 
@@ -3868,7 +3896,6 @@ export class SaleDirectAddComponent {
     if (this.appliedTaxRatesCharge.length > 0) {
       this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesCharge)
     }
-    console.log('ItemTaxTrans : ', this.ItemTaxTrans)
     let index = 0
     if (this.AdditionalCharges.length === 0) {
       index = 1
@@ -3920,7 +3947,6 @@ export class SaleDirectAddComponent {
   }
 
   onTaxSlabChargeSelect(evt) {
-    // console.log('on change of tax slab : ', evt)
     if (+evt.value === -1) {
       this.commonService.openTax('')
       this.taxSlabChargeSelect2.selector.nativeElement.value = ''
@@ -3937,7 +3963,6 @@ export class SaleDirectAddComponent {
   getTaxChargeDetail(TaxSlabId) {
     this._saleDirectService.getSlabData(TaxSlabId).subscribe(
       data => {
-        console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
 
           if (this.OrgGStType === 1) {
@@ -3978,7 +4003,6 @@ export class SaleDirectAddComponent {
       if (charge) {
         charge['itemTaxTrans'] = this.appliedTaxRatesCharge
       }
-      console.log('tax rates applied : ', this.appliedTaxRatesCharge)
     } else if (parentType === FormConstants.SaleForm) {
       if (this.editItemId !== -1) {
         Sno = this.editItemSno
@@ -3999,13 +4023,11 @@ export class SaleDirectAddComponent {
       if (item) {
         item['itemTaxTrans'] = this.appliedTaxRatesItem
       }
-      console.log('tax rates applied : ', this.appliedTaxRatesItem)
     }
   }
 
   @ViewChild('taxTypecharge_select2') taxTypeChargeSelect2: Select2Component
   onTaxTypeChargeSelect(evt) {
-    // console.log('on change of tax Type charge : ', evt)
     if (+evt.value >= 0 && evt.data[0] && evt.data[0].text) {
       this.TaxTypeCharge = +evt.value
       this.taxTypeChargeName = evt.data[0].text
@@ -4040,7 +4062,6 @@ export class SaleDirectAddComponent {
   getTaxDetail(TaxSlabId) {
     this._saleDirectService.getSlabData(TaxSlabId).subscribe(
       data => {
-        console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           if (this.OrgGStType === 1) {
             this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
@@ -4062,7 +4083,6 @@ export class SaleDirectAddComponent {
 
   @ViewChild('taxType_select2') taxTypeSelect2: Select2Component
   onTaxTypeSelect(evt) {
-    // console.log('on change of tax Type : ', evt)
     if (+evt.value >= 0 && evt.data[0] && evt.data[0].text) {
       this.TaxType = +evt.value
       this.taxTypeName = evt.data[0].text
@@ -4072,22 +4092,16 @@ export class SaleDirectAddComponent {
   }
 
   NetBillAmount = 0
+  localTaxableValue = 0
   TaxableValue = 0
   billSummary: Array<any> = []
   AdditionalChargesToShow: any = []
   getBillSummary() {
-  debugger
     let taxableValue = 0
     let ItemTaxTrans = []
     this.Items.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
       taxableValue += +element.AmountItem
-      // if(onBillDiscountFlag){
-
-      // }
-      // if(element.AmountItemBillDiscount >0){
-      // taxableValue += +element.AmountItemBillDiscount
-      // }
 
     });
     if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
@@ -4112,6 +4126,7 @@ export class SaleDirectAddComponent {
       }
     }
     this.TaxableValue = taxableValue
+    this.localTaxableValue = taxableValue
     this.billSummary = []
     if (!this.creatingForm) {
       this.ItemTaxTrans = JSON.parse(JSON.stringify(ItemTaxTrans))
@@ -4177,7 +4192,6 @@ export class SaleDirectAddComponent {
     this.TotalTaxAmount = +(totalTax).toFixed(4)
     this.TotalQty = +(totalQuantity).toFixed(2)
     this.SubTotalAmount = +(totalAmount).toFixed(this.noOfDecimalPoint)
-    // console.log( this.TotalDiscount  ,this.TotalTaxAmount ,this.TotalQty ,this.SubTotalAmount ,'hhhhhhhhhhhhhhhhhhhhh' )
   }
 
   enterPressCharge(evt: KeyboardEvent) {
@@ -4197,9 +4211,7 @@ export class SaleDirectAddComponent {
     this.calculate()
   }
 
-  // payDate: string = 'today'
   billDateChange(evt) {
-    console.log(evt)
     this.BillDate = evt
     this.PayDate = evt
   }
@@ -4337,7 +4349,6 @@ export class SaleDirectAddComponent {
         Address: this.CustomerAddress,
         CountryCode: this.CountryCode
       }]
-      console.log(this.caseSaleCustomerDetails, 'customer-add')
       if (!this.editMode) {
         this.countryCodeFlag = '0'
         this.getCountry(0)
@@ -4471,4 +4482,39 @@ export class SaleDirectAddComponent {
       document.getElementById('mobileId').className += ' errorTextBoxBorder'
     }
   }
+  // generateAttributes (data) {
+  //   let obj = {}
+  //   let attributeKeys = []
+  //   let attributesData = []
+  //   data.AttributeValueResponses.forEach(attribute => {
+  //     attributeKeys.push(attribute.Name)
+  //     obj['name'] = attribute.Name
+  //     obj['len'] = attribute.AttributeValuesResponse.length -1
+  //     obj['data'] = [{ id: '0', text: 'Select Attribute' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+  //     obj['attributeId'] = attribute.AttributeId
+  //     obj['id'] = 0
+  //     attributesData.push({ ...obj })
+  //   })
+  //   let j = 0
+  //   let index = 0
+  //   for (let i = 0; i < data.AttributeValues.length; i++) {
+  //     const attr = data.AttributeValues[i]
+  //     let obj1 = {}
+  //     obj1['id'] = attr.Id
+  //     obj1['text'] = attr.Name
+  //     if (attributesData[j].len === index) {
+  //       j++
+  //       index = 0
+  //     }
+  //     index++
+  //     if (attributesData[j]) {
+  //       attributesData[j].data.push({ ...obj1 })
+  //     } else {
+  //       this.toastrService.showError('Fetching data error ', '')
+  //     }
+  //   }
+  //   console.log(attributesData)
+  //   let attibutesDataToSend = Object.assign([], attributesData)
+  //   this.attributesDataSub.next({ 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend })
+  // }
 }

@@ -30,6 +30,7 @@ export class CommonService {
   private openAddressAddSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openPurchaseAddSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openVoucherAddSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openCatImportSub = new BehaviorSubject<AddCust>({ 'open': false })
   private newVoucherAdded = new Subject()
   private newInvoiceSub = new Subject()
   private newCatSub = new Subject()
@@ -38,6 +39,8 @@ export class CommonService {
   private newSaleSub = new Subject()
   private newTaxSub = new Subject()
   private newItemAdded = new Subject()
+  private newImportCatAdded = new Subject()
+  public getCatImportAddStatus = this.newImportCatAdded.asObservable()
   private newCatOrSubCatAdded = new Subject()
   private newCompositeAdded = new Subject()
   private newPurchaseAdded = new Subject()
@@ -69,6 +72,7 @@ export class CommonService {
   private openPurchaseReturnSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openPurchaseReturnSub$ = new Subject()
   private subjectOftermAndCondition = new BehaviorSubject<AddCust>({ 'open': false })
+  private discountMasterSubect = new BehaviorSubject<AddCust>({ 'open': false })
 
   //  validation reg ex
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
@@ -338,6 +342,22 @@ export class CommonService {
     return this.openItemImportSub.asObservable()
   }
 
+  openCatImport() {
+    this.openCatImportSub.next({ 'open': true })
+  }
+
+  closeCatImport() {
+    this.openCatImportSub.next({ 'open': false })
+  }
+
+  getCatImportStatus() {
+    return this.openCatImportSub.asObservable()
+  }
+
+  onAddCatImport() {
+    this.newImportCatAdded.next()
+  }
+
   onAddItemMaster() {
     this.newItemAdded.next()
   }
@@ -555,7 +575,7 @@ export class CommonService {
   AfterSaveShowPrintStatus() {
     return this.AfterSaveShowPrint$.asObservable()
   }
-  
+
 
   getBranchTypeList = () => {
     return this.baseService.getRequest(ApiConstant.BRANCH_TYPE_LIST_URL)
@@ -1288,6 +1308,20 @@ export class CommonService {
   getTermAndConditionStatus() {
     return this.subjectOftermAndCondition.asObservable()
   }
+  openDiscountMaster(editId, isOpenForm,DiscountData,EditData) {
+    this.discountMasterSubect.next({ 'open': true, 'editId': editId, 'type': isOpenForm ,'discountParam':DiscountData ,'editData':EditData})
+  }
+  openDiscountMasterStatus() {
+    return this.discountMasterSubect.asObservable()
+  }
+  
+  closeDiscountMaster(discountData) {
+    if (discountData) {
+      this.discountMasterSubect.next({ 'open': false, 'data':discountData  })
+    } else {
+      this.discountMasterSubect.next({ 'open': false })
+    }
+  }
   gettermsAndCondtionType(type) {
     return this.baseService.getRequest(ApiConstant.TERMS_CONDITION_FORM_TYPE + type)
   }
@@ -1327,10 +1361,10 @@ export class CommonService {
   getUserUtilityList(type) {
     return this.baseService.getRequest(`${ApiConstant.USER_UTILITY}?Type=${type}`)
   }
-  getOrgDetailsForPrintExcelPDF (){
+  getOrgDetailsForPrintExcelPDF() {
     return this.baseService.getRequest(`${ApiConstant.ORG_DETAILS_PRINT}`)
   }
-  getNewBill (orgId, date, type) {
+  getNewBill(orgId, date, type) {
     let queryString = ''
     if (type === 1) {
       queryString = 'TransactionType=' + type + '&&OrgId=' + orgId + '&&TransDate=' + date
@@ -1340,14 +1374,17 @@ export class CommonService {
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_MANUAL + queryString)
     }
   }
-  // getOrgDetails (){
-  //   this.getOrgDetailsForPrintExcelPDF().subscribe(data=>{
-  //     if(data.Code === UIConstant.THOUSAND){
-  //       console.log(data.Data,"org-details")
-  //      return data.Data
-  //     }
-  //   })
-  // }
+  getListApplyedDiscount(DiscountData) {
+    return this.baseService.getRequest(`${ApiConstant.GET_DISCOUNT_FOR_APPLY}?Qty=${DiscountData.Qty}&BillAmount=${DiscountData.BillAmount}&BillDate=${DiscountData.BillDate}&LedgerId=${DiscountData.LedgerId}&Type=${DiscountData.Type}`)
+  }
+  postMultipleDiscount(param) {
+    return this.baseService.postRequest(ApiConstant.GET_DISCOUNT_FOR_APPLY, param)
+  }
+  getDiscountList(queryParams) {
+    return this.baseService.getRequest(ApiConstant.GET_DISCOUNT_FOR_APPLY+'?' + queryParams)
+  }
+  deleteDiscount (id){
+    return this.baseService.deleteRequest(ApiConstant.GET_DISCOUNT_FOR_APPLY+'?' +id)
 
-
+  }
 }

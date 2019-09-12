@@ -242,11 +242,25 @@
                 <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions">
                   {{printData && printData.PurchaseTransactions[0]?.SubTotalAmount}}</th>
               </tr>
+              <!-- BillDiscountOnPrint -->
               <tr style="background:#e9e9ea; font-weight:bold;">
                 <th>Discount</th>
                 <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions">
                   {{printData && printData.PurchaseTransactions[0]?.Discount}}</th>
               </tr>
+              <tr *ngIf="BillDiscountOnPrint" style="background:#e9e9ea; font-weight:bold;">
+                <th>BillDiscount</th>
+                <th style="text-align:right" *ngIf="printData && printData.PurchaseTransactions">
+                  {{printData && printData.PurchaseTransactions[0]?.BillDiscount}}</th>
+              </tr>
+              <ng-container *ngIf="!BillDiscountOnPrint">
+                <tr  *ngFor="let discount of printData.DiscountTrans;">
+                  <th> {{discount.Name}}</th>
+                  <th style="text-align:right" *ngIf="charge.Amount">{{discount.Amount}}</th>
+                </tr>
+              </ng-container>
+              <!-- *ngIf="BillDiscountOnPrint" -->
+          
               <tr *ngFor="let charge of printData.AdditionalChargeDetails;">
                 <th>Charge @ {{charge.LedgerName}}</th>
                 <th style="text-align:right" *ngIf="charge.AmountCharge">{{charge.AmountCharge}}</th>

@@ -56,7 +56,7 @@ export const SIDE_MENU_MODEL = [
   {
     Id: 7,
     Name: "Discount",
-    path: "",
+    path: "ims/discount-master",
     icon: ""
   },
   {

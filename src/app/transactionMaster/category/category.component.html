@@ -20,7 +20,8 @@
                                                 [value]="catLevelValue"></select2>
                                             </div>
                                         </div>
-                                        <div [ngClass]="{'col-md-12': catLevel === 1, 'col-md-6': catLevel > 1}" [ngStyle]="{'margin-right': catLevel === 1 ? '20px': '0px'}" >
+                                        <div [ngClass]="{'col-md-12': catLevel === 1, 'col-md-6': catLevel > 1}" 
+                                            [ngStyle]="{'margin-right': catLevel === 1 ? '20px': '0px'}" >
                                             <div class="input-group custom-search-input">
                                                 <input type="text"
                                                 class="form-control input-lg"
@@ -42,6 +43,8 @@
                                 <a><img src="assets/img/printer.png"> </a>
                                 <a><img src="assets/img/pdf.png"></a>
                                 <a><img src="assets/img/excel.png"></a>
+                                <button type="button" class="btn btn-primary waves-effect waves-light" (click)="openImport()"
+                                    data-toggle="modal">Import Category</button>
                                 <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
                                     (click)="addCatagory()">Add New</button>
                             </div>
@@ -93,15 +96,3 @@
 <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
 (pageNoEmitter)="p = $event;getCategoryDetails();"
 (pageSizeEmitter)="itemsPerPage = $event;getCategoryDetails();" ></app-pagination>
-
-<!-- 
-    <div class="col-md-6" >
-                                                <div class="input-group adw_select">
-                                                    <select2 [data]="categoryLevels" 
-                                                    #catlevel_select2 class="control_select"
-                                                    (valueChanged)="selectedItemType($event)"
-                                                    autocomplete="true" [options]="categoryPlaceholder"
-                                                    [value]="catLevelValue"></select2>
-                                                </div>
-                                            </div>
- -->

@@ -7,7 +7,9 @@ import { CategoryRoutingModule } from './category.routing.module'
 import { PagingUtilityModule } from '../../shared/pagination/pagination.module'
 import { NgxPaginationModule } from 'ngx-pagination'
 @NgModule({
-  declarations: [CategoryComponent],
+  declarations: [
+    CategoryComponent
+  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,

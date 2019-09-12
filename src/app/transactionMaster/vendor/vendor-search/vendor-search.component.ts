@@ -61,7 +61,7 @@ export class VendorSearchComponent implements OnChanges {
       , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
   }
 
-  selectCustRegType (evt) {
+  selectCustRegType (evt:any) {
     if (evt.value && evt.data.length > 0) {
       this.RegistrationTypeId = +evt.value
     }
@@ -73,7 +73,7 @@ export class VendorSearchComponent implements OnChanges {
     this.ledgerService.getCommonValues('101').subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
-          data.Data.forEach(element => {
+          data.Data.forEach((element:any) => {
             newData.push({
               id: element.Id,
               text: element.CommonDesc
@@ -85,7 +85,7 @@ export class VendorSearchComponent implements OnChanges {
     })
   }
 
-  selectCountry (evt) {
+  selectCountry (evt:any) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value > 0) {
         this.CountryId = +evt.value
@@ -98,14 +98,14 @@ export class VendorSearchComponent implements OnChanges {
     }
   }
 
-  getStateList (id) {
+  getStateList (id:any) {
     this.stateListPlaceHolder = { placeholder: 'Select State' }
     let newData = [{ id: '0', text: 'select State' }]
     this.ledgerService.gatStateList(id).subscribe(data => {
       console.log('state list : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
-          data.Data.forEach(element => {
+          data.Data.forEach((element:any) => {
             newData.push({
               id: element.Id,
               text: element.CommonDesc1
@@ -117,7 +117,7 @@ export class VendorSearchComponent implements OnChanges {
     })
   }
 
-  selectState (evt) {
+  selectState (evt:any) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value > 0) {
         this.StateId = +evt.value
@@ -128,14 +128,14 @@ export class VendorSearchComponent implements OnChanges {
       }
     }
   }
-  getCitylist (id) {
+  getCitylist (id:any) {
     this.cityListPlaceHolder = { placeholder: 'Select City' }
     let newData = [{ id: '0', text: 'select City' }]
     this.ledgerService.getCityList(id).subscribe(data => {
       console.log('city list : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
-          data.Data.forEach(element => {
+          data.Data.forEach((element:any) => {
             newData.push({
               id: element.Id,
               text: element.CommonDesc2
@@ -147,7 +147,7 @@ export class VendorSearchComponent implements OnChanges {
     })
   }
 
-  selectCity (evt) {
+  selectCity (evt:any) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value > 0) {
         this.CityId = +evt.value
@@ -158,14 +158,14 @@ export class VendorSearchComponent implements OnChanges {
     }
   }
 
-  getAreaList (id) {
+  getAreaList (id:any) {
     this.areaListPlaceHolder = { placeholder: 'Select Area' }
     let newData = [{ id: '0', text: 'Select Area' }]
     this.ledgerService.getAreaList(id).subscribe(data => {
       console.log('area list : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
-          data.Data.forEach(element => {
+          data.Data.forEach((element:any) => {
             newData.push({
               id: element.Id,
               text: element.CommonDesc3
@@ -177,7 +177,7 @@ export class VendorSearchComponent implements OnChanges {
     })
   }
 
-  selectedArea (evt) {
+  selectedArea (evt:any) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value > 0) {
         this.getAreaList(+evt.value)

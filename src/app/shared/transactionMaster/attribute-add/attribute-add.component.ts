@@ -157,6 +157,8 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
 
   /* Function to add the new attribute name */
   AddAttributeName = () => {
+    this.selectedAttribute =null
+    debugger
     const payload = {
       Id: this.selectedAttribute ? this.selectedAttribute : 0,
       Name: this.attribute.name
@@ -249,7 +251,10 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
 
   /* Function call on dropdown value changes */
   onAttrValueChange = (event) => {
-    this.selectedAttribute = event.value
+    if(this.selectedAttribute !==null){
+      this.selectedAttribute = event.id
+
+    }
 
   }
 

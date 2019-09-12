@@ -86,7 +86,7 @@ export class TermsAndConditionListComponent implements OnInit {
     this.deleteSub.unsubscribe()
   }
 
-  deleteItem (id) {
+  deleteItem (id:any) {
     if (id) {
       this._itemmasterServices.deleteItem(id).subscribe(Data => {
         if (Data.Code === UIConstant.DELETESUCCESS) {
@@ -138,7 +138,7 @@ export class TermsAndConditionListComponent implements OnInit {
       })
   }
 
-  editRoute (id) {
+  editRoute (id:any) {
     this.commonService.openTermAndCondition(id)
   }
 
@@ -177,7 +177,7 @@ export class TermsAndConditionListComponent implements OnInit {
     this.commonService.openTermAndCondition('')
   }
 
-  deleteRoute (id) {
+  deleteRoute (id:any) {
     this.commonService.openDelete(id, 'route', 'Route')
   }
 

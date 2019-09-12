@@ -67,42 +67,70 @@ export class PurchaseService {
   getPurchaseReturnList (queryParams) {
     return this.baseService.getRequest(ApiConstant.RERTURN_PURCHASE_LIST + queryParams)
   }
-
-  generateAttributes (data) {
+  generateAttributes(data) {
     let obj = {}
     let attributeKeys = []
     let attributesData = []
     data.AttributeValueResponses.forEach(attribute => {
       attributeKeys.push(attribute.Name)
       obj['name'] = attribute.Name
-      obj['len'] = attribute.AttributeValuesResponse.length -1
+      obj['len'] = attribute.AttributeValuesResponse.length - 1
       obj['data'] = [{ id: '0', text: 'Select Attribute' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
       obj['attributeId'] = attribute.AttributeId
       obj['id'] = 0
       attributesData.push({ ...obj })
     })
-    let j = 0
-    let index = 0
     for (let i = 0; i < data.AttributeValues.length; i++) {
       const attr = data.AttributeValues[i]
       let obj1 = {}
       obj1['id'] = attr.Id
       obj1['text'] = attr.Name
-      if (attributesData[j].len === index) {
-        j++
-        index = 0
-      }
-      index++
-      if (attributesData[j]) {
-        attributesData[j].data.push({ ...obj1 })
-      } else {
-        this.toastrService.showError('Not getting appropriate data for attributes', '')
+      for (let j = 0; j < attributesData.length; j++) {
+        if (attributesData[j].attributeId === data.AttributeValues[i].AttributeId) {
+          if (attributesData[j]) {
+            attributesData[j].data.push({ ...obj1 })
+          }
+        }
       }
     }
-    console.log(attributesData)
     let attibutesDataToSend = Object.assign([], attributesData)
     this.attributesDataSub.next({ 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend })
   }
+  // generateAttributes (data) {
+  //   let obj = {}
+  //   let attributeKeys = []
+  //   let attributesData = []
+  //   data.AttributeValueResponses.forEach(attribute => {
+  //     attributeKeys.push(attribute.Name)
+  //     obj['name'] = attribute.Name
+  //     obj['len'] = attribute.AttributeValuesResponse.length -1
+  //     obj['data'] = [{ id: '0', text: 'Select Attribute' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+  //     obj['attributeId'] = attribute.AttributeId
+  //     obj['id'] = 0
+  //     attributesData.push({ ...obj })
+  //   })
+  //   let j = 0
+  //   let index = 0
+  //   for (let i = 0; i < data.AttributeValues.length; i++) {
+  //     const attr = data.AttributeValues[i]
+  //     let obj1 = {}
+  //     obj1['id'] = attr.Id
+  //     obj1['text'] = attr.Name
+  //     if (attributesData[j].len === index) {
+  //       j++
+  //       index = 0
+  //     }
+  //     index++
+  //     if (attributesData[j]) {
+  //       attributesData[j].data.push({ ...obj1 })
+  //     } else {
+  //       this.toastrService.showError('Not getting appropriate data for attributes', '')
+  //     }
+  //   }
+  //   console.log(attributesData)
+  //   let attibutesDataToSend = Object.assign([], attributesData)
+  //   this.attributesDataSub.next({ 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend })
+  // }
 
   createItems (items) {
     let newData = [{ id: '0', text: 'Select Items' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]

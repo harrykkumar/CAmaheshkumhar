@@ -447,49 +447,46 @@ export class SalesChallanBillingComponent {
       }
     )
   }
+  OrgnizationName:any =''
   CreateDynamicAttributes(data) {
-    this.allAttributeData = []
-    this.attributesLabels = []
     let obj = {}
     let attributeKeys = []
     let attributesData = []
     data.AttributeValueResponses.forEach(attribute => {
-      attributeKeys.push({ 'label': attribute.Name, 'AttributeId': attribute.AttributeId })
+      attributeKeys.push(attribute.Name)
       obj['name'] = attribute.Name
-      obj['len'] = attribute.AttributeValuesResponse.length
-      obj['data'] = [{ id: '0', text: 'Select ' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+      obj['len'] = attribute.AttributeValuesResponse.length - 1
+      obj['data'] = [{ id: '0', text: 'Select Attribute' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
       obj['attributeId'] = attribute.AttributeId
       obj['id'] = 0
       attributesData.push({ ...obj })
     })
-    let j = 0
-    let index = 0
     for (let i = 0; i < data.AttributeValues.length; i++) {
       const attr = data.AttributeValues[i]
       let obj1 = {}
       obj1['id'] = attr.Id
       obj1['text'] = attr.Name
-      if (attributesData[j].len === index) {
-        j++
-        index = 0
-      }
-      index++
-      if (attributesData[j]) {
-        attributesData[j].data.push({ ...obj1 })
-      } else {
-        this.toastrService.showError('Server on error', '')
+      for (let j = 0; j < attributesData.length; j++) {
+        if (attributesData[j].attributeId === data.AttributeValues[i].AttributeId) {
+          if (attributesData[j]) {
+            attributesData[j].data.push({ ...obj1 })
+          }
+        }
       }
     }
     let attibutesDataToSend = Object.assign([], attributesData)
-    let returnObject = { 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend }
-    console.log(returnObject, 'atr----')
-    return returnObject
+       let  returnObject = { 'attributeKeys': attributeKeys, 'attributesData': attibutesDataToSend }
+ 
+     return returnObject
   }
   getAttributeSPUtilityData: any
   getSPUtilityDataBilling() {
     this.subscribe = this._commonService.getSPUtilityData(UIConstant.SALE_TYPE).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
-
+        if (data.Data && data.Data.Organizations.length > 0) {
+          this.orgNameId = data.Data.Organizations[0].Id
+          this.OrgnizationName= data.Data.Organizations[0].Name
+         }
         if (data.Data.TransactionNoSetups.length > 0) {
           if (this.isManualBillNoEntry) {
             this.BillNo = ''
@@ -500,9 +497,9 @@ export class SalesChallanBillingComponent {
 
           }
         }
-        if (data.Data && data.Data.Organizations.length > 0) {
-          this.getOrgnization(data)
-        }
+        // if (data.Data && data.Data.Organizations.length > 0) {
+        //   this.getOrgnization(data)
+        // }
         if (data.Data && data.Data.AttributeValueResponses && data.Data.AttributeValueResponses.length > 0) {
           let AttributeDetails = this.CreateDynamicAttributes(data.Data)
           this.attributesLabels = AttributeDetails.attributeKeys
@@ -1250,6 +1247,7 @@ export class SalesChallanBillingComponent {
 
  getNewBillNo() {
     let _self = this
+    if(this.InvoiceDate !=='' && this.orgNameId >0){
     let dateChnage = this._globalService.clientToSqlDateFormat(this.InvoiceDate,this.clientDateFormat)
     this.subscribe = this._commonService.getsettingforOrgnizationData(this.orgNameId, UIConstant.SALE_TYPE, dateChnage).subscribe(data => {
       if (data.Code === 1000 && data.Data.length > 0) {
@@ -1264,8 +1262,9 @@ export class SalesChallanBillingComponent {
 
     })
   }
+  }
 
-  orgNameId: any
+  orgNameId: any =0
   OrgId: any
   onChangeOrganizationId(e) {
     let dateChnage
@@ -1670,7 +1669,6 @@ export class SalesChallanBillingComponent {
     this.InvoiceDate = ''
     this.DueDate = ''
     this.SupplyDate = ''
-    // this.CurrencyId = ''
     this.categoryId = ''
     this.itemCategoryId = ''
     this.Commission = 0
@@ -1698,13 +1696,9 @@ export class SalesChallanBillingComponent {
     this.ExpiryDate = ''
     this.MfdDate = ''
     this.totalTaxAmount = 0
-
-   
-
     if (this.clientSelect2 && this.clientSelect2.selector.nativeElement.value) {
       this.clientSelect2.setElementValue('')
     }
-
     if (this.itemSelect2 && this.itemSelect2.selector.nativeElement.value) {
       this.itemSelect2.setElementValue('')
     }
@@ -1726,10 +1720,8 @@ export class SalesChallanBillingComponent {
   setDueDate(setups) {
     if (setups && setups.length > 0) {
       this.DueDate  = this._globalService.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
-
     }
-  //  this.DueDate = this._globalService.getDefaultDate(this.clientDateFormat)
-  }
+ }
   setPayDate() {
     let _self = this
     this.PayDate = _self._globalService.getDefaultDate(_self.clientDateFormat)
@@ -2319,6 +2311,7 @@ export class SalesChallanBillingComponent {
     this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
       this.getModuleSettingData()
       this.getSPUtilityDataBilling()
+      //this.getNewBillNo()
     }
 
     this.initComp()
@@ -2331,7 +2324,9 @@ export class SalesChallanBillingComponent {
     this.setExpiryDate()
     this.setMFDate()
   //  this.setDueDate()
-  this.getNewCurrentDate()
+    this.getNewCurrentDate()
+      this.getNewBillNo()
+
   }
 
   closeModal() {

@@ -1,0 +1,245 @@
+<main class="main-content2 bgc-grey">
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-shopping-cart" aria-hidden="true"></i>{{title}}</p>
+          </div>
+          <div class="col-md-8 right_saerch_side p-0">
+            <div class="mr-2">
+              <form [formGroup]="searchForm">
+                <div id="custom-search-input" class="btn_header1">
+                  <div class="input-group col-md-12">
+                    <input type="text" class="form-control input-lg" placeholder="Search"
+                    formControlName="searchKey"
+                    #searchData
+                    />
+                    <span class="input-group-btn">
+                      <a>
+                        <i class="fas fa-search"></i>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="btn_header">
+              <a>
+                <img src="assets/img/printer.png">
+              </a>
+              <a>
+                <img src="assets/img/pdf.png"></a>
+              <a>
+                <img src="assets/img/excel.png"></a>
+              <button type="button" class="btn btn-primary waves-effect waves-light" (click)="createComponent()" >New {{title}}</button>
+              <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <voucher-entry-search [toShow]="toShowSearch" ></voucher-entry-search>
+    <voucher-entry-list (editClicked)="createComponent($event)"></voucher-entry-list>
+  </div>
+</main>
+
+<!-- <voucher-entry-add></voucher-entry-add> -->
+<ng-container #voucherAddContainer></ng-container>
+
+
+
+
+
+
+
+
+
+<!--print-->
+<!-- <div class="modal" id="payment_print_id" >
+  <header class="clearfix">
+    <div class="row1">
+      <div class="col1">
+        <div id="logo">
+          <img src="https://www.saniiro.com/img/logo.png">
+        </div>
+      </div>
+      <div class="col1">
+        <div class="company-title">
+          <h2 class="name">Saniiro Technologies Pvt Ltd</h2>
+          <div>613-5th Floor Apex Mall Lalkothi Jaipur</div>
+          <div>(602) 519-0450</div>
+          <div><a href="mailto:company@example.com">info@saniiro.com</a></div>
+          <div><a href="https://www.saniiro.com/" target="_blank">www.saniiro.com</a></div>
+          <div style="font-weight:600">CIN : 10ASAH5544AS10</div>
+          <div style="font-weight:600">Print Date : 10-05-2019</div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class=" header">
+      <h2 class="name">Receipt</h2>
+  </div>
+  <main>
+    <div class="clearfix">
+        <div class="row1">
+            <div class="col1" style="font-weight:600" 
+            *ngIf="printData && printData[0] && printData[0].ReceiptPayments[0]" >
+            Receipt No.:{{printData[0]?.ReceiptPayments[0]?.VoucherNo}}</div>
+            <div class="col1" style="text-align:right; font-weight:600">Date : </div>
+        </div>
+    </div>
+    <div id="details" class="clearfix">
+        <div class="row1">
+            <div class="col1" style="font-weight:600">Membership No.:CLB_2019_R_771</div>
+        </div>
+        <div class="row1">
+            <div class="col1">
+                <p> Received with thanks from <strong>Mr./Ms. SWATI MAHESHWARI</strong> Rs. 1000.00 (Rs. One Thousand )</p>
+            </div>
+        </div>
+    </div>
+    <div class="row1">
+      <div class="col1"></div>
+      <div class="col1">
+        <div class="table_summery">
+          <table border="0" class="table1" cellspacing="0" cellpadding="0">
+            <tbody>
+              <tr *ngIf="printData && printData[0] && printData[0].ReceiptPayments[0]" >
+                <th class="desc" >Total Outstanding Amount</th>
+                <td class="total">{{printData[0]?.ReceiptPayments[0]?.CurrentOutStanding}}</td>
+              </tr>
+              <tr>
+                <th class="desc">Amount Received</th>
+                <td class="total">{{printData[0]?.ReceiptPayments[0]?.PaidAmount}}</td>
+              </tr>
+              <tr>
+                <th class="desc">Balance Amount</th>
+                <td class="total">{{printData[0]?.ReceiptPayments[0]?.BalanceAmount}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="row1">
+      <div class="col1">
+        <h3 class="name-footer">For : Saniiro Technologies Pvt Ltd</h3>
+      </div>
+      <div class="col1"><p style="text-align:right;font-weight:600;">Authorised Signatory</p></div>
+    </div>
+  </main>
+</div> -->
+
+
+
+
+
+
+
+<div class="modal" id="payment_print_id">
+    <div class=" mt-2 main-balance">
+      <div class="row justify-content-center p-0">
+        <div class="balancesheet bgc-white col-md-11 p-0">
+          <div class="row text-center bs_head p-2">
+              <div id="logo " class="col-md-3" style="text-align: left;">
+                  <img height="75px" src="{{orgimage && orgimage[0]?.FilePath}}">
+              </div>
+            <div
+              class="name text-center col-md-12 name_size font-weight-bold"
+            >
+            {{printOrgnizationDataList && printOrgnizationDataList[0]?.OrgName}}
+            </div>
+            <div class="text-center col-md-12">
+             
+                {{orgAddress && orgAddress[0]?.CityName}}
+                {{orgAddress && orgAddress[0]?.StateName}}
+                {{orgAddress && orgAddress[0]?.CountryName}}
+            </div>
+            <div
+              class="name text-center col-md-12 font-weight-bold "
+              style="font-size:18px; letter-spacing:3px;"
+            >
+              <span class="bdr_bottom">{{printTemlateTitle}}</span>
+            </div>
+          </div>
+          <div class="row" style="padding-top:20px">
+            <div class="col-md-6"></div>
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-md-6">Voucher No</div>
+                <div class="col-md-6 font-weight-bold">{{printHeaderData?.VoucherNo}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="row p-0">
+            <div class="col-md-6 p-0">
+              <div class="row">
+                <div class="col-md-6">Mode of Payment</div>
+                <div class="col-md-6 font-weight-bold">{{printDataList[0]?.Paymode}}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="row">
+                <div class="col-md-6">Voucher Date</div>
+                <div class="col-md-6 font-weight-bold">
+                  {{printHeaderData?.VoucherDate | dateFormat:settings.dateFormat}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="margin-bottom:20px;">
+            <div class="col-md-3">Ledger Name</div>
+            <div class="col text-left font-weight-bold">
+              {{printHeaderData?.Name}}
+            </div>
+          </div>
+          <table class="table" cellspacing="0" cellpadding="0">
+            <thead>
+              <tr>
+                <th width="10%">Chq No.</th>
+                <th width="15%">Date</th>
+                <th width="25%">Drawn on</th>
+                <th width="20%">Ledger Name</th>
+                <th width="20%">Remarks</th>
+                <th width="10%">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of printDataList">
+                <td>{{item?.ChequeNo}}</td>
+                <td>{{item?.PayDate | dateFormat:settings.dateFormat}}</td>
+                <td>{{item?.PayDate | dateFormat:settings.dateFormat}}</td>                
+                <td>{{item?.BankLedgerName}}</td>
+                <td></td>
+                <td class="text-right">{{item?.Amount}}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5" class="text-center ittelic font-weight-bold">
+                  Grand Total
+                </td>
+                <td class="font-weight-bold text-right">{{totalAmount}}</td>
+              </tr>
+              <tr>
+                <td colspan="6">
+                  <span
+                    >Amount(in words) :
+                    <strong>{{totalAmountInWords}}</strong></span
+                  >
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+          <div class="row" style="margin-top:40px">
+            <div class="col-md-6 font-weight-bold">
+              Authorised By
+            </div>
+            <div class="col-md-6 font-weight-bold">
+              Received By
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -42,9 +42,15 @@ export class serviceBillingMainComponent {
         console.log(action ,'action--')
         if (action.type === FormConstants.Edit && action.formname === FormConstants.Purchase) {
           this.commonService.openPurchase(+action.id)
-        } else if (action.type === FormConstants.Print && action.formname === FormConstants.Purchase) {
-         this.onPrintButton(action.id, action.printId,true)
-        // onPrintButton(id, HtmlId, isViewPrint) 
+        }
+        if (action.type === FormConstants.ViewPrint && action.formname === FormConstants.Purchase) {
+          this.onPrintButton(action.id, action.printId,action.isViewPrint)
+   
+         }
+        
+         if (action.type === FormConstants.Print && action.formname === FormConstants.Purchase) {
+         this.onPrintButton(action.id, action.printId,action.isViewPrint)
+  
         }
       }
     )

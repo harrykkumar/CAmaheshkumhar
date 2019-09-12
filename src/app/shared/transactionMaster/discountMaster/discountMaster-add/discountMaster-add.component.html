@@ -1,0 +1,180 @@
+<div class="modal right fade" id="billdiscount_master" data-backdrop="static" data-keyboard="false" role="dialog"
+  aria-labelledby="item_form" aria-hidden="true">
+  <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Discount Master</h4>
+        <button (click)="closeRoute()" type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">×</span> </button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <!-- <form  id="form1" name="form1" #f="ngForm" > -->
+          <form #values="ngForm">
+            <div class="form-row">
+              <ng-container *ngIf="!isChekBoxTypeForm">
+                <div class="form-group col-md-12">
+                  <label for="bill_no"> Discount Type</label>
+                  <ng-select name="formTypeName" 
+                         [items]="ListTypeName" 
+                         bindLabel="Name" 
+                         bindValue="Id"
+                         placeholder="Select Type" 
+                         (change)="onChangeType($event)" 
+                         [(ngModel)]="selectedid"
+                         [ngClass]="{'errorSelecto': submitClick && invalidObj.discountNameId }" >
+                  </ng-select>
+                </div>
+                <ng-container >
+                <div class="form-group col-md-12">
+                  <label>{{DiscountName}}</label>
+                </div>
+                <div class="form-group col-md-6">
+                  <label class="active">Discount Name</label>
+                  <input (input)="checkForValidation()"  name='DiscountName' type="text" [(ngModel)]="DiscountNameValue"
+                    class="form-control" placeholder="Discount Name"  [ngClass]="{'errorSelecto': submitClick && invalidObj.DiscountNameValue }">
+                </div>
+
+                <div class=" form-group  col-md-6">
+                  <label>Discount Amount</label>
+                  <div class="discount">
+                    <input (keyup)="DiscountValidation($event);checkForValidation();"  type="number" class="form-control" placeholder="Discount Amount"
+                      appIncludeDecimal name="DiscountAmt" [(ngModel)]="DiscountAmt" min="0" max="100" 
+                      [ngClass]="{'errorSelecto': submitClick && invalidObj.DiscountAmt }" >
+                    <select  style="width: 70px !important;"
+                      class="form-control discount_type" id="DiscountType" [(ngModel)]="DiscountType"
+                      (ngModelChange)="changeDiscountType($event)" name="DiscountType">
+                      <option *ngFor="let value of currencyValues;" [value]="value.id">{{value.symbol}}</option>
+                    </select>
+                  </div>
+                </div>
+              </ng-container>
+                <!-- Cash Discount -->
+                <ng-container *ngIf="discountNameId===2">
+                  <div class="form-group col-md-3">
+                    <label  class="active">FromDays</label>
+                    <input (input)="checkForValidation()" type="number" name="FromDays" [(ngModel)]="FromDays" class="form-control"
+                      placeholder="From Day" 
+                      [ngClass]="{'errorSelecto': submitClick && invalidObj.FromDays }">
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label class="active">ToDays</label>
+                    <input (input)="checkForValidation()" type="number" name="ToDays" 
+                    [(ngModel)]="ToDays" class="form-control" placeholder="To Day"
+                    [ngClass]="{'errorSelecto': submitClick && invalidObj.ToDays }">
+                  </div>
+                  <div class="form-group col-md-3">
+                      <div class="custom-control custom-checkbox mb-3 set_chek">
+                          <input (click)="checkOnInstantBill($event)"  [checked]="OnInstantBill"  type="checkbox" class="custom-control-input" id="checkId2" name="example1">
+                         <label class="custom-control-label fix_lbl" for="checkId2">OnInstant Payment</label>
+                       </div>
+                  </div>
+             
+
+                </ng-container>
+                <!-- Volume Discount  -->
+                <ng-container *ngIf="discountNameId===3">
+                  <div class="form-group col-md-3">
+                    <label class="active">From Amount</label>
+                    <input (input)="checkForValidation()" type="number" name="fromAmount" [(ngModel)]="fromAmount" class="form-control"
+                      placeholder="From Amount" [ngClass]="{'errorSelecto': submitClick && invalidObj.fromAmount }">
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label class="active">To Amount</label>
+                    <input (input)="checkForValidation()" type="number" name="ToAmount" [(ngModel)]="ToAmount" class="form-control"
+                      placeholder="To Amount" [ngClass]="{'errorSelecto': submitClick && invalidObj.ToAmount }">
+                  </div>
+                  <div class="form-group col-md-3 ">
+                    <label class="fw-500">From Date</label>
+                    <div class="timepicker-input input-icon form-group">
+                      <datepicker-popup [toSetDate]="fromDate"
+                       (dateInFormat)="fromDate = $event;">
+                      </datepicker-popup>
+                    </div>
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label class="fw-500">To Date</label>
+                    <div class="timepicker-input input-icon form-group">
+                      <datepicker-popup [toSetDate]="toDate"
+                       (dateInFormat)="toDate = $event;">
+                      </datepicker-popup>
+                    </div>
+                  </div>
+                </ng-container>
+                <!-- Trade Discount -->
+                <ng-container *ngIf="discountNameId===4">
+                  <div class="form-group col-md-3">
+                    <label class="active">From Quantity</label>
+                    <input (input)="checkForValidation()" type="number" name="FromQty" [(ngModel)]="FromQty" class="form-control"
+                      placeholder="From Quantity"  [ngClass]="{'errorSelecto': submitClick && invalidObj.FromQty }">
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label class="active">To Quantity</label>
+                    <input (input)="checkForValidation()" type="number" name="ToQty" [(ngModel)]="ToQty" class="form-control" placeholder="To Quantity"
+                    [ngClass]="{'errorSelecto': submitClick && invalidObj.ToQty }">
+                  </div>
+                </ng-container>
+              </ng-container>
+              <!-- <button type="button" class="btn btn-primary waves-effect" (click)="addDiscount()">Add</button> -->
+              <ng-container *ngIf="isChekBoxTypeForm">
+                <div class="col-lg-12">
+                  <div class="card">
+                    <table class="table" style="width: 100%">
+                      <thead>
+                        <tr>
+                          <th width="10%">#</th>
+                          <th width="5%">#</th>
+                          <th width="50%">Discount </th>
+                          <th width="50%">Rate </th>
+
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="default_row" *ngFor="let item of DiscountList; let i = index">
+                          <td >
+                            {{i+1}}
+                          </td>
+                          <td>
+                              <div class="custom-control custom-checkbox">
+                                  <input [checked]="item.isChecked" (change)="addedMultipleDiscount(item,$event)"  type="checkbox" class="custom-control-input" id="idForCheck{{i}}" name="example1">
+                                  <label class="custom-control-label" for="idForCheck{{i}}"></label>
+                                </div>
+                          </td>
+                          <td>
+                            {{item.Name}}
+                          </td>
+                          <td>
+                              <!-- [attr.disabled]='item.disabledRateBox' -->
+                            <div class=" form-group  col-md-12">
+                              <div  class="discount"> 
+                                <input  (keyup)="validCheckedDiscount(item,$event);" [disabled]="item.disabledRateBox== true ? true : null"  type="number" class="form-control" placeholder="Rate"
+                                  appIncludeDecimal name="applyedDist{{i}}" [(ngModel)]="item.Value" min="0" max="100">
+                                <select  [disabled]="item.disabledRateBox== true ? true : null" style="width: 70px !important;" class="form-control discount_type"
+                                  id="ValueType" [(ngModel)]="item.ValueType" (ngModelChange)="MultiPleDiscountType()"
+                                  name="ValueType{{i}}">
+                                  <option *ngFor="let value of currencyValues;" [value]="value.id">{{value.symbol}}
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+
+                    </table>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button *ngIf="!isChekBoxTypeForm"  type="button" class="btn btn-primary waves-effect" (click)="SaveDiscount()">Save</button>
+        <button *ngIf="isChekBoxTypeForm"  type="button" class="btn btn-primary waves-effect" (click)="ApplyedDiscount()">Apply</button>
+
+        <!-- <a class="btn btn-primary waves-effect" (click)="saveTerm()">Save </a> -->
+      </div>
+    </div>
+  </div>
+</div>

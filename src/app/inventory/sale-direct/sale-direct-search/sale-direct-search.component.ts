@@ -33,14 +33,13 @@ export class SaleDirectSearchComponent {
   cityValue: number = 0
   dateValue: number = 0
   ledgerValue: number = 0
-
   DateType: number = 0
   LedgerId: number = 0
   dataValues: Array<Select2OptionData> = []
   @ViewChild('date_select2') dateSelect2: Select2Component
   isValid: boolean = true
   @ViewChild('fromdate') fromdate: DatepickerComponent
-  ngOnChanges (changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes.toShow && changes.toShow.currentValue) {
       setTimeout(() => {
         this.fromdate.toggleView()
@@ -49,38 +48,42 @@ export class SaleDirectSearchComponent {
   }
   @Input() toShow: boolean = false
   searchForm: FormGroup
-
-  constructor (private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
-    private settings: Settings, private _saleDirectService: SaleDirectService, private gs: GlobalService) {}
+  dataStatus: any = []
+  constructor(private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
+    private settings: Settings, private _saleDirectService: SaleDirectService, private gs: GlobalService) { }
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
-  ngOnInit () {
+  ngOnInit() {
     this.dataValues = [
-      {id: '0', text: 'Bill Date'},
+      { id: '0', text: 'Bill Date' },
+    ]
+    this.dataStatus = [
+      { id: '0', text: 'Running' },
+      { id: '1', text: 'Canceled' },
     ]
     this.createForm()
     this.getSuplier()
     this.getCountryList()
   }
 
-  createForm () {
+  createForm() {
     this.searchForm = this.formBuilder.group({
       'FromDate': [''],
       'ToDate': [''],
       'FromAmount': [''],
       'ToAmount': ['']
     },
-    {
-      validator: [DependencyCheck('FromDate', 'ToDate', 'date'), DependencyCheck('FromAmount', 'ToAmount', 'amount')]
-    })
+      {
+        validator: [DependencyCheck('FromDate', 'ToDate', 'date'), DependencyCheck('FromAmount', 'ToAmount', 'amount')]
+      })
   }
   get f() { return this.searchForm.controls; }
   supplierPlaceHolder: Select2Options
   supplierValue: any
-  getSuplier () {
+  StausType: number = 0
+  getSuplier() {
     this.supplierPlaceHolder = { placeholder: 'Select Customer' }
     let newData = [{ id: '0', text: 'Select Customer' }]
     this._ledgerServices.getVendor(5, '').subscribe(data => {
-      // console.log('supplier data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
           data.Data.forEach(element => {
@@ -95,7 +98,7 @@ export class SaleDirectSearchComponent {
     })
   }
 
-  getCountryList () {
+  getCountryList() {
     this.countryPlaceholder = { placeholder: 'Select Country' }
     let newData = [{ id: '0', text: 'Select Country' }]
     this._ledgerServices.getCommonValues('101').subscribe(data => {
@@ -113,7 +116,7 @@ export class SaleDirectSearchComponent {
     })
   }
 
-  selectCountry (evt) {
+  selectCountry(evt) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value > 0) {
         this.CountryId = +evt.value
@@ -125,7 +128,7 @@ export class SaleDirectSearchComponent {
     }
   }
 
-  getStateList (id) {
+  getStateList(id) {
     this.stateListPlaceHolder = { placeholder: 'Select State' }
     let newData = [{ id: '0', text: 'select State' }]
     this._ledgerServices.gatStateList(id).subscribe(data => {
@@ -144,7 +147,7 @@ export class SaleDirectSearchComponent {
     })
   }
 
-  selectState (evt) {
+  selectState(evt) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value > 0) {
         this.StateId = +evt.value
@@ -154,7 +157,7 @@ export class SaleDirectSearchComponent {
       }
     }
   }
-  getCitylist (id) {
+  getCitylist(id) {
     this.cityListPlaceHolder = { placeholder: 'Select City' }
     let newData = [{ id: '0', text: 'select City' }]
     this._ledgerServices.getCityList(id).subscribe(data => {
@@ -176,15 +179,18 @@ export class SaleDirectSearchComponent {
   @ViewChild('countrySelect2') countrySelect2: Select2Component
   @ViewChild('stateSelect2') stateSelect2: Select2Component
   @ViewChild('citySelect2') citySelect2: Select2Component
-  selectCity (evt) {
+  selectCity(evt) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value > 0) {
         this.CityId = +evt.value
       }
     }
   }
+  getValue (evt){
+alert(evt.value)
+  }
 
-  search () {
+  search() {
     if (this.searchForm.valid) {
       let fromDate = ''
       let toDate = ''
@@ -216,28 +222,27 @@ export class SaleDirectSearchComponent {
       if (!this.searchForm.value.ToAmount) {
         this.searchForm.value.ToAmount = 0
       }
-      const queryStr = '&DateType=' + this.DateType +
-       '&FromDate=' + fromDate + 
-       '&ToDate=' + toDate + 
-       '&FromAmount=' + +this.searchForm.value.FromAmount + 
-       '&ToAmount=' + +this.searchForm.value.ToAmount + 
-       '&LedgerId=' + this.LedgerId + 
-       '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
+      const queryStr =  '&Status=' + this.StausType + '&DateType=' + this.DateType +
+        '&FromDate=' + fromDate +
+        '&ToDate=' + toDate +
+        '&FromAmount=' + +this.searchForm.value.FromAmount +
+        '&ToAmount=' + +this.searchForm.value.ToAmount +
+        '&LedgerId=' + this.LedgerId +
+        '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
       this._saleDirectService.setSearchQueryParamsStr(queryStr)
     }
   }
-
-  resetSearch () {
+  StausValue :any
+  resetSearch() {
     this.CountryId = 0
     this.StateId = 0
     this.CityId = 0
-  
     this.countryValue = 0
     this.stateValue = 0
     this.cityValue = 0
     this.dateValue = 0
     this.ledgerValue = 0
-  
+    this.StausValue=0
     this.DateType = 0
     this.LedgerId = 0
     this.searchForm.reset()
@@ -258,21 +263,21 @@ export class SaleDirectSearchComponent {
     if (this.citySelect2) {
       this.citySelect2.setElementValue(0)
     }
-    const queryStr = '&DateType=' + this.DateType +
-    '&FromDate=' + '' + 
-    '&ToDate=' + '' + 
-    '&FromAmount=' + 0 + 
-    '&ToAmount=' + 0 + 
-    '&LedgerId=' + this.LedgerId + 
-    '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
-   this._saleDirectService.setSearchQueryParamsStr(queryStr)
+    const queryStr = '&Status=' + this.StausType + '&DateType=' + this.DateType +
+      '&FromDate=' + '' +
+      '&ToDate=' + '' +
+      '&FromAmount=' + 0 +
+      '&ToAmount=' + 0 +
+      '&LedgerId=' + this.LedgerId +
+      '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
+    this._saleDirectService.setSearchQueryParamsStr(queryStr)
   }
 
-  setToDate (evt) {
+  setToDate(evt) {
     this.searchForm.controls.ToDate.setValue(evt)
   }
 
-  setFromDate (evt) {
+  setFromDate(evt) {
     this.searchForm.controls.FromDate.setValue(evt)
   }
 }

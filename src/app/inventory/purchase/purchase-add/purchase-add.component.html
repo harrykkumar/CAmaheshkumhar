@@ -196,7 +196,7 @@
                   <tr class="default_row table">
                     <th class="cust_width_80" >#</th>
                     <!-- <th>S.No.</th> -->
-                    <th [colSpan]="categories.length" >Category</th>
+                    <th [colSpan]="categories.length" >Category <a (click)="opeCatImport()" class="info_tooltip"><i class="fas fa-plus"></i></a></th>
                     <th>Item</th>
                     <th *ngFor="let column of attributeKeys ; ">
                       {{column}}
@@ -609,7 +609,7 @@
                         <input type="text" class="form-control" id="Transportation" placeholder="Transportation"
                           class="form-control" name="Transportation" [(ngModel)]="Transportation">
                       </div>
-                      <div class="form-group col-md-4">
+                      <div class="form-group col-md-3">
                         <label>Reference By</label>
                         <div class="input-group adw_select">
                           <select2 #referral_select2 [data]="referralData" class="control_select"
@@ -617,7 +617,7 @@
                             autocomplete="true" [value]="referralPartner" ></select2>
                         </div>
                       </div>
-                      <div class="form-group col-md-4">
+                      <div class="form-group col-md-3">
                         <label>ReferenceBy Type</label>
                         <div class="input-group adw_select">
                           <select2 #referraltype_select2 [data]="referralTypesData" 
@@ -635,6 +635,23 @@
                           (input)="calculate()"
                           [(ngModel)]="RoundOffManual">
                       </div>
+                      <div class=" form-group  col-md-3">
+                        <label>Bill Discount</label>
+                        <div class="discount">
+                          <input [disabled] ="MultipleBillDiscountPurchase || addItemDisbaled" type="number" class="form-control" placeholder="Bill Discount" appIncludeDecimal
+                            name="BillDiscount" [(ngModel)]="BillDiscount" min="0" max="100"
+                            (keyup)="BillDiscountValidation($event);BillDiscountCalculate();"
+                            [ngClass]="{'errorSelecto': invalidObj?.Discount }">
+                          <select *ngIf='!MultipleBillDiscountPurchase' style="width: 70px !important;" class="form-control discount_type" id="BillDiscountType"
+                            [(ngModel)]="BillDiscountType" (ngModelChange)="BillDiscountCalculate()" name="BillDiscountType">
+                            <option *ngFor="let value of currencyValues;" [value]="value.id">{{value.symbol}}</option>
+                          </select>
+                          <div *ngIf='MultipleBillDiscountPurchase'>
+                            <a [class.disabled]="addItemDisbaled"  (click)="openDiscountMaster()"  class="Plus_tooltip"><i
+                              class="fas fa-plus-square "></i></a>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -647,6 +664,10 @@
                             <ng-container *ngIf="TaxableValue > 0" >
                               <div class="col-md-6 labal_text">Taxable Value</div>
                               <div class="col-md-6 value_text">{{TaxableValue.toFixed(noOfDecimal)}}</div>
+                            </ng-container>
+                            <ng-container *ngIf="totalBillDiscount > 0">
+                              <div class="col-md-6 labal_text">Total Bill Discount</div>
+                              <div class="col-md-6 value_text">{{totalBillDiscount.toFixed(noOfDecimalPoint)}}</div>
                             </ng-container>
                             <ng-container *ngFor="let charge of AdditionalChargesToShow" >
                               <div class="col-md-6 labal_text">{{charge.LedgerName}}</div>

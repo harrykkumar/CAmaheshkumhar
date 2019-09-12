@@ -545,7 +545,7 @@
                       <div class=" form-group  col-md-4">
                         <label>Bill Discount</label>
                         <div class="discount">
-                          <input [disabled] ="MultipleBillDiscount" type="number" class="form-control" placeholder="Bill Discount" appIncludeDecimal
+                          <input [disabled] ="MultipleBillDiscount || addItemDisbaled" type="number" class="form-control" placeholder="Bill Discount" appIncludeDecimal
                             name="BillDiscount" [(ngModel)]="BillDiscount" min="0" max="100"
                             (keyup)="BillDiscountValidation($event);BillDiscountCalculate();"
                             [ngClass]="{'errorSelecto': invalidObj?.Discount }">
@@ -553,9 +553,9 @@
                             [(ngModel)]="BillDiscountType" (ngModelChange)="BillDiscountCalculate()" name="BillDiscountType">
                             <option *ngFor="let value of currencyValues;" [value]="value.id">{{value.symbol}}</option>
                           </select>
-                          <div *ngIf='MultipleBillDiscount'>
-                            <a  class="Plus_tooltip" data-toggle="modal"><i
-                              class="fas fa-plus-square "></i></a>
+                          <div  *ngIf='MultipleBillDiscount'>
+                                <a  [class.disabled]="addItemDisbaled"  (click)="openDiscountMaster()"  class="Plus_tooltip"><i
+                                  class="fas fa-plus-square "></i></a>
                           </div>
                         
                         </div>

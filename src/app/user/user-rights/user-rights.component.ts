@@ -62,7 +62,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
     })
   }
 
-  mapSideMenus = (response) => {
+  mapSideMenus = (response:any) => {
     return new Promise((resolve, reject) => {
       _.map(response.Data.Modules, (module) => {
         if (MODULES_IMG_SRC[`${module.Name}`]) {
@@ -87,7 +87,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
     })
   }
 
-  mapPermissions = (response) => {
+  mapPermissions = (response:any) => {
     return new Promise((resolve, reject) => {
       _.map(response.Data.Modules, (module) => {
         _.forEach(response.Data.UserPermissionDetails, (permission) => {
@@ -131,7 +131,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
     })
   }
 
-  onToggleModule = (selectedModule, index) => {
+  onToggleModule = (selectedModule:any, index:any) => {
     this.toggledModule = {
       'module': selectedModule,
       'index': index
@@ -157,7 +157,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   }
 
   /* Function to get user data */
-  getUserListData = (id) => {
+  getUserListData = (id:any) => {
     this._userService.getUnderUserList(id).
       pipe(takeUntil(this.unSubscribe$),
         map((data) => {
@@ -175,7 +175,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   }
 
   /* Function invoke on user type change */
-  onUserTypeChange = (event) => {
+  onUserTypeChange = (event:any) => {
     if (event && event.data.length > 0) {
       this.rights.selectedUserType = event.data[0]
       if (this.rights.selectedUserType.id > 0) {
@@ -188,7 +188,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   }
 
   /* Function invoke on user type change */
-  onUserChange = (event) => {
+  onUserChange = (event:any) => {
     if (event && event.data.length > 0) {
       this.rights.selectedUser = event.data[0]
       if (event.value > 0) {
@@ -216,7 +216,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   }
 
   /* Function to map form field with permissions */
-  mapPermission = (Data) => {
+  mapPermission = (Data:any) => {
     _.map(this.moduleList, (module) => {
       _.forEach(Data.UserPermissionDetails, (permission) => {
         _.map(module.sideMenu, (menu) => {
@@ -306,7 +306,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   }
 
   /* Function on change of checkbox */
-  menuPermissionChange = (event, selectedMenu, permissionType) => {
+  menuPermissionChange = (event:any, selectedMenu:any, permissionType:any) => {
     if (permissionType === 'READ') {
       _.map(selectedMenu.subMenu, (subMenu) => {
         subMenu['read'] = event.target.checked
@@ -329,7 +329,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   }
 
   /* Function invoke on subMenu change */
-  onChangeSubMenu = (event, subMenu, permissionType) => {
+  onChangeSubMenu = (event:any, subMenu:any, permissionType:any) => {
     if (permissionType === 'WRITE') {
       subMenu['read'] = event.target.checked
     } else if (permissionType === 'DELETE') {
@@ -339,7 +339,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   }
 
   /* Function to check all permission of modules */
-  selectAllPermission = (event) => {
+  selectAllPermission = (event:any) => {
     _.map(this.toggledModule.module.sideMenu, (menu) => {
       menu['read'] = event.target.checked
       menu['write'] = event.target.checked

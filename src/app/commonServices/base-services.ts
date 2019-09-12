@@ -24,15 +24,15 @@ export class BaseServices {
     return new HttpHeaders(headersConfig)
   }
 
-  public getRequest(path: string): Observable<any> {
+  getRequest(path: string): Observable<any> {
     return this.http.get(path, { headers: this.setHeaders() })
       .pipe(share())
   }
-  public putRequest(path: string): Observable<any> {
+  putRequest(path: string): Observable<any> {
     return this.http.put(path, { headers: this.setHeaders() }).pipe(share())
   }
 
-  public postRequest(path: any, params: any): Observable<any> {
+  postRequest(path: any, params: any): Observable<any> {
     const body = params
     return this.http.post(path, JSON.stringify(body), { headers: this.setHeaders() })
   }

@@ -12,7 +12,6 @@ import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { PagingComponent } from '../../shared/pagination/pagination.component'
 import { Settings } from '../../shared/constants/settings.constant'
 import { SetUpIds } from '../../shared/constants/setupIds.constant';
-
 declare const $: any
 @Component({
   selector: 'app-category',
@@ -40,7 +39,7 @@ export class CategoryComponent implements OnInit {
   categoryLevels: Array<Select2OptionData> = []
   categoryPlaceholder: Select2Options
   LevelNo: number = 0
-  @ViewChild('open_add_form') myModal
+  @ViewChild('open_add_form') myModal:any
   @ViewChild('searchData') searchData: ElementRef
   isSearching: boolean = false
   @ViewChild('paging_comp') pagingComp: PagingComponent
@@ -66,13 +65,19 @@ export class CategoryComponent implements OnInit {
         }
       }
     )
+    this.newCatSub = this.commonService.getCatImportAddStatus.subscribe(() => {
+      this.getCategoryDetails()
+    })
     this.formSearch()
   }
 
-  
+  openImport() {
+    this.commonService.openCatImport()
+  }
+
   getCatLevel () {
     let settings = JSON.parse(this.settings.moduleSettings).settings
-    settings.forEach(element => {
+    settings.forEach((element:any) => {
       if (element.id === SetUpIds.catLevel) {
         this.catLevel = +element.val
         if (this.catLevel > 1) {
@@ -82,7 +87,7 @@ export class CategoryComponent implements OnInit {
     })
   }
 
-  deleteItem (id) {
+  deleteItem (id:any) {
     if (id) {
       this._catagoryservices.deleteCatagory(id).subscribe(Data => {
         if (Data.Code === UIConstant.DELETESUCCESS) {
@@ -128,7 +133,7 @@ export class CategoryComponent implements OnInit {
     })
   }
 
-  selectCatLevel (evt) {
+  selectCatLevel (evt:any) {
     if (evt.value && evt.data.length > 0) {
       this.LevelNo = +evt.value
       this.getCategoryDetails()
@@ -145,7 +150,7 @@ export class CategoryComponent implements OnInit {
       map((event: any) => {
         return event.target.value
       }),
-      filter(res => res.length > 3 || res.length === 0),
+      filter(res => res.length > 1 || res.length === 0),
       debounceTime(1000),
       distinctUntilChanged()
       ).subscribe((text: string) => {
@@ -181,6 +186,7 @@ export class CategoryComponent implements OnInit {
 
   ngOnDestroy () {
     this.newCatSub.unsubscribe()
+    this.deleteSub.unsubscribe()
   }
 
   getCategoryDetails () {
@@ -205,27 +211,15 @@ export class CategoryComponent implements OnInit {
     })
   }
 
-  editCatagory (id) {
+  editCatagory (id:any) {
     this.commonService.openCategory(id, '2')
   }
 
-  deleteCatagory (id) {
+  deleteCatagory (id:any) {
     this.commonService.openDelete(id, 'category', 'Category')
   }
 
   addCatagory () {
     this.commonService.openCategory('', '2')
   }
-
-  // searchingCategory () {
-  //   if (this.searchForm.value.searckKey.length > UIConstant.THREE) {
-  //     this.subscribe = this._catagoryservices.GetCatagoryDetail(this.searchForm.value.searckKey, '').subscribe(Data => {
-  //       this.categoryDetail = Data.Data
-  //     })
-  //   } else if (this.searchForm.value.searckKey.length === UIConstant.ZERO) {
-  //     this.subscribe = this._catagoryservices.GetCatagoryDetail(this.searchForm.value.searckKey).subscribe(Data => {
-  //       this.categoryDetail = Data.Data
-  //     })
-  //   }
-  // }
 }

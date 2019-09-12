@@ -36,7 +36,7 @@ export class NoOrganizationComponent implements OnInit {
       open: true
     };
     this.companyComponentRef.instance.closeModal.subscribe(
-      (data) => {
+      (data:any) => {
         this.companyComponentRef.destroy();
       });
   }

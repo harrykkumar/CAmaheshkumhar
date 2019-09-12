@@ -10,9 +10,9 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { map, filter, debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators';
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { PurchaseAddComponent } from '../purchase-add/purchase-add.component';
-import { GlobalService } from 'src/app/commonServices/global.service'
+import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { ExcelService } from '../../../commonServices/excel.service';
-
+import { GlobalService } from 'src/app/commonServices/global.service';
 declare const $: any
 declare const _: any
 @Component({
@@ -40,14 +40,20 @@ export class PurchaseMainComponent {
       private settings: Settings,
       private toastrService: ToastrCustomService,
       private _formBuilder: FormBuilder) {
+    this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
+
         this.loading = true
         this.getSPUtilityData()
     this.data$ = this.commonService.getActionClickedStatus().subscribe(
       (action: any) => {
         if (action.type === FormConstants.Edit && action.formname === FormConstants.Purchase) {
           this.commonService.openPurchase(+action.id)
-        } else if (action.type === FormConstants.Print && action.formname === FormConstants.Purchase) {
-          this.onPrintButton(action.id, action.printId)
+        } if (action.type === FormConstants.ViewPrint && action.formname === FormConstants.Purchase) {
+          this.onPrintButton(action.id, action.printId,action.isViewPrint)
+        }
+        
+        if (action.type === FormConstants.Print && action.formname === FormConstants.Purchase) {
+          this.onPrintButton(action.id, action.printId,action.isViewPrint)
         }
       }
     )
@@ -166,7 +172,7 @@ export class PurchaseMainComponent {
   }
 
   attributeKeys: any = []
-  onPrintButton (id, htmlID) {
+  onPrintButton (id, htmlID,isViewPrint) {
     // this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
     this.word = ''
     let _self = this
@@ -181,7 +187,6 @@ export class PurchaseMainComponent {
         })
         _self.getDistinctTaxName(data.Data.HsnItemTaxTransDetails, data.Data.HsnItemTransactions, data.Data.PurchaseTransactions[0].Currency)
         _self.attributeKeys = data.Data.ItemTransactions[0].itemAttributes
-        // _self.NumInWords(data.Data.PurchaseTransactions[0].BillAmount)
          this.word = this.commonService.convertNumber(data.Data.PurchaseTransactions[0].BillAmount)
         let newItemTransaction = this.splitArray(data.Data.ItemTransactions, 18)
         newItemTransaction.forEach((element, index) => {
@@ -191,8 +196,7 @@ export class PurchaseMainComponent {
         console.log('print : ', _self.printData1)
         _self.orgImage = (data.Data.ImageContents && data.Data.ImageContents.length > 0) ? data.Data.ImageContents[0].FilePath : ''
         setTimeout(function () {
-          // $('#' + htmlID).modal(UIConstant.MODEL_SHOW)
-          _self.printComponent(htmlID)
+          _self.printComponent(htmlID,isViewPrint)
         }, 1000)
       }
     })
@@ -216,9 +220,7 @@ let valueshow=[]
             for(let i =0; i<this.HedShow.length; i++){
               valueshow.push(this.HedShow[i].Amount+ '-' + '('+this.HedShow[i].TaxRate +')'+'%')
             }
-      
       }
-     
       this.hsnToSHow.push({
        HsnNo:element.HsnNo,
        TaxableAmount:element.TaxableAmount,
@@ -228,42 +230,16 @@ let valueshow=[]
       })
     });
     console.log(this.hsnToSHow ,'Main-HSN')
-    // let groupOnName = _.groupBy(hsnData, (data) => {
-    //   return data.Name + '(' + data.TaxRate + '%)'
-    // })
-    // let GroupHeading = _.groupBy(hsnData, (data) => {
-    //   return data.Name 
-    // })
-    // this.Heading =[]
-    // this.headerKeys = []
-    // this.hsnToSHow = []
-    // console.log(groupOnName)
-    // for (const name in groupOnName) {
-    //   this.headerKeys.push(name)
-    // }
-    // for (const name in GroupHeading) {
-    //   this.Heading.push(name)
-    // }
-    // hsnTransaction.forEach(hsnTrans => {
-    //   let hsnDetails = hsnData.filter(hsnDetail => hsnDetail.HsnNo === hsnTrans.HsnNo)
-    //   let totalTaxRate = 0
-    //   let obj = {}
-    //   hsnDetails.forEach(hsn => {
-    //     let index = this.headerKeys.indexOf(hsn.Name + '(' + hsn.TaxRate + '%)')
-    //     if (index >= 0) {
-    //       obj[hsn.Name + '(' + hsn.TaxRate + '%)'] = hsn.Amount
-    //       totalTaxRate += hsn.TaxRate
-    //     } else {
-    //       obj[hsn.Name + '(' + hsn.TaxRate + '%)'] = '-'
-    //     }
-    //   })
-    //   hsnTrans['totalTaxRate'] = totalTaxRate + ' ' + (hsnDetails[0].ValueType === 0 ? '%' : currency)
-    //   hsnTrans['AppliedTaxes'] = obj
-    // })
-    // this.hsnToSHow = JSON.parse(JSON.stringify(hsnTransaction))
-    // console.log('hsn to show : ', this.hsnToSHow)
   }
+  BillDiscountOnPrint:any=0
+  getSetUpModules(settings) {
+    settings.forEach(element => {
+      if (element.id === SetUpIds.BillDiscountOnPrint) {
+        this.BillDiscountOnPrint = +element.val
+      }
+    })
 
+  }
   splitArray (arr, len) {
     let newArr = []
     let start = 0
@@ -296,7 +272,7 @@ let valueshow=[]
     return newArr
   }
 
-  printComponent (cmpName) {
+  printComponent (cmpName,isViewPrint) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open('', '_blank', '')
@@ -358,8 +334,11 @@ let valueshow=[]
     printWindow.focus()
     $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
     setTimeout(function () {
-     /*   printWindow.print()
-       printWindow.close() */
+      if(!isViewPrint){
+       printWindow.print()
+       printWindow.close() 
+      }
+
     }, 100)
   }
   word: string = ''

@@ -160,8 +160,9 @@ export class PurchaseReturnListComponent implements OnInit {
         this.notRecordFound = false
         this.createTableData(data.PurchaseTransactions, data.PurchaseTransactionsSummary)
       } else {
+        this.createTableData(data.PurchaseTransactions, data.PurchaseTransactionsSummary)
         this.notRecordFound = true
-      this._loaderService.hide()
+        this._loaderService.hide()
       }
     },(error) => {
       this._loaderService.hide()
@@ -199,7 +200,9 @@ export class PurchaseReturnListComponent implements OnInit {
       { text: 'TaxAmount', isRightAligned: true },
       { text: 'BillAmount', isRightAligned: true }]
     this.actionList = [
-      { type: FormConstants.Print, id: 0, text: 'Print', printId: 'PurchaseReturn_print_id',isViewPrint: true},
+      { type: FormConstants.Print, id: 0, text: 'Print', printId: 'PurchaseReturn_print_id',isViewPrint: false},
+      { type: FormConstants.ViewPrint, id: 0, text: 'View Print', printId: 'PurchaseReturn_print_id',isViewPrint: true},
+
       { type: FormConstants.Edit, id: 0, text: 'Edit' },
       { type: FormConstants.Cancel, id: 0, text: 'Cancel' },
 
