@@ -182,11 +182,7 @@ export class TermAndConditionAddComponent {
                   Terms: element.Terms
                 })
               }
-   
             });
-  
-            console.log(this.TermConditions ,'jjj0000--')
-
           }
         })
       }

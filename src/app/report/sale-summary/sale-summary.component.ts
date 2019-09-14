@@ -1,5 +1,6 @@
 import { PagingComponent } from './../../shared/pagination/pagination.component';
 import { GlobalService } from 'src/app/commonServices/global.service';
+import {SaleDirectMainComponent} from 'src/app/inventory/sale-direct/sale-direct-main/sale-direct-main.component'
 import { Settings } from './../../shared/constants/settings.constant';
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { ToastrCustomService } from './../../commonServices/toastr.service';
@@ -12,8 +13,10 @@ declare var $: any
 declare var flatpickr: any
 import { ExcelService } from '../../commonServices/excel.service';
 import { Select2OptionData, Select2Component } from 'ng2-select2'
+import { FormConstants } from 'src/app/shared/constants/forms.constant'
 
 @Component({
+  providers:[SaleDirectMainComponent ],
   selector: 'app-sale-summary',
   templateUrl: './sale-summary.component.html',
   styleUrls: ['./sale-summary.component.css']
@@ -30,7 +33,7 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
-  constructor(
+  constructor(private saleMainComponent:SaleDirectMainComponent,
     public excelService:ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
@@ -44,7 +47,7 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
   noOfDecimal: any
   viewFlag: any
   ngOnInit() {
-    this.allTotal =0
+    //this.allTotal =0
     this.viewFlag = true
     this.isViewPrint = false
     this._commonService.fixTableHF('cat-table')
@@ -67,11 +70,12 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
     this.fromDate()
   }
   fromDate = () => {
-    this.model.fromDatevalue = ''
+    this.model.fromDatevalue = this._globalService.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
+ 
   }
 
   toDate = () => {
-    this.model.toDateValue = ''
+    this.model.toDateValue =  this._globalService.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
   }
   selectedType: any;
   onLedgerItemChange = (event) => {
@@ -143,8 +147,37 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
     this.model.endDate = item.endDate
     this.getTypeEWise = this.getsetTypeWise(item.type)
     this.getSaleSummaryData()
+    if(this.getTypeEWise ==='billWise' && item.saleId >0 ){
+        let action={}
+
+        //action.id, Html_id, action.viewPrint
+        //let html = this.onLoadPrint()
+         action =
+               { type: FormConstants.ViewPrint,
+                 id: item.saleId
+             ,isViewPrint :true}
+          //   this.saleMainComponent.onPrintForDirectSale(item.saleId,'saleDirect_PrintType1',true)
+      //this._commonService.reDirectPrintSale(action)
+    //  this._commonService.AddedItem()
+      
+      }
 
   }
+  // onLoadPrint() {
+  //   if (this.PrintFormateType === 1) {
+  //     return 'saleDirect_PrintType1'
+  //   }
+  //   if (this.PrintFormateType === 2) {
+  //     return 'saleDirect_PrintType2'
+  //   }
+  //   if (this.PrintFormateType === 3) {
+  //     return 'saleDirect_PrintType3'
+  //   }
+  //   if (this.PrintFormateType === 4) {
+  //     return 'saleDirect_PrintType4'
+  //   }
+
+  // }
   @ViewChild('setWise') setTypeWise: Select2Component
   HeadingLedger: any = []
   getValueFalg: boolean = true
@@ -215,6 +248,7 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
           if (ledger.length > 0) {
             value.push({
               id: element.Id,
+              saleId:element.TransId,
               month: element.Month,
               endDate: this.endDateChanage,
               startDate: this.startDateChanage,
@@ -247,7 +281,7 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
         this._toastService.showError("Error in Data Fetching", '');
       }
     }, (error) => {
-      console.log(error);
+      //console.log(error);
     });
     this.viewPrint = false
 
@@ -260,7 +294,7 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
     })
     for (const month in this.monthGroup) {
       let calTotalMonth = this.topToBottomSummary(totalMonthValue)
-      console.log(calTotalMonth, 'tatal')
+     // console.log(calTotalMonth, 'tatal')
       let ledger = []
       let obj = {}
       if (this.monthGroup.hasOwnProperty(month)) {
@@ -273,17 +307,19 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
               balance: (element[index].balance).toFixed(this.noOfDecimal),
             })
             obj['month'] = element[index].month
+            obj['saleId'] = element[index].saleId
             obj['type'] = element[index].type
             obj['endDate'] = element[index].endDate
             obj['startDate'] = element[index].startDate
             obj['ledger'] = [...ledger]
-            obj['MonthwiseTotal'] = calTotalMonth[month][0].Balance
+            obj['MonthwiseTotal'] = calTotalMonth[month][0].Balance.toFixed(this.noOfDecimal)
 
           } else {
             ledger.push({
               balance: ' '
             })
             obj['month'] = element[0].month
+            obj['saleId'] = element[0].saleId
             obj['type'] = element[0].type
             obj['endDate'] = element[0].endDate
             obj['startDate'] = element[0].startDate
@@ -294,7 +330,7 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
       this.MonthlyData.push(obj)
     }
     
-    console.log(this.MonthlyData, 'monthlys')
+   // console.log(this.MonthlyData, 'monthlys')
 
   }
 
@@ -302,8 +338,8 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
   totalLegummary: any = []
   allTotal: any = 0
   totalMonthSummary = (data) => {
-    debugger
-    this.allTotal = 0
+   
+    //this.allTotal = 0
     this.totalSummary = []
     let totalgroup = _.groupBy(data, (lgr) => {
       return lgr.Id
@@ -323,6 +359,7 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
     }
     if (this.totalSummary.length > 0) {
       this.allTotal = this.calculateallTotal(this.totalSummary)
+    //  console.log( this.allTotal,this.totalSummary)
     }
 
   }

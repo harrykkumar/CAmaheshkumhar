@@ -10,6 +10,7 @@ import { LoginService } from './../../commonServices/login/login.services';
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { Settings } from '../../shared/constants/settings.constant'
 import { Router } from '@angular/router'
+import { GlobalService } from '../../commonServices/global.service'
 
 @Component({
   selector: 'app-trading-report',
@@ -23,17 +24,18 @@ export class TradingReportComponent implements OnInit {
   totaltax: number
   totalBillAmount: number
   newDateSub: Subscription
-  todateShowHtml : any
+  todateShow : any =''
   fromDateShow : any
   clientDateFormat: any
-  constructor(public _router:Router, public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+  constructor(public  gs:GlobalService,public _router:Router, public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     this.newDateSub = this._commonService.getsearchByDateForTradingStatus().subscribe(
       (obj: any) => {
         this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
         this.getModuleSettingData()
-        this.getbalancesheetdata(obj.toDate,obj.fromDate)
-         this.todateShowHtml = obj.toDate
-         this.fromDateShow = obj.fromDate
+        this.onload()
+        this.todateShow = this.gs.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
+        this.fromDateShow = this.gs.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
+          this.getbalancesheetdata( )
 
       }
     )
@@ -41,10 +43,14 @@ export class TradingReportComponent implements OnInit {
   
   loggedinUserData: any
   ngOnInit() {
-    this.onload()
-  //  this.getbalancesheetdata(this.todateShowHtml, this.fromDateShow)
- 
 
+  }
+  searchResetButton (){
+    this.todateShow  =''
+    this.fromDateShow=''
+  }
+  searchButton(){
+        this.getbalancesheetdata()
   }
   decimalDigit: any
   onload() {
@@ -91,7 +97,21 @@ export class TradingReportComponent implements OnInit {
   orgDetails:any={}
   headI1dData:any =[]
   headI2dData:any =[]
-  getbalancesheetdata (todate,fromDate) {
+  getbalancesheetdata () {
+    let todate;
+    let fromDate;
+    if (this.todateShow !== '') {
+      todate = this.gs.clientToSqlDateFormat(this.todateShow, this.clientDateFormat)
+      }
+      else {
+      todate = ''
+      }
+      if (this.fromDateShow !== '') {
+        fromDate = this.gs.clientToSqlDateFormat(this.fromDateShow, this.clientDateFormat)
+      }
+      else {
+        fromDate = ''
+      }
    this.mainData =[]
     this._commonService.getTradingList(todate,fromDate).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       this.headervalue2 =0

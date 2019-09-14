@@ -30,6 +30,7 @@ import { CompanyProfileComponent } from '../start/company-profile/company-profil
 import { ChartsModule } from 'ng2-charts';
 import  { DatePicker2AppModule} from './datepicker-2/datepicker2.module'
 // import { MyDatePickerModule} from 'mydatepicker'
+import { SkipWhiteSpacesDirective } from './directives/no-white-spaces.directive';
 @NgModule({
   imports: [
     FormsModule,
@@ -65,6 +66,7 @@ import  { DatePicker2AppModule} from './datepicker-2/datepicker2.module'
     ControlMessageComponent,
     DigitsOnlyDirective,
     IncludeDecimalDirective,
+    SkipWhiteSpacesDirective,
     DateFormatPipe,
     TableUtilityModule,
     DynamicCategoryModule,
@@ -96,6 +98,7 @@ import  { DatePicker2AppModule} from './datepicker-2/datepicker2.module'
     ControlMessageComponent,
     DigitsOnlyDirective,
     IncludeDecimalDirective,
+    SkipWhiteSpacesDirective,
     DateFormatPipe,
     UserFormComponent,
     UserTypeFormComponent,

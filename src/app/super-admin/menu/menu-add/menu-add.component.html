@@ -1,0 +1,143 @@
+<div class="modal fade right show" id="menu_admin" role="dialog" aria-labelledby="menu_admin">
+  <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <!--Header-->
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Menu</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="classic-tabs">
+          <ul class="nav tabs-cyan" role="tablist">
+            <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light show"
+                [ngClass]="{active: tabId === 1}" data-toggle="tab" (click)="tabId = 1;getParentMenuList();setFocus();" role="tab"
+                aria-selected="true">Menu</a> </li>
+            <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab"
+                [ngClass]="{active: tabId === 3}"  (click)="tabId = 3; getUtilityData();setFocus();" (click)="tabId = 3" role="tab" aria-selected="false">Industory
+                Module</a></li>
+          </ul>
+          <div class="tab-content">
+            <!--Panel 1-->
+            <div class="tab-pane fade in show" *ngIf="tabId === 1" [ngClass]="{active: tabId === 1}" role="tabpanel">
+              <div class="card">
+                <div class="card-body">
+                  <form novalidate (ngSubmit)="menu.form.valid && menuAdd.ParentId !== 0 && postMenu()" #menu="ngForm" >
+                    <div>
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label class="active">Menu Name</label>
+                          <input type="text" class="form-control" [(ngModel)]="menuAdd.Name" #name="ngModel"
+                              placeholder="Enter Value" required name="name" autofocus #first_menu
+                              [ngClass]="{
+                                errorSelecto: name.invalid && (name.dirty || name.touched) && name?.errors?.required}" 
+                            >
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label class="active">Short Name</label>
+                          <input type="text" class="form-control" [(ngModel)]="menuAdd.AlternateName" #AlternateName="ngModel"
+                              placeholder="Enter Value" required name="AlternateName" autofocus
+                              [ngClass]="{
+                                errorSelecto: AlternateName.invalid && (AlternateName.dirty || AlternateName.touched) && AlternateName?.errors?.required}" 
+                            >
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label>Under Menu</label>
+                          <div class="input-group adw_select">
+                            <select2 #menu_select2 id="parentMenu" [data]="parentMenuData" class="control_select"
+                              (valueChanged)="menuAdd.ParentId = +$event.value" autocomplete="true"
+                              [options]="{placeholder: 'Select Menu'}"
+                              [ngClass]="{errorSelecto: menuAdd.ParentId === 0 }" [value]="menuAdd.parentMenu"></select2>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-6 mt-3">
+                          <button type="submit" class="btn btn-primary waves-effect">Save</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <!--/.Panel 1-->
+            <!-- <div class="tab-pane fade" *ngIf="tabId === 2" [ngClass]="{active: tabId === 2}" role="tabpanel">
+              <div class="card">
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="bill_no">Menu</label>
+                      <div class="input-group adw_select">
+                          <select2 #module_select2 id="module" [data]="moduleData"
+                            class="control_select" (valueChanged)="onChange($event, 'mod')"
+                            autocomplete="true" [options]="{multiple: true, placeholder: 'Select Module'}"
+                            [ngClass]="{errorSelecto: invalidObj.module}"
+                            [value]="clientAdd.module"></select2>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="bill_no">Module</label>
+                      <div class="input-group adw_select">
+                          <select2 #module_select2 id="module" [data]="moduleData"
+                            class="control_select" (valueChanged)="onChange($event, 'mod')"
+                            autocomplete="true" [options]="{multiple: true, placeholder: 'Select Module'}"
+                            [ngClass]="{errorSelecto: invalidObj.module}"
+                            [value]="clientAdd.module"></select2>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-2 mt-3">
+                      <button type="button" class="btn btn-primary waves-effect">Save</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div> -->
+            <div class="tab-pane fade in show" *ngIf="tabId === 3" [ngClass]="{active: tabId === 3}" role="tabpanel">
+              <div class="card">
+                <div class="card-body">
+                  <form novalidate (ngSubmit)="module.form.valid && moduleAdd.ModuleId !== 0 && moduleAdd.SubModuleId.length !== 0 
+                  && moduleAdd.IndustryId !== 0 && postModule()"
+                   #module="ngForm" >
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label for="bill_no">Module</label>
+                          <div class="input-group adw_select">
+                            <select2 #module_select2 id="module" [data]="moduleData" class="control_select"
+                              (valueChanged)="moduleAdd.ModuleId = +$event.value" autocomplete="true"
+                              [options]="{placeholder: 'Select Module'}"
+                              [ngClass]="{errorSelecto: moduleAdd.ModuleId === 0}" [value]="moduleAdd.module"></select2>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="bill_no">Sub-Module</label>
+                          <div class="input-group adw_select">
+                            <select2 #module_select2 id="module" [data]="subModulesData" class="control_select"
+                              (valueChanged)="onChange($event, 'sub')" autocomplete="true"
+                              [options]="{multiple: true, placeholder: 'Select Sub Modules'}"
+                              [ngClass]="{errorSelecto: moduleAdd.SubModuleId === ''}" 
+                              [value]="moduleAdd.submodule"></select2>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="bill_no">Industry</label>
+                          <div class="input-group adw_select">
+                            <select2 #industry_select2 id="industry" [data]="industryData" class="control_select"
+                              (valueChanged)="moduleAdd.IndustryId = +$event.value" autocomplete="true"
+                              [options]="{placeholder: 'Select Industry'}"
+                              [ngClass]="{errorSelecto: moduleAdd.IndustryId === 0}" [value]="moduleAdd.industry"></select2>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-2 mt-3">
+                          <button type="submit" class="btn btn-primary waves-effect">Save</button>
+                        </div>
+                      </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -29,17 +29,34 @@
                 <img src="assets/img/pdf.png"></a>
               <a>
                 <img src="assets/img/excel.png"></a>
-              <!--      <button   type="button" class="btn btn-primary waves-effect waves-light" (click)="openSaleDirect('')" >
-                          New invoice</button> -->
-              <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i
+              <a class="btn btn-info" data-toggle="collapse" data-target="#trial_search_form"><i
                   class="fas fa-search"></i>Search</a>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <app-balance-sheet-search [toShow]="toShowSearch"></app-balance-sheet-search>
+    <div id="trial_search_form" class="card collapse">
+      <div class="card-body ">
+        <form>
+          <div class="form row">
+            <div class="form-group col-md-2">
+              <label class="fw-500">Date</label>
+              <datepicker-popup (dateInFormat)="toDateShow = $event;" [toSetDate]="toDateShow"></datepicker-popup>
+            </div>
+            <div class="form-group col-md-2 pt-3">
+              <button (click)="searchButton()" type="submit" class="btn btn-primary waves-effect waves-light">
+                Search
+              </button>
+            </div>
+            <div class="form-group col-md-1 pt-3">
+              <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect">Reset</button>
 
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
     <!-- <app-search [toShow]="toShowSearch" ></app-search> -->
     <!-- <div class="row animated-background">
                 <div class="col-md-12">
@@ -135,8 +152,8 @@
             <div class="name text-center col-md-12 font-weight-bold name_size"> {{ loggedinUserData.Name }} </div>
             <div class="name text-center col-md-12 font-weight-bold">Trial Balance </div>
             <!-- <div class="text-center col-md-12 font-weight-bold">As on Date {{dateShow | dateFormat:clientDateFormat }}</div> -->
-            <div class="text-center col-md-12 font-weight-bold">As on 
-              {{todateShowHtml  | dateFormat:clientDateFormat }}
+            <div class="text-center col-md-12 font-weight-bold">As on
+              {{toDateShow}}
             </div>
 
           </div>
@@ -151,8 +168,7 @@
                 <div class="row" *ngFor="let item of mainData; let i =index">
                   <div class="col-md-8">
                     <div *ngIf='item.LevelNo !== 0 && item.LevelNo !== 3 && item.LevelNo !== 4'
-                      [ngClass]="(item.LevelNo ===1)?'level1':'level2'"
-                      class="panel-title">
+                      [ngClass]="(item.LevelNo ===1)?'level1':'level2'" class="panel-title">
                       <a data-toggle="collapse">{{item.GlName}}</a>
 
                     </div>
@@ -167,11 +183,11 @@
 
                       </div>
                       <div class='text-right' *ngIf='item.HeadId === 1 && item.LevelNo === 2'
-                      [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"
-                      class="amount_bs">
-                      {{(item.Amount).toFixed(decimalDigit)}}
+                        [ngClass]="(item.HeadId === 1 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"
+                        class="amount_bs">
+                        {{(item.Amount).toFixed(decimalDigit)}}
 
-                    </div>
+                      </div>
                     </ng-container>
                   </div>
                   <div class="col-2">
@@ -181,11 +197,11 @@
                         class="amount_bs">
                         {{(item.Amount1).toFixed(decimalDigit)}}
                       </div>
-                      <div class='text-right'  *ngIf='item.HeadId === 2 && item.LevelNo === 2' 
-                      [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"
-                     class="amount_bs">
-                      {{(item.Amount).toFixed(decimalDigit)}}
-                    </div>
+                      <div class='text-right' *ngIf='item.HeadId === 2 && item.LevelNo === 2'
+                        [ngClass]="(item.HeadId === 2 && item.LevelNo ===1)?'font-weight-bold':'font-weight-normal'"
+                        class="amount_bs">
+                        {{(item.Amount).toFixed(decimalDigit)}}
+                      </div>
                     </ng-container>
                   </div>
 

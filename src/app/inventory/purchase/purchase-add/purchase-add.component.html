@@ -131,7 +131,7 @@
                   [data]="AddressData" class="control_select"
                   (valueChanged)="onAddressSelect($event)"
                     autocomplete="true" [options]="{ placeholder: 'Select Address' }"
-                    [ngClass]="{'errorSelecto': submitSave && invalidObj?.AddressId }"
+                   
                   [value]="addressValue" ></select2>
               </div>
             </div>
@@ -167,9 +167,12 @@
             </div>
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label for="due-date">Due Date</label>
-              <!-- <ngbd-datepicker-popup [disableInput]="editMode" [daysToAdd]="CreditDays" (dateInFormat)="DueDate = $event" ></ngbd-datepicker-popup> -->
-              <datepicker-popup [disableInput]="editMode" [daysToAdd]="CreditDays"
-               (dateInFormat)="DueDate = $event" ></datepicker-popup>
+                <datepicker-popup 
+                [toSetDate]="DueDate" 
+                [disableInput]="editMode"
+                 [daysToAdd]="CreditDays" 
+                 (dateInFormat)="DueDate = $event">
+                </datepicker-popup>
             </div>
   
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
@@ -286,7 +289,7 @@
                     </ng-container>
                     <td>
                       <div class="input-group adw_select min_width_350">
-                        <select2 [disabled]="AddressId <= 0" #item_select2 [data]="itemData" class="control_select " 
+                        <select2 [disabled]="PartyId <= 0" #item_select2 [data]="itemData" class="control_select " 
                         (valueChanged)="onItemSelect($event)" autocomplete="true"
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.ItemId }"
                           [options]="{placeholder: 'Select Item'}" [value]="itemValue" >
@@ -535,7 +538,7 @@
                       </td>
                       <td>
                         <div class="input-group adw_select">
-                          <select2 [disabled]="AddressId <= 0" name="chargeselect" #charge_select2 [data]="chargesData"
+                          <select2 [disabled]="PartyId <= 0" name="chargeselect" #charge_select2 [data]="chargesData"
                             class="control_select"
                             (valueChanged)="onChargeSelect($event)"
                             (keydown.esc)="moveToPayment()"
@@ -544,7 +547,7 @@
                             [value]="ledgerChargeValue" ></select2>
                         </div>
                       </td>
-                      <td><input type="text" [disabled]="AddressId <= 0" appIncludeDecimal name="AmountCharge" class="form-control"
+                      <td><input type="text" [disabled]="PartyId <= 0" appIncludeDecimal name="AmountCharge" class="form-control"
                         [ngClass]="{'errorSelecto': invalidObj?.AmountCharge && (submitSave || !clickCharge)}"
                         (input)="validateCharge();calculate();"
                         id="AmountCharge" [(ngModel)]="AmountCharge" placeholder="Enter Amount">

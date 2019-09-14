@@ -1,12 +1,3 @@
-// {
-//     "extends": "../tslint.json"
-// }
 {
-    "extends": [
-        "@phenomnomnominal/angular-lazy-routes-fix"
-    ],
-    
-   // "no-lazy-module-paths": [true],
-  
-    "no-lazy-module-paths": [true, "async"]
+    "extends": "../tslint.json"
 }

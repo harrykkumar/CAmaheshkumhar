@@ -10,6 +10,7 @@ import { LoginService } from './../../commonServices/login/login.services';
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { Settings } from '../../shared/constants/settings.constant'
 import { Router } from '@angular/router'
+import { GlobalService } from '../../commonServices/global.service'
 
 @Component({
   selector: 'app-profit-and-loss-report',
@@ -27,31 +28,34 @@ export class ProfitAndLossReportComponent implements OnInit {
   toDateShow: any
   fromDateShow: any
   clientDateFormat: any
-  constructor(public _router: Router ,public _loginService: LoginService, public _settings: Settings, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
-
-    this.newDateSub = this._commonService.getsearchByDateForProfitLossStatus().subscribe(
-      (obj: any) => {
-        this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
-        this.getModuleSettingData()
-        this.getbalancesheetdata(obj.toDate, obj.fromDate)
-        this.toDateShow = obj.toDate
-        this.fromDateShow = obj.fromDate
-      }
-    )
+  constructor(public gs: GlobalService,
+    public _router: Router ,public _loginService: LoginService, public _settings: Settings, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+    this.onload()
+    this.getModuleSettingData()
+    this.toDateShow = this.gs.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
+    this.fromDateShow = this.gs.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
+      this.getbalancesheetdata( )
     this.newOpenForm = this._commonService.newRefreshItemStatus().subscribe((data:any)=>{
 
     })
 
   }
+  searchResetButton (){
+    this.toDateShow  =''
+    this.fromDateShow=''
+    this.getbalancesheetdata()
+  }
+  searchButton(){
+        this.getbalancesheetdata()
+  }
   loggedinUserData: any
   ngOnInit() {
-    this.onload()
   }
   ngOnDestroy() { 
     this.newOpenForm.unsubscribe();
-    this.newDateSub.unsubscribe();
 
 }
+
   decimalDigit: any
   onload() {
     this.headervalue2 = 0
@@ -98,9 +102,23 @@ export class ProfitAndLossReportComponent implements OnInit {
   orgDetails:any={}
   headI1dData:any =[]
   headI2dData:any =[]
-  getbalancesheetdata(todate, fromdate) {
+  getbalancesheetdata() {
+    let todate;
+    let fromDate;
+    if (this.toDateShow !== '') {
+      todate = this.gs.clientToSqlDateFormat(this.toDateShow, this.clientDateFormat)
+      }
+      else {
+      todate = ''
+      }
+      if (this.fromDateShow !== '') {
+        fromDate = this.gs.clientToSqlDateFormat(this.fromDateShow, this.clientDateFormat)
+      }
+      else {
+        fromDate = ''
+      }
     this.mainData = []
-    this._commonService.getProfitAndLossList(todate, fromdate).subscribe(data => {
+    this._commonService.getProfitAndLossList(todate, fromDate).subscribe(data => {
       this.headervalue2 = 0
       this.headervalue1 = 0
       this.orgDetails={}

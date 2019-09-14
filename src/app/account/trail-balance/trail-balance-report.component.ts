@@ -10,6 +10,7 @@ import { LoginService } from './../../commonServices/login/login.services';
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { Settings } from '../../shared/constants/settings.constant'
 //import * as jsPDF from 'jspdf'
+import { GlobalService } from '../../commonServices/global.service'
 
 @Component({
   selector: 'app-trail-balance-report',
@@ -23,28 +24,35 @@ export class TrailBalanceReportComponent implements OnInit {
   totaltax: number
   totalBillAmount: number
   newDateSub: Subscription
-  todateShowHtml : any
-  fromDateShow : any
+  toDateShow: any
+  fromDateShow: any
   clientDateFormat: any
-  constructor(public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+  constructor(public gs: GlobalService, public _loginService: LoginService, public _settings: Settings, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     this.newDateSub = this._commonService.getsearchByDateForTradingStatus().subscribe(
       (obj: any) => {
         this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
         this.getModuleSettingData()
-        this.getbalancesheetdata(obj.toDate,obj.fromDate)
-         this.todateShowHtml = obj.toDate
-         this.fromDateShow = obj.fromDate
+        this.onload()
+        this.toDateShow = this.gs.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
+        this.fromDateShow = this.gs.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
+        this.getbalancesheetdata()
+
 
       }
     )
   }
-  
+
   loggedinUserData: any
   ngOnInit() {
     this.onload()
-    //this.getbalancesheetdata(this.todateShowHtml, this.fromDateShow)
- 
-
+  }
+  searchResetButton (){
+    this.toDateShow  =''
+    this.fromDateShow=''
+    this.getbalancesheetdata()
+  }
+  searchButton(){
+        this.getbalancesheetdata()
   }
   decimalDigit: any
   onload() {
@@ -84,30 +92,44 @@ export class TrailBalanceReportComponent implements OnInit {
   labelLength: any
   mainData: any
   AttributeValues: any
-  headervalue1 : any
+  headervalue1: any
   headervalue2: any
-  headervalue1First:any =0
-  headervalue2First:any=0
-  getbalancesheetdata (todate,fromDate) {
-   this.mainData =[]
-    this._commonService.getTrailBalanceReport(fromDate,todate).subscribe(data => {
-      this.headervalue2 =0
-      this.headervalue1 =0
-      if(data.Code === UIConstant.THOUSAND ){
-        if(data.Data && data.Data.TrailBalance && data.Data.TrailBalance.length >0){
-          this.mainData =  data.Data.TrailBalance
+  headervalue1First: any = 0
+  headervalue2First: any = 0
+  getbalancesheetdata() {
+    let todate;
+    let fromDate;
+    if (this.toDateShow !== '') {
+      todate = this.gs.clientToSqlDateFormat(this.toDateShow, this.clientDateFormat)
+    }
+    else {
+      todate = ''
+    }
+    if (this.fromDateShow !== '') {
+      fromDate = this.gs.clientToSqlDateFormat(this.fromDateShow, this.clientDateFormat)
+    }
+    else {
+      fromDate = ''
+    }
+    this.mainData = []
+    this._commonService.getTrailBalanceReport(fromDate, todate).subscribe(data => {
+      this.headervalue2 = 0
+      this.headervalue1 = 0
+      if (data.Code === UIConstant.THOUSAND) {
+        if (data.Data && data.Data.TrailBalance && data.Data.TrailBalance.length > 0) {
+          this.mainData = data.Data.TrailBalance
         }
-        if(data.Data && data.Data.TrailBalanceSummary.length>0){
+        if (data.Data && data.Data.TrailBalanceSummary.length > 0) {
           data.Data.TrailBalanceSummary.forEach(element => {
-            if(element.HeadId ===1){
-             this.headervalue1 =element.Amount1
-             this.headervalue1First =element.Amount
+            if (element.HeadId === 1) {
+              this.headervalue1 = element.Amount1
+              this.headervalue1First = element.Amount
             }
-            else if(element.HeadId ===2){
-              this.headervalue2 =element.Amount1
-              this.headervalue2First =element.Amount
- 
-             }
+            else if (element.HeadId === 2) {
+              this.headervalue2 = element.Amount1
+              this.headervalue2First = element.Amount
+
+            }
           });
         }
       }

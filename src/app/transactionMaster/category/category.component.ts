@@ -39,7 +39,7 @@ export class CategoryComponent implements OnInit {
   categoryLevels: Array<Select2OptionData> = []
   categoryPlaceholder: Select2Options
   LevelNo: number = 0
-  @ViewChild('open_add_form') myModal:any
+  @ViewChild('open_add_form') myModal
   @ViewChild('searchData') searchData: ElementRef
   isSearching: boolean = false
   @ViewChild('paging_comp') pagingComp: PagingComponent
@@ -77,7 +77,7 @@ export class CategoryComponent implements OnInit {
 
   getCatLevel () {
     let settings = JSON.parse(this.settings.moduleSettings).settings
-    settings.forEach((element:any) => {
+    settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
         this.catLevel = +element.val
         if (this.catLevel > 1) {
@@ -87,7 +87,7 @@ export class CategoryComponent implements OnInit {
     })
   }
 
-  deleteItem (id:any) {
+  deleteItem (id) {
     if (id) {
       this._catagoryservices.deleteCatagory(id).subscribe(Data => {
         if (Data.Code === UIConstant.DELETESUCCESS) {
@@ -133,7 +133,7 @@ export class CategoryComponent implements OnInit {
     })
   }
 
-  selectCatLevel (evt:any) {
+  selectCatLevel (evt) {
     if (evt.value && evt.data.length > 0) {
       this.LevelNo = +evt.value
       this.getCategoryDetails()
@@ -211,11 +211,11 @@ export class CategoryComponent implements OnInit {
     })
   }
 
-  editCatagory (id:any) {
+  editCatagory (id) {
     this.commonService.openCategory(id, '2')
   }
 
-  deleteCatagory (id:any) {
+  deleteCatagory (id) {
     this.commonService.openDelete(id, 'category', 'Category')
   }
 

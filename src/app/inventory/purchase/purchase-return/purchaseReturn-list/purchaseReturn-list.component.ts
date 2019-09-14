@@ -28,6 +28,7 @@ export class PurchaseReturnListComponent implements OnInit {
   actionList: any = []
   customFooter: any = []
   newPurchaseSub: Subscription
+  redirectData:Subscription
   deleteSub:Subscription
   formName: number
   clientDateFormat: string
@@ -76,6 +77,12 @@ export class PurchaseReturnListComponent implements OnInit {
         console.log(str)
         this.queryStr = str
         this.p = 1
+        this.getPurchaseReturnList()
+      }
+    )
+    this.redirectData = this.commonService.reDirectPrintSaleStatus().subscribe(
+      (action: any) => {
+        this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
         this.getPurchaseReturnList()
       }
     )

@@ -62,6 +62,7 @@ export class LoginService {
       this._basesService.getRequest(`${ApiConstant.USER_PROFILE}?Id=${OrgId}`).subscribe(
         async (data) => {
           if (data.Code === UIConstant.THOUSAND) {
+            console.log('user data : ', data.Data)
             this.userData = data.Data
             await this.mapSideMenus()
             await this.mapSubMenus()
@@ -88,8 +89,9 @@ export class LoginService {
   mapSideMenus = async () => {
     return new Promise((resolve, reject) => {
       _.forEach(this.userData.Modules, (module, i) => {
-        if (this.userData.Modules[i] && MODULES_IMG_SRC[`${module.Name}`]) {
-          this.userData.Modules[i]['src'] = MODULES_IMG_SRC[`${module.Name}`]['src']
+        // debugger
+        if (this.userData.Modules[i] && MODULES_IMG_SRC[`${module.Id}`]) {
+          this.userData.Modules[i]['src'] = MODULES_IMG_SRC[`${module.Id}`]['src']
         }
         const data = _.filter(this.userData.Menus, (menu) => {
           if (menu.ParentId === 0) {

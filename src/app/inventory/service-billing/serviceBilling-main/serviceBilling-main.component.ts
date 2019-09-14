@@ -10,7 +10,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { map, filter, debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators';
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { serviceBillingAddComponent } from '../serviceBilling-add/serviceBilling-add.component';
-
+import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 declare const $: any
 declare const _: any
 @Component({
@@ -35,11 +35,10 @@ export class serviceBillingMainComponent {
       private toastrService: ToastrCustomService,
       private _formBuilder: FormBuilder) {
         this.loading = true
+        this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
         this.getSpUtilitySaleServiceData()
     this.data$ = this.commonService.getActionClickedStatus().subscribe(
       (action: any) => {
-        debugger
-        console.log(action ,'action--')
         if (action.type === FormConstants.Edit && action.formname === FormConstants.Purchase) {
           this.commonService.openPurchase(+action.id)
         }
@@ -199,6 +198,7 @@ Heading:any =[]
   orgAddress: any
   inWordBillAmount: string = ''
   paidFlag:any
+  GstTypeId:any=0
   paymentFlag:any
   printmanupulation(id, htmlId, isViewForm) {
     //  this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
@@ -208,6 +208,7 @@ Heading:any =[]
       if (data.Code === UIConstant.THOUSAND) {
 
         if (data.Data && data.Data.SaleTransactionses.length > 0) {
+          this.GstTypeId = data.Data.SaleTransactionses[0].GstTypeId
           _self.InventoryTransactionSales = []
           this.billAmount = 0
           _self.InventoryTransactionSales = data.Data.SaleTransactionses
@@ -385,7 +386,22 @@ Heading:any =[]
     }, 100)
 
   }
+  PaymentDetailsFlag:any=1
+  getSetUpModules(settings) {
+    settings.forEach(element => {
+      // if (element.id === SetUpIds.PaidUnpaidOnBIllShow) {
+      //   this.setUpPaidUnPaid = +element.val
+      // }
+      // if (element.id === SetUpIds.BillDiscountOnPrint) {
+      //   this.BillDiscountOnPrint = +element.val
+      // }
+      if (element.id === SetUpIds.PaymentDatilsOnPrint_Sale_ServiceSale) {
+        this.PaymentDetailsFlag = +element.val
+      }
+      
+    })
 
+  }
   mainData: any = []
   ValueOfTaxName(hsnData, hsnTransaction, TaxTitles, currency) {
     //TaxTitleId

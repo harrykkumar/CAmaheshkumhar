@@ -8,6 +8,9 @@ import { SaleDirectService } from '../saleDirectService.service';
 import { GlobalService } from '../../../commonServices/global.service';
 import { DependencyCheck } from '../../../shared/validators/dependencyCheck';
 import { DatepickerComponent } from '../../../shared/datepicker/datepicker.component';
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
+import { Subscription, fromEvent, throwError } from 'rxjs';
+
 declare const $: any
 @Component({
   selector: 'app-sale-direct-search',
@@ -27,7 +30,7 @@ export class SaleDirectSearchComponent {
   CountryId: number = 0
   StateId: number = 0
   CityId: number = 0
-
+  redirectData:Subscription
   countryValue: number = 0
   stateValue: number = 0
   cityValue: number = 0
@@ -49,8 +52,21 @@ export class SaleDirectSearchComponent {
   @Input() toShow: boolean = false
   searchForm: FormGroup
   dataStatus: any = []
-  constructor(private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
-    private settings: Settings, private _saleDirectService: SaleDirectService, private gs: GlobalService) { }
+  constructor(public _commonService:CommonService,private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
+    private settings: Settings, private _saleDirectService: SaleDirectService, private gs: GlobalService) { 
+
+      // this.redirectData = this._commonService.reDirectPrintSaleStatus().subscribe(
+      //   (action: any) => {
+      //     alert(8888)
+      //   //   this.searchForm.controls.FromDate.setValue(action.fromDate)
+      //   //  this.searchForm.controls.ToDate.setValue(action.toDate)
+      //   //   this.search()
+          
+      //   }
+      // )
+
+
+    }
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
   ngOnInit() {
     this.dataValues = [
@@ -64,7 +80,10 @@ export class SaleDirectSearchComponent {
     this.getSuplier()
     this.getCountryList()
   }
+  ngOnDestroy() {
+    //this.redirectData.unsubscribe()
 
+  }
   createForm() {
     this.searchForm = this.formBuilder.group({
       'FromDate': [''],
@@ -191,6 +210,7 @@ alert(evt.value)
   }
 
   search() {
+    alert(this.searchForm.value.FromDate)
     if (this.searchForm.valid) {
       let fromDate = ''
       let toDate = ''
@@ -274,6 +294,7 @@ alert(evt.value)
   }
 
   setToDate(evt) {
+    console.log(evt)
     this.searchForm.controls.ToDate.setValue(evt)
   }
 

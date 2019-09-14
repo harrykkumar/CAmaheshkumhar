@@ -48,7 +48,7 @@
 <app-sale-direct-add #saleDirect_add></app-sale-direct-add>
 <app-saleReturn></app-saleReturn>
 
-<body *ngIf='this.PrintFormateType ===1' class="modal" id="saleDirect_PrintType1">
+<body *ngIf='PrintFormateType ===1' class="modal" id="saleDirect_PrintType1">
     <div *ngIf="setUpPaidUnPaid" style="position:absolute;top:290;bottom:0;left:0;right:0;text-align: center;">
         <p style=" color:#97919126;;
       font-size:100px;
@@ -224,7 +224,7 @@
                     <thead>
                         <tr>
                             <th>S.No.</th>
-                            <th class="desc" style="width:15%;">Category</th>
+                            <th *ngIf="categoryShowOnPrint" class="desc" style="width:15%;">Category</th>
                             <th class="desc" style="width:15%;">Item Name</th>
                             <th *ngIf="industryId === 2" class="desc">Item Description</th>
                             <th class="desc" style="width:12%;">HSN/SAC</th>
@@ -248,7 +248,7 @@
                     <tbody>
                         <tr *ngFor="let item of ItemTransactionactions; let i=index">
                             <td>{{1+i}}</td>
-                            <td>{{ item.CategoryName}}</td>
+                            <td *ngIf="categoryShowOnPrint">{{ item.CategoryName}}</td>
                             <td>{{ item.ItemName}}<br> {{item.Remark}}</td>
                             <ng-container *ngIf="industryId === 2 ">
                                 <td>
@@ -362,7 +362,8 @@
                 </div>
             </div>
         </div>
-        <div class="table_summery" *ngIf="paymentFlag">
+    <ng-container  *ngIf="paymentFlag">
+        <div  class="table_summery" *ngIf="PaymentDetailsFlag">
             <table border="0" class="table1" cellspacing="0" cellpadding="0">
                 <thead>
                     <tr>
@@ -391,7 +392,8 @@
                 </tbody>
             </table>
         </div>
-        <div class=" table_summery invoice border-top border-bottom">
+    </ng-container>
+        <div *ngIf="GstTypeId ===1" class=" table_summery invoice border-top border-bottom">
             <div style="clear:both"></div>
             <h4 style=" padding-left:358px"> GST TAX SUMMARY</h4>
             <table border="0" class="table1" cellspacing="0" cellpadding="0">
@@ -459,7 +461,7 @@
 
 </body>
 
-<body *ngIf='this.PrintFormateType ===2' class="modal" id="saleDirect_PrintType2">
+<body *ngIf='PrintFormateType ===2' class="modal" id="saleDirect_PrintType2">
     <div class="row">
         <div class="col-md-6">
             <div class="left_side_print">
@@ -540,9 +542,9 @@
                                         <thead>
                                             <tr>
                                                 <th>S.No.</th>
-                                                <th class="desc" style="width:15%;">Category</th>
+                                                <th *ngIf="categoryShowOnPrint" class="desc" style="width:15%;">Category</th>
                                                 <th class="desc" style="width:15%;">Item Name</th>
-                                                <th *ngIf="itemAttbute.length >0" class="desc">Item Description</th>
+                                                <th  *ngIf="industryId === 2"  class="desc">Item Description</th>
                                                 <th class="desc" style="width:12%;">HSN/SAC</th>
                                                 <th *ngIf="industryId === 3 " class="desc">Length x Height x Width
                                                 </th>
@@ -561,13 +563,15 @@
                                         <tbody>
                                             <tr *ngFor="let item of ItemTransactionactions; let i=index">
                                                 <td>{{1+i}}</td>
-                                                <td>{{ item.CategoryName}}</td>
+                                                <td *ngIf="categoryShowOnPrint">{{ item.CategoryName}}</td>
                                                 <td>{{ item.ItemName}}<br> {{item.Remark}}</td>
-                                                <td *ngIf="itemAttbute.length >0 ">
-                                                    {{itemAttbute && itemAttbute[i*3]?.attr}}
-                                                    ,{{itemAttbute && itemAttbute[i*3 + 1]?.attr}},
-                                                    ,{{itemAttbute && itemAttbute[i*3 + 2]?.attr}}
-                                                </td>
+                                                <ng-container *ngIf="industryId === 2 ">
+                                                    <td>
+                                                        <span *ngFor="let attr of  item.Attribute; let isLast=last">
+                                                             {{attr.AttributeName}}{{isLast ? '' : ', '}}
+                                                             </span>
+                                                    </td>
+                                                </ng-container>
                                                 <td>{{ item.HsnNo}}</td>
                                                 <td *ngIf="industryId === 3 ">
                                                     {{ item.Length}}x{{ item.Height}}x{{ item.Width}}</td>
@@ -785,9 +789,9 @@
                                         <thead>
                                             <tr>
                                                 <th>S.No.</th>
-                                                <th class="desc" style="width:15%;">Category</th>
+                                                <th *ngIf="categoryShowOnPrint" class="desc" style="width:15%;">Category</th>
                                                 <th class="desc" style="width:15%;">Item Name</th>
-                                                <th *ngIf="itemAttbute.length >0" class="desc">Item Description</th>
+                                                <th *ngIf="industryId === 2 " class="desc">Item Description</th>
                                                 <th class="desc" style="width:12%;">HSN/SAC</th>
                                                 <th *ngIf="industryId === 3 " class="desc">Length x Height x Width
                                                 </th>
@@ -806,13 +810,15 @@
                                         <tbody>
                                             <tr *ngFor="let item of ItemTransactionactions; let i=index">
                                                 <td>{{1+i}}</td>
-                                                <td>{{ item.CategoryName}}</td>
+                                                <td *ngIf="categoryShowOnPrint">{{ item.CategoryName}}</td>
                                                 <td>{{ item.ItemName}}<br> {{item.Remark}}</td>
-                                                <td *ngIf="itemAttbute.length >0 ">
-                                                    {{itemAttbute && itemAttbute[i*3]?.attr}}
-                                                    ,{{itemAttbute && itemAttbute[i*3 + 1]?.attr}},
-                                                    ,{{itemAttbute && itemAttbute[i*3 + 2]?.attr}}
-                                                </td>
+                                                <ng-container *ngIf="industryId === 2 ">
+                                                    <td>
+                                                        <span *ngFor="let attr of  item.Attribute; let isLast=last">
+                                                             {{attr.AttributeName}}{{isLast ? '' : ', '}}
+                                                             </span>
+                                                    </td>
+                                                </ng-container>
                                                 <td>{{ item.HsnNo}}</td>
                                                 <td *ngIf="industryId === 3 ">
                                                     {{ item.Length}}x{{ item.Height}}x{{ item.Width}}</td>
@@ -951,7 +957,7 @@
 
 </body>
 
-<body *ngIf='this.PrintFormateType ===4' class="modal" id="saleDirect_PrintType4">
+<body *ngIf='PrintFormateType ===4' class="modal" id="saleDirect_PrintType4">
     <div class="row">
         <div class="col-md-6">
             <div class="left_side_print">
@@ -1031,9 +1037,9 @@
                                         <thead>
                                             <tr>
                                                 <th>S.No.</th>
-                                                <th class="desc" style="width:15%;">Category</th>
+                                                <th *ngIf="categoryShowOnPrint" class="desc" style="width:15%;">Category</th>
                                                 <th class="desc" style="width:15%;">Item Name</th>
-                                                <th *ngIf="itemAttbute.length >0" class="desc">Item Description</th>
+                                                <th *ngIf="industryId === 2 " class="desc">Item Description</th>
                                                 <th class="desc" style="width:12%;">HSN/SAC</th>
                                                 <th *ngIf="industryId === 3 " class="desc">Length x Height x Width
                                                 </th>
@@ -1052,13 +1058,15 @@
                                         <tbody>
                                             <tr *ngFor="let item of ItemTransactionactions; let i=index">
                                                 <td>{{1+i}}</td>
-                                                <td>{{ item.CategoryName}}</td>
+                                                <td *ngIf="categoryShowOnPrint">{{ item.CategoryName}}</td>
                                                 <td>{{ item.ItemName}}<br> {{item.Remark}}</td>
-                                                <td *ngIf="itemAttbute.length >0 ">
-                                                    {{itemAttbute && itemAttbute[i*3]?.attr}}
-                                                    ,{{itemAttbute && itemAttbute[i*3 + 1]?.attr}},
-                                                    ,{{itemAttbute && itemAttbute[i*3 + 2]?.attr}}
-                                                </td>
+                                                <ng-container *ngIf="industryId === 2 ">
+                                                    <td>
+                                                        <span *ngFor="let attr of  item.Attribute; let isLast=last">
+                                                             {{attr.AttributeName}}{{isLast ? '' : ', '}}
+                                                             </span>
+                                                    </td>
+                                                </ng-container>
                                                 <td>{{ item.HsnNo}}</td>
                                                 <td *ngIf="industryId === 3 ">
                                                     {{ item.Length}}x{{ item.Height}}x{{ item.Width}}</td>

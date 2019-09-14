@@ -1,10 +1,10 @@
 <div id="demo" class="collapse bgc-white" [ngStyle]="{'display': toShow ? 'block' : 'none'}" >
     <form [formGroup]="searchForm" (ngSubmit)="search()" noValidate >
        <div class="form-row p-2">
-           <div class="col-lg-3 p-3 border-right">
+           <div class="col-lg-4 p-3 border-right">
                 <div class="form-row">
-                    <div class="col-md-12 form-group" >
-                        <label class="text-center m-auto d-block">Select Date For</label>
+                    <div class="col-md-6 form-group" >
+                        <label class="text-center m-auto d-block">Date</label>
                         <div class="input-group adw_select">
                             <div class="input-group adw_select">
                                 <select2 #date_select2 id="vendor" 
@@ -17,7 +17,21 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group col" >
+                    <div class="col-md-6 form-group" >
+                            <label class="text-center m-auto d-block">Status</label>
+                            <div class="input-group adw_select">
+                                <div class="input-group adw_select">
+                                    <select2 #date_status id="vendor" 
+                                        [data]="dataStatus" class="control_select"
+                                        autocomplete="true"
+                                        (valueChanged)="StausType = +$event.value;"
+                                        [options]="{placeholder: 'Select Status'}"
+                                        [value]="StausValue">
+                                    </select2>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="col-md-6 form-group" >
                         <div class="timepicker-input input-icon">
                             <label for="todate">From</label>
                             <datepicker-popup
@@ -28,7 +42,7 @@
                             </datepicker-popup>
                         </div>
                     </div>
-                    <div class="form-group col" >
+                    <div class="col-md-6 form-group" >
                         <div class="timepicker-input input-icon">
                             <label for="todate">To</label>
                             <datepicker-popup
@@ -55,7 +69,7 @@
                     </div>
                </div>
            </div>
-           <div class="col-lg-7 p-3 border-right">
+           <div class="col-lg-6 p-3 border-right">
                 <div class="form-row">
                     <div class="form-group col-md-4">
                         <label for="bill_no">Country</label>

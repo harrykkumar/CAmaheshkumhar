@@ -8,6 +8,7 @@ import * as _ from 'lodash'
 import { Router } from '@angular/router';
 import { UIConstant } from '../../constants/ui-constant';
 import { Subject } from 'rxjs';
+import { map } from 'rxjs/internal/operators/map';
 @Component({
   selector: 'app-opening-stk',
   templateUrl: './opening-stk.component.html',
@@ -143,6 +144,7 @@ export class OpeningStkComponent implements OnInit {
           this.attribute = [];
           await this.generateCombination();
           await this.makeAttributeValueCombination();
+
           this.isProgress = false
         }
       },

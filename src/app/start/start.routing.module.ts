@@ -12,403 +12,573 @@ const routes: Routes = [
     children: [
       {
         path: 'admin',
-      //  loadChildren: '../admin/admin.module#AdminModule'
         loadChildren: async () => {
-          const { AdminModule } = 
-          await import('../admin/admin.module');
+          const { AdminModule } = await import('../admin/admin.module');
           return AdminModule;
         },
       },
       {
         path: 'dashboard',
-        // loadChildren: '../start/dashboard/ims-dashboard/ims-dashboard.module#DashboardModule'
-        //loadChildren: () => import('../start/dashboard/ims-dashboard/ims-dashboard.module').then(m => m.DashboardModule)
         loadChildren: async () => {
           const { DashboardModule } = await import('../start/dashboard/ims-dashboard/ims-dashboard.module');
           return DashboardModule;
-        }
+        },
       },
       {
         path: 'ims/sale-travel',
         loadChildren: async () => {
-          const { SalesTravelModule } = 
-          await import('../sales-travel/sales/sales.module');
+          const { SalesTravelModule } = await import('../sales-travel/sales/sales.module');
           return SalesTravelModule;
-        }
-       // loadChildren: '../sales-travel/sales/sales.module#SalesTravelModule'
+        },
       },
       {
         path: 'ims/sale-travel/sale-return',
-        //loadChildren: '../sales-travel/sales-return/sales-return.module#SalesReturnModule'
         loadChildren: async () => {
-          const { SalesReturnModule } = 
-          await import('../sales-travel/sales-return/sales-return.module');
+          const { SalesReturnModule } = await import('../sales-travel/sales-return/sales-return.module');
           return SalesReturnModule;
-        }
+        },
       },
       {
         path: 'ims/sale-courier',
-      //  loadChildren: '../sales-courier-local/sales-courier-local.module#SalesCourierLocalModule'
-      loadChildren: async () => {
-        const { SalesCourierLocalModule } = 
-        await import('../sales-courier-local/sales-courier-local.module');
-        return SalesCourierLocalModule;
-      }
+        loadChildren: async () => {
+          const { SalesCourierLocalModule } = await import('../sales-courier-local/sales-courier-local.module');
+          return SalesCourierLocalModule;
+        },
       },
       {
         path: 'ims/sale-courier-parcel',
-       // loadChildren: '../sales-courier-parcel/sale-courier-parcel.module#SalesCourierParcelModule'
-       loadChildren: async () => {
-        const { SalesCourierParcelModule } = 
-        await import('../sales-courier-parcel/sale-courier-parcel.module');
-        return SalesCourierParcelModule;
-      }
+        loadChildren: async () => {
+          const { SalesCourierParcelModule } = await import('../sales-courier-parcel/sale-courier-parcel.module');
+          return SalesCourierParcelModule;
+        },
       },
       {
         path: 'ims/unit',
-        //loadChildren: '../transactionMaster/unit/unit.module#UnitModule'
         loadChildren: async () => {
-          const { UnitModule } = 
-          await import('../transactionMaster/unit/unit.module');
+          const { UnitModule } = await import('../transactionMaster/unit/unit.module');
           return UnitModule;
-        }
+        },
       },
       {
         path: 'ims/category',
-      //  loadChildren: '../transactionMaster/category/category.module#CategoryModule'
-      loadChildren: async () => {
-        const { CategoryModule } = 
-        await import('../transactionMaster/category/category.module');
-        return CategoryModule;
-      }
+        loadChildren: async () => {
+          const { CategoryModule } = await import('../transactionMaster/category/category.module');
+          return CategoryModule;
+        },
       },
       {
         path: 'ims/composite',
         loadChildren: async () => {
-          const { CompositeUnitModule } = 
-          await import('../transactionMaster/composite-unit/composite-unit.module');
+          const { CompositeUnitModule } = await import('../transactionMaster/composite-unit/composite-unit.module');
           return CompositeUnitModule;
-        }
-       // loadChildren: '../transactionMaster/composite-unit/composite-unit.module#CompositeUnitModule'
+        },
       },
       {
         path: 'ims/tax',
-        //loadChildren: '../transactionMaster/tax/tax.module#TaxModule'
         loadChildren: async () => {
-          const { TaxModule } = 
-          await import('../transactionMaster/tax/tax.module');
+          const { TaxModule } = await import('../transactionMaster/tax/tax.module');
           return TaxModule;
-        }
+        },
       },
       {
         path: 'ims/item',
-  //loadChildren: '../transactionMaster/item-master/item-master.module#ItemMasterModule'
         loadChildren: async () => {
-          const { ItemMasterModule } = 
-          await import('../transactionMaster/item-master/item-master.module');
+          const { ItemMasterModule } = await import('../transactionMaster/item-master/item-master.module');
           return ItemMasterModule;
-        }
+        },
       },
       {
         path: 'ims/routing',
         loadChildren: async () => {
-          const { RouteModule } = 
-          await import('../transactionMaster/route/route.module');
+          const { RouteModule } = await import('../transactionMaster/route/route.module');
           return RouteModule;
-        }
-        //loadChildren: '../transactionMaster/route/route.module#RouteModule'
+        },
       },
       {
         path: 'ims/customer',
-      //  loadChildren: '../transactionMaster/customer/customer.module#CustomerModule'
         loadChildren: async () => {
-          const { CustomerModule } = 
-          await import('../transactionMaster/customer/customer.module');
+          const { CustomerModule } = await import('../transactionMaster/customer/customer.module');
           return CustomerModule;
-        }
+        },
       },
       {
         path: 'ims/vendor',
-       // loadChildren: '../transactionMaster/vendor/vendor.module#VendorModule'
         loadChildren: async () => {
-          const { VendorModule } = 
-          await import('../transactionMaster/vendor/vendor.module');
+          const { VendorModule } = await import('../transactionMaster/vendor/vendor.module');
           return VendorModule;
-        }
+        },
       },
       {
         path: 'ims/sale-challan',
-        //loadChildren: '../inventory/sales-challan/sales-challan/sales-challan.module#SalesChallanModule'
         loadChildren: async () => {
-          const { SalesChallanModule } = 
-          await import('../inventory/sales-challan/sales-challan/sales-challan.module');
+          const { SalesChallanModule } = await import('../inventory/sales-challan/sales-challan/sales-challan.module');
           return SalesChallanModule;
-        }
+        },
       },
       {
         path: 'ims/attribute',
-       // loadChildren: '../transactionMaster/attribute/attribute.module#AttributeModule'
         loadChildren: async () => {
-          const { AttributeModule } = 
-          await import('../transactionMaster/attribute/attribute.module');
+          const { AttributeModule } = await import('../transactionMaster/attribute/attribute.module');
           return AttributeModule;
-        }
+        },
       },
       {
         path: 'ims/purchase',
-       // loadChildren: '../inventory/purchase/purchase.module#PurchaseModule'
         loadChildren: async () => {
-          const { PurchaseModule } = 
-          await import('../inventory/purchase/purchase.module');
+          const { PurchaseModule } = await import('../inventory/purchase/purchase.module');
           return PurchaseModule;
-        }
+        },
       },
       {
         path: 'ims/report',
-        loadChildren: () => import('../report/item-stock-report/item-stock-report.module').then(m => m.ItemStockReportModule)
+        loadChildren: async () => {
+          const { ItemStockReportModule } = await import('../report/item-stock-report/item-stock-report.module');
+          return ItemStockReportModule;
+        },
       },
       {
         path: 'ims/profit-report',
-        loadChildren: () => import('../report/profit-report/profit-report.module').then(m => m.ProfitReportModule)
+        loadChildren: async () => {
+          const { ProfitReportModule } = await import('../report/profit-report/profit-report.module');
+          return ProfitReportModule;
+        },
       },
       {
         path: 'ims/attribute',
-        loadChildren: () => import('../transactionMaster/attribute/attribute.module').then(m => m.AttributeModule)
+        loadChildren: async () => {
+          const { AttributeModule } = await import('../transactionMaster/attribute/attribute.module');
+          return AttributeModule;
+        },
       },
       {
         path: 'owner/branch',
-        loadChildren: () => import('./org-branch/org-branch-list/org-branch-list.module').then(m => m.OrgBranchModule)
+         loadChildren: async () => {
+          const { OrgBranchModule } = await import('./org-branch/org-branch-list/org-branch-list.module');
+          return OrgBranchModule;
+        },
       },
       {
-        path: 'owner/branch/office',
-        loadChildren: () => import('./org-branch/org-branch-office-list/org-branch-office-list.module').then(m => m.OrgBranchOfficeModule)
+        path: 'owner/branch/office', 
+         loadChildren: async () => {
+          const { OrgBranchOfficeModule } = await import('./org-branch/org-branch-office-list/org-branch-office-list.module');
+          return OrgBranchOfficeModule;
+        },
       },
       {
         path: 'users',
-        loadChildren: () => import('../user/user-list/user-list.module').then(m => m.UserListModule)
+        loadChildren: async () => {
+          const { UserListModule } = await import('../user/user-list/user-list.module');
+          return UserListModule;
+        },
       },
       {
         path: 'usertypes',
-        loadChildren: () => import('../user/user-type-list/user-type-list.module').then(m => m.UserTypeListModule)
+        loadChildren: async () => {
+          const { UserTypeListModule } = await import('../user/user-type-list/user-type-list.module');
+          return UserTypeListModule;
+        },
       },
       {
         path: 'user-rights',
-        loadChildren: () => import('../user/user-rights/user-rights.module').then(m => m.UserRightsModule)
+        loadChildren: async () => {
+          const { UserRightsModule } = await import('../user/user-rights/user-rights.module');
+          return UserRightsModule;
+        },
       },
       {
         path: 'ims/sale',
-        //loadChildren: '../inventory/sale-direct/sale-direct.module#SalesDirectModule'
         loadChildren: async () => {
-          const { SalesDirectModule } = 
-          await import('../inventory/sale-direct/sale-direct.module');
+          const { SalesDirectModule } = await import('../inventory/sale-direct/sale-direct.module');
           return SalesDirectModule;
-        }
+        },
       },
       {
         path: 'ims/bank',
-        loadChildren: () => import('../transactionMaster/bank/bank.module').then(m => m.BankModule)
+        loadChildren: async () => {
+          const { BankModule } = await import('../transactionMaster/bank/bank.module');
+          return BankModule;
+        },
       },
       {
         path: 'ims/report/item-category',
-        loadChildren: () => import('../report/item-category-sale/item-sale-category-report.module').then(m => m.ItemSaleCategoryReportModule)
+        loadChildren: async () => {
+          const { ItemSaleCategoryReportModule } = await import('../report/item-category-sale/item-sale-category-report.module');
+          return ItemSaleCategoryReportModule;
+        },
       },
       {
         path: 'settings',
-        loadChildren: () => import('../settings/settings.module').then(m => m.SettingsModule)
+        loadChildren: async () => {
+          const { SettingsModule } = await import('../settings/settings.module');
+          return SettingsModule;
+        },
       },
       {
         path: 'account/ledgergroup',
-        loadChildren: () => import('../transactionMaster/ledger-group/ledger-group.module').then(m => m.LedgerGroupModule)
+        loadChildren: async () => {
+          const { LedgerGroupModule } = await import('../transactionMaster/ledger-group/ledger-group.module');
+          return LedgerGroupModule;
+        },
       },
       {
         path: 'account/ledgercreation',
-        loadChildren: () => import('../transactionMaster/ledger-creation/ledger-creation.module').then(m => m.LedgerCreationModule)
+        loadChildren: async () => {
+          const { LedgerCreationModule } = await import('../transactionMaster/ledger-creation/ledger-creation.module');
+          return LedgerCreationModule;
+        },
       },
          {
         path: 'account/ledger-summary',
-        loadChildren: () => import('../report/ledger-summary/ledger-summary.module').then(m => m.LedgerSummaryModule)
+        loadChildren: async () => {
+          const { LedgerSummaryModule } = await import('../report/ledger-summary/ledger-summary.module');
+          return LedgerSummaryModule;
+        },
       },
       {
         path: 'account/balance-sheet',
-        loadChildren: () => import('../account/balance-sheet/balance-sheet-report.module').then(m => m.BalanceSheetReportModule)
+        loadChildren: async () => {
+          const { BalanceSheetReportModule } = await import('../account/balance-sheet/balance-sheet-report.module');
+          return BalanceSheetReportModule;
+        },
       },
       {
         path: 'ims/report/sale-item',
-        loadChildren: () => import('../report/item-sale-report/item-sale-report.module').then(m => m.ItemSaleReportModule)
+        loadChildren: async () => {
+          const { ItemSaleReportModule } = await import('../report/item-sale-report/item-sale-report.module');
+          return ItemSaleReportModule;
+        },
       },
       {
         path: 'opening-stk',
-        loadChildren: () => import('../shared/transactionMaster/opening-stk/opening-stk.module').then(m => m.OpeningStkModule)
+        loadChildren: async () => {
+          const { OpeningStkModule } = await import('../shared/transactionMaster/opening-stk/opening-stk.module');
+          return OpeningStkModule;
+        },
       },
       {
         path: 'ims/report/purchase-item',
-        loadChildren: () => import('../report/item-purchase-report/item-purchase-report.module').then(m => m.ItemPurchaseReportModule)
+        loadChildren: async () => {
+          const { ItemPurchaseReportModule } = await import('../report/item-purchase-report/item-purchase-report.module');
+          return ItemPurchaseReportModule;
+        },
       },
       {
         path: 'account/Profit-Loss',
-        loadChildren: () => import('../account/profit-and-loss/profit-and-loss-report.module').then(m => m.ProfitAndLossReportModule)
+        loadChildren: async () => {
+          const { ProfitAndLossReportModule } = await import('../account/profit-and-loss/profit-and-loss-report.module');
+          return ProfitAndLossReportModule;
+        },
       },
       {
         path: 'account/trading',
-        loadChildren: () => import('../account/trading/trading-report.module').then(m => m.TradingReportModule)
+        loadChildren: async () => {
+          const { TradingReportModule } = await import('../account/trading/trading-report.module');
+          return TradingReportModule;
+        },
       },
       {
         path: 'ims/voucher-entry',
-        loadChildren: () => import('../inventory/voucher-entry/voucher-entry.module').then(m => m.VoucherEntryModule),
+        loadChildren: async () => {
+          const { VoucherEntryModule } = await import('../inventory/voucher-entry/voucher-entry.module');
+          return VoucherEntryModule;
+        },
         pathMatch: 'full'
       },
       {
         path: 'common-menu/:code',
-        loadChildren: () => import('../start/common-menu/common-menu.module').then(m => m.CommonMenuModule)
+        loadChildren: async () => {
+          const { CommonMenuModule } = await import('../start/common-menu/common-menu.module');
+          return CommonMenuModule;
+        },
       },
       {
         path: 'transaction-number',
-        loadChildren: () => import('../shared/transaction-number/transaction-number.module').then(m => m.TransactionNumberModule)
+        loadChildren: async () => {
+          const { TransactionNumberModule } = await import('../shared/transaction-number/transaction-number.module');
+          return TransactionNumberModule;
+        },
       },
       {
         path: 'sample-approval',
-        loadChildren: () => import('../Manufacturer/sample-approval/sample-approval.module').then(m => m.SampleApprovalModule)
+        loadChildren: async () => {
+          const { SampleApprovalModule } = await import('../Manufacturer/sample-approval/sample-approval.module');
+          return SampleApprovalModule;
+        },
       },
       {
         path: 'style',
-        loadChildren: () => import('../Manufacturer/style/style.module').then(m => m.StyleModule)
+        loadChildren: async () => {
+          const { StyleModule } = await import('../Manufacturer/style/style.module');
+          return StyleModule;
+        },
       },
       {
         path: 'material-requirement',
-        loadChildren: () => import('../Manufacturer/item-requirement/item-requirement.module').then(m => m.ItemRequirementModule)
+        loadChildren: async () => {
+          const { ItemRequirementModule } = await import('../Manufacturer/item-requirement/item-requirement.module');
+          return ItemRequirementModule;
+        },
       } ,
       {
         path: 'ims/report/item-inventory',
-        loadChildren: () => import('../report/item-inventory-report/item-inventory-report.module').then(m => m.ItemInventoryReportModule)
+        loadChildren: async () => {
+          const { ItemInventoryReportModule } = await import('../report/item-inventory-report/item-inventory-report.module');
+          return ItemInventoryReportModule;
+        },
       } ,
       {
         path: 'account/trail-balance',
-        loadChildren: () => import('../account/trail-balance/trail-balance-report.module').then(m => m.TrailBalanceReportModule)
+        loadChildren: async () => {
+          const { TrailBalanceReportModule } = await import('../account/trail-balance/trail-balance-report.module');
+          return TrailBalanceReportModule;
+        },
       },
       {
         path: 'buyer-order',
-        loadChildren: () => import('../Manufacturer/buyer-order/buyer-order.module').then(m => m.BuyerOrderModule)
+        loadChildren: async () => {
+          const { BuyerOrderModule } = await import('../Manufacturer/buyer-order/buyer-order.module');
+          return BuyerOrderModule;
+        },
       } ,
        {
         path: 'ims/report/cashbook',
-        loadChildren: () => import('../report/cashbook/cashbook.module').then(m => m.CashBookModule)
+        loadChildren: async () => {
+          const { CashBookModule } = await import('../report/cashbook/cashbook.module');
+          return CashBookModule;
+        },
       } ,
       {
         path: 'ims/report/daybook',
-        loadChildren: () => import('../report/daybook/daybook.module').then(m => m.DayBookModule)
+        loadChildren: async () => {
+          const { DayBookModule } = await import('../report/daybook/daybook.module');
+          return DayBookModule;
+        }
       } ,
       {
         path: 'report/item-group-stock',
-        loadChildren: () => import('../report/item-group-stock/item-group-stock.module').then(m => m.ItemGroupStockModule)
+        loadChildren: async () => {
+          const { ItemGroupStockModule } = await import('../report/item-group-stock/item-group-stock.module');
+          return ItemGroupStockModule;
+        }
       }
       , {
         path: 'report/outstanding-payables',
-        loadChildren: () => import('../report/outstanding-payables-report/outstanding-payables-report.module').then(m => m.OutStandingPayablesReportModule)
+       // loadChildren: '../report/outstanding-payables-report/outstanding-payables-report.module#OutStandingPayablesReportModule'
+        loadChildren: async () => {
+          const { OutStandingPayablesReportModule } = await import('../report/outstanding-payables-report/outstanding-payables-report.module');
+          return OutStandingPayablesReportModule;
+        }
       }
       , {
         path: 'report/outstanding-receiables',
-        loadChildren: () => import('../report/outstanding-receiables-report/outstanding-receiables-report.module').then(m => m.OutStandingReceiablesReportModule)
+        //loadChildren: '../report/outstanding-receiables-report/outstanding-receiables-report.module#OutStandingReceiablesReportModule'
+        loadChildren: async () => {
+          const { OutStandingReceiablesReportModule } = await import('../report/outstanding-receiables-report/outstanding-receiables-report.module');
+          return OutStandingReceiablesReportModule;
+        }
       }
       , {
         path: 'ims/report/cashbook-day',
-        loadChildren: () => import('../report/cashbook-dayBalance/cashbook-dayBalance.module').then(m => m.CashBookDayBalanceModule)
+      //  loadChildren: '../report/cashbook-dayBalance/cashbook-dayBalance.module#CashBookDayBalanceModule'
+        loadChildren: async () => {
+          const { CashBookDayBalanceModule } = await import('../report/cashbook-dayBalance/cashbook-dayBalance.module');
+          return CashBookDayBalanceModule;
+        }
       },
       {
         path: 'ims/report/bankbook',
-        loadChildren: () => import('../report/bankbook/bankbook.module').then(m => m.BankBookModule)
+        // loadChildren: '../report/bankbook/bankbook.module#BankBookModule'
+        loadChildren: async () => {
+          const { BankBookModule } = await import('../report/bankbook/bankbook.module');
+          return BankBookModule;
+        }
       } ,
       {
         path: 'ims/report/purchase-register',
-        loadChildren: () => import('../report/purchase-register/purchase-register.module').then(m => m.PurchaseRegisterModule)
+      //  loadChildren: '../report/purchase-register/purchase-register.module#PurchaseRegisterModule'
+        loadChildren: async () => {
+          const { PurchaseRegisterModule } = await import('../report/purchase-register/purchase-register.module');
+          return PurchaseRegisterModule;
+        }
       } ,
       {
         path: 'ims/report/sale-register',
-        loadChildren: () => import('../report/sale-register/sale-register.module').then(m => m.SaleRegisterModule)
+        // loadChildren: '../report/sale-register/sale-register.module#SaleRegisterModule'
+        loadChildren: async () => {
+          const { SaleRegisterModule } = await import('../report/sale-register/sale-register.module');
+          return SaleRegisterModule;
+        }
       } ,
       {
         path: 'ims/report/purchase-summary',
-        loadChildren: () => import('../report/purchase-summary/purchase-summary.module').then(m => m.PurchaseSummaryReportModule)
+       // loadChildren: '../report/purchase-summary/purchase-summary.module#PurchaseSummaryReportModule'
+        loadChildren: async () => {
+          const { PurchaseSummaryReportModule } = await import('../report/purchase-summary/purchase-summary.module');
+          return PurchaseSummaryReportModule;
+        }
       } ,
       {
         path: 'ims/report/sale-summary',
-        loadChildren: () => import('../report/sale-summary/sale-summary.module').then(m => m.SaleSummaryReportModule)
+        // loadChildren: '../report/sale-summary/sale-summary.module#SaleSummaryReportModule'
+        loadChildren: async () => {
+          const { SaleSummaryReportModule } = await import('../report/sale-summary/sale-summary.module');
+          return SaleSummaryReportModule;
+        }
       } ,
       {
         path: 'ims/report/journal-register',
-        loadChildren: () => import('../report/journal-register/journal-register.module').then(m => m.JournalRegisterModule)
+        // loadChildren: '../report/journal-register/journal-register.module#JournalRegisterModule'
+        loadChildren: async () => {
+          const { JournalRegisterModule } = await import('../report/journal-register/journal-register.module');
+          return JournalRegisterModule;
+        }
       } ,
       {
         path: 'ims/service',
-        loadChildren: () => import('../transactionMaster/service-item/service-item.module').then(m => m.ServiceItemMasterModule)
+        // loadChildren: '../transactionMaster/service-item/service-item.module#ServiceItemMasterModule'
+        loadChildren: async () => {
+          const { ServiceItemMasterModule } = await import('../transactionMaster/service-item/service-item.module');
+          return ServiceItemMasterModule;
+        }
       } ,
       {
         path: 'ims/service-billing',
-        loadChildren: () => import('../inventory/service-billing/serviceBilling.module').then(m => m.serviceBillingModule)
+        loadChildren: async ()=>{
+         const {serviceBillingModule} =await import ('../inventory/service-billing/serviceBilling.module');
+         return serviceBillingModule;
+        }
       },
       {
         path: 'ims/sale-return',
-        loadChildren: () => import('../inventory/sale-direct/sales-return/saleReturn.module').then(m => m.SaleDirectReturnModule)
+        // loadChildren: '../inventory/sale-direct/sales-return/saleReturn.module#SaleDirectReturnModule'
+        loadChildren: async ()=>{
+          const {SaleDirectReturnModule} =await import ('../inventory/sale-direct/sales-return/saleReturn.module');
+          return SaleDirectReturnModule;
+         }
       },
       {
         path: 'ims/purchase-return',
-        loadChildren: () => import('../inventory/purchase/purchase-return/purchaseReturn.module').then(m => m.PurchaseReturnModule)
+        // loadChildren: '../inventory/purchase/purchase-return/purchaseReturn.module#PurchaseReturnModule'
+        loadChildren: async ()=>{
+          const {PurchaseReturnModule} =await import ('../inventory/purchase/purchase-return/purchaseReturn.module');
+          return PurchaseReturnModule;
+         }
       },
       {
         path: 'report/gstr-anx-1-summary',
-        loadChildren: () => import('../report/gstr-anx-1-list/gstr-anx-1-list.module').then(m => m.GstrAnx1ListModule)
+        // loadChildren: '../report/gstr-anx-1-list/gstr-anx-1-list.module#GstrAnx1ListModule'
+        loadChildren: async ()=>{
+          const {GstrAnx1ListModule} =await import ('../report/gstr-anx-1-list/gstr-anx-1-list.module');
+          return GstrAnx1ListModule;
+         }
       },
       {
         path: 'report/gstr-anx-1-b2c-details',
-        loadChildren: () => import('../report/gstr-anx-1-b2c-details/gstr-anx-1-b2c-details.module').then(m => m.GstrAnx1B2cDetailsModule)
+        // loadChildren: '../report/gstr-anx-1-b2c-details/gstr-anx-1-b2c-details.module#GstrAnx1B2cDetailsModule'
+        loadChildren: async ()=>{
+          const {GstrAnx1B2cDetailsModule} =await import ('../report/gstr-anx-1-b2c-details/gstr-anx-1-b2c-details.module');
+          return GstrAnx1B2cDetailsModule;
+         }
       },
       {
         path: 'report/gstr-anx-1-b2b-details',
-        loadChildren: () => import('../report/gstr-anx-1-b2b-details/gstr-anx-1-b2b-details.module').then(m => m.GstrAnx1B2bDetailsModule)
+        // loadChildren: '../report/gstr-anx-1-b2b-details/gstr-anx-1-b2b-details.module#GstrAnx1B2bDetailsModule'
+        loadChildren: async ()=>{
+          const {GstrAnx1B2bDetailsModule} =await import ('../report/gstr-anx-1-b2b-details/gstr-anx-1-b2b-details.module');
+          return GstrAnx1B2bDetailsModule;
+         }
       },
       {
         path: 'report/gstr-anx-2-summary',
-        loadChildren: () => import('../report/gstr-anx-2-list/gstr-anx-2-list.module').then(m => m.GstrAnx2ListModule)
+        // loadChildren: '../report/gstr-anx-2-list/gstr-anx-2-list.module#GstrAnx2ListModule'
+        loadChildren: async ()=>{
+          const {GstrAnx2ListModule} =await import ('../report/gstr-anx-2-list/gstr-anx-2-list.module');
+          return GstrAnx2ListModule;
+         }
       },
       {
         path: 'report/gstr-anx-2-details',
-        loadChildren: () => import('../report/gstr-anx-2-details/gstr-anx-2-details.module').then(m => m.GstrAnxTwoDetailsModule)
+        // loadChildren: '../report/gstr-anx-2-details/gstr-anx-2-details.module#GstrAnxTwoDetailsModule'
+        loadChildren: async ()=>{
+          const {GstrAnxTwoDetailsModule} =await import ('../report/gstr-anx-2-details/gstr-anx-2-details.module');
+          return GstrAnxTwoDetailsModule;
+         }
       },
       {
         path: 'ims/Terms&Condition',
-        loadChildren: () => import('../transactionMaster/terms-and-condition/terms-and-condition.module').then(m => m.TermsAndConditionModule)
+        // loadChildren: '../transactionMaster/terms-and-condition/terms-and-condition.module#TermsAndConditionModule'
+        loadChildren: async ()=>{
+          const {TermsAndConditionModule} =await import ('../transactionMaster/terms-and-condition/terms-and-condition.module');
+          return TermsAndConditionModule;
+         }
       },
       {
         path: 'report/msmed-outstanding',
-        loadChildren: () => import('../report/msmed-outstanding/msmed-outstanding.module').then(m => m.MsmedOutstandingModule)
+        // loadChildren: '../report/msmed-outstanding/msmed-outstanding.module#MsmedOutstandingModule'
+        loadChildren: async ()=>{
+          const {MsmedOutstandingModule} =await import ('../report/msmed-outstanding/msmed-outstanding.module');
+          return MsmedOutstandingModule;
+         }
       },
       {
         path: 'report/msmed-outstanding/:id/details',
-        loadChildren: () => import('../report/msmed-outstanding-details/msmed-outstanding-details.module').then(m => m.MsmedOutstandingDetailsModule)
+        // loadChildren: '../report/msmed-outstanding-details/msmed-outstanding-details.module#MsmedOutstandingDetailsModule'
+        loadChildren: async ()=>{
+          const {MsmedOutstandingDetailsModule} =await import ('../report/msmed-outstanding-details/msmed-outstanding-details.module');
+          return MsmedOutstandingDetailsModule;
+         }
       },
       {
         path: 'report/msmed-outstanding/details',
-        loadChildren: () => import('../report/msmed-outstanding-details/msmed-outstanding-details.module').then(m => m.MsmedOutstandingDetailsModule)
+        // loadChildren: '../report/msmed-outstanding-details/msmed-outstanding-details.module#MsmedOutstandingDetailsModule'
+        loadChildren: async ()=>{
+          const {MsmedOutstandingDetailsModule} =await import ('../report/msmed-outstanding-details/msmed-outstanding-details.module');
+          return MsmedOutstandingDetailsModule;
+         }
       },
       {
         path: 'report/dues-overdues-outstanding',
-        loadChildren: () => import('../report/dues-overdues-outstanding/dues-overdues-outstanding.module').then(m => m.DuesOverduesOutstandingModule)
+        // loadChildren: '../report/dues-overdues-outstanding/dues-overdues-outstanding.module#DuesOverduesOutstandingModule'
+        loadChildren: async ()=>{
+          const {DuesOverduesOutstandingModule} =await import ('../report/dues-overdues-outstanding/dues-overdues-outstanding.module');
+          return DuesOverduesOutstandingModule;
+         }
       },
       {
         path: 'change-password',
-        loadChildren: () => import('./change-password/change-password.module').then(m => m.ChangePasswordModule)
+        // loadChildren: './change-password/change-password.module#ChangePasswordModule'
+        loadChildren: async ()=>{
+          const {ChangePasswordModule} =await import ('./change-password/change-password.module');
+          return ChangePasswordModule;
+         }
       },
       {
         path: 'ims/discount-master',
-        loadChildren: () => import('../transactionMaster/discount-master/discount-master.module').then(m => m.DiscountMasterModule)
-
+        // loadChildren: '../transactionMaster/discount-master/discount-master.module#DiscountMasterModule'
+        loadChildren: async ()=>{
+          const {DiscountMasterModule} =await import ('../transactionMaster/discount-master/discount-master.module');
+          return DiscountMasterModule;
+         }
+      },
+      {
+        path: 'super-admin/client',
+        // loadChildren: '../super-admin/client/client.module#ClientModule'
+        loadChildren: async ()=>{
+          const {ClientModule} =await import ('../super-admin/client/client.module');
+          return ClientModule;
+         }
+      },
+      {
+        path: 'super-admin/menu',
+        loadChildren: async ()=>{
+          const {MenuModule} =await import ('../super-admin/menu/menu.module');
+          return MenuModule;
+         }
       }
-      //
-      
-      // DiscountMasterModule
     ]
   }
 ]
-  
+
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]

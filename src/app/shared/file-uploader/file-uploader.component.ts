@@ -54,7 +54,6 @@ export class FileUploaderComponent implements OnInit {
   }
 
   blobToString(blob) {
-    debugger
     let reader = new FileReader()
     reader.readAsDataURL(blob)
     let _self = this

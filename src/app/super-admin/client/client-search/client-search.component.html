@@ -1,0 +1,33 @@
+<div id="demo" class="collapse bgc-white" [ngStyle]="{'display': toShow ? 'block' : 'none'}">
+  <form [formGroup]="searchForm" (ngSubmit)="search()" noValidate>
+    <div class="form-row p-10">
+      <div class="col-md-2 form-group">
+        <div class="input-group adw_select">
+          <select2 #subs_select2 id="subs" [data]="subsData" class="control_select"
+            (valueChanged)="SubscriptionType = +$event.value" autocomplete="true" [options]="{placeholder: 'Select Subscription'}">
+          </select2>
+        </div>
+      </div>
+      <div class="col-md-3 form-group">
+        <div class="input-group adw_select">
+          <select2 #indus_select2 id="indus" [data]="industryData" class="control_select"
+            (valueChanged)="onChange($event)" autocomplete="true" 
+            [options]="{multiple: true, placeholder: 'Select Industry'}">
+          </select2>
+        </div>
+      </div>
+      <div class="col-md-3" class="form-group">
+        <div class="form-group col-md-12">
+          <input type="text" appIncludeDecimal class="form-control" formControlName="Strsearch" id="Strsearch"
+            placeholder="Search....">
+        </div>
+      </div>
+      <div class="form-group col-md-2 text-center">
+        <button type="submit" class="btn btn-primary waves-effect waves-light m-0">Search</button>
+      </div>
+      <div class="form-group col-md-2">
+        <button type="button" class="btn btn_close waves-effect m-0" (click)="resetSearch()">Reset</button>
+      </div>
+    </div>
+  </form>
+</div>

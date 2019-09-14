@@ -1,13 +1,11 @@
-import { filter } from 'rxjs/operators';
 import { ItemmasterServices } from 'src/app/commonServices/TransactionMaster/item-master.services';
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { ComboService } from './../item-combo/combo.service';
 import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
-import { Subscription } from 'rxjs';
-declare const $: any
 import * as _ from 'lodash'
-
-
+import { ToastrCustomService } from '../../../../commonServices/toastr.service';
+import { map } from 'rxjs/internal/operators';
+declare const $: any
 @Component({
   selector: 'app-item-attribute-opening-stock',
   templateUrl: './item-attribute-opening-stock.component.html',
@@ -23,11 +21,34 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
   constructor(
     private comboService: ComboService,
     private _itemmasterServices: ItemmasterServices,
+    private toastrService: ToastrCustomService
   ) { }
 
   ngOnInit() {
+  }
 
-
+  getBarCodes (length: number) {
+    let _self = this
+    this._itemmasterServices.getBarCodes(length).pipe(
+      map((data: any) => {
+        console.log('barcodes : ', data)
+        if (data.length > 0) {
+          this.attribute.forEach((element, index) => {
+            element['Barcode'] = data[index].BarCode
+            element['ClientBarCode'] = data[index].BarCode
+          })
+          return this.attribute
+        }
+      })
+    )
+    .subscribe(
+      (data) => {
+        this.attribute = data
+      },
+      (error) => {
+        _self.toastrService.showError(error, '')
+      }
+    )
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -47,6 +68,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
           this.attribute = [];
           await this.generateCombination();
           await this.makeAttributeValueCombination();
+          this.getBarCodes(this.attribute.length)
           if (this.openModel.editMode === true) {
             await this.initFormData(this.openModel.data);
           }
@@ -97,9 +119,6 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
 
   triggerModelOpen() {
     $('#item-attribute-opening-stock').modal('show')
-    $('#item-attribute-opening-stock').modal({
-      keyboard: false
-    })
   }
 
   triggerCloseModel = (data?) => {
@@ -150,25 +169,25 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
 
   onPurchaseRateChange = (index) => {
     if (this.attribute[index].RatePurchase && this.attribute[index].Qty) {
-      this.attribute[index].QtyValue = this.attribute[index].Qty * this.attribute[index].RatePurchase;
+      this.attribute[index].QtyValue = (this.attribute[index].Qty * this.attribute[index].RatePurchase).toFixed(2);
     } else if (this.attribute[index].QtyValue && this.attribute[index].RatePurchase) {
-      this.attribute[index].Qty = this.attribute[index].QtyValue / this.attribute[index].RatePurchase
+      this.attribute[index].Qty = (this.attribute[index].QtyValue / this.attribute[index].RatePurchase).toFixed(2);
     }
   }
 
   onOpeningStockChange = (index) => {
     if (this.attribute[index].RatePurchase && this.attribute[index].Qty) {
-      this.attribute[index].QtyValue = this.attribute[index].Qty * this.attribute[index].RatePurchase;
+      this.attribute[index].QtyValue = (this.attribute[index].Qty * this.attribute[index].RatePurchase).toFixed(2);
     } else if (this.attribute[index].QtyValue && this.attribute[index].Qty) {
-      this.attribute[index].RatePurchase = this.attribute[index].QtyValue / this.attribute[index].Qty
+      this.attribute[index].RatePurchase = (this.attribute[index].QtyValue / this.attribute[index].Qty).toFixed(2);
     }
   }
 
   onOpeningStockValueChange = (index) => {
     if (this.attribute[index].Qty && this.attribute[index].QtyValue) {
-      this.attribute[index].RatePurchase = this.attribute[index].QtyValue / this.attribute[index].Qty
+      this.attribute[index].RatePurchase = (this.attribute[index].QtyValue / this.attribute[index].Qty).toFixed(2)
     } else if (this.attribute[index].RatePurchase && this.attribute[index].QtyValue) {
-      this.attribute[index].Qty = this.attribute[index].QtyValue / this.attribute[index].RatePurchase
+      this.attribute[index].Qty = (this.attribute[index].QtyValue / this.attribute[index].RatePurchase).toFixed(2)
     }
   }
 
@@ -200,7 +219,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
     filter = input.value.toUpperCase();
     table = document.getElementById("item-attribute-table");
     tr = table.getElementsByTagName("tr");
-    loop1: for (i = 1; i < tr.length; i++) {
+    for (i = 1; i < tr.length; i++) {
       tdArray = tr[i].getElementsByTagName("td");
       loop2: for (j = 2; j < (2 + this.masterData.Attributes.length); j++) {
        const innerTd = tdArray[j];

@@ -12,7 +12,8 @@ import { SharedModule } from '../../shared.module';
   imports: [
     CommonModule,
     SharedModule,
-    OpeningStkRoutingModule
+    OpeningStkRoutingModule,
+    SharedModule
   ]
 })
 export class OpeningStkModule { }

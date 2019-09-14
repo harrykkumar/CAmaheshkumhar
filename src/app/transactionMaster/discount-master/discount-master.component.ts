@@ -94,7 +94,7 @@ export class DiscountMasterComponent implements OnInit {
     this.deleteSub.unsubscribe()
   }
 
-  deleteItem (id:any) {
+  deleteItem (id) {
     if (id) {
       this.commonService.deleteDiscount(id).subscribe(Data => {
         if (Data.Code === UIConstant.DELETESUCCESS) {
@@ -113,8 +113,8 @@ export class DiscountMasterComponent implements OnInit {
   clientDateFormat:any
   DiscountFor100Perct:any
   noOfDecimalPoint:any
-  getSetUpModules(settings:any) {
-    settings.forEach((element:any) => {
+  getSetUpModules(settings) {
+    settings.forEach(element => {
       if (element.id === SetUpIds.dateFormat) {
         this.clientDateFormat = element.val[0].Val
       }
@@ -162,7 +162,7 @@ export class DiscountMasterComponent implements OnInit {
       })
   }
 
-  editDiscount (id:any) {
+  editDiscount (id) {
     this.commonService.openDiscountMaster(id,false,{},[])
 
   }
@@ -201,7 +201,7 @@ export class DiscountMasterComponent implements OnInit {
     this.commonService.openDiscountMaster('',false,{},[])
   }
 
-  deleteRoute (id:any) {
+  deleteRoute (id) {
     this.commonService.openDelete(id, 'route', 'Route')
   }
 

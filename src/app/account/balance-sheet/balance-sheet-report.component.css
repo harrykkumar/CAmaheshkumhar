@@ -1,3 +1,6 @@
+.hideChildren>div{
+   display: none;
+}
 .height_50 {
    max-height: 66vh;
 }

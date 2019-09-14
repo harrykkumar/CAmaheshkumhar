@@ -55,6 +55,7 @@ export class UserModulesComponent implements OnInit {
   }
 
   initModulesData = async () => {
+    debugger
     this.spinnerService.show()
     const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
     if (_.isEmpty(this._loginService.userData) || (!_.isEmpty(this._loginService.userData) && _.isEmpty(this._loginService.userData.Modules))) {

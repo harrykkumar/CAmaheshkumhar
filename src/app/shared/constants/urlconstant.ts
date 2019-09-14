@@ -79,4 +79,6 @@ export class URLConstant {
 
   public static get ACCOUNT_BALANCE_SHEET  (): string { return 'account/balance-sheet' }
 
+  public static get SUPER_ADMIN_CLIENT_MODULE (): string { return 'super-admin/client' }
+
 }

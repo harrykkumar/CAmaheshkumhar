@@ -1,4 +1,5 @@
-import { Component, Output, EventEmitter, Input, SimpleChanges, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, Output, EventEmitter, Input, SimpleChanges, OnInit , ViewChild,
+  ElementRef, OnDestroy } from '@angular/core';
 import { GlobalService } from '../../commonServices/global.service';
 import { Settings } from '../constants/settings.constant';
 import { DateTimeAdapter } from 'ng-pick-datetime';
@@ -9,12 +10,13 @@ import { ToastrCustomService } from '../../commonServices/toastr.service';
   selector: 'datepicker-popup',
   templateUrl: './datepicker.component.html'
 })
-export class DatepickerComponent implements OnDestroy {
+export class DatepickerComponent implements OnInit, OnDestroy {
   model;
   @ViewChild('dt2') dt2: OwlDateTimeComponent<''>
   @ViewChild('inputElem') inputElem: ElementRef
   @Output() dateInFormat = new EventEmitter()
   @Output() opened = new EventEmitter()
+  @Output() isError = new EventEmitter()
   @Input() toSetDate;
   @Input() isBackDate;
   @Input() disableInput: boolean;
@@ -23,6 +25,7 @@ export class DatepickerComponent implements OnDestroy {
   @Input() setMinDate;
   @Input() setMaxDate;
   @Input() placeholder: string = '';
+  @Input() applyFinYear: boolean = false
   today;
   minDate;
   maxDate;
@@ -35,17 +38,24 @@ export class DatepickerComponent implements OnDestroy {
     this.placeholder = this.gs.getPlaceholder(this.clientDateFormat)
     this.class = false
     this.dateTimeAdapter.setLocale('en-IN')
-    this.getSettings()
+  }
+
+  ngOnInit () {
   }
 
   ngOnChanges (changes: SimpleChanges): void {
-    // console.log(changes)
-    if (changes.toSetDate && changes.toSetDate.currentValue && changes.toSetDate.currentValue !== changes.toSetDate.previousValue) {
+    // console.log('changes : ', changes)
+    if (changes.applyFinYear && changes.applyFinYear.currentValue) {
+      this.getSettings()
+    }
+    if (changes.toSetDate && changes.toSetDate.currentValue && 
+      changes.toSetDate.currentValue !== changes.toSetDate.previousValue) {
       this.today = this.gs.sqlToUtc(this.gs.clientToSqlDateFormat(changes.toSetDate.currentValue, this.clientDateFormat))
       this.dt2.select(this.today)
       setTimeout(() => {
         this.dt2.dtInput.elementRef.nativeElement.value = changes.toSetDate.currentValue
         this.class = false
+        this.isError.emit(this.class)
       }, 1)
     }
     if (changes.toSetDate && changes.toSetDate.currentValue === '') {
@@ -54,7 +64,8 @@ export class DatepickerComponent implements OnDestroy {
         this.dt2.dtInput.elementRef.nativeElement.value = changes.toSetDate.currentValue
       }, 1)
     }
-    if (changes.isBackDate && !changes.isBackDate.currentValue && changes.isBackDate.currentValue !== changes.isBackDate.previousValue) {
+    if (changes.isBackDate && !changes.isBackDate.currentValue &&
+        changes.isBackDate.currentValue !== changes.isBackDate.previousValue) {
       this.minDate = new Date()
     }
     if (changes.daysToAdd && changes.daysToAdd.currentValue >= 0) {
@@ -72,13 +83,14 @@ export class DatepickerComponent implements OnDestroy {
       this.today = this.gs.sqlToUtc(this.gs.clientToSqlDateFormat(changes.setMinDate.currentValue, this.clientDateFormat))
       this.minDate = new Date(this.today)
     } else if (changes.setMinDate && changes.setMinDate.currentValue === '' ) {
-      this.minDate = new Date('')
+      this.minDate = new Date(0)
     }
     if (changes.setMaxDate && changes.setMaxDate.currentValue  && changes.setMaxDate.currentValue !== changes.setMaxDate.previousValue) {
       this.today = this.gs.sqlToUtc(this.gs.clientToSqlDateFormat(changes.setMaxDate.currentValue, this.clientDateFormat))
       this.maxDate = new Date(this.today)
     } else if (changes.setMaxDate && changes.setMaxDate.currentValue === '' ) {
-      this.maxDate = new Date('')
+      let year = (new Date()).getFullYear()
+      this.maxDate = new Date(year + 1000, 1)
     }
   }
 
@@ -88,10 +100,14 @@ export class DatepickerComponent implements OnDestroy {
       this.model = this.gs.utcToClientDateFormat((new Date(evt.value._d)).toISOString(), this.clientDateFormat)
       this.dateInFormat.emit(this.model)
       this.dt2.dtInput.elementRef.nativeElement.value = this.model
+      this.class = false
+      this.isError.emit(this.class)
     } else if (this.isoRegex.test(evt.value)) {
       this.model = this.gs.utcToClientDateFormat(evt.value, this.clientDateFormat)
       this.dateInFormat.emit(this.model)
       this.dt2.dtInput.elementRef.nativeElement.value = this.model
+      this.class = false
+      this.isError.emit(this.class)
     }
   }
 
@@ -113,9 +129,10 @@ export class DatepickerComponent implements OnDestroy {
   }
 
   getSettings () {
-    // console.log('set date')
-    if (this.settings.finFromDate) this.minDate = new Date(this.settings.finFromDate)
-    if (this.settings.finToDate) this.maxDate = new Date(this.settings.finToDate)
+    if (this.applyFinYear) {
+      if (this.settings.finFromDate) this.minDate = new Date(this.settings.finFromDate)
+      if (this.settings.finToDate) this.maxDate = new Date(this.settings.finToDate)
+    }
   }
 
   validateDate () {
@@ -127,7 +144,8 @@ export class DatepickerComponent implements OnDestroy {
         this.today = (new Date(date[0], date[1], date[2])).toISOString()
         let dateToSet = this.gs.utcToClientDateFormat(this.today, this.clientDateFormat)
         if (this.today) {
-          if (!isNaN(this.maxDate.getTime()) && !isNaN(this.minDate.getTime())) {
+          if (this.maxDate !== undefined && this.minDate !== undefined && 
+            !isNaN(this.maxDate.getTime()) && !isNaN(this.minDate.getTime())) {
             if ((new Date(this.today)).getTime() <= this.maxDate.getTime() && 
               (new Date(this.today)).getTime() >= this.minDate.getTime()) {
               this.class = false
@@ -151,6 +169,7 @@ export class DatepickerComponent implements OnDestroy {
       } else {
         this.class = true
       }
+      this.isError.emit(this.class)
     } else {
       let newDate = '' + (new Date(this.inputElem.nativeElement.value))
       console.log('newDate : ', newDate)
@@ -163,7 +182,7 @@ export class DatepickerComponent implements OnDestroy {
           if (this.gs.isValidDate(toCheckDateFor)) {
             this.today = this.gs.sqlToUtc(toCheckDateFor)
             if (this.today) {
-              if (!isNaN(this.maxDate.getTime()) && !isNaN(this.minDate.getTime())) {
+              if (this.maxDate !== undefined && this.minDate !== undefined && !isNaN(this.maxDate.getTime()) && !isNaN(this.minDate.getTime())) {
                 if ((new Date(this.today)).getTime() <= this.maxDate.getTime() && (new Date(this.today)).getTime() >= this.minDate.getTime()) {
                   this.class = false
                   // console.log('moment format : ', moment(this.today).format())
@@ -193,6 +212,7 @@ export class DatepickerComponent implements OnDestroy {
       } else {
         this.class = true
       }
+      this.isError.emit(this.class)
     }
   }
 

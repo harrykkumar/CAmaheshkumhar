@@ -52,6 +52,8 @@ export class CommonService {
   private openAddledgerCreationSub = new BehaviorSubject<AddCust>({ 'open': false })
   private sendDataForSearchSub = new BehaviorSubject<AddCust>({ 'open': false })
   private newRefreshSub = new Subject()
+  private redirectSub = new Subject()
+
   private ledgerSummarySub = new BehaviorSubject<AddCust>({ 'open': false })
   private openSaleDirectReturnSubject = new BehaviorSubject<AddCust>({ 'open': false })
 
@@ -442,7 +444,9 @@ export class CommonService {
       this.openAddAttributeSub.next({ 'open': false })
     }
   }
-
+  closeAttributePopup() {
+    this.openAddAttributeSub.next({ 'open': false })
+  }
   closeAttribute(data) {
     if (data) {
       this.openAddAttributeSub.next({ 'open': false, 'name': data.name, 'id': data.id })
@@ -717,8 +721,11 @@ export class CommonService {
   getModulesettingAPI(type) {
     return this.baseService.getRequest(ApiConstant.GET_MODULE_SETTING + type)
   }
+  barcodeAPI(billDate,barcode,ItemId, CustomerId) {
+    return this.baseService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + ItemId + '&Barcode='+barcode +'&Ledgerid=' + CustomerId+'&BillDate='+billDate)
+  }
   getItemRateByLedgerAPI(ItemId, CustomerId) {
-    return this.baseService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + ItemId + '&Ledgerid=' + CustomerId)
+    return this.baseService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + ItemId + '&Ledgerid='+ CustomerId)
   }
 
   getSearchItemStock(getSearchItemStock) {
@@ -1385,6 +1392,13 @@ export class CommonService {
   }
   deleteDiscount (id){
     return this.baseService.deleteRequest(ApiConstant.GET_DISCOUNT_FOR_APPLY+'?' +id)
+  }
 
+  reDirectPrintSale(action) {
+    this.redirectSub.next(action)
+  }
+
+  reDirectPrintSaleStatus() {
+    return this.redirectSub.asObservable()
   }
 }

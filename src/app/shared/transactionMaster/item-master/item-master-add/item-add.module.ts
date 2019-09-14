@@ -24,7 +24,6 @@ import { ItemAttributeOpeningStockComponent } from '../item-attribute-opening-st
   exports: [
     ItemAddComponent,
     ItemAttributeOpeningStockComponent
-
   ],
   entryComponents:[ItemAttributeOpeningStockComponent],
   bootstrap: []

@@ -291,7 +291,7 @@
         <div style="clear:both"></div>
       </div>
       <div class="amount" *ngIf="last" style="min-height: 125px;width:100%;">
-        <div class="invoice border-top border-bottom">
+        <div *ngIf="GstTypeId===1" class="invoice border-top border-bottom">
           <div style="clear:both"></div><!-- style="max-height:500px;min-height: 500px"-->
           <h4 style=" padding-left:358px"> GST TAX SUMMARY</h4>
           <div class="mainT">

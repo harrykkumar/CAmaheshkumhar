@@ -275,11 +275,12 @@ selectedCityId (event) {
     this.selectCrDr = [{ id: '1', text: 'CR' }, { id: '0', text: 'DR' }]
     this.valueCRDR = value
   }
+  //&& !this.requiredGST
   addbank (type) {
     let _self = this
     this.submitClick = true
     this.checkGSTNumberValid()
-    if (this.bankForm.valid  && !this.requiredGST && this.bankForm.value.ifscCode !== null && this.bankForm.value.branch !== null && this.bankForm.value.banName !== null && this.bankForm.value.accountNo !== null && this.bankForm.value.ifscCode !== '' && this.bankForm.value.branch !== '' && this.bankForm.value.banName !== '' && this.bankForm.value.accountNo !== '') {
+    if (this.bankForm.valid   && this.bankForm.value.ifscCode !== null && this.bankForm.value.branch !== null && this.bankForm.value.banName !== null && this.bankForm.value.accountNo !== null && this.bankForm.value.ifscCode !== '' && this.bankForm.value.branch !== '' && this.bankForm.value.banName !== '' && this.bankForm.value.accountNo !== '') {
          if(this.matchStateCodeWithGSTNumber()){
       this.subscribe = this._bankServices.saveBank(this.bankParams()).subscribe(data => {
         console.log(data)
@@ -309,9 +310,9 @@ selectedCityId (event) {
         }
       })
     }
-    else{
-      this.toastrService.showError('','Invalid GSTIN Number According to Selected State ')
-    }
+    // else{
+    //   this.toastrService.showError('','Invalid GSTIN Number According to Selected State ')
+    // }
     }
   }
   CrDrRateType: any

@@ -37,19 +37,19 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
     private _toastService: ToastrCustomService,
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this.noOfDecimal =this._settings.noOfDecimal
+    this.noOfDecimal = this._settings.noOfDecimal
     this.getLedgerItemList();
   }
-  noOfDecimal:any
+  noOfDecimal: any
   ngOnInit() {
-    this.viewFlag =true
-    this.isViewPrint=false
+    this.viewFlag = true
+    this.isViewPrint = false
     this._commonService.fixTableHF('cat-table')
 
     this.getSaleCategoryDetail();
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     this.toDate()
     this.fromDate()
   }
@@ -58,7 +58,7 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
   }
 
   toDate = () => {
-        this.model.toDateValue =  ''
+    this.model.toDateValue = ''
   }
 
   onLedgerItemChange = (event) => {
@@ -99,79 +99,79 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
 
   //   })
   // }
-  mainDataExcel:any =[]
-  saleCategory:any={}
+  mainDataExcel: any = []
+  saleCategory: any = {}
   getSaleCategoryDetail = () => {
     let fromDate, toDate
     if (this.model.fromDatevalue) {
-       fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
+      fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
     }
     if (this.model.toDateValue) {
-       toDate = this._globalService.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
+      toDate = this._globalService.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
     }
     const data = {
       LedgerId: this.model.selectedLedgerItem ? this.model.selectedLedgerItem.id : 0,
       Page: this.pageNo,
       Size: this.pageSize,
-      type:'sale'
+      type: 'sale'
     }
-  //  this.mainData =[]
-  //  this.saleCategory={}
+    //  this.mainData =[]
+    //  this.saleCategory={}
     this._commonService.getReportItemByCategorySale(UIConstant.SALE_TYPE).pipe(
       takeUntil(this.unSubscribe$)
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.ItemAttributeReports.length > 0) {
         this.mainData = response.Data.ItemAttributeReports;
-        this.mainDataExcel =[]
-        this.saleCategory =response.Data
-        this.ExcelHeaders =["SNo","Category Name" ,"Item Name","Quantity" ," Discount Amt","Tax Amount"," Bill Amount"]
-        response.Data.ItemAttributeReports.forEach((element,int) => {
+        this.mainDataExcel = []
+        this.saleCategory = response.Data
+        this.ExcelHeaders = ["SNo", "Category Name", "Item Name", "Quantity", " Discount Amt", "Tax Amount", " Bill Amount"]
+        response.Data.ItemAttributeReports.forEach((element, int) => {
           this.mainDataExcel.push([
-            int+1,
-            element.ItemId === 0 ? element.Name : '' ,
-            element.ItemId !== 0 ? element.Name : '' ,
+            int + 1,
+            element.ItemId === 0 ? element.Name : '',
+            element.ItemId !== 0 ? element.Name : '',
             element.Quantity,
             (element.DiscountAmt).toFixed(this.noOfDecimal),
             (element.TaxAmount).toFixed(this.noOfDecimal),
             (element.BillAmount).toFixed(this.noOfDecimal),
-        
+
           ])
         });
-       this.getValueFalg = false
+        this.getValueFalg = false
         //this.totalItemSize = response.Data.CashBook[0].TotalRows;
-        if(this.isViewPrint ){
-          this.printLoad(this.htmlLoadid,this.isViewPrint)
+        if (this.isViewPrint) {
+          this.printLoad(this.htmlLoadid, this.isViewPrint)
         }
       } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.ItemAttributeReports.length === 0) {
         this.getValueFalg = true
         this.mainData = {
           ItemAttributeReports: [],
-          AddressDetails:[],
-          ContactInfoDetails:[],
-          EmailDetails:[],
-          OrganizationDetails:[],
-          ImageContents:[]
+          AddressDetails: [],
+          ContactInfoDetails: [],
+          EmailDetails: [],
+          OrganizationDetails: [],
+          ImageContents: []
         }
         this.totalItemSize = 0;
       } else {
         this._toastService.showError("Error in Data Fetching", '');
       }
-    
+
     }, (error) => {
       console.log(error);
     });
   }
 
   onPageNoChange = (event) => {
-    this.viewFlag=true
-    this.isViewPrint= false
+    this.viewFlag = true
+    this.isViewPrint = false
     this.pageNo = event
     this.getSaleCategoryDetail()
   }
 
   onPageSizeChange = (event) => {
-    this.viewFlag=true
-    this.isViewPrint= false
+    this.viewFlag = true
+    this.isViewPrint = false
     this.pageSize = event
     this.getSaleCategoryDetail()
   }
@@ -184,33 +184,33 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
-  searchResetButton (){
-    this.viewFlag=true
-    this.isViewPrint= false
-    this.model.toDateValue =''
-    this.model.fromDatevalue =''
+  searchResetButton() {
+    this.viewFlag = true
+    this.isViewPrint = false
+    this.model.toDateValue = ''
+    this.model.fromDatevalue = ''
     this.getSaleCategoryDetail()
 
   }
-  isViewPrint:boolean = false
-  htmlLoadid:any =0
-  viewPrint:any
-  viewFlag:any
-  openPrint (HtmlId ,isViewPrint) {
-    this.viewFlag=false
-    this.isViewPrint =isViewPrint
-    this.htmlLoadid= HtmlId
-   this.getSaleCategoryDetail()
-  }
-  searchButton (){
-    this.viewFlag=true
-    this.isViewPrint= false
+  isViewPrint: boolean = false
+  htmlLoadid: any = 0
+  viewPrint: any
+  viewFlag: any
+  openPrint(HtmlId, isViewPrint) {
+    this.viewFlag = false
+    this.isViewPrint = isViewPrint
+    this.htmlLoadid = HtmlId
     this.getSaleCategoryDetail()
   }
-  closeBtn (){
-    this.viewFlag=true
+  searchButton() {
+    this.viewFlag = true
+    this.isViewPrint = false
+    this.getSaleCategoryDetail()
   }
-  printLoad (cmpName,isViewForm) {
+  closeBtn() {
+    this.viewFlag = true
+  }
+  printLoad(cmpName, isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open()
@@ -220,59 +220,55 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
     printWindow.document.write('</body></html>')
     printWindow.document.close()
     printWindow.focus()
-    this.viewFlag=true
+    this.viewFlag = true
     setTimeout(function () {
-        document.getElementsByTagName('body')[0] .classList.add('hidden-print');
-     printWindow.print()
-     printWindow.close()
-   
+      document.getElementsByTagName('body')[0].classList.add('hidden-print');
+      printWindow.print()
+      printWindow.close()
+
     }, 100)
-   
-  }
-  
-toggleCategory(event,itemId,AttributeId ,index) {
-  $(document).ready(function(){
-    // Add minus icon for collapse element which is open by default
-    $(".collapse.show").each(function(){
-      $(this).prev(".new-clas").find(".fa").addClass("fa-minus").removeClass("fa-plus");
-    });
-    
-    // Toggle plus minus icon on show hide of collapse element
-    $(".collapse").on('show.bs.collapse', function(){
-      $(this).prev(".new-clas").find(".fa").removeClass("fa-plus").addClass("fa-minus");
-    }).on('hide.bs.collapse', function(){
-      $(this).prev(".new-clas").find(".fa").removeClass("fa-minus").addClass("fa-plus");
-    });
-});    
-
-}
-toggleItemdd(event,itemId,AttributeId ,index) {
-  $(document).ready(function(){
-    // Add minus icon for collapse element which is open by default
-    $(".collapse.show").each(function(){
-      $(this).prev(".profile-pic1").find(".fa").addClass("fa-minus").removeClass("fa-plus");
-    });
-    
-    // Toggle plus minus icon on show hide of collapse element
-    $(".collapse").on('show.bs.collapse', function(){
-      $(this).prev(".card-header").find(".fa").removeClass("fa-plus").addClass("fa-minus");
-    }).on('hide.bs.collapse', function(){
-      $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-plus");
-    });
-});    
-
-}
-catflag: boolean = false
-ExcelHeaders :any
-exportExcel () {
-  if(this.mainDataExcel.length > 0){
-    this.excelService.generateExcel(this.saleCategory.OrganizationDetails[0].OrgName,
-      this.saleCategory.AddressDetails[0].CityName + ' ' +
-      this.saleCategory.AddressDetails[0].StateName + ' ' + this.saleCategory.AddressDetails[0].CountryName, this.ExcelHeaders,
-      this.mainDataExcel, 'Item Category Report', this.model.fromDatevalue, this.model.toDateValue,[])
-
-
 
   }
-}
+
+  toggleCategory(event, itemId, AttributeId, index) {
+    $(document).ready(function () {
+      // Add minus icon for collapse element which is open by default
+      $(".collapse.show").each(function () {
+        $(this).prev(".new-clas").find(".fa").addClass("fa-minus").removeClass("fa-plus");
+      });
+
+      // Toggle plus minus icon on show hide of collapse element
+      $(".collapse").on('show.bs.collapse', function () {
+        $(this).prev(".new-clas").find(".fa").removeClass("fa-plus").addClass("fa-minus");
+      }).on('hide.bs.collapse', function () {
+        $(this).prev(".new-clas").find(".fa").removeClass("fa-minus").addClass("fa-plus");
+      });
+    });
+
+  }
+  toggleItemdd(event, itemId, AttributeId, index) {
+    $(document).ready(function () {
+      $(".collapse.show").each(function () {
+        $(this).prev(".profile-pic1").find(".fa").addClass("fa-minus").removeClass("fa-plus");
+      });
+      $(".collapse").on('show.bs.collapse', function () {
+        $(this).prev(".card-header").find(".fa").removeClass("fa-plus").addClass("fa-minus");
+      }).on('hide.bs.collapse', function () {
+        $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-plus");
+      });
+    });
+  }
+  catflag: boolean = false
+  ExcelHeaders: any
+  exportExcel() {
+    if (this.mainDataExcel.length > 0) {
+      this.excelService.generateExcel(this.saleCategory.OrganizationDetails[0].OrgName,
+        this.saleCategory.AddressDetails[0].CityName + ' ' +
+        this.saleCategory.AddressDetails[0].StateName + ' ' + this.saleCategory.AddressDetails[0].CountryName, this.ExcelHeaders,
+        this.mainDataExcel, 'Item Category Report', this.model.fromDatevalue, this.model.toDateValue, [])
+
+
+
+    }
+  }
 }

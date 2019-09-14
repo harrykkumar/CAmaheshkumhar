@@ -27,6 +27,7 @@ export class PurchaseListComponent implements OnInit {
   customFooter: any = []
   newPurchaseSub: Subscription
   deleteSub: Subscription
+  redirectData:Subscription
   formName: number
   clientDateFormat: string
   p: number = 1
@@ -69,6 +70,12 @@ export class PurchaseListComponent implements OnInit {
         }
       }
     )
+    this.redirectData = this.commonService.reDirectPrintSaleStatus().subscribe(
+      (action: any) => {
+        this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
+        this.getPurchaseList()
+      }
+    )
     this.queryStr$ = this.purchaseService.queryStr$.subscribe(
       (str) => {
         console.log(str)
@@ -109,7 +116,8 @@ export class PurchaseListComponent implements OnInit {
       term = ''
     }
     this.pagingComp.setPage(1)
-    return this.purchaseService.getPurchaseList('?StrSearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
+    return this.purchaseService.getPurchaseList('?StrSearch=' + term + '&Page=' + this.p + 
+    '&Size=' + this.itemsPerPage + this.queryStr)
   }
 
   ngOnInit() {

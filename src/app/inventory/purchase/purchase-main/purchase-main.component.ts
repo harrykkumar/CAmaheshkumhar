@@ -170,7 +170,7 @@ export class PurchaseMainComponent {
     this.purchaseAdd.initialiseExtras()
     this.commonService.openPurchase('')
   }
-
+  GstTypeId:any =0
   attributeKeys: any = []
   onPrintButton (id, htmlID,isViewPrint) {
     // this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
@@ -188,6 +188,7 @@ export class PurchaseMainComponent {
         _self.getDistinctTaxName(data.Data.HsnItemTaxTransDetails, data.Data.HsnItemTransactions, data.Data.PurchaseTransactions[0].Currency)
         _self.attributeKeys = data.Data.ItemTransactions[0].itemAttributes
          this.word = this.commonService.convertNumber(data.Data.PurchaseTransactions[0].BillAmount)
+         this.GstTypeId  = data.Data.PurchaseTransactions[0].GstTypeId 
         let newItemTransaction = this.splitArray(data.Data.ItemTransactions, 18)
         newItemTransaction.forEach((element, index) => {
           data.Data.ItemTransactions = JSON.parse(JSON.stringify(element))

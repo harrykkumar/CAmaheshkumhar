@@ -56,19 +56,20 @@
                       <input  [attr.disabled]="disabledGSTfor_UnRegi?'':null" style="text-transform:uppercase" 
                       type="text" class="form-control"
                        id="org_code" placeholder=" GSTIN No"
-                        formControlName="gstin" (input)="checkGSTNumber($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': (submitClick && validGSTNumber) || (submitClick && requiredGST ) }"
+                        formControlName="gstin" (input)="checkGSTNumber($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': (submitClick && validGSTNumber)}"
                         >
                   </div>
                          <div class="form-group col-md-6">
                       <label for="bill_no">Country</label>
                       <div class="input-group adw_select">
-                          <select2 [disabled]='disabledStateCountry'   #country_selecto [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)" autocomplete="true" [options]="{placeholder:'Select Country'}" [value]="countryValue"></select2>
+                          <select2   #country_selecto [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)" autocomplete="true" [options]="{placeholder:'Select Country'}" [value]="countryValue"></select2>
                       </div>
+                      <!-- [disabled]='disabledStateCountry'  -->
                   </div>
                     <div class="form-group col-md-6">
                       <label for="bill_no">State</label>
                       <div class="input-group adw_select">
-                          <select2 [disabled]='disabledStateCountry' #state_select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)" autocomplete="true" [options]="{
+                          <select2  #state_select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)" autocomplete="true" [options]="{
                               placeholder: 'Select State'
                           }" [value]="stateValue" ></select2>
                       </div>

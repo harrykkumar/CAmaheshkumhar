@@ -71,6 +71,7 @@ export class SideMenuComponent {
     this.spinnerService.show()
     const selectedModule = JSON.parse(localStorage.getItem('SELECTED_MODULE'))
     this.loggedinUserData = { ...this._loginService.userData }
+    console.log('this._loginService.userData.Modules : ', this._loginService.userData.Modules)
     if (!_.isEmpty(this._loginService.userData) &&
       !_.isEmpty(this._loginService.userData.Modules)) {
       if (this._loginService.userData.Modules[selectedModule['index']]) {
@@ -80,7 +81,6 @@ export class SideMenuComponent {
     }
     this.spinnerService.hide()
   }
-
   initMenuPath = () => {
     _.map(this.sideMenu, (menu) => {
       const matchedMenu = _.find(SIDE_MENU_MODEL, {Id: menu.Id});
@@ -89,16 +89,37 @@ export class SideMenuComponent {
         menu['icon'] = matchedMenu.icon
       }
       if (menu && menu.subMenu && menu.subMenu.length > 0) {
+        console.log('sub menus : ', menu.subMenu)
         _.map(menu.subMenu, (subMenu) => {
           const matchedSubMenu = _.find(SIDE_MENU_MODEL, {Id: subMenu.Id});
           if (!_.isEmpty(matchedSubMenu)) {
             subMenu['path'] = matchedSubMenu.path
             subMenu['icon'] = matchedSubMenu.icon
+            console.log('submenu : ', subMenu)
           }
         })
       }
     })
   }
+
+  // initMenuPath = () => {
+  //   _.map(this.sideMenu, (menu) => {
+  //     const matchedMenu = _.find(SIDE_MENU_MODEL, {Id: menu.Id});
+  //     if (!_.isEmpty(matchedMenu)) {
+  //       menu['path'] = matchedMenu.path
+  //       menu['icon'] = matchedMenu.icon
+  //     }
+  //     if (menu && menu.subMenu && menu.subMenu.length > 0) {
+  //       _.map(menu.subMenu, (subMenu) => {
+  //         const matchedSubMenu = _.find(SIDE_MENU_MODEL, {Id: subMenu.Id});
+  //         if (!_.isEmpty(matchedSubMenu)) {
+  //           subMenu['path'] = matchedSubMenu.path
+  //           subMenu['icon'] = matchedSubMenu.icon
+  //         }
+  //       })
+  //     }
+  //   })
+  // }
 
   navigateTo = (selectedMenu) => {
     if (selectedMenu.path === "") {

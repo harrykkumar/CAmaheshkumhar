@@ -607,7 +607,7 @@ export class serviceBillingAddComponent {
   }
   BillDiscountApplied: any = []
   createForm (data) {
-    debugger
+    
     this.OrgGStType
     this.dataForEdit = data
     this.other = {}
@@ -1020,7 +1020,7 @@ getTypeOfGST () {
   }
   NoAddressNeed:boolean = true
   getAllAddresses (vendorId) {
-    debugger
+    
     this.saleServiceBillingService.getAllAddresses(vendorId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data && data.Data.AddressDetails.length>0) {
@@ -1045,6 +1045,7 @@ getTypeOfGST () {
           const LedgerDetails = data.Data.LedgerDetails[0]
           this.CreditLimit = LedgerDetails.CreditLimit
           this.CreditDays = LedgerDetails.CreditDays
+          this.CreditDays === 0 ? this.updateDuedate() : this.updateCurrentdate()
           this.outStandingBalance = (data.Data.LedgerDetails[0].OpeningAmount).toFixed(this.noOfDecimalPoint)
           this.setCRDR = data.Data.LedgerDetails[0].Crdr ===0 ? 'Dr' :'Cr' ;
         }
@@ -1521,6 +1522,11 @@ getTypeOfGST () {
       }
       this.checkForValidation()
     }
+    if(+evt.value=== 0 ){
+      this.AddressId = 0
+      this.isOtherState =false
+      this.updateItemTax()
+    }
   }
 
   needToCheckItem: boolean = false
@@ -1528,7 +1534,7 @@ getTypeOfGST () {
 
 
   checkForGST () {
-    debugger
+    
     let isOtherState = true
     if(this.allAddressData.length >0){
       this.allAddressData.forEach(element => {
@@ -1935,11 +1941,11 @@ getTypeOfGST () {
           this.calculateAllTotal()
           
         //}
-        if (!this.editMode) {
+        //if (!this.editMode) {
           this.BillDiscount = 0
           this.BillDiscountArray = []
           this.BillDiscountCalculate()
-        }
+       // }
         this.initItem()
 
     }
@@ -2490,7 +2496,24 @@ this.taxTypeValue=0
     this.getNewBillNo()
 
   }
-
+  updateCurrentdate() {
+    this.saleServiceBillingService.getCurrentDate().subscribe(
+      data => {
+        if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+          this.setCurrentDate(data.Data)
+        }
+      }
+    )
+  }
+  updateDuedate() {
+    this.saleServiceBillingService.getCurrentDate().subscribe(
+      data => {
+        if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+          this.setDueDate(data.Data)
+        }
+      }
+    )
+  }
   getNewCurrentDate () {
     this.saleServiceBillingService.getCurrentDate().subscribe(
       data => {
@@ -3285,7 +3308,7 @@ this.taxTypeValue=0
   BillDiscountArray :any  =[]
   localTaxableValueled: any = 0
   MultipleDiscountCalculate(multipleDiscount) {
-    debugger
+    
     this.localTaxableValueled = this.TaxableValue
     if (multipleDiscount.length > 0) {
       multipleDiscount.forEach(element => {
@@ -3318,7 +3341,7 @@ this.taxTypeValue=0
   }
 
   BillDiscountCalculate() {
-    debugger
+    
     if ('' + this.BillDiscountType === '0') {
       if (+this.BillDiscount <= 100 && +this.BillDiscount >= 0) {
         this.PerItemDiscountPerCentage = isNaN(+this.BillDiscount) ? 0 : +this.BillDiscount
@@ -3425,6 +3448,21 @@ this.taxTypeValue=0
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
       }
     }
+    this.AdditionalChargesToShow = JSON.parse(JSON.stringify(this.AdditionalCharges))
+    this.AdditionalCharges.forEach(element => {
+      ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
+    });
+    if (!this.clickCharge && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
+      if (this.appliedTaxRatesCharge.length > 0) {
+        ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesCharge)
+      }
+      if (!this.creatingForm) {
+        this.AdditionalChargesToShow.push({
+          'LedgerName': this.LedgerName,
+          'TaxableAmountCharge': +this.TaxableAmountCharge
+        })
+      }
+    }
     this.TaxableValue = taxableValue
     this.billSummary = []
     if (!this.creatingForm) {
@@ -3463,7 +3501,7 @@ this.taxTypeValue=0
     let editDiscountValue = this.BillDiscountApplied.length === 0 ? [] : this.BillDiscountApplied
 
 
-    debugger
+    
     this.commonService.openDiscountMaster('', true, DiscountData, editDiscountValue)
   }
 }

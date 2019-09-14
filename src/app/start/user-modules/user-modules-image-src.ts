@@ -1,59 +1,77 @@
 export const MODULES_IMG_SRC = {
-  'EMS': {
-    src: 'assets/static/images/fea-ems.png'
-  },
-  'Manufacturer': {
-    src: 'assets/static/images/mfg.png'
-  },
-  'CRM': {
-    src: 'assets/static/images/fea-cms.png'
-  },
-  'TaskMS': {
-    src: 'assets/static/images/fea-task.png'
-  },
-  'Quotation Management Software': {
-    src: 'assets/static/images/fea-quotation.png'
-  },
-  'BMS': {
-    src: 'assets/static/images/billing.png'
-  },
-  'IMS': {
+
+  1: {
     src: 'assets/static/images/inventory.png'
   },
-  'Fixed Assets Management System': {
-    src: 'assets/static/images/fams.png'
-  },
-  'Account': {
+  2: {
     src: 'assets/static/images/fea-account.png'
   },
-  'Human Resource Management System': {
-    src: 'assets/static/images/payroll1.png'
+  3: {
+    src: 'assets/static/images/billing.png'
   },
-  'LMSOMS': {
+  4: {
+    src: 'assets/static/images/fea-cms.png'
+  },
+  5: {
+    src: 'assets/static/images/fea-ems.png'
+  },
+  6: {
     src: 'assets/static/images/oms-lms.png'
   },
-  'G.R. Managers': {
-    src: 'assets/static/images/gr-manager.png'
-  },
-  'ECommerce': {
+  7: {
     src: 'assets/static/images/ecomm.png'
   },
-  'ProductionProcessMS': {
+  8: {
+    src: 'assets/static/images/fea-account.png'
+  },
+  9: {
+    src: 'assets/static/images/mfg.png'
+  },
+  10: {
     src: 'assets/static/images/industry.png'
   },
-  'Ticketing System': {
-    src: 'assets/static/images/help.png'
+  11: {
+    src: 'assets/static/images/billing.png'
   },
-  'Statutory Compliance Management': {
-    src: 'assets/static/images/scm.png'
+  13: {
+    src: 'assets/static/images/fea-task.png'
   },
-  'Interface Capabilities': {
-    src: 'assets/static/images/interface.png'
+  14: {
+    src: 'assets/static/images/fea-account.png'
   },
-  'Custom Editor': {
+  15: {
     src: 'assets/static/images/editor.png'
   },
-  'ServiceBilling': {
-    src: 'assets/static/images/billing.png'    
+  16: {
+    src: 'assets/static/images/editor.png'
   }
+  // 'Fixed Assets Management System': {
+  //   src: 'assets/static/images/fams.png'
+  // },
+
+  // 'Human Resource Management System': {
+  //   src: 'assets/static/images/payroll1.png'
+  // },
+
+  // 'G.R. Managers': {
+  //   src: 'assets/static/images/gr-manager.png'
+  // },
+
+  // 'Ticketing System': {
+  //   src: 'assets/static/images/help.png'
+  // },
+  // 'Statutory Compliance Management': {
+  //   src: 'assets/static/images/scm.png'
+  // },
+  // 'Interface Capabilities': {
+  //   src: 'assets/static/images/interface.png'
+  // },
+  // 'Custom Editor': {
+  //   src: 'assets/static/images/editor.png'
+  // },
+  // 'Quotation Management Software': {
+  //   src: 'assets/static/images/fea-quotation.png'
+  // },
+
+
 }

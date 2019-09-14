@@ -1,12 +1,5 @@
-<div
-  class="modal fade"
-  id="item-attribute-opening-stock"
-  role="dialog"
-  aria-labelledby="exampleModalLabel"
-  aria-hidden="true"
-  data-backdrop="static"
-  data-keyboard="false"
->
+<div class="modal fade" id="item-attribute-opening-stock" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog large_form modal-full-height modal-top" role="document">
     <div class="modal-content bgcH-grey-100">
       <div class="modal-header primary-bg">
@@ -20,37 +13,26 @@
             </div>
             <div class="col-md-5">
               <form>
-                  <div id="custom-search-input" class="btn_header1">
-                      <div class="input-group col-md-12">
-                          <input type="text" id="searchInput"
-                          class="form-control input-lg"
-                          placeholder="Search"
-                          (input)="searchFilter()"
-                          />
-                          <span class="input-group-btn">
-                              <a>
-                                  <i class="fas fa-search"></i>
-                              </a>
-                          </span>
-                      </div>
+                <div id="custom-search-input" class="btn_header1">
+                  <div class="input-group col-md-12">
+                    <input type="text" id="searchInput" class="form-control input-lg" placeholder="Search"
+                      (input)="searchFilter()" />
+                    <span class="input-group-btn">
+                      <a>
+                        <i class="fas fa-search"></i>
+                      </a>
+                    </span>
                   </div>
+                </div>
               </form>
-          </div>
+            </div>
             <div class="col-md-3">
               <div class="btn_header">
-                <a
-                  class="btn btn-default waves-effect"
-                  (click)="validateForm() && postFormData(attribute, 'save')"
-                >
+                <a class="btn btn-default waves-effect" (click)="validateForm() && postFormData(attribute, 'save')">
                   Save
                 </a>
-                <button
-                  type="button"
-                  (click)="postFormData(editAttributeData, 'cancel')"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                >
+                <button type="button" (click)="postFormData(editAttributeData, 'cancel')" class="close"
+                  data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true" class="white-text">×</span>
                 </button>
               </div>
@@ -67,31 +49,21 @@
           />
         </div>
       </div> -->
-      <div class="modal-body" >
+      <div class="modal-body">
         <form>
           <div class="bgc-white bdrs-3 pb-3 mB-20">
             <div class="table-responsive table-item-attribute">
-              <table
-                class="table cat-table  fixTable2 table-hover"
-                id="item-attribute-table"
-              >
+              <table class="table cat-table  fixTable2 table-hover" id="item-attribute-table">
                 <thead>
                   <tr class="default_row">
                     <th>SNo.</th>
-                    <th><div class="custom-control custom-checkbox">
-                        <input
-                        name="checkAll"
-                        [(ngModel)]="allChecked"
-                        (change)="checkAllItem($event)"
-                        type="checkbox"
-                        class="custom-control-input"
-                        id="CheckAllItemAttribute"
-                      />
-                      <label
-                          class="custom-control-label"
-                          for="CheckAllItemAttribute"
-                          ></label>
-                    </div></th>
+                    <th>
+                      <div class="custom-control custom-checkbox">
+                        <input name="checkAll" [(ngModel)]="allChecked" (change)="checkAllItem($event)" type="checkbox"
+                          class="custom-control-input" id="CheckAllItemAttribute" />
+                        <label class="custom-control-label" for="CheckAllItemAttribute"></label>
+                      </div>
+                    </th>
                     <th class="dynamic_fix" *ngFor="let column of masterData?.Attributes">
                       {{ column?.Name }}
                     </th>
@@ -108,116 +80,57 @@
                 </thead>
 
                 <tbody>
-                  <tr
-                    class="default_row"
-                    *ngFor="let item of attribute; let i = index"
-                  >
+                  <tr class="default_row" *ngFor="let item of attribute; let i = index">
                     <td>{{ i + 1 }}</td>
                     <td>
-                        <div class="custom-control custom-checkbox">
-                        <input
-                        name="{{i}}-checkItem"
-                        [(ngModel)]="item.Checked"
-                        type="checkbox"
-                        class="custom-control-input"
-                        id="{{i}}-itemAttribute"
-                      />
-                      <label
-                          class="custom-control-label"
-                          for="{{i}}-itemAttribute"
-                          ></label>
-                    </div>
+                      <div class="custom-control custom-checkbox">
+                        <input name="{{i}}-checkItem" [(ngModel)]="item.Checked" type="checkbox"
+                          class="custom-control-input" id="{{i}}-itemAttribute" />
+                        <label class="custom-control-label" for="{{i}}-itemAttribute"></label>
+                      </div>
                     </td>
                     <td *ngFor="let name of item?.AttributeNamestr;">
                       {{name}}
                     </td>
                     <td>
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="barCode-{{ i }}"
-                        [(ngModel)]="item.Barcode"
-                        [disabled]="!item.Checked"
-                      />
+                      <input type="text" class="form-control" name="barCode-{{ i }}" [(ngModel)]="item.Barcode"
+                        disabled="true" />
                     </td>
                     <td>
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="client-barCode-{{ i }}"
-                        [(ngModel)]="item.ClientBarCode"
-                        [disabled]="!item.Checked"
-                      />
+                      <input type="text" class="form-control" name="client-barCode-{{ i }}"
+                        [(ngModel)]="item.ClientBarCode" [disabled]="!item.Checked" />
                     </td>
                     <td>
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="opening-stock-qty-{{ i }}"
-                        (input)="onOpeningStockChange(i)" 
-                        [(ngModel)]="item.Qty"
-                        [disabled]="!item.Checked"
-                        [ngClass]="{ 'is-invalid':item.Checked && !item.Qty && item.isInvalid }"
-                      />
+                      <input type="text" class="form-control" appIncludeDecimal name="opening-stock-qty-{{ i }}"
+                        (input)="onOpeningStockChange(i)" [(ngModel)]="item.Qty" [disabled]="!item.Checked"
+                        [ngClass]="{ 'is-invalid':item.Checked && !item.Qty && item.isInvalid }" />
                     </td>
                     <td>
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="opening-stock-value-{{ i }}"
-                        (input)="onOpeningStockValueChange(i)"                                                                                     
-                        [(ngModel)]="item.QtyValue"
-                        [disabled]="!item.Checked"                      
-                        [ngClass]="{ 'is-invalid':item.Checked && !item.QtyValue && item.isInvalid }"
-                      />
+                      <input type="text" class="form-control" appIncludeDecimal name="opening-stock-value-{{ i }}"
+                        (input)="onOpeningStockValueChange(i)" [(ngModel)]="item.QtyValue" [disabled]="!item.Checked"
+                        [ngClass]="{ 'is-invalid':item.Checked && !item.QtyValue && item.isInvalid }" />
                     </td>
                     <td>
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="purchase-rate-{{ i }}"
-                        (input)="onPurchaseRateChange(i)"
-                        [(ngModel)]="item.RatePurchase"
-                        [disabled]="!item.Checked"
-                        [ngClass]="{ 'is-invalid':item.Checked && !item.RatePurchase && item.isInvalid }"
-                      />
+                      <input type="text" class="form-control" appIncludeDecimal name="purchase-rate-{{ i }}"
+                        (input)="onPurchaseRateChange(i)" [(ngModel)]="item.RatePurchase" [disabled]="!item.Checked"
+                        [ngClass]="{ 'is-invalid':item.Checked && !item.RatePurchase && item.isInvalid }" />
                     </td>
                     <td>
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="sale-rate-{{ i }}"
-                        [(ngModel)]="item.RateSale"
-                        [disabled]="!item.Checked"
-                      />
+                      <input type="text" class="form-control" appIncludeDecimal name="sale-rate-{{ i }}"
+                        [(ngModel)]="item.RateSale" [disabled]="!item.Checked" />
                     </td>
                     <td>
-                        <input
-                          type="text"
-                          class="form-control"
-                          name="nrv-rate-{{ i }}"
-                          [(ngModel)]="item.RateNrv"
-                        [disabled]="!item.Checked"
-                        />
-                      </td>
+                      <input type="text" appIncludeDecimal class="form-control" name="nrv-rate-{{ i }}"
+                        [(ngModel)]="item.RateNrv" [disabled]="!item.Checked" />
+                    </td>
                     <td>
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="mrp-rate-{{ i }}"
-                        [(ngModel)]="item.RateMrp"
-                        [disabled]="!item.Checked"
-                      />
+                      <input type="text" appIncludeDecimal class="form-control" name="mrp-rate-{{ i }}"
+                        [(ngModel)]="item.RateMrp" [disabled]="!item.Checked" />
                     </td>
 
                     <td>
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="oar-price-{{ i }}"
-                        [(ngModel)]="item.RateOur"
-                        [disabled]="!item.Checked"
-                      />
+                      <input type="text" appIncludeDecimal class="form-control" name="oar-price-{{ i }}"
+                        [(ngModel)]="item.RateOur" [disabled]="!item.Checked" />
                     </td>
                   </tr>
                 </tbody>

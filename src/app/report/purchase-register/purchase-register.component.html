@@ -112,9 +112,9 @@
                    let i = index;">
                     <td>{{ i + 1 }}</td>
                     <td>{{item.Month}}</td>
-                    <td class="text-right">{{ (item.Debit).toFixed(noOfDecimal)}}</td>
-                    <td class="text-right">{{ (item.Credit).toFixed(noOfDecimal)}}</td>
-                    <td class="text-right">{{ (item.Balance).toFixed(noOfDecimal)}}</td>
+                    <td (click)="redirectToSaleInvoice(item,'Purchase')" class="text-right">{{ (item.Debit).toFixed(noOfDecimal)}}</td>
+                    <td (click)="redirectToSaleInvoice(item,'PurchaseReturn')" class="text-right">{{ (item.Credit).toFixed(noOfDecimal)}}</td>
+                    <td  class="text-right">{{ (item.Balance).toFixed(noOfDecimal)}}</td>
                   </tr>
                   <tr *ngIf='getValueFalg' class="text-center">
                     <td class="recordNotFound" colspan="12"> No record Found</td>

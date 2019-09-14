@@ -97,8 +97,8 @@ export class ServiceItemAddComponent {
   modeOfForm: string = 'new'
   toDisableCat: boolean = false
   ItemAttributewithRate: Array<any> = []
-  Items :any= []
-  ItemAttributeTrans :any= []
+  Items = []
+  ItemAttributeTrans = []
   // @ViewChild('combo_comp') comboComp: ComboComponent
 
   combo: Array<ComboItem> = []
@@ -212,7 +212,7 @@ export class ServiceItemAddComponent {
     )
   }
 
-  removeImage (i:any) {
+  removeImage (i) {
     this.addedImages.images.splice(i, 1)
     this.addedImages.queue.splice(i, 1)
     this.addedImages.safeUrls.splice(i, 1)
@@ -243,8 +243,8 @@ export class ServiceItemAddComponent {
   }
 
   ItemAttributesTrans: any = []
-  createAttributes (attributes:any) {
-    attributes.forEach((element:any, index:any) => {
+  createAttributes (attributes) {
+    attributes.forEach((element, index) => {
       this.ItemAttributesTrans[index] = {
         ItemId: element.ItemId,
         ItemTransId: element.ItemTransId,
@@ -256,11 +256,11 @@ export class ServiceItemAddComponent {
     })
   }
 
-  createItems (ComboDetails:any) {
+  createItems (ComboDetails) {
     this.combo = []
-    ComboDetails.forEach((element:any, index:any) => {
+    ComboDetails.forEach((element, index) => {
       let itemAttributeTrans = []
-      itemAttributeTrans = this.ItemAttributesTrans.filter((attr:any) => {
+      itemAttributeTrans = this.ItemAttributesTrans.filter((attr) => {
         if (attr.ItemTransId === element.Id) {
           return attr
         }
@@ -284,7 +284,7 @@ export class ServiceItemAddComponent {
     console.log('combo : ', this.combo)
   }
 
-  createFormData (data:any) {
+  createFormData (data) {
     debugger
     this.openModal()
     //this.createAttributes(data.ItemAttributesTrans)
@@ -295,7 +295,7 @@ export class ServiceItemAddComponent {
     this.itemDetails = data.ItemDetails[0]
     let images = data.ImageContentBases
     console.log('images : ', images)
-    images.forEach((element:any) => {
+    images.forEach(element => {
       this.addedImages.queue.push(element.Name)
       this.addedImages.images.push(element.FilePath)
       this.addedImages.baseImages.push(0)
@@ -623,7 +623,7 @@ export class ServiceItemAddComponent {
       // console.log('categories : ', data)
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.length > 0) {
-          data.Data.forEach((element:any) => {
+          data.Data.forEach(element => {
             newData.push({
               id: element.Id,
               text: element.Name
@@ -645,7 +645,7 @@ export class ServiceItemAddComponent {
   @ViewChild('cat_select2') catSelect2: Select2Component
   @ViewChild('itemtype_select2') itemTypeSelect2: Select2Component
   @ViewChild('packingtype_select2') packingTypeSelect2: Select2Component
-  selectedCategory (event:any) {
+  selectedCategory (event) {
     if (event.value && event.data.length > 0) {
       // console.log('event on change of item : ', event)
       if (+event.value === -1) {
@@ -661,13 +661,13 @@ export class ServiceItemAddComponent {
     }
   }
 
-  getTaxtDetail (value:any) {
+  getTaxtDetail (value) {
     this.taxTypePlaceHolder = { placeholder: 'Select Tax' }
     let newData = [{ id: '0', text: 'Select Tax' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this._itemmasterServices.getTaxDetail().subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.TaxSlabs.length > 0) {
-          data.Data.TaxSlabs.forEach((element:any) => {
+          data.Data.TaxSlabs.forEach(element => {
             newData.push({
               id: element.Id,
               text: element.Slab
@@ -683,7 +683,7 @@ export class ServiceItemAddComponent {
   }
 
   @ViewChild('tax_select2') taxSelect2: Select2Component
-  selectedTax (event:any) {
+  selectedTax (event) {
     console.log('on select of tax : ', event)
     if (event.value && event.data.length > 0) {
       if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
@@ -704,23 +704,23 @@ export class ServiceItemAddComponent {
 
 
 
-  getpackingTypeDetail (value:any) {
+  getpackingTypeDetail (value) {
     this.packingTypePlaceHolder = { placeholder: 'Select packingType' }
     this.selectPackingType = [{ id: '1',text: 'Packed' },{ id: '2',text: 'Loose' },{ id: '3',text: 'Combo' }]
   }
 
-  selectedPackingType (event:any) {
+  selectedPackingType (event) {
     this.PackingType = +event.value
     if (this.PackingType === 3) {
       this.packingTypeSelect2.selector.nativeElement.value = ''
       // this.comboComp.openModal()
     }
   }
-  getItemDetail (value:any) {
+  getItemDetail (value) {
     this.itemTpyePlaceHolder = { placeholder: 'Select item' }
     this.selectItemTpye = [{ id: '1', text: 'Stockable' },{ id: '2', text: 'Stockable Not Sale' }]
   }
-  selectedItemType (itemTypeCode:any) {
+  selectedItemType (itemTypeCode) {
     this.ItemType = +itemTypeCode.value
   }
 
@@ -728,7 +728,7 @@ export class ServiceItemAddComponent {
     this.closeModal()
     this.initComp()
   }
-  addNewServiceItemMaster (value:any) {
+  addNewServiceItemMaster (value) {
     debugger
     this.submitClick = true
     if (value === 'reset') {
@@ -805,9 +805,9 @@ export class ServiceItemAddComponent {
     return !!isValid
   }
 
-  getSetting (settings:any) {
+  getSetting (settings) {
     // console.log('settings : ', settings)
-    settings.forEach((element:any) => {
+    settings.forEach(element => {
       if (element.id === SetUpIds.unitType) {
         this.unitSettingType = +element.val
         console.log('this.unitSettingType : ', this.unitSettingType)
@@ -843,7 +843,7 @@ export class ServiceItemAddComponent {
   }
 
   @ViewChild('imagebutton') imagebutton: ElementRef
-  onPressEnter (type:any) {
+  onPressEnter (type) {
     if (type === 1) {
       this.IsNotDiscountable = !this.IsNotDiscountable
     } else if (type === 2) {
@@ -853,7 +853,7 @@ export class ServiceItemAddComponent {
     }
   }
 
-  comboAdded (combo:any) {
+  comboAdded (combo) {
     console.log('combo : ', combo)
     this.combo = combo
     this.Items = []
@@ -927,7 +927,7 @@ export class ServiceItemAddComponent {
       editMode: this.editMode
     };
   }
-  itemAttributeOpeningStockOpenClosed(data:any) {
+  itemAttributeOpeningStockOpenClosed(data) {
     this.loading = false;
     this.itemAttributeOpeningStockOpen = {
       value: false,
@@ -956,7 +956,7 @@ export class ServiceItemAddComponent {
     }
   }
 
-  createItemStockAttribute = (Data:any) => {
+  createItemStockAttribute = (Data) => {
     this.ItemAttributewithRate = _.map(Data, (element) => {
       return {
         "ID": element.Id,
@@ -981,7 +981,7 @@ export class ServiceItemAddComponent {
     })
   }
 
-  prepareItemAttributeStkPayloadToSave = (dataToPost:any) => {
+  prepareItemAttributeStkPayloadToSave = (dataToPost) => {
     const Data = _.filter(dataToPost, (element) => {
       if (element.Checked === true) {
         return true

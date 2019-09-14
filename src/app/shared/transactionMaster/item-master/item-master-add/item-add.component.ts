@@ -1093,10 +1093,10 @@ export class ItemAddComponent {
         this.OpeningStockValue = 0
         _.forEach(filteredData, (element) => {
           if (element.Qty && element.Checked) {
-            this.OpeningStock = this.OpeningStock + element.Qty
+            this.OpeningStock = +(+this.OpeningStock + +element.Qty).toFixed(this.noOfDecimal)
           }
           if (element.QtyValue && element.Checked) {
-            this.OpeningStockValue = this.OpeningStockValue + element.QtyValue
+            this.OpeningStockValue = +(+this.OpeningStockValue + +element.QtyValue).toFixed(this.noOfDecimal)
           }
           this.isStkValue = true;
         })

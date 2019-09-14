@@ -223,7 +223,7 @@ export class SaleDirectAddComponent {
   clickCharge = false
 
   CreditLimit: number
-  CreditDays: number
+  CreditDays: any
 
   allItems: any = []
   ReferralCommissionTypeId: number
@@ -1180,7 +1180,7 @@ export class SaleDirectAddComponent {
   DisabledTaxSlab: number = 1
   MultipleBillDiscount: number = 1
   getSetUpModules(settings) {
-    debugger
+    
     this.applyCustomRateOnItemFlag = false
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
@@ -1229,6 +1229,7 @@ export class SaleDirectAddComponent {
   IntrestValidation(evt) {
     this.InterestRate = evt.target.value
   }
+  CustomerID:any =0
   @ViewChild('vendor_select2') vendorSelect2: Select2Component
   onCustomerSelect(event) {
     if (event.value && event.data.length > 0) {
@@ -1242,6 +1243,7 @@ export class SaleDirectAddComponent {
         let caseId = []
         if (event.value > 0 && event.data[0] && event.data[0].text) {
           this.PartyId = +event.value
+          this.CustomerID =  +event.value
           this.isCaseSaleFlag = true
 
           this.getAllAddresses(this.PartyId)
@@ -1317,9 +1319,12 @@ export class SaleDirectAddComponent {
         if (data.Data.LedgerDetails && data.Data.LedgerDetails.length > 0) {
           const LedgerDetails = data.Data.LedgerDetails[0]
           this.CreditLimit = LedgerDetails.CreditLimit
-          this.CreditDays = LedgerDetails.CreditDays
+          this.CreditDays = LedgerDetails.CreditDays; 
+          this.CreditDays === 0 ? this.updateDuedate() : this.updateCurrentdate()
           this.outStandingBalance = (data.Data.LedgerDetails[0].OpeningAmount).toFixed(this.noOfDecimalPoint)
           this.setCRDR = data.Data.LedgerDetails[0].Crdr === 0 ? 'Dr' : 'Cr';
+          
+
         }
         this.checkForGST()
       }
@@ -1401,7 +1406,7 @@ export class SaleDirectAddComponent {
 
   checkForExistence: any = []
   getFormDependency() {
-    this.commonService.getFormDependency(UIConstant.PURCHASE_TYPE).pipe(takeUntil(this.onDestroy$), filter(data => {
+    this.commonService.getFormDependency(UIConstant.SALE_TYPE).pipe(takeUntil(this.onDestroy$), filter(data => {
       if (data.Code === UIConstant.THOUSAND) { return true } else { 
         console.log(data); throw new Error(data.Description) }
     }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
@@ -1605,7 +1610,8 @@ export class SaleDirectAddComponent {
         if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
           this.ItemId = +evt.value
           this.itemName = evt.data[0].text
-          this.getItemRateByLedgerData(this.ItemId, this.PartyId)
+        let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+          this.getItemRateByLedgerData(newBillDate,'',this.ItemId, this.PartyId)
           this.updateAttributes()
         }
       }
@@ -1626,7 +1632,9 @@ export class SaleDirectAddComponent {
     this.subUnitsData = newdataUnit
   }
   getEditUnitByItem(ItemId, CustomerId) {
-    this.commonService.getItemRateByLedgerAPI(ItemId, CustomerId).subscribe(Data => {
+    let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+
+    this.commonService.barcodeAPI(newBillDate,'',ItemId, CustomerId).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
         if (Data.Data && Data.Data.SubUnitDetails && Data.Data.SubUnitDetails.length > 0) {
           this.filterUnitForItem(Data.Data.SubUnitDetails)
@@ -1638,13 +1646,24 @@ export class SaleDirectAddComponent {
       }
     })
   }
+  Barcode:any=''
   notItemAddedOutOfStock: boolean = true
-  getItemRateByLedgerData(ItemId, CustomerId) {
-    debugger
-    this.commonService.getItemRateByLedgerAPI(ItemId, CustomerId).subscribe(Data => {
+  barCodeReader (){
+    if(this.Barcode.length>0){
+      let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+      this.getItemRateByLedgerData(newBillDate,this.Barcode,0,this.PartyId)
+     
+
+    }
+  }
+
+  getItemRateByLedgerData(BillDate,Barcode,ItemId,CustomerId) {
+    this.commonService.barcodeAPI(BillDate,Barcode,ItemId ,CustomerId).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
           if (Data.Data && Data.Data.ItemCustomRateWithItemDetails.length > 0) {
             if (this.applyCustomRateOnItemFlag) {
+              this.ItemId =Data.Data.ItemCustomRateWithItemDetails[0].Id
+              this.itemName =Data.Data.ItemCustomRateWithItemDetails[0].Name
               this.categoryName = Data.Data.ItemCustomRateWithItemDetails[0].CategoryName
               this.updateCategories(Data.Data.ItemCustomRateWithItemDetails[0].CategoryId)
               this.categoryId = Data.Data.ItemCustomRateWithItemDetails[0].CategoryId
@@ -1659,6 +1678,8 @@ export class SaleDirectAddComponent {
             }
           }
          else if (Data.Data && Data.Data.ItemDetails.length > 0) {
+          
+           this.itemselect2.setElementValue(Data.Data.ItemDetails[0].Id)
           this.categoryName = Data.Data.ItemDetails[0].CategoryName
           this.categoryId = Data.Data.ItemDetails[0].CategoryId
           this.updateCategories(Data.Data.ItemDetails[0].CategoryId)
@@ -1673,7 +1694,9 @@ export class SaleDirectAddComponent {
           this.itemInStock = Data.Data.ItemDetails[0].MainStockValue
           Data.Data.ItemDetails[0].MainStockValue > 0 ? this.toastrService.showInfo('', 'Item Current Stock Value ' + this.itemInStock) : this.toastrService.showError('', 'Item Current Stock Value ' + this.itemInStock)
           this.notItemAddedOutOfStock = true
-
+          this.ItemId =Data.Data.ItemDetails[0].Id
+          //alert(this.ItemId)
+          this.itemName =Data.Data.ItemDetails[0].Name
           if (0 >= this.itemInStock && !this.itemInStockFlag) {
             this.notItemAddedOutOfStock = false
             this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
@@ -1690,9 +1713,15 @@ export class SaleDirectAddComponent {
           this.validateItem()
           this.calculate()
         }
+       
       }
+     
+     
     })
-
+   
+    this.addItems()
+      this.Barcode =''
+    //this.barcode.
   }
   itemInStock: number = 0
   filteredUniTForItem: any
@@ -1905,7 +1934,21 @@ export class SaleDirectAddComponent {
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
       }
     }
-
+    this.AdditionalChargesToShow = JSON.parse(JSON.stringify(this.AdditionalCharges))
+    this.AdditionalCharges.forEach(element => {
+      ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
+    });
+    if (!this.clickCharge && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
+      if (this.appliedTaxRatesCharge.length > 0) {
+        ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesCharge)
+      }
+      if (!this.creatingForm) {
+        this.AdditionalChargesToShow.push({
+          'LedgerName': this.LedgerName,
+          'TaxableAmountCharge': +this.TaxableAmountCharge
+        })
+      }
+    }
     this.TaxableValue = taxableValue
     this.billSummary = []
     if (!this.creatingForm) {
@@ -1946,7 +1989,7 @@ export class SaleDirectAddComponent {
 
   localTaxableValueled: any = 0
   MultipleDiscountCalculate(multipleDiscount) {
-    debugger
+    
     this.localTaxableValueled = this.TaxableValue
     if (multipleDiscount.length > 0) {
       multipleDiscount.forEach(element => {
@@ -2274,6 +2317,11 @@ export class SaleDirectAddComponent {
           this.AddressId = +evt.id
           this.checkForGST()
         }
+        if (evt.id ===0) {
+          this.AddressId = 0
+          this.isOtherState =false
+          this.updateItemTax()
+        } 
       }
       this.checkForValidation()
     }
@@ -2731,9 +2779,8 @@ export class SaleDirectAddComponent {
   }
 
   addItems() {
-    // if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
-
-    if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && this.SaleRate > 0) {
+    debugger
+    if (this.validDiscount && this.validateAttribute() && +this.UnitId > 0 && this.SaleRate > 0) {
       // if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
       //   || (this.industryId === 3 && this.Length && this.Width && this.Height)
       //   || (this.industryId === 2 || this.industryId === 6)) {
@@ -2742,11 +2789,11 @@ export class SaleDirectAddComponent {
         this.clickItem = true
         this.calculateAllTotal()
         this.initItem()
-        if (!this.editMode) {
+       // if (!this.editMode) {
           this.BillDiscount = 0
           this.BillDiscountArray = []
           this.BillDiscountCalculate()
-        }
+      //  }
 
         if (this.industryId === 5) {
           // this.setExpiryDate()
@@ -3268,13 +3315,27 @@ export class SaleDirectAddComponent {
     this.AddressData = []
     this.setBillDate()
     this.setPayDate()
-    // this.setExpiryDate()
-    //   this.setDueDate()
-    // this.setMfdDate()
     this.getNewBillNo()
     this.getNewCurrentDate()
   }
-
+  updateCurrentdate() {
+    this._saleDirectService.getCurrentDate().subscribe(
+      data => {
+        if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+          this.setCurrentDate(data.Data)
+        }
+      }
+    )
+  }
+  updateDuedate() {
+    this._saleDirectService.getCurrentDate().subscribe(
+      data => {
+        if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+          this.setDueDate(data.Data)
+        }
+      }
+    )
+  }
   getNewCurrentDate() {
     this._saleDirectService.getCurrentDate().subscribe(
       data => {
@@ -3729,11 +3790,11 @@ export class SaleDirectAddComponent {
                     _self.toastrService.showSuccess('Saved Successfully', '')
                     this.DisabledSaveBtn = false
                     this.SaveName
-                    this.commonService.AddedItem()
+                   // this.commonService.AddedItem()
                     this.addressBillingValue = null
                     this.addressShippingValue = null
                     this.BillDiscountApplied =[]
-                    _self.commonService.newPurchaseAdd()
+                    //_self.commonService.newPurchaseAdd()
                     if (!this.keepOpen) {
                       _self.commonService.closePurchase()
                       this.commonService.AfterSaveShowPrint(data)

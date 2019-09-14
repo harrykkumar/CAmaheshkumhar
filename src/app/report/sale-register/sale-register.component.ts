@@ -11,6 +11,7 @@ import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
 import { ExcelService } from '../../commonServices/excel.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sale-register',
@@ -29,7 +30,7 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
-  constructor(
+  constructor(public _router :Router,
     public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
@@ -38,6 +39,8 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
   ) {
     this.clientDateFormat = this._settings.dateFormat
     this.noOfDecimal = this._settings.noOfDecimal
+    this.toDate()
+    this.fromDate()
     this.getLedgerItemList();
   }
   noOfDecimal: any
@@ -49,21 +52,38 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.toDate()
-    this.fromDate()
+  
   }
   fromDate = () => {
-    this.model.fromDatevalue = ''
+    this.model.fromDatevalue = this._globalService.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
   }
 
   toDate = () => {
-    this.model.toDateValue = ''
+    this.model.toDateValue =  this._globalService.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
+
   }
 
   onLedgerItemChange = (event) => {
     this.model.selectedLedgerItem = event.data[0]
   }
+  redirectToSaleInvoice (item,type) {
+    let fromDate =  this._globalService.utcToClientDateFormat(item.StartDate, 'm/d/Y')
+    let toDate =  this._globalService.utcToClientDateFormat(item.Todate, 'm/d/Y')
+    let obj={
+      fromDate :fromDate,
+      toDate :toDate
+    }
+    if(type==='sale'){
+      this._commonService.reDirectPrintSale(obj)
+      this._router.navigate(['ims/sale'])
+    }
+    if(type==='saleReturn'){
+      this._commonService.reDirectPrintSale(obj)
+      this._router.navigate(['ims/sale-return'])
+    }
 
+  }
+  
   getLedgerItemList = () => {
     this._commonService.getLedgerItemList().pipe(
       takeUntil(this.unSubscribe$),

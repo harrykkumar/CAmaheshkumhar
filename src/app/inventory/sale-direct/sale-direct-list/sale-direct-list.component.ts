@@ -26,6 +26,7 @@ export class SaleDirectListComponent implements OnInit {
   customFooter: any = []
   newPurchaseSub: Subscription
   deleteSub:Subscription
+  redirectData:Subscription
   formName: number
   clientDateFormat: string
   p: number = 1
@@ -47,12 +48,14 @@ export class SaleDirectListComponent implements OnInit {
     private gs: GlobalService,
     private toastrService: ToastrCustomService
     ) {
-    this.getSaleDirectList()
-    this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
-      () => {
-        this.getSaleDirectList()
-      }
-    )
+      this.clientDateFormat = this.settings.dateFormat
+      this.noOfDecimalPoint = this.settings.noOfDecimal
+      this.getSaleDirectList()
+    // this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
+    //   () => {
+    //     this.getSaleDirectList()
+    //   }
+    // )
     this.onTextEnteredSub = this._saleDirectService.search$.subscribe(
       (text: string) => {
         //if (text.length > 0) {
@@ -68,6 +71,7 @@ export class SaleDirectListComponent implements OnInit {
         }
       }
     ) 
+    
   this.commonService.newRefreshItemStatus().subscribe(
       (obj) => {
         this.getSaleDirectList()
@@ -81,9 +85,13 @@ export class SaleDirectListComponent implements OnInit {
         this.getSaleDirectList()
       }
     )
-    this.clientDateFormat = this.settings.dateFormat
-    this.noOfDecimalPoint = this.settings.noOfDecimal
 
+    this.redirectData = this.commonService.reDirectPrintSaleStatus().subscribe(
+      (action: any) => {
+        this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
+        this.getSaleDirectList()
+      }
+    )
   }
 
   searchForStr (text) {
@@ -131,7 +139,6 @@ export class SaleDirectListComponent implements OnInit {
     
   }
   getSaleDirectList () {
-    debugger
     if (!this.searchKey || this.searchKey.length === 0) {
       this.searchKey = ''
     }

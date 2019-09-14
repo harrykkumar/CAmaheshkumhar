@@ -398,4 +398,18 @@ export class ApiConstant {
   public static get POST_LEDGER_IMPORT (): string { return this.BASE_URL + '/api/v1/ledgerimport' }
 
   public static get SUPER_ADMIN_MODULES_LIST (): string { return this.BASE_URL + '/api/v1/Modules' }
+
+  public static get SUPER_ADMIN_INDUSTRY_LIST (): string { return this.BASE_URL + '/api/v1/common/industry' }
+
+  public static get POST_CLIENT_SUPER_ADMIN (): string { return this.BASE_URL + '/api/v1/clientadmin' }
+
+  public static get GET_SUB_MENU_LIST (): string { return this.BASE_URL + '/api/v1/menuwithindmodwise' }
+
+  public static get GET_BORCODES_OPENING_STOCK (): string { return this.BASE_URL + '/api/v1/ItemBarCode' }
+
+  public static get MENU_SUPERADMIN (): string { return this.BASE_URL + '/api/v1/menu' }
+
+  public static get GET_SUBMODULES_LIST (): string { return this.BASE_URL + '/api/v1/SubModule?Id=0' }
+
+  public static get POST_MODULE_SUPERADMIN (): string { return this.BASE_URL + '/api/v1/moduledefination' }
 }

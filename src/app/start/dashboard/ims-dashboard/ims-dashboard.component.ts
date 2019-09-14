@@ -29,8 +29,8 @@ export class DashboardComponent {
   ) {
     this.spinnerService.hide()
   }
-  finToDate:any;
-  FinFromDate:any;
+  finToDate;
+  FinFromDate;
   ngOnInit() {
     this.getSetUpModules((JSON.parse(this._settings.moduleSettings).settings))
     this.spinnerService.hide();
@@ -44,9 +44,9 @@ export class DashboardComponent {
    
   }
   clientDateFormat:any =''
-  getSetUpModules(settings:any) {
+  getSetUpModules(settings) {
     // console.log('settings : ', settings)
-    settings.forEach((element:any) => {
+    settings.forEach(element => {
       if (element.id === SetUpIds.dateFormat) {
         this.clientDateFormat = element.val[0].Val
       }
@@ -56,17 +56,17 @@ export class DashboardComponent {
   subscribe: Subscription
   AssestsPoints: any
   AllDataDashboard: any
-  changeType(value:any) {
+  changeType(value) {
     if (value === 'sale') {
       this.SaleOverDueItem = []
-      let SaleOverDue = this.AllDataDashboard.OverDueDetails.filter((d:any) => (d.Type).toUpperCase() === "SALE")
+      let SaleOverDue = this.AllDataDashboard.OverDueDetails.filter(d => (d.Type).toUpperCase() === "SALE")
       if (SaleOverDue.length > 0) {
         this.SaleOverDueItem = SaleOverDue
       }
     }
     else if (value === 'purchase') {
       this.SaleOverDueItem = []
-      let PurchaseOverDue = this.AllDataDashboard.OverDueDetails.filter((d:any) => (d.Type).toUpperCase() === "PURCHASE")
+      let PurchaseOverDue = this.AllDataDashboard.OverDueDetails.filter(d => (d.Type).toUpperCase() === "PURCHASE")
       if (PurchaseOverDue.length > 0) {
         this.SaleOverDueItem = PurchaseOverDue
 
@@ -85,7 +85,7 @@ export class DashboardComponent {
   ChartFlowdata:any =[]
   ChartflowLabelData:any =[]
   fincialdata:any=[]
-  getDashBoard(todate:any ,fromDate:any) {
+  getDashBoard(todate ,fromDate) {
     this.subscribe = this._commonService.getDashBoardData('?TypeWise=Month'+'&fromDate='+fromDate+'&todate='+todate).subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND) {
         console.log(resp.Data, 'Dashboard')
@@ -95,7 +95,7 @@ export class DashboardComponent {
         this.libiabititsLabelData = []
         this.ChartFlowdata =[]
         this.ChartflowLabelData=[]
-        resp.Data.AssestsLiabilities.forEach((element:any) => {
+        resp.Data.AssestsLiabilities.forEach(element => {
           if (element.HeadId === 2) {
             this.libiabititsAmountData.push(
               element.Amount1
@@ -113,7 +113,7 @@ export class DashboardComponent {
           }
         });
         //CashFlow
-        resp.Data.CashFlow.forEach((element:any) => {
+        resp.Data.CashFlow.forEach(element => {
           this.ChartFlowdata.push({
             label: element.Status,
             backgroundColor: "#3e95cd",
@@ -123,9 +123,9 @@ export class DashboardComponent {
         });
         console.log(this.ChartFlowdata,'Data-cash flow')
          this.fincialdata=[]
-        let fincialLable:any=[]
-        let data:any=[]
-        resp.Data.Finance.forEach((element:any) => {
+        let fincialLable=[]
+        let data=[]
+        resp.Data.Finance.forEach(element => {
           if(element.GlId ===18 || element.GlId ===17 || element.GlId === -999){
             this.fincialdata.push({
               label:element.GlName,
@@ -151,8 +151,8 @@ export class DashboardComponent {
         this.ChartForFinance(this.fincialdata,fincialLable)
         console.log(resp.Data, 'kkk')
         this.AssestsPoints = []
-        let assets :any= []
-        resp.Data.Assests.forEach((element:any) => {
+        let assets = []
+        resp.Data.Assests.forEach(element => {
           assets.push({
             y: element.TotalAsset,
             name: element.LedgerName
@@ -173,10 +173,10 @@ export class DashboardComponent {
       }
     })
   }
-  finacialLabels:any;
-  finacialchartOptions:any;
-  finacialchartData:any;
-  ChartForFinance(FincialData:any,label:any) {
+  finacialLabels;
+  finacialchartOptions;
+  finacialchartData;
+  ChartForFinance(FincialData,label) {
     this.finacialchartOptions = {
       responsive: true
     };
@@ -197,13 +197,13 @@ if(FincialData.length>0){
 
     }
   }
-  AssetschartOptions:any;
-  assetschartData:any;
-  assetschartLabels:any;
+  AssetschartOptions;
+  assetschartData;
+  assetschartLabels;
   onChartFinacilClick() {
 
   }
-  chartForAssets(AmountData:any,LabelData:any) {
+  chartForAssets(AmountData,LabelData) {
     this.AssetschartOptions = {
       responsive: true
     };
@@ -219,17 +219,17 @@ if(FincialData.length>0){
 
 
 
-  onChartClick(event:any) {
+  onChartClick(event) {
     console.log(event);
   }
   onChartLibiClick() {
 
   }
 
-  LiabilitieschartOptions:any;
-  LiabilitieschartData:any;
-  LiabilitieschartLabels:any;
-  ChartLiabilities(AmountData:any, labelData:any) {
+  LiabilitieschartOptions;
+  LiabilitieschartData;
+  LiabilitieschartLabels;
+  ChartLiabilities(AmountData, labelData) {
     this.LiabilitieschartOptions = {
       responsive: true
     };
@@ -243,10 +243,10 @@ if(FincialData.length>0){
     }
   
   }
-  cashflowLabels:any;
-  cashflowchartOptions:any;
-  cashflowchartData:any;
-  chartForCashFlow(AmountData:any,labelData:any) {
+  cashflowLabels;
+  cashflowchartOptions;
+  cashflowchartData;
+  chartForCashFlow(AmountData,labelData) {
     this.cashflowchartOptions = {
       responsive: true
     };

@@ -102,8 +102,7 @@
             </div>
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label for="due-date">Due Date</label>
-              <!-- <ngbd-datepicker-popup [disableInput]="editMode" [daysToAdd]="CreditDays" (dateInFormat)="DueDate = $event" ></ngbd-datepicker-popup> -->
-              <datepicker-popup 
+                <datepicker-popup 
               [toSetDate]="DueDate" 
               [disableInput]="editMode"
                [daysToAdd]="CreditDays" 
@@ -167,6 +166,11 @@
               <label for="currency-rate">Currency Rate</label>
               <input type="text" class="form-control" id="currency-rate" placeholder="Currency Rate"
                 class="form-control" appIncludeDeciaml name="currencyRate" [(ngModel)]="CurrencyRate">
+            </div>
+            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+              <label for="barcode">BarCode</label>
+              <input #barcode type="text" class="form-control" id="barcode" placeholder="Barcode"
+                class="form-control"  name="Barcode" (change)="barCodeReader()" [(ngModel)]="Barcode">
             </div>
 
 

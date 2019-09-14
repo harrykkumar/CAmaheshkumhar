@@ -127,12 +127,12 @@
                       <ng-container *ngFor="let val of totalSummary; let k=index">
                           <th class="text-right position_relative">
                             <ng-container >
-                              {{val.balance.toFixed(this.noOfDecimal)}}
+                              {{val?.balance?.toFixed(this.noOfDecimal)}}
                             </ng-container>
                           </th>
                         </ng-container>
                         <ng-container>
-                            <th class="text-right ">{{allTotal.toFixed(this.noOfDecimal)}}</th>
+                            <th class="text-right ">{{allTotal}}</th>
                            
                 
                         </ng-container>

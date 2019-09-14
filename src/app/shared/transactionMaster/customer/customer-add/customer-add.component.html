@@ -83,12 +83,12 @@
               
                             </div>
                             <div class="form-group col-md-3">
-                              <label for="org_code">GSTIN No</label>
-                              <input [attr.disabled]="disabledGSTfor_UnRegi?'':null" (input) ="checkGSTNumber($event)"  style="text-transform:uppercase" [ngClass]="{ 'errorTextBoxBorder is-invalid': validGSTNumber }" type="text" class="form-control" id="org_code" placeholder=" GSTIN No" formControlName="gstin">
+                              <label for="org_code88">GSTIN No</label>
+                              <input [attr.disabled]="disabledGSTfor_UnRegi?'':null" (input) ="checkGSTNumber($event)"  style="text-transform:uppercase" [ngClass]="{ 'errorTextBoxBorder is-invalid': validGSTNumber }" type="text" class="form-control" id="org_code88" placeholder=" GSTIN No" formControlName="gstin">
                             </div>
                             <div class="form-group col-md-3">
-                              <label for="org_code">PAN No</label>
-                              <input (input) ="onInputCheckPANNumber($event)" style="text-transform:uppercase"  [ngClass]="{ 'errorTextBoxBorder is-invalid': validPANFlag }" type="text" class="form-control" id="org_code" placeholder=" PAN No." formControlName="panNo">
+                              <label for="org_code99">PAN No</label>
+                              <input (input) ="onInputCheckPANNumber($event)" style="text-transform:uppercase"  [ngClass]="{ 'errorTextBoxBorder is-invalid': validPANFlag }" type="text" class="form-control" id="org_code99" placeholder=" PAN No." formControlName="panNo">
                             </div>
                             <div class="form-group col-md-3">
                               <label>Opening Balance</label>
@@ -372,7 +372,7 @@
                   <div>
                     <div class="form-row">
                       <div class="form-group col-md-12">
-                        <label for="org_code">Area Name</label>
+                        <label>Area Name</label>
                         <input #areaName class="form-control" placeholder="Area Name" formControlName="areaName" [ngClass]="{ 'errorTextBoxBorder is-invalid': addAreaClick && adAre.areaName.errors }">
                       </div>
                     </div>

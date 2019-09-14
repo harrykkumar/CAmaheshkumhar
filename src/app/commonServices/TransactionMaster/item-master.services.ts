@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core'
 import { BaseServices } from '../base-services'
 import { ApiConstant } from '../../shared/constants/api'
-import { BehaviorSubject, Subject, Observable } from 'rxjs'
-import { AddCust, Image } from '../../model/sales-tracker.model'
+import { BehaviorSubject, Subject, Observable, throwError } from 'rxjs'
+import { AddCust, Image, ResponseSale } from '../../model/sales-tracker.model';
 import { debounceTime } from 'rxjs/operators/debounceTime'
 import { distinctUntilChanged } from 'rxjs/operators/distinctUntilChanged'
 import { switchMap } from 'rxjs/operators/switchMap'
+import { filter, map } from 'rxjs/operators';
+import { catchError } from 'rxjs/internal/operators/catchError';
+import { UIConstant } from '../../shared/constants/ui-constant';
 @Injectable({
   providedIn: 'root' 
 })
@@ -137,5 +140,15 @@ export class ItemmasterServices {
 
   postItemAttributeOpeningStockData (data) {
     // return this._basesService.postRequest(ApiConstant.)
+  }
+
+  getBarCodes (length: number): Observable<ResponseSale> {
+    return this.manipulateResponse(this._basesService.getRequest(`${ApiConstant.GET_BORCODES_OPENING_STOCK}?StrSearchFor=ForBarcode&Length=${length}`))
+  }
+
+  manipulateResponse (obs: Observable<any>): Observable<any> {
+    return obs.pipe(filter((data: ResponseSale) => {
+      if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
+    }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data))
   }
 }

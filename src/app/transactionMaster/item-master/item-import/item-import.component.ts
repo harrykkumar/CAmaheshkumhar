@@ -98,7 +98,7 @@ export class ItemImportComponent implements OnDestroy {
     )
   }
 
-  toggleSelect (evt:any) {
+  toggleSelect (evt) {
     // console.log('event : ', evt.target.checked)
     for (let i = 0;i <= this.masterData.length - 1;i++) {
       $('.item-container')[i].checked = evt.target.checked
@@ -113,7 +113,7 @@ export class ItemImportComponent implements OnDestroy {
     }
   }
 
-  onItemToggle (index:any, SNO:any, evt:any) {
+  onItemToggle (index, SNO, evt) {
     // console.log('index : ', index)
     console.log('evt : ', evt.target.id)
     if (index > -1) {
@@ -131,8 +131,8 @@ export class ItemImportComponent implements OnDestroy {
   }
 
   addToQueue () {
-    let itemImport:any = []
-    this.selectedItems.forEach((item:any) => {
+    let itemImport = []
+    this.selectedItems.forEach(item => {
       for (let i = 0; i < this.masterData.length; i++) {
         if (item === this.masterData[i]['SNO']) {
           itemImport.push(this.masterData[i])
@@ -142,7 +142,7 @@ export class ItemImportComponent implements OnDestroy {
         }
       }
     })
-    this.selectedItems.forEach((item:any) => {
+    this.selectedItems.forEach(item => {
       for (let i = 0; i < this.masterData.length; i++) {
         if (item === this.masterData[i]['SNO']) {
           this.masterData.splice(i, 1)
@@ -162,8 +162,7 @@ export class ItemImportComponent implements OnDestroy {
     this.masterData = this.gs.mergesort(this.masterData)
     // console.log('new master data : ', this.masterData)
     let itemImportKeys = { ...this.masterKeys }
-   // this.itemImportKeys = Object.values(itemImportKeys)
-   this.itemImportKeys = Object.keys(itemImportKeys).map(key => itemImportKeys[key])
+    this.itemImportKeys = Object.values(itemImportKeys)
     // console.log('itemImportKeys : ', this.itemImportKeys)
     this.itemImportKeys.push('CATEGORY')
     this.itemImportKeys.push('TAXID')
@@ -181,7 +180,7 @@ export class ItemImportComponent implements OnDestroy {
     // console.log('duplicates : ', this.duplicateTuples)
   }
 
-  removeItem (index:any, item:any) {
+  removeItem (index, item) {
     this.masterData.splice(index,1)
     this.itemImport.splice(index,1)
     for (let i = 0; i < this.duplicateTuples.length; i++) {
@@ -194,7 +193,7 @@ export class ItemImportComponent implements OnDestroy {
   }
 
   @ViewChild('cat_select2') catSelect2: Select2Component
-  selectCategory (event:any) {
+  selectCategory (event) {
     // console.log('on select of category : ', event)
     if (event.value && event.data.length > 0) {
       if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
@@ -209,7 +208,7 @@ export class ItemImportComponent implements OnDestroy {
   }
 
   @ViewChild('tax_select2') taxSelect2: Select2Component
-  selectedTax (event:any) {
+  selectedTax (event) {
     // console.log('on select of tax : ', event)
     if (event.value && event.data.length > 0) {
       if (+event.value === -1 && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
@@ -243,7 +242,7 @@ export class ItemImportComponent implements OnDestroy {
     )
   }
 
-  generateList (list:any) {
+  generateList (list) {
     let _self = this
     this.masterData = []
     let index = 0
@@ -261,7 +260,7 @@ export class ItemImportComponent implements OnDestroy {
       'MINSTOCK', 'MAXSTOCK', 'REORDERQTY',
       'ISNOTDISCOUNTABLE', 'ISVOLUMEDISCOUNTAPPLY', 'ISTRADEDISCOUNTAPPLY']
     this.itemImportKeys = [...this.masterKeys]
-    list.forEach((element:any) => {
+    list.forEach(element => {
       index += 1
       let newRow = {}
       for (let j = 0; j < masterKeys.length; j++) {
@@ -292,7 +291,7 @@ export class ItemImportComponent implements OnDestroy {
     this._itemmasterServices.getAllSubCategories(1).subscribe(data => {
       // console.log('categories : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
-        data.Data.forEach((element:any) => {
+        data.Data.forEach(element => {
           newData.push({
             id: element.Id,
             text: element.Name
@@ -310,12 +309,12 @@ export class ItemImportComponent implements OnDestroy {
     })
   }
 
-  getTaxtDetail (value:any) {
+  getTaxtDetail (value) {
     this.taxPlaceholder = { placeholder: 'select Tax' }
     let newData = [{ id: UIConstant.BLANK, text: 'Select Tax' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this._itemmasterServices.getTaxDetail().subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.TaxSlabs) {
-        data.Data.TaxSlabs.forEach((element:any) => {
+        data.Data.TaxSlabs.forEach(element => {
           newData.push({
             id: element.Id,
             text: element.Slab
@@ -333,15 +332,15 @@ export class ItemImportComponent implements OnDestroy {
 
   }
 
-  getBrandDetail (brand:any) {
+  getBrandDetail (brand) {
     this.brandTypes = []
     this._itemmasterServices.getBrandDetail().subscribe(data => {
       // console.log('brand types : ', data)
       if (data && data.Data) {
         this.brandPlaceholder = [{ id: UIConstant.BLANK, text: 'SelectBrand' }]
         if (data.Data && data.Code === UIConstant.THOUSAND) {
-          let newData :any= []
-          data.Data.forEach((element:any) => {
+          let newData = []
+          data.Data.forEach(element => {
             newData.push({
               id: element.Id,
               text: element.Name
@@ -417,7 +416,7 @@ export class ItemImportComponent implements OnDestroy {
     }
   }
 
-  saveItemImport (value:any) {
+  saveItemImport (value) {
     if (this.isPending) {
       this._itemmasterServices.postPendingList(this.itemImportParams()).subscribe(data => {
         console.log('item import : ', data)
@@ -512,7 +511,7 @@ export class ItemImportComponent implements OnDestroy {
       this.sheetname = workbook.SheetNames
       this.firstSheetName = workbook.SheetNames[0]
       let worksheet = workbook.Sheets[this.firstSheetName]
-      let masterTableArray :any= []
+      let masterTableArray = []
       if (this.sheetname[0] === 'data') {
         // this.masterTableArray = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
         masterTableArray = XLSX.utils.sheet_to_json(worksheet, { raw: true })
@@ -522,10 +521,6 @@ export class ItemImportComponent implements OnDestroy {
       // check validation
       if (this.masterTableArray.length > 0) {
         let keysArr = Object.values(XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0])
-       //let keysArr =Object.keys(itemImportKeys).map(key => itemImportKeys[key])
-        
-  // this.itemImportKeys = Object.keys(itemImportKeys).map(key => itemImportKeys[key])
-
         keysArr = this.gs.removeSpecialCharacters(keysArr)
         // console.log('keysArr : ', keysArr)
         const mandatoryKeys = ['NAME', 'HSNNO', 'BARCODE', 'ITEMCODE',

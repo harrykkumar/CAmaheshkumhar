@@ -105,7 +105,8 @@
                       
                         <tbody> 
                         <ng-container *ngFor="let item of mainData; let i = index" > 
-                         <tr *ngIf="item.ItemId === 0"    class="default_row"   [ngClass]="{
+                         <tr *ngIf="item.ItemId === 0"    class="default_row" 
+                         [ngClass]="{
                             'category-bg':item.ItemId === 0,
                             'item-bg':item.ItemId !== 0,
                             'attribute-bg':item.AttributeId === 1

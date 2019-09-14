@@ -32,7 +32,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
 
   // tslint:disable-next-line:space-before-function-paren
   ngOnInit() {
-    this.initAddAttributeData()
+   this.initAddAttributeData()
 
     this.deleteParent$ = this.attributeService.deleteParent$.subscribe(
       (status) => {
@@ -62,7 +62,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
         if (response.data.editId || response.data.attrNameId) {
           this.setEditData(response)
         }
-        if (response.data.addNewId) {
+        if (response.data.addNewId>0) {
           this.disabledAddNewFlag = false
           this.initAttributeNameList(response.data.attrNameId)
           this.addNewAttributeDynamic(response)
@@ -76,6 +76,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
           }, 1000)
         }
         $('#attribute_master').modal(UIConstant.MODEL_SHOW)
+      
         setTimeout(() => {
           if (this.attrname) {
             const element = this.renderer.selectRootElement(this.attrname.nativeElement, true)
@@ -87,7 +88,11 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
       }
     }, error => console.log(error))
   }
+  closePopup () {
+    this.closeModal()
+    this._CommonService.closeAttributePopup()
 
+  }
   /* setting form data in case of edit mode */
   setEditData = (response) => {
     this.attrEditId = response.data.editId
@@ -132,6 +137,21 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   }
 
   /* Initialising function to get the attribute name dropdown list */
+
+    // initAttributeNameList = (newAddId) => {
+    //    this.attributeService.getAttributeName().subscribe(data => {
+    //      if(data.Code ===UIConstant.THOUSAND){
+    //       data.Data.forEach(element => {
+    //         if(element.Id === newAddId){
+    //           this.attribute.name = element.Name
+    //         }
+    //        });
+         
+    //      }
+
+    //    })
+    // }
+
   initAttributeNameList = (newAddId) => {
     this.attributeService.getAttributeName().pipe(
       takeUntil(this.unSubscribe$),
@@ -148,7 +168,6 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
         })
       })
     ).subscribe((response: any) => {
-      // console.log('attribute list : ', response)
       let dataV = [...response]
       dataV.unshift({id:0,text:'Select Attribute'})
        this.attributeList =dataV
@@ -178,6 +197,9 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
         if (this.isParent) {
           const data = { status: 'saved' }
           this._CommonService.closeAttributeForDynamicAdd({ ...data })
+          this._CommonService.closeAttributePopup()
+          
+
         } else {
           this.attributeService.onParentAttrAdd()
         }

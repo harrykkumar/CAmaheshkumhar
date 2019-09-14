@@ -143,4 +143,10 @@ export class SetUpIds {
   public static get multipleBillSettlement (): number {
     return 78
   }
+  public static get PaymentDatilsOnPrint_Sale_ServiceSale (): number {
+    return 63
+  }
+  public static get categoryShowOnPrint (): number {
+    return 25
+  }
 }

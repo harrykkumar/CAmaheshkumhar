@@ -472,5 +472,23 @@ export const SIDE_MENU_MODEL = [
     Name: "Dues-Overdues OutStanding",
     path: "report/dues-overdues-outstanding",
     icon: ""
+  },
+  {
+    Id: 83,
+    Name: "Super Admin",
+    path: "",
+    icon: "fas fa-exchange-alt"
+  },
+  {
+    Id: 84,
+    Name: "Client",
+    path: "super-admin/client",
+    icon: "fas fa-exchange-alt"
+  },
+  {
+    Id: 85,
+    Name: "Menu",
+    path: "super-admin/menu",
+    icon: "fas fa-exchange-alt"
   }
 ];

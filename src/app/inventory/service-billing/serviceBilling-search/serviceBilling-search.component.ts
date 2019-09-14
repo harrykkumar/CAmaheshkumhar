@@ -27,7 +27,7 @@ export class serviceBillingSearchComponent {
   CountryId: number = 0
   StateId: number = 0
   CityId: number = 0
-
+  dataStatus: any = []
   countryValue: number = 0
   stateValue: number = 0
   cityValue: number = 0
@@ -40,7 +40,7 @@ export class serviceBillingSearchComponent {
   @ViewChild('date_select2') dateSelect2: Select2Component
   isValid: boolean = true
   @ViewChild('fromdate') fromdate: DatepickerComponent
-  ngOnChanges (changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes.toShow && changes.toShow.currentValue) {
       setTimeout(() => {
         this.fromdate.toggleView()
@@ -50,34 +50,39 @@ export class serviceBillingSearchComponent {
   @Input() toShow: boolean = false
   searchForm: FormGroup
 
-  constructor (private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
-    private settings: Settings, private purchaseService: serviceBillingService, private gs: GlobalService) {}
+  constructor(private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
+    private settings: Settings, private purchaseService: serviceBillingService, private gs: GlobalService) {
+    this.dataStatus = [
+      { id: '0', text: 'Running' },
+      { id: '1', text: 'Canceled' },
+    ]
+  }
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
-  ngOnInit () {
+
+  ngOnInit() {
     this.dataValues = [
-      {id: '0', text: 'Bill Date'},
-      {id: '1', text: 'Party Bill Date'}
+      { id: '0', text: 'Bill Date' }
     ]
     this.createForm()
     this.getSuplier()
     this.getCountryList()
   }
 
-  createForm () {
+  createForm() {
     this.searchForm = this.formBuilder.group({
       'FromDate': [''],
       'ToDate': [''],
       'FromAmount': [''],
       'ToAmount': ['']
     },
-    {
-      validator: [DependencyCheck('FromDate', 'ToDate', 'date'), DependencyCheck('FromAmount', 'ToAmount', 'amount')]
-    })
+      {
+        validator: [DependencyCheck('FromDate', 'ToDate', 'date'), DependencyCheck('FromAmount', 'ToAmount', 'amount')]
+      })
   }
   get f() { return this.searchForm.controls; }
   supplierPlaceHolder: Select2Options
   supplierValue: any
-  getSuplier () {
+  getSuplier() {
     this.supplierPlaceHolder = { placeholder: 'Select Customer' }
     let newData = [{ id: '0', text: 'Select Customer' }]
     this._ledgerServices.getVendor(5, '').subscribe(data => {
@@ -96,7 +101,7 @@ export class serviceBillingSearchComponent {
     })
   }
 
-  getCountryList () {
+  getCountryList() {
     this.countryPlaceholder = { placeholder: 'Select Country' }
     let newData = [{ id: '0', text: 'Select Country' }]
     this._ledgerServices.getCommonValues('101').subscribe(data => {
@@ -114,7 +119,7 @@ export class serviceBillingSearchComponent {
     })
   }
 
-  selectCountry (evt) {
+  selectCountry(evt) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value > 0) {
         this.CountryId = +evt.value
@@ -126,7 +131,7 @@ export class serviceBillingSearchComponent {
     }
   }
 
-  getStateList (id) {
+  getStateList(id) {
     this.stateListPlaceHolder = { placeholder: 'Select State' }
     let newData = [{ id: '0', text: 'select State' }]
     this._ledgerServices.gatStateList(id).subscribe(data => {
@@ -145,7 +150,7 @@ export class serviceBillingSearchComponent {
     })
   }
 
-  selectState (evt) {
+  selectState(evt) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value > 0) {
         this.StateId = +evt.value
@@ -155,7 +160,7 @@ export class serviceBillingSearchComponent {
       }
     }
   }
-  getCitylist (id) {
+  getCitylist(id) {
     this.cityListPlaceHolder = { placeholder: 'Select City' }
     let newData = [{ id: '0', text: 'select City' }]
     this._ledgerServices.getCityList(id).subscribe(data => {
@@ -177,7 +182,7 @@ export class serviceBillingSearchComponent {
   @ViewChild('countrySelect2') countrySelect2: Select2Component
   @ViewChild('stateSelect2') stateSelect2: Select2Component
   @ViewChild('citySelect2') citySelect2: Select2Component
-  selectCity (evt) {
+  selectCity(evt) {
     if (evt.value && evt.data.length > 0) {
       if (+evt.value > 0) {
         this.CityId = +evt.value
@@ -185,7 +190,7 @@ export class serviceBillingSearchComponent {
     }
   }
 
-  search () {
+  search() {
     if (this.searchForm.valid) {
       let fromDate = ''
       let toDate = ''
@@ -217,28 +222,28 @@ export class serviceBillingSearchComponent {
       if (!this.searchForm.value.ToAmount) {
         this.searchForm.value.ToAmount = 0
       }
-      const queryStr = '&DateType=' + this.DateType +
-       '&FromDate=' + fromDate + 
-       '&ToDate=' + toDate + 
-       '&FromAmount=' + +this.searchForm.value.FromAmount + 
-       '&ToAmount=' + +this.searchForm.value.ToAmount + 
-       '&LedgerId=' + this.LedgerId + 
-       '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
+      const queryStr = '&Status=' + this.StausType + '&DateType=' + this.DateType +
+        '&FromDate=' + fromDate +
+        '&ToDate=' + toDate +
+        '&FromAmount=' + +this.searchForm.value.FromAmount +
+        '&ToAmount=' + +this.searchForm.value.ToAmount +
+        '&LedgerId=' + this.LedgerId +
+        '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
       this.purchaseService.setSearchQueryParamsStr(queryStr)
     }
   }
-
-  resetSearch () {
+  StausType: number = 0
+  resetSearch() {
     this.CountryId = 0
     this.StateId = 0
     this.CityId = 0
-  
+    this.DateType = 0
     this.countryValue = 0
     this.stateValue = 0
     this.cityValue = 0
     this.dateValue = 0
     this.ledgerValue = 0
-  
+
     this.DateType = 0
     this.LedgerId = 0
     this.searchForm.reset()
@@ -259,21 +264,21 @@ export class serviceBillingSearchComponent {
     if (this.citySelect2) {
       this.citySelect2.setElementValue(0)
     }
-    const queryStr = '&DateType=' + this.DateType +
-    '&FromDate=' + '' + 
-    '&ToDate=' + '' + 
-    '&FromAmount=' + 0 + 
-    '&ToAmount=' + 0 + 
-    '&LedgerId=' + this.LedgerId + 
-    '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
-   this.purchaseService.setSearchQueryParamsStr(queryStr)
+    const queryStr = '&Status=' + this.StausType + '&DateType=' + this.DateType +
+      '&FromDate=' + '' +
+      '&ToDate=' + '' +
+      '&FromAmount=' + 0 +
+      '&ToAmount=' + 0 +
+      '&LedgerId=' + this.LedgerId +
+      '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
+    this.purchaseService.setSearchQueryParamsStr(queryStr)
   }
 
-  setToDate (evt) {
+  setToDate(evt) {
     this.searchForm.controls.ToDate.setValue(evt)
   }
 
-  setFromDate (evt) {
+  setFromDate(evt) {
     this.searchForm.controls.FromDate.setValue(evt)
   }
 }

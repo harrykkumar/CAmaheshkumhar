@@ -11,6 +11,7 @@ import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
 import { Select2OptionData, Select2Component } from 'ng2-select2'
+import { FormConstants } from 'src/app/shared/constants/forms.constant'
 
 @Component({
   selector: 'app-purchase-summary',
@@ -26,6 +27,8 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
   pageSize: number = 20
   pageNo: number = 1
   totalItemSize: number = 0
+  finToDate:any=''
+  finFromDate:any=''
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
@@ -36,8 +39,13 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
     private _toastService: ToastrCustomService,
   ) {
     this.clientDateFormat = this._settings.dateFormat
+    this.finToDate = this._settings.finToDate
+    this.finFromDate = this._settings.finFromDate
     this.noOfDecimal = this._settings.noOfDecimal
+    this.toDate()
+    this.fromDate()
     this.getLedgerItemList();
+    this.getSaleSummaryData();
   }
   noOfDecimal: any
   viewFlag: any
@@ -65,11 +73,15 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
     this.fromDate()
   }
   fromDate = () => {
-    this.model.fromDatevalue = ''
+    // this.model.fromDatevalue = ''
+    this.model.fromDatevalue = this._globalService.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
+ 
   }
 
   toDate = () => {
-    this.model.toDateValue = ''
+    // this.model.toDateValue = ''
+    this.model.toDateValue = this._globalService.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
+
   }
   selectedType: any;
   onLedgerItemChange = (event) => {
@@ -141,8 +153,15 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
     this.model.endDate = item.endDate
     this.getTypeEWise = this.getsetTypeWise(item.type)
     this.getSaleSummaryData()
-    //  this.setTypeWise.setElementValue(item.type)
-    //this.onLedgerItemChange(event)
+    if(this.getTypeEWise ==='billWise' && item.saleId >0 ){
+      let action={}
+       action =
+             { type: FormConstants.ViewPrint,
+               id: item.saleId,
+               printId: 'purchase_print_id'
+           ,isViewPrint :true}
+    this._commonService.onActionClicked(action)
+    }
 
   }
   @ViewChild('setWise') setTypeWise: Select2Component
@@ -177,6 +196,7 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
   endDateChanage: any
   getSaleSummaryData = () => {
     let fromDate, toDate
+   // alert(this.model.fromDatevalue)
     if (this.model.fromDatevalue) {
       fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
     }
@@ -217,6 +237,7 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
 
             value.push({
               id: element.Id,
+              saleId:element.TransId,
               month: element.Month,
               endDate: this.endDateChanage,
               startDate: this.startDateChanage,
@@ -253,7 +274,7 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
         this._toastService.showError("Error in Data Fetching", '');
       }
     }, (error) => {
-      console.log(error);
+    //  console.log(error);
     });
     this.viewPrint = false
 
@@ -275,7 +296,7 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
     })
     for (const month in this.monthGroup) {
       let calTotalMonth = this.topToBottomSummary(totalMonthValue)
-      console.log(calTotalMonth, 'tatal')
+    //  console.log(calTotalMonth, 'tatal')
       let ledger = []
       let obj = {}
       if (this.monthGroup.hasOwnProperty(month)) {
@@ -287,8 +308,10 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
             ledger.push({
               balance: (element[index].balance).toFixed(this.noOfDecimal),
             })
+
             obj['month'] = element[index].month
             obj['type'] = element[index].type
+            obj['saleId'] = element[index].saleId
             obj['endDate'] = element[index].endDate
             obj['startDate'] = element[index].startDate
             obj['ledger'] = [...ledger]
@@ -299,6 +322,7 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
               balance: ' '
             })
             obj['month'] = element[0].month
+            obj['saleId'] = element[0].saleId
             obj['type'] = element[0].type
             obj['endDate'] = element[0].endDate
             obj['startDate'] = element[0].startDate
@@ -308,7 +332,7 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
       }
       this.MonthlyData.push(obj)
     }
-    console.log(this.MonthlyData, 'monthlys')
+    //console.log(this.MonthlyData, 'monthlys')
   }
 
   totalSummary: any = []
@@ -333,11 +357,10 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
         });
       }
       this.totalSummary.push(obj)
-      console.log(this.totalSummary ,'J>>>>>>>>>>>>>')
     }
     if (this.totalSummary.length > 0) {
-
       this.allTotal = this.calculateallTotal(this.totalSummary)
+      console.log(this.allTotal ,'allTotal')
 
     }
 

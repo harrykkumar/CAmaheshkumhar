@@ -14,8 +14,14 @@
             <div class="form-row">
               <div class="form-group col-md-12">
                 <label for="bill_no"> Form Name</label>
-                <ng-select name="formTypeNmae" [items]="ListTypeName" bindLabel="Name" bindValue="Id"
-                  placeholder="Select Type" (change)="onChangeType($event)" [(ngModel)]="selectedid">
+                <ng-select
+                 name="formTypeNmae" 
+                 [items]="ListTypeName" 
+                 bindLabel="Name" 
+                 bindValue="Id"
+                  placeholder="Select Type" 
+                  (change)="onChangeType($event)" 
+                  [(ngModel)]="selectedid">
                 </ng-select>
               </div>
               <div class="col-lg-12">

@@ -259,36 +259,39 @@
         </div>
       </div>
     </div>
-    <div class="table_summery" *ngIf="paymentFlag">
-      <table border="0" class="table1" cellspacing="0" cellpadding="0">
-        <thead>
-          <tr>
-            <th colspan="6">
-              <h4 style=" margin:0;padding:0;"> Payment Details</h4>
-            </th>
-          </tr>
-          <tr>
-            <th>S.no</th>
-            <th>Paymode</th>
-            <th>Pay Through </th>
-            <th>Cheque/DD No.</th>
-            <th>Date</th>
-            <th style="text-align:right">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of paymentModeData; let i =index">
-            <td>{{i+1}}</td>
-            <td>{{item.Paymode}}</td>
-            <td>{{item.BankLedgerName}}</td>
-            <td>{{item.ChequeNo}}</td>
-            <td>{{item.PayDate | dateFormat:clientDateFormat}}</td>
-            <td style="text-align:right">{{(item.Amount).toFixed(dicimalDigitFormat)}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class=" table_summery invoice border-top border-bottom">
+  <ng-container *ngIf="paymentFlag">
+      <div class="table_summery" *ngIf="PaymentDetailsFlag">
+          <table border="0" class="table1" cellspacing="0" cellpadding="0">
+            <thead>
+              <tr>
+                <th colspan="6">
+                  <h4 style=" margin:0;padding:0;"> Payment Details</h4>
+                </th>
+              </tr>
+              <tr>
+                <th>S.no</th>
+                <th>Paymode</th>
+                <th>Pay Through </th>
+                <th>Cheque/DD No.</th>
+                <th>Date</th>
+                <th style="text-align:right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of paymentModeData; let i =index">
+                <td>{{i+1}}</td>
+                <td>{{item.Paymode}}</td>
+                <td>{{item.BankLedgerName}}</td>
+                <td>{{item.ChequeNo}}</td>
+                <td>{{item.PayDate | dateFormat:clientDateFormat}}</td>
+                <td style="text-align:right">{{(item.Amount).toFixed(dicimalDigitFormat)}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+  </ng-container>
+   
+    <div  *ngIf="GstTypeId ===1" class=" table_summery invoice border-top border-bottom">
       <div style="clear:both"></div>
       <h4 style=" padding-left:358px"> GST TAX SUMMARY</h4>
       <table border="0" class="table1" cellspacing="0" cellpadding="0">

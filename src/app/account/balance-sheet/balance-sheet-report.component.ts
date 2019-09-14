@@ -10,7 +10,7 @@ import { Settings } from '../../shared/constants/settings.constant'
 import { LoginService } from './../../commonServices/login/login.services';
 import {SetUpIds} from 'src/app/shared/constants/setupIds.constant'
 import { Router } from '@angular/router'
-
+import { GlobalService } from '../../commonServices/global.service'
 @Component({
   selector: 'app-balance-sheet-report',
   templateUrl: './balance-sheet-report.component.html',
@@ -24,30 +24,34 @@ export class BalanceSheetReportComponent implements OnInit {
   totalBillAmount: number
   newDateSub: Subscription
   newDatefromDate: Subscription
-  toDateShow : any
-  fromDateShow : any
+  toDateShow : any=''
+  fromDateShow : any=''
   clientDateFormat: any
-  constructor( public _router: Router,public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
-  
-    this.newDateSub = this._commonService.getsearchByDateForBalancesheetStatus().subscribe(
-      (obj: any) => {
-        this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
-        this.getModuleSettingData()
-        this.toDateShow = obj.toDate
-        this.fromDateShow = obj.fromDate
-        this.getbalancesheetdata(obj.toDate ,obj.fromDate)
-      }
-    )
-
+  ListTypeFilter:any =[]
+  formTypeNmae:any='Select'
+  constructor( public _router: Router,
+    public gs: GlobalService,
+    public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+      this.onload()
+      this.ListTypeFilter=[{id:0,name:'Summary'},{id:1,name:'Details'}]
+      this.getModuleSettingData()
+      this.toDateShow = this.gs.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
+      this.fromDateShow = this.gs.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
+      this.getbalancesheetdata( )
   }
   ngOnDestroy() { 
     this.detailRecivedSubscription.unsubscribe();
-    this.newDateSub.unsubscribe()
 }
   decimalDigit:any
   loggedinUserData: any
   ngOnInit () {
-    this.onload()
+  
+  }
+  selectedid: any = null
+  onChangeType(evt) {
+    if (this.selectedid !== null) {
+      this.selectedid = evt.id
+    }
   }
   onload(){
     this.headervalue2 =0
@@ -69,7 +73,6 @@ export class BalanceSheetReportComponent implements OnInit {
              }
              if (ele.id=== SetUpIds.dateFormat) {
               this.clientDateFormat =  ele.val[0].Val
-              //console.log(this.clientDateFormat)
              }
    })
   }
@@ -97,9 +100,23 @@ export class BalanceSheetReportComponent implements OnInit {
   headI1dData:any =[]
   headI2dData:any=[]
   detailRecivedSubscription: Subscription;
-  getbalancesheetdata (todate,fromdate) {
+  getbalancesheetdata () {
+    let todate;
+    let fromDate;
+    if (this.toDateShow !== '') {
+      todate = this.gs.clientToSqlDateFormat(this.toDateShow, this.clientDateFormat)
+      }
+      else {
+      todate = ''
+      }
+      if (this.fromDateShow !== '') {
+        fromDate = this.gs.clientToSqlDateFormat(this.fromDateShow, this.clientDateFormat)
+      }
+      else {
+        fromDate = ''
+      }
    this.mainData =[]
-   this.detailRecivedSubscription = this._commonService.getBalanceSheetList(todate,fromdate).subscribe(data => {
+   this.detailRecivedSubscription = this._commonService.getBalanceSheetList(todate,fromDate).subscribe(data => {
       
       this.headervalue2 =0
       this.headervalue1 =0
@@ -171,10 +188,43 @@ export class BalanceSheetReportComponent implements OnInit {
        this._router.navigate(['/ims/report/item-inventory'])
       }
   }
+  searchResetButton (){
+    this.toDateShow  =''
+    this.fromDateShow=''
+    this.selectedid =null
+    this.getbalancesheetdata()
+  }
+  searchButton(){
+        this.getbalancesheetdata()
+  }
 
+  toggleLevel(event,item,index) {
+    if(item.HeadId ===2 && item.LevelNo===2 ){
 
-
-
+    }
+  //   $(document).ready(function(){
+  //     $(".collapse.show").each(function(){
+  //       $(this).prev(".new-clas").find(".fa").addClass("fa-minus").removeClass("fa-plus");
+  //     });
+  //     $(".collapse").on('show.bs.collapse', function(){
+  //       $(this).prev(".new-clas").find(".fa").removeClass("fa-plus").addClass("fa-minus");
+  //     }).on('hide.bs.collapse', function(){
+  //       $(this).prev(".new-clas").find(".fa").removeClass("fa-minus").addClass("fa-plus");
+  //     });
+  // });
+  }
+  toggleItemdd(event, itemId, AttributeId, index) {
+    $(document).ready(function () {
+      $(".collapse.show").each(function () {
+        $(this).prev(".profile-pic1").find(".fa").addClass("fa-minus").removeClass("fa-plus");
+      });
+      $(".collapse").on('show.bs.collapse', function () {
+        $(this).prev(".card-header").find(".fa").removeClass("fa-plus").addClass("fa-minus");
+      }).on('hide.bs.collapse', function () {
+        $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-plus");
+      });
+    });
+  }
 }
 
 
