@@ -52,7 +52,7 @@
                 <div class="row">
                   <div class="col-md-12">
                     <div class="form-row">
-                      <div class="form-group col-md-3">
+                      <div class="form-group col-md-2">
                         <label>Organisation</label>
                         <div class="input-group adw_select">
                           <div class="input-group adw_select">
@@ -95,14 +95,29 @@
                               (valueChanged)="onTransSessionChange($event)"
                               autocomplete="true"
                               [value]="modal?.sessionValue"
-                              [ngClass]="{'errorSelecto': transactionNumberFormControl.submitted && !modal?.selectedSession?.id}"                              
+                              [ngClass]="{'errorSelecto': transactionNumberFormControl.submitted && !modal?.selectedSession?.id}"
                             >
                             </select2>
                           </div>
                         </div>
                       </div>
-                      <div class="form-group col-md-3">
-                        <label>No. of Zero with Numerical Number</label>
+                      <div class="form-group col-md-2">
+                        <label>Session Format</label>
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <select2 #session_format_select2
+                              [data]="dropDownList?.transactionFormatList"
+                              class="control_select"
+                              (valueChanged)="onTransFormatChange($event)"
+                              autocomplete="true"
+                              [value]="modal?.transFormatValue"
+                            >
+                            </select2>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-2">
+                        <label>No. of Zero with Number</label>
                         <div class="input-group adw_select">
                           <div class="input-group adw_select">
                             <select2
@@ -111,21 +126,6 @@
                               (valueChanged)="onNumericZeroChange($event)"
                               autocomplete="true"
                               [value]="modal?.noOfZeroesValue"
-                            >
-                            </select2>
-                          </div>
-                        </div>
-                      </div>
-                      <div hidden="true" class="form-group col-md-3">
-                        <label>Session Format</label>
-                        <div class="input-group adw_select">
-                          <div class="input-group adw_select">
-                            <select2
-                              [data]="dropDownList?.transactionFormatList"
-                              class="control_select"
-                              (valueChanged)="onTransFormatChange($event)"
-                              autocomplete="true"
-                              [value]="modal?.transFormatValue"
                             >
                             </select2>
                           </div>
@@ -230,7 +230,7 @@
                             class="form-control"
                             name="{{ i }}-StringValue"
                             [(ngModel)]="item.StringValue"
-                            (change)="generateFormatString(item, i)"
+                            (input)="generateFormatString(item, i)"
                             [disabled]="!item.Checked"
                           />
                         </td>
@@ -244,8 +244,7 @@
                             [disabled]="!item.Checked"
                             maxlength="5"
                             (keypress)="commonService.isNumber($event)"
-                            (input)="checkForDropDown(item, i)"
-                            (change)="onNumericValueChange(item, i);validateNumericValue(item, i);"                           
+                            (input)="checkForDropDown(item, i);onNumericValueChange(item, i);validateNumericValue(item, i);"
                             [ngClass]="{ 'is-invalid': item.inValid || numericValue.invalid }"
                           />
                         </td>
@@ -254,7 +253,7 @@
                             type="text"
                             class="form-control"
                             name="{{ i }}-SuffixValue"
-                            (change)="generateFormatString(item, i)"
+                            (input)="generateFormatString(item, i)"
                             [(ngModel)]="item.SuffixValue"
                             [disabled]="!item.Checked"
                           />

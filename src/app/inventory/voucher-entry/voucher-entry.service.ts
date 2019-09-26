@@ -39,9 +39,9 @@ export class VoucherEntryServie {
 
   getTransactionNo (type, orgId, date, auto): Observable<ResponseSale> {
     if (auto) {
-      return this.baseService.getRequest(`${ApiConstant.TRANSACTIONNO_VOUCHER}?TransactionType=${type}&&OrgId=${orgId}&&TransDate=${date}`)
+      return this.baseService.getRequest(`${ApiConstant.TRANSACTIONNO_VOUCHER}?TransactionType=${type}&OrgId=${orgId}&TransDate=${date}`)
     } else {
-      return this.baseService.getRequest(`${ApiConstant.GET_NEW_BILL_NO_MANUAL}?TransactionType=${type}&&OrgId=${orgId}&&BillDate=${date}`)
+      return this.baseService.getRequest(`${ApiConstant.GET_NEW_BILL_NO_MANUAL}?TransactionType=${type}&OrgId=${orgId}&BillDate=${date}`)
     }
   }
 
@@ -84,7 +84,7 @@ export class VoucherEntryServie {
   }
 
   getVoucherList (ReportFor, type, LedgerId, OrgId) {
-    return this.baseService.getRequest(`${ApiConstant.GET_VOUCHER_LIST}?ReportFor=${ReportFor}&&Type=${type}&&LedgerId=${LedgerId}&&OrgId=${OrgId}`)
+    return this.baseService.getRequest(`${ApiConstant.GET_VOUCHER_LIST}?ReportFor=${ReportFor}&Type=${type}&LedgerId=${LedgerId}&OrgId=${OrgId}`)
   }
 
   postVoucher (data) {
@@ -108,16 +108,16 @@ export class VoucherEntryServie {
 
   allLedgerList (data,Type) {
     let object
-    let obj =[{id:-1,text:'+Add New'}]
-    if(data.length >0 && Type ==='journal'){
+    let obj =[ {id: -1,text: UIConstant.ADD_NEW_OPTION}]
+    if(data.length > 0 && Type === 'journal'){
       data.forEach(element => {
         obj.push({
-            id:element.Id,
-            text:element.Name
+          id: element.Id,
+          text: element.Name
         })
       });
     }
-    object ={data: obj}
+    object = {data: obj}
     return  object
   }
 

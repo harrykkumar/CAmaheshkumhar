@@ -1,6 +1,6 @@
 
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
-import { Subscription ,fromEvent} from 'rxjs'
+import { Subscription, fromEvent } from 'rxjs'
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { SaleTravel } from '../../../model/sales-tracker.model'
 import { UIConstant } from '../../../shared/constants/ui-constant'
@@ -17,7 +17,7 @@ import { Settings } from '../../../shared/constants/settings.constant'
   templateUrl: './sales-challan.component.html',
   styleUrls: ['./sales-challan.component.css']
 })
-export class SalesChallanComponent  implements   OnInit  {
+export class SalesChallanComponent implements OnInit {
   arrayBuffer: any
   file: any
   sheetname: any
@@ -44,7 +44,7 @@ export class SalesChallanComponent  implements   OnInit  {
   customerEmailData: any[]
   orgMobileData: any[]
   orgEmailData: any[]
-  orgImageData: any=[]
+  orgImageData: any = []
   orgWebData: any[]
   orgImage: string
   totalTaxAmount: any
@@ -67,7 +67,7 @@ export class SalesChallanComponent  implements   OnInit  {
   marginBottom = 10
   marginLeft = 10
   marginRight = 10
-  refreshingpage:Subscription
+  refreshingpage: Subscription
   queryStr$: Subscription
   total: number = 0
   searchForm: FormGroup
@@ -85,29 +85,29 @@ export class SalesChallanComponent  implements   OnInit  {
     'pharmacode',
     'codabar'
   ]
-  clientDateFormat:any
-  dicimalDigitFormat:any =0
-  industryId:any
-  constructor ( public _settings: Settings,private _formBuilder : FormBuilder,private _coustomerServices: VendorServices,public _commonService : CommonService ,public _toastrCustomService :ToastrCustomService) {
+  clientDateFormat: any
+  dicimalDigitFormat: any = 0
+  industryId: any
+  constructor(public _settings: Settings, private _formBuilder: FormBuilder, private _coustomerServices: VendorServices, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     this.formSearch()
-    this.itemIdCollection =[]
+    this.itemIdCollection = []
     this.generateBillFlagEnable = true
     this.clientDateFormat = this._settings.dateFormat
     this.dicimalDigitFormat = this._settings.noOfDecimal
-    this.industryId =this._settings.industryId
+    this.industryId = this._settings.industryId
     this.getSaleChallanDetail()
     this.newBillSub = this._commonService.newSaleStatus().subscribe(
       (obj: any) => {
         this.getSaleChallanDetail()
-          $(document).ready(function () {
+        $(document).ready(function () {
 
-     $('.table_challan').tableHeadFixer({
-       head: true,
-       foot: true,
-      
+          $('.table_challan').tableHeadFixer({
+            head: true,
+            foot: true,
 
-     });
-   });
+
+          });
+        });
       }
     )
     this.queryStr$ = this._coustomerServices.queryStr$.subscribe(
@@ -119,28 +119,30 @@ export class SalesChallanComponent  implements   OnInit  {
       }
     )
     this.refreshingpage = this._commonService.newRefreshItemStatus().subscribe(
-      (obj) => {  
-          this.getSaleChallanDetail()
+      (obj) => {
+        this.getSaleChallanDetail()
       }
     )
   }
   @ViewChild('paging_comp') pagingComp: PagingComponent
-  private formSearch () {
+  private formSearch() {
     this.searchForm = this._formBuilder.group({
       'searckKey': [UIConstant.BLANK]
     })
   }
-  onOpenInvoice (id) {
+  onOpenInvoice(id) {
     this._commonService.openInvoice(id)
+    //this.itemIdCollection = []
   }
-  allChallanNos:any
-    onOpenChallanBilling () {
-    this._commonService.openChallanBill(this.allChallanIds ,this.allChallanNos)
+  allChallanNos: any
+  onOpenChallanBilling() {
+    this._commonService.openChallanBill(this.allChallanIds, this.allChallanNos)
+    //this.itemIdCollection = []
   }
 
   toShowSearch = false
 
-  toggleSearch () {
+  toggleSearch() {
     this.toShowSearch = !this.toShowSearch
   }
   /* get sale travel Detail */
@@ -149,44 +151,45 @@ export class SalesChallanComponent  implements   OnInit  {
   totalBillAmount: number
   @ViewChild('searchData') searchData: ElementRef
 
-  getSaleChallanDetail () {
+  getSaleChallanDetail() {
     if (!this.searchForm.value.searckKey) {
       this.searchForm.value.searckKey = ''
     }
     this._commonService.getAllDataOfSaleChallan('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND ) {
-      console.log('sales data: ', data)
+      if (data.Code === UIConstant.THOUSAND) {
+        console.log('sales data: ', data)
         this.totalBillAmount = 0
-        if(data.Data.length>0){
+        if (data.Data.length > 0) {
           this.notRecordFound = false
         }
-        else{
+        else {
           this.notRecordFound = true
 
         }
         this.saleTravelDetails = data.Data
         this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
 
-        for(let i=0; i < data.Data.length; i++){
-         if(data.Data[i].SaleId === 0){
-           this.generateBillFlagEnable = true
-          this.allChallanIds= [] 
-          this.allChallanNos= []
-         }
+        for (let i = 0; i < data.Data.length; i++) {
+          if (data.Data[i].SaleId === 0) {
+            this.generateBillFlagEnable = true
+            this.allChallanIds = []
+            this.allChallanNos = []
+          }
         }
       }
     })
   }
-  notRecordFound:any = true
-ngOnInit() {
-  this._commonService.fixTableHF('table_challan')
-   fromEvent(this.searchData.nativeElement, 'keyup').pipe(
-    map((event: any) => {
-      return event.target.value
-    }),
-    filter(res => res.length > 1 || res.length === 0),
-    debounceTime(1000),
-    distinctUntilChanged()
+  notRecordFound: any = true
+  ngOnInit() {
+    this.itemIdCollection=[]
+    this._commonService.fixTableHF('table_challan')
+    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+      map((event: any) => {
+        return event.target.value
+      }),
+      filter(res => res.length > 1 || res.length === 0),
+      debounceTime(1000),
+      distinctUntilChanged()
     ).subscribe((text: string) => {
       this.isSearching = true
       this.searchGetCall(text).subscribe((data) => {
@@ -196,27 +199,27 @@ ngOnInit() {
         }, 100)
         this.saleTravelDetails = data.Data
         this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
-      },(err) => {
+      }, (err) => {
         setTimeout(() => {
           this.isSearching = false
         }, 100)
-        console.log('error',err)
+        console.log('error', err)
       },
-      () => {
-        setTimeout(() => {
-          this.isSearching = false
-        }, 100)
-      })
+        () => {
+          setTimeout(() => {
+            this.isSearching = false
+          }, 100)
+        })
     })
-}
-searchGetCall (term: string) {
-  if (!term) {
-    term = ''
   }
-  this.pagingComp.setPage(1)
-  return this._commonService.getAllDataOfSaleChallan( '?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
-}
-  deleteItem (i, forArr) {
+  searchGetCall(term: string) {
+    if (!term) {
+      term = ''
+    }
+    this.pagingComp.setPage(1)
+    return this._commonService.getAllDataOfSaleChallan('?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
+  }
+  deleteItem(i, forArr) {
     if (forArr === 'trans') {
       this.transactions.splice(i, 1)
     }
@@ -233,12 +236,12 @@ searchGetCall (term: string) {
   website: any
   ContactCustInfo: any
   ContactOrgInfo: any
-  onPrintButtonSaleChallan (id ,htmlId) {
+  onPrintButtonSaleChallan(id, htmlId) {
     // this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
-//alert(id)
+    //alert(id)
     let _self = this
     _self._commonService.printAndEditSaleChallan(id).subscribe(data => {
-      console.log(JSON.stringify(data)  , 'salechallan')
+      console.log(JSON.stringify(data), 'salechallan')
       _self.InventoryTransactionSales = []
       if (data.Code === UIConstant.THOUSAND) {
 
@@ -274,14 +277,14 @@ searchGetCall (term: string) {
         } else {
           this.orgImageData = []
         }
-           if (data.Data.ItemTransactionactions.length > 0) {
+        if (data.Data.ItemTransactionactions.length > 0) {
           _self.ItemTransactionactions = []
-          _self.itemAttbute=[]
-        //  _self.ItemTransactionactions = data.Data.ItemTransactionactions
-          data.Data.ItemTransactionactions.forEach((element,index) => {
+          _self.itemAttbute = []
+          //  _self.ItemTransactionactions = data.Data.ItemTransactionactions
+          data.Data.ItemTransactionactions.forEach((element, index) => {
             let attributeValue = data.Data.ItemAttributesTransactions.filter(d => (d.ItemTransId === element.Id))
             if (attributeValue.length > 0) {
-              data.Data.ItemTransactionactions[index]['Attribute']=attributeValue
+              data.Data.ItemTransactionactions[index]['Attribute'] = attributeValue
             }
           });
           _self.ItemTransactionactions = data.Data.ItemTransactionactions
@@ -306,11 +309,11 @@ searchGetCall (term: string) {
 
         if (data.Data.AddressDetails.length > 0) {
           _self.customerAddress = []
-           _self.customerAddress =data.Data.AddressDetails
-         
+          _self.customerAddress = data.Data.AddressDetails
+
         } else {
           _self.customerAddress = []
-          
+
         }
         if (data.Data.TermsConditions.length > 0) {
           this.TermsConditions = []
@@ -325,31 +328,31 @@ searchGetCall (term: string) {
           this.ClientInfos = []
         }
         if (data.Data.AddressOrgDetails.length > 0) {
-          _self.orgAddress = [] 
-           _self.orgAddress =data.Data.AddressOrgDetails
-         
+          _self.orgAddress = []
+          _self.orgAddress = data.Data.AddressOrgDetails
+
         } else {
           _self.orgAddress = []
-          
+
         }
-        if(data.Data.Websites.length > 0){
-           this.website =[]
-           this.website = data.Data.Websites
+        if (data.Data.Websites.length > 0) {
+          this.website = []
+          this.website = data.Data.Websites
         }
-        else{
-           this.website =[]
+        else {
+          this.website = []
         }
-          if(data.Data.ContactInfo.length > 0) {
-           this.ContactCustInfo =[]
-           this.ContactCustInfo = data.Data.ContactInfo
+        if (data.Data.ContactInfo.length > 0) {
+          this.ContactCustInfo = []
+          this.ContactCustInfo = data.Data.ContactInfo
         } else {
-            this.ContactCustInfo =[]
-          }
-        if(data.Data.ContactOrgInfo.length > 0){
-          this.ContactOrgInfo =[]
+          this.ContactCustInfo = []
+        }
+        if (data.Data.ContactOrgInfo.length > 0) {
+          this.ContactOrgInfo = []
           this.ContactOrgInfo = data.Data.ContactOrgInfo
         } else {
-          this.ContactOrgInfo =[]
+          this.ContactOrgInfo = []
         }
         setTimeout(function () {
           _self.printCourierParcel(htmlId)
@@ -360,15 +363,15 @@ searchGetCall (term: string) {
     )
 
   }
-  TermsConditions:any =[]
+  TermsConditions: any = []
   // orgImageData:any=[]
-  ClientInfos:any =[]
-  get values (): string[] {
+  ClientInfos: any = []
+  get values(): string[] {
     if (this.barcode) {
       return this.barcode.split('\n')
     }
   }
-  printCourierParcel (cmpName) {
+  printCourierParcel(cmpName) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open('', '_blank', '')
@@ -402,54 +405,52 @@ searchGetCall (term: string) {
     esal: 3000
   }];
   importExcelFile(data) {
-  
- //this._saleTravelServices.exportAsExcelFile(this.saleTravelDetails, 'sample');
+
+    //this._saleTravelServices.exportAsExcelFile(this.saleTravelDetails, 'sample');
   }
   itemIdCollection: any
-  generateBillFlagEnable: boolean 
+  generateBillFlagEnable: boolean
   allChallanIds: any;
-  getBillingId(data,e,index){
-  // ;
-    let postDataId=[]
-    let postDataChallnNo=[]
+  checkedList: any = []
+  sameLedger: any[]
 
-
-    if(e.target.checked){
-      if(this.itemIdCollection.length === 0){
+  getBillingId(data, e, index) {
+    let postDataId = []
+    let postDataChallnNo = []
+    if (e.target.checked) {
+      if (this.itemIdCollection.length === 0) {
         this.generateBillFlagEnable = false
 
         this.itemIdCollection.push({
-          itemId:data.Id,
-          orgId:data.OrgId,
-          ledgerId:data.LedgerId,
+          itemId: data.Id,
+          orgId: data.OrgId,
+          ledgerId: data.LedgerId,
           ChallanNo: data.ChallanNo
         })
       } else {
-        let loclOrgId
-        let localLedgerId
-        this.itemIdCollection.forEach(ele=>{
-          if(data.OrgId === ele.orgId &&  data.LedgerId === ele.ledgerId){
+        this.itemIdCollection.forEach(ele => {
+          if (data.OrgId === ele.orgId && data.LedgerId === ele.ledgerId) {
             this.generateBillFlagEnable = false
             this.itemIdCollection.push({
-              itemId:data.Id,
-              orgId:data.OrgId,
-              ledgerId:data.LedgerId,
+              itemId: data.Id,
+              orgId: data.OrgId,
+              ledgerId: data.LedgerId,
               ChallanNo: data.ChallanNo
 
             })
 
           } else {
             this.generateBillFlagEnable = true
-            this._toastrCustomService.showError('Error','Diffrent Orgnazation & Ledger ')
+            this._toastrCustomService.showError('Error', 'Diffrent Orgnazation & Ledger ')
 
           }
 
         })
       }
     } else {
-      for (let i = 0 ; i < this.itemIdCollection.length; i++) {
+      for (let i = 0; i < this.itemIdCollection.length; i++) {
         if (this.itemIdCollection[i].itemId === data.Id) {
-          this.itemIdCollection.splice(i,1)
+          this.itemIdCollection.splice(i, 1)
           this.generateBillFlagEnable = true
         }
       }
@@ -464,7 +465,7 @@ searchGetCall (term: string) {
 
     })
 
-    console.log(this.allChallanIds,  this.allChallanNos,'id')
+    console.log(this.allChallanIds, this.allChallanNos, 'id')
 
   }
 }

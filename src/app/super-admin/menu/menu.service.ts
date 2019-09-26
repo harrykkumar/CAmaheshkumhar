@@ -16,8 +16,8 @@ export class MenuService {
   private onMenuAddSub = new Subject()
   public onMenuAdd$ = this.onMenuAddSub.asObservable()
   constructor(@Inject(BaseServices) private baseService) {}
-  onOpenModal () {
-    this.openModalSub.next({open: true})
+  onOpenModal (editData?) {
+    this.openModalSub.next({open: true, editData: editData})
   }
 
   onCloseModal () {

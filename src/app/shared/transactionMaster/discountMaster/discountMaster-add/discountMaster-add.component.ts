@@ -122,7 +122,7 @@ export class DiscountMasterAddComponent {
   disabledRateBox: boolean
   checkedList: any = []
   addedMultipleDiscount(option, event) {
-    debugger
+    
     if (event.target.checked) {
       this.checkedList.push({
         Id: 0,

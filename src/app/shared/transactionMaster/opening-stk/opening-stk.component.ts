@@ -1,363 +1,596 @@
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
-import { URLConstant } from './../../constants/urlconstant';
 import { ComboService } from './../item-master/item-combo/combo.service';
-import { Component, OnInit} from '@angular/core';
-declare const $: any
+import { Component, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import * as _ from 'lodash'
-import { Router } from '@angular/router';
-import { UIConstant } from '../../constants/ui-constant';
-import { Subject } from 'rxjs';
+import { GlobalService } from '../../../commonServices/global.service';
+import { ItemmasterServices } from '../../../commonServices/TransactionMaster/item-master.services';
 import { map } from 'rxjs/internal/operators/map';
+import { Settings } from '../../constants/settings.constant';
+import { SetUpIds } from '../../constants/setupIds.constant';
+declare const $: any
 @Component({
   selector: 'app-opening-stk',
   templateUrl: './opening-stk.component.html',
   styleUrls: ['./opening-stk.component.css']
 })
-export class OpeningStkComponent implements OnInit {
-  allChecked: boolean = false;
-  isProgress: boolean;
-  isLoading: boolean;
-  isAttribute = false
-  itemWithAttributeList:Array<any> = []
-  dummyItemWithAttributeList:Array<any> = []
-  masterItemData: any = {}
-  public options: Select2Options
-  selectedAttributeCombination: any = []
-  attributeCombinationList: Array<any> = []
-  masterData: any;
-  attribute: Array<any> = [];
-  editAttributeData: any[];
-  attributeStoredList: any[];
-  dummyItemDetails: any[];
+export class OpeningStkComponent implements OnInit, OnChanges {
+  masterItemData = []
+  masterData: any = {};
+  selectedIndex: number = -1
+  attrCombos: any = []
+  search: string = ''
+  allItems: boolean = false
+  isLoadingItems = true
+  isLoadingAttributes = true
+  selectedAttrKeys = []
+  ItemAttributeDetails = []
   constructor(
     private comboService: ComboService,
-    private router: Router,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
-  ) { }
-
-  ngOnInit() {
-   this.initData();
-  }
-
-  initData = async () => {
-    this.isProgress = true;
-    this.options = {
-      multiple: true,
-      placeholder: 'Select Attribute Combination'
-    }
-    await this.getOpeningStkList()
-    this.getSPUtilityData();
-  }
-
-  onAttributeCombinationChange = (event) => {
-        this.isLoading = true;
-        const dataList = _.map(event.data, 'data')
-        if (dataList.length > 0) {
-          this.mapItemAttributeList(dataList);
-        } else {
-          this.itemWithAttributeList = [...this.dummyItemDetails]
+    private gs: GlobalService,
+    private _itemmasterServices: ItemmasterServices,
+    private settings: Settings
+  ) {
+    this.getSetting(JSON.parse(this.settings.moduleSettings).settings)
+    this.comboService.attributesData$.subscribe(
+      data => {
+        if (data.attributeKeys && data.attributesData) {
+          this.masterData['Attributes'] = data.attributeKeys
+          this.masterData['AttributesCopy'] = JSON.parse(JSON.stringify(this.masterData['Attributes']))
+          console.log(this.masterData['Attributes'])
+          // console.log('attrKeySelect2Data : ', this.masterData['attrKeySelect2Data'])
+          this.masterData['AttributesDataCopy'] = JSON.parse(JSON.stringify(data.attributesData))
+          this.manipulateAttrs(data.attributesData)
+          this.masterData['AttributeIdStrCopy'] = JSON.parse(JSON.stringify(this.masterData['AttributeIdStr']))
+          this.masterData['AttributeNamestrCopy'] = JSON.parse(JSON.stringify(this.masterData['AttributeNamestr']))
+          setTimeout(() => {
+            this.searchFilter()
+          }, 0)
         }
-  }
-
-
-  mapItemAttributeList = async (Data) => {
-    this.itemWithAttributeList = []
-    const data = await this.generateItemAttributeCombination(Data);
-    if (data) {
-      this.itemWithAttributeList = JSON.parse(JSON.stringify(this.dummyItemWithAttributeList));
-      // this.isLoading = false;
-    }
-  }
-  
-  generateItemAttributeCombination = (Data) => {
-    return new Promise((resolve, reject) => {
-      const itemData = _.map([...this.masterItemData.Data.ItemDetails], (element) => {
-        return {
-          'ItemName': element.ItemName,
-          'ItemId': element.ItemId,
-          'UnitName': element.UnitName
-        }
-      });
-      const uniqueItemData = _.uniqBy(itemData, 'ItemId');
-      this.dummyItemWithAttributeList = [];
-      _.forEach([...uniqueItemData], (itemElement) => {
-        _.forEach([...Data], (combinationElement) => {
-          const data = {
-            "Id": 0,
-            "ItemId": itemElement.ItemId,
-            "GroupId": 0,
-            "Qty": 0,
-            "QtyValue": 0,
-            "Barcode": 0,
-            "IsBaseGroup":0,
-            "ItemName": itemElement.ItemName,
-            "UnitName": itemElement.UnitName,
-            "ClientBarCode": 0,
-            "RateSale": 0,
-            "RatePurchase": 0,
-            "RateMrp": 0,
-            "RateOur": 0,
-            "RateNrv": 0,
-            "AttributeIdStr": combinationElement.AttributeIdStr,
-            "AttributeNamestr": [...combinationElement.AttributeNamestr]
-          }
-          this.dummyItemWithAttributeList.push(data);
-        })
-      })
-      _.map(this.dummyItemWithAttributeList, (generateElement, index) => {
-        _.forEach(this.masterItemData.Data.ItemDetails, (editElement) => {
-          if ((generateElement.ItemId === editElement.ItemId) && (editElement.AttributeIdStr === generateElement.AttributeIdStr)) {
-            this.dummyItemWithAttributeList[index] = { ...editElement };
-            if (_.isString(this.dummyItemWithAttributeList[index].AttributeNamestr)) {
-              this.dummyItemWithAttributeList[index].AttributeNamestr = this.dummyItemWithAttributeList[index].AttributeNamestr.split(',')
-            }
-          }
-        });
-      })
-      resolve(this.itemWithAttributeList)
-    })
-  }
-
-
-  getSPUtilityData = () => {
-    this.comboService.getSPUtilityData().subscribe(
-      async (data) => {
-        if (data.Code === UIConstant.THOUSAND && data.Data) {
-          this.masterData = data.Data;
-          this.itemWithAttributeList = [...this.masterItemData.Data.ItemDetails]
-          if (this.masterData && this.masterData.Attributes && this.masterData.Attributes.length > 0) {
-            this.isAttribute = true;
-            _.map(this.itemWithAttributeList, (item) => {
-              if (item.AttributeNamestr) {
-                item.AttributeNamestr = item.AttributeNamestr.split(',');
-              } else {
-                item.AttributeNamestr = []
-                _.forEach(this.masterData.Attributes, (element) => {
-                  item.AttributeNamestr.push("");
-                })
-              }
-            })
-            this.dummyItemDetails = [...this.itemWithAttributeList];
-          }
-          this.attribute = [];
-          await this.generateCombination();
-          await this.makeAttributeValueCombination();
-
-          this.isProgress = false
-        }
-      },
-      (error) => {
-        console.log(error)
       }
     )
   }
 
-  mapAttributeCombinationList = (data) => {
-    const localData = _.map([...data], (element) => {
-      element.AttributeNamestr = element.Name;
-      element.AttributeIdStr = element.Id;
-      return {
-        id : element.AttributeIdStr.replace(/,/g, '--'),
-        text : element.AttributeNamestr.replace(/,/g, '--'),
-        data : element
+  toShowOpeningStock: boolean = false
+  getSetting(settings) {
+    // console.log('settings : ', settings)
+    settings.forEach(element => {
+      if (element.id === SetUpIds.attributesForPurchase) {
+        this.toShowOpeningStock = (element.val && element.val.length > 0) ? true : false
       }
-    })
-    this.attributeCombinationList = [{ id: 0, text: 'Select Attribute Combination' }, ...localData]
-  }
-
-  generateCombination = () => {
-    return new Promise((resolve, reject) => {
-      _.forEach(this.masterData.Attributes, (attribute) => {
-        const data = _.filter(this.masterData.AttributeValues, (attributeValue) => {
-          if (attributeValue.AttributeId === attribute.Id) {
-            return true;
-          }
-        })
-        this.attribute.push(data);
-      });
-      resolve();
     })
   }
 
-  makeAttributeValueCombination = () => {
-    return new Promise((resolve, reject) => {
-      const iterationtime = this.attribute.length - 1;
-      for (let lastIndex = iterationtime; lastIndex > 0; lastIndex--) {
-        let dummyArray = [];
-        _.forEach(this.attribute[lastIndex - 1], (firstAttributeValue) => {
-          _.forEach(this.attribute[lastIndex], (secondAttributeValue) => {
-            const data = {
-              Id: `${firstAttributeValue.Id},${secondAttributeValue.Id}`,
-              Name: `${firstAttributeValue.Name},${secondAttributeValue.Name}`,
-            }
-            dummyArray.push(data);
-          })
-        })
-        this.attribute[lastIndex - 1] = JSON.parse(JSON.stringify(dummyArray));
-        this.attribute.pop();
+  manipulateAttrs (attributeData) {
+    let ids = []
+    const comboFor = attributeData.map((attr) => {
+      ids.push(attr.attributeId)
+      attr.data.shift()
+      return attr.data
+    })
+    let newData1 = []
+    for (let i = 0; i < this.masterData['Attributes'].length; i++) {
+      newData1.push({
+        id: ids[i],
+        text: this.masterData['Attributes'][i]
+      })
+    }
+    this.masterData['attrKeySelect2Data'] = newData1
+    this.generateAttrs(comboFor)
+  }
+
+  generateAttrs (comboFor) {
+    let idsArr = []
+    let textArr = []
+    comboFor.forEach((attrData, index) => {
+      idsArr[index] = []
+      textArr[index] = []
+      attrData.forEach(element => {
+        idsArr[index].push(element['id'])
+        textArr[index].push(element['text'])
+      })
+    })
+    // console.log(idsArr, textArr)
+    this.masterData['AttributeIdStr'] = this.gs.allPossibleCases(idsArr)
+    this.masterData['AttributeNamestr'] = this.gs.allPossibleCases(textArr)
+    let arr = []
+    let newData = []
+    for (let i = 0; i < this.masterData['AttributeIdStr'].length; i++) {
+      const obj = {
+        AttributeStr: this.masterData['AttributeIdStr'][i],
+        AttributeNameStr: this.masterData['AttributeNamestr'][i]
       }
-      this.attribute = JSON.parse(JSON.stringify(this.attribute[0]));
-      this.mapAttributeCombinationList(this.attribute);
-      this.generateGroupId();
-      resolve();
+      arr.push(obj)
+      const obj1 = {
+        id: this.masterData['AttributeIdStr'][i],
+        text: this.masterData['AttributeNamestr'][i]
+      }
+      newData.push(obj1)
+    }
+    this.masterData['attrSelect2Data'] = newData
+    this.isLoadingAttributes = false
+    this.attrCombos = JSON.parse(JSON.stringify(arr))
+  }
+
+  checkForSelectedIndex () {
+    this.masterItemData.forEach((element) => {
+      delete element['attrCombs']
+      element['show'] = false
+    })
+    this.masterItemData = JSON.parse(JSON.stringify(this.masterItemData))
+  }
+
+  onAttrKeySelect (data: {value: string[], data: any}) {
+    console.log('attr key select : ', data)
+    let attributeData = JSON.parse(JSON.stringify(this.masterData['AttributesDataCopy']))
+    this.selectedAttrKeys = data.value
+    console.log(data)
+    if (data.value.length > 0) {
+      this.masterData['Attributes'] = []
+      data.data.forEach((element) => {
+        this.masterData['Attributes'].push(element.text)
+      })
+      const comboFor = attributeData.filter(element => {
+        if (data.value.indexOf('' + element.attributeId) > -1) {
+          return element
+        }
+      }).map((attr) => {
+        attr.data.shift()
+        return attr.data
+      })
+      console.log('combo for : ', comboFor)
+      this.generateAttrs(comboFor)
+      this.checkForSelectedIndex()
+    } else {
+      this.masterData['Attributes'] = JSON.parse(JSON.stringify(this.masterData['AttributesCopy']))
+      this.backToOrg()
+    }
+    setTimeout(() => {
+      this.searchFilter()
+    }, 0)
+  }
+
+  onAttrSelect (data: {value: string[], data: any}) {
+    console.log('attr select : ', data)
+    let arr = []
+    if (data.value.length > 0) {
+      this.masterData['AttributeIdStr'] = data.value
+      this.masterData['AttributeNamestr'] = []
+      data.data.forEach((element) => {
+        this.masterData['AttributeNamestr'].push(element.text)
+      })
+      for (let i = 0; i < this.masterData['AttributeIdStr'].length; i++) {
+        const obj = {
+          AttributeStr: this.masterData['AttributeIdStr'][i],
+          AttributeNameStr: this.masterData['AttributeNamestr'][i]
+        }
+        arr.push(obj)
+      }
+      this.attrCombos = JSON.parse(JSON.stringify(arr))
+      this.checkForSelectedIndex()
+    } else {
+      if (this.selectedAttrKeys.length > 0) {
+      } else {
+        this.backToOrg()
+      }
+    }
+    setTimeout(() => {
+      this.searchFilter()
+    }, 0)
+  }
+
+  backToOrg () {
+    this.masterData['AttributeIdStr'] = JSON.parse(JSON.stringify(this.masterData['AttributeIdStrCopy']))
+    this.masterData['AttributeNamestr'] = JSON.parse(JSON.stringify(this.masterData['AttributeNamestrCopy']))
+    let arr = []
+    let newData = []
+    for (let i = 0; i < this.masterData['AttributeIdStr'].length; i++) {
+      const obj = {
+        AttributeStr: this.masterData['AttributeIdStr'][i],
+        AttributeNameStr: this.masterData['AttributeNamestr'][i]
+      }
+      arr.push(obj)
+      const obj1 = {
+        id: this.masterData['AttributeIdStr'][i],
+        text: this.masterData['AttributeNamestr'][i]
+      }
+      newData.push(obj1)
+    }
+    this.masterData['attrSelect2Data'] = newData
+    this.isLoadingAttributes = false
+    this.attrCombos = JSON.parse(JSON.stringify(arr))
+    this.checkForSelectedIndex()
+  }
+
+  ngOnChanges (changes: SimpleChanges): void {
+    console.log('changes : ', changes)
+  }
+
+  generateAttrCases () {
+    if (this.selectedIndex >= 0) {
+      if (typeof this.masterItemData[this.selectedIndex]['attrCombs'] == 'undefined') {
+        let attrCombos = JSON.parse(JSON.stringify(this.attrCombos))
+        this.getAttrCombos(attrCombos)
+        // this.masterItemData[this.selectedIndex]['attrCombs'] = 
+        // console.log('masterItemData : ', this.masterItemData[this.selectedIndex]['attrCombs'])
+        this.getBarCodes()
+      }
+    }
+  }
+
+  getAttrCombos (attrCombos) {
+    // let attrCombos = []
+    const items = this.ItemAttributeDetails.filter((element) => {
+      if (element.ItemId === this.masterItemData[this.selectedIndex]['ItemId']) {
+        return element
+      }
+    })
+    items.forEach(element => {
+      attrCombos.forEach((combo, index) => {
+        if (element.AttributeIdStr === combo.AttributeStr) {
+          attrCombos[index] = element
+          attrCombos[index]['AttributeStr'] = element.AttributeIdStr
+          attrCombos[index]['AttributeNameStr'] = element.AttributeNamestr
+        }
+      })
     });
+    console.log('new atts : ', attrCombos)
+    this.masterItemData[this.selectedIndex]['attrCombs'] = attrCombos
+  }
+
+  getBarCodes () {
+    let _self = this
+    let idsBefore = []
+    this.masterItemData[this.selectedIndex]['attrCombs'].forEach((element) => {
+      // typeof element['Barcode'] == 'undefined' || 
+      if (element['Barcode']) {
+        idsBefore.push(element['AttributeStr'])
+      }
+    })
+    // console.log('idsBefore : ', idsBefore)
+    let diff = _.differenceWith(this.masterData['AttributeIdStr'], idsBefore)
+    // console.log(diff)
+    let length = -1
+    if (diff.length > 0) {
+      length = diff.length
+    } else {
+      length = this.masterData['AttributeIdStr'].length
+    }
+    if (length > 0) {
+      this._itemmasterServices.getBarCodes(length)
+      .subscribe(
+        (data) => {
+          // console.log('barcodes : ', data)
+          let index = 0
+          this.masterItemData[this.selectedIndex]['attrCombs'].forEach((element) => {
+            if (!element['Barcode']) {
+              element['Barcode'] = data[index].BarCode
+              element['ClientBarCode'] = data[index].BarCode
+              element['checked'] = false
+              element['ItemId'] = this.masterItemData[this.selectedIndex]['ItemId']
+              element['GroupId'] = 0
+              element['Id'] = 0
+              element['IsBaseGroup'] = 0
+              element['ItemName'] = this.masterItemData[this.selectedIndex]['ItemName']
+              element['ItemTransId'] = 0
+              element['ParentTypeId'] = 0
+              element['Qty'] = 0
+              element['QtyValue'] = 0
+              element['RateMrp'] = 0
+              element['RateNrv'] = 0
+              element['RateOur'] = 0
+              element['RatePurchase'] = 0
+              element['RateSale'] = 0
+              index++
+            }
+          })
+        },
+        (error) => {
+          console.log('error : ', error)
+          _self.toastrService.showError(error, '')
+        }
+      )
+    }
+  }
+
+  checkAllCombos (val: boolean) {
+    this.masterItemData[this.selectedIndex]['attrCombs'].forEach((element) => {
+      element['checked'] = val
+    })
+  }
+
+  switchView () {
+    // console.log(this.masterData.onlyItems)
+    if (!this.masterData.onlyItems) {
+      this.isLoadingAttributes = true
+      this.getSPUtilityData()
+    } else {
+      this.getOpeningStkList()
+    }
+    // console.log(this.masterItemData)
+  }
+
+  checkForAttr (item) {
+    if (item.show) {
+      if (this.attrCombos.length === 0) {
+        this.getSPUtilityData();
+      } else {
+        this.generateAttrCases()
+      }
+    }
+  }
+
+  checkAllItems (val: boolean) {
+    this.masterItemData.forEach((element) => {
+      element['checked'] = val
+    })
+  }
+
+  ngOnInit() {
+    this.initData();
+    this.getOpeningStkList()
+  }
+
+  initData = () => {
+    this.masterItemData = []
+    this.masterData = {Attributes: [], AttributesCopy: [], AttributesDataCopy: [],  AttributeIdStr: [], AttributeNamestr: [], AttributeIdStrCopy: [], AttributeNamestrCopy: [], attrSelect2Data: [], attrKeySelect2Data: [], onlyItems: true};
+    this.selectedIndex = -1
+    this.attrCombos = []
+    this.search = ''
+    this.allItems = false
+    this.isLoadingItems = true
+    this.isLoadingAttributes = true
+    this.ItemAttributeDetails = []
+  }
+
+  getOpeningStkList = () => {
+    this.isLoadingItems = true
+    this.gs.manipulateResponse(this.commonService.getOpeningStkList()).pipe(
+      map(data => {
+        this.isLoadingItems = false
+        this.ItemAttributeDetails = data.ItemAttributeDetails
+        console.log('main list : ', data)
+        data.ItemDetails.forEach(element => {
+          element['show'] = false
+          element['checked'] = false
+        })
+        return data.ItemDetails
+      })
+    )
+    .subscribe((data: any) => {
+      this.isLoadingItems = false
+      this.masterItemData = data
+      console.log('get opening stk list : ', this.masterItemData)
+    },
+    (error) => {
+      this.isLoadingItems = false
+      this.toastrService.showError(error, '')
+    });
+  }
+
+  getSPUtilityData = () => {
+    this.gs.manipulateResponse(this.comboService.getSPUtilityData()).subscribe(
+      async (data) => {
+        if (data) {
+          console.log('sp utility data : ', data)
+          this.comboService.generateAttributes(data)
+        }
+      },
+      (error) => {
+        console.log(error)
+        this.isLoadingAttributes = false
+        this.toastrService.showError(error, '')
+      }
+    )
   }
 
   triggerModelOpen() {
     $('#opening-stk').modal('show')
-    $('#opening-stk').modal({
-      keyboard: false
-    })
-  }
-
-  generateGroupId = () => {
-    _.map(this.attribute, (element, i) => {
-      element.GroupId = i + 1
-      element.AttributeIdStr = element.Id
-      element.AttributeNamestr = element.Name.split(',')
-      element.Checked = false
-    })
-  }
-
-  checkAllItem = (event) => {
-    _.map(this.itemWithAttributeList, (element) => {
-      element.Checked = event.target.checked
-    })
-  }
-
-  preparePayloadToSave = (dataToMap) => {
-    return new Promise((resolve, reject) => {
-      const Data = _.filter(dataToMap, (element) => {
-        if (element.Checked === true) {
-          return true
-        }
-      });
-      const data = _.map(Data, (element) => {
-        return {
-          "ID": element.Id ? element.Id : 0,
-          "ParentTypeId": element.ParentTypeId ? element.ParentTypeId : 0,
-          "AttributeId": element.AttributeId ? element.AttributeId : 0,
-          "Barcode": element.Barcode ? element.Barcode : 0,
-          "ClientBarCode": element.ClientBarCode ? element.ClientBarCode : 0,
-          "GroupId": element.GroupId,
-          "IsBaseGroup": element.IsBaseGroup ? element.IsBaseGroup : 0,
-          "ItemId": element.ItemId ? element.ItemId : 0,
-          "ItemName": element.ItemName ? element.ItemName : 0,
-          "ItemTransId": element.ItemTransId ? element.ItemTransId : 0,
-          "Qty": element.Qty ? element.Qty : 0,
-          "QtyValue": element.QtyValue ? element.QtyValue : 0,
-          "RateMrp": element.RateMrp ? element.RateMrp : 0,
-          "RateNrv": element.RateNrv ? element.RateNrv : 0,
-          "RateOur": element.RateOur ? element.RateOur : 0,
-          "RatePurchase": element.RatePurchase ? element.RatePurchase : 0,
-          "RateSale": element.RateSale ? element.RateSale : 0,
-          "AttributeStr": element.AttributeIdStr ? element.AttributeIdStr : 0,
-        }
-      })
-      resolve(data);
-    })
   }
 
   cancelForm = () => {
     $('#opening-stk').modal('hide')
-    this.itemWithAttributeList = [...this.dummyItemDetails]
-  }
-
-  onPurchaseRateChange = (index) => {
-    if (this.attribute[index].RatePurchase && this.attribute[index].Qty) {
-      this.attribute[index].QtyValue = this.attribute[index].Qty * this.attribute[index].RatePurchase;
-    } else if (this.attribute[index].QtyValue && this.attribute[index].RatePurchase) {
-      this.attribute[index].Qty = this.attribute[index].QtyValue / this.attribute[index].RatePurchase
-    }
-  }
-
-  onOpeningStockChange = (index) => {
-    if (this.attribute[index].RatePurchase && this.attribute[index].Qty) {
-      this.attribute[index].QtyValue = this.attribute[index].Qty * this.attribute[index].RatePurchase;
-    } else if (this.attribute[index].QtyValue && this.attribute[index].Qty) {
-      this.attribute[index].RatePurchase = this.attribute[index].QtyValue / this.attribute[index].Qty
-    }
-  }
-
-  onOpeningStockValueChange = (index) => {
-    if (this.attribute[index].Qty && this.attribute[index].QtyValue) {
-      this.attribute[index].RatePurchase = this.attribute[index].QtyValue / this.attribute[index].Qty
-    } else if (this.attribute[index].RatePurchase && this.attribute[index].QtyValue) {
-      this.attribute[index].Qty = this.attribute[index].QtyValue / this.attribute[index].RatePurchase
-    }
+    // this.itemWithAttributeList = [...this.dummyItemDetails]
   }
 
   validateForm = () => {
     let valid = true;
-    _.map(this.attribute, (element) => {
-      if (element.Checked === true) {
-        if (!element.Qty) {
-          element.isInvalid = true
-          valid = false
-        }
-        if (!element.QtyValue) {
-          element.isInvalid = true
-          valid = false
-        }
-        if (!element.RatePurchase) {
-          element.isInvalid = true
-          valid = false
-        }
-      }
-    })
+    // let checkFor = []
+    // if (this.masterData.onlyItems) {
+    //   checkFor = this.masterItemData
+    // } else {
+    //   checkFor = this.getAllCombos()
+    // }
+    // _.map(checkFor, (element) => {
+    //   if (element.checked === true) {
+    //     if (!+element.Qty) {
+    //       element.isInvalid = true
+    //       valid = false
+    //     }
+    //     if (!+element.QtyValue) {
+    //       element.isInvalid = true
+    //       valid = false
+    //     }
+    //     if (!+element.RatePurchase) {
+    //       element.isInvalid = true
+    //       valid = false
+    //     }
+    //   }
+    // })
     return valid;
   }
 
-  searchFilter = () => {
-    let input, filter, table, tr, tdArray, i, j, txtValue;
-    input = document.getElementById("searchInput");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("item-attribute-table");
-    tr = table.getElementsByTagName("tr");
-    loop1: for (i = 1; i < tr.length; i++) {
-      tdArray = tr[i].getElementsByTagName("td");
-      loop2: for (j = 2; j < (2 + this.masterData.Attributes.length); j++) {
-       const innerTd = tdArray[j];
-        if (innerTd) {
-          txtValue = innerTd.textContent || innerTd.innerText;
-          if (txtValue.toUpperCase().indexOf(filter) > -1 ) {
-            tr[i].style.display = "table-row";
-            break loop2;
+  getAllCombos () {
+    let itemsAttrs = []
+    const masterItemData = this.masterItemData.map(data => {
+      if (typeof data['attrCombs'] == 'undefined') {
+        return []
+      } else {
+        return data['attrCombs']
+      }
+    })
+    .filter(data => data.length > 0)
+    .forEach(element => {
+      itemsAttrs = itemsAttrs.concat(element)
+    })
+    return itemsAttrs
+  }
+
+  getPostParams () {
+    let filterFor = []
+    if (this.masterData.onlyItems) {
+      filterFor = this.masterItemData
+    } else {
+      filterFor = this.getAllCombos()
+    }
+    let dataToPost = filterFor.filter(item => item.checked === true)
+    console.log('data to post : ', dataToPost)
+    let obj = {
+      ItemAttributewithrates: dataToPost
+    }
+    console.log(JSON.stringify(obj))
+    return obj
+  }
+
+  postFormData () {
+    this.gs.manipulateResponse(this.commonService.postOpeningStkList(this.getPostParams())).subscribe((data) => {
+      if (data) {
+        this.toastrService.showSuccess('Success','Saved Successfully')
+        this.initData()
+        this.cancelForm()
+      }
+    }, (error) => {
+      console.log(error)
+      this.toastrService.showError(error, '');
+    })
+   }
+
+   onPurchaseRateChange = (i, j?) => {
+    let attrComb;
+    if (j >= 0) {
+      attrComb = this.masterItemData[i]['attrCombs'][j]
+    } else {
+      attrComb = this.masterItemData[i]
+    }
+    if (+attrComb.RatePurchase > 0 && +attrComb.Qty > 0) {
+      attrComb.QtyValue = (attrComb.Qty * attrComb.RatePurchase).toFixed(2);
+    } else if (+attrComb.QtyValue > 0 && +attrComb.RatePurchase > 0) {
+      attrComb.Qty = (attrComb.QtyValue / attrComb.RatePurchase).toFixed(2);
+    }
+  }
+
+  onOpeningStockChange = (i, j?) => {
+    let attrComb;
+    if (j >= 0) {
+      attrComb = this.masterItemData[i]['attrCombs'][j]
+    } else {
+      attrComb = this.masterItemData[i]
+    }
+    if (+attrComb.RatePurchase > 0 && +attrComb.Qty > 0) {
+      attrComb.QtyValue = (attrComb.Qty * attrComb.RatePurchase).toFixed(2);
+    } else if (+attrComb.QtyValue > 0 && +attrComb.Qty > 0) {
+      attrComb.RatePurchase = (attrComb.QtyValue / attrComb.Qty).toFixed(2);
+    }
+  }
+
+  onOpeningStockValueChange = (i, j?) => {
+    let attrComb;
+    if (j >= 0) {
+      attrComb = this.masterItemData[i]['attrCombs'][j]
+    } else {
+      attrComb = this.masterItemData[i]
+    }
+    if (+attrComb.Qty > 0 && +attrComb.QtyValue > 0) {
+      attrComb.RatePurchase = (attrComb.QtyValue / attrComb.Qty).toFixed(2)
+    } else if (+attrComb.RatePurchase > 0 && +attrComb.QtyValue > 0) {
+      attrComb.Qty = (attrComb.QtyValue / attrComb.RatePurchase).toFixed(2)
+    }
+  }
+
+  searchFilter () {
+    if (!this.masterData.onlyItems) {
+      const allCards = $('.card')
+      for (let i = 0; i < allCards.length; i++) {
+        let elem = '' + allCards[i].children[0].children[0].children[0].innerText
+        // console.log(this.search)
+        if (!this.search.trim()) {
+          allCards[i].style.display = 'block'
+        } else {
+          if (elem.trim().toUpperCase().includes(this.search.trim().toUpperCase())) {
+            allCards[i].style.display = 'block'
           } else {
-            tr[i].style.display = "none";
+            allCards[i].style.display = 'none'
           }
-        }     
+        }
       }
     }
   }
 
-  getOpeningStkList = () => {
-    return new Promise((resolve, reject) => {
-      this.commonService.getOpeningStkList().subscribe((response: any) => {
-        this.masterItemData = { ...response };
-        resolve(this.masterItemData)
-      });
-    })
+  updateBarCode (i, j?) {
+    let attrComb;
+    if (j >= 0) {
+      attrComb = this.masterItemData[i]['attrCombs'][j]
+    } else {
+      attrComb = this.masterItemData[i]
+    }
+    attrComb['Barcode'] = attrComb['ClientBarCode']
   }
-
-  postFormData = async (Data) => {
-    const postData = await this.preparePayloadToSave(Data);
-    const requestData = {ItemAttributewithrates : postData};
-    this.commonService.postOpeningStkList(requestData).subscribe((data) => {
-     if (data.Code === UIConstant.THOUSAND) {
-       this.toastrService.showSuccess('Success','Saved Successfully')
-        this.initData();
-     } else {
-       this.toastrService.showError('Error in Posting Data', 'error');
-       $('#opening-stk').modal('hide')
-     }
-     this.cancelForm()
-    })
-   }
-
-   toggleSearch(){
-     
-   }
 }
+
+  // this.masterItemData.forEach((element) => {
+    //   if (typeof element['attrCombs'] != 'undefined') {
+    //     for (let i = 0; i < this.attrCombos.length; i++) {
+    //       const attr = this.attrCombos[i]['AttributeStr'];
+    //       const combos = element['attrCombs'].filter(combo => {
+    //         if (attr.indexOf(combo['AttributeStr']) > -1) {
+    //           return combo
+    //         }
+    //       })
+    //     }
+    //   }
+    // })
+    // allChecked: boolean = false;
+  // isProgress: boolean;
+  // isLoading: boolean = true;
+  // isAttribute = false
+  // itemWithAttributeList:Array<any> = []
+  // dummyItemWithAttributeList:Array<any> = []
+  // attribute: Array<any> = [];
+  // editAttributeData: any[];
+  // attributeStoredList: any[];
+  // dummyItemDetails: any[];
+  // selectedAttributeCombination: any = []
+  // attributeCombinationList: Array<any> = []
+
+
+  /*
+  comboFor.forEach((attrData, index) => {
+    idsArr[index] = []
+    textArr[index] = []
+    attrData.forEach(element => {
+      idsArr[index].push(element['id'])
+      textArr[index].push(element['text'])
+    })
+  })
+  this.masterData['AttributeIdStr'] = this.gs.allPossibleCases(idsArr)
+  this.masterData['AttributeNamestr'] = this.gs.allPossibleCases(textArr)
+  let arr = []
+  let newData = []
+  for (let i = 0; i < this.masterData['AttributeIdStr'].length; i++) {
+    const obj = {
+      AttributeStr: this.masterData['AttributeIdStr'][i],
+      AttributeNameStr: this.masterData['AttributeNamestr'][i]
+    }
+    arr.push(obj)
+    const obj1 = {
+      id: this.masterData['AttributeIdStr'][i],
+      text: this.masterData['AttributeNamestr'][i]
+    }
+    newData.push(obj1)
+  }
+  this.masterData['attrSelect2Data'] = newData
+  console.log('arr : ', arr)
+  this.attrCombos = arr
+  */

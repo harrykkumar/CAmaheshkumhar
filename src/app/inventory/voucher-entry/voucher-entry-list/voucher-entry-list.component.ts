@@ -37,6 +37,7 @@ export class VoucherEntryListComponent implements OnInit {
     ToDate: '',
     Type: ''
   }
+  notShowActionsFor = [105,106,107,108,109,110]
   clientDateFormat: string = ''
   LedgerStatements = []
   summary: any
@@ -129,11 +130,11 @@ export class VoucherEntryListComponent implements OnInit {
       }, 100)
       console.log('error', err)
     },
-      () => {
-        setTimeout(() => {
-          this.isSearching = false
-        }, 100)
-      })
+    () => {
+      setTimeout(() => {
+        this.isSearching = false
+      }, 100)
+    })
   }
 
   searchGetCall(term: string) {
@@ -141,7 +142,7 @@ export class VoucherEntryListComponent implements OnInit {
       term = ''
     }
     this.pagingComp.setPage(1)
-    return this.voucherService.getLedgerSummaryData(`?Type=${this.data.Type}&FromDate=${this.data.FromDate}&ToDate=${this.data.ToDate}` + this.queryStr)
+    return this.voucherService.getLedgerSummaryData(`?Type=${this.data.Type}&FromDate=${this.data.FromDate}&ToDate=${this.data.ToDate}${this.queryStr}`)
   }
 
   private unSubscribe$ = new Subject<void>()

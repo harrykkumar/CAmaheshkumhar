@@ -61,6 +61,7 @@ export class UserOrganizationsComponent implements OnInit {
 
   ngOnInit() {
     this.initOrganizationList()
+    
   }
 
   ngOnDestroy(): void {
@@ -68,7 +69,17 @@ export class UserOrganizationsComponent implements OnInit {
       this.companyComponentRef.destroy();
     }
   }
-
+ 
+  getOrgData = () => {
+    let orgId= JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'));
+    this.orgProfileService.getCompanyProfileDetails(orgId.Id).subscribe(
+      (Data: any) => {
+        if (Data.Code === 1000 && Data.Data.AddressesDetails.length>0) {
+          window.localStorage.setItem('ORGNIZATIONADDRESS', JSON.stringify(Data.Data.AddressesDetails[0]));
+        }
+      }, error => console.log(error)
+    )
+  }
   navigateTo = async (selectedOrganization) => {
     this.spinnerService.show();
     const token = await this._loginService.extendJwtToken({ OrgId: selectedOrganization.Id })
@@ -77,6 +88,7 @@ export class UserOrganizationsComponent implements OnInit {
     this._loginService.selectedOrganization = selectedOrganization
     localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
     this._loginService.mapBranch(selectedOrganization);
+    this.getOrgData()
   }
 
   initOrganizationList = async () => {

@@ -26,13 +26,18 @@ export class TrailBalanceReportComponent implements OnInit {
   newDateSub: Subscription
   toDateShow: any
   fromDateShow: any
+  ListTypeFilter: any = []
   clientDateFormat: any
   constructor(public gs: GlobalService, public _loginService: LoginService, public _settings: Settings, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     this.newDateSub = this._commonService.getsearchByDateForTradingStatus().subscribe(
       (obj: any) => {
         this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
         this.getModuleSettingData()
+        this.mainDataList = []
+        this.selectedid = false
         this.onload()
+        this.ListTypeFilter = [{ id: 0, name: 'Summary' }, { id: 1, name: 'Details' }]
+
         this.toDateShow = this.gs.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
         this.fromDateShow = this.gs.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
         this.getbalancesheetdata()
@@ -46,13 +51,13 @@ export class TrailBalanceReportComponent implements OnInit {
   ngOnInit() {
     this.onload()
   }
-  searchResetButton (){
-    this.toDateShow  =''
-    this.fromDateShow=''
+  searchResetButton() {
+    this.toDateShow = ''
+    this.fromDateShow = ''
     this.getbalancesheetdata()
   }
-  searchButton(){
-        this.getbalancesheetdata()
+  searchButton() {
+    this.getbalancesheetdata()
   }
   decimalDigit: any
   onload() {
@@ -80,6 +85,23 @@ export class TrailBalanceReportComponent implements OnInit {
 
   toShowSearch = false
 
+  headI1dDataList: any = []
+  headI2dDataList: any = []
+  selectedid: boolean = false
+  changeSummary(evt) {
+    this.mainData = []
+    if (evt.target.checked) {
+      this.mainData = this.mainDataList
+      
+    }
+    else {
+      this.selectedid = false
+      let data = this.mainDataList
+      this.SummaryData(data)
+    }
+  }
+  headI1dData: any = []
+  headI2dData: any = []
   toggleSearch() {
     this.toShowSearch = !this.toShowSearch
   }
@@ -96,6 +118,7 @@ export class TrailBalanceReportComponent implements OnInit {
   headervalue2: any
   headervalue1First: any = 0
   headervalue2First: any = 0
+  mainDataList: any = []
   getbalancesheetdata() {
     let todate;
     let fromDate;
@@ -111,13 +134,23 @@ export class TrailBalanceReportComponent implements OnInit {
     else {
       fromDate = ''
     }
-    this.mainData = []
+    // this.mainData = []
+    this.mainDataList = []
     this._commonService.getTrailBalanceReport(fromDate, todate).subscribe(data => {
       this.headervalue2 = 0
       this.headervalue1 = 0
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data && data.Data.TrailBalance && data.Data.TrailBalance.length > 0) {
-          this.mainData = data.Data.TrailBalance
+          this.mainDataList = data.Data.TrailBalance
+          // this.headI1dDataList = data.Data.TrailBalance.filter(s => s.HeadId === 1)
+          // this.headI2dDataList = data.Data.TrailBalance.filter(s => s.HeadId === 2)
+          let evt = {
+            target: {
+              checked: false
+            }
+          }
+          this.changeSummary(evt)
+
         }
         if (data.Data && data.Data.TrailBalanceSummary.length > 0) {
           data.Data.TrailBalanceSummary.forEach(element => {
@@ -134,6 +167,27 @@ export class TrailBalanceReportComponent implements OnInit {
         }
       }
     })
+
+  }
+
+
+  SummaryData(head1) {
+    this.headI1dData = [];
+    this.headI2dData = []
+    if (head1.length > 0) {
+      head1.forEach(element => {
+        if (element.LevelNo === 1) {
+          this.mainData.push(element)
+        }
+      });
+    }
+    if (head1.length > 0) {
+      // head2.forEach(element => {
+      //   if (element.LevelNo === 1 || element.LevelNo === 2) {
+      //     this.headI2dData.push(element)
+      //   }
+      // });
+    }
 
   }
 }

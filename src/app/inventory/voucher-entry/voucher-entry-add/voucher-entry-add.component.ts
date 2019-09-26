@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnDestroy, ViewChildren, QueryList, ElementRef, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, ViewChild, OnDestroy, ViewChildren, QueryList, ElementRef, Output, EventEmitter, OnInit, HostListener } from '@angular/core';
 import { Subject, throwError } from 'rxjs';
 import { CommonService } from "src/app/commonServices/commanmaster/common.services";
 import { takeUntil, filter, catchError, map } from 'rxjs/internal/operators';
@@ -15,7 +15,6 @@ import { VoucherAddModel } from '../voucher-entry.model';
 import { Subscription } from 'rxjs/Subscription';
 declare const $: any
 import * as _ from 'lodash'
-declare const flatpickr: any
 @Component({
   selector: 'voucher-entry-add',
   templateUrl: './voucher-entry-add.component.html'
@@ -74,6 +73,19 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   ledgerCreationModel: Subscription
   getListledger: any = []
   advanceBillNo: number;
+  @HostListener('window:keydown',['$event'])
+  onKeyPress($event: KeyboardEvent) {
+    console.log($event)
+    if(($event.altKey || $event.metaKey) && $event.keyCode == 18) {
+      if (this.tabId < 6 && this.tabId > 0 && !this.dateStatus) {
+        this.tabId++
+      } else if (this.tabId === 6) {
+        this.tabId = 1
+      }
+      this.onTabClick(this.tabId)
+      this.setFocus()
+    }
+  }
   constructor(private commonService: CommonService, private purchaseService: PurchaseService,
     private voucherService: VoucherEntryServie, private settings: Settings, private gs: GlobalService,
     private toastrService: ToastrCustomService) {
@@ -107,7 +119,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
               }
             })
           }
-
           setTimeout(() => {
             if (this.ledgerSelect2) {
               this.ledgerSelect2.selector.nativeElement.focus()
@@ -230,7 +241,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
             this.OrgId = +this.organisationsData[0].id
             this.organisationValue = +this.organisationsData[0].id
             if (!this.voucherService.tabs[this.tabId - 1].voucherNoManual) {
-              this.VoucherDate = this.gs.getDefaultDate(this.clientDateFormat)
+              // this.VoucherDate = this.gs.getDefaultDate(this.clientDateFormat)
               if (this.tabId === 1 || this.tabId === 2) {
                 this.getNewBillNo()
               }
@@ -338,37 +349,44 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   getVoucherDetailsByVoucherId(voucherId) {
     this.voucherService.getVoucherEntryDetails(voucherId).subscribe(
       (res) => {
-        if (res.Code === 1000) {
+        if (res.Code === UIConstant.THOUSAND) {
           this.editData = JSON.parse(JSON.stringify(res.Data));
           this.goToTab();
         }
       })
   }
 
+  notToDisable: number = 0
   goToTab() {
     switch (this.editType) {
       case 'Payment':
         $('#vendorPaymentTabLink').click()
+        this.notToDisable = 1
         this.onTabClick(1)
         break;
       case 'Receipt':
         $('#customerReceiptTabLink').click()
+        this.notToDisable = 2
         this.onTabClick(2)
         break;
       case 'Contra':
         $('#contraTabLink').click()
+        this.notToDisable = 3
         this.onTabClick(3)
         break;
       case 'Journal':
         $('#journalTabLink').click()
+        this.notToDisable = 4
         this.onTabClick(4)
         break;
       case 'Expences':
         $('#paymentTabLink').click()
+        this.notToDisable = 5
         this.onTabClick(5)
         break;
       case 'Income':
         $('#receiptTabLink').click()
+        this.notToDisable = 6
         this.onTabClick(6)
         break;
       default:
@@ -421,8 +439,11 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
 
   openModal() {
     this.addNewLedgerFlag = true
+    this.tabId = 1
     this.getListOfEnableLedger()
     this.getjournalRefreshList()
+    this.voucherDatas = []
+    this.voucherDataJ = []
     this.initComp()
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     setTimeout(() => {
@@ -471,47 +492,42 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       if (this.tabId === 6) {
         auto = this.voucherService.tabs[1].type
       }
-      this.voucherService.getTransactionNo(auto,
-        +this.OrgId, newVoucherDate, auto).
-        pipe(takeUntil(this.onDestroy$), filter(data => {
-          if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-        }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
-          data => {
-            if (data.length > 0) {
-              if (!this.voucherService.tabs[this.tabId - 1].voucherNoManual) {
-                this.VoucherNo = data[0].BillNo
-              } else {
-                this.previousVoucherNo = data[0].BillNo
-              }
+      this.gs.manipulateResponse(this.voucherService.getTransactionNo(auto,
+        +this.OrgId, newVoucherDate, auto)).subscribe(data => {
+          if (data.length > 0) {
+            if (!this.voucherService.tabs[this.tabId - 1].voucherNoManual) {
+              this.VoucherNo = data[0].BillNo
             } else {
-              this.previousVoucherNo = ''
-              this.VoucherNo = ''
+              this.previousVoucherNo = data[0].BillNo
             }
-          },
-          (error) => {
-            this.toastrService.showError(error, '')
-          },
-          () => {
+          } else {
+            this.previousVoucherNo = ''
+            this.VoucherNo = ''
           }
-        )
+        },
+        (error) => {
+          this.toastrService.showError(error, '')
+        },
+        () => {
+        }
+      )
     }
   }
 
   JournalDataForLedger: any = []
   loading = true
   getSPUitilityData() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.loading = true
       let _self = this
-      this.commonService.getSPUtilityData(this.voucherService.tabs[this.tabId - 1].type).pipe(takeUntil(this.onDestroy$), filter(data => {
-        if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-      }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
-        data => {
-          this.purchaseService.createOrganisations(data.Organizations)
-          this.JournalDataForLedger = data.Customers
-          let journalData = this.voucherService.allLedgerList(data.Customers, UIConstant.JOURNAL_TYPE)
+      this.gs.manipulateResponse(this.commonService.getSPUtilityData(this.voucherService.tabs[this.tabId - 1].type)).
+      subscribe(data => {
+          _self.setVoucherDate(data.TransactionNoSetups[0].CurrentDate)
+          _self.purchaseService.createOrganisations(data.Organizations)
+          _self.JournalDataForLedger = data.Customers
+          let journalData = _self.voucherService.allLedgerList(data.Customers, UIConstant.JOURNAL_TYPE)
           if (journalData) {
-            this.getLedgerJournalData(journalData)
+            _self.getLedgerJournalData(journalData)
           }
           if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.PAYMENT_TYPE
             || _self.voucherService.tabs[_self.tabId - 1].type === UIConstant.RECEIPT_TYPE) {
@@ -519,11 +535,11 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
             if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.PAYMENT_TYPE) {
               _self.voucherService.createVendors(data.Vendors, UIConstant.PAYMENT_TYPE)
             } else if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.RECEIPT_TYPE) {
-              _self.voucherService.createCustomers(data.Customers, UIConstant.RECEIPT_TYPE, this.multipleBillSettlement)
+              _self.voucherService.createCustomers(data.Customers, UIConstant.RECEIPT_TYPE, _self.multipleBillSettlement)
             }
           } else if (_self.voucherService.tabs[_self.tabId - 1].type === UIConstant.CONTRA_TYPE) {
             _self.voucherService.createVendors(data.Vendors, UIConstant.CONTRA_TYPE)
-            _self.voucherService.createCustomers(data.Customers, UIConstant.CONTRA_TYPE, this.multipleBillSettlement)
+            _self.voucherService.createCustomers(data.Customers, UIConstant.CONTRA_TYPE, _self.multipleBillSettlement)
           } else if (_self.tabId === 5 || _self.tabId === 6) {
             _self.voucherService.createVendors(data.Vendors, _self.voucherService.tabs[_self.tabId - 1].type)
           }
@@ -535,7 +551,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
         },
         () => {
           _self.loading = false
-          _self.setVoucherDate()
         }
       )
     })
@@ -663,7 +678,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       if (+event.value !== 1) {
         this.BankLedgerName = ''
         this.LedgerId = 0
-        this.setpaymentLedgerSelect2(0, +event.value)
+        this.setpaymentLedgerSelect2(+event.value)
       } else if (+event.value === 1) {
         this.setLedgerSelectForCash();
       }
@@ -680,7 +695,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }
   }
 
-  setpaymentLedgerSelect2(i, paymentId) {
+  setpaymentLedgerSelect2(paymentId) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.commonService.getPaymentLedgerDetail(paymentId).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
@@ -694,9 +709,16 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       }
       _self.paymentLedgerselect2 = newData
     },
-      (error) => console.log(error),
-      () => {
-      })
+    (error) => console.log(error),
+    () => {
+      if (this.editId) {
+        setTimeout(() => {
+          this.LedgerId = !_.isEmpty(this.editData.PaymentDetails[0]) ? this.editData.PaymentDetails[0].LedgerId : 0
+          this.ledger =  !_.isEmpty(this.editData.PaymentDetails[0]) ? this.editData.PaymentDetails[0].LedgerId : 0
+          this.checkForValidation()
+        }, 0)
+      }
+    })
   }
 
   onSelectBank(event, index) {
@@ -712,8 +734,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       this.ledgerSelect2.selector.nativeElement.value = ''
       this.commonService.openledgerCretion('', 0)
     }
-
-
   }
 
   LedgerIdJrnl: number
@@ -741,30 +761,29 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   }
 
   initPayment(Data?) {
-    let payMentData, ledgerData
+    let paymentData, ledgerData
     if (!_.isEmpty(Data)) {
-      if (!_.isEmpty(Data.PaymentDetails)) {
-        payMentData = { ...Data.PaymentDetails[0] }
-      }
-      if (!_.isEmpty(Data.LedgerVoucherMst))
-        ledgerData = { ...Data.LedgerVoucherMst[0] }
+      paymentData = { ...Data.PaymentDetails[0] }
+      ledgerData = { ...Data.LedgerVoucherMst[0] }
     }
     this.Paymode = ''
-    this.PayModeId = !_.isEmpty(payMentData) ? payMentData.PayModeId : 0
-    this.LedgerId = 0
-    this.Amount = !_.isEmpty(payMentData) ? payMentData.Amount : 0
-    this.BankLedgerName = !_.isEmpty(ledgerData) ? ledgerData.BankLedgerName : ''
+    this.PayModeId = !_.isEmpty(paymentData) ? paymentData.PayModeId : 0
+    this.Amount = !_.isEmpty(paymentData) ? paymentData.Amount : 0
+    this.BankLedgerName = !_.isEmpty(paymentData) ? paymentData.BankLedgerName : ''
     this.Narration = !_.isEmpty(ledgerData) ? ledgerData.Narration : ''
-    this.ledger = 0
-    this.paymode = !_.isEmpty(payMentData) ? payMentData.PayModeId : 0
-    if (!_.isEmpty(payMentData) && Number(payMentData.LedgerId) === 1) {
+    this.paymode = !_.isEmpty(paymentData) ? paymentData.PayModeId : 0
+    if (!_.isEmpty(paymentData) && Number(paymentData.LedgerId) === 1) {
       this.setLedgerSelectForCash()
+      this.checkForValidation()
+    } else {
+      this.setpaymentLedgerSelect2(this.PayModeId)
     }
   }
 
   @ViewChild('party_select2') partySelect2: Select2Component
   initParams() {
     this.initPayment()
+    this.notToDisable = 0
     this.PartyId = 0
     if (this.organisationsData && this.organisationsData.length > 0) {
       this.OrgId = +this.organisationsData[0].id
@@ -776,24 +795,30 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     if (this.partySelect2) {
       this.partySelect2.setElementValue(0)
     }
-    this.autoBill = true;
+    if (this.paymentSelect2) {
+      this.paymentSelect2.setElementValue(0)
+    }
+    this.autoBill = true
     this.selectAll = false
     this.advancePayment = 0
-    this.tabId = 1
     this.ledgerValue = 0
     this.voucherList = []
     this.invalidObj = {}
-    this.voucherDatas = []
     this.idsBefore = []
     this.submitSave = false
     this.dateStatus = false
   }
 
+  onAddNew () {
+    this.getNewBillNo()
+  }
 
   assignVoucherData(Data) {
+    console.log('voucher data : ', Data)
     let ledgerData
     if (!_.isEmpty(Data) && !_.isEmpty(Data.LedgerVoucherMst)) {
       ledgerData = { ...Data.LedgerVoucherMst[0] }
+      this.VoucherDate = this.gs.utcToClientDateFormat(ledgerData.VoucherDate, this.clientDateFormat)
     }
     this.initPayment(Data)
     this.PartyId = !_.isEmpty(ledgerData) ? ledgerData.LedgerId : 0
@@ -809,14 +834,15 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }
     if (!_.isEmpty(ledgerData)) {
       this.VoucherNo = ledgerData.VoucherNo
-      if (this.VoucherDate) {
-        this.VoucherDate = this.gs.utcToClientDateFormat(new Date(this.VoucherDate), this.clientDateFormat)
-      }
     }
     this.autoBill = true;
     this.selectAll = false
     this.advancePayment = 0
-    this.ledgerValue = !_.isEmpty(ledgerData) ? ledgerData.LedgerId : 0
+    if (this.tabId === 2 && this.multipleBillSettlement) {
+      this.ledgerValue = (!_.isEmpty(ledgerData) && ledgerData.LedgerIds) ? ledgerData.LedgerIds.split(',') : []
+    } else {
+      this.ledgerValue = !_.isEmpty(ledgerData) ? ledgerData.LedgerId : 0
+    }
     this.invalidObj = {}
     this.submitSave = false
     this.dateStatus = false
@@ -832,7 +858,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
         this.getAdvancePaymentBillNo(this.Amount)
       }
       this.updateAmount()
-      this.checkForValidation()
     } else {
       this.voucherList = []
     }
@@ -860,24 +885,19 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }
   }
 
-  setVoucherDate() {
-    let _self = this
-    $(function ($) {
-      flatpickr('#voucher-date', {
-        dateFormat: _self.clientDateFormat,
-        defaultDate: [_self.gs.getDefaultDate(_self.clientDateFormat)]
-      })
-    })
-    this.VoucherDate = _self.gs.getDefaultDate(_self.clientDateFormat)
+  setVoucherDate(date: string) {
+    this.VoucherDate = this.gs.utcToClientDateFormat(date, this.clientDateFormat)
+    console.log('this.VoucherDate : ', this.VoucherDate)
   }
 
   private voucherAddParams() {
-    let VoucherDate = this.gs.convertToSqlFormat(this.VoucherDate)
+    let ApplyTerms = this.voucherService.tabs[this.tabId - 1].type
+    let VoucherDate = this.gs.clientToSqlDateFormat(this.VoucherDate, this.clientDateFormat)
     if (this.tabId == 1 || this.tabId === 2 || this.tabId === 5 || this.tabId === 6) {
       let voucherList = JSON.parse(JSON.stringify(this.voucherList))
       voucherList.forEach(voucher => {
         if (voucher.BillDate) {
-          voucher.BillDate = this.gs.convertToSqlFormat(new Date(voucher.BillDate))
+          voucher.BillDate = this.gs.convertToSqlFormat(voucher.BillDate)
         }
         if (voucher.BalanceType === 'OB') {
           voucher['IsAdvance'] = 2
@@ -902,7 +922,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
         Amount: +this.Amount,
         ChequeNo: this.Narration
       }]
-
       const voucherAddParams = {
         obj: {
           Id: this.editId ? this.editId : UIConstant.ZERO,
@@ -912,9 +931,11 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           PartyId: this.PartyId,
           TotalAmount: +this.Amount,
           VoucherDate: VoucherDate,
-          IsGroupTransaction: +this.multipleBillSettlement,
+          IsGroupTransaction: (this.tabId === 2) ? +this.multipleBillSettlement : 0,
           VoucherDatas: voucherList,
-          PaymentDetails: paymentDetails
+          PaymentDetails: paymentDetails,
+          ApplyPayMethod: (this.tabId == 1 || this.tabId === 2 ) ? +this.autoBill : 1,
+          ApplyTerms: ApplyTerms
         } as VoucherAddModel
       }
       if (this.tabId === 5 || this.tabId === 6) {
@@ -943,30 +964,25 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
         TotalAmount: +this.Amount,
         VoucherDate: VoucherDate,
         Narration: this.Narration,
-        VoucherDatas: voucherData
+        VoucherDatas: voucherData,
+        ApplyPayMethod: 1,
+        ApplyTerms: ApplyTerms
       }
       return obj
     }
   }
 
-  resetForm() {
-    this.voucherDataJ = [{
-      LedgerId: '0',
-      Amount: 0,
-      Type: 0,
-      data: this.allLedgerList,
-      default: 0
-    }
-    ]
-    this.voucherDatas = [{
-      LedgerId: 0,
-      Amount: 0,
-      Type: 0,
-      data: this.paymentLedgerselect2,
-    }]
-  }
+  // resetForm() {
+    
+  //   this.voucherDatas = [{
+  //     LedgerId: 0,
+  //     Amount: 0,
+  //     Type: 0,
+  //     data: this.paymentLedgerselect2,
+  //   }]
+  // }
 
-  manipulateData() {
+  manipulateData(mode: string) {
     let _self = this
     this.submitSave = true
     if (this.checkForValidation()) {
@@ -977,10 +993,14 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           data => {
             if (data) {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
-              _self.commonService.newVoucherAdd()
-              _self.commonService.closeVoucher()
-              this.resetForm()
-              this.closeModal()
+              if (mode === 'new') {
+                _self.commonService.newVoucherAdd()
+                this.closeModal()
+              } else if (mode === 'reset') {
+                this.initParams()
+                this.onAddNew()
+              }
+              // _self.commonService.closeVoucher()
             }
           },
           (error) => {
@@ -994,10 +1014,14 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           data => {
             if (data) {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
-              _self.commonService.newVoucherAdd()
-              _self.commonService.closeVoucher()
-              this.resetForm()
-              this.closeModal()
+              if (mode === 'new') {
+                _self.commonService.newVoucherAdd()
+                this.closeModal()
+              } else if (mode === 'reset') {
+                this.setVoucherDatas(this.tabId)
+                this.initParams()
+                this.onAddNew()
+              }
             }
           },
           (error) => {
@@ -1005,6 +1029,31 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           }
         )
       }
+    }
+  }
+
+  setVoucherDatas (tabId) {
+    if (tabId === 3) {
+      this.voucherDatas = [{
+        LedgerId: '0',
+        Amount: 0,
+        Type: 0,
+        data: this.bankData,
+      },
+      {
+        LedgerId: '0',
+        Amount: 0,
+        Type: 1,
+        data: this.cashData,
+      }]
+    } else if (tabId === 4) {
+      this.voucherDataJ = [{
+        LedgerId: '0',
+        Amount: 0,
+        Type: 0,
+        data: this.allLedgerList,
+        default: 0
+      }]
     }
   }
 
@@ -1035,6 +1084,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
             element['PaymentAmount'] = 0
           }
         })
+        console.log('voucherList', this.voucherList)
       }
     } else {
       if (!_.isEmpty(this.voucherList)) {
@@ -1159,13 +1209,13 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
             storedAmount = +storedAmount + +voucher['PaymentAmount']
           }
         }
-        this.voucherList[index] = JSON.parse(JSON.stringify(voucher));
-        $(`PaymentAmount${index}`).focus();
-        if (!_.isEmpty(this.payMentAmountRef) && !_.isEmpty(this.payMentAmountRef.first)) {
-          setTimeout(() => {
-            this.payMentAmountRef.first.nativeElement.focus({ preventScroll: false })
-          }, 300);
-        }
+        // this.voucherList[index] = JSON.parse(JSON.stringify(voucher));
+        // $(`PaymentAmount${index}`).focus();
+        // if (!_.isEmpty(this.payMentAmountRef) && !_.isEmpty(this.payMentAmountRef.first)) {
+        //   setTimeout(() => {
+        //     this.payMentAmountRef.first.nativeElement.focus({ preventScroll: false })
+        //   }, 300);
+        // }
       })
       this.Amount = storedAmount + advancePayment
       if (advancePayment > 0) {
@@ -1235,6 +1285,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       return true
     }
   }
+  
 
   deleteItem(index: number): void {
     this.enableDisableLedger(+this.voucherDataJ[index].LedgerId, false)
@@ -1289,6 +1340,12 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }, 900)
   }
 
+  checkForBill () {
+    if (!this.editId) {
+      this.getNewBillNo()
+    }
+  }
+
   async onTabClick(tabId) {
     this.initParams();
     this.tabId = tabId;
@@ -1310,6 +1367,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       this.ledgerPlaceholder = { placeholder: 'Select Income' }
     }
     if (this.editId) {
+      console.log('edit data : ', this.editData)
       this.assignVoucherData(this.editData)
     }
     this.setFocus()

@@ -1603,6 +1603,7 @@ export class SalesChallanInvoiceComponent {
     })
   }
   openModalPopup () {
+    this.DisabledSaveBtn =false
     this.outStandingBalance =0
     
     this.currencyValues = [{ id: 0, symbol: '%' }]
@@ -1978,6 +1979,7 @@ export class SalesChallanInvoiceComponent {
   SupplyDateChngae: any
   CurrentDateChngae: any
   saveSaleChallan () {
+    
     this.submitSave = true
     if (this.deleteEditflag) {
        this.addItems()
@@ -1989,11 +1991,7 @@ export class SalesChallanInvoiceComponent {
 
           this.InvoiceDateChngae = this._globalService.clientToSqlDateFormat(this.InvoiceDate, this.clientDateFormat)
           this.SupplyDateChngae = this._globalService.clientToSqlDateFormat(this.SupplyDate, this.clientDateFormat)
-          if (this.CurrentDate !== '') {
-            this.CurrentDateChngae = this._globalService.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
-          } else {
-            this.CurrentDateChngae = ''
-          }
+          
           let obj = {}
           obj['Id'] = this.Id === 0 ? 0 : this.Id
           obj['PartyId'] = this.clientNameId
@@ -2414,6 +2412,22 @@ this.AlreadySelectCategoryName = evt.data[0].text
     console.log('childmostId id : ', childmostId)
     console.log('this.categoryId id : ', this.categoryId)
     if (this.categoryId !== childmostId || this.editItemId !== -1) {
+      let pattern = [childmostId]
+      this.catSelect2.forEach(() => {
+        let parent = this.getParentCat(childmostId)
+        if (parent !== 0) {
+          pattern.push(parent)
+          childmostId = parent
+        }
+      })
+      pattern = pattern.reverse()
+      setTimeout(() => {
+        this.catSelect2.forEach((item: Select2Component, index: number) => {
+          item.setElementValue(pattern[index])
+        })
+      }, 100)
+    }
+    else{
       let pattern = [childmostId]
       this.catSelect2.forEach(() => {
         let parent = this.getParentCat(childmostId)

@@ -1,21 +1,7 @@
-<div
-  class="modal fade"
-  id="add_user"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="add_user"
-  aria-hidden="true"
->
-  <div
-    class="modal-dialog large_form modal-full-height modal-top"
-    role="document"
-  >
+<div class="modal fade" id="add_user" tabindex="-1" role="dialog" aria-labelledby="add_user" aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
     <div class="modal-content bgcH-grey-100 bgc-grey">
-      <form
-        #userFormModel="ngForm"
-        (ngSubmit)="userFormModel.form.valid && validateForm() && saveUser()"
-        novalidate
-      >
+      <form #userFormModel="ngForm" (ngSubmit)="userFormModel.form.valid && validateForm() && saveUser()" novalidate>
         <!--Header-->
         <div class="modal-header primary-bg">
           <div class="container-fluid">
@@ -27,30 +13,16 @@
               </div>
               <div class="col-md-9">
                 <div class="btn_header">
-                  <button
-                    type="button"
-                    class="btn btn_close waves-effect"
-                    (click)="resetFormData()"
-                  >
+                  <button type="button" class="btn btn_close waves-effect" (click)="resetFormData()">
                     Reset
                   </button>
                   <button type="submit" class="btn btn-default waves-effect">
                     Save
                   </button>
-                  <button
-                    type="submit"
-                    (click)="setAddNew()"
-                    class="btn btn-default waves-effect"
-                  >
+                  <button type="submit" (click)="setAddNew()" class="btn btn-default waves-effect">
                     Save With Add New
                   </button>
-                  <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                    (click)="closeForm()"
-                  >
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeForm()">
                     <span aria-hidden="true" class="white-text">×</span>
                   </button>
                 </div>
@@ -66,92 +38,67 @@
               <div class="card-body">
                 <div>
                   <div class="form-row">
-                    <div
-                      *ngIf="userType === 'SA' || userType === 'Admin'"
-                      class="form-group col-md-4"
-                    >
-                      <label>Client</label>
+                    <ng-container   *ngIf="disabledFlagOrgBranch">
+                        <div *ngIf="Multiorgnization" class="form-group col-md-4">
+                            <label>Orgnization</label>
+                            <div class="input-group adw_select">
+                              <div class="input-group adw_select">
+                                <select2  [data]="orgnizationData" class="control_select" (valueChanged)="onBranchChange($event)"
+                                  autocomplete="true" [value]="model?.orgId" [ngClass]="{
+                                    errorSelecto:
+                                      userFormModel?.submitted &&
+                                      user?.selectedBranch?.id === '0'
+                                  }">
+                                </select2>
+                              </div>
+                            </div>
+                          </div>
+                    </ng-container  >
+                    <ng-container   *ngIf="disabledFlagOrgBranch">
+                        <div *ngIf="MultiBranch" class="form-group col-md-4">
+                            <label>Branch</label>
+                            <div class="input-group adw_select">
+                                <div class="input-group adw_select">
+                                  <select2   [data]="branchData" class="control_select" (valueChanged)="onBranchChange($event)"
+                                    autocomplete="true" [value]="model?.branchId" [ngClass]="{
+                                      errorSelecto:
+                                        userFormModel?.submitted &&
+                                        user?.selectedBranch?.id === '0'
+                                    }">
+                                  </select2>
+                                </div>
+                              </div>
+                          </div>
+                    </ng-container >
+                            
+                      
+                 
+                   
+                    <!-- <div *ngIf="userType === 'SA' || userType === 'Admin'" class="form-group col-md-4"> -->
+                      <!-- <label>Office</label>
                       <div class="input-group adw_select">
                         <div class="input-group adw_select">
-                          <select2
-                            [data]="clientData"
-                            [disabled]="userType === 'Admin'"
-                            class="control_select"
-                            (valueChanged)="onClientChange($event)"
-                            autocomplete="true"
-                            [value]="model?.clientId"
-                            [ngClass]="{
-                              errorSelecto:
-                                userFormModel?.submitted &&
-                                user?.selectedClient?.id === '0'
-                            }"
-                          >
-                          </select2>
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      *ngIf="userType === 'SA' || userType === 'Admin'"
-                      class="form-group col-md-4"
-                    >
-                      <label>Branch</label>
-                      <div class="input-group adw_select">
-                        <div class="input-group adw_select">
-                          <select2
-                            [data]="branchData"
-                            class="control_select"
-                            (valueChanged)="onBranchChange($event)"
-                            autocomplete="true"
-                            [value]="model?.branchId"
-                            [ngClass]="{
-                              errorSelecto:
-                                userFormModel?.submitted &&
-                                user?.selectedBranch?.id === '0'
-                            }"
-                          >
-                          </select2>
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      *ngIf="userType === 'SA' || userType === 'Admin'"
-                      class="form-group col-md-4"
-                    >
-                      <label>Office</label>
-                      <div class="input-group adw_select">
-                        <div class="input-group adw_select">
-                          <select2
-                            [data]="officeData"
-                            class="control_select"
-                            (valueChanged)="onOfficeChange($event)"
-                            autocomplete="true"
-                            [value]="model?.officeId"
-                            [ngClass]="{
+                          <select2 [data]="officeData" class="control_select" (valueChanged)="onOfficeChange($event)"
+                            autocomplete="true" [value]="model?.officeId" [ngClass]="{
                               errorSelecto:
                                 userFormModel?.submitted &&
                                 user?.selectedOffice?.id === '0'
-                            }"
-                          >
+                            }">
                           </select2>
                         </div>
-                      </div>
-                    </div>
+                      </div> -->
+                    <!-- </div> -->
                     <div class="form-group col-md-4">
                       <label>User Type</label>
                       <div class="input-group adw_select">
                         <div class="input-group adw_select">
-                          <select2
-                            [data]="userTypeData"
-                            class="control_select"
-                            (valueChanged)="onUserTypeChange($event)"
-                            autocomplete="true"
-                            [value]="model?.userTypeId"
+                          <select2 [data]="userTypeData" class="control_select"
+                            (valueChanged)="onUserTypeChange($event)" autocomplete="true" [value]="model?.userTypeId"
                             [ngClass]="{
                               errorSelecto:
                                 userFormModel?.submitted &&
                                 user?.selectedUserType?.id === '0'
-                            }"
-                          >
+                            }">
                           </select2>
                         </div>
                       </div>
@@ -160,18 +107,13 @@
                       <label>Under Type</label>
                       <div class="input-group adw_select">
                         <div class="input-group adw_select">
-                          <select2
-                            [data]="underTypeData"
-                            class="control_select"
-                            (valueChanged)="onUnderTypeChange($event)"
-                            autocomplete="true"
-                            [value]="model?.underTypeId"
+                          <select2 [data]="underTypeData" class="control_select"
+                            (valueChanged)="onUnderTypeChange($event)" autocomplete="true" [value]="model?.underTypeId"
                             [ngClass]="{
                               errorSelecto:
                                 userFormModel?.submitted &&
                                 user?.selectedUnderType?.id === '0'
-                            }"
-                          >
+                            }">
                           </select2>
                         </div>
                       </div>
@@ -180,18 +122,13 @@
                       <label>Under User</label>
                       <div class="input-group adw_select">
                         <div class="input-group adw_select">
-                          <select2
-                            [data]="underUserData"
-                            class="control_select"
-                            (valueChanged)="onUnderUserChange($event)"
-                            autocomplete="true"
-                            [value]="model?.underUserId"
+                          <select2 [data]="underUserData" class="control_select"
+                            (valueChanged)="onUnderUserChange($event)" autocomplete="true" [value]="model?.underUserId"
                             [ngClass]="{
                               errorSelecto:
                                 userFormModel?.submitted &&
                                 user?.selectedUnderUser?.id === '0'
-                            }"
-                          >
+                            }">
                           </select2>
                         </div>
                       </div>
@@ -199,154 +136,76 @@
 
                     <div class="form-group col-md-4">
                       <label>Name</label>
-                      <input
-                        #nameModel="ngModel"
-                        name="nameInput"
-                        [(ngModel)]="user.name"
-                        type="text"
-                        class="form-control"
-                        placeholder="Enter Name"
-                        [ngClass]="{
+                      <input #nameModel="ngModel" name="nameInput" [(ngModel)]="user.name" type="text"
+                        class="form-control" placeholder="Enter Name" [ngClass]="{
                           'is-invalid':
                             userFormModel.submitted && nameModel.invalid
-                        }"
-                        required
-                      />
+                        }" required />
                     </div>
                     <div class="form-group col-md-4">
                       <label>User Name</label>
-                      <input
-                        autocomplete="off"
-                        #userNameModel="ngModel"
-                        name="userName"
-                        [(ngModel)]="user.userName"
-                        type="text"
-                        class="form-control"
-                        placeholder="Enter User Name"
-                        [ngClass]="{
+                      <input autocomplete="off" #userNameModel="ngModel" name="userName" [(ngModel)]="user.userName"
+                        type="text" class="form-control" placeholder="Enter User Name" [ngClass]="{
                           'is-invalid':
                             userFormModel.submitted && userNameModel.invalid
-                        }"
-                        required
-                      />
+                        }" required />
                     </div>
                     <div class="form-group col-md-4">
                       <label>Password</label>
-                      <input
-                        autocomplete="off"
-                        #passwordModel="ngModel"
-                        name="password"
-                        [(ngModel)]="user.password"
-                        type="password"
-                        class="form-control"
-                        placeholder="Enter Password"
-                        [ngClass]="{
+                      <input autocomplete="off" #passwordModel="ngModel" name="password" [(ngModel)]="user.password"
+                        type="password" class="form-control" placeholder="Enter Password" [ngClass]="{
                           'is-invalid':
                             userFormModel.submitted && passwordModel.invalid
-                        }"
-                        required
-                      />
+                        }" required />
                     </div>
                   </div>
 
                   <div class="form-row">
                     <div class="form-group col-md-4">
                       <label class="fw-500">InTime</label>
-                      <input
-                        class="form-control"
-                        [owlDateTimeTrigger]="dt4"
-                        name="inTimeInput"
-                        [(ngModel)]="user.inTime"
-                        [owlDateTime]="dt4"
-                      />
-                      <owl-date-time
-                        [pickerType]="'timer'"
-                        #dt4
-                      ></owl-date-time>
+                      <input class="form-control" [owlDateTimeTrigger]="dt4" name="inTimeInput"
+                        [(ngModel)]="user.inTime" [owlDateTime]="dt4" />
+                      <owl-date-time [pickerType]="'timer'" #dt4></owl-date-time>
                     </div>
                     <div class="form-group col-md-4">
                       <label class="fw-500">Out Time</label>
-                      <input
-                        class="form-control"
-                        [owlDateTimeTrigger]="dt3"
-                        name="outTimeInput"
-                        [(ngModel)]="user.outTime"
-                        [owlDateTime]="dt3"
-                      />
-                      <owl-date-time
-                        [pickerType]="'timer'"
-                        #dt3
-                      ></owl-date-time>
+                      <input class="form-control" [owlDateTimeTrigger]="dt3" name="outTimeInput"
+                        [(ngModel)]="user.outTime" [owlDateTime]="dt3" />
+                      <owl-date-time [pickerType]="'timer'" #dt3></owl-date-time>
                     </div>
-                    <div
-                      class="form-group col-md-3 custom-control custom-checkbox mt-4 pt-1 mr-4"
-                    >
-                      <input
-                        type="checkbox"
-                        class="custom-control-input"
-                        id="isuset"
-                        #isUseTimeModel="ngModel"
-                        name="isUseTimeCheckBox"
-                        [(ngModel)]="user.isUseTime"
-                      />
-                      <label class="custom-control-label  ml-4" for="isuset"
-                        >Is Use Time for User</label
-                      >
+                    <div class="form-group col-md-3 custom-control custom-checkbox mt-4 pt-1 mr-4">
+                      <input type="checkbox" class="custom-control-input" id="isuset" #isUseTimeModel="ngModel"
+                        name="isUseTimeCheckBox" [(ngModel)]="user.isUseTime" />
+                      <label class="custom-control-label  ml-4" for="isuset">Is Use Time for User</label>
                     </div>
                   </div>
 
                   <div class="form-row">
                     <div class="form-group col-md-4">
                       <label>Email Id (Send Mail)</label>
-                      <input
-                        #emailModel="ngModel"
-                        name="emailInput"
-                        [(ngModel)]="user.email"
-                        type="text"
-                        class="form-control"
-                        placeholder="Enter Email Id"
-                      />
+                      <input #emailModel="ngModel" name="emailInput" [(ngModel)]="user.email" type="text"
+                        class="form-control" placeholder="Enter Email Id" />
                     </div>
                     <div class="form-group col-md-4">
                       <label>Password (Send Mail)</label>
-                      <input
-                        #emailPasswordModel="ngModel"
-                        name="emailPasswordInput"
-                        [(ngModel)]="user.emailPassword"
-                        type="password"
-                        class="form-control"
-                        placeholder="Enter Password"
-                      />
+                      <input #emailPasswordModel="ngModel" name="emailPasswordInput" [(ngModel)]="user.emailPassword"
+                        type="password" class="form-control" placeholder="Enter Password" />
                     </div>
-                    <div
-                      class="form-group col-md-3 custom-control custom-checkbox mt-4 pt-1 mr-4"
-                    >
-                      <input
-                        type="checkbox"
-                        class="custom-control-input"
-                        id="isuse"
-                        #isUseEmailModel="ngModel"
-                        name="isUseEmailCheckBox"
-                        [(ngModel)]="user.isUseEmail"
-                      />
-                      <label class="custom-control-label ml-4" for="isuse"
-                        >Is Use Email for User</label
-                      >
+                    <div class="form-group col-md-3 custom-control custom-checkbox mt-4 pt-1 mr-4">
+                      <input type="checkbox" class="custom-control-input" id="isuse" #isUseEmailModel="ngModel"
+                        name="isUseEmailCheckBox" [(ngModel)]="user.isUseEmail" />
+                      <label class="custom-control-label ml-4" for="isuse">Is Use Email for User</label>
                     </div>
                   </div>
 
                   <div class="form-row">
                     <div class="col-lg-6">
                       <div class="card">
-                        <form
-                          #mobileDetailModel="ngForm"
-                          (ngSubmit)="
+                        <form #mobileDetailModel="ngForm" (ngSubmit)="
                             mobileDetailModel.form.valid &&
                               validateMobileDetail() &&
                               addNewMobileDetail()
-                          "
-                          novalidate
-                        >
+                          " novalidate>
                           <table class="table editable_tbl" style="width: 100%">
                             <thead>
                               <tr>
@@ -356,28 +215,18 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <tr
-                                class="default_row"
-                                *ngFor="
+                              <tr class="default_row" *ngFor="
                                   let item of user?.mobileArray;
                                   let i = index
-                                "
-                                class="default_row"
-                              >
+                                " class="default_row">
                                 <td class="profile-pic1">
                                   <div class="edit1">
                                     <a>
-                                      <i
-                                        class="fas fa-pen fa-1x"
-                                        (click)="editMobileDetail(i)"
-                                      ></i>
+                                      <i class="fas fa-pen fa-1x" (click)="editMobileDetail(i)"></i>
                                     </a>
                                     <a>
-                                      <i
-                                        aria-hidden="true"
-                                        class="fa fa-trash fa-1x"
-                                        (click)="removeMobileDetail(i)"
-                                      ></i>
+                                      <i aria-hidden="true" class="fa fa-trash fa-1x"
+                                        (click)="removeMobileDetail(i)"></i>
                                     </a>
                                   </div>
                                 </td>
@@ -394,54 +243,34 @@
                               </tr>
                               <tr class="selected_row">
                                 <td>
-                                  <button
-                                    type="submit"
-                                    id="btn_add1"
-                                    class="btn btn-primary btn_add_more"
-                                  >
+                                  <button type="submit" id="btn_add1" class="btn btn-primary btn_add_more">
                                     +
                                   </button>
                                 </td>
                                 <td>
-                                  <select
-                                    class="form-control"
-                                    name="mobileType"
-                                    [(ngModel)]="
+                                  <select class="form-control" name="mobileType" [(ngModel)]="
                                       mobileDetail.selectedMobileType
-                                    "
-                                    [ngClass]="{
+                                    " [ngClass]="{
                                       'is-invalid':
                                         mobileDetailModel?.submitted &&
                                         !mobileDetail?.selectedMobileType
-                                    }"
-                                    required
-                                  >
-                                    <option
-                                      *ngFor="
+                                    }" required>
+                                    <option *ngFor="
                                         let item of mobileTypeList;
                                         let i = index
-                                      "
-                                      [value]="i + 1"
-                                    >
-                                      {{ item }}</option
-                                    >
+                                      " [value]="i + 1">
+                                      {{ item }}</option>
                                   </select>
                                 </td>
                                 <td>
                                   <div class="mobile_code">
-                                    <select2
-                                      [data]="mobileCountryCodeList"
-                                      style="width:120px !important;"
-                                      class="control_select"
-                                      (valueChanged)="
+                                    <select2 [data]="mobileCountryCodeList" style="width:120px !important;"
+                                      class="control_select" (valueChanged)="
                                         onCountryCodeSelectionChange($event)
-                                      "
-                                      autocomplete="true"
-                                      [value]="
+                                      " autocomplete="true" [value]="
                                         mobileDetail.selectedMobileCountryCode
                                           ?.id
-                                      "
-                                      [ngClass]="{
+                                      " [ngClass]="{
                                         errorSelecto:
                                           (mobileDetailModel?.submitted &&
                                             mobileDetail
@@ -449,39 +278,27 @@
                                               ?.id === '0') ||
                                           (userFormModel?.submitted &&
                                             user?.mobileArray?.length === 0)
-                                      }"
-                                    >
+                                      }">
                                     </select2>
-                                    <input
-                                      [disabled]="
+                                    <input [disabled]="
                                         mobileDetail?.selectedMobileCountryCode
                                           ?.id === '0'
-                                      "
-                                      type="text"
-                                      class="form-control code_text"
-                                      (keypress)="
+                                      " type="text" class="form-control code_text" (keypress)="
                                         _commonService.isNumber($event)
-                                      "
-                                      name="mobileInput"
-                                      [(ngModel)]="mobileDetail.mobileNo"
-                                      #mobileNoModel="ngModel"
+                                      " name="mobileInput" [(ngModel)]="mobileDetail.mobileNo" #mobileNoModel="ngModel"
                                       [ngClass]="{
                                         'is-invalid':
                                           (mobileDetailModel?.submitted &&
                                             mobileNoModel.invalid) ||
                                           (userFormModel?.submitted &&
                                             user?.mobileArray?.length === 0)
-                                      }"
-                                      required
-                                      [minlength]="
+                                      }" required [minlength]="
                                         mobileDetail?.selectedMobileCountryCode
                                           ?.contactLength
-                                      "
-                                      [maxlength]="
+                                      " [maxlength]="
                                         mobileDetail?.selectedMobileCountryCode
                                           ?.contactLength
-                                      "
-                                    />
+                                      " />
                                   </div>
                                 </td>
                               </tr>
@@ -492,13 +309,9 @@
                     </div>
                     <div class="col-lg-6">
                       <div class="card">
-                        <form
-                          #emailDetailModel="ngForm"
-                          (ngSubmit)="
+                        <form #emailDetailModel="ngForm" (ngSubmit)="
                             emailDetailModel.form.valid && addNewEmailDetail()
-                          "
-                          novalidate
-                        >
+                          " novalidate>
                           <table class="table editable_tbl" style="width: 100%">
                             <thead>
                               <tr>
@@ -508,28 +321,18 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <tr
-                                class="default_row"
-                                *ngFor="
+                              <tr class="default_row" *ngFor="
                                   let item of user?.emailArray;
                                   let i = index
-                                "
-                                class="default_row"
-                              >
+                                " class="default_row">
                                 <td class="profile-pic1">
                                   <div class="edit1">
                                     <a>
-                                      <i
-                                        class="fas fa-pen fa-1x"
-                                        (click)="editEmailDetail(i)"
-                                      ></i>
+                                      <i class="fas fa-pen fa-1x" (click)="editEmailDetail(i)"></i>
                                     </a>
                                     <a>
-                                      <i
-                                        aria-hidden="true"
-                                        class="fa fa-trash fa-1x"
-                                        (click)="removeEmailDetail(i)"
-                                      ></i>
+                                      <i aria-hidden="true" class="fa fa-trash fa-1x"
+                                        (click)="removeEmailDetail(i)"></i>
                                     </a>
                                   </div>
                                 </td>
@@ -540,55 +343,35 @@
                               </tr>
                               <tr class="selected_row ">
                                 <td>
-                                  <button
-                                    type="submit"
-                                    id="btn_add"
-                                    class="btn btn-primary btn_add_more"
-                                  >
+                                  <button type="submit" id="btn_add" class="btn btn-primary btn_add_more">
                                     +
                                   </button>
                                 </td>
                                 <td>
-                                  <select
-                                    class="form-control"
-                                    name="emailType"
-                                    [(ngModel)]="emailDetail.selectedEmailType"
-                                    [ngClass]="{
+                                  <select class="form-control" name="emailType"
+                                    [(ngModel)]="emailDetail.selectedEmailType" [ngClass]="{
                                       'is-invalid':
                                         emailDetailModel?.submitted &&
                                         !emailDetail?.selectedEmailType
-                                    }"
-                                    required
-                                  >
-                                    <option
-                                      *ngFor="
+                                    }" required>
+                                    <option *ngFor="
                                         let item of emailTypeList;
                                         let i = index
-                                      "
-                                      [value]="i"
-                                    >
-                                      {{ item }}</option
-                                    >
+                                      " [value]="i">
+                                      {{ item }}</option>
                                   </select>
                                 </td>
                                 <td>
-                                  <input
-                                    type="text"
-                                    class="form-control"
-                                    name="emailInput"
-                                    #emailModel="ngModel"
+                                  <input type="text" class="form-control" name="emailInput" #emailModel="ngModel"
                                     [(ngModel)]="emailDetail.selectedEmail"
-                                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
-                                    [ngClass]="{
+                                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$" [ngClass]="{
                                       'is-invalid':
                                         (emailDetailModel?.submitted &&
                                           (!emailDetail.selectedEmail ||
                                             emailModel?.errors?.pattern)) ||
                                         (userFormModel?.submitted &&
                                           user?.emailArray?.length === 0)
-                                    }"
-                                    required
-                                  />
+                                    }" required />
                                 </td>
                               </tr>
                             </tbody>

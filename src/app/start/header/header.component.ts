@@ -1,7 +1,5 @@
 import { LoginService } from './../../commonServices/login/login.services';
 import { Component } from '@angular/core'
-import { TokenService } from '../../commonServices/token.service'
-import { Router } from '@angular/router';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { Settings } from 'src/app/shared/constants/settings.constant';
 declare const $: any
@@ -18,10 +16,13 @@ export class HeaderComponent {
   }
   clientDateFormat: string = ''
   constructor (
-    private _tokenServices: TokenService,
-    private router: Router,
     private settings: Settings,
-    public _loginService: LoginService) {
+    public _loginService: LoginService,
+    private commonService: CommonService) {
+    this.commonService.setupChange$.subscribe(() => {
+      this.clientDateFormat = this.settings.dateFormat
+    })
+    console.log(this.settings.dateFormat)
     this.clientDateFormat = this.settings.dateFormat
     const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
     this.loggedinUserData = {

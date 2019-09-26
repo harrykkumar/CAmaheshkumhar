@@ -300,8 +300,8 @@ export class PurchaseService {
     return this.baseService.getRequest(ApiConstant.GET_ADDRESS_OF_VENDOR + vendorId)
   }
 
-  getItemDetail (itemId) {
-    return this.baseService.getRequest(ApiConstant.GET_ITEM_DETAIL + itemId)
+  getItemDetail (itemId,BillDate,Barcode) {
+    return this.baseService.getRequest(ApiConstant.GET_ITEM_DETAIL + itemId +'&BillDate='+BillDate+'&BarCode='+Barcode)
   }
 
   getSlabData (id) {

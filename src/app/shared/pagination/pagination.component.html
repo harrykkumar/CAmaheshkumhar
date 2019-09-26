@@ -6,7 +6,7 @@
       </select>
     </div>
     <div>
-      <pagination-controls (pageChange)="p = $event;onPageChange(p);"></pagination-controls>
+      <pagination-controls [id]="id" (pageChange)="p = $event;onPageChange(p);"></pagination-controls>
     </div>
   </div>
 </div>

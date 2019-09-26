@@ -924,13 +924,14 @@ export class CompanyProfileComponent implements OnInit{
     this.spinnerService.show();
     this._orgService.getCompanyProfileDetails(this.modalData.editId).subscribe(
       (Data: any) => {
-        console.log('getCompanyProfileDetails : ', Data)
         if (Data.Code === UIConstant.THOUSAND) {
           this.initFormData(Data.Data)
+
         }
       }, error => console.log(error)
     )
   }
+ 
 
   /* Function to initialise all form fields by profile data */
   initFormData = (profileData) => {

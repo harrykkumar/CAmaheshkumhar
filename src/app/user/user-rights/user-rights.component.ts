@@ -23,7 +23,13 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   toggledModule: any = {}
   sideMenu: Array<any> = []
   rights: any = {}
+  dummyData: any = {}
+  orgnizationData: Array<any> = []
+  branchData: Array<any> = []
   model: any = {}
+  disabledFlagOrgBranch:boolean
+  Multiorgnization:number=0
+  MultiBranch:number=0
   private unSubscribe$ = new Subject<void>()
   userTypeData: Array<any> = []
   userData: Array<any> = []
@@ -33,16 +39,75 @@ export class UserRightsComponent implements OnInit, OnDestroy {
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
     private _loginService: LoginService
-  ) { }
+  ) {
+    this.getBranchList('Branch')
+    this.getOrgnizationList()
+    this.checkLoginUserCodematch()
+   }
 
   ngOnInit() {
     this.userTypeData = [{ id: UIConstant.ZERO, text: 'Select User Type' }]
     this.userData = [{ id: UIConstant.ZERO, text: 'Select User' }]
+    this.Multiorgnization = this._loginService.userData.LoginUserDetailsinfo[0].MO
+    this.MultiBranch = this._loginService.userData.LoginUserDetailsinfo[0].MB
+
     this.getUserTypeList()
     this.initSideMenuData()
     this.initUpdatePermission()
   }
+  checkLoginUserCodematch () {
+    if(this._loginService.loginUserDetails.Code === this._loginService.userData.LoginUserDetailsinfo[0].Code){
+      this.disabledFlagOrgBranch = true
+    }
+    else{
+      this.disabledFlagOrgBranch = false
+    }
+  }
+  /* Function to get branch list data */
+  getBranchList = (type) => {
+    this._userService.getBranchListByType('?RequestFrom='+type).
+      pipe(takeUntil(this.unSubscribe$),
+        map((data) => {
+          const list = _.map(data.Data, (element) => {
+            return {
+              id: element.Id,
+              text: element.Name,
+              data: { ...element }
+            }
+          })
+          return [{ id: UIConstant.ZERO, text: 'Select'+ type }, ...list]
+        })
+      ).subscribe((res) => {
+        this.branchData = res
+        if (this.branchData.length > 1 && this.dummyData.selectedBranch && this.dummyData.selectedBranch.id) {
+          this.model.branchId = this.dummyData.selectedBranch.id
+          this.dummyData.selectedBranch.id = 0
+        }
+      }, error => console.log(error))
+  }
 
+  /* Function to get office list data */
+  getOrgnizationList = () => {
+    this._orgService.getCompanyProfile().
+      pipe(takeUntil(this.unSubscribe$),
+        map((data) => {
+          const list = _.map(data.Data, (element) => {
+            return {
+              id: element.Id,
+              text: element.Name,
+              data: { ...element }
+            }
+          })
+          return [{ id: UIConstant.ZERO, text: 'Select Orgnization' }, ...list]
+        })
+      ).subscribe((res) => {
+        this.orgnizationData = res
+        if (this.orgnizationData.length > 1 && this.dummyData.selectedOffice && this.dummyData.selectedOffice.id) {
+          this.model.officeId = this.dummyData.selectedOffice.id
+          this.dummyData.selectedOffice.id = 0
+        }
+      }, error => console.log(error))
+  }
   initSideMenuData = () => {
     const data = {
       Id: 0,
@@ -55,6 +120,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
         await this.mapSideMenus(response)
         await this.mapPermissions(response)
         this.moduleList = [...response.Data.Modules]
+        console.log(this.moduleList)
         if (_.isEmpty(this.toggledModule)) {
           this.onToggleModule(this.moduleList[0], 0)
         }
@@ -65,8 +131,8 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   mapSideMenus = (response) => {
     return new Promise((resolve, reject) => {
       _.map(response.Data.Modules, (module) => {
-        if (MODULES_IMG_SRC[`${module.Name}`]) {
-          module['src'] = MODULES_IMG_SRC[`${module.Name}`]['src']
+        if (MODULES_IMG_SRC[`${module.Id}`]) {
+          module['src'] = MODULES_IMG_SRC[`${module.Id}`]['src']
         }
         module.sideMenu = _.filter(response.Data.Menus, (menu) => {
           if (menu.ParentId === 0 && menu.ModuleId === module.Id) {

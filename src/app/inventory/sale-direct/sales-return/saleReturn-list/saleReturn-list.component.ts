@@ -80,7 +80,7 @@ export class SaleReturnDirectListComponent implements OnInit {
         this.getSaleReturnList()
       }
     )
-    this.redirectData = this.commonService.reDirectPrintSaleStatus().subscribe(
+    this.redirectData = this.commonService.reDirectViewListOfSaleStatus().subscribe(
       (action: any) => {
         this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
         this.getSaleReturnList()

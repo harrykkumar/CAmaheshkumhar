@@ -1,4 +1,3 @@
-import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 // File created by dolly garg
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { SettingsService } from '../settings.service';
@@ -14,10 +13,8 @@ import { LoginService } from 'src/app/commonServices/login/login.services';
 import * as _ from 'lodash'
 import { Router } from '@angular/router';
 import { Settings } from 'src/app/shared/constants/settings.constant';
-import { NgxSpinner } from 'ngx-spinner/lib/ngx-spinner.enum';
 import { NgxSpinnerService } from 'ngx-spinner';
-
-
+import { CommonService } from '../../commonServices/commanmaster/common.services';
 @Component({
   selector: 'app-setting-master',
   templateUrl: './master-setting.component.html',
@@ -32,9 +29,9 @@ export class MasterSettingComponent implements OnInit, AfterViewInit {
   constructor (private settingsService: SettingsService,
      private toastrService: ToastrCustomService,
      private _loginService: LoginService,
-     private _commonService: CommonService,
      private router: Router,
      private _settings:Settings,
+     private commonService: CommonService,
      private spinnerService: NgxSpinnerService) {
     this.saveSub$ = this.settingsService.saveSub$.subscribe(
       (obj) => {
@@ -218,7 +215,7 @@ export class MasterSettingComponent implements OnInit, AfterViewInit {
       }
     }))
     if (newSettings.length === 0) {
-      this.toastrService.showError('Select atleast 1 setting to save', '')
+      this.toastrService.showErrorLong('Select atleast 1 setting to save', '')
       isValid = false
     }
     if (isValid) {
@@ -234,6 +231,7 @@ export class MasterSettingComponent implements OnInit, AfterViewInit {
               const selectedModule =  JSON.parse(localStorage.getItem('SELECTED_MODULE'))
               this._settings.removeModuleSettings()
               await this._loginService.getAllSettings(selectedModule.Id)
+              this.commonService.onSetupChange()
             }
           } else {
             throw new Error(data.Description)

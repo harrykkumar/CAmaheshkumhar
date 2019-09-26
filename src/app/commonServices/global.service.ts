@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core'
 import { Settings } from '../shared/constants/settings.constant'
 import { SetUpIds } from '../shared/constants/setupIds.constant';
+import { Observable, throwError } from 'rxjs';
+import { ResponseSale } from '../model/sales-tracker.model';
+import { filter, map } from 'rxjs/operators';
+import { UIConstant } from '../shared/constants/ui-constant';
+import { catchError } from 'rxjs/internal/operators/catchError';
 @Injectable({
   providedIn: 'root'
 })
@@ -141,6 +146,7 @@ export class GlobalService {
   }
 
   removeSpecialCharacter (str) {
+    str = '' + str
     if (str) {
       str = str.replace(/[^\w\s\r\t\n]/gi, '')
       str = str.trim()
@@ -795,101 +801,113 @@ export class GlobalService {
   }
 
   dateInParts (date, splitter, first, second, last): any {
-    let day = -1
-    let month = -1
-    let year = -1
-    let parts = date.split(splitter)
-    year = parseInt(parts[2], 10)
-    if (first === 'd' && second === 'm') {
-      day = parseInt(parts[0], 10)
-      month = parseInt(parts[1], 10)
-    } else if (first === 'm' && second === 'd') {
-      day = parseInt(parts[1], 10)
-      month = parseInt(parts[0], 10)
-    }
-    if (last === 'y') {
-      let newDate = month + '/' + day + '/' + year
-      year = new Date(this.sqlToUtc(newDate)).getFullYear()
-    }
-    const isValidDate = this.isValidDate(month + '/' + day + '/' + year)
-    if (isValidDate) {
-      return [year, month - 1, day]
+    if (date) {
+      let day = -1
+      let month = -1
+      let year = -1
+      let parts = date.split(splitter)
+      year = parseInt(parts[2], 10)
+      if (first === 'd' && second === 'm') {
+        day = parseInt(parts[0], 10)
+        month = parseInt(parts[1], 10)
+      } else if (first === 'm' && second === 'd') {
+        day = parseInt(parts[1], 10)
+        month = parseInt(parts[0], 10)
+      }
+      if (last === 'y') {
+        let newDate = month + '/' + day + '/' + year
+        year = new Date(this.sqlToUtc(newDate)).getFullYear()
+      }
+      const isValidDate = this.isValidDate(month + '/' + day + '/' + year)
+      if (isValidDate) {
+        return [year, month - 1, day]
+      } else {
+        return ''
+      }
     } else {
       return ''
     }
   }
 
   convertToClientDateFormat (date, splitter, first, second, last) {
-    const months = ['Jan', 'Feb', 'Mar',
-      'Apr', 'May', 'Jun', 'Jul', 'Aug',
-      'Sep', 'Oct', 'Nov', 'Dec'
-    ]
-    let d = new Date(date)
-    let day = d.getDate().toString()
-    let year = d.getFullYear().toString()
-    let month = d.getMonth().toString()
-    if (last === 'y') {
-      year = year.substring(2,4)
-    }
-    if (first === 'M' || second === 'M') {
-      month = months[month]
-    }
-    if (first === 'm' || second === 'm') {
-      month = '' + (+month + 1)
-    }
-    if (+month < 10) {
-      month = '0' + month
-    }
-    if (+day < 10) {
-      day = '0' + day
-    }
+    if (date) {
+      const months = ['Jan', 'Feb', 'Mar',
+        'Apr', 'May', 'Jun', 'Jul', 'Aug',
+        'Sep', 'Oct', 'Nov', 'Dec'
+      ]
+      let d = new Date(date)
+      let day = d.getDate().toString()
+      let year = d.getFullYear().toString()
+      let month = d.getMonth().toString()
+      if (last === 'y') {
+        year = year.substring(2,4)
+      }
+      if (first === 'M' || second === 'M') {
+        month = months[month]
+      }
+      if (first === 'm' || second === 'm') {
+        month = '' + (+month + 1)
+      }
+      if (+month < 10) {
+        month = '0' + month
+      }
+      if (+day < 10) {
+        day = '0' + day
+      }
 
-    let dateToSend = ''
-    if (first === 'd') {
-      dateToSend = day + splitter + month + splitter + year
+      let dateToSend = ''
+      if (first === 'd') {
+        dateToSend = day + splitter + month + splitter + year
+      } else {
+        dateToSend = month + splitter + day + splitter + year
+      }
+      return dateToSend
     } else {
-      dateToSend = month + splitter + day + splitter + year
+      return ''
     }
-    return dateToSend
   }
 
   convertFromClientToSql (date, splitter, first, second, last) {
-    const months = ['Jan', 'Feb', 'Mar',
-      'Apr', 'May', 'Jun', 'Jul', 'Aug',
-      'Sep', 'Oct', 'Nov', 'Dec'
-    ]
-    let day = ''
-    let month = ''
-    let year = ''
-    let parts = date.split(splitter)
-    year = '' + parseInt(parts[2], 10)
-    if (first === 'd' && second === 'm') {
-      day = '' + parseInt(parts[0], 10)
-      month = '' + parseInt(parts[1], 10)
-    } else if (first === 'm' && second === 'd') {
-      day = '' + parseInt(parts[1], 10)
-      month = '' + parseInt(parts[0], 10)
-    } else if (first === 'M' && second === 'd') {
-      let month1 = parts[0]
-      month = '' + (months.indexOf(month1) + 1)
-      day = '' + parseInt(parts[1], 10)
-    } else if (first === 'd' && second === 'M') {
-      let month1 = parts[1]
-      month = '' + (months.indexOf(month1) + 1)
-      day = '' + parseInt(parts[0], 10)
+    if (date) {
+      const months = ['Jan', 'Feb', 'Mar',
+        'Apr', 'May', 'Jun', 'Jul', 'Aug',
+        'Sep', 'Oct', 'Nov', 'Dec'
+      ]
+      let day = ''
+      let month = ''
+      let year = ''
+      let parts = date.split(splitter)
+      year = '' + parseInt(parts[2], 10)
+      if (first === 'd' && second === 'm') {
+        day = '' + parseInt(parts[0], 10)
+        month = '' + parseInt(parts[1], 10)
+      } else if (first === 'm' && second === 'd') {
+        day = '' + parseInt(parts[1], 10)
+        month = '' + parseInt(parts[0], 10)
+      } else if (first === 'M' && second === 'd') {
+        let month1 = parts[0]
+        month = '' + (months.indexOf(month1) + 1)
+        day = '' + parseInt(parts[1], 10)
+      } else if (first === 'd' && second === 'M') {
+        let month1 = parts[1]
+        month = '' + (months.indexOf(month1) + 1)
+        day = '' + parseInt(parts[0], 10)
+      }
+      if (+day < 10) {
+        day = '0' + day
+      }
+      if (+month < 10) {
+        month = '0' + month
+      }
+      if (last === 'y') {
+        let newDate = month + '/' + day + '/' + year
+        year = '' + new Date(this.sqlToUtc(newDate)).getFullYear()
+      }
+      // console.log(month + '/' + day + '/' + year)
+      return month + '/' + day + '/' + year
+    } else {
+      return ''
     }
-    if (+day < 10) {
-      day = '0' + day
-    }
-    if (+month < 10) {
-      month = '0' + month
-    }
-    if (last === 'y') {
-      let newDate = month + '/' + day + '/' + year
-      year = '' + new Date(this.sqlToUtc(newDate)).getFullYear()
-    }
-    // console.log(month + '/' + day + '/' + year)
-    return month + '/' + day + '/' + year
   }
 
   sqlToUtc (date) {
@@ -979,6 +997,29 @@ export class GlobalService {
       return toReturn
     } else {
       return ''
+    }
+  }
+
+  manipulateResponse (obs: Observable<any>): Observable<any> {
+    return obs.pipe(filter((data: ResponseSale) => {
+      if (data.Code === UIConstant.THOUSAND || data.Code === UIConstant.DELETESUCCESS) { return true } else { throw new Error(data.Description) }
+    }), catchError(error => throwError(error) ), map((data: ResponseSale) => data.Data))
+  }
+
+  allPossibleCases(arr) {
+    if (arr.length > 0) {
+      if (arr.length == 1) {
+        return arr[0];
+      } else {
+        var result = [];
+        var allCasesOfRest = this.allPossibleCases(arr.slice(1));
+        for (var i = 0; i < allCasesOfRest.length; i++) {
+          for (var j = 0; j < arr[0].length; j++) {
+            result.push(arr[0][j] + ',' + allCasesOfRest[i]);
+          }
+        }
+        return result;
+      }
     }
   }
 }

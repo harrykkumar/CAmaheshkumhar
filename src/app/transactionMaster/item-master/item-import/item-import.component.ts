@@ -53,6 +53,8 @@ export class ItemImportComponent implements OnDestroy {
   newCategoryAddSub: Subscription
   newTaxAddSub: Subscription
   modeOfForm: string = 'new'
+  isDataLoading: boolean = false
+  isLoading: boolean = true
   constructor (private commonService: CommonService,
      private gs: GlobalService, private toastrService: ToastrCustomService,
      private _itemmasterServices: ItemmasterServices
@@ -223,21 +225,25 @@ export class ItemImportComponent implements OnDestroy {
   }
 
   getPendingList () {
+    this.isLoading = true
     let _self = this
-    this._itemmasterServices.getPendingList().subscribe(
+    this.gs.manipulateResponse(this._itemmasterServices.getPendingList()).subscribe(
       data => {
         console.log('pending list : ', data)
-        if (data.Code === UIConstant.THOUSAND) {
-          if (data.Data.length > 0) {
-            _self.isPending = true
-            _self.generateList(data.Data)
-          } else {
-            _self.isPending = false
-            $('#item-import-modal').removeClass('fadeOut')
-            $('#item-import-modal').addClass('fadeInDown')
-            $('#item-import-modal').modal(UIConstant.MODEL_SHOW)
-          }
+        if (data && data.length > 0) {
+          _self.isPending = true
+          _self.generateList(data)
+        } else {
+          _self.isPending = false
+          _self.isLoading = false
         }
+        $('#item-import-modal').removeClass('fadeOut')
+        $('#item-import-modal').addClass('fadeInDown')
+        $('#item-import-modal').modal(UIConstant.MODEL_SHOW)
+      },
+      (error) => {
+        this.toastrService.showError(error, '')
+        _self.isLoading = false
       }
     )
   }
@@ -279,10 +285,7 @@ export class ItemImportComponent implements OnDestroy {
       // newRow['NRV'] = isNaN(+newRow['NRV']) ? 0 : +newRow['NRV']
       _self.masterData.push(newRow)
     })
-    // console.log('masterData : ', this.masterData)
-    $('#item-import-modal').removeClass('fadeOut')
-    $('#item-import-modal').addClass('fadeInDown')
-    $('#item-import-modal').modal(UIConstant.MODEL_SHOW)
+    _self.isLoading = false
   }
 
   getCategoryDetails () {
@@ -381,6 +384,7 @@ export class ItemImportComponent implements OnDestroy {
     this.itemImportKeys = []
     this.masterKeys = []
     this.itemImport = []
+    this.selectedItems = []
     this.masterData = []
     $('.fixTable').tableHeadFixer({
       'thead': false,
@@ -427,8 +431,7 @@ export class ItemImportComponent implements OnDestroy {
             this.commonService.closeItemImport()
           }
           if (value === 'reset') {
-            this.commonService.onAddItemMaster()
-            this.modeOfForm = 'reset'
+            this.modeOfForm = 'new'
             this.initComp()
           }
         } else if (data.Code === UIConstant.PARTIALLY_SAVED) {
@@ -447,7 +450,7 @@ export class ItemImportComponent implements OnDestroy {
             this.commonService.closeItemImport()
           }
           if (value === 'reset') {
-            this.modeOfForm = 'reset'
+            this.modeOfForm = 'new'
             this.initComp()
           }
         } else if (data.Code === UIConstant.PARTIALLY_SAVED) {
@@ -480,6 +483,7 @@ export class ItemImportComponent implements OnDestroy {
 
   public uploadData (event: any): void {
     if (event) {
+      this.isDataLoading = true
       // console.log('file event : ', event)
       this.sheetname = []
       this.masterTableArray = []
@@ -545,56 +549,75 @@ export class ItemImportComponent implements OnDestroy {
             newRow = this.gs.removeSpecialCharacters(newRow)
             index += 1
             newRow['SNO'] = index
-            newRow['PURCHASERATE'] = +newRow['PURCHASERATE']
-            newRow['MRPRATE'] = +newRow['MRPRATE']
-            newRow['OURPRICE'] = +newRow['OURPRICE']
-            newRow['SALERATE'] = +newRow['SALERATE']
-            newRow['OPENINGSTOCK'] = +newRow['OPENINGSTOCK']
-            newRow['OPENINGSTOCKVALUE'] = +newRow['OPENINGSTOCKVALUE']
-            newRow['MINSTOCK'] = +newRow['MINSTOCK']
-            newRow['MAXSTOCK'] = +newRow['MAXSTOCK']
-            newRow['REORDERQTY'] = +newRow['REORDERQTY']
-            // newRow['NRV'] = isNaN(+newRow['NRV']) ? 0 : +newRow['NRV']
+            newRow['PURCHASERATE'] = (+newRow['PURCHASERATE'] > 0) ? +newRow['PURCHASERATE'] : 0
+            newRow['MRPRATE'] = (+newRow['MRPRATE'] > 0 ) ? +newRow['MRPRATE'] : 0
+            newRow['OURPRICE'] = (+newRow['OURPRICE'] > 0 ) ? +newRow['OURPRICE'] : 0
+            newRow['SALERATE'] = (+newRow['SALERATE'] > 0 ) ? +newRow['SALERATE'] : 0
+            newRow['OPENINGSTOCK'] = (+newRow['OPENINGSTOCK'] > 0 ) ? +newRow['OPENINGSTOCK'] : 0
+            newRow['OPENINGSTOCKVALUE'] = (+newRow['OPENINGSTOCKVALUE'] > 0 ) ? +newRow['OPENINGSTOCKVALUE'] : 0
+            newRow['MINSTOCK'] = (+newRow['MINSTOCK'] > 0 ) ? +newRow['MINSTOCK'] : 0
+            newRow['MAXSTOCK'] = (+newRow['MAXSTOCK'] > 0 ) ? +newRow['MAXSTOCK'] : 0
+            newRow['REORDERQTY'] = (+newRow['REORDERQTY'] > 0 ) ? +newRow['REORDERQTY'] : 0
             this.masterKeys = Object.keys(newRow)
             if (!newRow['NAME']) {
-              this.toastrService.showError('Name is Required at SNO. ' + newRow['SNO'], newRow['NAME'])
-              this.reset()
-            }
-            if (!newRow['HSNNO']) {
-              this.toastrService.showError('HSNNO is Required at SNO. ' + newRow['SNO'], newRow['HSNNO'])
-              this.reset()
-            }
-            if (!this.gs.checkForValidNumbers(+newRow['PURCHASERATE'])) {
-              this.toastrService.showError('Invalid PURCHASERATE Value ' + 'at SNO. ' + newRow['SNO'], newRow['PURCHASERATE'])
-              this.reset()
+              this.toastrService.showErrorLong('Name is Required at SNO. ' + newRow['SNO'], newRow['NAME'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
+              return false
+            } else if (!newRow['HSNNO']) {
+              this.toastrService.showErrorLong('HSNNO is Required at SNO. ' + newRow['SNO'], newRow['HSNNO'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
+              return false
+            } else if (!this.gs.checkForValidNumbers(+newRow['PURCHASERATE'])) {
+              this.toastrService.showErrorLong('Invalid PURCHASERATE Value ' + 'at SNO. ' + newRow['SNO'], newRow['PURCHASERATE'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
               return false
             } else if (!this.gs.checkForValidNumbers(newRow['MRPRATE'])) {
-              this.toastrService.showError('Invalid MRPRATE Value ' + 'at SNO. ' + newRow['SNO'], newRow['MRPRATE'])
-              this.reset()
+              this.toastrService.showErrorLong('Invalid MRPRATE Value ' + 'at SNO. ' + newRow['SNO'], newRow['MRPRATE'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
               return false
-            } else if (!this.gs.checkForValidNumbers(+newRow['OURPRICE']) && !(+newRow['OURPRICE'])) {
-              this.toastrService.showError('Invalid OURPRICE Value ' + 'at SNO. ' + newRow['SNO'], newRow['OURPRICE'])
-              this.reset()
+            } else if (!this.gs.checkForValidNumbers(+newRow['OURPRICE'])) {
+              this.toastrService.showErrorLong('Invalid OURPRICE Value ' + 'at SNO. ' + newRow['SNO'], newRow['OURPRICE'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
               return false
-            } else if (!this.gs.checkForValidNumbers(+newRow['SALERATE']) && !(+newRow['SALERATE'])) {
-              this.toastrService.showError('Invalid SALERATE Value ' + 'at SNO. ' + newRow['SNO'], +newRow['SALERATE'])
-              this.reset()
+            } else if (!this.gs.checkForValidNumbers(+newRow['SALERATE'])) {
+              this.toastrService.showErrorLong('Invalid SALERATE Value ' + 'at SNO. ' + newRow['SNO'], +newRow['SALERATE'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
               return false
             } else if (!this.gs.checkForValidNumbers(+newRow['OPENINGSTOCK'])) {
-              this.toastrService.showError('Invalid OPENINGSTOCK Value ' + 'at SNO. ' + newRow['SNO'], newRow['OPENINGSTOCK'])
-              this.reset()
+              this.toastrService.showErrorLong('Invalid OPENINGSTOCK Value ' + 'at SNO. ' + newRow['SNO'], newRow['OPENINGSTOCK'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
               return false
             } else if (!this.gs.checkForValidNumbers(+newRow['OPENINGSTOCKVALUE'])) {
-              this.toastrService.showError('Invalid OPENINGSTOCKVALUE Value ' + 'at SNO. ' + newRow['SNO'], newRow['OPENINGSTOCKVALUE'])
-              this.reset()
+              this.toastrService.showErrorLong('Invalid OPENINGSTOCKVALUE Value ' + 'at SNO. ' + newRow['SNO'], newRow['OPENINGSTOCKVALUE'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
               return false
             } else if (!this.gs.checkForValidNumbers(+newRow['MINSTOCK'])) {
-              this.toastrService.showError('Invalid MINSTOCK Value ' + 'at SNO. ' + newRow['SNO'], newRow['MINSTOCK'])
-              this.reset()
+              this.toastrService.showErrorLong('Invalid MINSTOCK Value ' + 'at SNO. ' + newRow['SNO'], newRow['MINSTOCK'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
               return false
             } else if (!this.gs.checkForValidNumbers(+newRow['MAXSTOCK'])) {
-              this.toastrService.showError('Invalid MAXSTOCK Value ' + 'at SNO. ' + newRow['SNO'], newRow['MAXSTOCK'])
-              this.reset()
+              this.toastrService.showErrorLong('Invalid MAXSTOCK Value ' + 'at SNO. ' + newRow['SNO'], newRow['MAXSTOCK'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
               return false
             } else {
               // let newRow1 = Object.assign({}, { selected: false }, newRow)
@@ -602,6 +625,7 @@ export class ItemImportComponent implements OnDestroy {
               this.masterData.push(obj)
               if (this.masterData.length === this.masterTableArray.length) {
                 this.checkForDuplicates()
+                this.isDataLoading = false
               }
             }
           })
@@ -611,37 +635,53 @@ export class ItemImportComponent implements OnDestroy {
       } else {
         this.toastrService.showError('Oops', 'No Data Found')
         this.reset()
+        this.isDataLoading = false
       }
     }
   }
 
-  // downloadSample () {
-  //   const datatoexport = [{
-  //     SNo: '1',
-  //     NAME: 'ssdf',
-  //     HSNNO: 'sdfs',
-  //     BARCODE: 'dfsf',
-  //     ITEMCODE: 'sdfsdf',
-  //     ITEMTYPE: [1, 2, 3],
-  //     PACKINGTYPE: 'dsf',
-  //     SALERATE: 'sdfsdf',
-  //     PURCHASERATE: 'sdfsdf',
-  //     MRPRATE: 'sdfsdf',
-  //     NRV: 'sdfsfd',
-  //     OURPRICE: 'sdfdsf',
-  //     OPENINGSTOCK: 'sdfsf',
-  //     OPENINGSTOCKVALUE: 'sfdsdf',
-  //     MINSTOCK: 'sdfsdf',
-  //     MAXSTOCK: 'sdfsdf',
-  //     REORDERQTY: 'sdfsdf',
-  //     ISNOTDISCOUNTABLE: 'sdfsdf',
-  //     ISVOLUMEDISCOUNTAPPLY: 'sdfsdf',
-  //     ISTRADEDISCOUNTAPPLY: 'sdfsf',
-  //     UNIT: 'sfdsdf'
-  //   }]
-  //   this.excelService.exportAsExcelFile(datatoexport, 'Sample_Item_Master')
-  // }
+  
+  deleteList () {
+    let strId = this.generateDeleteList()
+    this.gs.manipulateResponse(this._itemmasterServices.deleteList(strId)).subscribe(
+      () => {
+        this.toastrService.showSuccess('Record Deleted Successfully', '')
+        this.deleteDeleted()
+      },
+      (error) => {
+        this.toastrService.showError(error, '')
+      }
+    )
+  }
 
+  generateDeleteList (): string {
+    let strIds = []
+    this.selectedItems.forEach(item => {
+      for (let i = 0; i < this.masterData.length; i++) {
+        if (item === this.masterData[i]['SNO']) {
+          strIds.push(this.masterData[i]['ID']) 
+        }
+      }
+    })
+
+    let strId = strIds.join(',')
+    console.log('strId : ', strId)
+    return strId
+  }
+
+  deleteDeleted () {
+    this.selectedItems.forEach(item => {
+      for (let i = 0; i < this.masterData.length; i++) {
+        if (item === this.masterData[i]['SNO']) {
+          this.masterData.splice(i, 1)
+        }
+      }
+    })
+    if (this.masterData.length === 0) {
+      this.modeOfForm = 'new'
+      this.initComp()
+    }
+  }
   
   opeCatImport () {
     this.commonService.openCatImport()
@@ -659,6 +699,8 @@ export class ItemImportComponent implements OnDestroy {
     this.itemImportKeys = []
     this.masterKeys = []
     this.itemImport = []
+    this.isDataLoading = false
+    this.isLoading = false
     this.commonService.closeItemImport()
   }
 }

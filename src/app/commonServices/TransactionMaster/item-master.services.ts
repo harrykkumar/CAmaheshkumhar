@@ -80,6 +80,10 @@ export class ItemmasterServices {
     return this._basesService.postRequest(ApiConstant.IMPORT_ITEM_MASTER, imports)
   }
 
+  deleteList (strId) {
+    return this._basesService.deleteRequest(`${ApiConstant.IMPORT_ITEM_MASTER}?StrId=${strId}`)
+  }
+
   getPendingList () {
     return this._basesService.getRequest(ApiConstant.IMPORT_ITEM_MASTER)
   }

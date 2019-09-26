@@ -31,6 +31,7 @@ export class UserFormComponent implements OnInit {
   user: any = {}
   clientData: Array<any> = []
   officeData: Array<any> = []
+  orgnizationData: Array<any> = []
   branchData: Array<any> = []
   userTypeData: Array<any> = []
   underTypeData: Array<any> = []
@@ -40,6 +41,9 @@ export class UserFormComponent implements OnInit {
   mobileTypeList: Array<any> = []
   mobileCountryCodeList: Array<any> = []
   emailTypeList: Array<any> = []
+  Multiorgnization:number=0
+  MultiBranch:number=0
+disabledFlagOrgBranch:boolean
   editEmailDetailIndex: number = null
   editMobileDetailIndex: number = null
   constructor(
@@ -48,11 +52,19 @@ export class UserFormComponent implements OnInit {
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
     public _loginService: LoginService
-  ) { }
+  ) { 
+    this.getBranchList('Branch')
+    this.getOrgnizationList()
+    this.checkLoginUserCodematch()
+ 
+  }
 
   /* Function invoke when profile menu clicked  */
   ngOnChanges(changes: SimpleChanges): void {
     this.userType = this._loginService.userData.LoginUserDetailsinfo[0].UserType
+    this.Multiorgnization = this._loginService.userData.LoginUserDetailsinfo[0].MO
+    this.MultiBranch = this._loginService.userData.LoginUserDetailsinfo[0].MB
+
     if (this.showUserForm.open === true) {
       $('#add_user').modal(UIConstant.MODEL_SHOW)
       this.initDropDownData().subscribe((res) => {
@@ -65,6 +77,14 @@ export class UserFormComponent implements OnInit {
     }
   }
 
+  checkLoginUserCodematch () {
+    if(this._loginService.loginUserDetails.Code === this._loginService.userData.LoginUserDetailsinfo[0].Code){
+      this.disabledFlagOrgBranch = true
+    }
+    else{
+      this.disabledFlagOrgBranch = false
+    }
+  }
   ngOnInit(){}
 
 
@@ -74,7 +94,7 @@ export class UserFormComponent implements OnInit {
     this.user.emailArray = []
     this.clientData = [{ id: UIConstant.ZERO, text: 'Select Client' }]
     this.officeData = [{ id: UIConstant.ZERO, text: 'Select Office' }]
-    this.branchData = [{ id: UIConstant.ZERO, text: 'Select Branch' }]
+  //  this.branchData = [{ id: UIConstant.ZERO, text: 'Select Branch' }]
     this.userTypeData = [{ id: UIConstant.ZERO, text: 'Select User Type' }]
     this.underTypeData = [{ id: UIConstant.ZERO, text: 'Select Under Type' }]
     this.underUserData = [{ id: UIConstant.ZERO, text: 'Select Under User' }]
@@ -112,8 +132,8 @@ export class UserFormComponent implements OnInit {
   }
 
   /* Function to get branch list data */
-  getBranchList = (clientId) => {
-    this._userService.getBranchList(clientId).
+  getBranchList = (type) => {
+    this._userService.getBranchListByType('?RequestFrom='+type).
       pipe(takeUntil(this.unSubscribe$),
         map((data) => {
           const list = _.map(data.Data, (element) => {
@@ -123,7 +143,7 @@ export class UserFormComponent implements OnInit {
               data: { ...element }
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Branch' }, ...list]
+          return [{ id: UIConstant.ZERO, text: 'Select'+ type }, ...list]
         })
       ).subscribe((res) => {
         this.branchData = res
@@ -135,8 +155,8 @@ export class UserFormComponent implements OnInit {
   }
 
   /* Function to get office list data */
-  getOfficeList = (branchId) => {
-    this._userService.getOfficeList(branchId).
+  getOrgnizationList = () => {
+    this._orgService.getCompanyProfile().
       pipe(takeUntil(this.unSubscribe$),
         map((data) => {
           const list = _.map(data.Data, (element) => {
@@ -146,10 +166,10 @@ export class UserFormComponent implements OnInit {
               data: { ...element }
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Office' }, ...list]
+          return [{ id: UIConstant.ZERO, text: 'Select Orgnization' }, ...list]
         })
       ).subscribe((res) => {
-        this.officeData = res
+        this.orgnizationData = res
         if (this.officeData.length > 1 && this.dummyData.selectedOffice && this.dummyData.selectedOffice.id) {
           this.model.officeId = this.dummyData.selectedOffice.id
           this.dummyData.selectedOffice.id = 0
@@ -215,9 +235,10 @@ export class UserFormComponent implements OnInit {
   onClientChange = (event) => {
     if (event && event.data.length > 0) {
       this.user.selectedClient = event.data[0]
-      if (this.user.selectedClient.id > 0) {
-        this.getBranchList(this.user.selectedClient.id)
-      }
+    ///  if (this.user.selectedClient.id > 0) {
+
+        //this.getBranchList(this.user.selectedClient.id)
+      //}
     }
   }
 
@@ -225,9 +246,9 @@ export class UserFormComponent implements OnInit {
   onBranchChange = (event) => {
     if (event && event.data.length > 0) {
       this.user.selectedBranch = event.data[0]
-      if (this.user.selectedBranch.id > 0) {
-        this.getOfficeList(this.user.selectedBranch.id)
-      }
+      //if (this.user.selectedBranch.id > 0) {
+      //  this.getOfficeList(this.user.selectedBranch.id)
+     // }
     }
   }
 

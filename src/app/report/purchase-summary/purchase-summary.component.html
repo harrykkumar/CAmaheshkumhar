@@ -12,7 +12,7 @@
               <div class="mr-2 col-md-10">
                 <form>
                   <div class="form-row">
-                    <div class="col-md-6 mt-1">
+                    <div class="col-md-6">
                       <!-- <label>Ledger</label> -->
                       <div class="input-group ">
                         <select2 #setWise [data]="ledgerItemList" class="control_select" autocomplete="true"
@@ -52,10 +52,10 @@
         </div>
       </div>
   
-      <div id="ledger_search_form" class="bgc-white collapse">
-        <div class="">
+      <div id="ledger_search_form" class="card mb-2 collapse">
+        <div class="px-3 pt-2">
           <form #ledgerSearchForm="ngForm" (ngSubmit)="ledgerSearchForm.form.valid && getSaleSummaryData()" novalidate>
-            <div class="form row mB-5 p-2">
+            <div class="form row">
               <div class="form-group col-md-3 ">
                 <label class="fw-500">From</label>
                 <div class="timepicker-input input-icon form-group">

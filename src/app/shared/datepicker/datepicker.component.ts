@@ -216,25 +216,57 @@ export class DatepickerComponent implements OnInit, OnDestroy {
     }
   }
 
+  keyCode: number
+  eventHandler(evt) {
+    console.log(evt)
+    this.keyCode = evt.keyCode
+  }
+
   putSplitter () {
-    console.log(this.inputElem.nativeElement.value)
-    let val = '' + this.inputElem.nativeElement.value
-    let charArr = this.gs.getCharaters(this.clientDateFormat)
-    let first = charArr[0]
-    let mid = charArr[1]
-    let last = charArr[2]
-    let splitter = this.gs.checkForFormat(3, '', this.clientDateFormat)
-    if (val.length === first) {
-      this.inputElem.nativeElement.value = this.inputElem.nativeElement.value + splitter
-    }
-    if (val.length === (first + mid + 1)) {
-      this.inputElem.nativeElement.value = this.inputElem.nativeElement.value + splitter
-    }
-    if (val.length === (first + mid + last + 2)) {
-      this.inputElem.nativeElement.value = this.inputElem.nativeElement.value
+    if (this.keyCode !== 8) {
+      console.log('add : ', this.inputElem.nativeElement.value)
+      let val = '' + this.inputElem.nativeElement.value
+      let charArr = this.gs.getCharaters(this.clientDateFormat)
+      let first = charArr[0]
+      let mid = charArr[1]
+      let last = charArr[2]
+      let splitter = this.gs.checkForFormat(3, '', this.clientDateFormat)
+      if (val.length === first && !val.includes(splitter)) {
+        this.inputElem.nativeElement.value = this.inputElem.nativeElement.value + splitter
+      }
+      if (val.length === (first + mid + 1)) {
+        this.inputElem.nativeElement.value = this.inputElem.nativeElement.value + splitter
+      }
+      if (val.length === (first + mid + last + 2)) {
+        this.inputElem.nativeElement.value = this.inputElem.nativeElement.value
+      }
     }
   }
+
+  removeSplitter () {
+    if (this.keyCode === 8) {
+      // console.log('remove : ', this.inputElem.nativeElement.value)
+      let val = '' + this.inputElem.nativeElement.value
+      let splitter = this.gs.checkForFormat(3, '', this.clientDateFormat)
+      let arrOfInput = []
+      if (val.includes(splitter)) {
+        arrOfInput = val.split(splitter)
+        if (arrOfInput.length === 1) {
   
+        } else if (arrOfInput.length === 2) {
+          if (arrOfInput[1].length === 1) {
+            val = val.substring(0, val.length-1)
+          }
+        } else if (arrOfInput.length === 3) {
+          if (arrOfInput[2].length == 1) {
+            val = val.substring(0, val.length-1)
+          }
+        }
+        this.inputElem.nativeElement.value = val
+      }
+    }
+  }
+
   ngOnDestroy () {
     this.class = false
   }

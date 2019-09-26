@@ -260,7 +260,6 @@ export class CustomerAddComponent implements OnDestroy {
   areNameId: any
   areaAdd() {
     this.addAreaClick = true
-    // debugger
     const addValue = {
       Id: 0,
       CommonDesc3: this.areaForm.value.areaName,
@@ -351,7 +350,7 @@ export class CustomerAddComponent implements OnDestroy {
     this.closeAreaModel()
     this.select_Mobile.setElementValue(1)
     this.select_email.setElementValue(1)
-    this.phoneCodeselect2.setElementValue(0)
+   // this.phoneCodeselect2.setElementValue(0)
     this.countryList=[]
     this.stateList =[]
     this.cityList=[]
@@ -407,6 +406,7 @@ export class CustomerAddComponent implements OnDestroy {
   EmailId: number
   requiredGSTNumber:boolean = false
   openModal() {
+  
     this.contactId =0
     this.satuariesId =0
     this.disabledGSTfor_UnRegi = false
@@ -430,6 +430,7 @@ export class CustomerAddComponent implements OnDestroy {
     this.mobileRequirdForSetting = false
     this.emailRequirdForSetting = false
     this.addressClick = false
+   
     this.setDOBDate()
     this.setDOADate()
    
@@ -463,9 +464,9 @@ export class CustomerAddComponent implements OnDestroy {
       this.adressType(0)
       this.getCustomoerType(0)
      //
+     this.getOrgnizationAddress()
       this.select_Mobile.setElementValue(1)
       this.select_email.setElementValue(1)
-      this.phoneCodeselect2.setElementValue(0)
       this.istradeDiscountValue = false
       this.isVolumeDiscountValue = false
       this.isDiscountValue = false
@@ -651,13 +652,13 @@ export class CustomerAddComponent implements OnDestroy {
   invalidMobilelength: boolean = false
   checkNumberByCountry(e) {
     this.mobileNo = e.target.value
-    if (this.checkSelectCode) {
+   // if (this.checkSelectCode) {
       if (this.validmobileLength === this.mobileNo.length) {
         this.validMobileFlag = false
       } else {
         this.validMobileFlag = true
       }
-    }
+   // }
 
   }
 
@@ -863,7 +864,7 @@ export class CustomerAddComponent implements OnDestroy {
       this.customerRegistraionError = true
 
     }
-   debugger
+   
    if(this.customerCustomRateFlag){
     if ( this.customerTypeId===0) {
       this.customCustomer = true
@@ -1329,6 +1330,9 @@ console.log(customerElement,'customer-Req-')
           this.isDiscountValue = false
         }
       }
+      if(Data.Code ===5000){
+        this._toastrcustomservice.showError('',Data.Description)
+      }
     })
   }
   
@@ -1389,14 +1393,9 @@ console.log(customerElement,'customer-Req-')
       { id: '5', text: 'Skype' },
       { id: '6', text: 'YMessenger' },
       { id: '7', text: 'Sip' },
-      { id: '8', text: 'Other' },
-
-
+      { id: '8', text: 'Other' }
     ]
-    //this.select_Mobile.setElementValue(this.contactTypeData[1].id)
-    // this.selectMobileId = this.contactTypeData[1].id
-
-
+   
   }
   selectMobileId: any
   emailTypeData: any
@@ -1406,12 +1405,7 @@ console.log(customerElement,'customer-Req-')
       { id: '2', text: 'Work' },
       { id: '3', text: 'Home' },
       { id: '4', text: 'Other' }
-
-
-
     ]
-    // this.contactType = this.emailTypeData[1].id
-    //this.select_email.setElementValue(+this.contactType)
 
   }
   selectEmailId: any
@@ -1442,7 +1436,6 @@ console.log(customerElement,'customer-Req-')
   validmobileLength: any
   enableContactFlag: boolean
   onCountryCodeSelectionChange = (event) => {
-    
     if (event.data.length > 0) {
       if(event.data[0].id !== '0'){
         this.checkSelectCode = true
@@ -1484,7 +1477,7 @@ console.log(customerElement,'customer-Req-')
   }
   editEmailFlg: boolean = true
   emailAddingArray() {
-    debugger
+    
     this.editEmailFlg = true
     this.checkvalidationEmail()
     if (this.EmailType > 0 && this.getEmailvalid && this.coustomerForm.value.EmailAddress !== null && this.coustomerForm.value.EmailAddress !== '') {
@@ -1512,7 +1505,7 @@ console.log(customerElement,'customer-Req-')
     }
     if (type === 'contact') {
       this.coustomerForm.controls.mobileNo.setValue('')
-      this.phoneCodeselect2.setElementValue(0)
+      //this.phoneCodeselect2.setElementValue(0)
       this.select_Mobile.setElementValue(1)
       this.contactType = '1'
       this.CountryCode = 0
@@ -1574,12 +1567,18 @@ console.log(customerElement,'customer-Req-')
     setTimeout(() => {
     this.select_email.selector.nativeElement.focus()
     }, 10)
-    //this._CommonService.openConfirmation('mobile', 'Contact Details')
+
 
   }
-  // @HostListener('document:keypress', ['$event'])
-  // key: any
-  // handleKeyboardEvent(event: KeyboardEvent) { 
-  //   this.key = event.key;
-  // }
+  countryValue1:any =null
+  stateValuedata1:any =null
+  countryCodeFlag:any =null
+  cityValue1:any = null
+  getOrgnizationAddress (){
+    let Address= JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
+    this.validmobileLength=Address.Length
+    this.countryCodeFlag =Address.CountryCode
+    this.phoneCodeselect2.setElementValue(Address.CountryCode)
+   }
+
 }

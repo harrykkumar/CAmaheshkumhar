@@ -3,13 +3,14 @@ import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { CompanyProfileService } from '../../start/company-profile/company-profile.service';
 import { LoginService } from 'src/app/commonServices/login/login.services';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import * as _ from 'lodash'
 import { GlobalService } from 'src/app/commonServices/global.service';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { Select2Component } from 'ng2-select2';
 declare var $: any
 
 
@@ -25,7 +26,7 @@ export class TransactionNumberComponent implements OnInit {
   checkAll: boolean
   transactionNumberList: Array<any> = []
   existencyList: Array<any> = []
-
+  TransactionFor: string = 'Edit'
   constructor(
     private _orgService: CompanyProfileService,
     private _loginService: LoginService,
@@ -37,9 +38,11 @@ export class TransactionNumberComponent implements OnInit {
   ) {
     if (_.includes(this.router.url, 'organization')) {
       this.previousRoute = 'organization';
+      this.TransactionFor = 'New'
     }
   }
 
+  @ViewChild('session_format_select2') sessionFormatSelect2: Select2Component
   async ngOnInit() {
     this.getExistencyList()
     this.getOrganizationList()
@@ -52,19 +55,24 @@ export class TransactionNumberComponent implements OnInit {
     }
     this.dropDownList.numericZerosList = this._orgService.getNumericZeroList()
     if (!_.isEmpty(this.dropDownList.numericZerosList) && this.dropDownList.numericZerosList.length > 0) {
-      this.modal.noOfZeroesValue = 2
+      this.modal.noOfZeroesValue = 0
     }
     this.dropDownList.splitterList = this._orgService.getSplitterList()
     if (!_.isEmpty(this.dropDownList.splitterList) && this.dropDownList.splitterList.length > 0) {
       this.modal.splitterValue = 1
     }
     this.dropDownList.transactionSessionList = await this._orgService.getTransactionSession()
+    console.log(this.dropDownList.transactionSessionList)
     if (!_.isEmpty(this.dropDownList.transactionSessionList) && this.dropDownList.transactionSessionList.length > 0) {
       this.modal.sessionValue = 1
+      this.modal.selectedSession = this.dropDownList.transactionSessionList[0]
+      this.modal.selectedSession.id = 1
     }
     this.dropDownList.transactionFormatList = await this._orgService.getTransactionFormat()
+    console.log(this.dropDownList.transactionFormatList)
     if (!_.isEmpty(this.dropDownList.transactionFormatList) && this.dropDownList.transactionFormatList.length > 0) {
-      this.modal.transFormatValue = 4
+      this.modal.transFormatValue = +this.dropDownList.transactionFormatList[0].id
+      this.transformFormatList(this.modal.selectedSession.id)
     }
     this.dropDownList.transactionPositionList = await this._orgService.getTransactionPosition()
     if (!_.isEmpty(this.dropDownList.transactionPositionList) && this.dropDownList.transactionPositionList.length > 0) {
@@ -119,38 +127,46 @@ export class TransactionNumberComponent implements OnInit {
   onTransSessionChange(event) {
     this.modal.selectedSession = event.data[0]
     this.modal.selectedSession.id = Number(event.value)
+    this.transformFormatList(this.modal.selectedSession.id)
   }
 
   onTransFormatChange(event) {
     this.modal.selectedFormat = event.data[0]
     switch (Number(event.value)) {
       case 0:
-        this.generateDateString()
+        this.generateDateString('', 0)
         break;
-      case 1:
-        this.generateDateString('d-M-Y')
-        break;
-      case 2:
-        this.generateDateString('d-M-y')
-        break;
+      // case 1:
+      //   this.generateDateString('d-M-Y')
+      //   break;
+      // case 2:
+      //   this.generateDateString('d-M-y')
+      //   break;
       case 3:
         this.generateDateString('d-m-Y')
         break;
       case 4:
-        this.generateDateString('d-m-y')
+        this.generateDateString('d-m-y', 2)
+        break;
+      case 5:
+        this.generateDateString('d-m-y', 3)
         break;
       default:
         break;
     }
   }
 
-  generateDateString(format?) {
+  generateDateString(format?, type?: number) {
     if (format) {
       let date, dateArray
       const today = new Date();
       date = this._globalService.utcToClientDateFormat(today.toUTCString(), format)
       dateArray = date.split('-')
-      this.modal.dateString = `${dateArray[1]}${dateArray[2]}`
+      if (type === 2) {
+        this.modal.dateString = `${dateArray[1]}${dateArray[2]}`
+      } else if (type === 3) {
+        this.modal.dateString = `${dateArray[0]}${dateArray[1]}${dateArray[2]}`
+      }
       if (!_.isEmpty(this.modal.selectedPosition) && Number(this.modal.selectedPosition.id) > 0) {
         this.generateDemoString()
       }
@@ -167,8 +183,8 @@ export class TransactionNumberComponent implements OnInit {
   }
 
   generateFormatString(item, index) {
-    if (!_.isEmpty(this.modal.selectedPosition) && Number(this.modal.selectedPosition.id)
-      && !_.isEmpty(this.modal.selectedFormat) && Number(this.modal.selectedFormat.id)
+    if (!_.isEmpty(this.modal.selectedPosition) && !isNaN(this.modal.selectedPosition.id)
+      && !_.isEmpty(this.modal.selectedFormat) && !isNaN(this.modal.selectedFormat.id)
     ) {
       const position = Number(this.modal.selectedPosition.id)
       if (position === 1) {
@@ -340,8 +356,8 @@ export class TransactionNumberComponent implements OnInit {
   onNumericValueChange(item, index) {
     if (item.NumericValue) {
       item.zeroString = item.NumericValue
-      if (!_.isEmpty(this.modal.selectedNumericZero) && Number(this.modal.selectedNumericZero.id) > 0) {
-        item.zeroString = _.padStart(item.NumericValue, Number(this.modal.selectedNumericZero.id), '0')
+      if (!_.isEmpty(this.modal.selectedNumericZero) && Number(this.modal.selectedNumericZero.value) > 0) {
+        item.zeroString = _.padStart(item.NumericValue, Number(this.modal.selectedNumericZero.value), '0')
       }
       this.generateFormatString(item, index)
     }
@@ -364,8 +380,8 @@ export class TransactionNumberComponent implements OnInit {
 
   getTransactionList() {
     this.spinnerService.show()
-    this.commonService.getTransationNumberList(this.modal).subscribe((response) => {
-      if (response.Code === 1000) {
+    this.commonService.getTransationNumberList(this.modal, this.TransactionFor).subscribe((response) => {
+      if (response.Code === UIConstant.THOUSAND) {
         this.transactionNumberList = [...response.Data];
         if (this.previousRoute) {
           this.selectAllTransation({ target: { checked: true } });
@@ -615,5 +631,56 @@ export class TransactionNumberComponent implements OnInit {
       valid = false
     }
     return valid
+  }
+
+  transformFormatList(sessionValue) {
+    let _copy = []
+    if (this.dropDownList.transactionFormatList && this.dropDownList.transactionFormatList.length > 0) {
+      _copy = JSON.parse(JSON.stringify(this.dropDownList.transactionFormatList))
+    }
+    if (!_.isEmpty(_copy)) {
+      switch(sessionValue) {
+        case 1:
+            _copy.forEach(element => {
+            if (element.id === 5) {
+              element['disabled'] = true
+            } else {
+              element['disabled'] = false
+            }
+          });
+          this.dropDownList.transactionFormatList = [..._copy]
+          this.modal.transFormatValue = 0
+          break
+        case 4:
+            _copy.forEach(element => {
+              if (element.id === 0 || element.id === 5) {
+                element['disabled'] = true
+              } else {
+                element['disabled'] = false
+              }
+            });
+            this.dropDownList.transactionFormatList = [..._copy]
+            this.modal.transFormatValue = 4
+          break
+        case 5:
+            _copy.forEach(element => {
+            if (element.id === 0 || element.id === 4) {
+              element['disabled'] = true
+            } else {
+              element['disabled'] = false
+            }
+          });
+          this.dropDownList.transactionFormatList = [..._copy]
+          this.modal.transFormatValue = 5
+          break
+        case 6:
+            _copy.forEach(element => {
+            element['disabled'] = false
+          });
+          this.dropDownList.transactionFormatList = [..._copy]
+          this.modal.transFormatValue = 0
+          break
+      }
+    }
   }
 }

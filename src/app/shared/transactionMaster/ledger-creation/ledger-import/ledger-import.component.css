@@ -1,0 +1,7 @@
+.parent {
+  max-height: 70vh;
+}
+tr.strikeout td {
+  color: red !important;
+  text-decoration: line-through red;
+}

@@ -33,6 +33,7 @@ export class SaleDirectListComponent implements OnInit {
   itemsPerPage: number = 20
   lastItemIndex: number = 0
   total: number = 0
+  SaleRegisterViewflag:boolean=false
   isSearching: boolean = true
   @ViewChild('custom_table', { read: ElementRef }) customTable: ElementRef
   @ViewChild('paging_comp') pagingComp: PagingComponent
@@ -51,11 +52,11 @@ export class SaleDirectListComponent implements OnInit {
       this.clientDateFormat = this.settings.dateFormat
       this.noOfDecimalPoint = this.settings.noOfDecimal
       this.getSaleDirectList()
-    // this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
-    //   () => {
-    //     this.getSaleDirectList()
-    //   }
-    // )
+    this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
+      () => {
+        this.getSaleDirectList()
+      }
+    )
     this.onTextEnteredSub = this._saleDirectService.search$.subscribe(
       (text: string) => {
         //if (text.length > 0) {
@@ -80,16 +81,19 @@ export class SaleDirectListComponent implements OnInit {
     
     this.queryStr$ = this._saleDirectService.queryStr$.subscribe(
       (str) => {
+        
         this.queryStr = str
         this.p = 1
         this.getSaleDirectList()
       }
     )
 
-    this.redirectData = this.commonService.reDirectPrintSaleStatus().subscribe(
+    this.redirectData = this.commonService.reDirectViewListOfSaleStatus().subscribe(
       (action: any) => {
         this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
+       // this.SaleRegisterViewflag = action.viewflag
         this.getSaleDirectList()
+        
       }
     )
   }
@@ -171,18 +175,29 @@ export class SaleDirectListComponent implements OnInit {
       this.isSearching = false
       this.toastrService.showError(error, '')
     })
+ 
   }
   notRecordFound:any =true
   createTableData (data, summary) {
     this.notRecordFound = false
     let customContent = [...data]
+   let FlagReturn ;
     customContent.forEach(element => {
       element.BillDate = this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
       element.PartyBillDate = this.gs.utcToClientDateFormat(element.PartyBillDate, this.clientDateFormat)
       element.BillAmount = element.BillAmount.toFixed(this.noOfDecimalPoint)
       element.Discount = element.Discount.toFixed(this.noOfDecimalPoint)
       element.TaxAmount = element.TaxAmount.toFixed(this.noOfDecimalPoint)
+       FlagReturn = element.PartialReturn ===1 ? {} : { type: FormConstants.Return, id: 0, text: 'Return'  }
 
+       this.actionList = [
+        { type: FormConstants.Print, id: 0, text: 'Print', printId: 'saleDirect_Print' ,viewPrint: false },
+        { type: FormConstants.ViewPrint, id: 0, text: 'View Print', printId: 'saleDirect_Print' ,viewPrint: true },
+        { type: FormConstants.Edit, id: 0, text: 'Edit' },
+        { type: FormConstants.Cancel, id: 0, text: 'Cancel' },
+        FlagReturn
+        
+      ]
 
     })
     this.customContent = customContent
@@ -205,14 +220,7 @@ export class SaleDirectListComponent implements OnInit {
       { text: 'Discount', isRightAligned: true },
       { text: 'TaxAmount', isRightAligned: true },
       { text: 'BillAmount', isRightAligned: true }]
-    this.actionList = [
-      { type: FormConstants.Print, id: 0, text: 'Print', printId: 'saleDirect_Print' ,viewPrint: false },
-      { type: FormConstants.ViewPrint, id: 0, text: 'View Print', printId: 'saleDirect_Print' ,viewPrint: true },
-      { type: FormConstants.Edit, id: 0, text: 'Edit' },
-      { type: FormConstants.Cancel, id: 0, text: 'Cancel' },
-      { type: FormConstants.Return, id: 0, text: 'Return' }
-
-    ]
+ 
     this.customFooter = [{ 
       colspan: 4, data: [
         +summary[0].TotalQty.toFixed(2),

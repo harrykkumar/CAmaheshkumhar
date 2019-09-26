@@ -32,110 +32,97 @@
       <div class="row ">
         <div class="col-md-6">
           <div class="bgc-white bdrs-3 mB-20">
-            <ng-container>
-                <div class="table-responsive" id="parent" style="overflow: auto;">
-                    <table class="table" id="fixTable">
-                      <thead>
-                        <tr>
-                          <th>S.No.</th>
-                          <th>Name</th>
-                          <th>AlterName Name</th>
-                          <th>Parent Menu</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr *ngFor="let item of menuList| paginate: {itemsPerPage: itemsPerPage,currentPage: p,totalItems: total};let i = index;" >
-                          <td>{{i + 1}}</td>
-                          <td>
-                            {{item.Name}}
-                          </td>
-                          <td>{{item.AlternateName}}</td>
-                          <td>{{item.ParentName}}</td>
-                          <td>
-                            <div class="dropdown enquiry-tag">
-                              <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                                  class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
-                              <ul class="dropdown-menu fsz-sm">
-                                <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                      class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
-                                <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                      class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
-                                <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                      class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
-                                <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                      class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
-                                <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                      class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
-                                <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                      class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
-                              </ul>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <!-- <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
-                    (pageNoEmitter)="p = $event;getList();"
-                    (pageSizeEmitter)="itemsPerPage = $event;getList();" >
-                  </app-pagination> -->
-            </ng-container>
-          </div>
-        </div>
-        <div class="col-md-6">
-            <div class="bgc-white bdrs-3 mB-20">
-              <ng-container>
-                  <div class="table-responsive" id="parent" style="overflow: auto;">
-                      <table class="table" id="fixTable">
-                        <thead>
-                          <tr>
-                            <th style="width:10%;" >S.No.</th>
-                            <th style="width:10%;" >Module</th>
-                            <th style="width:50%;">Sub Modules</th>
-                            <th style="width:20%;" >Industry</th>
-                            <th style="width:10%;" >Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr *ngFor="let item of moduleList| paginate: {itemsPerPage: itemsPerPage1,currentPage: p1,totalItems: total1};let i = index;" >
-                            <td>{{i + 1}}</td>
-                            <td>
-                              {{item.ModuleName}}
-                            </td>
-                            <td>{{item.SubModuleName}}</td>
-                            <td>{{item.IndustryName}}</td>
-                            <td>
-                              <div class="dropdown enquiry-tag">
-                                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                                    class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
-                                <ul class="dropdown-menu fsz-sm">
-                                  <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                        class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
-                                  <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                        class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
-                                  <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                        class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
-                                  <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                        class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
-                                  <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                        class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
-                                  <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                        class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
-                                </ul>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                    <!-- <app-pagination #paging_comp1 (lastValueEmitter)="lastItemIndex1 = $event;"
-                    (pageNoEmitter)="p1 = $event;getModuleList();"
-                    (pageSizeEmitter)="itemsPerPage1 = $event;getModuleList();" >
-                  </app-pagination> -->
-              </ng-container>
+            <div class="table-responsive" id="parent" style="overflow: auto;">
+              <table class="table" id="fixTable">
+                <thead>
+                  <tr>
+                    <th>S.No.</th>
+                    <th>Name</th>
+                    <th>AlterName Name</th>
+                    <th>Parent Menu</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="let item of menuList | paginate: {id: 'menu', itemsPerPage: itemsPerPage,currentPage: p,totalItems: total};let i = index;">
+                    <td>{{lastItemIndex + i + 1}}</td>
+                    <td>
+                      {{item.Name}}
+                    </td>
+                    <td>{{item.AlternateName}}</td>
+                    <td>{{item.ParentName}}</td>
+                    <td>
+                      <div class="dropdown enquiry-tag">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+                        <ul class="dropdown-menu fsz-sm">
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="onEdit(item.Id)" ><i
+                            class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
+          <app-pagination #paging_comp [id]="'menu'" (lastValueEmitter)="lastItemIndex = $event;"
+            (pageNoEmitter)="p = $event;getList();" (pageSizeEmitter)="itemsPerPage = $event;getList();">
+          </app-pagination>
+        </div>
+        <div class="col-md-6">
+          <div class="bgc-white bdrs-3 mB-20">
+            <div class="table-responsive" id="parent" style="overflow: auto;">
+              <table class="table" id="fixTable">
+                <thead>
+                  <tr>
+                    <th style="width:10%;">S.No.</th>
+                    <th style="width:10%;">Module</th>
+                    <th style="width:50%;">Sub Modules</th>
+                    <th style="width:20%;">Industry</th>
+                    <th style="width:10%;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!---->
+                  <tr
+                    *ngFor="let item of moduleList| paginate: {id: 'modules',itemsPerPage: itemsPerPage1,currentPage: p1,totalItems: total1};let i = index;">
+                    <td>{{lastItemIndex1 + i + 1}}</td>
+                    <td>
+                      {{item.ModuleName}}
+                    </td>
+                    <td>{{item.SubModuleName}}</td>
+                    <td>{{item.IndustryName}}</td>
+                    <td>
+                      <div class="dropdown enquiry-tag">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+                        <ul class="dropdown-menu fsz-sm">
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <app-pagination #paging_comp1 [id]="'modules'" (lastValueEmitter)="lastItemIndex1 = $event;"
+            (pageNoEmitter)="p1 = $event;getModuleList();" (pageSizeEmitter)="itemsPerPage1 = $event;getModuleList();">
+          </app-pagination>
+        </div>
       </div>
     </div>
   </div>

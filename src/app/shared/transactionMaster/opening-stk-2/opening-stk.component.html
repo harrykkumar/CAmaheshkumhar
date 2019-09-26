@@ -1,0 +1,405 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0">
+              <i class="far fa-building"></i>Opening Stock
+            </p>
+          </div>
+          <div class="col-md-8 right_saerch_side p-0">
+            <div class="btn_header">
+              <a><img src="assets/img/printer.png" /> </a>
+              <a><img src="assets/img/pdf.png" /></a>
+              <a><img src="assets/img/excel.png" /></a>
+              <button type="button" class="btn btn-primary waves-effect waves-light" (click)="triggerModelOpen()">
+                Add Opening Stock
+              </button>
+              <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i
+                  class="fas fa-search"></i>Search</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<div class="modal fade" id="opening-stk" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
+  data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <div class="modal-header primary-bg">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-3 left_side_head">
+              <p class="heading_lead">
+                <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                Opening Stock
+              </p>
+            </div>
+            <div class="col-md-5">
+              <form>
+                <div id="custom-search-input" class="btn_header1">
+                  <div class="input-group col-md-12">
+                    <input type="text" id="searchInput" class="form-control input-lg" placeholder="Search"
+                      (input)="searchFilter()" />
+                    <span class="input-group-btn">
+                      <a>
+                        <i class="fas fa-search"></i>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="col-md-4">
+              <div class="btn_header">
+                <a class="btn btn-default waves-effect" (click)="
+                    validateForm() && postFormData(itemWithAttributeList)
+                  " data-dismiss="modal">
+                  Save
+                </a>
+                <button type="button" (click)="cancelForm()" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true" class="white-text">×</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="isLoading" class="modal-content" >
+        <div class="modal-body" style="height:inherit;" >
+           <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+        </div>
+      </div>
+      <div class="modal-body" *ngIf="!isLoading">
+        <div class="bs-example">
+          <div class="accordion" id="accordionExample">
+            <div class="card" *ngFor="let item of masterItemData; let i = index;" >
+              <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                  <button type="button" class="btn btn-link" attr.data-target="#collapse{{item.ItemId}}"
+                   data-toggle="collapse" >{{item?.ItemName}}</button>
+                </h2>
+                <div class="custom-control custom-checkbox">
+                  <input name="checkAll" type="checkbox"
+                    class="custom-control-input" id="CheckAllItemAttribute" />
+                  <label class="custom-control-label" for="CheckAllItemAttribute"></label>
+                </div>
+              </div>
+              <div id="collapse{{item.ItemId}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body">
+                  <div class="table-responsive table-item-attribute">
+                    <table class="table cat-table fixTable4 table-hover" id="item-attribute-table">
+                      <thead>
+                        <tr class="default_row">
+                          <th>SNo.</th>
+                          <th>Unit Name</th>
+                          <th class="dynamic_fix" *ngFor="let column of masterData?.Attributes">{{ column?.Name }}</th>
+                          <th>BarCode</th>
+                          <th>Client BarCode</th>
+                          <th>Opn. Stk Qty</th>
+                          <th>Opn. Stk Value</th>
+                          <th>Rate</th>
+                          <th>SaleRate</th>
+                          <th>NrvRate</th>
+                          <th>Mrp</th>
+                          <th>OurPrice</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="default_row" *ngFor="let attr of item.AttributeNamestr; let j = index">
+                          <td>{{ j + 1 }}</td>
+                          <td>{{ item.UnitName }}</td>
+                          <td>
+                            <div class="custom-control custom-checkbox">
+                              <input name="{{ j }}-checkItem" [(ngModel)]="item.Checked" type="checkbox"
+                                class="custom-control-input" id="{{ j }}-itemAttribute" />
+                              <label class="custom-control-label" for="{{ j }}-itemAttribute"></label>
+                            </div>
+                          </td>
+                          <td>{{ attr }}</td>
+                          <td>
+                            <input type="text" class="form-control" name="barCode-{{ i }}-{{ j }}" [(ngModel)]="item.Barcode"
+                              [disabled]="!item.Checked" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control" name="client-barCode-{{ j }}"
+                              [(ngModel)]="item.ClientBarCode" [disabled]="!item.Checked" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control" name="opening-stock-qty-{{ j }}"
+                              (input)="onOpeningStockChange(j)" [(ngModel)]="item.Qty" [disabled]="!item.Checked" [ngClass]="{
+                                'is-invalid':
+                                  item.Checked && !item.Qty && item.isInvalid
+                              }" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control" name="opening-stock-value-{{ j }}"
+                              (input)="onOpeningStockValueChange(i)" [(ngModel)]="item.QtyValue" [disabled]="!item.Checked"
+                              [ngClass]="{
+                                'is-invalid':
+                                  item.Checked && !item.QtyValue && item.isInvalid
+                              }" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control" name="purchase-rate-{{ j }}"
+                              (input)="onPurchaseRateChange(i)" [(ngModel)]="item.RatePurchase" [disabled]="!item.Checked"
+                              [ngClass]="{
+                                'is-invalid':
+                                  item.Checked && !item.RatePurchase && item.isInvalid
+                              }" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control" name="sale-rate-{{ j }}" [(ngModel)]="item.RateSale"
+                              [disabled]="!item.Checked" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control" name="nrv-rate-{{ j }}" [(ngModel)]="item.RateNrv"
+                              [disabled]="!item.Checked" />
+                          </td>
+                          <td>
+                            <input type="text" class="form-control" name="mrp-rate-{{ j }}" [(ngModel)]="item.RateMrp"
+                              [disabled]="!item.Checked" />
+                          </td>
+              
+                          <td>
+                            <input type="text" class="form-control" name="oar-price-{{ j }}" [(ngModel)]="item.RateOur"
+                              [disabled]="!item.Checked" />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--<form>
+  <div class="bgc-white bdrs-3 pb-3 mB-20 p-2">
+    <ng-container *ngIf="isAttribute" >
+      <div class="form-row col-md-12" >
+        <div class="form-group col-md-4">
+          <label>Attribute Combination</label>
+          <div class="input-group adw_select">
+            <div class="input-group adw_select">
+              <select2 [data]="attributeCombinationList" [options]="options" [value]="selectedAttributeCombination"
+                (valueChanged)="onAttributeCombinationChange($event)" class="control_select" autocomplete="true">
+              </select2>
+            </div>
+          </div>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Filter On Item</label>
+          <div class="input-group adw_select">
+            <div class="input-group adw_select">
+              <select2 [data]="attributeCombinationList" [options]="options" [value]="selectedAttributeCombination"
+                (valueChanged)="onAttributeCombinationChange($event)" class="control_select" autocomplete="true">
+              </select2>
+            </div>
+          </div>
+        </div>
+        <div class="form-group col-md-2" >
+          <div class="custom-control custom-checkbox pt-4">
+            <input name="checkAllItem" type="checkbox" class="custom-control-input" id="CheckAllItemAttributeItem" />
+            <label class="custom-control-label" for="CheckAllItemAttributeItem">All</label>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <div class="table-responsive table-item-attribute">
+      <table class="table cat-table fixTable4 table-hover" id="item-attribute-table">
+        <thead>
+          <tr class="default_row">
+            <th>SNo.</th>
+            <th>
+              <div class="custom-control custom-checkbox">
+                <input name="checkAll" [(ngModel)]="allChecked" (change)="checkAllItem($event)" type="checkbox"
+                  class="custom-control-input" id="CheckAllItemAttribute" />
+                <label class="custom-control-label" for="CheckAllItemAttribute"></label>
+              </div>
+            </th>
+            <th>Item Name</th>
+            <th>Unit Name</th>
+            <th class="dynamic_fix" *ngFor="let column of masterData?.Attributes">
+              {{ column?.Name }}
+            </th>
+            <th>BarCode</th>
+            <th>Client BarCode</th>
+            <th>Opn. Stk Qty</th>
+            <th>Opn. Stk Value</th>
+            <th>Rate</th>
+            <th>SaleRate</th>
+            <th>NrvRate</th>
+            <th>Mrp</th>
+            <th>OurPrice</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="default_row" *ngFor="let item of itemWithAttributeList; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>
+              <div class="custom-control custom-checkbox">
+                <input name="{{ i }}-checkItem" [(ngModel)]="item.Checked" type="checkbox"
+                  class="custom-control-input" id="{{ i }}-itemAttribute" />
+                <label class="custom-control-label" for="{{ i }}-itemAttribute"></label>
+              </div>
+            </td>
+            <td>{{ item.ItemName }}</td>
+            <td>{{ item.UnitName }}</td>
+            <td *ngFor="let name of item?.AttributeNamestr">
+              {{ name }}
+            </td>
+            <td>
+              <input type="text" class="form-control" name="barCode-{{ i }}" [(ngModel)]="item.Barcode"
+                [disabled]="!item.Checked" />
+            </td>
+            <td>
+              <input type="text" class="form-control" name="client-barCode-{{ i }}"
+                [(ngModel)]="item.ClientBarCode" [disabled]="!item.Checked" />
+            </td>
+            <td>
+              <input type="text" class="form-control" name="opening-stock-qty-{{ i }}"
+                (input)="onOpeningStockChange(i)" [(ngModel)]="item.Qty" [disabled]="!item.Checked" [ngClass]="{
+                  'is-invalid':
+                    item.Checked && !item.Qty && item.isInvalid
+                }" />
+            </td>
+            <td>
+              <input type="text" class="form-control" name="opening-stock-value-{{ i }}"
+                (input)="onOpeningStockValueChange(i)" [(ngModel)]="item.QtyValue" [disabled]="!item.Checked"
+                [ngClass]="{
+                  'is-invalid':
+                    item.Checked && !item.QtyValue && item.isInvalid
+                }" />
+            </td>
+            <td>
+              <input type="text" class="form-control" name="purchase-rate-{{ i }}"
+                (input)="onPurchaseRateChange(i)" [(ngModel)]="item.RatePurchase" [disabled]="!item.Checked"
+                [ngClass]="{
+                  'is-invalid':
+                    item.Checked && !item.RatePurchase && item.isInvalid
+                }" />
+            </td>
+            <td>
+              <input type="text" class="form-control" name="sale-rate-{{ i }}" [(ngModel)]="item.RateSale"
+                [disabled]="!item.Checked" />
+            </td>
+            <td>
+              <input type="text" class="form-control" name="nrv-rate-{{ i }}" [(ngModel)]="item.RateNrv"
+                [disabled]="!item.Checked" />
+            </td>
+            <td>
+              <input type="text" class="form-control" name="mrp-rate-{{ i }}" [(ngModel)]="item.RateMrp"
+                [disabled]="!item.Checked" />
+            </td>
+
+            <td>
+              <input type="text" class="form-control" name="oar-price-{{ i }}" [(ngModel)]="item.RateOur"
+                [disabled]="!item.Checked" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>-->
+
+<!--<div class="row">
+      <div class="col-md-12">
+        <div class="bgc-white bdrs-3 pb-3 mB-20">
+          <div class="table-responsive table_height">
+            <table class="table cat-table fixTable4 table-hover">
+              <thead>
+                <tr class="default_row">
+                  <th>SNo.</th>
+                  <th>Item Name</th>
+                  <th>Unit Name</th>
+                  <th class="dynamic_fix" *ngFor="let column of masterData?.Attributes">{{ column?.Name }}</th>
+                  <th>BarCode</th>
+                  <th>Client BarCode</th>
+                  <th>Opn. Stk Qty</th>
+                  <th>Opn. Stk Value</th>
+                  <th>Rate</th>
+                  <th>SaleRate</th>
+                  <th>NrvRate</th>
+                  <th>Mrp</th>
+                  <th>OurPrice</th>
+                </tr>
+              </thead>
+
+              <tbody *ngIf="isProgress" style="height:100px;">
+                <img src="assets/img/spinner-blue-circle.gif" alt="loading screen"
+                  style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;" />
+              </tbody>
+
+              <tbody>
+                <tr class="default_row" *ngFor="let item of itemWithAttributeList; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.ItemName }}</td>
+                  <td>{{ item.UnitName }}</td>
+                  <td *ngFor="let name of item?.AttributeNamestr">
+                    {{ name }}
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" name="barCode-{{ i }}" [(ngModel)]="item.Barcode"
+                      [disabled]="!item.Checked" />
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" name="client-barCode-{{ i }}"
+                      [(ngModel)]="item.ClientBarCode" [disabled]="!item.Checked" />
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" name="opening-stock-qty-{{ i }}"
+                      (input)="onOpeningStockChange(i)" [(ngModel)]="item.Qty" [disabled]="!item.Checked" [ngClass]="{
+                        'is-invalid':
+                          item.Checked && !item.Qty && item.isInvalid
+                      }" />
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" name="opening-stock-value-{{ i }}"
+                      (input)="onOpeningStockValueChange(i)" [(ngModel)]="item.QtyValue" [disabled]="!item.Checked"
+                      [ngClass]="{
+                        'is-invalid':
+                          item.Checked && !item.QtyValue && item.isInvalid
+                      }" />
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" name="purchase-rate-{{ i }}"
+                      (input)="onPurchaseRateChange(i)" [(ngModel)]="item.RatePurchase" [disabled]="!item.Checked"
+                      [ngClass]="{
+                        'is-invalid':
+                          item.Checked && !item.RatePurchase && item.isInvalid
+                      }" />
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" name="sale-rate-{{ i }}" [(ngModel)]="item.RateSale"
+                      [disabled]="!item.Checked" />
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" name="nrv-rate-{{ i }}" [(ngModel)]="item.RateNrv"
+                      [disabled]="!item.Checked" />
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" name="mrp-rate-{{ i }}" [(ngModel)]="item.RateMrp"
+                      [disabled]="!item.Checked" />
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" name="oar-price-{{ i }}" [(ngModel)]="item.RateOur"
+                      [disabled]="!item.Checked" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>-->

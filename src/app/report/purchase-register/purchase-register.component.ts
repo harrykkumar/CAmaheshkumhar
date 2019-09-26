@@ -166,11 +166,11 @@ export class PurchaseRegisterComponent implements OnInit, AfterViewInit {
       toDate :toDate
     }
     if(type==='Purchase'){
-      this._commonService.reDirectPrintSale(obj)
+      this._commonService.reDirectViewListOfPurchase(obj)
       this._router.navigate(['ims/purchase'])
     }
     if(type==='PurchaseReturn'){
-      this._commonService.reDirectPrintSale(obj)
+      this._commonService.reDirectViewListOfPurchase(obj)
       this._router.navigate(['ims/purchase-return'])
     }
 

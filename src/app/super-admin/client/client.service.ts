@@ -43,7 +43,7 @@ export class ClientService {
   }
 
   getClientList (queryParams): Observable<any> {
-    return this.manipulateResponse(this.baseService.getRequest(`${ApiConstant.POST_CLIENT_SUPER_ADMIN}?${queryParams}`))
+    return this.manipulateResponse(this.baseService.getRequest(`${ApiConstant.POST_CLIENT_SUPER_ADMIN}${queryParams}`))
   }
 
   manipulateResponse (obs: Observable<any>): Observable<any> {

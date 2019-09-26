@@ -38,8 +38,8 @@ export class DashboardComponent {
     this.noOfDecimal = this._settings.noOfDecimal
     this.finToDate =  this._settings.finToDate 
     this.FinFromDate = this._settings.finFromDate
-    let todate = this.gs.utcToClientDateFormat( this.finToDate, this.clientDateFormat)
-    let fromDate = this.gs.utcToClientDateFormat(this.FinFromDate, this.clientDateFormat)
+    let todate = this.gs.convertToSqlFormat( this.finToDate)
+    let fromDate = this.gs.convertToSqlFormat(this.FinFromDate)
     this.getDashBoard(todate,fromDate)
    
   }

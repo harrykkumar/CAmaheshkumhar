@@ -259,12 +259,12 @@ export class PurchaseAddComponent {
     this.getFormDependency()
     this.commonService.openDiscountMasterStatus().subscribe(
       (data: AddCust) => {
-        if (data.open === false && data && data.data ) {
+        if (data.open === false && data && data.data) {
           console.log(data, 'Discount-data')
           this.TaxableValue = this.localTaxableValue
-          this.BillDiscountApplied =[]
-          this.BillDiscount =0
-          this.BillDiscountArray =[]
+          this.BillDiscountApplied = []
+          this.BillDiscount = 0
+          this.BillDiscountArray = []
           this.BillDiscountApplied = data.data
           this.MultipleDiscountCalculate(data.data)
         }
@@ -300,7 +300,7 @@ export class PurchaseAddComponent {
       data => {
         if (data.id && data.name && data.AttributeId) {
           let indexOfAttr = -1
-          if(this.attributesData.length >0) {
+          if (this.attributesData.length > 0) {
             for (let i = 0; i < this.attributesData.length; i++) { if (this.attributesData[i]['attributeId'] === data.AttributeId) { indexOfAttr = i; break; } }
             if (indexOfAttr >= 0) {
               let itemAttributeTrans = JSON.parse(JSON.stringify(this.itemAttributeTrans))
@@ -312,12 +312,12 @@ export class PurchaseAddComponent {
                 this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
                   if (index === indexOfAttr) {
                     attr.setElementValue(data.id)
-                    $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+                    // $('#' + $('.attr')[index].id).removeClass('errorSelecto')
                   } else if (itemAttributeTrans[index].AttributeId) {
                     attr.setElementValue(itemAttributeTrans[index].AttributeId)
-                    $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+                    //  $('#' + $('.attr')[index].id).removeClass('errorSelecto')
                   } else {
-                    $('#' + $('.attr')[index].id).addClass('errorSelecto')
+                    // $('#' + $('.attr')[index].id).addClass('errorSelecto')
                   }
                 })
               }, 100)
@@ -535,7 +535,7 @@ export class PurchaseAddComponent {
           this.PartyId = +data.id
           this.vendorValue = data.id
           this.vendorGSTType = data.gstType
-          
+
           this.CreditLimit = 0
           this.CreditDays = 0
           setTimeout(() => {
@@ -675,7 +675,7 @@ export class PurchaseAddComponent {
     )
   }
 
-  getAllCategoriesOnImport () {
+  getAllCategoriesOnImport() {
     this._catagoryservices.GetCatagoryDetail('').subscribe(data => {
       console.log('categories : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -692,7 +692,7 @@ export class PurchaseAddComponent {
       data => {
         console.log('edit data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-          
+
           this.allAddressData = data.Data.AddressDetails
           this.purchaseService.createAddress(data.Data.AddressDetails)
           this.addressSelect2.setElementValue(data.Data.PurchaseTransactions[0].AddressId)
@@ -743,7 +743,7 @@ export class PurchaseAddComponent {
     this.getBillSummary()
     this.creatingForm = false
     this.BillDiscountApplied = []
-    data.DiscountTrans.forEach((ele,indx) => {
+    data.DiscountTrans.forEach((ele, indx) => {
       data.DiscountTrans[indx]['isChecked'] = true
     });
     this.BillDiscountApplied = data.DiscountTrans
@@ -794,15 +794,15 @@ export class PurchaseAddComponent {
         this.LedgerChargeId = element.LedgerChargeId
         this.LedgerName = element.LedgerName
         this.AmountCharge = element.AmountCharge
-        // this.TaxSlabChargeId = element.TaxSlabChargeId 
-        this.TaxSlabChargeId = this.vendorGSTType===1 ? element.TaxSlabChargeId  : 0
+        this.TaxSlabChargeId = this.vendorGSTType === 1 ? element.TaxSlabChargeId : 0
         this.TaxChargeName = element.TaxChargeName
         this.TaxAmountCharge = element.TaxAmountCharge
         this.TotalAmountCharge = element.TotalAmountCharge
-        this.TaxTypeCharge = element.TaxTypeCharge
+        this.EditabledChargeRow = true,
+          this.TaxTypeCharge = element.TaxTypeCharge
         this.taxTypeChargeName = this.taxTypeChargeName
         this.taxChargeSlabType = element.TaxSlabType
-        this.taxChargeRates = this.vendorGSTType ===1 ? taxRates : [] 
+        this.taxChargeRates = this.vendorGSTType === 1 ? taxRates : []
         this.TaxableAmountCharge = (+element.TaxTypeCharge === 0) ? this.AmountCharge : +this.TotalAmountCharge - this.TaxAmountCharge
         this.addCharge()
         if (this.AdditionalCharges[this.AdditionalCharges.length - 1]) {
@@ -833,7 +833,7 @@ export class PurchaseAddComponent {
   }
 
   createItems(ItemTransactions) {
-    
+
     ItemTransactions.forEach(element => {
       let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.PurchaseForm && taxRate.SlabId === element.TaxSlabId)
       let total = +(isNaN(+element.PurchaseRate) ? 0 : +element.PurchaseRate)
@@ -873,6 +873,7 @@ export class PurchaseAddComponent {
       this.Height = +element.Height
       this.Width = +element.Width
       this.Quantity = +element.Quantity
+      this.DisabledRow = true
       this.SaleRate = element.SaleRate
       this.MrpRate = element.MrpRate
       this.PurchaseRate = +element.PurchaseRate
@@ -895,7 +896,7 @@ export class PurchaseAddComponent {
       this.SubTotal = +element.SubTotal
       this.itemAttributeTrans = itemAttributeTrans
       this.taxSlabType = element.TaxSlabType
-      this.taxRates = this.vendorGSTType ===1 ? taxRates : []
+      this.taxRates = this.vendorGSTType === 1 ? taxRates : []
       this.editItemId = element.Id
       this.AmountItem = (+element.TaxType === 0) ? this.calcTotal() : +this.SubTotal - this.TaxAmount
       if (+element.TaxType === 1 && this.taxCalInclusiveType === 2) {
@@ -907,7 +908,7 @@ export class PurchaseAddComponent {
             this.DiscountAmt = 0
           }
         }
-       // this.AmountItem = this.AmountItem - this.DiscountAmt
+        // this.AmountItem = this.AmountItem - this.DiscountAmt
       }
       this.addItems()
       if (this.Items[this.Items.length - 1]) {
@@ -937,6 +938,7 @@ export class PurchaseAddComponent {
         this.Paymode = element.Paymode
         this.PayModeId = element.PayModeId
         this.LedgerId = element.LedgerId
+        this.EditabledPay = true
         this.BankLedgerName = element.BankLedgerName
         this.Amount = element.Amount
         this.PayDate = this.gs.utcToClientDateFormat(element.PayDate, this.clientDateFormat)
@@ -1000,7 +1002,7 @@ export class PurchaseAddComponent {
     this.CreditLimit = +others.CreditLimit
     this.ConvertToCurrencyId = +others.ConvertedCurrencyId
     this.LocationTo = others.LocationTo
-  
+
     this.isOtherState = !!others.IsOtherStatemain
     this.defaultCurrency = others.Currency
     this.setPayDate()
@@ -1042,8 +1044,9 @@ export class PurchaseAddComponent {
   noOfDecimalPoint: number = 0
   backDateEntry: boolean = false
   isBillNoManuall: boolean = false
+  BarCodeEnableFlag: any = 0
   taxCalInclusiveType: number = 2
-  MultipleBillDiscountPurchase:number =1
+  MultipleBillDiscountPurchase: number = 1
   getSetUpModules(settings) {
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
@@ -1070,6 +1073,9 @@ export class PurchaseAddComponent {
       if (element.id === SetUpIds.MultipleBillDiscountPurchase) {
         this.MultipleBillDiscountPurchase = +element.val
       }
+      if (element.id === SetUpIds.BarCodeEnable) {
+        this.BarCodeEnableFlag = +element.val
+      }
     })
     this.createModels(this.catLevel)
   }
@@ -1088,7 +1094,7 @@ export class PurchaseAddComponent {
         if (event.value > 0 && event.data[0] && event.data[0].text) {
           this.PartyId = +event.value
           this.getAllAddresses(this.PartyId)
-        //  this.checkForGST()
+          // this.checkForGST()
 
         }
       }
@@ -1100,7 +1106,6 @@ export class PurchaseAddComponent {
   vendorGSTType: any
   getAllAddresses(vendorId) {
     this.purchaseService.getAllAddresses(vendorId).subscribe(data => {
-      // console.log('addresses : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.AddressDetails && data.Data.AddressDetails) {
           this.allAddressData = data.Data.AddressDetails
@@ -1114,6 +1119,9 @@ export class PurchaseAddComponent {
           this.CreditDays = LedgerDetails.CreditDays
           this.CreditDays === 0 ? this.updateDuedate() : this.updateCurrentdate()
           this.vendorGSTType = data.Data.LedgerDetails[0].TaxTypeId
+          if (data.Data.LedgerDetails[0].TaxTypeId !== 1) {
+            this.AddressId = 0
+          }
           this.outStandingBalance = (data.Data.LedgerDetails[0].OpeningAmount).toFixed(this.noOfDecimalPoint)
           this.setCRDR = data.Data.LedgerDetails[0].Crdr === 0 ? 'Cr' : 'Dr';
           this.checkForGST()
@@ -1127,7 +1135,7 @@ export class PurchaseAddComponent {
     if (+this.OrgId > 0 && this.CurrentDate) {
       let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
       let type = (this.isBillNoManuall) ? 2 : 1
-      this.purchaseService.getNewBillNoPurchase(+this.OrgId, newBillDate, type,'Purchase').subscribe(
+      this.purchaseService.getNewBillNoPurchase(+this.OrgId, newBillDate, type, 'Purchase').subscribe(
         data => {
           // console.log('new bill no : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -1152,6 +1160,11 @@ export class PurchaseAddComponent {
 
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
+    this.attributesData =[]
+    this.BillNo=''
+    this.showHideAddItemRow = true
+    this.showHideItemCharge = true
+    this.showHidePayment = true
     this.outStandingBalance = 0
     this.getListOfChargeData()
     $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
@@ -1215,7 +1228,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  importCategory () {
+  importCategory() {
     this.commonService.openCatImport()
   }
 
@@ -1256,7 +1269,7 @@ export class PurchaseAddComponent {
     }
   }
   setBillDate() {
-   // this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
+    // this.BillDate = this.gs.getDefaultDate(this.clientDateFormat)
   }
 
   setPartyBillDate() {
@@ -1292,7 +1305,7 @@ export class PurchaseAddComponent {
         this.categories[i].data = [{ id: '0', text: 'Select Category' }]
       }
     }
-    this.allCategories = [ ...data ]
+    this.allCategories = [...data]
     let _self = this
     data.forEach(category => {
       // console.log('category.LevelNo : ', category.LevelNo)
@@ -1414,21 +1427,77 @@ export class PurchaseAddComponent {
         if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
           this.ItemId = +evt.value
           this.itemName = evt.data[0].text
-          this.getItemDetail(this.ItemId)
+          let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+
+          this.getItemDetail(this.ItemId, newBillDate, '')
           this.updateAttributes()
         }
       }
     }
   }
+  Barcode: any = ''
+  notItemAddedOutOfStock: boolean = true
+  barCodeReader() {
+    if (this.Barcode.length > 0) {
+      let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+      this.getItemDetail(0, newBillDate, this.Barcode)
 
-  getItemDetail(id) {
-    this.purchaseService.getItemDetail(id).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+
+    }
+  }
+  withoutAttributeData() {
+    this.attributesData.forEach((element, index) => {
+      let Sno = 0
+      if (this.Items.length === 0) {
+        Sno = 1
+      } else {
+        Sno = this.Items[this.Items.length - 1].Sno + 1
+      }
+      {
+        this.itemAttributeTrans[index] = {
+          ItemId: this.ItemId,
+          ItemTransId: Sno,
+          AttributeId: +0,
+          ParentTypeId: FormConstants.SaleForm,
+          name: '',
+          id: 0,
+          Sno: Sno
+        }
+      }
+    });
+  }
+   
+  BarcodeWithAttribute(data) {
+    data.forEach((element, index) => {
+      let Sno = 0
+      if (this.Items.length === 0) {
+        Sno = 1
+      } else {
+        Sno = this.Items[this.Items.length - 1].Sno + 1
+      }
+      {
+        this.itemAttributeTrans[index] = {
+          ItemId: element.ItemId,
+          ItemTransId: Sno,
+          AttributeId: +element.AttributeId,
+          ParentTypeId: FormConstants.SaleForm,
+          name: element.AttributeValueName,
+          id: 0,
+          Sno: Sno
+        }
+      }
+    });
+  }
+  getItemDetail(id, Billdate, barcode) {
+    this.purchaseService.getItemDetail(id, Billdate, barcode).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       console.log('item detail : ', data)
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.length > 0) {
           this.categoryName = data.Data[0].CategoryName
+          this.ItemId = data.Data[0].Id
+          this.itemName = data.Data[0].Name
           this.updateCategories(data.Data[0].CategoryId)
-          this.categoryId =data.Data[0].CategoryId
+          this.categoryId = data.Data[0].CategoryId
           this.TaxSlabId = data.Data[0].TaxId
           this.UnitId = data.Data[0].UnitId
           this.unitSelect2.setElementValue(data.Data[0].UnitId)
@@ -1438,6 +1507,11 @@ export class PurchaseAddComponent {
           this.SaleRate = data.Data[0].SaleRate
           this.PurchaseRate = data.Data[0].PurchaseRate
           this.MrpRate = data.Data[0].Mrprate
+          this.itemselect2.setElementValue(data.Data[0].Id)
+          this.withoutAttributeData()
+          if (data.Data && data.Data.ItemBarCodeDetails && data.Data.ItemBarCodeDetails.length > 0) {      
+            this.BarcodeWithAttribute(data.Data.ItemBarCodeDetails)
+          }
           if (+this.TaxSlabId > 0) {
             this.getTaxDetail(this.TaxSlabId)
           } else {
@@ -1452,11 +1526,14 @@ export class PurchaseAddComponent {
       (error) => {
         this.toastrService.showError(error, '')
       })
+    if (this.BarCodeEnableFlag) {
+      this.addItems()
+      this.Barcode = ''
+    }
   }
 
   onAttributeSelect(evt, index, attributeId) {
-    // console.log('evt on change of attribute : ', evt)
-    if (+evt.value > 0 && evt.data.length > 0) {
+    if (+evt.value >= 0 && evt.data.length > 0) {
       let Sno = 0
       if (this.Items.length === 0) {
         Sno = 1
@@ -1467,14 +1544,15 @@ export class PurchaseAddComponent {
         this.itemAttributeTrans[index]['ItemId'] = this.ItemId
         this.itemAttributeTrans[index]['AttributeId'] = +evt.value
         this.itemAttributeTrans[index]['ParentTypeId'] = FormConstants.PurchaseForm
-        this.itemAttributeTrans[index]['name'] = evt.data[0].text
+        this.itemAttributeTrans[index]['name'] = evt.value==='0' ? '' : evt.data[0].text
+        
       } else {
         this.itemAttributeTrans[index] = {
           ItemId: this.ItemId,
           ItemTransId: Sno,
           AttributeId: +evt.value,
           ParentTypeId: FormConstants.PurchaseForm,
-          name: evt.data[0].text,
+          name: evt.value==='0' ? '' : evt.data[0].text,
           id: 0,
           Sno: Sno
         }
@@ -1495,9 +1573,9 @@ export class PurchaseAddComponent {
 
     this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
       if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-        $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+        // $('#' + $('.attr')[index].id).removeClass('errorSelecto')
       } else {
-        $('#' + $('.attr')[index].id).addClass('errorSelecto')
+        //$('#' + $('.attr')[index].id).addClass('errorSelecto')
       }
     })
     // console.log('this.itemAttributeTrans : ', this.itemAttributeTrans)
@@ -1578,9 +1656,23 @@ export class PurchaseAddComponent {
   //console.log('new cateogries : ', this.categories)
   @ViewChildren('cat_select2') catSelect2: QueryList<Select2Component>
   updateCategories(childmostId) {
-    console.log('childmostId id : ', childmostId)
-    console.log('this.categoryId id : ', this.categoryId)
     if (this.categoryId !== childmostId || this.editItemId !== -1) {
+      let pattern = [childmostId]
+      this.catSelect2.forEach(() => {
+        let parent = this.getParentCat(childmostId)
+        if (parent !== 0) {
+          pattern.push(parent)
+          childmostId = parent
+        }
+      })
+      pattern = pattern.reverse()
+      setTimeout(() => {
+        this.catSelect2.forEach((item: Select2Component, index: number) => {
+          item.setElementValue(pattern[index])
+        })
+      }, 100)
+    }
+    else {
       let pattern = [childmostId]
       this.catSelect2.forEach(() => {
         let parent = this.getParentCat(childmostId)
@@ -1814,13 +1906,13 @@ export class PurchaseAddComponent {
           this.AddressId = +evt.value
           this.checkForGST()
         }
-       
+
       }
       this.checkForValidation()
     }
-    if(+evt.value=== 0 ){
+    if (+evt.value === 0) {
       this.AddressId = 0
-      this.isOtherState =false
+      this.isOtherState = false
       this.updateItemTax()
     }
   }
@@ -1834,12 +1926,9 @@ export class PurchaseAddComponent {
         isOtherState = false
       }
     })
-    // if (this.isOtherState !== isOtherState) {
     this.isOtherState = isOtherState
     this.updateItemTax()
-    // } else {
-    //   this.loadingSummary = false
-    // }
+
   }
 
   updateChargeTax() {
@@ -1852,12 +1941,14 @@ export class PurchaseAddComponent {
       }
       forkJoin(...observables).subscribe(
         data => {
-          // console.log(data)
-          if(this.vendorGSTType ===1){
           data.forEach((element, index) => {
             let appliedTaxRatesCharge = []
             let taxChargeSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
+            if (this.vendorGSTType !== 1) {
+              element.Data.TaxRates = []
+            }
             if (+this.AdditionalCharges[index].AmountCharge > 0) {
+
               if (this.AdditionalCharges[index].TaxTypeCharge === 1) {
                 let returnTax = this.purchaseService.taxCalCulationForInclusive(element.Data.TaxRates,
                   taxChargeSlabType,
@@ -1887,12 +1978,7 @@ export class PurchaseAddComponent {
             }
             this.AdditionalCharges[index]['TotalAmountCharge'] = +this.AdditionalCharges[index].AmountCharge + +this.AdditionalCharges[index]['TaxAmountCharge']
           });
-        }
-        else {
-          this.taxChargeSlabType = 0
-          this.taxChargeRates = []
-          this.calculate()
-        }
+
           this.calculateAllTotal()
         },
         (error) => {
@@ -1900,7 +1986,6 @@ export class PurchaseAddComponent {
         },
         () => {
           setTimeout(() => {
-            // this.updateTax()
             this.getBillSummary()
           }, 100)
         }
@@ -1911,6 +1996,7 @@ export class PurchaseAddComponent {
   }
 
   updateItemTax() {
+
     if (this.Items.length > 0) {
       const observables = [];
       for (const item of this.Items) {
@@ -1920,12 +2006,15 @@ export class PurchaseAddComponent {
       }
       forkJoin(...observables).subscribe(
         data => {
-          // console.log(data)
-          if(this.vendorGSTType ===1){
+          // if(this.vendorGSTType ===1){
+
           data.forEach((element, index) => {
             let appliedTaxRatesItem = []
             let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
             if (element.Data.TaxRates.length > 0 && +this.Items[index].AmountItem > 0) {
+              if (this.vendorGSTType !== 1) {
+                element.Data.TaxRates = []
+              }
               if (this.Items[index].TaxType === 1) {
                 let returnTax = this.purchaseService.taxCalCulationForInclusive(element.Data.TaxRates,
                   taxSlabType,
@@ -1955,12 +2044,7 @@ export class PurchaseAddComponent {
             }
             this.Items[index]['SubTotal'] = +this.Items[index].AmountItem + +this.Items[index]['TaxAmount']
           });
-        }
-        else {
-          this.taxSlabType = 0
-          this.taxRates = []
-          this.calculate()
-        } 
+
           this.calculateAllTotal()
         },
         (error) => {
@@ -1978,21 +2062,19 @@ export class PurchaseAddComponent {
         }
       )
     }
-    else if(this.Items.length ===0){
-        this.calculate()
-    } 
-     else {
+    else if (this.Items.length === 0) {
+      this.calculate()
+    }
+    else {
       this.updateChargeTax()
     }
   }
 
   onCurrencySelect(evt) {
-    // console.log('selected currency : ', evt)
     if (evt.value > 0 && evt.data && evt.data.length > 0 && evt.data[0].text) {
       this.CurrencyId = +evt.value
       this.defaultCurrency = evt.data[0].text
       this.currencyValues[1] = { id: '1', symbol: evt.data[0].text }
-      // console.log('currencyValues : ', this.currencyValues)
     }
     this.checkForValidation()
   }
@@ -2030,7 +2112,7 @@ export class PurchaseAddComponent {
       if (+event.value !== 1) {
         this.BankLedgerName = ''
         this.LedgerId = 0
-        this.setpaymentLedgerSelect2(0,+event.value)
+        this.setpaymentLedgerSelect2(0, +event.value)
       } else if (+event.value === 1) {
         this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
         this.BankLedgerName = 'Cash'
@@ -2065,7 +2147,7 @@ export class PurchaseAddComponent {
     }
   }
 
-  setpaymentLedgerSelect2(i,paymentId) {
+  setpaymentLedgerSelect2(i, paymentId) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.commonService.getPaymentLedgerDetail(paymentId).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
@@ -2093,7 +2175,7 @@ export class PurchaseAddComponent {
           this.ChequeNo = this.PaymentDetail[i].ChequeNo
           this.paymentSelect2.setElementValue(this.PayModeId)
           this.ledgerSelect2.setElementValue(this.LedgerId)
-          this.deleteItem(i, 'trans',false)
+          // this.deleteItem(i, 'trans',false)
         }
       })
   }
@@ -2150,6 +2232,7 @@ export class PurchaseAddComponent {
     this.PayModeId = 0
     this.LedgerId = 0
     this.Amount = 0
+    this.editTransId = -1
     this.PayDate = this.CurrentDate
     this.ChequeNo = ''
     this.Paymode = ''
@@ -2163,92 +2246,77 @@ export class PurchaseAddComponent {
   }
 
   addTransactions() {
-    //  && this.PayDate
-   if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
-      if ((+this.PayModeId !== 1 ) || (+this.PayModeId === 1)) {
+    if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
+      if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
         if (this.checkValidationForAmount()) {
           this.addTransaction()
+          if (this.editTransId > 0) {
+            this.showHidePayment = true
+          }
+          this.PaymentDetail.forEach((element, i) => {
+            if (element.Id === 0) {
+              this.showHidePayment = true
+            }
+          })
           this.clickTrans = true
           this.initialiseTransaction()
-          // console.log('transactions : ', this.PaymentDetail)
-          // this.setPayDate()
           this.calculatePaymentAmount()
         }
       } else {
         this.clickTrans = false
-        // if (+this.PayModeId === 3) {
-        //   if (this.ChequeNo) {
-        //     this.invalidObj['ChequeNo'] = false
-        //   } else {
-        //     this.invalidObj['ChequeNo'] = true
-        //   }
-        // } else {
-        //   this.invalidObj['ChequeNo'] = false
-        // }
       }
-   }
+    }
   }
-
   addTransaction() {
+    let index = 0
     if (this.PaymentDetail.length === 0) {
-      this.PaymentDetail.push({
-        Id: 0,
-        Sno: 1,
-        Paymode: this.Paymode,
-        PayModeId: this.PayModeId,
-        LedgerId: this.LedgerId,
-        BankLedgerName: this.BankLedgerName,
-        Amount: +this.Amount,
-        PayDate: this.PayDate,
-        ChequeNo: this.ChequeNo
-      })
+      index = 1
     } else {
-      let index = +this.PaymentDetail[this.PaymentDetail.length - 1].Sno + 1
-      this.PaymentDetail.push({
-        Id: 0,
-        Sno: index,
-        Paymode: this.Paymode,
-        PayModeId: this.PayModeId,
-        LedgerId: this.LedgerId,
-        BankLedgerName: this.BankLedgerName,
-        Amount: this.Amount,
-        PayDate: this.PayDate,
-        ChequeNo: this.ChequeNo
+      index = +this.PaymentDetail[this.PaymentDetail.length - 1].Sno + 1
+      this.PaymentDetail.forEach((element, i) => {
+        if (this.editTransId > 0) {
+          if (element.Id === this.editTransId) {
+            this.PaymentDetail.splice(i, 1)
+          }
+        }
+        if (element.Sno === this.editTransSno) {
+          this.PaymentDetail.splice(i, 1)
+        }
+
       })
     }
+    this.PaymentDetail.push({
+      Id: 0,
+      Sno: index,
+      Paymode: this.Paymode,
+      PayModeId: this.PayModeId,
+      LedgerId: this.LedgerId,
+      BankLedgerName: this.BankLedgerName,
+      Amount: this.Amount,
+      PayDate: this.PayDate,
+      ChequeNo: this.ChequeNo,
+      isEditable: this.EditabledPay
+    })
+
     setTimeout(() => {
       this.commonService.fixTableHFL('trans-table')
     }, 1)
     if (this.editTransId !== -1) {
       this.PaymentDetail[this.PaymentDetail.length - 1].Id = this.editTransId
     }
+
   }
 
+
   addItems() {
-    if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && this.PurchaseRate > 0) {
-      // if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
-      //   || (this.industryId === 3 && this.Length && this.Width && this.Height)
-      //   || (this.industryId === 2 || this.industryId === 6 || this.industryId === 7)) 
-      //   {
-        this.addItem()
-        this.clickItem = true
-        //if (!this.editMode) {
-         // this.TaxSlabId =this.vendorGSTType ===1
-          this.BillDiscount = 0
-          this.BillDiscountArray = []
-        this.BillDiscountCalculate()
-        //}
-        this.calculateAllTotal()
-        console.log('items : ', this.Items)
-        // if (!this.editMode) {
-        //   this.calculateAllTotal()
-        // }
-        this.initItem()
-        if (this.industryId === 5) {
-          // this.setExpiryDate()
-          // this.setMfdDate()
-        }
-      //}
+    if (this.validDiscount && +this.UnitId > 0 && this.PurchaseRate > 0) {
+      this.addItem()
+      this.clickItem = true
+      this.calculateAllTotal()
+      this.initItem()
+      this.BillDiscount = 0
+      this.BillDiscountArray = []
+      this.BillDiscountCalculate()
     }
   }
 
@@ -2258,7 +2326,16 @@ export class PurchaseAddComponent {
     if (this.appliedTaxRatesItem.length > 0) {
       this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesItem)
     }
-    console.log('ItemTaxTrans : ', this.ItemTaxTrans)
+    if (this.editItemId > 0) {
+      this.showHideAddItemRow = true
+    }
+
+    this.Items.forEach((element, i) => {
+      if (element.Id === 0) {
+        this.showHideAddItemRow = true
+      }
+    })
+
   }
 
   addItemBasedOnIndustry() {
@@ -2267,6 +2344,27 @@ export class PurchaseAddComponent {
       Sno = 1
     } else if (this.Items.length > 0) {
       Sno = +this.Items[this.Items.length - 1].Sno + 1
+      this.Items.forEach((element, i) => {
+        if (this.editItemId > 0) {
+          if (element.Id === this.editItemId) {
+            this.Items.splice(i, 1)
+            this.ItemAttributeTrans = []
+            this.Items.forEach(item => {
+              this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
+            })
+          }
+        }
+        if (element.Id === 0) {
+          if (element.Sno === this.editItemSno) {
+            this.Items.splice(i, 1)
+            this.ItemAttributeTrans = []
+            this.Items.forEach(item => {
+              this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
+            })
+          }
+        }
+
+      })
     }
     this.appliedTaxRatesItem.forEach(element => {
       element['Sno'] = Sno
@@ -2293,7 +2391,7 @@ export class PurchaseAddComponent {
       MrpRate: +this.MrpRate,
       PurchaseRate: +this.PurchaseRate,
       TotalRate: +this.TotalRate,
-      TaxSlabId: this.vendorGSTType===1 ? +this.TaxSlabId : 0  ,
+      TaxSlabId: this.TaxSlabId,
       TaxType: +this.TaxType,
       TaxAmount: +this.TaxAmount,
       DiscountType: +this.DiscountType,
@@ -2314,10 +2412,8 @@ export class PurchaseAddComponent {
       taxSlabType: this.taxSlabType,
       taxRates: this.taxRates,
       itemTaxTrans: this.appliedTaxRatesItem,
-      AmountItemBillDiscount: this.AmountItemBillDiscount
-      // selected:true,
-      // ReturnQuantity:0,
-      // fixPurchaseRate:0,
+      AmountItemBillDiscount: this.AmountItemBillDiscount,
+      isDisabled: this.DisabledRow
     })
     this.addItemDisbaled = false
     setTimeout(() => {
@@ -2327,14 +2423,24 @@ export class PurchaseAddComponent {
     if (this.editItemId !== -1) {
       this.Items[this.Items.length - 1].Id = this.editItemId
     }
+    console.log(this.Items)
   }
-
+  DisabledRow: boolean = true
+  EditabledChargeRow: boolean = true
+  EditabledPay: boolean = true
+  showHideAddItemRow: any = true
+  showHideItemCharge: any = true
+  showHidePayment: any = true
+  editTransSno: number = 0
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
     if (type === 'charge' && this.editChargeId === -1) {
       this.editChargeId = editId
       this.editChargeSno = sno
       i = i - 1
+      this.showHideItemCharge = false
+      this.AdditionalCharges[i].isEditable = false
+      this.EditabledChargeRow = true
       this.LedgerName = this.AdditionalCharges[i].LedgerName
       this.LedgerChargeId = this.AdditionalCharges[i].LedgerChargeId
       this.alreadySelectCharge(this.LedgerChargeId, this.LedgerName, false)
@@ -2354,19 +2460,22 @@ export class PurchaseAddComponent {
         this.chargeSelect2.setElementValue(LedgerChargeId)
         this.taxSlabChargeSelect2.setElementValue(this.TaxSlabChargeId)
         this.taxTypeChargeSelect2.setElementValue(this.TaxTypeCharge)
-        this.deleteItem(i, type,false)
+        //  this.deleteItem(i, type,false)
         this.validateCharge()
       }, 100)
-    } else if (type === 'charge' && this.editChargeId !== -1) {
-      this.toastrService.showInfo('', 'There is already one transaction to edit, please update it this first in order to edit others')
     }
+
     if (type === 'trans' && this.editTransId === -1) {
       this.editTransId = editId
       i = i - 1
+      this.editTransSno = sno
+      this.showHidePayment = false
+      this.PaymentDetail[i].isEditable = false
+      this.EditabledPay = true
       if (+this.PaymentDetail[i].PayModeId !== 1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
-        this.setpaymentLedgerSelect2(i,+this.PaymentDetail[i].PayModeId)
+        this.setpaymentLedgerSelect2(i, +this.PaymentDetail[i].PayModeId)
       } else if (+this.PaymentDetail[i].PayModeId === 1) {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.Paymode = this.PaymentDetail[i].Paymode
@@ -2378,15 +2487,17 @@ export class PurchaseAddComponent {
         this.ChequeNo = this.PaymentDetail[i].ChequeNo
         this.paymentSelect2.setElementValue(this.PayModeId)
         this.ledgerSelect2.setElementValue(this.LedgerId)
-        this.deleteItem(i, type,false)
+        //this.deleteItem(i, type,false)
       }
-    } else if (type === 'trans' && this.editTransId !== -1) {
-      this.toastrService.showInfo('', 'There is already one transaction to edit, please update it this first in order to edit others')
     }
+
     if (type === 'items' && this.editItemId === -1) {
       this.editItemId = editId
       this.editItemSno = sno
       i = i - 1
+      this.showHideAddItemRow = false
+      this.Items[i].isDisabled = false
+      this.DisabledRow = true
       this.TransType = 0
       this.TransId = 0
       this.ChallanId = 0
@@ -2415,6 +2526,7 @@ export class PurchaseAddComponent {
       this.MfdDate = this.Items[i].MfdDate
       this.BatchNo = this.Items[i].BatchNo
       this.Remark = this.Items[i].Remark
+      this.TotalRate = this.Items[i].TotalRate
       this.SubTotal = this.Items[i].SubTotal
       this.AmountItem = this.Items[i].AmountItem
       this.taxSlabType = this.Items[i].taxSlabType
@@ -2422,8 +2534,6 @@ export class PurchaseAddComponent {
       this.appliedTaxRatesItem = this.Items[i].itemTaxTrans
       this.taxRates = this.Items[i].taxRates
       this.unitSelect2.setElementValue(this.UnitId)
-      this.taxSlabSelect2.setElementValue(this.TaxSlabId)
-      this.taxTypeSelect2.setElementValue(this.TaxType)
       if (this.attrSelect2.length > 0) {
         this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
           item.setElementValue(this.itemAttributeTrans[index].AttributeId)
@@ -2432,21 +2542,28 @@ export class PurchaseAddComponent {
       let ItemId = this.Items[i].ItemId
       this.updateCategories(this.categoryId)
       this.checkForItems(this.categoryId)
+
       this.BillDiscount = 0
       this.BillDiscountArray = []
       this.BillDiscountCalculate()
+
       let _self = this
+      let TaxSlabId = this.Items[i].TaxSlabId
+      let TaxType = this.Items[i].TaxType
+
       setTimeout(() => {
         _self.itemselect2.setElementValue(ItemId)
         _self.ItemId = ItemId
-        _self.deleteItem(i, type,false)
+        _self.taxSlabSelect2.setElementValue(TaxSlabId)
+        _self.TaxSlabId = TaxSlabId
+        _self.taxTypeSelect2.setElementValue(TaxType)
+        _self.TaxType = TaxType
       }, 1)
-    } else if (type === 'items' && this.editItemId !== -1) {
-      this.toastrService.showInfo('', 'There is already one item to edit, please update it this first in order to edit others')
     }
+
   }
 
-  deleteItem(i, forArr,flag) {
+  deleteItem(i, forArr, flag) {
     if (forArr === 'trans') {
       this.PaymentDetail.splice(i, 1)
       this.checkValidationForAmount()
@@ -2458,9 +2575,11 @@ export class PurchaseAddComponent {
         this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
       })
       console.log('after TaxAmount : ', this.TaxAmount)
+
       this.BillDiscount = 0
       this.BillDiscountArray = []
       this.BillDiscountCalculate()
+
       if (this.Items.length > 0) {
         this.addItemDisbaled = false
       }
@@ -2469,7 +2588,7 @@ export class PurchaseAddComponent {
       }
     }
     if (forArr === 'charge') {
-     if (flag) {
+      if (flag) {
         this.alreadySelectCharge(this.AdditionalCharges[i].LedgerChargeId, this.AdditionalCharges[i].LedgerName, false)
       }
       this.AdditionalCharges.splice(i, 1)
@@ -2478,7 +2597,10 @@ export class PurchaseAddComponent {
   }
 
   closePurchase() {
-    this.BillDiscountApplied =[]
+    this.BillDiscountApplied = []
+    this.showHideAddItemRow = true
+    this.showHideItemCharge = true
+    this.showHidePayment = true
     this.commonService.closePurchase()
   }
 
@@ -2601,6 +2723,7 @@ export class PurchaseAddComponent {
   initTransaction() {
     this.Paymode = ''
     this.PayModeId = 0
+    this.editTransSno = 0
     this.LedgerId = 0
     this.Amount = 0
     this.BankLedgerName = ''
@@ -2655,7 +2778,7 @@ export class PurchaseAddComponent {
     this.BillAmount = 0
     this.PartyBillNo = ''
     //this.BillNo = ''
-   this.outStandingBalance=0
+    this.outStandingBalance = 0
     this.AddressId = 0
     this.ConvertedAmount = 0
     this.CurrencyRate = 0
@@ -2853,7 +2976,8 @@ export class PurchaseAddComponent {
         ItemAttributeTrans: this.ItemAttributeTrans,
         ItemTaxTrans: this.ItemTaxTrans,
         AdditionalCharges: this.AdditionalCharges,
-        DiscountTrans: this.BillDiscountArray
+        DiscountTrans: this.BillDiscount === 0 ? [] : this.BillDiscountArray
+
       } as PurchaseAdd
     }
     console.log('obj : ', JSON.stringify(purchaseAddParams.obj))
@@ -2919,7 +3043,7 @@ export class PurchaseAddComponent {
   checkForValidation() {
     if (this.PartyId || this.OrgId || this.BillDate || this.BillNo
       || this.PartyBillDate || this.PartyBillNo || this.CurrencyId
-      || this.GodownId 
+      || this.GodownId
       || this.ItemId || this.UnitId || this.TaxSlabId
       || this.PurchaseRate
       || this.BatchNo || this.ExpiryDate || this.MfdDate
@@ -3052,14 +3176,14 @@ export class PurchaseAddComponent {
             this.invalidObj['Width'] = true
           }
         }
-        this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-          if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-            $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-          } else {
-            isValid = 0
-            $('#' + $('.attr')[index].id).addClass('errorSelecto')
-          }
-        })
+        // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
+        //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
+        //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+        //   } else {
+        //     isValid = 0
+        //     $('#' + $('.attr')[index].id).addClass('errorSelecto')
+        //   }
+        // })
       }
       return !!isValid
     }
@@ -3149,14 +3273,14 @@ export class PurchaseAddComponent {
           this.invalidObj['Width'] = true
         }
       }
-      this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-        if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-          $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-        } else {
-          isValid = 0
-          $('#' + $('.attr')[index].id).addClass('errorSelecto')
-        }
-      })
+      // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
+      //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
+      //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+      //   } else {
+      //     isValid = 0
+      //     $('#' + $('.attr')[index].id).addClass('errorSelecto')
+      //   }
+      // })
       this.validItem = !!isValid
     } else {
       this.validItem = true
@@ -3172,11 +3296,11 @@ export class PurchaseAddComponent {
       this.invalidObj['UnitId'] = false
       this.invalidObj['ItemId'] = false
       this.invalidObj['Discount'] = false
-      this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-        if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-          $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-        }
-      })
+      // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
+      //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
+      //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+      //   }
+      // })
     }
   }
 
@@ -3191,7 +3315,7 @@ export class PurchaseAddComponent {
     })
     return isValid
   }
-  DisabledSaveBtn:boolean = false
+  DisabledSaveBtn: boolean = false
   manipulateData() {
     let _self = this
     this.submitSave = true
@@ -3233,41 +3357,41 @@ export class PurchaseAddComponent {
                   console.log('data : ', data)
                   if (data.Code === UIConstant.THOUSAND && data.Data) {
                     _self.toastrService.showSuccess('Saved Successfully', '')
-                    this.DisabledSaveBtn= false
-                    this.BillDiscountApplied =[]
+                    this.DisabledSaveBtn = false
+                    this.BillDiscountApplied = []
                     _self.commonService.newPurchaseAdd()
                     if (!this.keepOpen) {
                       _self.commonService.closePurchase()
                     } else {
-                      this.BillDiscountApplied =[]
+                      this.BillDiscountApplied = []
                       _self.initItem()
                       _self.initTransaction()
                       _self.initCharge()
                       _self.initComp()
                       _self.initialiseExtras()
                       this.editMode = false
-                       this.openModal()
-                       this.getNewCurrentDate()
-                       this.getNewBillNo()
-                       if(this.isBillNoManuall){
-                        this.BillNo =''
+                      this.openModal()
+                      this.getNewCurrentDate()
+                      this.getNewBillNo()
+                      if (this.isBillNoManuall) {
+                        this.BillNo = ''
                       }
                     }
                   } else if (data.Code === UIConstant.THOUSANDONE) {
-                    this.DisabledSaveBtn= false
+                    this.DisabledSaveBtn = false
                     _self.toastrService.showError(data.Message, 'Please change Bill No.')
-                  
-                    } else if (data.Code === UIConstant.REQUIRED_5020) {
-                      this.DisabledSaveBtn= false
-                      _self.toastrService.showError(data.Message,'')
-                    }
+
+                  } else if (data.Code === UIConstant.REQUIRED_5020) {
+                    this.DisabledSaveBtn = false
+                    _self.toastrService.showError(data.Message, '')
+                  }
                   else {
-                    this.DisabledSaveBtn= false
+                    this.DisabledSaveBtn = false
                     _self.toastrService.showError(data.Message, '')
                   }
                 },
                 (error) => {
-                  this.DisabledSaveBtn= false
+                  this.DisabledSaveBtn = false
                   _self.toastrService.showError(error, '')
                 }
               )
@@ -3295,13 +3419,13 @@ export class PurchaseAddComponent {
               console.log('data : ', data)
               if (data.Code === UIConstant.THOUSAND && data.Data) {
                 _self.toastrService.showSuccess('Saved Successfully', '')
-              this.DisabledSaveBtn = false
-              this.BillDiscountApplied =[]
+                this.DisabledSaveBtn = false
+                this.BillDiscountApplied = []
                 _self.commonService.newPurchaseAdd()
                 if (!this.keepOpen) {
                   _self.commonService.closePurchase()
                 } else {
-                  this.BillDiscountApplied =[]
+                  this.BillDiscountApplied = []
                   _self.initItem()
                   _self.initTransaction()
                   _self.initCharge()
@@ -3311,21 +3435,21 @@ export class PurchaseAddComponent {
                   this.openModal()
                   this.getNewCurrentDate()
                   this.getNewBillNo()
-                  if(this.isBillNoManuall){
-                    this.BillNo =''
+                  if (this.isBillNoManuall) {
+                    this.BillNo = ''
                   }
-               //   this.
+                  //   this.
                 }
               } else if (data.Code === UIConstant.THOUSANDONE) {
-                this.DisabledSaveBtn= false
+                this.DisabledSaveBtn = false
                 _self.toastrService.showError(data.Message, 'Please change Bill No.')
               }
               else if (data.Code === UIConstant.REQUIRED_5020) {
-                this.DisabledSaveBtn= false
-                _self.toastrService.showError(data.Message,'')
+                this.DisabledSaveBtn = false
+                _self.toastrService.showError(data.Message, '')
               }
               else {
-                this.DisabledSaveBtn= false
+                this.DisabledSaveBtn = false
                 _self.toastrService.showError(data.Message, '')
               }
             },
@@ -3335,7 +3459,7 @@ export class PurchaseAddComponent {
           )
         }
       } else {
-        this.DisabledSaveBtn= false
+        this.DisabledSaveBtn = false
         this.toastrService.showError('The following are not unique', '')
       }
     }
@@ -3366,9 +3490,17 @@ export class PurchaseAddComponent {
     if (this.LedgerName && +this.LedgerChargeId > 0 && +this.AmountCharge > 0) {
       this.alreadySelectCharge(this.LedgerChargeId, this.LedgerName, true)
       this.addCustomCharge()
+      if (this.editChargeId > 0) {
+        this.showHideItemCharge = true
+      }
+      this.AdditionalCharges.forEach((element, i) => {
+        if (element.Id === 0) {
+          this.showHideItemCharge = true
+        }
+      })
       this.clickCharge = true
       this.initCharge()
-      console.log('charge : ', this.AdditionalCharges)
+
     }
   }
 
@@ -3397,6 +3529,18 @@ export class PurchaseAddComponent {
       index = 1
     } else {
       index = +this.AdditionalCharges[this.AdditionalCharges.length - 1].Sno + 1
+      this.AdditionalCharges.forEach((element, i) => {
+        if (this.editChargeId > 0) {
+          if (element.Id === this.editChargeId) {
+            this.AdditionalCharges.splice(i, 1)
+          }
+        }
+        if (element.Id === 0) {
+          if (element.Sno === this.editChargeSno) {
+            this.AdditionalCharges.splice(i, 1)
+          }
+        }
+      })
     }
     this.appliedTaxRatesCharge.forEach(element => {
       element['Sno'] = index
@@ -3417,7 +3561,8 @@ export class PurchaseAddComponent {
       taxChargeSlabType: this.taxChargeSlabType,
       taxChargeRates: this.taxChargeRates,
       itemTaxTrans: this.appliedTaxRatesCharge,
-      TaxableAmountCharge: this.TaxableAmountCharge
+      TaxableAmountCharge: this.TaxableAmountCharge,
+      isEditable: this.EditabledChargeRow
     })
     setTimeout(() => {
       this.commonService.fixTableHFL('charge-table')
@@ -3462,15 +3607,15 @@ export class PurchaseAddComponent {
       data => {
         console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-        
+
           if (this.vendorGSTType === 1) {
-          this.taxChargeSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
-          this.taxChargeRates = data.Data.TaxRates
-        }
-        else {
-          this.taxChargeSlabType = 0
-          this.taxChargeRates = []
-        }
+            this.taxChargeSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
+            this.taxChargeRates = data.Data.TaxRates
+          }
+          else {
+            this.taxChargeSlabType = 0
+            this.taxChargeRates = []
+          }
           this.calculate()
           this.createTaxes(FormConstants.ChargeForm)
           this.getBillSummary()
@@ -3538,10 +3683,10 @@ export class PurchaseAddComponent {
 
   @ViewChild('taxSlab_select2') taxSlabSelect2: Select2Component
   onTaxSlabSelect(evt) {
-    if(+evt.value === 0){
+    if (+evt.value === 0) {
       this.TaxSlabId = 0
       this.taxSlabName = ''
-      this.TaxSlabName =''
+      this.TaxSlabName = ''
       this.getTaxDetail(this.TaxSlabId)
 
     }
@@ -3564,6 +3709,7 @@ export class PurchaseAddComponent {
     this.purchaseService.getSlabData(TaxSlabId).subscribe(
       data => {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
+
           if (this.vendorGSTType === 1) {
             this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
             this.taxRates = data.Data.TaxRates
@@ -3595,10 +3741,11 @@ export class PurchaseAddComponent {
 
   NetBillAmount = 0
   TaxableValue = 0
-  localTaxableValue:number =0
+  localTaxableValue: number = 0
   billSummary: Array<any> = []
   AdditionalChargesToShow: any = []
   getBillSummary() {
+
     let taxableValue = 0
     let ItemTaxTrans = []
     // console.log('item tax trans before bill sumarry : ', ItemTaxTrans)
@@ -3721,7 +3868,7 @@ export class PurchaseAddComponent {
     this.PayDate = evt
   }
 
-  opeCatImport () {
+  opeCatImport() {
     this.commonService.openCatImport()
   }
 
@@ -3731,7 +3878,7 @@ export class PurchaseAddComponent {
   }
 
   BillDiscountValidation(e) {
-    
+
     if ('' + this.BillDiscountType === '0') {
       if (e === '0') {
         this.BillDiscount = 0
@@ -3771,7 +3918,7 @@ export class PurchaseAddComponent {
     }
     this.updateAfterBillDiscount()
   }
-  BillDiscountArray :any =[]
+  BillDiscountArray: any = []
   AmountItemBillDiscount: number = 0
   updateAfterBillDiscount() {
     if (this.Items.length > 0) {
@@ -3784,21 +3931,24 @@ export class PurchaseAddComponent {
       forkJoin(...observables).subscribe(
         data => {
           //if (this.OrgGStType === 1) {
-            this.totalBillDiscount = 0
-            data.forEach((element, index) => {
-              let appliedTaxRatesItem = []
-              let AmountItem = 0
-              let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
-              if (this.PerItemDiscountPerCentage > 0) {
-                
-                this.BillDiscountAmt = +((this.PerItemDiscountPerCentage / 100) * (this.Items[index].AmountItem)).toFixed(this.noOfDecimalPoint)
-              }
-              else {
-                this.totalBillDiscount = 0
-                this.BillDiscountAmt = 0
-              }
-              this.totalBillDiscount = this.totalBillDiscount + +this.BillDiscountAmt
-              if(this.Items.length>0){
+          this.totalBillDiscount = 0
+          data.forEach((element, index) => {
+            let appliedTaxRatesItem = []
+            let AmountItem = 0
+            let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
+            if (this.vendorGSTType !== 1) {
+              element.Data.TaxRates = []
+            }
+            if (this.PerItemDiscountPerCentage > 0) {
+
+              this.BillDiscountAmt = +((this.PerItemDiscountPerCentage / 100) * (this.Items[index].AmountItem)).toFixed(this.noOfDecimalPoint)
+            }
+            else {
+              this.totalBillDiscount = 0
+              this.BillDiscountAmt = 0
+            }
+            this.totalBillDiscount = this.totalBillDiscount + +this.BillDiscountAmt
+            if (this.Items.length > 0) {
               AmountItem = this.Items[index].AmountItem - this.BillDiscountAmt
               this.AmountItemBillDiscount = AmountItem
               this.Items[index]['AmountItemBillDiscount'] = AmountItem
@@ -3810,13 +3960,16 @@ export class PurchaseAddComponent {
                     this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
                   this.Items[index]['TaxAmount'] = returnTax.taxAmount
                   appliedTaxRatesItem = returnTax.appliedTaxRates
+                  this.appliedTaxRatesItem = []
                 } else if (this.Items[index].TaxType === 0) {
                   let returnTax = this.purchaseService.taxCalculation(element.Data.TaxRates,
                     taxSlabType,
                     +AmountItem,
                     this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
                   this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                  //this.TaxAmount =returnTax.taxAmount
                   appliedTaxRatesItem = returnTax.appliedTaxRates
+                  this.appliedTaxRatesItem = []
                 }
                 if (appliedTaxRatesItem.length > 0) {
                   appliedTaxRatesItem.forEach((taxRate) => {
@@ -3831,9 +3984,9 @@ export class PurchaseAddComponent {
               }
               this.Items[index]['SubTotal'] = +AmountItem + +this.Items[index]['TaxAmount']
             }
-            });
-        //  }
-          if(!this.MultipleBillDiscountPurchase){
+          });
+          //  }
+          if (!this.MultipleBillDiscountPurchase) {
             this.BillDiscountArray = [{
               "Id": 0,
               "DiscountId": 0,
@@ -3849,7 +4002,7 @@ export class PurchaseAddComponent {
       )
     }
   }
- 
+
   UpdateBillDiscountHistory() {
     let taxableValue = 0
     let ItemTaxTrans = []
@@ -3912,42 +4065,42 @@ export class PurchaseAddComponent {
       LedgerId: this.PartyId,
       BillDate: BillDate,
       Type: 'Transaction',
-      isChecked:true
+      isChecked: true
     }
     let editDiscountValue = this.BillDiscountApplied.length === 0 ? [] : this.BillDiscountApplied
 
-    this.commonService.openDiscountMaster('', true, DiscountData,editDiscountValue)
+    this.commonService.openDiscountMaster('', true, DiscountData, editDiscountValue)
   }
 
   localTaxableValueled: any = 0
   MultipleDiscountCalculate(multipleDiscount) {
     this.localTaxableValueled = this.TaxableValue
-    if(multipleDiscount.length>0){
-    multipleDiscount.forEach(element => {
-    let multiDiscountAmt;
-      if (element.ValueType === 0) {
-        multiDiscountAmt = (this.localTaxableValueled * element.Value) / 100
-        this.localTaxableValueled = this.localTaxableValueled - multiDiscountAmt
-      }
-      else {
-        multiDiscountAmt = element.Value
-      }
-      this.BillDiscountArray.push({
-        "Id": 0,
-        "DiscountId": element.DiscountId,
-        "Value": element.Value,
-        "ValueType":  element.ValueType,
-        "Name": element.Name,
-        "Amount": multiDiscountAmt
-      })
-      this.BillDiscount =   this.BillDiscount + +multiDiscountAmt
-    
-    });
-    this.BillDiscountType = 1
-    this.BillDiscountCalculate()
-  }
-  else{
-    this.BillDiscount =0
-  }
+    if (multipleDiscount.length > 0) {
+      multipleDiscount.forEach(element => {
+        let multiDiscountAmt;
+        if (element.ValueType === 0) {
+          multiDiscountAmt = (this.localTaxableValueled * element.Value) / 100
+          this.localTaxableValueled = this.localTaxableValueled - multiDiscountAmt
+        }
+        else {
+          multiDiscountAmt = element.Value
+        }
+        this.BillDiscountArray.push({
+          "Id": 0,
+          "DiscountId": element.DiscountId,
+          "Value": element.Value,
+          "ValueType": element.ValueType,
+          "Name": element.Name,
+          "Amount": multiDiscountAmt
+        })
+        this.BillDiscount = this.BillDiscount + +multiDiscountAmt
+
+      });
+      this.BillDiscountType = 1
+      this.BillDiscountCalculate()
+    }
+    else {
+      this.BillDiscount = 0
+    }
   }
 }

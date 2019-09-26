@@ -25,9 +25,9 @@ export class UserModulesComponent implements OnInit {
   ) {
     this.spinnerService.hide()
     const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
-    if (_.isEmpty(this.clientDateFormat)) {
-      this.clientDateFormat = 'd M Y'
-    }
+    // if (_.isEmpty(this.clientDateFormat)) {
+    //   this.clientDateFormat = 'd M Y'
+    // }
     if(_.isEmpty(this._loginService.loginUserDetails)){
       this._loginService.loginUserDetails = JSON.parse(localStorage.getItem('LOGIN_USER'));
     }
@@ -55,7 +55,7 @@ export class UserModulesComponent implements OnInit {
   }
 
   initModulesData = async () => {
-    debugger
+    // debugger
     this.spinnerService.show()
     const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
     if (_.isEmpty(this._loginService.userData) || (!_.isEmpty(this._loginService.userData) && _.isEmpty(this._loginService.userData.Modules))) {

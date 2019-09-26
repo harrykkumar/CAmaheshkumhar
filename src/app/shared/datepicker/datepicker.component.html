@@ -3,6 +3,8 @@
   [placeholder]="placeholder"
   (keydown.enter)="toggleView()"
   (input)="putSplitter()"
+  (keydown.backspace)="removeSplitter()"
+  (keydown)="eventHandler($event)"
   (keydown.tab)="validateDate()"
   [(ngModel)]="selectedDate"
   (dateTimeChange)="onSelect($event)"
@@ -17,6 +19,7 @@
   #dt2></owl-date-time>
 </div>
 <!--
+    
   (input)="validateDate()"
   (keyup.Tab)="toggleView()"
   readonly="true"

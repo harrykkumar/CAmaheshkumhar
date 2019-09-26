@@ -27,12 +27,14 @@ export class TradingReportComponent implements OnInit {
   todateShow : any =''
   fromDateShow : any
   clientDateFormat: any
+  ListTypeFilter:any=[]
   constructor(public  gs:GlobalService,public _router:Router, public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     this.newDateSub = this._commonService.getsearchByDateForTradingStatus().subscribe(
       (obj: any) => {
         this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
         this.getModuleSettingData()
         this.onload()
+        this.selectedid=false
         this.todateShow = this.gs.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
         this.fromDateShow = this.gs.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
           this.getbalancesheetdata( )
@@ -97,6 +99,23 @@ export class TradingReportComponent implements OnInit {
   orgDetails:any={}
   headI1dData:any =[]
   headI2dData:any =[]
+  selectedid: boolean = false
+  changeSummary(evt) {
+    this.mainData = []
+    if (evt.target.checked) {
+      this.headI1dData = this.headI1dDataList
+      this.headI2dData = this.headI2dDataList
+    }
+    else {
+      this.selectedid = false
+      let head1 = this.headI1dDataList
+        let head2 = this.headI2dDataList
+        this.SummaryData(head1, head2)
+    }
+  }
+  
+  headI2dDataList:any =[]
+  headI1dDataList:any =[]
   getbalancesheetdata () {
     let todate;
     let fromDate;
@@ -119,8 +138,15 @@ export class TradingReportComponent implements OnInit {
        this.orgDetails={}
       if(data.Code === UIConstant.THOUSAND ){
         if(data.Data && data.Data.Tradings && data.Data.Tradings.length >0){
-          this.headI1dData = data.Data.Tradings.filter(s=>s.HeadId ===1) 
-          this.headI2dData = data.Data.Tradings.filter(s=>s.HeadId ===2)
+          this.headI1dDataList = data.Data.Tradings.filter(s => s.HeadId === 1)
+          this.headI2dDataList = data.Data.Tradings.filter(s => s.HeadId === 2)
+          let evt = {
+            target: {
+              checked: false
+            }
+          }
+          this.changeSummary(evt)
+         
         }
         if(data.Data && data.Data.TradingSummary.length>0){
           data.Data.TradingSummary.forEach(element => {
@@ -141,6 +167,25 @@ export class TradingReportComponent implements OnInit {
           }
       }
     })
+  }
+  SummaryData(head1, head2) {
+    this.headI1dData = [];
+    this.headI2dData = []
+    if (head1.length > 0) {
+      head1.forEach(element => {
+        if (element.LevelNo === 1 || element.LevelNo === 2) {
+          this.headI1dData.push(element)
+        }
+      });
+    }
+      if (head1.length > 0) {
+      head2.forEach(element => {
+        if (element.LevelNo === 1 || element.LevelNo === 2) {
+          this.headI2dData.push(element)
+        }
+      });
+    }
+
   }
   onDestroy$ = new Subject()
   viewFlag:boolean

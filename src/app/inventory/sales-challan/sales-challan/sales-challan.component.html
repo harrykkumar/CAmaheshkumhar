@@ -65,7 +65,7 @@
                                 <tr *ngFor="let item of saleTravelDetails | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i=index">
                                 <td>
                              <div *ngIf="item.SaleId === 0" class="custom-control custom-checkbox">
-                              <input (change)="getBillingId(item,$event,i)"  type="checkbox" class="custom-control-input" id="selectChallanForBill{{i}}" name="example1">
+                              <input (change)="getBillingId(item,$event,i);"  type="checkbox" class="custom-control-input" id="selectChallanForBill{{i}}" name="example1">
                               <label class="custom-control-label" for="selectChallanForBill{{i}}"></label>
                             </div>
                                  </td>

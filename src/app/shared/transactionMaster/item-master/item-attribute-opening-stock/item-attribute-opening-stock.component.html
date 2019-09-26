@@ -29,7 +29,7 @@
             <div class="col-md-3">
               <div class="btn_header">
                 <a class="btn btn-default waves-effect" (click)="validateForm() && postFormData(attribute, 'save')">
-                  Save
+                  Add To Queue
                 </a>
                 <button type="button" (click)="postFormData(editAttributeData, 'cancel')" class="close"
                   data-dismiss="modal" aria-label="Close">
@@ -49,7 +49,12 @@
           />
         </div>
       </div> -->
-      <div class="modal-body">
+      <div *ngIf="isLoading" class="modal-content" >
+        <div class="modal-body" style="height:inherit;" >
+          <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+        </div>
+      </div>
+      <div class="modal-body" *ngIf="!isLoading" >
         <form>
           <div class="bgc-white bdrs-3 pb-3 mB-20">
             <div class="table-responsive table-item-attribute">

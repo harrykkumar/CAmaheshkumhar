@@ -145,7 +145,7 @@ export class CompanyProfileService {
 
   /* Function to get all the state list */
   getStateList = (countryCode) => {
-    debugger
+    // debugger
     return this._vendorService.gatStateList(countryCode).
       pipe(
         map((data: any) => {
@@ -277,7 +277,7 @@ export class CompanyProfileService {
               text: element.CommonDesc
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Session' }, ...list]
+          return [...list]
         })
       ).toPromise();
   }
@@ -292,7 +292,7 @@ export class CompanyProfileService {
               text: element.CommonDesc
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Format' }, ...list]
+          return [{ id: 0, text: 'Select Format' }, ...list]
         })
       ).toPromise();
   }
@@ -411,7 +411,7 @@ export class CompanyProfileService {
   async getOrgDetails (): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCompanyProfileDetails().subscribe((data) => {
-        debugger
+        // debugger
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           console.log(data ,'company')
           if(data.Data.OrganisationDetails.length>0 && data.Data.OrganisationDetails[0].ProcessId){

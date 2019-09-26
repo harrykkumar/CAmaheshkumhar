@@ -8,19 +8,15 @@
                 </div>
                 <div class="col-md-8 right_saerch_side p-0">
                         <div class="mr-2">
-                            <form>
-                                    <div id="custom-search-input" class="btn_header1">
-                                        <div class="input-group col-md-12">
-                                            <input type="text" class="form-control input-lg" placeholder="Search"
-                                               />
-                                            <span class="input-group-btn">
-                                                <a>
-                                                    <i class="fas fa-search"></i>
-                                                </a>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </form>
+                                <form>
+                                        <div class="form-group check_box_top">
+                                            <div class="custom-control custom-checkbox">
+                                                <input  (click)="changeSummary($event)" type="checkbox" class="custom-control-input" id="check1" name="example1">
+                                                <label class="custom-control-label" for="check1">In Details</label>
+                                              </div>
+                                           
+                                          </div>
+                                    </form>
                             </div>
                       <div class="btn_header">
                         <a>
@@ -41,8 +37,8 @@
                   </div>
             </div>
         </div>
-        <div id="balance_search_form" class="card collapse">
-            <div class="card-body ">
+        <div id="balance_search_form" class="card mb-2 collapse">
+            <div class="px-3 pt-2">
               <form
                 #ledgerSearchForm="ngForm"
               >
@@ -54,34 +50,22 @@
                       (dateInFormat)="toDateShow = $event;"></datepicker-popup>
                     </div>
                   </div>
-                  <div class="form-group col-md-3">
-                    <label for="bill_no"> Filter By</label>
-                    <ng-select
-                     name="formTypeNmae" 
-                     [items]="ListTypeFilter" 
-                     bindLabel="name" 
-                     bindValue="id"
-                      placeholder="Select Filter" 
-                      (change)="onChangeType($event)" 
-                      [(ngModel)]="selectedid">
-                    </ng-select>
-                  </div>
-                  <div class="form-group col-md-2 pt-3">
+             
+                  <div class="form-group col-md-3 pt-3">
                     <button (click)="searchButton()"
                       type="submit"
                       class="btn btn-primary waves-effect waves-light"
                     >
                       Search
                     </button>
-                  </div>
-                  <div class="form-group col-md-1 pt-3">
                     <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect">Reset</button>
-        
-                </div>
+                  </div>
                 </div>
               </form>
             </div>
           </div>
+
+       
               <div class=" mt-2 main-balance">
                     <div class="row justify-content-center">
             <div class="balancesheet bgc-white col-md-11">  
@@ -100,11 +84,29 @@
                         <div class="col amount_bs font-weight-bold">Amount </div>
                         <div class="col amount_bs font-weight-bold">Amount </div>
                     </div>
-          
+             <!-- <div *ngFor="let event of events;" class="event-list">
+
+                <section class="event-item" (click)="event.toggle=!event.toggle">
+                    <div class="event-summary">
+                        <h1 class="event-name">{{ event.name }} </h1>
+                    </div>
+                </section>
+            
+               
+                <section class="event-details" *ngIf="event.toggle">
+                    <p>Details</p>
+                    <p>Details</p>
+                    <p>And deets</p>
+                </section>
+                
+            
+            </div> -->
                     <div class="row tbody">
                         <div class="col-md-6 p-0 bdr_gray border-right">
                             <div class="col-md-12">
-                                <div class="row" *ngFor = "let item of headI2dData; let i =index" >
+                                <div class="row event-list" *ngFor = "let item of headI2dData; let i =index" >
+
+                                        
                                     <div class="col-md-6">
                                         <div   
                                         (click)="ele.class = ele.class == 'showChildren' ? '' :  'showChildren'"

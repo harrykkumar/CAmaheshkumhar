@@ -72,15 +72,22 @@
                     </div>
                     <div class="form-group col-md-3">
                       <label class="fw-500">DOA</label>
-                      <datepicker-popup [disableInput]="editMode" [toSetDate]="DateOfAnniry" [isBackDate]="true"
-                        [setMaxDate]='futureDateAn' (dateInFormat)="DateOfAnniry = $event;"></datepicker-popup>
+                      <datepicker-popup 
+                      [disableInput]="editMode" 
+                      [toSetDate]="DateOfAnniry"
+                       [applyFinYear]="false"
+                        [setMaxDate]='futureDateAn'
+                         (dateInFormat)="DateOfAnniry = $event;"></datepicker-popup>
 
 
                     </div>
                     <div class="form-group col-md-3">
                       <label class="fw-500">DOB</label>
 
-                      <datepicker-popup [disableInput]="editMode" [toSetDate]="DateOfBirth" [isBackDate]="true"
+                      <datepicker-popup [disableInput]="editMode"
+                       [toSetDate]="DateOfBirth"
+                       [applyFinYear]="false"
+                        [isBackDate]="true"
                         [setMaxDate]='futureDateB' (dateInFormat)="DateOfBirth = $event;"></datepicker-popup>
 
                     </div>
@@ -182,16 +189,19 @@
 
                               <td width="20%">
                                 <div class="mobile_code ">
-                                  <select2 #phoneCode_select2 [data]="countryListWithCode"
-                                    style="width:120px !important;" class="control_select " (valueChanged)="
-                                                     onCountryCodeSelectionChange( $event )" autocomplete="true">
+                                  <select2 #phoneCode_select2 
+                                  [data]="countryListWithCode"
+                                    style="width:120px !important;"
+                                     class="control_select " 
+                                    
+                                     (valueChanged)="onCountryCodeSelectionChange( $event )" autocomplete="true">
                                   </select2>
 
                                 </div>
                               </td>
                               <td width="50%">
                                 <input (keydown.enter)="pressEnterMobileAdd($event)"
-                                  [attr.disabled]="enableContactFlag?'':null" formControlName="mobileNo"
+                                  formControlName="mobileNo"
                                   (keyup)="checkNumberByCountry($event)"
                                   [ngClass]="{ 'errorTextBoxBorder is-invalid': validMobileFlag  }" type="number"
                                   class="form-control">

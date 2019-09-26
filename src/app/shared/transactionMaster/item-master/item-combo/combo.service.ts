@@ -21,8 +21,6 @@ export class ComboService {
 
   constructor (private baseService: BaseServices, private toastrService: ToastrCustomService) {}
 
- 
-
   getSPUtilityData (): Observable<ResponseSale> {
     return this.baseService.getRequest(ApiConstant.SPUTILITY_TO_CREATE_COMBO)
   }

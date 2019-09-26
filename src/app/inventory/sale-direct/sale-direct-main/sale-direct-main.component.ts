@@ -43,6 +43,7 @@ export class SaleDirectMainComponent {
     private settings: Settings,
     private toastrService: ToastrCustomService,
     private _formBuilder: FormBuilder) {
+    this.getCurrentTime()
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.loading = true
     this.SPUtilityData()
@@ -61,7 +62,6 @@ export class SaleDirectMainComponent {
     )
      this.commonService.reDirectPrintSaleStatus().subscribe(
       (action: any) => {
-        alert(6555)
         if (action.type === FormConstants.ViewPrint && action.formname === FormConstants.SaleForm) {
           let Html_id = this.onLoadPrint()
           this.onPrintForDirectSale(action.id, Html_id, action.viewPrint)
@@ -102,10 +102,17 @@ export class SaleDirectMainComponent {
 
   }
   printShow() {
-    this.onPrintForDirectSale(this.PrintId, 'saleDirect_Print', false)
-
+    let Html_id = this.onLoadPrint()
+    this.onPrintForDirectSale(this.PrintId, Html_id, false)
+    this.closeModal()
   }
+  time:any =''
+  getCurrentTime (){
+  this.time = new Date();
+  }
+ 
   onLoadPrint() {
+    ;
     if (this.PrintFormateType === 1) {
       return 'saleDirect_PrintType1'
     }
@@ -175,7 +182,7 @@ export class SaleDirectMainComponent {
           if (data.AttributeValueResponses.length > 0) {
             _self._saleDirectService.generateAttributes(data)
           }
-          if (data.ItemCategorys.length > 0) {
+          if (data && data.ItemCategorys && data.ItemCategorys.length > 0) {
             _self.saledirectAdd.getCatagoryDetail(data.ItemCategorys)
           }
           _self.saledirectAdd.allItems = [...data.Items]
@@ -224,8 +231,11 @@ export class SaleDirectMainComponent {
   DiscountTrans: any = []
   attributeKeys: any = []
   GstTypeId:any =0
+  attributelength:any =0
   totalBillDiscountAmt: number = 0
+  BillDateTime:any=''
   onPrintForDirectSale(id, htmlId, isViewForm) {
+    ;
     console.log(id, htmlId, isViewForm)
     let _self = this
     _self.commonService.printDirectSale(id).subscribe(data => {
@@ -236,6 +246,9 @@ export class SaleDirectMainComponent {
           this.billAmount = 0
           this.totalBillDiscountAmt = data.Data.SaleTransactionses.BillDiscount
           _self.InventoryTransactionSales = data.Data.SaleTransactionses
+          _self.BillDateTime = data.Data.SaleTransactionses.BillDate
+         
+
           this.paidFlag = data.Data.SaleTransactionses[0].OutStanding === 0 ? 'PAID' : 'UNPAID'
           _self.barcode = data.Data.SaleTransactionses[0].BarcodeBill
           this.billAmount = (data.Data.SaleTransactionses[0].BillAmount).toFixed(this.dicimalDigitFormat)
@@ -295,6 +308,7 @@ export class SaleDirectMainComponent {
           this.totalDiscountAmt = 0
           this.totaltaxAmount = 0
           this.subTotalAmount = 0
+          this.attributelength =0
           let totalDiscountAmt = data.Data.ItemTransactions.filter(item1 => item1.DiscountAmt)
             .map(item1 => parseFloat(item1.DiscountAmt))
             .reduce((sum, current) => sum + current, 0)
@@ -309,6 +323,7 @@ export class SaleDirectMainComponent {
           this.subTotalAmount = (subTotalAmount).toFixed(this.dicimalDigitFormat)
         //  _self.ItemTransactionactions = data.Data.ItemTransactions
 
+              this.attributelength =data.Data.ItemAttributesTrans.length
           data.Data.ItemTransactions.forEach((element,index) => {
             let attributeValue = data.Data.ItemAttributesTrans.filter(d => (d.ItemTransId === element.Id))
             if (attributeValue.length > 0) {
@@ -399,10 +414,8 @@ export class SaleDirectMainComponent {
         }
 
         setTimeout(function () {
-          this.PrintFormateType=1
-          _self.printTypeFormateValue1(htmlId, isViewForm)
-
-        }, 10)
+_self.printTypeFormateValue1(htmlId, isViewForm)
+ }, 10)
         $('#' + htmlId).modal(UIConstant.MODEL_SHOW)
       }
     }
@@ -505,6 +518,200 @@ export class SaleDirectMainComponent {
     let AppliedCSSForTypeA4_Double_Half2 = `
 body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,sans-serif!important;position:relative;width:29.7cm;margin:0 auto}.m-auto{margin:auto}div{display:block}.row{display:flex;flex-wrap:wrap;padding-right:5px;padding-left:5px}.col-md-12{flex:0 0 100%;max-width:100%}.col-md-3{flex:0 0 25%;max-width:25%}.col-md-3{flex:0 0 25%;max-width:25%}.col-md-2{flex:0 0 12.666667%;max-width:12.666667%}.col-md-4{flex:0 0 33.333333%;max-width:33.333333%}.col-md-6{flex:0 0 50%;max-width:50%}.col,.col-1,.col-10,.col-11,.col-12,.col-2,.col-3,.col-4,.col-5,.col-6,.col-7,.col-8,.col-9,.col-auto,.col-lg,.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-lg-auto,.col-md,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-auto,.col-sm,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-sm-auto,.col-xl,.col-xl-1,.col-xl-10,.col-xl-11,.col-xl-12,.col-xl-2,.col-xl-3,.col-xl-4,.col-xl-5,.col-xl-6,.col-xl-7,.col-xl-8,.col-xl-9,.col-xl-auto{position:relative;width:100%;min-height:1px}.justify-content-center{justify-content:center!important}.bdr_left{border-left:1px solid #000}.bdr_right{border-right:1px solid #000}.bdr_top{border-top:1px solid #000}.bdr_bottom{border-bottom:1px solid #000}.text-center{text-align:center!important}.text-right{text-align:right!important}.text-left{text-align:left!important}.p-2{padding:.5rem!important}.p-1{padding:.25rem!important}.font-weight-bold{font-weight:700!important}.name_size{font-size:22px}.amount_bs{text-align:right;padding:0 3px}.main-balance .tfoot,.main-balance .thead{font-weight:600;padding:5px 0;font-size:1rem;border-top:1px solid #000;border-bottom:1px solid #000}.col-3{flex:0 0 25%;max-width:25%}.col{flex-basis:0%;flex-grow:1;max-width:100%}.p-0{padding:0!important}.ittelic{font-style:italic}*,::after,::before{box-sizing:border-box}.bdr_right_fix{min-height:25px;border-right:1px solid #000}.bdr_left_fix{min-height:25px;border-left:1px solid #000}.d-block{display:block}table{width:100%;border-collapse:collapse;border-spacing:0;margin-bottom:5px}thead{display:table-header-group;vertical-align:middle;border-color:inherit}table td,table th{padding:3px;text-align:left;word-break:break-word}table th{white-space:nowrap;font-weight:600;border-top:1px dashed #000;border-bottom:1px dashed #000;text-align:center;font-size:.75rem!important}.left_side_print{margin-right:15px}.right_side-print{margin-left:15px}table td{text-align:left;font-size:.70rem!important}.table_summery{min-height:350px}.table_summery2{min-height:110px}footer{color:#000;width:100%;height:30px;position:absolute;bottom:0;padding:8px 0;text-align:center}@page{size:landscape}
     `
+    let AppliedCSSForTypeA4_3inch_Roll3= `
+    body {
+      font-size: .85rem;
+      color: #000 !important;
+      overflow-x: hidden;
+      font-family: 'Calibri',sans-serif !important;
+      position: relative;
+      width: 7cm;
+      /* margin: 0 auto; */
+  }
+
+  .m-auto {
+      margin: auto;
+  }
+
+  div {
+      display: block;
+  }
+
+  .row {
+      display: flex;
+      flex-wrap: wrap;
+      padding-right: 5px;
+      padding-left: 5px;
+  }
+
+  .col-md-12 {
+      flex: 0 0 100%;
+      max-width: 100%;
+  }
+
+  .col-md-3 {
+      flex: 0 0 25%;
+      max-width: 25%;
+  }
+
+  .col-md-3 {
+      flex: 0 0 25%;
+      max-width: 25%;
+  }
+
+  .col-md-4 {
+      flex: 0 0 33.333333%;
+      max-width: 33.333333%;
+  }
+
+  .col-md-6 {
+      flex: 0 0 50%;
+      max-width: 50%;
+  }
+
+  .col, .col-1, .col-10, .col-11, .col-12, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-auto, .col-lg, .col-lg-1, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-auto, .col-md, .col-md-1, .col-md-10, .col-md-11, .col-md-12, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-auto, .col-sm, .col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-auto, .col-xl, .col-xl-1, .col-xl-10, .col-xl-11, .col-xl-12, .col-xl-2, .col-xl-3, .col-xl-4, .col-xl-5, .col-xl-6, .col-xl-7, .col-xl-8, .col-xl-9, .col-xl-auto {
+      position: relative;
+      width: 100%;
+      min-height: 1px;
+  }
+
+  .justify-content-center {
+      justify-content: center !important;
+  }
+
+ 
+
+  .bdr_left {
+      border-left: 1px solid #000;
+  }
+
+  .bdr_right {
+      border-right: 1px solid #000;
+  }
+
+  .bdr_top {
+      border-top: 1px solid #000;
+  }
+
+  .bdr_bottom {
+      border-bottom: 1px solid #000;
+  }
+
+  .text-center {
+      text-align: center !important;
+  }
+
+  .text-right {
+      text-align: right !important;
+  }
+
+  .text-left {
+      text-align: left !important;
+  }
+
+  .p-2 {
+      padding: .5rem !important;
+  }
+
+  .p-1 {
+      padding: .25rem !important;
+  }
+
+  .font-weight-bold {
+      font-weight: 700 !important;
+  }
+
+  .name_size {
+      font-size: 22px;
+  }
+
+  .amount_bs {
+      text-align: right;
+      padding: 0px 3px;
+  }
+
+  .main-balance .tfoot, .main-balance .thead {
+      font-weight: 600;
+      padding: 5px 0;
+      font-size: 1rem;
+      border-top: 1px solid #000;
+      border-bottom: 1px solid #000;
+  }
+
+  .col-3 {
+      flex: 0 0 25%;
+      max-width: 25%;
+  }
+
+  .col {
+      flex-basis: 0;
+      flex-grow: 1;
+      max-width: 100%;
+  }
+
+  .p-0 {
+      padding: 0 !important;
+  }
+
+  .ittelic {
+      font-style: italic;
+  }
+
+  *, ::after, ::before {
+      box-sizing: border-box;
+  }
+
+  .bdr_right_fix {
+      min-height: 25px;
+      border-right: 1px solid #000;
+  }
+
+  .bdr_left_fix {
+      min-height: 25px;
+      border-left: 1px solid #000;
+  }
+
+  .d-block {
+      display: block
+  }
+
+  table {
+      width: 100%;
+      border-collapse: collapse;
+      border-spacing: 0;
+      margin-bottom: 5px;
+  }
+
+  thead {
+      display: table-header-group;
+      vertical-align: middle;
+      border-color: inherit;
+  }
+
+
+  
+
+  table th,
+  table td {
+      padding: 3px;
+      text-align: left;
+      word-break: break-word;
+  }
+
+  table th {
+      white-space: nowrap;
+      font-weight: 600;
+      border-top: 1px dashed #000;
+      border-bottom: 1px dashed #000;
+      text-align: center;
+  }
+
+
+
+  table td {
+      text-align: left;
+  }
+        `
     let AppliedCSSForTypeA4_Singal_Half4 = `
    body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,sans-serif!important;position:relative;width:29.7cm;margin:0 auto}.m-auto{margin:auto}div{display:block}.row{display:flex;flex-wrap:wrap;padding-right:5px;padding-left:5px}.col-md-12{flex:0 0 100%;max-width:100%}.col-md-3{flex:0 0 25%;max-width:25%}.col-md-3{flex:0 0 25%;max-width:25%}.col-md-2{flex:0 0 12.666667%;max-width:12.666667%}.col-md-4{flex:0 0 33.333333%;max-width:33.333333%}.col-md-6{flex:0 0 50%;max-width:50%}.col,.col-1,.col-10,.col-11,.col-12,.col-2,.col-3,.col-4,.col-5,.col-6,.col-7,.col-8,.col-9,.col-auto,.col-lg,.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-lg-auto,.col-md,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-auto,.col-sm,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-sm-auto,.col-xl,.col-xl-1,.col-xl-10,.col-xl-11,.col-xl-12,.col-xl-2,.col-xl-3,.col-xl-4,.col-xl-5,.col-xl-6,.col-xl-7,.col-xl-8,.col-xl-9,.col-xl-auto{position:relative;width:100%;min-height:1px}.justify-content-center{justify-content:center!important}.bdr_left{border-left:1px solid #000}.bdr_right{border-right:1px solid #000}.bdr_top{border-top:1px solid #000}.bdr_bottom{border-bottom:1px solid #000}.text-center{text-align:center!important}.text-right{text-align:right!important}.text-left{text-align:left!important}.p-2{padding:.5rem!important}.p-1{padding:.25rem!important}.font-weight-bold{font-weight:700!important}.name_size{font-size:22px}.amount_bs{text-align:right;padding:0 3px}.main-balance .tfoot,.main-balance .thead{font-weight:600;padding:5px 0;font-size:1rem;border-top:1px solid #000;border-bottom:1px solid #000}.col-3{flex:0 0 25%;max-width:25%}.col{flex-basis:0%;flex-grow:1;max-width:100%}.p-0{padding:0!important}.ittelic{font-style:italic}*,::after,::before{box-sizing:border-box}.bdr_right_fix{min-height:25px;border-right:1px solid #000}.bdr_left_fix{min-height:25px;border-left:1px solid #000}.d-block{display:block}table{width:100%;border-collapse:collapse;border-spacing:0;margin-bottom:5px}thead{display:table-header-group;vertical-align:middle;border-color:inherit}table td,table th{padding:3px;text-align:left;word-break:break-word}table th{white-space:nowrap;font-weight:600;border-top:1px dashed #000;border-bottom:1px dashed #000;text-align:center;font-size:.75rem!important}.left_side_print{margin-right:15px}.right_side-print{margin-left:15px}table td{text-align:left;font-size:.70rem!important}.table_summery{min-height:350px}.table_summery2{min-height:110px}footer{color:#000;width:100%;height:30px;position:absolute;bottom:0;padding:8px 0;text-align:center}@page{size:landscape}
     `
@@ -515,18 +722,17 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
       return AppliedCSSForTypeA4_Double_Half2
     }
     if (this.PrintFormateType === 3) {
-      return AppliedCSSForTypeA4_Singal_Half4
+      return AppliedCSSForTypeA4_3inch_Roll3
     }
     if (this.PrintFormateType === 4) {
       return AppliedCSSForTypeA4_Singal_Half4
     }
   }
   printTypeFormateValue1(cmpName, isViewForm) {
-    debugger
-
-    let title = document.title
-    let divElements = document.getElementById(cmpName).innerHTML
+ let title = document.title
+ let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open()
+    // var printWindow =  window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0')
     printWindow.document.open()
     printWindow.document.write('<html><head><title>' + title + '</title><style>' + this.applyedCSSForSale() + '</style></head><body>')
     printWindow.document.write(divElements)
@@ -553,6 +759,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
     this.HedShow = []
     let valueshow = []
     hsnTransaction.forEach(element => {
+    
       this.HedShow = hsnData.filter(d => d.HsnNo === element.HsnNo && d.TaxSlabId === element.TaxSlabId)
       if (this.HedShow.length > 0) {
         valueshow = []
@@ -572,7 +779,9 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
         totalTaxRate: rate + '%',
         TaxType: valueshow,
       })
+      console.log(this.mainData ,'item-gst')
     });
+    
   }
 
 

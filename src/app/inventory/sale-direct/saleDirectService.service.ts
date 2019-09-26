@@ -104,7 +104,7 @@ export class SaleDirectService {
         text: item.Name
       })
     })
-    // console.log('items: ', newData)
+    console.log('items: ', newData)
     this.itemDataSub.next({ 'data': JSON.parse(JSON.stringify(newData)) })
   }
 

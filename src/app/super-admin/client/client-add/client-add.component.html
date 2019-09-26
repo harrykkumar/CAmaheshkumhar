@@ -278,11 +278,11 @@
                 <div class="card-body">
                   <div> <!--checkfor(client.form) && -->
                     <form novalidate (ngSubmit)="client.form.valid && clientAdd.ClientModulestr && 
-                      clientAdd.IndustryIdstr && !invalidObj.RegistrationDate && checkForValidation()" #client="ngForm" >
+                      clientAdd.IndustryIdstr && !invalidObj.RegistrationDate && checkForValidation(client)" #client="ngForm" >
                       <div class="form-row">
                           <div class="form-group col-md-6">
                             <label class="active">Name</label>
-                            <input type="text" class="form-control" [(ngModel)]="clientAdd.Name" #name="ngModel"
+                            <input type="text" (focus)="onFocus(client)" class="form-control" [(ngModel)]="clientAdd.Name" #name="ngModel"
                               placeholder="Enter Value" required name="name" autofocus
                               [ngClass]="{
                                 errorSelecto: name.invalid && (name.dirty || name.touched) && name?.errors?.required}" 

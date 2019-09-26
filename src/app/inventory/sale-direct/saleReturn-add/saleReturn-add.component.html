@@ -91,24 +91,24 @@
                 [value]="godownValue" ></select2>
               </div>
             </div>
-            <div class="form-group col-md-3 col-lg-3 col-xl-3">
+            <!-- <div class="form-group col-md-3 col-lg-3 col-xl-3">
               <label>Billing Address</label>
               <div class="input-group adw_select">
                   <input [disabled]='true'  type="text" class="form-control" id="e-way" placeholder="Billing Address"   class="form-control" name="BillingAddress" [(ngModel)]="BillingAddress">
 
               </div>
-            </div>
-            <div class="form-group col-md-3 col-lg-3 col-xl-3">
+            </div> -->
+            <!-- <div class="form-group col-md-3 col-lg-3 col-xl-3">
                 <label>Shipping Address</label>
                 <div class="input-group adw_select">
                     <input [disabled]='true'  type="text" class="form-control" id="e-way" placeholder="Shipping Address"   class="form-control" name="ShippingAddress" [(ngModel)]="ShippingAddress">
   
                 </div>
-              </div>
+              </div> -->
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label>Billing Currency</label>
               <div class="input-group adw_select">
-                <select2 #currency_select2 id="currency"
+                <select2 [disabled]='Id>0' #currency_select2 id="currency"
                   [data]="currencyData" class="control_select"
                   (valueChanged)="onCurrencySelect($event)"
                   autocomplete="true" 
@@ -120,7 +120,7 @@
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label>Convert To Currency</label>
               <div class="input-group adw_select">
-                <select2 #convertTo_select2 id="convertToCurrency" 
+                <select2 [disabled]='Id>0' #convertTo_select2 id="convertToCurrency" 
                 [data]="convertToCurrencyData" class="control_select"
                 (valueChanged)="onConvertToCurrencySelect($event)"
                 autocomplete="true" 

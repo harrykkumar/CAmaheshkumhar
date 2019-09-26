@@ -8,7 +8,7 @@ import { SalesSearchComponent } from './sales-header/sales-search/sales-search.c
 import { SalesChallanComponent } from './sales-challan.component'
 import { SharedModule } from '../../../shared/shared.module'
 import { NgxBarcodeModule } from 'ngx-barcode'
-import {SalesChallanBillingComponent} from './sales-header/sales-challan-billing/sales-billing.component'
+import {SalesChallanBillingComponent} from '../sales-challan/sales-header/sales-challan-biling/sales-billing.component'
 @NgModule({
   declarations: [ 
     SalesChallanComponent,

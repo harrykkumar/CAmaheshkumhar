@@ -66,7 +66,7 @@ export class VoucherEntryMainComponent implements OnInit {
       this.voucherAddComponentRef.instance.editType = voucherData.VoucherType
     }
     this.voucherAddComponentRef.instance.voucherAddClosed.subscribe(
-      (data) => {
+      () => {
         this.voucherAddComponentRef.destroy();
       });
   }

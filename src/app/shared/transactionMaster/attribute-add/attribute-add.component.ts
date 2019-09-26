@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild, Renderer2, ElementRef } from '@angular/core'
 import { Subject, Subscription } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators'
-import _ from 'lodash'
+import * as _ from 'lodash'
+import 'rxjs/add/operator/map';
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service'
 import { AttributeService } from 'src/app/transactionMaster/attribute/attribute.service'

@@ -33,7 +33,7 @@ export class serviceBillingSearchComponent {
   cityValue: number = 0
   dateValue: number = 0
   ledgerValue: number = 0
-
+  StausValue:any =0
   DateType: number = 0
   LedgerId: number = 0
   dataValues: Array<Select2OptionData> = []

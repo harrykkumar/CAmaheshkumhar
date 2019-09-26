@@ -11,5 +11,7 @@ export class AppComponent implements OnInit {
   }
   title = 'SalesTracker'
   ngOnInit() {
+
   }
+
 }

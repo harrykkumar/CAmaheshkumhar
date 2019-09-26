@@ -1,16 +1,18 @@
 export interface VoucherAddModel {
-  Id: number,
-  OrgId: number,
-  VoucherType: number,
-  VoucherNo: string,
-  ParentId: number,
-  PartyId: number,
-  TotalAmount: number,
-  VoucherDate: string,
-  VoucherDatas: Array<VoucherData>,
-  PaymentDetails: Array<VoucherTransaction>,
+  Id: number
+  OrgId: number
+  VoucherType: number
+  VoucherNo: string
+  ParentId: number
+  PartyId: number
+  TotalAmount: number
+  VoucherDate: string
+  VoucherDatas: Array<VoucherData>
+  PaymentDetails: Array<VoucherTransaction>
   IsIncomeExpence?:number
   IsGroupTransaction?: number
+  ApplyPayMethod: number
+  ApplyTerms: string
 }
 
 export interface VoucherTransaction {

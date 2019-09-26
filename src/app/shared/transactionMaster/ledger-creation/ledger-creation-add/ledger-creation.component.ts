@@ -315,6 +315,7 @@ matchStateCodeWithGSTNumber(){
 
   currencyValues: any
   openModal () {
+    this.getOrgnizationAddress()
     this.disabledGSTfor_UnRegi = false
     this.matchGStno =true
     this.GstinNoCode =''
@@ -390,7 +391,6 @@ matchStateCodeWithGSTNumber(){
     if(event.data.length > 0){
       if(+event.value > 0){
         this.countrId = +event.value
-      
         this.countryError = false
         if (this.countrId > 0) {
           this.getStaeList(this.countrId, 0)
@@ -805,7 +805,46 @@ else{
 }
 
 }
- 
+   countryValue1:any =null
+  stateValuedata1:any =null
+  countryCodeFlag:any =null
+  cityValue1:any = null
+  getOrgnizationAddress (){
+    debugger
+    let Address= JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
+    this.countryValue = Address.CountryId
+    this.stateValue = Address.StateId
+    this.cityValue = Address.CityId
+    let country = {
+      value:Address.CountryId,
+      data :[{id:Address.CountryId,text:Address.CountryName}]
+      
+    }
+    this.selectCountryListId(country)
+    
+
+    let state = {
+      value:Address.StateId,
+      data :[{stateCode:Address.StateId,text:Address.StateName}]
+     
+    }
+   this.selectStatelist(state)
+
+
+    let city = {
+      value:Address.CityId,
+      data :[{id:Address.CityId,text:Address.CityName}]
+
+    }
+    this.selectedCityId(city) 
+setTimeout(() => {
+  this.countryselecto.setElementValue( Address.CountryId)
+  this.stateselecto2.setElementValue(Address.StateId)
+  this.cityselecto2.setElementValue(Address.CityId)
+}, 102);
+   
+
+   }
 
 
 

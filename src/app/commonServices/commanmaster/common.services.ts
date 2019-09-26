@@ -76,6 +76,8 @@ export class CommonService {
   private subjectOftermAndCondition = new BehaviorSubject<AddCust>({ 'open': false })
   private discountMasterSubect = new BehaviorSubject<AddCust>({ 'open': false })
 
+  private setpupsChange = new Subject()
+  setupChange$ = this.setpupsChange.asObservable()
   //  validation reg ex
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
@@ -84,6 +86,10 @@ export class CommonService {
 
   constructor(private router: Router, private baseService: BaseServices) {
     this.setPreviousUrl();
+  }
+
+  onSetupChange () {
+    this.setpupsChange.next()
   }
 
   public getCountry() {
@@ -1010,10 +1016,10 @@ export class CommonService {
     return this.baseService.deleteRequest(`${ApiConstant.COMMON_MASTER_MENU}?CommonCode=${code}&Id=${id}`);
   }
 
-  getTransationNumberList(data) {
+  getTransationNumberList(data, transactionFor) {
     data.FinYearId = data.FinYearId ? data.FinYearId : 0
     data.OrgId = data.OrgId ? data.OrgId : 0
-    return this.baseService.getRequest(`${ApiConstant.TRANSACTIONNO_VOUCHER}?FinYearId=${data.FinYearId}&OrgId=${data.OrgId}`)
+    return this.baseService.getRequest(`${ApiConstant.TRANSACTIONNO_VOUCHER}?FinYearId=${data.FinYearId}&OrgId=${data.OrgId}&TransactionFor=${transactionFor}`)
   }
 
   postTransactionNumberList(data) {
@@ -1399,6 +1405,22 @@ export class CommonService {
   }
 
   reDirectPrintSaleStatus() {
+    return this.redirectSub.asObservable()
+  }
+
+  
+  reDirectViewListOfSale(action) {
+    this.redirectSub.next(action)
+  }
+
+  reDirectViewListOfSaleStatus() {
+    return this.redirectSub.asObservable()
+  }
+  reDirectViewListOfPurchase(action) {
+    this.redirectSub.next(action)
+  }
+
+  reDirectViewListOfPurchaeStatus() {
     return this.redirectSub.asObservable()
   }
 }

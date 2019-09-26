@@ -6,20 +6,24 @@ import { CommonService } from '../../../../commonServices/commanmaster/common.se
 import { ToastrCustomService } from '../../../../commonServices/toastr.service';
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { LedgerCreationService } from '../../../../transactionMaster/ledger-creation/ledger-creation.service';
-import { Subject } from 'rxjs/internal/Subject';
-import { filter } from 'rxjs/internal/operators';
-import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
-import { map } from 'rxjs/internal/operators/map';
 import { Select2Component } from 'ng2-select2';
 import { ledgerImportExcel } from './ledger-import.model';
-declare const $: any;
+import { ItemmasterServices } from 'src/app/commonServices/TransactionMaster/item-master.services';
+import { select2Return } from '../../../../super-admin/super-admin.model';
+import { map } from 'rxjs/operators';
+import * as _ from 'lodash';
+import { AddCust } from '../../../../model/sales-tracker.model';
+/**
+ * Component created by dolly garg
+ */
+declare const $: any
 @Component({
   selector: 'ledger-import',
-  templateUrl: './ledger-import.component.html'
+  templateUrl: './ledger-import.component.html',
+  styleUrls: ['./ledger-import.component.css']
 })
 export class LedgerImportComponent {
-  OnDestroy$ = new Subject()
+  OnDestroy$: Subscription
   arrayBuffer: any
   sheetname: any = []
   masterData: any
@@ -30,55 +34,206 @@ export class LedgerImportComponent {
   @ViewChild('myInput') myInputVariable: ElementRef
   firstSheetName: any
   modeOfForm: string = 'new'
-  parentGroupData: Array<any> = []
-  glIdValue: any
-  GlId: number
-  @ViewChild('groupSelect2') group_select2: Select2Component
+  ledgerData: any = []
+  ledgerKeys: any = []
+  duplicateTuples = []
+  selectedItems = []
+  isLoading: boolean = true
+  pendingList: any = []
+  isPending: boolean = false
+  data = {}
+  values = {}
+  toShow = {}
+  isDataLoading: boolean = false
+  @ViewChild('group_select2') groupSelect2: Select2Component
   constructor (private commonService: CommonService,
      private gs: GlobalService, private toastrService: ToastrCustomService,
-     private ledgerService: LedgerCreationService
+     private ledgerService: LedgerCreationService,
+     private _itemmasterServices: ItemmasterServices
      ) {
+    this.toShow = {'IsMsmed': false, 'IsRcm': false, 'TaxSlabId': false, 'ITCType': false, 'RCMType': false, 'HsnNo': false}
     this.modalOpen = this.ledgerService.openLedgerImport$.subscribe(
       (status: any) => {
         if (status.open) {
+          this.data = {}
           this.getParentGroupData()
+          this.getTaxtDetail()
+          this.getRcmTypeList()
+          this.getItcTypeList()
           this.openModal()
         } else {
           this.closeModal()
         }
       }
     )
+
+    this.OnDestroy$ = this.ledgerService.select2$.subscribe((data: select2Return) => {
+      if (data.data && data.type) {
+        if (data.type === 'parent') {
+          this.data['parentGroupData'] = data.data
+        } else if (data.type === 'tax') {
+          this.data['taxSlabData'] = data.data
+        } else if (data.type === 'itc') {
+          this.data['ITCTypeData'] = data.data
+        } else if (data.type === 'rcm') {
+          this.data['RCMTypeData'] = data.data
+        }
+      }
+    })
+
+    this.OnDestroy$ = this.commonService.getledgerGroupStatus().subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          let newData = Object.assign([], this.data['parentGroupData'])
+          newData.push({ id: data.id, text: data.name })
+          this.data['parentGroupData'] = newData
+          this.values['glidValue'] = data.id
+          // this.groupSelect2.setElementValue(data.id)
+        }
+      }
+     )
   }
 
-  getParentGroupData () {
-    this.commonService.getLedgerGroupParentData('')
-    .pipe(
-      filter(data => {
-        if (data.Code === UIConstant.THOUSAND) {
-          return true
+  checkForGlid () {
+    if (!_.isEmpty(this.values['GlId'])) {
+      if (+this.values['GlId']['value'] > 0) {
+        if (+this.values['GlId']['value'] === 4) {
+          this.toShow = {'IsMsmed': true, 'IsRcm': true, 'TaxSlabId': false, 'ITCType': false, 'RCMType': false, 'HsnNo': false}
+          this.values['TaxSlabId'] = false
+          this.values['ITCType'] = false
+          this.values['RCMType'] = false
+          this.values['HsnNo'] = ''
+        } else if (+this.values['GlId']['value'] === 13 || +this.values['GlId']['value'] === 15) {
+          this.toShow = {'IsMsmed': false, 'IsRcm': false, 'TaxSlabId': true, 'ITCType': true, 'RCMType': true, 'HsnNo': true}
+          this.values['IsRcm'] = false
+          this.values['IsMsmed'] = false
         } else {
-          throw new Error(data.Description)
+          this.toShow = {'IsMsmed': false, 'IsRcm': false, 'TaxSlabId': false, 'ITCType': false, 'RCMType': false, 'HsnNo': false}
+          this.values['TaxSlabId'] = false
+          this.values['ITCType'] = false
+          this.values['RCMType'] = false
+          this.values['HsnNo'] = ''
+          this.values['IsRcm'] = false
+          this.values['IsMsmed'] = false
         }
-      }),
-      catchError(error => {
-        return throwError(error)
-      }),
-      map(data => data.Data),
-      map(data => {
-        let newData = []
-        data.forEach(element => {
-          newData.push({
-            id: element.Id,
-            text: element.GlName
-          })
-        })
-        return newData
-      })
-    ).subscribe(data => {
-      console.log('parent ledgers : ', data)
-      this.parentGroupData = data
-      this.GlId = +this.parentGroupData[0].id
+      } else {
+        if (+this.values['GlId']['value'] === -1) {
+          this.groupSelect2.selector.nativeElement.value = ''
+          this.commonService.openledgerGroup('','')
+        }
+      }
+    }
+  }
+
+  toggleSelect (evt) {
+    // console.log('event : ', evt.target.checked)
+    for (let i = 0;i <= this.masterData.length - 1;i++) {
+      $('.ledger-container')[i].checked = evt.target.checked
+      if (evt.target.checked) {
+        this.selectedItems.push(this.masterData[i]['SNO'])
+      } else {
+        let index = this.selectedItems.indexOf(this.masterData[i]['SNO'])
+        if (index > -1) {
+          this.selectedItems.splice(index,1)
+        }
+      }
+    }
+  }
+
+  onItemToggle (index, SNO, evt) {
+    // console.log('index : ', index)
+    // console.log('evt : ', evt.target.id)
+    if (index > -1) {
+      if (evt.target.checked) {
+        this.selectedItems.push(SNO)
+      } else {
+        let i = this.selectedItems.indexOf(SNO)
+        if (i > -1) {
+          this.selectedItems.splice(i,1)
+        }
+      }
+      $('#' + SNO)[0].checked = evt.target.checked
+      console.log('selectedItems : ', this.selectedItems)
+    }
+  }
+
+  addToQueue () {
+    let ledgerData = []
+    this.selectedItems.forEach(item => {
+      for (let i = 0; i < this.masterData.length; i++) {
+        if (item === this.masterData[i]['SNO']) {
+          ledgerData.push(this.masterData[i])
+          ledgerData[ledgerData.length - 1]['ISMSMED'] = (this.values['IsMsmed']) ? +(this.values['IsMsmed']) : 0
+          ledgerData[ledgerData.length - 1]['ISRCM'] = (this.values['IsRcm']) ? +(this.values['IsRcm']) : 0
+
+          ledgerData[ledgerData.length - 1]['TAXSLABID'] = (this.values['TaxSlabId']) ? +this.values['TaxSlabId'].value : 0
+          ledgerData[ledgerData.length - 1]['TAXSLAB'] = (this.values['TaxSlabId'] && this.values['TaxSlabId']['data'][0]['text']) ? this.values['TaxSlabId']['data'][0]['text'] : ''
+
+          ledgerData[ledgerData.length - 1]['ITCTYPE'] = (this.values['ITCType']) ? +this.values['ITCType'].value : 0
+          ledgerData[ledgerData.length - 1]['ITCTYPETEXT'] = (this.values['ITCType'] && this.values['ITCType']['data'][0]['text']) ? this.values['ITCType']['data'][0]['text'] : ''
+
+          ledgerData[ledgerData.length - 1]['RCMTYPE'] = (this.values['RCMType']) ? +this.values['RCMType'].value : 0
+          ledgerData[ledgerData.length - 1]['RCMTYPETEXT'] = (this.values['RCMType'] && this.values['RCMType']['data'][0]['text']) ? this.values['RCMType']['data'][0]['text'] : ''
+
+          ledgerData[ledgerData.length - 1]['HSNNO'] = (this.values['HsnNo']) ? this.values['HsnNo'] : ''
+
+          ledgerData[ledgerData.length - 1]['GLID'] = (this.values['GlId']) ? +this.values['GlId'].value : 0
+          ledgerData[ledgerData.length - 1]['GLIDTEXT'] = (this.values['GlId'] && this.values['GlId']['data'][0]['text']) ? this.values['GlId']['data'][0]['text'] : ''
+        }
+      }
     })
+    this.selectedItems.forEach(item => {
+      for (let i = 0; i < this.masterData.length; i++) {
+        if (item === this.masterData[i]['SNO']) {
+          this.masterData.splice(i, 1)
+        }
+      }
+    })
+    console.log('master data : ', this.masterData)
+    this.selectedItems = []
+    this.ledgerData = this.ledgerData.concat(ledgerData)
+    console.log('ledger data : ', this.ledgerData)
+  }
+
+  checkForDuplicates () {
+    this.masterData = this.gs.mergesort(this.masterData)
+    // console.log('new master data : ', this.masterData)
+    let ledgerKeys = { ...this.masterKeys }
+    this.ledgerKeys = Object.values(ledgerKeys)
+    // console.log('ledgerKeys : ', this.ledgerKeys)
+    this.ledgerKeys.push('ISMSMED')
+    this.ledgerKeys.push('ISRCM')
+    // this.ledgerKeys.push('TAXSLABID')
+    this.ledgerKeys.push('TAXSLAB')
+    this.ledgerKeys.push('ITCTYPETEXT')
+    // this.ledgerKeys.push('ITCTYPE')
+    this.ledgerKeys.push('RCMTYPETEXT')
+    // this.ledgerKeys.push('RCMTYPE')
+    this.ledgerKeys.push('HSNNO')
+    this.ledgerKeys.push('GLIDTEXT')
+    this.duplicateTuples = []
+    for (let i = 0; i < this.masterData.length - 1; i++) {
+      if (this.masterData[i]['NAME'].toLowerCase() === this.masterData[i + 1]['NAME'].toLowerCase()) {
+        this.duplicateTuples.push(this.masterData[i])
+        this.masterData[i]['DUPLICATE'] = true
+      }
+    }
+    if (this.duplicateTuples.length > 0) {
+      this.toastrService.showError('Pleae remove the duplicate items in order to move further', '')
+    }
+    // console.log('duplicates : ', this.duplicateTuples)
+  }
+
+  removeItem (index, item) {
+    this.masterData.splice(index,1)
+    this.ledgerData.splice(index,1)
+    for (let i = 0; i < this.duplicateTuples.length; i++) {
+      if (this.duplicateTuples[i]['NAME'].toLowerCase() === item['NAME'].toLowerCase()) {
+        this.duplicateTuples.splice(i, 1)
+        break
+      }
+    }
+    // console.log('duplicate tuples : ', this.duplicateTuples)
   }
 
   ngOnDestroy () {
@@ -90,7 +245,23 @@ export class LedgerImportComponent {
     this.masterTableArray = []
     this.file = []
     this.masterKeys = []
+    this.selectedItems = []
     this.masterData = []
+    this.ledgerData = []
+    this.ledgerKeys = []
+    this.duplicateTuples = []
+    this.file = []
+    this.values = {}
+    this.toShow = {}
+    $('.fixTable').tableHeadFixer({
+      'thead': false,
+      'left': 1
+    })
+    if (this.modeOfForm === 'new') {
+      this.pendingList = false
+      this.getPendingList()
+    }
+
     $('.fixTable').tableHeadFixer({
       'thead': false,
       'left': 1
@@ -100,7 +271,6 @@ export class LedgerImportComponent {
   }
 
   openModal () {
-    this.reset()
     this.initComp()
     $('#ledger-import-modal').removeClass('fadeOut')
     $('#ledger-import-modal').addClass('fadeInDown')
@@ -123,14 +293,23 @@ export class LedgerImportComponent {
 
   private importParams (): ledgerImportExcel {
     let arrToSend = JSON.parse(JSON.stringify(this.masterData))
-    arrToSend.forEach((element, index) => {
-      element['ID'] = 0
-      element['SNO'] = index
-      element['GlId'] = this.GlId
+    arrToSend.forEach((element) => {
+      element['ISMSMED'] = 0
+      element['ISRCM'] = 0
+      element['TAXSLABID'] = 0
+      element['ITCTYPE'] = 0
+      element['RCMTYPE'] = 0
+      element['TAXSLAB'] = ''
+      element['ITCTYPETEXT'] = ''
+      element['RCMTYPETEXT'] = ''
+      element['HSNNO'] = 0
+      element['GLID'] = 0
+      element['GLIDTEXT'] = ''
     });
+    let obj = Object.assign([], arrToSend, this.ledgerData)
     const itemElement = {
       itemObj: {
-        ImportLedgers: arrToSend
+        ImportLedgers: obj
       }
     }
     console.log('obj: ', JSON.stringify(itemElement.itemObj))
@@ -147,7 +326,7 @@ export class LedgerImportComponent {
           this.ledgerService.closeLedgerImport()
         }
         if (value === 'reset') {
-          this.modeOfForm = 'reset'
+          this.modeOfForm = 'new'
           this.initComp()
         }
       } else {
@@ -158,6 +337,7 @@ export class LedgerImportComponent {
 
   public uploadData (event: any): void {
     if (event) {
+      this.isDataLoading = true
       // console.log('file event : ', event)
       this.sheetname = []
       this.masterTableArray = []
@@ -283,8 +463,12 @@ export class LedgerImportComponent {
               // }
               if (toAdd) {
                 let obj = { ...newRow }
-                console.log('obj : ', obj);
+                // console.log('obj : ', obj);
                 this.masterData.push(obj)
+                if (this.masterData.length === this.masterTableArray.length) {
+                  this.isDataLoading = false
+                  this.checkForDuplicates()
+                }
               }
             })
             // this.masterKeys = Object.keys(_self.masterData[0])
@@ -293,10 +477,12 @@ export class LedgerImportComponent {
         } else {
           this.toastrService.showError('', 'Some fields are missing')
           this.reset()
+          this.isDataLoading = false
         }
       } else {
         this.toastrService.showError('', 'No Data Found')
         this.reset()
+        this.isDataLoading = false
       }
     }
   }
@@ -308,6 +494,217 @@ export class LedgerImportComponent {
     this.masterTableArray = []
     this.file = []
     this.masterKeys = []
+    this.pendingList = []
+    this.isPending = false
+    this.data = {}
+    this.values = {}
+    this.toShow = {}
     this.ledgerService.closeLedgerImport()
+  }
+
+  getRcmTypeList () {
+    this.gs.manipulateResponse(this.ledgerService.getRcmTypeList()).pipe(
+      map(data => {
+        if (data && data.length > 0) {
+          data.forEach(element => {
+            element['Name'] = element['CommonDesc']
+          })
+          return data
+        } else {
+          return []
+        }
+      })
+    )
+    .subscribe(data => {
+      // console.log('rcm : ', data)
+      if (data)
+        this.ledgerService.returnSelect2List(data, 'rcm')
+    },
+    (error) => {
+      console.log(error)
+      this.toastrService.showError(error.message, '')
+    })
+  }
+
+  getItcTypeList () {
+    this.gs.manipulateResponse(this.ledgerService.getItcTypeList()).pipe(
+      map(data => {
+        if (data && data.length > 0) {
+          data.forEach(element => {
+            element['Name'] = element['CommonDesc']
+          })
+          return data
+        } else {
+          return []
+        }
+      })
+    )
+    .subscribe(data => {
+      // console.log('itc : ', data)
+      this.ledgerService.returnSelect2List(data, 'itc')
+    },
+    (error) => {
+      console.log(error)
+      this.toastrService.showError(error.message, '')
+    })
+  }
+
+  getParentGroupData () {
+    this.gs.manipulateResponse(this.commonService.getLedgerGroupParentData('')).pipe(
+      map(data => {
+        if (data && data.length > 0) {
+          data.forEach(element => {
+            element['Name'] = element['GlName']
+          })
+          return data
+        } else {
+          return []
+        }
+      })
+    )
+    .subscribe(data => {
+      // console.log('parent : ', data)
+      this.ledgerService.returnSelect2List(data, 'parent', true)
+    },
+    (error) => {
+      console.log(error)
+      this.toastrService.showError(error.message, '')
+    })
+  }
+
+  getTaxtDetail () {
+    this.gs.manipulateResponse(this._itemmasterServices.getTaxDetail()).pipe(
+      map(data => {
+        if (data.TaxSlabs && data.TaxSlabs.length > 0) {
+          data.TaxSlabs.forEach(element => {
+            element['Name'] = element['Slab']
+          })
+          return data.TaxSlabs
+        } else {
+          return []
+        }
+      })
+    )
+    .subscribe(data => {
+      // console.log('tax : ', data)
+      if (data)
+        this.ledgerService.returnSelect2List(data, 'tax', true)
+    },
+    (error) => {
+      console.log(error)
+      this.toastrService.showError(error.message, '')
+    })
+  }
+
+  getPendingList () {
+    let _self = this
+    this.gs.manipulateResponse(this.ledgerService.getLedgerImport()).subscribe(
+      data => {
+        console.log('pending list : ', data)
+        if (data && data.length > 0) {
+          _self.isPending = true
+          _self.generateList(data)
+        } else {
+          _self.isPending = false
+          this.isLoading = false
+        }
+        $('#ledger-import-modal').removeClass('fadeOut')
+        $('#ledger-import-modal').addClass('fadeInDown')
+        $('#ledger-import-modal').modal(UIConstant.MODEL_SHOW)
+      },
+      (error) => {
+        this.toastrService.showError(error, '')
+        this.isLoading = false
+      }
+    )
+  }
+
+  generateList (list) {
+    let _self = this
+    this.masterData = []
+    let index = 0
+    let masterKeys = ['Sno','Name','ShortName','GSTType','AccountNo','CreditLimit','CreditDays','ContactNo','Email',
+    'PanNo','GstNo','OpeningBalance','CrDr','Country','State','City','Address']
+    this.masterKeys = ['SNO','NAME','SHORTNAME','GSTTYPE','ACCOUNTNO','CREDITLIMIT',
+    'CREDITDAYS','CONTACTNO','EMAIL','PANNO','GSTNO','OPENINGBALANCE','CRDR','COUNTRY',
+    'STATE','CITY','ADDRESS']
+    this.ledgerKeys = [...this.masterKeys]
+    this.ledgerKeys.push('ISMSMED')
+    this.ledgerKeys.push('ISRCM')
+    this.ledgerKeys.push('TAXSLAB')
+    this.ledgerKeys.push('ITCTYPETEXT')
+    this.ledgerKeys.push('RCMTYPETEXT')
+    this.ledgerKeys.push('HSNNO')
+    this.ledgerKeys.push('GLIDTEXT')
+    list.forEach(element => {
+      index += 1
+      let newRow = {}
+      for (let j = 0; j < masterKeys.length; j++) {
+        newRow[masterKeys[j].toUpperCase()] = element[masterKeys[j]]
+      }
+      newRow['ID'] = element['Id']
+      newRow['SNO'] = +index
+      newRow['NAME'] = newRow['NAME']
+      newRow['SHORTNAME'] = newRow['SHORTNAME']
+      newRow['GSTTYPE'] = newRow['GSTTYPE']
+      newRow['ACCOUNTNO'] = newRow['ACCOUNTNO']
+      newRow['CREDITLIMIT'] = newRow['CREDITLIMIT']
+      newRow['CREDITDAYS'] = newRow['CREDITDAYS']
+      newRow['CONTACTNO'] = newRow['CONTACTNO']
+      newRow['EMAIL'] = newRow['EMAIL']
+      newRow['PANNO'] = newRow['PANNO']
+      newRow['GSTNO'] = newRow['GSTNO']
+      newRow['OPENINGBALANCE'] = newRow['OPENINGBALANCE']
+      newRow['CRDR'] = newRow['CRDR']
+      newRow['COUNTRY'] = newRow['COUNTRY']
+      newRow['STATE'] = newRow['STATE']
+      newRow['CITY'] = newRow['CITY']
+      newRow['ADDRESS'] = newRow['ADDRESS']
+      console.log(newRow)
+      _self.masterData.push(newRow)
+    })
+    this.isLoading = false
+  }
+
+  deleteList () {
+    let strId = this.generateDeleteList()
+    this.gs.manipulateResponse(this.ledgerService.deleteList(strId)).subscribe(
+      () => {
+        this.toastrService.showSuccess('Record Deleted Successfully', '')
+        this.deleteDeleted()
+      },
+      (error) => {
+        this.toastrService.showError(error, '')
+      }
+    )
+  }
+
+  generateDeleteList (): string {
+    let strIds = []
+    this.selectedItems.forEach(item => {
+      for (let i = 0; i < this.masterData.length; i++) {
+        if (item === this.masterData[i]['SNO']) {
+          strIds.push(this.masterData[i]['ID']) 
+        }
+      }
+    })
+
+    let strId = strIds.join(',')
+    console.log('strId : ', strId)
+    return strId
+  }
+
+  deleteDeleted () {
+    this.selectedItems.forEach(item => {
+      for (let i = 0; i < this.masterData.length; i++) {
+        if (item === this.masterData[i]['SNO']) {
+          this.masterData.splice(i, 1)
+        }
+      }
+    })
+    if (this.masterData.length === 0) {
+      this.modeOfForm = 'new'
+      this.initComp()
+    }
   }
 }

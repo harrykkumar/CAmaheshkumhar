@@ -53,8 +53,8 @@
       </div>
     </div>
 
-    <div id="ledger_search_form" class="card collapse">
-      <div class="card-body ">
+    <div id="ledger_search_form" class="card collapse mb-2">
+      <div class="px-3 pt-2">
         <form
           #ledgerSearchForm="ngForm"
           (ngSubmit)="ledgerSearchForm.form.valid && getLedgerSummaryData()"
@@ -86,18 +86,17 @@
                 (dateInFormat)="model.toDateValue = $event;"></datepicker-popup>
               </div>
             </div>
-            <div class="form-group col-md-2 pt-3">
+            <div class="form-group col-md-3 pt-3">
               <button (click)="searchButton()"
                 type="submit"
                 class="btn btn-primary waves-effect waves-light"
               >
                 Search
               </button>
-            </div>
-            <div class="form-group col-md-1 pt-3">
               <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect">Reset</button>
-  
-          </div>
+
+            </div>
+           
           </div>
         </form>
       </div>

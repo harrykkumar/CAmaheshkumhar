@@ -80,7 +80,7 @@ export class PurchaseReturnListComponent implements OnInit {
         this.getPurchaseReturnList()
       }
     )
-    this.redirectData = this.commonService.reDirectPrintSaleStatus().subscribe(
+    this.redirectData = this.commonService.reDirectViewListOfPurchaeStatus().subscribe(
       (action: any) => {
         this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
         this.getPurchaseReturnList()

@@ -52,6 +52,7 @@ export class SaleDirectSearchComponent {
   @Input() toShow: boolean = false
   searchForm: FormGroup
   dataStatus: any = []
+  queryStr:any=''
   constructor(public _commonService:CommonService,private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
     private settings: Settings, private _saleDirectService: SaleDirectService, private gs: GlobalService) { 
 
@@ -64,7 +65,15 @@ export class SaleDirectSearchComponent {
           
       //   }
       // )
-
+      // this.redirectData = this._commonService.reDirectViewListOfSaleStatus().subscribe(
+      //   (action: any) => {
+      //     alert(5)
+      //     this.searchForm.value.FromDate = action.fromDate
+      //     this.searchForm.value.ToDate= action.toDate
+      //     //this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
+      //     this.search()
+      //   }
+      // )
 
     }
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
@@ -206,11 +215,9 @@ export class SaleDirectSearchComponent {
     }
   }
   getValue (evt){
-alert(evt.value)
   }
 
   search() {
-    alert(this.searchForm.value.FromDate)
     if (this.searchForm.valid) {
       let fromDate = ''
       let toDate = ''

@@ -8,9 +8,11 @@ import { CommonService } from '../../commonServices/commanmaster/common.services
 import { ToastrCustomService } from '../../commonServices/toastr.service'
 import { Settings } from '../../shared/constants/settings.constant'
 import { LoginService } from './../../commonServices/login/login.services';
-import {SetUpIds} from 'src/app/shared/constants/setupIds.constant'
+import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { Router } from '@angular/router'
 import { GlobalService } from '../../commonServices/global.service'
+declare const _: any
+
 @Component({
   selector: 'app-balance-sheet-report',
   templateUrl: './balance-sheet-report.component.html',
@@ -24,58 +26,68 @@ export class BalanceSheetReportComponent implements OnInit {
   totalBillAmount: number
   newDateSub: Subscription
   newDatefromDate: Subscription
-  toDateShow : any=''
-  fromDateShow : any=''
+  toDateShow: any = ''
+  fromDateShow: any = ''
   clientDateFormat: any
-  ListTypeFilter:any =[]
-  formTypeNmae:any='Select'
-  constructor( public _router: Router,
+  ListTypeFilter: any = []
+  formTypeNmae: any = 'Select'
+  constructor(public _router: Router,
     public gs: GlobalService,
-    public _loginService: LoginService ,public _settings: Settings,public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
-      this.onload()
-      this.ListTypeFilter=[{id:0,name:'Summary'},{id:1,name:'Details'}]
-      this.getModuleSettingData()
-      this.toDateShow = this.gs.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
-      this.fromDateShow = this.gs.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
-      this.getbalancesheetdata( )
+    public _loginService: LoginService, public _settings: Settings, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+    this.onload()
+    this.selectedid=false
+    this.ListTypeFilter = [{ id: 0, name: 'Summary' }, { id: 1, name: 'Details' }]
+    this.getModuleSettingData()
+    this.toDateShow = this.gs.utcToClientDateFormat(this._settings.finToDate, this.clientDateFormat)
+    this.fromDateShow = this.gs.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
+    this.getbalancesheetdata()
+
   }
-  ngOnDestroy() { 
+  ngOnDestroy() {
     this.detailRecivedSubscription.unsubscribe();
-}
-  decimalDigit:any
-  loggedinUserData: any
-  ngOnInit () {
-  
   }
-  selectedid: any = null
-  onChangeType(evt) {
-    if (this.selectedid !== null) {
-      this.selectedid = evt.id
+  decimalDigit: any
+  loggedinUserData: any
+  ngOnInit() {
+
+  }
+  selectedid: boolean = false
+  changeSummary(evt) {
+    this.mainData = []
+    if (evt.target.checked) {
+        this.headI1dData = this.headI1dDataList
+        this.headI2dData = this.headI2dDataList
+    }
+    else {
+      this.selectedid = false
+          let head1 = this.headI1dDataList
+        let head2 = this.headI2dDataList
+        this.SummaryData(head1, head2)
     }
   }
-  onload(){
-    this.headervalue2 =0
-    this.headervalue1 =0
-    this.headervalue1First=0
-    this.headervalue2First=0
-    
+  onload() {
+    this.headervalue2 = 0
+    this.headervalue1 = 0
+    this.headervalue1First = 0
+    this.headervalue2First = 0
+
     const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
     this.loggedinUserData = organization
     this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
     this._commonService.fixTableHF('cat-table')
   }
-  getModuleSettingValue:any
-  getModuleSettingData () {
-        if ( this.getModuleSettingValue.settings.length > 0) {
-          this.getModuleSettingValue.settings.forEach(ele => {
-             if (ele.id=== SetUpIds.noOfDecimalPoint) {
-              this.decimalDigit = JSON.parse(ele.val)
-             }
-             if (ele.id=== SetUpIds.dateFormat) {
-              this.clientDateFormat =  ele.val[0].Val
-             }
-   })
-  }
+  getModuleSettingValue: any
+  getModuleSettingData() {
+    if (this.getModuleSettingValue.settings.length > 0) {
+      this.getModuleSettingValue.settings.forEach(ele => {
+        if (ele.id === SetUpIds.noOfDecimalPoint) {
+          this.decimalDigit = JSON.parse(ele.val)
+        }
+        if (ele.id === SetUpIds.dateFormat) {
+          this.clientDateFormat = ele.val[0].Val
+        }
+      })
+    }
   }
   toShowSearch = false
 
@@ -91,68 +103,106 @@ export class BalanceSheetReportComponent implements OnInit {
   labelLength: any
   mainData: any
   AttributeValues: any
-  headervalue1 : any
+  headervalue1: any
   headervalue2: any
   BalanceSheetSummary: any
-  headervalue1First:any =0
-  orgDetails:any={}
-  headervalue2First:any=0
-  headI1dData:any =[]
-  headI2dData:any=[]
+  headervalue1First: any = 0
+  orgDetails: any = {}
+  headervalue2First: any = 0
+  headI1dData: any = []
+  headI2dData: any = []
+  headI1dDataList:any=[]
+  headI2dDataList:any=[]
+
   detailRecivedSubscription: Subscription;
-  getbalancesheetdata () {
+  getbalancesheetdata() {
     let todate;
     let fromDate;
     if (this.toDateShow !== '') {
       todate = this.gs.clientToSqlDateFormat(this.toDateShow, this.clientDateFormat)
-      }
-      else {
+    }
+    else {
       todate = ''
-      }
-      if (this.fromDateShow !== '') {
-        fromDate = this.gs.clientToSqlDateFormat(this.fromDateShow, this.clientDateFormat)
-      }
-      else {
-        fromDate = ''
-      }
-   this.mainData =[]
-   this.detailRecivedSubscription = this._commonService.getBalanceSheetList(todate,fromDate).subscribe(data => {
-      
-      this.headervalue2 =0
-      this.headervalue1 =0
-      this.orgDetails ={}
-      if(data.Code === UIConstant.THOUSAND ){
-        if(data.Data && data.Data.BalanceSheets && data.Data.BalanceSheets.length >0){
-         this.headI1dData = data.Data.BalanceSheets.filter(s=>s.HeadId ===1) 
-         this.headI2dData = data.Data.BalanceSheets.filter(s=>s.HeadId ===2)
+    }
+    if (this.fromDateShow !== '') {
+      fromDate = this.gs.clientToSqlDateFormat(this.fromDateShow, this.clientDateFormat)
+    }
+    else {
+      fromDate = ''
+    }
+    this.mainData = []
+    this.detailRecivedSubscription = this._commonService.getBalanceSheetList(todate, fromDate).subscribe(data => {
+      this.headervalue2 = 0
+      this.headervalue1 = 0
+      this.orgDetails = {}
+      if (data.Code === UIConstant.THOUSAND) {
+        if (data.Data && data.Data.BalanceSheets && data.Data.BalanceSheets.length > 0) {
+            this.headI1dDataList = data.Data.BalanceSheets.filter(s => s.HeadId === 1)
+            this.headI2dDataList = data.Data.BalanceSheets.filter(s => s.HeadId === 2)
+
         }
-        if(data.Data && data.Data.BalanceSheetSummary.length>0){
+        let evt = {
+          target: {
+            checked: false
+          }
+        }
+        this.changeSummary(evt)
+        if (data.Data && data.Data.BalanceSheetSummary.length > 0) {
           data.Data.BalanceSheetSummary.forEach(element => {
-            if(element.HeadId ===1){
-             this.headervalue1 =element.Amount1
-             this.headervalue1First =element.Amount
+            if (element.HeadId === 1) {
+              this.headervalue1 = element.Amount1
+              this.headervalue1First = element.Amount
             }
-            else if(element.HeadId ===2){
-              this.headervalue2 =element.Amount1
-              this.headervalue2First =element.Amount
-             }
+            else if (element.HeadId === 2) {
+              this.headervalue2 = element.Amount1
+              this.headervalue2First = element.Amount
+            }
           });
         }
-            if( data.Data.ImageContents.length >0 || data.Data.OrganizationDetails.length >0 ||  data.Data.EmailDetails.length >0 ||  data.Data.AddressDetails.length >0 || data.Data.ContactInfoDetails.length >0){
-            this.orgDetails =data.Data
-            }
+        if (data.Data.ImageContents.length > 0 || data.Data.OrganizationDetails.length > 0 || data.Data.EmailDetails.length > 0 || data.Data.AddressDetails.length > 0 || data.Data.ContactInfoDetails.length > 0) {
+          this.orgDetails = data.Data
         }
-      })
+      }
+    })
   }
-  
-  viewFlag:boolean
-  HtmlPrintId:any
+  SummaryData(head1, head2) {
+    this.headI1dData = [];
+    this.headI2dData = []
+    if (head1.length > 0) {
+      head1.forEach(element => {
+        if (element.LevelNo === 1 || element.LevelNo === 2) {
+          this.headI1dData.push(element)
+        }
+      });
+    }
+      if (head1.length > 0) {
+      head2.forEach(element => {
+        if (element.LevelNo === 1 || element.LevelNo === 2) {
+          this.headI2dData.push(element)
+        }
+      });
+    }
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+  viewFlag: boolean
+  HtmlPrintId: any
   openPrint(htmlId) {
-    this.HtmlPrintId= htmlId
-    this.printLoad(htmlId,true)
-    
+    this.HtmlPrintId = htmlId
+    this.printLoad(htmlId, true)
+
   }
-  printLoad (cmpName,isViewForm) {
+  printLoad(cmpName, isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open()
@@ -163,55 +213,55 @@ export class BalanceSheetReportComponent implements OnInit {
     printWindow.document.close()
     printWindow.focus()
     // $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
-    this.viewFlag=true
+    this.viewFlag = true
     setTimeout(function () {
- //   if(this.isViewForm){
-        document.getElementsByTagName('body')[0] .classList.add('hidden-print');
+      //   if(this.isViewForm){
+      document.getElementsByTagName('body')[0].classList.add('hidden-print');
       printWindow.print()
-     printWindow.close() 
-    //}
+      printWindow.close()
+      //}
     }, 100)
-   
+
   }
 
-  openLedgerSummary (item){
+  openLedgerSummary(item) {
     console.log(item)
-      if( item.LevelNo ===3 && item.GlId !==22){
-        this._commonService.ledgerSummary(item.GlId,item.GlName)
-       this._router.navigate(['/account/ledger-summary'])
-      }
-      if(item.GlId === -999){
-       this._router.navigate(['/account/Profit-Loss'])
-      }
-      if(( item.LevelNo ===3 && item.GlId ===22 ) || (item.GlId ===22 )){
-        this._commonService.AddedItem()
-       this._router.navigate(['/ims/report/item-inventory'])
-      }
+    if (item.LevelNo === 3 && item.GlId !== 22) {
+      this._commonService.ledgerSummary(item.GlId, item.GlName)
+      this._router.navigate(['/account/ledger-summary'])
+    }
+    if (item.GlId === -999) {
+      this._router.navigate(['/account/Profit-Loss'])
+    }
+    if ((item.LevelNo === 3 && item.GlId === 22) || (item.GlId === 22)) {
+      this._commonService.AddedItem()
+      this._router.navigate(['/ims/report/item-inventory'])
+    }
   }
-  searchResetButton (){
-    this.toDateShow  =''
-    this.fromDateShow=''
-    this.selectedid =null
+  searchResetButton() {
+    this.toDateShow = ''
+    this.fromDateShow = ''
+    this.selectedid = null
     this.getbalancesheetdata()
   }
-  searchButton(){
-        this.getbalancesheetdata()
+  searchButton() {
+    this.getbalancesheetdata()
   }
 
-  toggleLevel(event,item,index) {
-    if(item.HeadId ===2 && item.LevelNo===2 ){
+  toggleLevel(event, item, index) {
+    if (item.HeadId === 2 && item.LevelNo === 2) {
 
     }
-  //   $(document).ready(function(){
-  //     $(".collapse.show").each(function(){
-  //       $(this).prev(".new-clas").find(".fa").addClass("fa-minus").removeClass("fa-plus");
-  //     });
-  //     $(".collapse").on('show.bs.collapse', function(){
-  //       $(this).prev(".new-clas").find(".fa").removeClass("fa-plus").addClass("fa-minus");
-  //     }).on('hide.bs.collapse', function(){
-  //       $(this).prev(".new-clas").find(".fa").removeClass("fa-minus").addClass("fa-plus");
-  //     });
-  // });
+    //   $(document).ready(function(){
+    //     $(".collapse.show").each(function(){
+    //       $(this).prev(".new-clas").find(".fa").addClass("fa-minus").removeClass("fa-plus");
+    //     });
+    //     $(".collapse").on('show.bs.collapse', function(){
+    //       $(this).prev(".new-clas").find(".fa").removeClass("fa-plus").addClass("fa-minus");
+    //     }).on('hide.bs.collapse', function(){
+    //       $(this).prev(".new-clas").find(".fa").removeClass("fa-minus").addClass("fa-plus");
+    //     });
+    // });
   }
   toggleItemdd(event, itemId, AttributeId, index) {
     $(document).ready(function () {

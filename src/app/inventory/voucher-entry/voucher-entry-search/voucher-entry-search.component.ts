@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, SimpleChanges, ElementRef } from "@angular/core";
+import { Component, Input, ViewChild, SimpleChanges } from "@angular/core";
 import { Select2OptionData, Select2Component } from "ng2-select2";
 import { FormGroup, FormBuilder } from "@angular/forms";
 import { VendorServices } from "src/app/commonServices/TransactionMaster/vendoer-master.services";
@@ -44,10 +44,12 @@ export class VoucherEntrySearchComponent {
   createForm () {
     this.searchForm = this.formBuilder.group({
       'FromDate': [''],
-      'ToDate': ['']
+      'ToDate': [''],
+      'FromAmount': [''],
+      'ToAmount': ['']
     },
     {
-      validator: [DependencyCheck('FromDate', 'ToDate', 'date')]
+      validator: [DependencyCheck('FromDate', 'ToDate', 'date'), DependencyCheck('FromAmount', 'ToAmount', 'amount')]
     })
   }
   get f() { return this.searchForm.controls; }
@@ -55,7 +57,7 @@ export class VoucherEntrySearchComponent {
   getVoucherTypeList () {
     let newData = [{ id: '0', text: 'Select Type' }]
     this.voucherEntryServie.getVoucherTypeList().subscribe(data => {
-      console.log('ledger data : ', data)
+      // console.log('ledger data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
           data.Data.forEach(element => {
@@ -111,7 +113,9 @@ export class VoucherEntrySearchComponent {
        '&FromDate=' + fromDate + 
        '&ToDate=' + toDate + 
        '&LedgerId=' + this.LedgerId +
-       '&VoucherType=' + this.Type
+       '&VoucherType=' + this.Type + 
+       '&ToAmount=' + +this.searchForm.value.ToAmount +
+       '&FromAmount=' + +this.searchForm.value.FromAmount
       this.voucherEntryServie.setSearchQueryParamsStr(queryStr)
     }
   }
@@ -135,7 +139,9 @@ export class VoucherEntrySearchComponent {
     '&FromAmount=' + 0 + 
     '&ToAmount=' + 0 + 
     '&LedgerId=' + this.LedgerId +
-    '&VoucherType=' + 0 
+    '&VoucherType=' + 0 + 
+    '&ToAmount=' + ''+
+    '&FromAmount=' + ''
    this.voucherEntryServie.setSearchQueryParamsStr(queryStr)
   }
 

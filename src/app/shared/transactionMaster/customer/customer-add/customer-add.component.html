@@ -69,6 +69,7 @@
                             <div class="form-group col-md-3">
                               <label class="fw-500">DOA</label>
                               <datepicker-popup [disableInput]="editMode"
+                              [applyFinYear]="false"
                               [toSetDate]="DateOfAnniry" [isBackDate]="true" [setMaxDate]='futureDateAn'
                               (dateInFormat)="DateOfAnniry = $event;" ></datepicker-popup>
                               
@@ -78,6 +79,7 @@
                               <label class="fw-500">DOB</label>
                               
                               <datepicker-popup [disableInput]="editMode"
+                              [applyFinYear]="false"
                               [toSetDate]="DateOfBirth" [isBackDate]="true" [setMaxDate]='futureDateB'
                               (dateInFormat)="DateOfBirth = $event;" ></datepicker-popup>
               
@@ -186,7 +188,7 @@
                                                           class="control_select "
                                                           (valueChanged)="
                                                            onCountryCodeSelectionChange( $event )"
-                                                         
+                                                           [value]="countryCodeFlag"
                                                           autocomplete="true"
                                                         >
                                                         </select2>
@@ -194,7 +196,7 @@
                                                       </div>
                                                 </td>
                                                 <td width="50%">
-                                                  <input (keydown.enter)="pressEnterMobileAdd($event)" [attr.disabled]="enableContactFlag?'':null"  formControlName="mobileNo" (keyup)="checkNumberByCountry($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': validMobileFlag  }" type="number" class="form-control" >
+                                                  <input (keydown.enter)="pressEnterMobileAdd($event)"   formControlName="mobileNo" (keyup)="checkNumberByCountry($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': validMobileFlag  }" type="number" class="form-control" >
                                                 </td>
                                                 <!-- <td width="5%" (click)="deleteArrayMobileType(i)" class="align-middle"><a><i class="fa fa-trash delete_icon" aria-hidden="true"></i></a></td> -->
                                               </tr>

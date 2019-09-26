@@ -686,13 +686,13 @@ export class ItemAddComponent {
         this.categoryType = newData
       }
     },
-      (error) => {
-        console.log(error)
-        this.loading = false
-      },
-      () => {
-        this.loading = false
-      })
+    (error) => {
+      console.log(error)
+      this.loading = false
+    },
+    () => {
+      this.loading = false
+    })
   }
 
   @ViewChild('cat_select2') catSelect2: Select2Component
@@ -953,6 +953,7 @@ export class ItemAddComponent {
     return !!isValid
   }
 
+  toShowOpeningStock: boolean = false
   getSetting(settings) {
     // console.log('settings : ', settings)
     settings.forEach(element => {
@@ -972,6 +973,9 @@ export class ItemAddComponent {
       if (element.id === SetUpIds.noOfDecimalPoint) {
         this.noOfDecimal = +element.val
         console.log('this.noOfDecimal : ', this.noOfDecimal)
+      }
+      if (element.id === SetUpIds.attributesForPurchase) {
+        this.toShowOpeningStock = (element.val && element.val.length > 0) ? true : false
       }
     })
   }

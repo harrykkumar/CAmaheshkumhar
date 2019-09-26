@@ -12,8 +12,9 @@ declare var $: any
 declare var flatpickr: any
 import { ExcelService } from '../../commonServices/excel.service';
 import { Router } from '@angular/router';
-
+import {SaleDirectSearchComponent} from 'src/app/inventory/sale-direct/sale-direct-search/sale-direct-search.component'
 @Component({
+  providers:[SaleDirectSearchComponent],
   selector: 'app-sale-register',
   templateUrl: './sale-register.component.html',
   styleUrls: ['./sale-register.component.css']
@@ -30,7 +31,9 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
-  constructor(public _router :Router,
+  constructor(
+    private  _saleDirectSearchComponent: SaleDirectSearchComponent,
+    public _router :Router,
     public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
@@ -71,14 +74,17 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
     let toDate =  this._globalService.utcToClientDateFormat(item.Todate, 'm/d/Y')
     let obj={
       fromDate :fromDate,
-      toDate :toDate
+      toDate :toDate,
+      viewflag:true
     }
     if(type==='sale'){
-      this._commonService.reDirectPrintSale(obj)
+      
+    //  this._saleDirectSearchComponent.search()
       this._router.navigate(['ims/sale'])
+      this._commonService.reDirectViewListOfSale(obj)
     }
     if(type==='saleReturn'){
-      this._commonService.reDirectPrintSale(obj)
+      this._commonService.reDirectViewListOfSale(obj)
       this._router.navigate(['ims/sale-return'])
     }
 

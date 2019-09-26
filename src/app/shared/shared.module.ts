@@ -22,15 +22,15 @@ import { RouterModule } from '@angular/router';
 import { AddNewCityComponent } from './components/add-new-city/add-new-city.component';
 import { AddNewAreaComponent } from './components/add-new-area/add-new-area.component';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TabsModule } from 'ngx-bootstrap';
 import { NgxSpinnerModule } from "ngx-spinner";
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CompanyProfileComponent } from '../start/company-profile/company-profile.component';
 import { ChartsModule } from 'ng2-charts';
 import  { DatePicker2AppModule} from './datepicker-2/datepicker2.module'
-// import { MyDatePickerModule} from 'mydatepicker'
 import { SkipWhiteSpacesDirective } from './directives/no-white-spaces.directive';
+import { ItemSearchPipe } from '../pipes/item-search.pipe';
 @NgModule({
   imports: [
     FormsModule,
@@ -44,7 +44,6 @@ import { SkipWhiteSpacesDirective } from './directives/no-white-spaces.directive
     DynamicCategoryModule,
     DatepickerModule,
     DatePicker2AppModule,
-    // DatepickerFormatsInputModule,
     RouterModule,
     ImageModalModule,
     NgxExtendedPdfViewerModule,
@@ -52,10 +51,7 @@ import { SkipWhiteSpacesDirective } from './directives/no-white-spaces.directive
     TabsModule.forRoot(),
     NgxSpinnerModule,
     NgSelectModule,
-    ChartsModule,
-    // MyDatePickerModule,
-    // DatepickerMomentModule,
-    // NgChartjsModule
+    ChartsModule
   ],
   exports: [
     CommonModule,
@@ -88,11 +84,8 @@ import { SkipWhiteSpacesDirective } from './directives/no-white-spaces.directive
     NgSelectModule,
     CompanyProfileComponent,
     ChartsModule,
-    // MyDatePickerModule
-    // DatepickerMomentModule,
-    // DatepickerFormatsInputModule
-    
     DatePicker2AppModule,
+    ItemSearchPipe
   ],
   declarations: [
     ControlMessageComponent,
@@ -108,11 +101,10 @@ import { SkipWhiteSpacesDirective } from './directives/no-white-spaces.directive
     AddNewCityComponent,
     AddNewAreaComponent,
     CompanyProfileComponent,
-    // DatepickerFormatsInputComponent
+    ItemSearchPipe
   ],
   entryComponents: [
     CompanyProfileComponent,
-    // DatepickerFormatsInputComponent
   ]
 })
 export class SharedModule {

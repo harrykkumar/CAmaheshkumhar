@@ -25,10 +25,10 @@
                 <a
                   class="btn btn-default waves-effect"
                   #savebutton
-                  (click)="manipulateData()"
+                  (click)="manipulateData('new')"
                   >Save
                 </a>
-                <a class="btn btn-info waves-effect">Save and New</a>
+                <a class="btn btn-info waves-effect" (click)="manipulateData('reset')" >Save and New</a>
                 <button
                   type="button"
                   class="close"
@@ -57,6 +57,7 @@
                     id="vendorPaymentTabLink"
                     class="nav-link waves-light"
                     [ngClass]="{ active: tabId === 1 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false"
                     data-toggle="tab"
                     role="tab"
                     (click)="onTabClick(1)"
@@ -68,6 +69,7 @@
                     id="customerReceiptTabLink"
                     class="nav-link waves-light"
                     [ngClass]="{ active: tabId === 2 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false"
                     data-toggle="tab"
                     role="tab"
                     (click)="onTabClick(2)"
@@ -79,6 +81,7 @@
                     id="contraTabLink"
                     class="nav-link waves-light"
                     [ngClass]="{ active: tabId === 3 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false"
                     data-toggle="tab"
                     role="tab"
                     (click)="onTabClick(3)"
@@ -90,6 +93,7 @@
                     id="journalTabLink"
                     class="nav-link waves-light"
                     [ngClass]="{ active: tabId === 4 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false"
                     data-toggle="tab"
                     role="tab"
                     (click)="onTabClick(4)"
@@ -101,6 +105,7 @@
                     id="paymentTabLink"
                     class="nav-link waves-light"
                     [ngClass]="{ active: tabId === 5 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false"
                     data-toggle="tab"
                     role="tab"
                     (click)="onTabClick(5)"
@@ -112,6 +117,7 @@
                     id="receiptTabLink"
                     class="nav-link waves-light"
                     [ngClass]="{ active: tabId === 6 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false"
                     data-toggle="tab"
                     role="tab"
                     (click)="onTabClick(6)"
@@ -179,10 +185,11 @@
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
                   <datepicker-popup
+                    [disableInput]="editId > 0"
+                    [applyFinYear]="true"
                     [toSetDate]="VoucherDate"
-                    [isBackDate]="backDateEntry"
                     (opened)="dateStatus = $event"
-                    (dateInFormat)="VoucherDate = $event; getNewBillNo()"
+                    (dateInFormat)="VoucherDate = $event; checkForBill();"
                   >
                   </datepicker-popup>
                 </div>
@@ -317,8 +324,7 @@
                         <th>
                           <div
                             class="custom-control custom-checkbox"
-                            *ngIf="voucherList.length > 0"
-                          >
+                            *ngIf="voucherList.length > 0">
                             <input
                               type="checkbox"
                               class="custom-control-input"
@@ -429,8 +435,7 @@
                         (valueChanged)="onChangeOrganisationId($event)"
                         autocomplete="true"
                         [options]="{ placeholder: 'Select Organisation' }"
-                        [value]="organisationVlue"
-                      >
+                        [value]="organisationVlue">
                       </select2>
                     </div>
                   </div>
@@ -461,9 +466,11 @@
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
                   <datepicker-popup
+                  [disableInput]="editId > 0"
+                  [applyFinYear]="true"
                     [toSetDate]="VoucherDate"
                     (opened)="dateStatus = $event"
-                    (dateInFormat)="VoucherDate = $event; getNewBillNo()"
+                    (dateInFormat)="VoucherDate = $event; checkForBill()"
                   >
                   </datepicker-popup>
                 </div>
@@ -600,9 +607,11 @@
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
                   <datepicker-popup
+                  [disableInput]="editId > 0"
+                    [applyFinYear]="true"
                     [toSetDate]="VoucherDate"
                     (opened)="dateStatus = $event"
-                    (dateInFormat)="VoucherDate = $event; getNewBillNo()"
+                    (dateInFormat)="VoucherDate = $event; checkForBill()"
                   >
                   </datepicker-popup>
                 </div>
@@ -748,10 +757,11 @@
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
                   <datepicker-popup
+                    [disableInput]="editId > 0"
+                    [applyFinYear]="true"
                     [toSetDate]="VoucherDate"
-                    [isBackDate]="backDateEntry"
                     (opened)="dateStatus = $event"
-                    (dateInFormat)="VoucherDate = $event; getNewBillNo()"
+                    (dateInFormat)="VoucherDate = $event; checkForBill()"
                   >
                   </datepicker-popup>
                 </div>

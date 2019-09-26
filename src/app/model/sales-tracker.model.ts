@@ -591,7 +591,7 @@ export interface PurchaseItem {
   fixPurchaseRate?:number
   SaleTransId?:number
   AmountItemBillDiscount?:any
-
+  isDisabled:boolean
 }
 
 export interface SaleReturnItems {
@@ -636,6 +636,7 @@ export interface SaleReturnItems {
   ReturnQuantity?:number
   fixSaleRate?:number
   SaleTransId?:number
+  isDisabled:boolean
 }
 
 export interface ComboItem {
@@ -674,6 +675,7 @@ export class PurchaseTransaction {
   PayDate: string
   Id: number
   Sno: number
+  isEditable:boolean
 }
 
 export class PurchaseAdd {
@@ -747,6 +749,7 @@ export class AdditionalCharges {
   taxChargeRates: any
   itemTaxTrans: Array<ItemTaxTrans>
   TaxableAmountCharge: number
+  isEditable:boolean
 }
 
 export class ItemTaxTrans {
@@ -792,6 +795,8 @@ export interface ServiceBilling {
   taxRates: any
   itemTaxTrans?: Array<ItemTaxTrans>,
   AmountItemBillDiscount:any
+  isDisabled:boolean
+
 }
 
 //selected
@@ -828,6 +833,7 @@ export class ServiceBillingAdd {
   ConvertedCurrencyId: number
   AdditionalCharges: Array<AdditionalCharges>
   ItemTaxTrans: Array<ItemTaxTrans>
+
 }
 
 
@@ -1017,8 +1023,57 @@ export class SaleDirectAdd {
   AdditionalCharges: Array<AdditionalCharges>
   ItemTaxTrans: Array<ItemTaxTrans>
   SupplyStateId:any
-}
 
+}
+export class SaleBillingAdd {
+  ReferralCommissionTypeId: number
+  ReferralCommission: number
+  PaymentDetail: Array<PurchaseTransaction>
+  Items: Array<SaleDirectItem>
+  BillAmount: number
+  BillDate: string
+  PartyBillDate: string
+  PartyBillNo: string
+  BillNo: string
+  ConvertedAmount: number
+  CurrencyRate: number
+  TotalDiscount: number
+  Id: number
+  PartyId: number
+  ReferralId: number
+  ReferralTypeId: number
+  ReferralComission: number
+  ReferralComissionTypeId: number
+  ReverseCharge: number
+  ReverseTax: number
+  CessAmount: number
+  RoundOff: number
+  SubTotalAmount: number
+  TotalTaxAmount: number
+  TotalChallan: number
+  VehicleNo: string
+  Drivername: string
+  Transportation: string
+  TotalQty: number
+  OtherCharge: number
+  GodownId: number
+  CurrencyId: number
+  OrgId: number
+  InterestRate: number
+  InterestAmount: number
+  InterestType: number
+  DueDate: string
+  OrderId: number
+  Advanceamount: number
+  NetAmount: number
+  AddressId: number
+  ConvertedCurrencyId: number
+  ItemAttributeTrans: Array<PurchaseAttribute>
+  AdditionalCharges: Array<AdditionalCharges>
+  ItemTaxTrans: Array<ItemTaxTrans>
+  SupplyStateId:any
+
+}
 export interface SaleDirectItem {
   AmountItemBillDiscount: number;
   TransType: number
@@ -1062,5 +1117,53 @@ export interface SaleDirectItem {
   ReturnQuantity?:number
   fixPurchaseRate?:number
   SaleTransId?:number
+  isDisabled?:boolean
+}
 
+export interface SaleBilingItem {
+  AmountItemBillDiscount: number;
+  TransType: number
+  TransId: number
+  ChallanId: number
+  CategoryId: number
+  ItemId: number
+  UnitId: number
+  Length: number
+  Height: number
+  Width: number
+  Quantity: number
+  SaleRate: number
+  MrpRate: number
+  PurchaseRate: number
+  TotalRate: number
+  TaxSlabId: number
+  TaxType: number
+  TaxAmount: number
+  DiscountType: number
+  Discount: number
+  DiscountAmt: number
+  ExpiryDate: string
+  MfdDate: string
+  BatchNo: string
+  Remark: string
+  Id: number
+  Sno: number
+  itemName: string
+  categoryName: string
+  unitName: string
+  taxSlabName: string
+  taxTypeName: string
+  SubTotal: number
+  itemAttributeTrans?: Array<PurchaseAttribute>
+  taxSlabType: number
+  AmountItem: number
+  taxRates: any
+  itemTaxTrans?: Array<ItemTaxTrans>
+  selected?:boolean
+  ReturnQuantity?:number
+  fixPurchaseRate?:number
+  SaleTransId?:number
+  isDisabled?:boolean
+  subUnitsValue?:any
+  itemValue?:any
 }

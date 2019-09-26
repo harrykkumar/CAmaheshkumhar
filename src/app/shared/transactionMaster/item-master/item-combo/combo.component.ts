@@ -47,7 +47,7 @@ export class ComboComponent {
   itemAttributeTrans: Array<PurchaseAttribute> = []
   ItemAttributeTrans: Array<PurchaseAttribute> = []
   Items: Array<ComboItem> = []
-  industryId: number = 0
+  industryId: number
 
   submitSave: boolean = false
   clickItem: boolean = false
@@ -141,15 +141,15 @@ export class ComboComponent {
         this.validateItem()
       } else if (this.ItemId > 0) {
         this.itemName = evt.data[0].text
-        this.getItemDetail(this.ItemId)
+        this.getItemDetail(this.ItemId,'','')
         this.updateAttributes()
       }
     }
   }
 
-  getItemDetail (id) {
+  getItemDetail (id,Billdate,barcode) {
     console.log('id: ', id)
-    this.purchaseService.getItemDetail(id).subscribe(data => {
+    this.purchaseService.getItemDetail(id,Billdate,barcode).subscribe(data => {
       console.log('item detail : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.UnitId = data.Data[0].UnitId

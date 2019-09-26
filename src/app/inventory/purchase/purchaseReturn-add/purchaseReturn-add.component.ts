@@ -436,7 +436,7 @@ export class PurchaseReturnComponent {
   EditID:number
   ReturnID:number
   getEditData() {
-    debugger
+    
     let Id_for_change = this.editMode === true ? this.EditID :this.ReturnID
     let type  = this.editMode === true ? 'PurchaseReturndetails?Id=' : 'purchasedetail?Id='
     this._saleDirectReturnService.getReturnPurchaseEdit(type,Id_for_change).pipe(takeUntil(this.onDestroy$)).subscribe(
@@ -890,7 +890,7 @@ export class PurchaseReturnComponent {
   }
   
   ValidRate(i, evt) {
-    debugger
+    
     if (Number(evt.target.value) > Number(+this.fixPurchaseRate) &&
     evt.keyCode != 46
       &&
@@ -907,6 +907,9 @@ export class PurchaseReturnComponent {
     this.PurchaseRate = this.Items[index].PurchaseRate
     this.fixPurchaseRate = this.Items[index].fixPurchaseRate
     this.Quantity = this.Items[index].Quantity
+    this.Height = this.Items[index].Height
+    this.Width = this.Items[index].Width
+    this.Length = this.Items[index].Length
     this.TaxType =this.Items[index].TaxType 
     this.Discount = this.Items[index].Discount
     this.ReturnQuantity = this.Items[index].ReturnQuantity
@@ -976,13 +979,12 @@ export class PurchaseReturnComponent {
 
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
-
+    this.BillNo=''
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.billSummary =[]
     this.outStandingBalance = 0
     this.ReturnQuantity = 0
-    this.getNewCurrentDate()
-    this.getNewBillNo()
+   
     this.getListOfChargeData()
     $('#Purchase_Return_model').modal(UIConstant.MODEL_SHOW)
     this.industryId = +this.settings.industryId
@@ -996,8 +998,11 @@ export class PurchaseReturnComponent {
     this.initTransaction()
     this.initCharge()
     if (!this.editMode) {
+      this.getNewCurrentDate()
       if (!this.isBillNoManuall) {
         this.setBillNo(this.TransactionNoSetups)
+        this.getNewBillNo()
+
       }
      //this.getPurchaseReturnData()
       //this.setCurrentDate(this.TransactionNoSetups)
@@ -1057,7 +1062,7 @@ export class PurchaseReturnComponent {
   }
 
   setCurrentDate(setups) {
-    debugger
+    
     if (setups && setups.length > 0) {
       this.CurrentDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
      
@@ -1302,43 +1307,43 @@ export class PurchaseReturnComponent {
         if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
           this.ItemId = +evt.value
           this.itemName = evt.data[0].text
-          this.getItemDetail(this.ItemId)
+         // this.getItemDetail(this.ItemId)
           this.updateAttributes()
         }
       }
     }
   }
 
-  getItemDetail(id) {
-    this._saleDirectReturnService.getItemDetail(id).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
-      console.log('item detail : ', data)
-      if (data.Code === UIConstant.THOUSAND) {
-        if (data.Data.length > 0) {
-          this.categoryName = data.Data[0].CategoryName
-          this.updateCategories(data.Data[0].CategoryId)
-          this.TaxSlabId = data.Data[0].TaxId
-          this.UnitId = data.Data[0].UnitId
-          this.unitSelect2.setElementValue(data.Data[0].UnitId)
-          this.unitName = data.Data[0].UnitName
-          this.taxSlabSelect2.setElementValue(data.Data[0].TaxId)
-          this.taxSlabName = data.Data[0].TaxSlab
-          this.PurchaseRate = data.Data[0].PurchaseRate
-          this.MrpRate = data.Data[0].Mrprate
-          if (+this.TaxSlabId > 0) {
-         //   this.getTaxDetail(this.TaxSlabId)
-          } else {
-          //  this.validateItem()
-            // this.calculate()
-          }
-        }
-      } else {
-        throw new Error(data.Description)
-      }
-    },
-      (error) => {
-        this.toastrService.showError(error, '')
-      })
-  }
+  // getItemDetail(id) {
+  //   this._saleDirectReturnService.getItemDetail(id).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+  //     console.log('item detail : ', data)
+  //     if (data.Code === UIConstant.THOUSAND) {
+  //       if (data.Data.length > 0) {
+  //         this.categoryName = data.Data[0].CategoryName
+  //         this.updateCategories(data.Data[0].CategoryId)
+  //         this.TaxSlabId = data.Data[0].TaxId
+  //         this.UnitId = data.Data[0].UnitId
+  //         this.unitSelect2.setElementValue(data.Data[0].UnitId)
+  //         this.unitName = data.Data[0].UnitName
+  //         this.taxSlabSelect2.setElementValue(data.Data[0].TaxId)
+  //         this.taxSlabName = data.Data[0].TaxSlab
+  //         this.PurchaseRate = data.Data[0].PurchaseRate
+  //         this.MrpRate = data.Data[0].Mrprate
+  //         if (+this.TaxSlabId > 0) {
+  //        //   this.getTaxDetail(this.TaxSlabId)
+  //         } else {
+  //         //  this.validateItem()
+  //           // this.calculate()
+  //         }
+  //       }
+  //     } else {
+  //       throw new Error(data.Description)
+  //     }
+  //   },
+  //     (error) => {
+  //       this.toastrService.showError(error, '')
+  //     })
+  // }
 
   onAttributeSelect(evt, index, attributeId) {
     // console.log('evt on change of attribute : ', evt)
@@ -1379,13 +1384,13 @@ export class PurchaseReturnComponent {
       this.commonService.openAttribute(data, true)
     }
 
-    this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-      if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-        $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-      } else {
-        $('#' + $('.attr')[index].id).addClass('errorSelecto')
-      }
-    })
+    // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
+    //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
+    //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+    //   } else {
+    //     $('#' + $('.attr')[index].id).addClass('errorSelecto')
+    //   }
+    // })
     // console.log('this.itemAttributeTrans : ', this.itemAttributeTrans)
    // this.validateItem()
   }
@@ -1510,7 +1515,7 @@ export class PurchaseReturnComponent {
 
 
   calculate() {
-    debugger
+    
     let total = +(isNaN(+this.PurchaseRate) ? 0 : +this.PurchaseRate)
       * (isNaN(+this.ReturnQuantity) || +this.ReturnQuantity === 0 ? 0 : +this.ReturnQuantity)
       * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
@@ -2082,7 +2087,45 @@ export class PurchaseReturnComponent {
       }
    }
   }
-
+// addTransaction() {
+  //   let index = 0
+  //   if (this.PaymentDetail.length === 0) {
+  //     index = 1
+  //   } else {
+  //     index = +this.PaymentDetail[this.PaymentDetail.length - 1].Sno + 1
+  //     this.PaymentDetail.forEach((element,i) => {
+  //       if(this.editTransId>0){
+  //         if(element.Id === this.editTransId){
+  //           this.PaymentDetail.splice(i,1)
+  //         }
+  //       }
+  //       if(element.Sno === this.editTransSno){
+  //         this.PaymentDetail.splice(i,1)
+  //       }
+        
+  //     })
+  //   }
+  //   this.PaymentDetail.push({
+  //     Id: 0,
+  //     Sno: index,
+  //     Paymode: this.Paymode,
+  //     PayModeId: this.PayModeId,
+  //     LedgerId: this.LedgerId,
+  //     BankLedgerName: this.BankLedgerName,
+  //     Amount: this.Amount,
+  //     PayDate: this.PayDate,
+  //     ChequeNo: this.ChequeNo,
+  //     isEditable:this.EditabledPay
+  //   })
+    
+  //   setTimeout(() => {
+  //     this.commonService.fixTableHFL('trans-table')
+  //   }, 1)
+  //   if (this.editTransId !== -1) {
+  //     this.PaymentDetail[this.PaymentDetail.length - 1].Id = this.editTransId
+  //   }
+   
+  // }
   addTransaction() {
     if (this.PaymentDetail.length === 0) {
       this.PaymentDetail.push({
@@ -2094,7 +2137,8 @@ export class PurchaseReturnComponent {
         BankLedgerName: this.BankLedgerName,
         Amount: +this.Amount,
         PayDate: this.PayDate,
-        ChequeNo: this.ChequeNo
+        ChequeNo: this.ChequeNo,
+        isEditable:true
       })
     } else {
       let index = +this.PaymentDetail[this.PaymentDetail.length - 1].Sno + 1
@@ -2107,7 +2151,8 @@ export class PurchaseReturnComponent {
         BankLedgerName: this.BankLedgerName,
         Amount: this.Amount,
         PayDate: this.PayDate,
-        ChequeNo: this.ChequeNo
+        ChequeNo: this.ChequeNo,
+        isEditable:true
       })
     }
     setTimeout(() => {
@@ -2121,7 +2166,7 @@ export class PurchaseReturnComponent {
   addItems() {
     // if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
 
-    if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && this.PurchaseRate > 0) {
+    if (this.validDiscount && +this.ItemId > 0 && +this.UnitId > 0 && this.PurchaseRate > 0) {
       // if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
       //   || (this.industryId === 3 )
       //   || (this.industryId === 2 || this.industryId === 6)) {
@@ -2205,7 +2250,8 @@ export class PurchaseReturnComponent {
       taxRates: this.taxRates,
       itemTaxTrans: this.appliedTaxRatesItem,
       categoryName: this.categoryName,
-      selected: false
+      selected:true,
+      isDisabled: true,
     })
 
     setTimeout(() => {
@@ -2647,7 +2693,7 @@ export class PurchaseReturnComponent {
   }
 
   getNewCurrentDate() {
-    debugger
+    
     this._saleDirectReturnService.getCurrentDate().subscribe(
       data => {
         console.log('current date : ', data)
@@ -3323,7 +3369,8 @@ export class PurchaseReturnComponent {
       taxChargeSlabType: this.taxChargeSlabType,
       taxChargeRates: this.taxChargeRates,
       itemTaxTrans: this.appliedTaxRatesCharge,
-      TaxableAmountCharge: this.TaxableAmountCharge
+      TaxableAmountCharge: this.TaxableAmountCharge,
+      isEditable:true
     })
     setTimeout(() => {
       this.commonService.fixTableHFL('charge-table')
@@ -3379,7 +3426,7 @@ export class PurchaseReturnComponent {
   }
 
   createTaxes(parentType) {
-    debugger
+    
     let Sno = 0
     if (parentType === FormConstants.ChargeForm) {
       if (this.editChargeId !== -1) {

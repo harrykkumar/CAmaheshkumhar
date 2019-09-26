@@ -10,6 +10,7 @@ import { GlobalService } from '../../../commonServices/global.service';
 import { Select2Component } from 'ng2-select2';
 import * as _ from 'lodash';
 import { Settings } from 'src/app/shared/constants/settings.constant';
+import { NgForm } from '@angular/forms';
 declare const $: any
 @Component({
   selector: 'app-client-add',
@@ -157,6 +158,12 @@ export class ClientAddComponent implements OnDestroy {
     return obj
   }
 
+  form: any
+  onFocus (form: NgForm) {
+    console.log(form)
+    this.form = form
+  }
+
   manipulateData () {
     let _self = this
     this.clientService.postClient(this.clientAddParams()).subscribe(
@@ -174,12 +181,8 @@ export class ClientAddComponent implements OnDestroy {
     )
   }
 
+  
   checkForValidation () {
-    // if (!this.clientAdd.RegistrationDate) {
-    //   this.invalidObj['RegistrationDate'] = true
-    // } else {
-    //   this.invalidObj['RegistrationDate'] = false
-    // }
     this.toShow = true;
     this.tabId = 2
     console.log(this.clientAdd)
@@ -187,6 +190,7 @@ export class ClientAddComponent implements OnDestroy {
     this.getSubMenus()
   }
 
+  
   checkfor (form) {
     console.log(form)
     console.log(this.clientAdd)
@@ -214,6 +218,7 @@ export class ClientAddComponent implements OnDestroy {
     this.clientAdd.NoOfUser = 1
     if (this.subsSelect2)
       this.subsSelect2.setElementValue(this.subsData[0].id)
+    
   }
 
   openModal () {
@@ -223,6 +228,14 @@ export class ClientAddComponent implements OnDestroy {
 
   closeModal () {
     if ($('#client_admin').length > 0) {
+      this.form.reset()
+      let controls = this.form.controls
+      for (const key in controls) {
+        if (controls.hasOwnProperty(key)) {
+          const element = controls[key];
+          element.markAsUntouched()
+        }
+      }
       $('#client_admin').modal(UIConstant.MODEL_HIDE)
     }
   }

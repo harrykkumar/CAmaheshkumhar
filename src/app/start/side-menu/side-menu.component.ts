@@ -89,13 +89,13 @@ export class SideMenuComponent {
         menu['icon'] = matchedMenu.icon
       }
       if (menu && menu.subMenu && menu.subMenu.length > 0) {
-        console.log('sub menus : ', menu.subMenu)
+        // console.log('sub menus : ', menu.subMenu)
         _.map(menu.subMenu, (subMenu) => {
           const matchedSubMenu = _.find(SIDE_MENU_MODEL, {Id: subMenu.Id});
           if (!_.isEmpty(matchedSubMenu)) {
             subMenu['path'] = matchedSubMenu.path
             subMenu['icon'] = matchedSubMenu.icon
-            console.log('submenu : ', subMenu)
+            // console.log('submenu : ', subMenu)
           }
         })
       }

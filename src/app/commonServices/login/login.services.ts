@@ -62,7 +62,7 @@ export class LoginService {
       this._basesService.getRequest(`${ApiConstant.USER_PROFILE}?Id=${OrgId}`).subscribe(
         async (data) => {
           if (data.Code === UIConstant.THOUSAND) {
-            console.log('user data : ', data.Data)
+          //  console.log('user data : ', data.Data)
             this.userData = data.Data
             await this.mapSideMenus()
             await this.mapSubMenus()
@@ -75,7 +75,6 @@ export class LoginService {
           }
         },
         (error) => {
-          //console.log(error)
         }
       )
     })
@@ -190,6 +189,7 @@ export class LoginService {
         if (res.Code === UIConstant.THOUSAND) {
           this.organizationList = [...res.Data['OrganizationDetails']];
           this.loginUserDetails = { ...res.Data['LoginUserDetails'][0] }
+         
           localStorage.setItem('LOGIN_USER', JSON.stringify(this.loginUserDetails));
           resolve(this.organizationList);
         } else if (res.Code === 5018) {
@@ -197,7 +197,7 @@ export class LoginService {
         }
       },
         (error) => {
-          //console.log(error)
+         
         });
     })
   }

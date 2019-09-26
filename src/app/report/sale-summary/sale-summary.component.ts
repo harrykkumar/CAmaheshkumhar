@@ -14,6 +14,7 @@ declare var flatpickr: any
 import { ExcelService } from '../../commonServices/excel.service';
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { FormConstants } from 'src/app/shared/constants/forms.constant'
+import { Router } from '@angular/router';
 
 @Component({
   providers:[SaleDirectMainComponent ],
@@ -33,7 +34,9 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
-  constructor(private saleMainComponent:SaleDirectMainComponent,
+  constructor(
+    private _router : Router,
+    private saleMainComponent:SaleDirectMainComponent,
     public excelService:ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
@@ -149,17 +152,13 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
     this.getSaleSummaryData()
     if(this.getTypeEWise ==='billWise' && item.saleId >0 ){
         let action={}
-
-        //action.id, Html_id, action.viewPrint
-        //let html = this.onLoadPrint()
          action =
                { type: FormConstants.ViewPrint,
                  id: item.saleId
              ,isViewPrint :true}
-          //   this.saleMainComponent.onPrintForDirectSale(item.saleId,'saleDirect_PrintType1',true)
-      //this._commonService.reDirectPrintSale(action)
-    //  this._commonService.AddedItem()
-      
+          //  this._router.navigate(['ims/sale'])
+           // this.saleMainComponent.onPrintForDirectSale(item.saleId,'saleDirect_PrintType1',true)
+
       }
 
   }

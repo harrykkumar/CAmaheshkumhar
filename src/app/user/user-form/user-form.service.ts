@@ -19,6 +19,10 @@ export class UserFormService {
     const url = `${ApiConstant.BRANCH_OFFICE_LIST_URL}?RequestClientId=${id}`
     return this._baseService.getRequest(url)
   }
+  getBranchListByType = (type) => {
+    const url = `${ApiConstant.BRANCH_OFFICE_LIST_URL}${type}`
+    return this._baseService.getRequest(url)
+  }
 
   /* Function to get the office list */
   getOfficeList = (id) => {

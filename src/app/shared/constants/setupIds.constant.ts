@@ -149,4 +149,10 @@ export class SetUpIds {
   public static get categoryShowOnPrint (): number {
     return 25
   }
+  public static get BarCodeEnable ():number {
+    return 10
+  }
+  public static get attributesForPurchase ():number {
+    return 29
+  }
 }

@@ -36,6 +36,16 @@
                     </th>
                     <th>Unit</th>
                     <th>Quantity</th>
+                    <!-- <ng-container *ngIf="industryId === 3" >
+                      <th>Length</th>
+                      <th>Width</th>
+                      <th>Height</th>
+                    </ng-container>
+                    <ng-container *ngIf="industryId === 5" >
+                      <th>BatchNo</th>
+                      <th>MfdDate</th>
+                      <th>ExpiryDate</th>
+                    </ng-container> -->
                     <th>Sale Rate</th>
                     <th>Purchase Rate</th>
                     <th>Mrp Rate</th>
@@ -55,7 +65,7 @@
                     </td>
                     <td>{{item.unitName}}</td>
                     <td>{{item.Quantity}}</td>
-                    <ng-container *ngIf="industryId === 3" >
+                    <!-- <ng-container *ngIf="industryId === 3" >
                       <td>{{item.Length}}</td>
                       <td>{{item.Width}}</td>
                       <td>{{item.Height}}</td>
@@ -64,7 +74,7 @@
                       <td>{{item.BatchNo}}</td>
                       <td>{{item.MfdDate}}</td>
                       <td>{{item.ExpiryDate}}</td>
-                    </ng-container>
+                    </ng-container> -->
                     <td>{{item.SaleRate}}</td>
                     <td>{{item.PurchaseRate}}</td>
                     <td>{{item.MrpRate}}</td>
