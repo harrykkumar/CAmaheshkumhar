@@ -1118,6 +1118,10 @@ export interface SaleDirectItem {
   fixPurchaseRate?:number
   SaleTransId?:number
   isDisabled?:boolean
+  IsNotDiscountable?:boolean
+  perItemDiscount?:number
+  customRate?:number
+
 }
 
 export interface SaleBilingItem {

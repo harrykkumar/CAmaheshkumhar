@@ -11,12 +11,7 @@ import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { CommonService } from '../../../../commonServices/commanmaster/common.services'
 import { GlobalService } from '../../../../commonServices/global.service'
 import { Settings } from '../../../../shared/constants/settings.constant'
-import { disableBindings } from '@angular/core/src/render3';
-import { IfStmt } from '@angular/compiler';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import {SetUpIds} from 'src/app/shared/constants/setupIds.constant'
-import { Alert } from 'selenium-webdriver';
-// import { sep } from 'path';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -1578,6 +1573,7 @@ console.log(customerElement,'customer-Req-')
     let Address= JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
     this.validmobileLength=Address.Length
     this.countryCodeFlag =Address.CountryCode
+    this.CountryCode= Address.CountryCode
     this.phoneCodeselect2.setElementValue(Address.CountryCode)
    }
 

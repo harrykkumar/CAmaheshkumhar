@@ -490,5 +490,11 @@ export const SIDE_MENU_MODEL = [
     Name: "Menu",
     path: "super-admin/menu",
     icon: "fas fa-exchange-alt"
+  },
+  {
+    Id: 87,
+    Name: "Custom Rate",
+    path: "ims/custom-rate",
+    icon: "fas fa-exchange-alt"
   }
 ];

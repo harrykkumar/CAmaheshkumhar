@@ -412,4 +412,6 @@ export class ApiConstant {
   public static get GET_SUBMODULES_LIST (): string { return this.BASE_URL + '/api/v1/SubModule?Id=0' }
 
   public static get POST_MODULE_SUPERADMIN (): string { return this.BASE_URL + '/api/v1/moduledefination' }
+
+  public static get CUSTOM_RATE (): string { return this.BASE_URL + '/api/v1/Customerate' }
 }

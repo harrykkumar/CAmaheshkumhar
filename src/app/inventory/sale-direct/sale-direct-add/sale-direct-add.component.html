@@ -166,12 +166,35 @@
           <div class="card p-2">
             <div class="form-row">
               <div class=" col-md-1">
-                <h5 class="summery_text">Item Detail</h5>
+                <h5 class="summery_text">Item Detail </h5>
               </div>
               <div *ngIf="BarCodeEnableFlag" class="form-group col-md-3 col-lg-2 col-xl-2">
-                <!-- <label for="barcode">BarCode</label> -->
                 <input #barcode type="text" class="form-control" id="barcode" placeholder="Barcode" class="form-control"
                   name="Barcode" (change)="barCodeReader()" [(ngModel)]="Barcode">
+              </div>
+              <div *ngIf="applyCustomeRate && applyAutoDiscount" class="form-group col-md-3 col-lg-2 col-xl-2">
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input
+                    type="radio"
+                    class="custom-control-input"
+                    id="customrate"
+                    name="group"
+                    [checked]="isDiscountApplyed === true"
+                    (change)="isDiscountApplyed = $event.target.checked;customeRateDiscount(isDiscountApplyed)"/>
+                  <label class="custom-control-label" for="customrate">Discount </label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input
+                    type="radio"
+                    class="custom-control-input"
+                    id="customrate1"
+                    name="group"
+                    [checked]="isDiscountApplyed === false"
+                    (change)="isDiscountApplyed = !$event.target.checked ;customeRateDiscount(isDiscountApplyed)"/>
+                  <label class="custom-control-label" for="customrate1">Custom-Rate </label>
+                </div>
+         
+         
               </div>
             </div>
 
@@ -350,11 +373,11 @@
                       {{item.Discount}}&nbsp;{{item.DiscountType === 0 && item.Discount != 0 ? '%' : defaultCurrency}}
                     <td *ngIf="!item.isDisabled" class="highLightRow">
                       <div class="discount">
-                        <input type="text" class="form-control" placeholder="Discount" appIncludeDecimal name="Discount"
+                        <input [disabled]='IsNotDiscountable' type="text" class="form-control" placeholder="Discount" appIncludeDecimal name="Discount"
                           [(ngModel)]="Discount" min="0" max="100"
                           (keyup)="DiscountValidation($event);calculate();validateItem();"
                           [ngClass]="{'errorSelecto': invalidObj?.Discount }">
-                        <select style="width: 70px !important;" class="form-control discount_type" id="DiscountType"
+                        <select [disabled]='IsNotDiscountable' style="width: 70px !important;" class="form-control discount_type" id="DiscountType"
                           [(ngModel)]="DiscountType" (ngModelChange)="validateItem();calculate()" name="discountType">
                           <option *ngFor="let value of currencyValues;" [value]="value.id">{{value.symbol}}</option>
                         </select>
@@ -498,11 +521,11 @@
                     </td>
                     <td>
                       <div class="discount">
-                        <input type="text" class="form-control" placeholder="Discount" appIncludeDecimal name="Discount"
+                        <input [disabled]='IsNotDiscountable' type="text" class="form-control" placeholder="Discount" appIncludeDecimal name="Discount"
                           [(ngModel)]="Discount" min="0" max="100"
                           (keyup)="DiscountValidation($event);calculate();validateItem();"
                           [ngClass]="{'errorSelecto': invalidObj?.Discount }">
-                        <select style="width: 70px !important;" class="form-control discount_type" id="DiscountType"
+                        <select [disabled]='IsNotDiscountable' style="width: 70px !important;" class="form-control discount_type" id="DiscountType"
                           [(ngModel)]="DiscountType" (ngModelChange)="validateItem();calculate()" name="discountType">
                           <option *ngFor="let value of currencyValues;" [value]="value.id">{{value.symbol}}</option>
                         </select>
@@ -978,6 +1001,23 @@
             </div>
           </div>
         </form>
+      </div>
+      <div class="modal-footer footer-fixed footer_modal_form">
+        <button
+          type="submit"
+          class="btn waves-effect btn-succ-ess"
+          (click)="keepOpen=false;saveSaleDirect()"
+          >
+          Save
+        </button>
+        <button
+          type="button"
+          class="btn waves-effect btn-default def-ault-btn"
+          (click)="closePurchase()"
+          data-dismiss="modal"
+        >
+          Close
+        </button>
       </div>
     </div>
   </div>

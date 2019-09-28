@@ -29,7 +29,7 @@ export class PurchaseAddComponent {
   catLevel: number = 1
   categories: Array<{ placeholder: string, value: string, data: Array<Select2OptionData>, level: number }> = []
 
-  attributesData: Array<Select2OptionData>
+  attributesData: Array<Select2OptionData> =[]
   taxProcessesData: Array<Select2OptionData>
   paymentModesData: Array<Select2OptionData>
   organisationsData: Array<Select2OptionData>
@@ -438,6 +438,7 @@ export class PurchaseAddComponent {
           this.initAttribute()
           this.attributeKeys = data.attributeKeys
           this.attributesData = data.attributesData
+          
         }
       }
     )
@@ -769,7 +770,7 @@ export class PurchaseAddComponent {
       }
     })
 
-    console.log('this.ItemTaxTrans : ', this.ItemTaxTrans)
+  //  console.log('this.ItemTaxTrans : ', this.ItemTaxTrans)
   }
 
   createAdditionalCharges(charges) {
@@ -813,7 +814,7 @@ export class PurchaseAddComponent {
         }
       })
     }
-    console.log('this.AdditionalCharges : ', this.AdditionalCharges)
+  //  console.log('this.AdditionalCharges : ', this.AdditionalCharges)
   }
 
   itemAttributesOthers: any = []
@@ -848,7 +849,7 @@ export class PurchaseAddComponent {
           return taxRate
         }
       })
-      console.log('itemTaxTrans : ', itemTaxTrans)
+     // console.log('itemTaxTrans : ', itemTaxTrans)
       let itemAttributeTrans = []
       if (this.itemAttributesOthers.length > 0) {
         itemAttributeTrans = this.itemAttributesOthers.filter((attr) => {
@@ -862,7 +863,7 @@ export class PurchaseAddComponent {
       } else {
         this.taxTypeName = 'Inclusive'
       }
-      console.log('itemAttributeTrans : ', itemAttributeTrans)
+      //console.log('itemAttributeTrans : ', itemAttributeTrans)
       this.TransType = element.TransType
       this.TransId = element.TransId
       this.ChallanId = element.ChallanId
@@ -1160,7 +1161,6 @@ export class PurchaseAddComponent {
 
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
-    this.attributesData =[]
     this.BillNo=''
     this.showHideAddItemRow = true
     this.showHideItemCharge = true
@@ -1446,25 +1446,28 @@ export class PurchaseAddComponent {
     }
   }
   withoutAttributeData() {
-    this.attributesData.forEach((element, index) => {
-      let Sno = 0
-      if (this.Items.length === 0) {
-        Sno = 1
-      } else {
-        Sno = this.Items[this.Items.length - 1].Sno + 1
-      }
-      {
-        this.itemAttributeTrans[index] = {
-          ItemId: this.ItemId,
-          ItemTransId: Sno,
-          AttributeId: +0,
-          ParentTypeId: FormConstants.SaleForm,
-          name: '',
-          id: 0,
-          Sno: Sno
+    if(this.attributesData.length>0){
+      this.attributesData.forEach((element, index) => {
+        let Sno = 0
+        if (this.Items.length === 0) {
+          Sno = 1
+        } else {
+          Sno = this.Items[this.Items.length - 1].Sno + 1
         }
-      }
-    });
+        {
+          this.itemAttributeTrans[index] = {
+            ItemId: this.ItemId,
+            ItemTransId: Sno,
+            AttributeId: +0,
+            ParentTypeId: FormConstants.SaleForm,
+            name: '',
+            id: 0,
+            Sno: Sno
+          }
+        }
+      });
+    }
+  
   }
    
   BarcodeWithAttribute(data) {

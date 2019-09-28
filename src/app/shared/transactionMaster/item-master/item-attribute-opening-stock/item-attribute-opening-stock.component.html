@@ -58,7 +58,7 @@
         <form>
           <div class="bgc-white bdrs-3 pb-3 mB-20">
             <div class="table-responsive table-item-attribute">
-              <table class="table cat-table  fixTable2 table-hover" id="item-attribute-table">
+              <table class="table cat-table  fixTable6 table-hover" id="item-attribute-table">
                 <thead>
                   <tr class="default_row">
                     <th>SNo.</th>
@@ -69,7 +69,7 @@
                         <label class="custom-control-label" for="CheckAllItemAttribute"></label>
                       </div>
                     </th>
-                    <th class="dynamic_fix" *ngFor="let column of masterData?.Attributes">
+                    <th class="dynamic_fix" width="7%" *ngFor="let column of masterData?.Attributes">
                       {{ column?.Name }}
                     </th>
                     <th>BarCode</th>

@@ -533,6 +533,7 @@ export class ItemImportComponent implements OnDestroy {
           'OURPRICE', 'OPENINGSTOCK', 'OPENINGSTOCKVALUE',
           'MINSTOCK', 'MAXSTOCK', 'REORDERQTY',
           'ISNOTDISCOUNTABLE', 'ISVOLUMEDISCOUNTAPPLY', 'ISTRADEDISCOUNTAPPLY']
+        this.masterKeys = mandatoryKeys
         if (this.gs.checkForEqualityInArray(mandatoryKeys, keysArr) !== '') {
           this.toastrService.showError(this.gs.checkForEqualityInArray(mandatoryKeys, keysArr), 'Missing Field')
           this.reset()
@@ -558,7 +559,7 @@ export class ItemImportComponent implements OnDestroy {
             newRow['MINSTOCK'] = (+newRow['MINSTOCK'] > 0 ) ? +newRow['MINSTOCK'] : 0
             newRow['MAXSTOCK'] = (+newRow['MAXSTOCK'] > 0 ) ? +newRow['MAXSTOCK'] : 0
             newRow['REORDERQTY'] = (+newRow['REORDERQTY'] > 0 ) ? +newRow['REORDERQTY'] : 0
-            this.masterKeys = Object.keys(newRow)
+            // this.masterKeys = Object.keys(newRow)
             if (!newRow['NAME']) {
               this.toastrService.showErrorLong('Name is Required at SNO. ' + newRow['SNO'], newRow['NAME'])
               this.modeOfForm = 'reset'
@@ -624,12 +625,16 @@ export class ItemImportComponent implements OnDestroy {
               let obj = { ...newRow }
               this.masterData.push(obj)
               if (this.masterData.length === this.masterTableArray.length) {
+                // console.log(this.masterData)
+                this.masterKeys = Object.keys(_self.masterData[0])
+                // console.log(this.masterKeys)
                 this.checkForDuplicates()
                 this.isDataLoading = false
               }
             }
           })
-          this.masterKeys = Object.keys(_self.masterData[0])
+          // this.masterKeys = Object.keys(_self.masterData[0])
+          // this.masterKeys = mandatoryKeys
           // console.log('masterdata: ', JSON.stringify(_self.masterData))
         }
       } else {
@@ -681,6 +686,17 @@ export class ItemImportComponent implements OnDestroy {
       this.modeOfForm = 'new'
       this.initComp()
     }
+  }
+
+  deleteDuplicates () {
+    this.duplicateTuples.forEach(item => {
+      for (let i = 0; i < this.masterData.length; i++) {
+        if (item['SNO'] === this.masterData[i]['SNO']) {
+          this.masterData.splice(i, 1)
+        }
+      }
+    })
+    this.duplicateTuples = []
   }
   
   opeCatImport () {

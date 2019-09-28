@@ -1,4 +1,4 @@
-<main class="main-content bgc-grey">
+<main class="main-content2 bgc-grey">
   <div id="mainContent">
     <div class="page-header p-0">
       <div class="container-fluid">
@@ -218,26 +218,30 @@
             <div class="bs-example">
               <div class="accordion" id="accordionExample">
                 <div class="card" *ngFor="let item of masterItemData; let i = index;" >
-                  <div class="card-header" id="headingOne">
-                    <h2 class="mb-0">
-                      <button type="button" (click)="selectedIndex = i;item.show = !item.show; checkForAttr(item);" class="btn btn-link item-name-cont" attr.data-target="#collapse{{item.ItemId}}"
-                        data-toggle="collapse" >{{item?.ItemName}}</button>
-                    </h2>
-                    <div class="custom-control custom-checkbox">
-                      <input name="checkAll" type="checkbox" [(ngModel)]="item.Checked" (change)="item.checked = !item.checked; checkAllCombos(item.checked);"
-                        class="custom-control-input" id="CheckAllItemAttribute" />
-                      <label class="custom-control-label" for="CheckAllItemAttribute"></label>
+                  <div class="card-header d-flex align-items-center" id="headingOne">
+                    <div class="custom-control custom-checkbox col-md-1">
+                      <input name="checkAll" type="checkbox" [(ngModel)]="item.checked" (change)="checkAllCombos(item.checked);"
+                        class="custom-control-input" id="CheckAllItemAttribute-rt-{{i}}" />
+                      <label class="custom-control-label" for="CheckAllItemAttribute-rt-{{i}}"></label>
                     </div>
+                    <div class="col-md-4">
+                      <button type="button" (click)="selectedIndex = i;item.show = !item.show; checkForAttr(item);" class="btn_collaspe collapsed" attr.data-target="#collapse{{item.ItemId}}"
+                        data-toggle="collapse" >{{item?.ItemName}}</button>
+                    </div>
+                    <div class="col-md-6"></div>
+                    <div class="col-md-1 accordion-head"> 
+                      <button type="button" (click)="selectedIndex = i;item.show = !item.show; checkForAttr(item);" class="btn_collaspe collapsed" attr.data-target="#collapse{{item.ItemId}}"
+                      data-toggle="collapse" ><i class="fa fa-angle-down" aria-hidden="true"></i></button></div>
                   </div>
                   <div id="collapse{{item.ItemId}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
-                    <div class="card-body">
+                    <div class="card-body p-2">
                       <div class="table-responsive table-item-attribute">
                         <table class="table cat-table fixTable7 table-hover" id="item-attribute-table">
                           <thead>
                             <tr class="default_row">
                               <th>#</th>
-                              <th>SNo.</th>
-                              <th>Unit Name</th>
+                              <th width="3%">SNo.</th>
+                              <th width="7%">Unit Name</th>
                               <th class="dynamic_fix" *ngFor="let column of masterData?.Attributes">{{ column }}</th>
                               <th>BarCode</th>
                               <th>Client BarCode</th>
@@ -320,6 +324,22 @@
           </div>
         </ng-template>
       </div>
+      <!-- <div class="modal-footer footer-fixed footer_modal_form">
+        <button
+          type="submit"
+          class="btn waves-effect btn-succ-ess"
+          >
+          Save
+        </button>
+        <button
+          type="button"
+          class="btn waves-effect btn-default def-ault-btn"
+         
+          data-dismiss="modal"
+        >
+          Close
+        </button>
+      </div> -->
     </div>
   </div>
 </div>

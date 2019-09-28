@@ -564,15 +564,22 @@ const routes: Routes = [
         path: 'super-admin/client',
         // loadChildren: '../super-admin/client/client.module#ClientModule'
         loadChildren: async ()=>{
-          const {ClientModule} =await import ('../super-admin/client/client.module');
+          const {ClientModule} = await import ('../super-admin/client/client.module');
           return ClientModule;
          }
       },
       {
         path: 'super-admin/menu',
         loadChildren: async ()=>{
-          const {MenuModule} =await import ('../super-admin/menu/menu.module');
+          const {MenuModule} = await import ('../super-admin/menu/menu.module');
           return MenuModule;
+         }
+      },
+      {
+        path: 'ims',
+        loadChildren: async ()=>{
+          const {CustomRateModule} = await import ('../transactionMaster/customRate/custom-rate.module');
+          return CustomRateModule;
          }
       }
     ]

@@ -414,7 +414,7 @@ select::-ms-expand {
 }
 
 .modal-body {
-  max-height: calc(100vh - 55px) !important;
+  max-height: calc(100vh - 100px) !important;
   overflow-y: auto;
 }
 
@@ -543,6 +543,16 @@ img.blah {
   background: url(../img/line.png) no-repeat;
   background-position: 0% 144%;
   background-size: 49px 13px;
+}
+
+.table_height3 {
+  max-height: calc(100vh - 350px);
+  /* max-height: 100px; */
+}
+
+.table_height2 {
+  max-height: calc(100vh - 370px);
+  /* max-height: 100px; */
 }
 
 .table_height {
@@ -5484,4 +5494,31 @@ table.table1 th {
 .highLightRow {
   border: none !important;
   box-shadow: inset 0px 11px 8px -9px #CCC, inset 0px -11px 8px -10px #CCC;
+}
+.accordion-head {
+  width: 100%;
+}
+.accordion-head i {
+  font-size: 1.3em;
+  float: right;
+  color: #2a58ad;
+}
+
+.accordion-head > .collapsed > i:before{
+  content: "\f105";
+}
+.btn_collaspe {
+  background: none;
+  box-shadow: none;
+  width: 100%;
+  text-align: left;
+  color: #2a58ad;
+  padding: 7px 15px;
+  border: 0;
+  cursor: pointer;
+  font-size: .8rem;
+  font-weight: 600;
+}
+.btn_collaspe:focus {
+  outline:none;
 }

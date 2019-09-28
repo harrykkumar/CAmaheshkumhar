@@ -356,8 +356,8 @@ export class TransactionNumberComponent implements OnInit {
   onNumericValueChange(item, index) {
     if (item.NumericValue) {
       item.zeroString = item.NumericValue
-      if (!_.isEmpty(this.modal.selectedNumericZero) && Number(this.modal.selectedNumericZero.value) > 0) {
-        item.zeroString = _.padStart(item.NumericValue, Number(this.modal.selectedNumericZero.value), '0')
+      if (!_.isEmpty(this.modal.selectedNumericZero) && Number(this.modal.selectedNumericZero.id) > 0) {
+        item.zeroString = _.padStart(item.NumericValue, Number(this.modal.selectedNumericZero.id), '0')
       }
       this.generateFormatString(item, index)
     }

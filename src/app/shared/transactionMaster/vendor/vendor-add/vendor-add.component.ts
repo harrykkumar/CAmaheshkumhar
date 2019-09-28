@@ -1556,6 +1556,7 @@ export class VendorAddComponent implements OnDestroy {
   getOrgnizationAddress() {
     let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
     this.validmobileLength = Address.Length
+    this.CountryCode= Address.CountryCode
     this.phoneCodeselect2.setElementValue(Address.CountryCode)
     
   }

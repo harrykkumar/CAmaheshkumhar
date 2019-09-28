@@ -39,7 +39,7 @@
                   <label>Import Sheet</label>
                   <input type="file" #myInput class="form-control" accept=".xlsx" #file (change)="uploadData($event)">
                 </div>
-                <div class="form-group col-md-3" *ngIf="masterData && masterData.length > 0">
+                <div class="form-group col-md-2" *ngIf="masterData && masterData.length > 0">
                   <label for="bill_no">Brands</label>
                   <select2 [data]="brandTypes" [options]="options" [width]="200" (valueChanged)="onBrandSelect($event)">
                   </select2>
@@ -77,6 +77,10 @@
                   <label></label>
                   <a class="btn btn-primary" (click)="deleteList()">Delete List</a>
                 </div>
+                <div class="form-group col-md-1" *ngIf="duplicateTuples.length > 0" >
+                  <label></label>
+                  <a class="btn btn-primary" (click)="deleteDuplicates()" >Delete Duplicates</a>
+                </div>
               </div>
 
               <div class="classic-tabs">
@@ -86,7 +90,7 @@
                       <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 30px;height: 30px;position: absolute;left: 46%;top:46%;" />
                     </div>
                     <div class="card" *ngIf="masterData && masterData.length > 0 && !isDataLoading">
-                      <div class="table-responsive" id="parent">
+                      <div class="table-responsive table_height2" id="parent">
                         <table class="table fixTable3" id="fixTable">
                           <thead>
                             <tr>
@@ -124,7 +128,7 @@
                     </div>
                     <br />
                     <div class="card" *ngIf="itemImport && itemImport.length > 0">
-                      <div class="table-responsive" id="parent1">
+                      <div class="table-responsive table_height2" id="parent1">
                         <table class="table fixTable2" id="fixTable">
                           <thead>
                             <tr>

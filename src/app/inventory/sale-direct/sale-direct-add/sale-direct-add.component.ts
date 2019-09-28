@@ -95,8 +95,8 @@ export class SaleDirectAddComponent {
   taxTypeChargeName: string
 
   Paymode: string
-  PayModeId: number =0
-  LedgerId: number=0
+  PayModeId: number = 0
+  LedgerId: number = 0
   Amount: number
   BankLedgerName: string
   ChequeNo: string
@@ -218,9 +218,9 @@ export class SaleDirectAddComponent {
   validDiscount: boolean = true
   validTransaction: boolean = true
   validCharge: boolean = true
-  clickItem :boolean= false
-  clickTrans :boolean= false
-  clickCharge :boolean= false
+  clickItem: boolean = false
+  clickTrans: boolean = false
+  clickCharge: boolean = false
 
   CreditLimit: number
   CreditDays: any
@@ -762,7 +762,7 @@ export class SaleDirectAddComponent {
   @ViewChild('state_select2') stateselect2: Select2Component
   @ViewChild('city_select2') cityselect2: Select2Component
   createCustomerDetails(data) {
-    
+
     if (data.length > 0) {
       this.CaseCustId = data[0].Id
       this.customerMobileNo = data[0].MobileNo
@@ -771,29 +771,29 @@ export class SaleDirectAddComponent {
       this.caseCustomerName = data[0].Name
       this.PartyGstinNo = data[0].PartyGstinNo
       this.countryValue1 = data[0].CountryId
-    this.stateValuedata1 = data[0].StateId
-    let phonecode = {
-      id:data[0].CountryCode,text:data[0].CountryName,
-      PhoneCode:data[0].CountryCode,
-      Length:data[0].Length
-    }
-    this.onCountryCodeSelectionChange(phonecode)
-    this.countryCodeFlag =data[0].CountryCode
+      this.stateValuedata1 = data[0].StateId
+      let phonecode = {
+        id: data[0].CountryCode, text: data[0].CountryName,
+        PhoneCode: data[0].CountryCode,
+        Length: data[0].Length
+      }
+      this.onCountryCodeSelectionChange(phonecode)
+      this.countryCodeFlag = data[0].CountryCode
 
-    this.cityValue1 = data[0].CityId
-    this.areNameId = data[0].AreaId
-    let country = {
-      id:data[0].CountryId,text:data[0].CountryName
-    }
-    this.selectCountryListId(country)
-    let state = {
-      id:data[0].StateId,text:data[0].StateName
-    }
-    this.selectState(state)
-    let city = {
-      id:data[0].CityId,text:data[0].CityName
-    }
-    this.selectedCityId(city)
+      this.cityValue1 = data[0].CityId
+      this.areNameId = data[0].AreaId
+      let country = {
+        id: data[0].CountryId, text: data[0].CountryName
+      }
+      this.selectCountryListId(country)
+      let state = {
+        id: data[0].StateId, text: data[0].StateName
+      }
+      this.selectState(state)
+      let city = {
+        id: data[0].CityId, text: data[0].CityName
+      }
+      this.selectedCityId(city)
     }
   }
   createForm(data) {
@@ -1372,10 +1372,10 @@ export class SaleDirectAddComponent {
   NoAddressNeed: boolean = true
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
-    this.attributesData =[]
-    this.caseSaleCustomerDetails=[]
+    this.attributesData = []
+    this.caseSaleCustomerDetails = []
     this.clearCaseCustomer()
-    this.BillNo=''
+    this.BillNo = ''
     this.showHideAddItemRow = true
     this.showHideItemCharge = true
     this.showHidePayment = true
@@ -1397,17 +1397,17 @@ export class SaleDirectAddComponent {
     this.initTransaction()
     this.initCharge()
     this.initialiseExtras()
-   
+
     if (!this.editMode) {
       this.getNewCurrentDate()
       if (!this.isBillNoManuall) {
         this.setBillNo(this.TransactionNoSetups)
         this.getNewBillNo()
       }
-     // this.getNewBillNo()
-     //this.setDueDate(this.TransactionNoSetups)
-    // this.setCurrentDate(this.TransactionNoSetups)
-      
+      // this.getNewBillNo()
+      //this.setDueDate(this.TransactionNoSetups)
+      // this.setCurrentDate(this.TransactionNoSetups)
+
       setTimeout(() => {
         if (this.chargeSelect2) {
           const element = this.renderer.selectRootElement(this.chargeSelect2.selector.nativeElement, true)
@@ -1619,7 +1619,6 @@ export class SaleDirectAddComponent {
 
   @ViewChild('item_select2') itemselect2: Select2Component
   onItemSelect(evt) {
-
     if (evt.value && evt.data.length > 0) {
       if (+evt.value === 0) {
         this.ItemId = +evt.value
@@ -1661,7 +1660,6 @@ export class SaleDirectAddComponent {
   }
   getEditUnitByItem(ItemId, CustomerId) {
     let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
-
     this.commonService.barcodeAPI(newBillDate, '', ItemId, CustomerId).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
         if (Data.Data && Data.Data.SubUnitDetails && Data.Data.SubUnitDetails.length > 0) {
@@ -1682,7 +1680,7 @@ export class SaleDirectAddComponent {
       this.getItemRateByLedgerData(newBillDate, this.Barcode, 0, this.PartyId)
     }
   }
-  
+
   BarcodeWithAttribute(data) {
     data.forEach((element, index) => {
       let Sno = 0
@@ -1704,32 +1702,117 @@ export class SaleDirectAddComponent {
       }
     });
   }
- 
-  
+  isDiscountableItem(isDiscountableFlag) {
+    //true  Disabled of Discount text
+    if (isDiscountableFlag) {
+    }
+  }
+  ItemNotInStock() {
+    var str = "1,20#2,15#3,20#";
+    var myarray = str.split('#');
+    let allvalue = []
+    for (var i = 0; i < myarray.length; i++) {
+      allvalue.push(myarray[i])
+      console.log(allvalue);
+    }
+  }
 
+  customeRateDiscount(flag) {
+    if (!flag) {
+      this.SaleRate = this.customRate
+      this.Discount = 0
+      this.calculate()
+    }
+    else {
+      this.SaleRate = this.ItemRate
+      this.Discount = this.perItemDiscount
+      this.calculate()
+
+    }
+  }
+
+  ItemRate: any = 0
+  ItemDiscount: any = 0
+
+  applyCustomeRate: boolean
+  isCustomeRateApplyed: boolean
+  applyAutoDiscount: boolean
+  customRate: number = 0
+  perItemDiscount: number = 0
+  isDiscountApplyed: boolean
+  IsNotDiscountable: boolean = false
   getItemRateByLedgerData(BillDate, Barcode, ItemId, CustomerId) {
     this.commonService.barcodeAPI(BillDate, Barcode, ItemId, CustomerId).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
+        this.initItem()
         if (Data.Data && Data.Data.ItemCustomRateWithItemDetails.length > 0) {
           if (this.applyCustomRateOnItemFlag) {
-            this.ItemId = Data.Data.ItemCustomRateWithItemDetails[0].Id
-            this.itemName = Data.Data.ItemCustomRateWithItemDetails[0].Name
-            this.categoryName = Data.Data.ItemCustomRateWithItemDetails[0].CategoryName
-            this.updateCategories(Data.Data.ItemCustomRateWithItemDetails[0].CategoryId)
-            this.categoryId = Data.Data.ItemCustomRateWithItemDetails[0].CategoryId
-            this.SaleRate = Data.Data.ItemCustomRateWithItemDetails[0].SaleRate
-            this.MrpRate = Data.Data.ItemCustomRateWithItemDetails[0].Mrp
-            this.UnitId = Data.Data.ItemCustomRateWithItemDetails[0].UnitId
-            this.TaxSlabId = Data.Data.ItemCustomRateWithItemDetails[0].TaxId
-            this.unitName = Data.Data.ItemCustomRateWithItemDetails[0].UnitName
-            this.taxSlabName = Data.Data.ItemCustomRateWithItemDetails[0].TaxSlab
-            this.taxSlabSelect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].TaxId)
-            this.unitSelect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].UnitId)
-            this.itemselect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].Id)
+            this.applyCustomeRate = false
+            this.applyAutoDiscount = false
+            this.IsNotDiscountable = false
+            this.isDiscountApplyed = false
+            Data.Data.ItemCustomRateWithItemDetails.forEach((element, index) => {
+              // if isManual is 1 then apply only Rate on item 
+              // if isManual is 0 then apply only Discount on item
+              if (element.IsManual === 1) {
+                this.SaleRate = element.Rate
+                this.ItemRate = element.SaleRate
+                this.customRate = element.Rate
+                this.MrpRate = element.Mrp
+                this.applyCustomeRate = true
+              }
+              if (element.IsManual === 0) {
+                this.Discount = element.Discount
+                this.perItemDiscount = element.Discount
+                this.DiscountType = element.DiscountType
+                this.applyAutoDiscount = true
+              }
+              if (this.applyCustomeRate && this.applyAutoDiscount) {
+                this.isDiscountApplyed = true
+                if (element.IsManual === 0) {
+                  this.Discount = element.Discount
+                  this.DiscountType = element.DiscountType
+                }
+                this.SaleRate = element.SaleRate
+                this.toastrService.showError('', 'You want to apply Discount ' + this.Discount + '%')
 
+              }
+              else {
+                this.isDiscountApplyed = false
+              }
+            });
+            // this.ItemId = Data.Data.ItemCustomRateWithItemDetails[0].ItemId
+            // this.itemName = Data.Data.ItemCustomRateWithItemDetails[0].Name
+            // this.categoryName = Data.Data.ItemCustomRateWithItemDetails[0].CategoryName
+            // this.categoryId = Data.Data.ItemCustomRateWithItemDetails[0].CategoryIdStr
+            // this.updateCategories(+Data.Data.ItemCustomRateWithItemDetails[0].CategoryIdStr)
+            // this.UnitId = Data.Data.ItemCustomRateWithItemDetails[0].UnitId
+            // this.TaxSlabId = Data.Data.ItemCustomRateWithItemDetails[0].TaxId
+            // this.unitName = Data.Data.ItemCustomRateWithItemDetails[0].UnitName
+            // this.itemInStock = Data.Data.ItemCustomRateWithItemDetails[0].MainStockValue
+            // this.taxSlabName = Data.Data.ItemCustomRateWithItemDetails[0].TaxSlab
+            // this.taxSlabSelect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].TaxId)
+            // this.unitSelect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].UnitId)
+            // this.itemselect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].ItemId)
+            // this.withoutAttributeData()
+            // Data.Data.ItemCustomRateWithItemDetails[0].MainStockValue > 0 ? this.toastrService.showInfo('', 'Item Current Stock Value ' + this.itemInStock) : this.toastrService.showError('', 'Item Current Stock Value ' + this.itemInStock)
+            // this.notItemAddedOutOfStock = true
+            // if (0 >= this.itemInStock && !this.itemInStockFlag) {
+            //   this.notItemAddedOutOfStock = false
+            // //  this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
+            // }
           }
         }
         else if (Data.Data && Data.Data.ItemDetails.length > 0) {
+          this.applyCustomeRate = false
+          this.applyAutoDiscount = false
+          this.isDiscountApplyed = false
+          this.SaleRate = Data.Data.ItemDetails[0].SaleRate
+          this.MrpRate = Data.Data.ItemDetails[0].Mrprate
+          this.IsNotDiscountable = Data.Data.ItemDetails[0].IsNotDiscountable
+          this.isDiscountableItem(Data.Data.ItemDetails[0].IsNotDiscountable)
+        }
+        if (Data.Data && Data.Data.ItemDetails.length > 0) {
           this.itemselect2.setElementValue(Data.Data.ItemDetails[0].Id)
           this.categoryName = Data.Data.ItemDetails[0].CategoryName
           this.categoryId = Data.Data.ItemDetails[0].CategoryId
@@ -1738,8 +1821,6 @@ export class SaleDirectAddComponent {
           this.TaxSlabId = Data.Data.ItemDetails[0].TaxId
           this.unitName = Data.Data.ItemDetails[0].UnitName
           this.taxSlabName = Data.Data.ItemDetails[0].TaxSlab
-          this.SaleRate = Data.Data.ItemDetails[0].SaleRate
-          this.MrpRate = Data.Data.ItemDetails[0].Mrprate
           this.taxSlabSelect2.setElementValue(Data.Data.ItemDetails[0].TaxId)
           this.unitSelect2.setElementValue(Data.Data.ItemDetails[0].UnitId)
           this.itemInStock = Data.Data.ItemDetails[0].MainStockValue
@@ -1750,11 +1831,12 @@ export class SaleDirectAddComponent {
           this.withoutAttributeData()
           if (0 >= this.itemInStock && !this.itemInStockFlag) {
             this.notItemAddedOutOfStock = false
-            this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
+            //this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
           }
         }
 
-        if (Data.Data && Data.Data.ItemBarCodeDetails && Data.Data.ItemBarCodeDetails.length > 0) {      
+
+        if (Data.Data && Data.Data.ItemBarCodeDetails && Data.Data.ItemBarCodeDetails.length > 0) {
           if (this.BarCodeEnableFlag) {
             this.BarcodeWithAttribute(Data.Data.ItemBarCodeDetails)
           }
@@ -1771,6 +1853,9 @@ export class SaleDirectAddComponent {
           this.calculate()
         }
 
+      }
+      if (Data.Code === UIConstant.SERVERERROR) {
+        this.toastrService.showError('', Data.Description)
       }
 
 
@@ -1815,7 +1900,7 @@ export class SaleDirectAddComponent {
       })
   }
   withoutAttributeData() {
-    if(this.attributesData.length>0){
+    if (this.attributesData.length > 0) {
       this.attributesData.forEach((element, index) => {
         let Sno = 0
         if (this.Items.length === 0) {
@@ -1836,7 +1921,7 @@ export class SaleDirectAddComponent {
         }
       });
     }
-  
+
   }
   onAttributeSelect(evt, index, attributeId) {
     if (+evt.value >= 0 && evt.data.length > 0) {
@@ -1850,14 +1935,14 @@ export class SaleDirectAddComponent {
         this.itemAttributeTrans[index]['ItemId'] = this.ItemId
         this.itemAttributeTrans[index]['AttributeId'] = +evt.value
         this.itemAttributeTrans[index]['ParentTypeId'] = FormConstants.SaleForm
-        this.itemAttributeTrans[index]['name'] = evt.value==='0' ? '' : evt.data[0].text
+        this.itemAttributeTrans[index]['name'] = evt.value === '0' ? '' : evt.data[0].text
       } else {
         this.itemAttributeTrans[index] = {
           ItemId: this.ItemId,
           ItemTransId: Sno,
           AttributeId: +evt.value,
           ParentTypeId: FormConstants.SaleForm,
-          name: evt.value==='0' ? '' : evt.data[0].text,
+          name: evt.value === '0' ? '' : evt.data[0].text,
           id: 0,
           Sno: Sno
         }
@@ -2222,6 +2307,7 @@ export class SaleDirectAddComponent {
   appliedTaxRatesItem: any = []
   appliedTaxRatesCharge: any = []
   calculate() {
+    debugger
     let total = +(isNaN(+this.SaleRate) ? 0 : +this.SaleRate)
       * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
       * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
@@ -2888,23 +2974,30 @@ export class SaleDirectAddComponent {
 
   }
 
-
+  checkItemQuantityForStock() {
+    if (this.Quantity > this.itemInStock) {
+      this.notItemAddedOutOfStock = false
+    }
+    else {
+      this.notItemAddedOutOfStock = true
+    }
+  }
   addItems() {
-    if (this.validDiscount  && +this.UnitId > 0 && this.SaleRate > 0) {
+    if (this.validDiscount && +this.UnitId > 0 && this.SaleRate > 0) {
+      this.checkItemQuantityForStock()
       if (this.notItemAddedOutOfStock) {
-        
         this.addItem()
         this.clickItem = true
+        this.applyCustomeRate = false
+        this.applyAutoDiscount = false
         this.calculateAllTotal()
         this.initItem()
         this.BillDiscount = 0
         this.BillDiscountArray = []
         this.BillDiscountCalculate()
-
       }
       else {
         this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
-
       }
     }
   }
@@ -3002,6 +3095,10 @@ export class SaleDirectAddComponent {
       itemTaxTrans: this.appliedTaxRatesItem,
       AmountItemBillDiscount: this.AmountItemBillDiscount,
       isDisabled: this.DisabledRow,
+      IsNotDiscountable: this.IsNotDiscountable,
+      perItemDiscount: this.perItemDiscount,
+      customRate: this.customRate
+
     })
     this.addItemDisbaled = false
     setTimeout(() => {
@@ -3049,12 +3146,9 @@ export class SaleDirectAddComponent {
         this.LedgerChargeId = LedgerChargeId
         this.taxSlabChargeSelect2.setElementValue(this.TaxSlabChargeId)
         this.taxTypeChargeSelect2.setElementValue(this.TaxTypeCharge)
-
         this.validateCharge()
         this.ledgerChargeValue = this.LedgerChargeId
         this.chargeSelect2.setElementValue(this.LedgerChargeId)
-
-
       }, 100)
     }
     if (type === 'trans' && this.editTransId === -1) {
@@ -3079,21 +3173,28 @@ export class SaleDirectAddComponent {
         this.ChequeNo = this.PaymentDetail[i].ChequeNo
         this.paymentSelect2.setElementValue(this.PayModeId)
         this.ledgerSelect2.setElementValue(this.LedgerId)
-
       }
     }
     if (type === 'items' && this.editItemId === -1) {
       this.editItemId = editId
       this.editItemSno = sno
       i = i - 1
-      
       this.showHideAddItemRow = false
+      this.perItemDiscount = this.Items[i].perItemDiscount
+      this.customRate = this.Items[i].customRate
+     
+      if (this.Items[i].perItemDiscount > 0 && this.Items[i].customRate > 0) {
+        this.applyCustomeRate = true
+        this.applyAutoDiscount = true
+        this.isDiscountApplyed = true
+      }
       this.Items[i].isDisabled = false
       this.DisabledRow = true
       this.TransType = 0
       this.TransId = 0
       this.ChallanId = 0
       this.categoryName = this.Items[i].categoryName
+      this.IsNotDiscountable = this.Items[i].IsNotDiscountable
       this.itemName = this.Items[i].itemName
       this.unitName = this.Items[i].unitName
       this.taxSlabName = this.Items[i].taxSlabName
@@ -3127,6 +3228,7 @@ export class SaleDirectAddComponent {
       this.UnitId = this.Items[i].UnitId
       this.getEditUnitByItem(this.Items[i].ItemId, this.PartyId)
       this.unitSelect2.setElementValue(this.UnitId)
+
       if (this.attrSelect2.length > 0) {
         this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
           item.setElementValue(this.itemAttributeTrans[index].AttributeId)
@@ -3201,6 +3303,8 @@ export class SaleDirectAddComponent {
   }
 
   initItem() {
+    this.perItemDiscount = 0
+    this.IsNotDiscountable = false
     this.TransType = 0
     this.TransId = 0
     this.ChallanId = 0
@@ -3471,7 +3575,7 @@ export class SaleDirectAddComponent {
     this.AddressData = []
     this.setBillDate()
     this.setPayDate()
-   // this.getNewBillNo()
+    // this.getNewBillNo()
     //this.getNewCurrentDate()
   }
   updateCurrentdate() {
@@ -3498,7 +3602,7 @@ export class SaleDirectAddComponent {
         if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
           this.setDueDate(data.Data)
           this.setCurrentDate(data.Data)
-      
+
         }
       }
     )
@@ -3965,7 +4069,7 @@ export class SaleDirectAddComponent {
                       this.editMode = false
                       this.openModal()
                       this.getNewCurrentDate()
-                       this.getNewBillNo()
+                      this.getNewBillNo()
                       if (this.isBillNoManuall) {
                         this.BillNo = ''
                       }
@@ -4463,7 +4567,7 @@ export class SaleDirectAddComponent {
   @ViewChild('custName') custName
   openCustomerDetails() {
     this.disbledInputMobileFlag = true
-    
+
     this.searchCountryCodeForMobile(' ')
     // if (this.editMode) {
     //   this.clearCaseCustomer()
@@ -4478,21 +4582,21 @@ export class SaleDirectAddComponent {
     }
     this.getOrgnizationAddress()
   }
-  countryValue1:any =null
-  stateValuedata1:any=null
+  countryValue1: any = null
+  stateValuedata1: any = null
   countryName: any = ''
   selectCountryListId(event) {
-    if(this.countryValue1 !==null){
+    if (this.countryValue1 !== null) {
       if (event.id !== '0') {
         this.countrId = event.id
         this.countryName = event.text
         if (this.countrId > 0) {
           this.getStaeList(this.countrId, 0)
         }
-    }
-    else {
-      this.countrId = 0
-    }
+      }
+      else {
+        this.countrId = 0
+      }
     }
   }
   validmobileLength: any
@@ -4500,7 +4604,7 @@ export class SaleDirectAddComponent {
   countryCodeId: any
   countryListWithCode: any
   onCountryCodeSelectionChange = (event) => {
-    if(this.countryCodeFlag !==null){
+    if (this.countryCodeFlag !== null) {
       if (event.id > 0) {
         if (event.id !== '0') {
           this.CountryCode = event.PhoneCode
@@ -4509,35 +4613,35 @@ export class SaleDirectAddComponent {
       }
     }
   }
-  getOrgnizationAddress (){
-    let Address= JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
+  getOrgnizationAddress() {
+    let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
     console.log(Address)
     this.countryValue1 = Address.CountryId
     this.stateValuedata1 = Address.StateId
     let phonecode = {
-      id:Address.CountryCode,text:Address.CountryName,
-      PhoneCode:Address.CountryCode,
-      Length:Address.Length
+      id: Address.CountryCode, text: Address.CountryName,
+      PhoneCode: Address.CountryCode,
+      Length: Address.Length
     }
     this.onCountryCodeSelectionChange(phonecode)
-    this.countryCodeFlag =Address.CountryCode
+    this.countryCodeFlag = Address.CountryCode
 
     this.cityValue1 = Address.CityId
     this.areNameId = Address.AreaId
     let country = {
-      id:Address.CountryId,text:Address.CountryName
+      id: Address.CountryId, text: Address.CountryName
     }
     this.selectCountryListId(country)
     let state = {
-      id:Address.StateId,text:Address.StateName
+      id: Address.StateId, text: Address.StateName
     }
     this.selectState(state)
     let city = {
-      id:Address.CityId,text:Address.CityName
+      id: Address.CityId, text: Address.CityName
     }
     this.selectedCityId(city)
- 
-   }
+
+  }
   searchCountryCodeForMobile(name) {
     this.commonService.searchCountryByName(name).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND && Data.Data.length > 0) {
@@ -4559,7 +4663,7 @@ export class SaleDirectAddComponent {
     })
   }
   CaseCustId: any = 0
-  countryCodeFlag: any =null
+  countryCodeFlag: any = null
   validateEmail(email) {
     let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     return re.test(email)
@@ -4593,13 +4697,13 @@ export class SaleDirectAddComponent {
       this.checkIsValidMobileNo = false
     }
   }
-  caseSaleCustomerDetails: any  =[]
+  caseSaleCustomerDetails: any = []
   caseCustomerName: any = ''
   CustomerAddress: any = ''
   PartyGstinNo: any = ''
   countrId: any = 0
   addCaseCustomer() {
-    this.caseSaleCustomerDetails=[]
+    this.caseSaleCustomerDetails = []
     this.checkValidEmail()
     this.checkValidMobile()
     this.customerClick = true
@@ -4621,7 +4725,7 @@ export class SaleDirectAddComponent {
         this.countryCodeFlag = null
         this.getCountry(0)
       }
-     // this.clearCaseCustomer()
+      // this.clearCaseCustomer()
       $('#cust_detail_m').modal(UIConstant.MODEL_HIDE)
     }
 
@@ -4639,7 +4743,7 @@ export class SaleDirectAddComponent {
     this.customerStateId = 0
     this.CaseCustId = 0
   }
-  countryValue: any =null
+  countryValue: any = null
   countryList: any = []
   getCountry(value) {
     this._coustomerServices.getCommonValues('101').subscribe(Data => {
@@ -4653,9 +4757,9 @@ export class SaleDirectAddComponent {
       this.countryValue = value
     })
   }
-  phonename:any =''
-  stateValuedata: any =null
-  areNameId: any =null
+  phonename: any = ''
+  stateValuedata: any = null
+  areNameId: any = null
   stateListCustomer: any = []
   getStaeList(id, value) {
     this._coustomerServices.gatStateList(id).subscribe(Data => {
@@ -4673,14 +4777,14 @@ export class SaleDirectAddComponent {
   StateName: any
   customerStateId: any = 0
   selectState(event) {
-    if(this.stateValuedata1 !==null){
+    if (this.stateValuedata1 !== null) {
       if (event.id !== '0') {
-          this.customerStateId = event.id
-          this.StateName = event.text
-          if (this.customerStateId > 0) {
-            this.getCitylist(this.customerStateId, 0)
-          }
-       
+        this.customerStateId = event.id
+        this.StateName = event.text
+        if (this.customerStateId > 0) {
+          this.getCitylist(this.customerStateId, 0)
+        }
+
         else {
           this.customerStateId = 0
         }
@@ -4705,9 +4809,9 @@ export class SaleDirectAddComponent {
   cityError: boolean
   cityName: any
   cityId: any = 0
-  cityValue1:any=null
+  cityValue1: any = null
   selectedCityId(event) {
-    if(this.cityValue1 !==null){
+    if (this.cityValue1 !== null) {
       if (event.id > 0) {
         this.cityId = event.id
         this.cityName = event.text
@@ -4717,7 +4821,7 @@ export class SaleDirectAddComponent {
         }
       }
     }
-  
+
   }
   areaList: any = []
   private getAreaId(id) {
@@ -4733,14 +4837,14 @@ export class SaleDirectAddComponent {
       }
     })
   }
-  Areaname:any =''
+  Areaname: any = ''
   areaID: any = 0
   selectedArea(event) {
-    if (this.areNameId !==null) {
-        if (event.id !== '0') {
-            this.areaID = event.id
-            this.Areaname =event.text
-        }
+    if (this.areNameId !== null) {
+      if (event.id !== '0') {
+        this.areaID = event.id
+        this.Areaname = event.text
+      }
     }
   }
   checkOnInputMobile(e) {

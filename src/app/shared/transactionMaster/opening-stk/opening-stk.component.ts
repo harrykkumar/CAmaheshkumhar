@@ -1,3 +1,4 @@
+/**created by dolly garg */
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { ComboService } from './../item-master/item-combo/combo.service';
@@ -145,7 +146,7 @@ export class OpeningStkComponent implements OnInit, OnChanges {
       this.checkForSelectedIndex()
     } else {
       this.masterData['Attributes'] = JSON.parse(JSON.stringify(this.masterData['AttributesCopy']))
-      this.backToOrg()
+      this.backToOrginal()
     }
     setTimeout(() => {
       this.searchFilter()
@@ -173,7 +174,7 @@ export class OpeningStkComponent implements OnInit, OnChanges {
     } else {
       if (this.selectedAttrKeys.length > 0) {
       } else {
-        this.backToOrg()
+        this.backToOrginal()
       }
     }
     setTimeout(() => {
@@ -181,7 +182,7 @@ export class OpeningStkComponent implements OnInit, OnChanges {
     }, 0)
   }
 
-  backToOrg () {
+  backToOrginal () {
     this.masterData['AttributeIdStr'] = JSON.parse(JSON.stringify(this.masterData['AttributeIdStrCopy']))
     this.masterData['AttributeNamestr'] = JSON.parse(JSON.stringify(this.masterData['AttributeNamestrCopy']))
     let arr = []
@@ -513,15 +514,17 @@ export class OpeningStkComponent implements OnInit, OnChanges {
     if (!this.masterData.onlyItems) {
       const allCards = $('.card')
       for (let i = 0; i < allCards.length; i++) {
-        let elem = '' + allCards[i].children[0].children[0].children[0].innerText
-        // console.log(this.search)
-        if (!this.search.trim()) {
-          allCards[i].style.display = 'block'
-        } else {
-          if (elem.trim().toUpperCase().includes(this.search.trim().toUpperCase())) {
+        if (typeof allCards[i].children[0].children[1] != 'undefined' ) {
+          let elem = '' + allCards[i].children[0].children[1].innerText
+          // console.log(this.search)
+          if (!this.search.trim()) {
             allCards[i].style.display = 'block'
           } else {
-            allCards[i].style.display = 'none'
+            if (elem.trim().toUpperCase().includes(this.search.trim().toUpperCase())) {
+              allCards[i].style.display = 'block'
+            } else {
+              allCards[i].style.display = 'none'
+            }
           }
         }
       }

@@ -224,6 +224,17 @@ export class LedgerImportComponent {
     // console.log('duplicates : ', this.duplicateTuples)
   }
 
+  deleteDuplicates () {
+    this.duplicateTuples.forEach(item => {
+      for (let i = 0; i < this.masterData.length; i++) {
+        if (item['SNO'] === this.masterData[i]['SNO']) {
+          this.masterData.splice(i, 1)
+        }
+      }
+    })
+    this.duplicateTuples = []
+  }
+
   removeItem (index, item) {
     this.masterData.splice(index,1)
     this.ledgerData.splice(index,1)
