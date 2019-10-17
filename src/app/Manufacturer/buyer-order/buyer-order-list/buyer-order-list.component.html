@@ -53,7 +53,7 @@
       <div class="col-md-12">
         <div class="bgc-white bdrs-3 mB-20">
           <div class="table-responsive table_height">
-            <table class="table cat-table cat-table table-hover">
+            <table class="table cat-table buyerorder-table table-hover">
               <thead>
                 <tr>
                   <th width="7%">SNo.</th>
@@ -64,7 +64,6 @@
                 <th>Order Qty</th>
                 <th>Production Qty</th>
                 <th>Amount</th>
-                <th>Remark</th>
                 <th>Action</th>
                 </tr>
               </thead>
@@ -75,36 +74,45 @@
                           };
                     let i = index">
                   <td>{{ i + 1 }}</td>
-                  <td></td>
-                  <td>{{item?.StyleNo}}</td>
-                  <td></td>
-                  <td>{{item?.OrderDate}}</td>
+                  <td>{{item?.BuyerCode}}</td>
+                  <td>{{item?.StyleName}}</td>
+                  <td>{{item?.BuyerName}}</td>
+                  <td>{{item?.OrderDate | dateFormat: clientDateFormat}}</td>
                   <td>{{item?.TotalOrderQty}}</td>
                   <td>{{item?.TotalProductionQty}}</td>
                   <td>{{item?.NetAmount}}</td>
-                  <td>{{item?.Remark}}</td>
                   <td>
-                    <a
-                      data-toggle="tooltip"
-                      data-placement="top"
-                      title="Edit"
-                      class="actionBtn"
-                    >
-                      <i
-                        class="fa fa-edit fa-1x"
-                        aria-hidden="true"
-                        (click)="addItemRequirement(item)"
-                      >
-                      </i
-                    ></a>
-                    <a
-                      data-toggle="tooltip"
-                      class="actionBtn"
-                      data-placement="bottom"
-                      title="Delete"
-                      (click)="deleteItemRequirement(item)"
-                      ><i class="fa fa-trash fa-1x" aria-hidden="true"></i
-                    ></a>
+                    <div class="dropdown enquiry-tag">
+                      <a
+                        class="dropdown-toggle"
+                        data-toggle="dropdown"
+                        aria-expanded="false"
+                        ><i class="fa fa-cog mR-3 cH-blue fa-1x"></i
+                        ><b class="caret"></b
+                      ></a>
+                      <ul class="dropdown-menu fsz-sm">
+                        <li>
+                          <a
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Edit"
+                            class="actionBtn"
+                            (click)="addItemRequirement(item)">
+                            <i class="fa fa-edit fa-1x" aria-hidden="true"></i>
+                          Edit</a>
+                        </li>
+                        <li>
+                          <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700">
+                            <i class="fas fa-trash mR-10 cH-blue"></i><span>Delete</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a (click)="packOrder(item)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700">
+                            <i class="fas fa-print mR-10 cH-blue"></i><span>Pack Order</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -113,16 +121,17 @@
         </div>
       </div>
     </div>
-
-   
   </div>
 </main>
 <app-pagination
-#sample_approval_paging
-(lastValueEmitter)="onLastValueChange($event)"
-(pageNoEmitter)="onPageNoChange($event)"
-(pageSizeEmitter)="onPageSizeChange($event)"
+  #sample_approval_paging
+  (lastValueEmitter)="onLastValueChange($event)"
+  (pageNoEmitter)="onPageNoChange($event)"
+  (pageSizeEmitter)="onPageSizeChange($event)"
 ></app-pagination>
 
 <app-add-buyer-order #addBuyerOrderFormRef
-(triggerCloseModal)="onModalClosed($event)" ></app-add-buyer-order>
+  (triggerCloseModal)="onModalClosed($event)" ></app-add-buyer-order>
+
+<template #packagingaddcontainer>
+</template>

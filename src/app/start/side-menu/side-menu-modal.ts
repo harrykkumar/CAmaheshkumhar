@@ -374,7 +374,7 @@ export const SIDE_MENU_MODEL = [
   {
     Id: 64,
     Name: "Buyer-Order",
-    path: "buyer-order",
+    path: "manufacturing/buyer-order",
     icon: ""
   },
   {
@@ -496,5 +496,23 @@ export const SIDE_MENU_MODEL = [
     Name: "Custom Rate",
     path: "ims/custom-rate",
     icon: "fas fa-exchange-alt"
+  },
+  {
+    Id: 88,
+    Name: "User Setup",
+    path: "additional/setup",
+    icon: "fas fa-exchange-alt"
+  },
+  {
+    Id: 89,
+    Name: "Order Packing",
+    path: "manufacturing/packaging",
+    icon: "fas-fa-exchange-alt"
+  },
+  {
+    Id: 90,
+    Name: "Item ActiveStatus",
+    path: "ims/item-active-status",
+    icon: "fas-fa-exchange-alt"
   }
 ];

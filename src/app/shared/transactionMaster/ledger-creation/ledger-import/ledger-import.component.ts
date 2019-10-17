@@ -126,13 +126,13 @@ export class LedgerImportComponent {
   }
 
   toggleSelect (evt) {
-    // console.log('event : ', evt.target.checked)
-    for (let i = 0;i <= this.masterData.length - 1;i++) {
+    const all = $('.ledger-container')
+    for (let i = 0;i <= all.length - 1;i++) {
       $('.ledger-container')[i].checked = evt.target.checked
       if (evt.target.checked) {
-        this.selectedItems.push(this.masterData[i]['SNO'])
+        this.selectedItems.push(+$('.ledger-container')[i].id)
       } else {
-        let index = this.selectedItems.indexOf(this.masterData[i]['SNO'])
+        let index = this.selectedItems.indexOf(+$('.ledger-container')[i].id)
         if (index > -1) {
           this.selectedItems.splice(index,1)
         }
@@ -192,6 +192,7 @@ export class LedgerImportComponent {
     console.log('master data : ', this.masterData)
     this.selectedItems = []
     this.ledgerData = this.ledgerData.concat(ledgerData)
+    this.values['searchText'] = ''
     console.log('ledger data : ', this.ledgerData)
   }
 
@@ -328,32 +329,39 @@ export class LedgerImportComponent {
   }
 
   saveImport (value) {
-    this.ledgerService.postLedgerImport(this.importParams()).subscribe(data => {
+    this.gs.manipulateResponse(this.ledgerService.postLedgerImport(this.importParams())).subscribe(data => {
       console.log('ledger import : ', data)
-      if (data.Code === UIConstant.THOUSAND) {
-        this.toastrService.showSuccess('Success', 'File Saved')
-        if (value === 'new') {
-          this.ledgerService.onSaveLedgerImport()
-          this.ledgerService.closeLedgerImport()
-        }
-        if (value === 'reset') {
-          this.modeOfForm = 'new'
-          this.initComp()
-        }
-      } else {
-        this.toastrService.showError('Oops', data.Message)
+      this.toastrService.showSuccess('Success', 'File Saved')
+      if (value === 'new') {
+        this.ledgerService.onSaveLedgerImport()
+        this.ledgerService.closeLedgerImport()
       }
+      if (value === 'reset') {
+        this.modeOfForm = 'new'
+        this.initComp()
+      }
+    },
+    (error) => {
+      console.log(error)
+      this.toastrService.showError(error, '')
     })
   }
 
   public uploadData (event: any): void {
     if (event) {
-      this.isDataLoading = true
       // console.log('file event : ', event)
       this.sheetname = []
       this.masterTableArray = []
       this.masterData = []
+      this.sheetname = []
+      this.masterTableArray = []
+      this.masterData = []
+      this.duplicateTuples = []
+      this.selectedItems = []
+      this.ledgerData = []
+      this.ledgerKeys = []
       if (event.target && event.target.files.length > 0) {
+        this.isDataLoading = true
         this.file = event.target.files[0]
         this.readingData()
       }
@@ -384,8 +392,6 @@ export class LedgerImportComponent {
         masterTableArray = XLSX.utils.sheet_to_json(worksheet, { raw: true })
       }
       this.masterTableArray = masterTableArray.splice(0, masterTableArray.length)
-      // console.log('masterTableArray : ', this.masterTableArray)
-      // check validation
       if (this.masterTableArray.length > 0) {
         let keysArr = Object.values(XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0])
         keysArr = this.gs.removeSpecialCharacters(keysArr)
@@ -393,102 +399,65 @@ export class LedgerImportComponent {
         const mandatoryKeys = ['SNO','NAME','SHORTNAME','GSTTYPE','ACCOUNTNO','CREDITLIMIT',
         'CREDITDAYS','CONTACTNO','EMAIL','PANNO','GSTNO','OPENINGBALANCE','CRDR','COUNTRY',
         'STATE','CITY','ADDRESS']
-        if (mandatoryKeys.length === keysArr.length) {
-          if (this.gs.checkForEqualityInArray(mandatoryKeys, keysArr) !== '') {
-            this.toastrService.showError(this.gs.checkForEqualityInArray(mandatoryKeys, keysArr), 'Missing Field')
-            this.reset()
-          } else {
-            this.masterData = []
-            this.masterKeys = ['SNO','NAME','SHORTNAME','GSTTYPE','ACCOUNTNO','CREDITLIMIT',
-            'CREDITDAYS','CONTACTNO','EMAIL','PANNO','GSTNO','OPENINGBALANCE','CRDR','COUNTRY',
-            'STATE','CITY','ADDRESS']
-            this.masterTableArray.forEach((element, index) => {
-              let toAdd = true
-              let keysArr = Object.keys(element)
-              let newRow = {}
-              for (let j = 0; j < keysArr.length; j++) {
-                let key = keysArr[j].trim().toUpperCase()
-                newRow[key] = this.gs.removeSpecialCharacter('' + element[keysArr[j]])
-              }
-              // console.log('row : ', newRow)
-              newRow['SNO'] = index + 1
-              newRow['CREDITLIMIT'] = +newRow['CREDITLIMIT']
-              newRow['CREDITDAYS'] = +newRow['CREDITDAYS']
-              newRow['OPENINGBALANCE'] = +newRow['OPENINGBALANCE']
-              newRow = this.gs.removeSpecialCharacters(newRow)
-              // if (isNaN(newRow['CREDITLIMIT'])) {
-              //   this.toastrService.showErrorLong('CREDITLIMIT is Required at Sno. ' + newRow['SNO'], '')
-              //   this.reset()
-              //   toAdd = false
-              // }
-              // if (isNaN(newRow['CREDITDAYS'])) {
-              //   this.toastrService.showErrorLong('CREDITDAYS is Required at Sno. ' + newRow['SNO'], '')
-              //   this.reset()
-              //   toAdd = false
-              // }
-              if (!isNaN(newRow['OPENINGBALANCE']) && newRow['OPENINGBALANCE'] > 0) {
-                if (!newRow['CRDR']) {
-                  this.toastrService.showErrorLong('CRDR is reqquired at Sno. ' + newRow['SNO'], '')
-                  this.reset()
-                  toAdd = false
-                }
-              }
-              if (!newRow['NAME']) {
-                this.toastrService.showErrorLong('NAME is Required at Sno. ' + newRow['SNO'], '')
-                this.reset()
-                toAdd = false
-              }
-              // if (!newRow['SHORTNAME']) {
-              //   this.toastrService.showErrorLong('SHORTNAME is Required at Sno. ' + newRow['SNO'], '')
-              //   this.reset()
-              //   toAdd = false
-              // }
-              if (newRow['GSTTYPE'] === 'Regular') {
-                if (!newRow['GSTNO']) {
-                  this.toastrService.showErrorLong('NAME is Required at Sno. ' + newRow['SNO'], '')
-                  this.reset()
-                  toAdd = false
-                }
-                if (!newRow['STATE']) {
-                  this.toastrService.showErrorLong('STATE is Required at Sno. ' + newRow['SNO'], '')
-                  this.reset()
-                  toAdd = false
-                }
-                if (!newRow['COUNTRY']) {
-                  this.toastrService.showErrorLong('COUNTRY is Required at Sno. ' + newRow['SNO'], '')
-                  this.reset()
-                  toAdd = false
-                }
-              }
-              if (newRow['PANNO']) {
-                if (!this.commonService.panNumberRegxValidation(newRow['PANNO'])) {
-                  this.toastrService.showErrorLong(newRow['PANNO'], 'PANNO is Incorrect at Sno. ' + newRow['SNO'])
-                  this.reset()
-                  toAdd = false
-                }
-              }
-              // if (!newRow['CRDR']) {
-              //   this.toastrService.showErrorLong('CRDR is reqquired at Sno. ' + newRow['SNO'], '')
-              //   this.reset()
-              //   toAdd = false
-              // }
-              if (toAdd) {
-                let obj = { ...newRow }
-                // console.log('obj : ', obj);
-                this.masterData.push(obj)
-                if (this.masterData.length === this.masterTableArray.length) {
-                  this.isDataLoading = false
-                  this.checkForDuplicates()
-                }
-              }
-            })
-            // this.masterKeys = Object.keys(_self.masterData[0])
-            console.log('masterdata: ', JSON.stringify(_self.masterData))
-          }
-        } else {
-          this.toastrService.showError('', 'Some fields are missing')
+        const resp = this.gs.checkForEqualityInArray(mandatoryKeys, keysArr)
+        if (resp !== '') {
+          this.toastrService.showErrorLong(resp, '')
           this.reset()
           this.isDataLoading = false
+        } else {
+          this.masterData = []
+          this.masterTableArray.forEach((element, index) => {
+            let keysArr = Object.keys(element)
+            let newRow = {}
+            for (let j = 0; j < keysArr.length; j++) {
+              let key = keysArr[j].trim().toUpperCase()
+              newRow[key] = ('' + element[keysArr[j]]).trim()
+            }
+            newRow['SNO'] = index + 1
+            newRow['CREDITLIMIT'] = +newRow['CREDITLIMIT']
+            newRow['CREDITDAYS'] = +newRow['CREDITDAYS']
+            newRow['OPENINGBALANCE'] = +newRow['OPENINGBALANCE']
+            newRow = this.gs.removeSpecialCharacters(newRow)
+            if (!isNaN(newRow['OPENINGBALANCE']) && newRow['OPENINGBALANCE'] > 0 && !newRow['CRDR']) {
+              this.toastrService.showErrorLong('CRDR is required at Sno. ' + newRow['SNO'], '')
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
+            } else if (!newRow['NAME']) {
+              this.toastrService.showErrorLong('NAME is Required at Sno. ' + newRow['SNO'], '')
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
+            } else if (newRow['PANNO'] && !this.commonService.panNumberRegxValidation(newRow['PANNO'])) {
+              this.toastrService.showErrorLong(newRow['PANNO'], 'PANNO is Incorrect at Sno. ' + newRow['SNO'])
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
+            } else if (newRow['GSTTYPE'] === 'Regular' && !newRow['GSTNO']) {
+              this.toastrService.showErrorLong('GSTNO. is Required at Sno. ' + newRow['SNO'], '')
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
+            } else if (newRow['GSTTYPE'] === 'Regular' && !newRow['STATE']) {
+              this.toastrService.showErrorLong('STATE is Required at Sno. ' + newRow['SNO'], '')
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
+            } else if (newRow['GSTTYPE'] === 'Regular' && !newRow['COUNTRY']) {
+              this.toastrService.showErrorLong('COUNTRY is Required at Sno. ' + newRow['SNO'], '')
+              this.modeOfForm = 'reset'
+              this.initComp()
+              this.isDataLoading = false
+            } else {
+              let obj = { ...newRow }
+              this.masterData.push(obj)
+              if (this.masterData.length === this.masterTableArray.length) {
+                this.isDataLoading = false
+                this.masterKeys = Object.keys(_self.masterData[0])
+                this.checkForDuplicates()
+              }
+            }
+          })
         }
       } else {
         this.toastrService.showError('', 'No Data Found')
@@ -510,6 +479,11 @@ export class LedgerImportComponent {
     this.data = {}
     this.values = {}
     this.toShow = {}
+    this.file = []
+    this.ledgerData = []
+    this.ledgerKeys = []
+    this.isDataLoading = false
+    this.isLoading = false
     this.ledgerService.closeLedgerImport()
   }
 
@@ -679,6 +653,7 @@ export class LedgerImportComponent {
 
   deleteList () {
     let strId = this.generateDeleteList()
+    console.log('strId : ', strId)
     this.gs.manipulateResponse(this.ledgerService.deleteList(strId)).subscribe(
       () => {
         this.toastrService.showSuccess('Record Deleted Successfully', '')
@@ -690,19 +665,16 @@ export class LedgerImportComponent {
     )
   }
 
-  generateDeleteList (): string {
+  generateDeleteList () {
     let strIds = []
     this.selectedItems.forEach(item => {
       for (let i = 0; i < this.masterData.length; i++) {
         if (item === this.masterData[i]['SNO']) {
-          strIds.push(this.masterData[i]['ID']) 
+          strIds.push({"Id": this.masterData[i]['ID']})
         }
       }
     })
-
-    let strId = strIds.join(',')
-    console.log('strId : ', strId)
-    return strId
+    return strIds
   }
 
   deleteDeleted () {

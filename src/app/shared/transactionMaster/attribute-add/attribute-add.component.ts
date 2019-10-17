@@ -29,6 +29,42 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
     public _CommonService: CommonService,
     private renderer: Renderer2
     ) {
+      this._CommonService.getAttributeStatus().pipe((
+        takeUntil(this.unSubscribe$)
+      )).subscribe((response: any) => {
+        if (response.open === true) {
+          this.resetFormData()
+          this.selectedAttribute = null
+          this.initAttributeNameList(0)
+          this.isParent = response.data.isParent
+          if (response.data.editId || response.data.attrNameId) {
+            this.setEditData(response)
+          }
+          if (response.data.addNewId>0) {
+            this.disabledAddNewFlag = false
+            this.initAttributeNameList(response.data.attrNameId)
+            this.addNewAttributeDynamic(response)
+          } else {
+            $('#attribute_master').modal(UIConstant.MODEL_SHOW)
+            setTimeout(() => {
+              if (this.attrname) {
+                const element = this.renderer.selectRootElement(this.attrname.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 1000)
+          }
+          $('#attribute_master').modal(UIConstant.MODEL_SHOW)
+        
+          setTimeout(() => {
+            if (this.attrname) {
+              const element = this.renderer.selectRootElement(this.attrname.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 1000)
+        } else {
+          this.closeModal()
+        }
+     })
   }
 
   // tslint:disable-next-line:space-before-function-paren
@@ -50,44 +86,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   
   /* initialising attribute data to open add attribute modal */
   initAddAttributeData = () => {
-    this._CommonService.getAttributeStatus().pipe((
-      takeUntil(this.unSubscribe$)
-    )).subscribe((response: any) => {
-      // console.log('attribute edit : ', response)
-      if (response.open === true) {
-        // console.log(response, 'add attr')
-        this.resetFormData()
-        this.selectedAttribute = null
-        this.initAttributeNameList(0)
-        this.isParent = response.data.isParent
-        if (response.data.editId || response.data.attrNameId) {
-          this.setEditData(response)
-        }
-        if (response.data.addNewId>0) {
-          this.disabledAddNewFlag = false
-          this.initAttributeNameList(response.data.attrNameId)
-          this.addNewAttributeDynamic(response)
-        } else {
-          $('#attribute_master').modal(UIConstant.MODEL_SHOW)
-          setTimeout(() => {
-            if (this.attrname) {
-              const element = this.renderer.selectRootElement(this.attrname.nativeElement, true)
-              element.focus({ preventScroll: false })
-            }
-          }, 1000)
-        }
-        $('#attribute_master').modal(UIConstant.MODEL_SHOW)
-      
-        setTimeout(() => {
-          if (this.attrname) {
-            const element = this.renderer.selectRootElement(this.attrname.nativeElement, true)
-            element.focus({ preventScroll: false })
-          }
-        }, 1000)
-      } else {
-        this.closeModal()
-      }
-    }, error => console.log(error))
+   
   }
   closePopup () {
     this.closeModal()

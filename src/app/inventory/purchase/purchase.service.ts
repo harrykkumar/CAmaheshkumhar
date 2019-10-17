@@ -8,7 +8,6 @@ import { ApiConstant } from 'src/app/shared/constants/api'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { ResponseSale } from 'src/app/model/sales-tracker.model'
 import { ToastrCustomService } from '../../commonServices/toastr.service';
-import { SetUpIds } from '../../shared/constants/setupIds.constant';
 @Injectable({
   providedIn: 'root'
 })
@@ -305,7 +304,6 @@ export class PurchaseService {
   }
 
   getSlabData (id) {
-    console.log('id tax slab : ', id)
     return this.baseService.getRequest(ApiConstant.GET_TAX_SLAB_DATA + id)
   }
 

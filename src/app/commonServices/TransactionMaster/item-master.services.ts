@@ -80,8 +80,9 @@ export class ItemmasterServices {
     return this._basesService.postRequest(ApiConstant.IMPORT_ITEM_MASTER, imports)
   }
 
-  deleteList (strId) {
-    return this._basesService.deleteRequest(`${ApiConstant.IMPORT_ITEM_MASTER}?StrId=${strId}`)
+  /*?StrId=${strId}*/
+  deleteList (strIds) {
+    return this._basesService.deleteRequest(`${ApiConstant.IMPORT_ITEM_MASTER}`, strIds)
   }
 
   getPendingList () {
@@ -146,7 +147,7 @@ export class ItemmasterServices {
     // return this._basesService.postRequest(ApiConstant.)
   }
 
-  getBarCodes (length: number): Observable<ResponseSale> {
+  getBarCodes (length: number): Observable<any> {
     return this.manipulateResponse(this._basesService.getRequest(`${ApiConstant.GET_BORCODES_OPENING_STOCK}?StrSearchFor=ForBarcode&Length=${length}`))
   }
 

@@ -10,6 +10,8 @@ import { ApiConstant } from '../shared/constants/api';
 export class SettingsService {
   private saveSub = new Subject<any>()
   public saveSub$ = this.saveSub.asObservable()
+  private searchSub = new Subject<any>()
+  public search$ = this.searchSub.asObservable()
   constructor (private baseServices: BaseServices) {}
 
   getFormFields (): Observable<ResponseSale> {
@@ -22,5 +24,9 @@ export class SettingsService {
 
   saveForm () {
     this.saveSub.next(true)
+  }
+
+  onSearch (search) {
+    this.searchSub.next(search)
   }
 }

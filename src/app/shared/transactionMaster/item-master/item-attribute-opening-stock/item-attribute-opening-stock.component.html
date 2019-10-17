@@ -55,6 +55,31 @@
         </div>
       </div>
       <div class="modal-body" *ngIf="!isLoading" >
+        <div class="form-row col-md-12" >
+          <div class="form-col col-md-4" >
+            <label>Attribute to group</label>
+            <div class="input-group adw_select">
+              <div class="input-group adw_select">
+                <select2 [data]="masterData?.attrKeySelect2Data" [options]="{multiple: true}" 
+                  (valueChanged)="onAttrKeySelect($event)"
+                  class="control_select" autocomplete="true" [value]="masterData.attrGroup" >
+                </select2>
+              </div>
+            </div>
+          </div>
+          <div class="form-col col-md-4" >
+            <label>Attribute Combination</label>
+            <div class="input-group adw_select">
+              <div class="input-group adw_select">
+                <select2 [data]="masterData?.attributeData" [options]="{multiple: true}" 
+                  (valueChanged)="onAttrSelect($event)"
+                  class="control_select" autocomplete="true" [value]="masterData.attr" >
+                </select2>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br/>
         <form>
           <div class="bgc-white bdrs-3 pb-3 mB-20">
             <div class="table-responsive table-item-attribute">
@@ -103,7 +128,7 @@
                     </td>
                     <td>
                       <input type="text" class="form-control" name="client-barCode-{{ i }}"
-                        [(ngModel)]="item.ClientBarCode" [disabled]="!item.Checked" />
+                        [(ngModel)]="item.ClientBarCode" [disabled]="!item.Checked" (input)="updateBarCode(i)" />
                     </td>
                     <td>
                       <input type="text" class="form-control" appIncludeDecimal name="opening-stock-qty-{{ i }}"

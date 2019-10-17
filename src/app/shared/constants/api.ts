@@ -414,4 +414,41 @@ export class ApiConstant {
   public static get POST_MODULE_SUPERADMIN (): string { return this.BASE_URL + '/api/v1/moduledefination' }
 
   public static get CUSTOM_RATE (): string { return this.BASE_URL + '/api/v1/Customerate' }
+
+  public static get ADDITIONAL_SETTINGS (): string { return this.BASE_URL + '/api/v1/setting/user/individualpermission' }
+
+  public static get DASHBOARD_ASSET_LIBILITIES (): string { return this.BASE_URL + '/api/v1/dashboardassetlibilities' }
+
+  public static get DASHBOARD_CASHIN_CASHOUT(): string { return this.BASE_URL + '/api/v1/dashboardpnlcash' }
+
+  public static get DASHBOARD_INVENTORY(): string { return this.BASE_URL + '/api/v1/DashboardInventory' }
+
+  public static get DASHBOARD_CashStatutory(): string { return this.BASE_URL + '/api/v1/DashboardCashStatutory' }
+
+  public static get DASHBOARD_DashboardOverDues(): string { return this.BASE_URL + '/api/v1/DashboardOverDues' }
+
+  public static get DASHBOARD_CreditorDebitor(): string { return this.BASE_URL + '/api/v1/DashboardCreditorDebitor' }
+
+  public static get REVUGAIN_FOR_CUSTOMER_DETAILS(): string { return   'https://api.revugain.com/api/v1/PostCustomersData' }
+
+  public static get EDIT_BUYER_ORDER (): string { return this.BASE_URL + '/api/v1/Manufacture/BuyerOrderEdit' }
+  
+  public static get GET_ITEMS_IN_ORDER (): string { return this.BASE_URL + '/api/v1/manufacture/buyerorderforpacket' }
+
+  public static get GET_PACKET_CODE (): string { return this.BASE_URL + '/api/v1/randomnumber?Type=OrderPacket' }
+
+  public static get POST_ORDER_PACKET (): string { return this.BASE_URL + '/api/v1/manufacture/orderpacket' }
+
+  public static get ACTIVE_INVENTORY_ADD_NAME_URL(): string { return this.BASE_URL + '/api/v1/ims/activeinventorycategory' }
+
+  public static get POST_ACTIVE_INVENTORY_TERMURL(): string { return this.BASE_URL + '/api/v1/ims/activeinventoryterms' }
+
+  public static get GET_TYPE_ACVTIVE_INVE_URL(): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=178' }
+
+  public static get GET_ADDRESS_TAX_TYPE (): string { return this.BASE_URL + '/api/v1/manufacture/buyerorderforchallan?Id=' }
+
+  public static get POST_PACKAGING_CHALLAN (): string { return this.BASE_URL + '/api/v1/manufacture/orderpacketchallan' }
+
+
+
 }

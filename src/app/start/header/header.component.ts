@@ -22,7 +22,7 @@ export class HeaderComponent {
     this.commonService.setupChange$.subscribe(() => {
       this.clientDateFormat = this.settings.dateFormat
     })
-    console.log(this.settings.dateFormat)
+    // console.log(this.settings.dateFormat)
     this.clientDateFormat = this.settings.dateFormat
     const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
     this.loggedinUserData = {

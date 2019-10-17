@@ -1,6 +1,5 @@
 import { ToastrCustomService } from './../../../commonServices/toastr.service';
 import { ViewChild, EventEmitter, Output } from '@angular/core';
-import { BuyerOrderService } from './../buyer-order.service';
 import { Component, OnInit } from '@angular/core';
 declare var $: any
 import * as _ from 'lodash'
@@ -23,7 +22,6 @@ export class AttributeCombinationComponent implements OnInit {
     multiple: true
   }
   constructor(
-    private _buyerOrderService: BuyerOrderService,
     private _toaster: ToastrCustomService,
   ) {
   }
@@ -48,27 +46,32 @@ export class AttributeCombinationComponent implements OnInit {
   }
 
   getUtilityItemList(res) {
-      if (res.Code === 1000) {
-        const sizeAttributeIndex = _.findIndex(res.Data.Attributes, {IsRequired : true})
-        if(sizeAttributeIndex >= 0){
-          this.sizeAttributeValueList = _.filter(res.Data.AttributeValues, { AttributeId: res.Data.Attributes[sizeAttributeIndex].Id })
-          res.Data.Attributes.splice(sizeAttributeIndex, 1)
+    // console.log('res.Data.Attributes : ', res)
+    const sizeAttributeIndex = _.findIndex(res.Attributes, {IsRequired : true})
+    if(sizeAttributeIndex >= 0) {
+      this.sizeAttributeValueList = _.filter(res.AttributeValues, 
+        { AttributeId: res.Attributes[sizeAttributeIndex].Id })
+      res.Attributes.splice(sizeAttributeIndex, 1)
+    }
+    this.attributeWithValuesList = _.map(res.Attributes, (element) => {
+      const valueList = _.map(_.filter(res.AttributeValues, { AttributeId: element.Id }), (attributeValue) => {
+        return {
+          id: attributeValue.Id,
+          text: attributeValue.Name
         }
-        this.attributeWithValuesList = _.map(res.Data.Attributes, (element) => {
-          const valueList = _.map(_.filter(res.Data.AttributeValues, { AttributeId: element.Id }), (attributeValue) => {
-            return {
-              id: attributeValue.Id,
-              text: attributeValue.Name
-            }
-          })
-          return {
-            Name: element.Name,
-            IsRequired: element.IsRequired,
-            attributeValue: [],
-            attributeValueList: [...valueList]
-          }
-        })
+      })
+      return {
+        Name: element.Name,
+        IsRequired: element.IsRequired,
+        attributeValue: [],
+        attributeValueList: [...valueList]
       }
+    })
+    // console.log('attributeWithValuesList : ', this.attributeWithValuesList)
+    if (this.attributeWithValuesList.length === 1) {
+      this.combineAttributeList = [...this.attributeWithValuesList[0].attributeValueList]
+      this.mapValuesModal()
+    }
   }
 
   mapAttributeCombination() {
@@ -95,7 +98,8 @@ export class AttributeCombinationComponent implements OnInit {
           this.combineAttributeList[lastIndex - 1] = JSON.parse(JSON.stringify(dummyArray));
           this.combineAttributeList.pop();
       }
-      this.combineAttributeList = JSON.parse(JSON.stringify(this.combineAttributeList[0]));
+      if (!_.isEmpty(this.combineAttributeList[0]))
+        this.combineAttributeList = JSON.parse(JSON.stringify(this.combineAttributeList[0]));
     }
     this.mapValuesModal()
   }
@@ -115,34 +119,41 @@ export class AttributeCombinationComponent implements OnInit {
   }
 
   postData(){
-    this.triggerCloseModal.emit(this.combineAttributeList)
-    $('#attribute_combine_form').modal(UIConstant.MODEL_HIDE)
+    let _combineAttributeList = JSON.parse(JSON.stringify(this.combineAttributeList))
+    this.triggerCloseModal.emit(_combineAttributeList)
     this.resetForm()
+    $('#attribute_combine_form').modal(UIConstant.MODEL_HIDE)
   }
   
   validateForm(){
     let i = 0
     _.forEach(this.combineAttributeList, (element) => {
       _.forEach(element['values'], (item) => {
-        i = i + item.Qty
-      })  
+        i = i + +item.Qty
+      })
     })
+    this.buyerFormData['productionQty'] = Math.round(this.buyerFormData['productionQty'])
     if(i < this.buyerFormData['productionQty']){
-      this._toaster.showError('Error', 'Qty is less than Production Qty')
+      this._toaster.showError('', 'Qty is less than Production Qty ' + this.buyerFormData['productionQty'])
       return false
-    } else {
+    } else if (i === +this.buyerFormData['productionQty']) {
       return true
+    } else {
+      this._toaster.showError('', 'Qty is more than Production Qty ' + this.buyerFormData['productionQty'])
+      return false
     }
   }
 
   resetForm() {
-    _.forEach(this.attributeWithValuesList, (element, i) => {
-      this.attributeWithValuesList[i]['attributeValue'] = []
+    _.forEach(this.attributeWithValuesList, (element) => {
+      element['attributeValue'] = []
     })
+    // this.combineAttributeList = []
+    // this.arrayToIterate = []
     this.attributeCombineFormModal.resetForm()
   }
 
-  openModal(Data?){
+  openModal(Data?) {
     $('#attribute_combine_form').modal({ backdrop: 'static', keyboard: false })
     $('#attribute_combine_form').modal(UIConstant.MODEL_SHOW)
     this.buyerFormData = {...Data}

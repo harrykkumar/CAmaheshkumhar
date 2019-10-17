@@ -235,8 +235,8 @@ export class SaleDirectReturnComponent {
   keepOpen: boolean = false
   isAddNew: boolean = false
   creatingForm: boolean = false
-  ReturnID :number
-  EditID:number
+  ReturnID: number
+  EditID: number
   TransactionNoSetups: any
   loadingSummary: boolean = false
   constructor(private _loaderService: NgxSpinnerService, private commonService: CommonService,
@@ -266,25 +266,25 @@ export class SaleDirectReturnComponent {
         if (action.type === FormConstants.Return && action.formname === FormConstants.SaleForm) {
           this.creatingForm = true
           this.editMode = false
-          this.ReturnID = +action.id 
+          this.ReturnID = +action.id
           this.Id = +action.id
           this.openModal()
         }
       }
     )
-    
+
     this.data$ = this.commonService.getActionSaleReturnClickedStatus().subscribe(
       (action: any) => {
         if (action.type === FormConstants.Edit && action.formname === FormConstants.SaleForm) {
           this.creatingForm = true
           this.editMode = true
-          this.EditID = +action.id 
+          this.EditID = +action.id
           this.Id = +action.id
           this.openModal()
         }
       }
     )
-  
+
 
     this.commonService.getledgerCretionStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
@@ -305,7 +305,7 @@ export class SaleDirectReturnComponent {
       }
     )
 
-    
+
 
     this.fromReady$.pipe(takeUntil(this.onDestroy$)).subscribe(
       (formReady) => {
@@ -340,7 +340,7 @@ export class SaleDirectReturnComponent {
         }
       }
     )
-    
+
     this._saleDirectReturnService.godownsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
@@ -443,8 +443,8 @@ export class SaleDirectReturnComponent {
       }
     )
 
- 
-   
+
+
   }
   customerName: any = ''
   BillingAddress: any = ''
@@ -452,9 +452,9 @@ export class SaleDirectReturnComponent {
   OrganizationName: any = ''
   getEditData() {
     console.log('edit id : ', this.Id)
-    let Id_for_change = this.editMode === true ? this.EditID :this.ReturnID
-    let type  = this.editMode === true ? 'SaleReturnDetails?Id=' : 'saledetails?Id='
-    this._saleDirectReturnService.getSaleReturnEditData(type,Id_for_change).pipe(takeUntil(this.onDestroy$)).subscribe(
+    let Id_for_change = this.editMode === true ? this.EditID : this.ReturnID
+    let type = this.editMode === true ? 'SaleReturnDetails?Id=' : 'saledetails?Id='
+    this._saleDirectReturnService.getSaleReturnEditData(type, Id_for_change).pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         console.log('edit data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -489,7 +489,7 @@ export class SaleDirectReturnComponent {
   }
   itemTaxListFlag: boolean = false
   createForm(data) {
-    
+
     this.itemTaxListFlag = false
     this.dataForEdit = data
     this.other = {}
@@ -596,21 +596,21 @@ export class SaleDirectReturnComponent {
     })
     // console.log('this.itemAttributesOthers : ', this.itemAttributesOthers)
   }
-  SaleTransId:number
+  SaleTransId: number
   createItems(ItemTransactions) {
     ItemTransactions.forEach(element => {
       let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.SaleForm && taxRate.SlabId === element.TaxSlabId)
-    let returnQty = this.editMode === true ? element.ReturnQuantity : 0
-  let rate  =  this.editMode === true ? element.ReturnSaleRate : element.SaleRate
+      let returnQty = this.editMode === true ? element.ReturnQuantity : 0
+      let rate = this.editMode === true ? element.ReturnSaleRate : element.SaleRate
       let total = +(isNaN(+rate) ? 0 : +rate)
-        * (isNaN(+returnQty) || +returnQty=== 0 ? 0 : +returnQty)
+        * (isNaN(+returnQty) || +returnQty === 0 ? 0 : +returnQty)
         * (isNaN(+element.Length) || +element.Length === 0 ? 0 : +element.Length)
         * (isNaN(+element.Width) || +element.Width === 0 ? 0 : +element.Width)
         * (isNaN(+element.Height) || +element.Height === 0 ? 0 : +element.Height)
-     // element.DiscountAmt = 0
-    let DiscountVal= this.editMode === true ? element.DiscountAmt : 0
+      // element.DiscountAmt = 0
+      let DiscountVal = this.editMode === true ? element.DiscountAmt : 0
 
-      this.AmountItem = total -DiscountVal
+      this.AmountItem = total - DiscountVal
       let itemTaxTrans = []
       itemTaxTrans = this.ItemTaxTrans.filter((taxRate) => {
         if (taxRate.ItemTransTaxId === element.Id) {
@@ -638,20 +638,21 @@ export class SaleDirectReturnComponent {
       this.categoryId = element.CategoryId
       this.ItemId = element.ItemId
       this.UnitId = element.UnitId
-      this.SaleTransId =  element.Id
-      this.Length =this.editMode === true ? element.Length :0
-      this.Height = this.editMode === true ? element.Height :0 
-      this.Width = this.editMode === true ? element.Width :0 
+      this.DisabledRow = false
+      this.SaleTransId = element.Id
+      this.Length = this.editMode === true ? element.Length : 0
+      this.Height = this.editMode === true ? element.Height : 0
+      this.Width = this.editMode === true ? element.Width : 0
       this.Quantity = +element.Quantity
       this.ReturnQuantity = returnQty
-      this.SaleRate =this.editMode === true ? element.ReturnSaleRate : element.SaleRate
+      this.SaleRate = this.editMode === true ? element.ReturnSaleRate : element.SaleRate
       this.fixSaleRate = element.SaleRate
       this.MrpRate = element.MrpRate
       this.PurchaseRate = +element.PurchaseRate
-      this.TotalRate =this.editMode === true ? total : 0 
+      this.TotalRate = this.editMode === true ? total : 0
       this.TaxSlabId = element.TaxSlabId
       this.TaxType = element.TaxType
-      this.TaxAmount = this.editMode === true ? element.TaxAmount :0
+      this.TaxAmount = this.editMode === true ? element.TaxAmount : 0
       this.DiscountType = element.DiscountType
       this.Discount = element.Discount
       this.DiscountAmt = this.editMode === true ? element.DiscountAmt : 0
@@ -664,10 +665,10 @@ export class SaleDirectReturnComponent {
       this.unitName = element.UnitName
       this.taxSlabName = element.TaxSlabName
       this.taxTypeName = this.taxTypeName
-      this.SubTotal =  this.editMode === true ? element.SubTotal : 0
+      this.SubTotal = this.editMode === true ? element.SubTotal : 0
       this.itemAttributeTrans = itemAttributeTrans
       this.taxSlabType = element.TaxSlabType
-      this.taxRates = this.OrgGStType===1 ? taxRates : []
+      this.taxRates = this.OrgGStType === 1 ? taxRates : []
       this.editItemId = this.editMode === true ? element.Id : 0
       this.AmountItem = (+element.TaxType === 0) ? this.calcTotal() : +this.SubTotal - this.TaxAmount
       if (+element.TaxType === 1 && this.taxCalInclusiveType === 2) {
@@ -679,11 +680,11 @@ export class SaleDirectReturnComponent {
             this.DiscountAmt = 0
           }
         }
-       // this.AmountItem = this.AmountItem - this.DiscountAmt
+        // this.AmountItem = this.AmountItem - this.DiscountAmt
       }
       this.addItems()
-      console.log(this.Items ,'items-eddd')
-      
+      console.log(this.Items, 'items-eddd')
+
       if (this.Items[this.Items.length - 1]) {
         this.Items[this.Items.length - 1].Id = this.editMode === true ? element.Id : 0
         this.Items[this.Items.length - 1].itemTaxTrans = itemTaxTrans
@@ -906,7 +907,7 @@ export class SaleDirectReturnComponent {
   }
 
   ValidRate(i, evt) {
-    
+
     if (Number(evt.target.value) > Number(+this.fixSaleRate) &&
       evt.keyCode != 46
       &&
@@ -919,7 +920,7 @@ export class SaleDirectReturnComponent {
     }
   }
   fixSaleRate: any
-  AppliedItemOnTax:any=[]
+  AppliedItemOnTax: any = []
   calculateByIndex(index, evt) {
     this.ItemIndex = index
     this.Height = this.Items[index].Height
@@ -932,15 +933,19 @@ export class SaleDirectReturnComponent {
     this.ReturnQuantity = this.Items[index].ReturnQuantity
     this.Remark = this.Items[index].Remark
     this.editItem(index, this.Items[index].Id, 'items', this.Items[index].Sno)
-  //  this.AppliedItemOnTax = this.Items[index].TaxSlabId
-   this.appliedTaxRatesItem = this.Items[index].itemTaxTrans
-
-    this.getTaxDetail(this.Items[index].TaxSlabId)
-    // this.calculate()
-    //  this.validateItem()
+    this.appliedTaxRatesItem = this.Items[index].itemTaxTrans
+    if (this.Items[index].TaxSlabId > 0) {
+      this.getTaxDetail(this.Items[index].TaxSlabId)
+    }
+    else{
+      this.calculate()
+      this.getBillSummary()
+    }
+  
+    
 
   }
-  
+
   createItemTax(taxRates) {
     taxRates.forEach((element, index) => {
       this.ItemTaxTrans[index] = {
@@ -967,21 +972,16 @@ export class SaleDirectReturnComponent {
   selectAll: boolean = false
   onItemToggle(index, evt) {
     this.ItemIndex = index
-
-    
-    setTimeout(() => {
-      // this.returnQty+index.nativeElement.focus()
-    }, 100)
-    console.log('index : ', index)
-    this.returnQty
     if (this.Items.length > 0) {
       this.Items.forEach((element, i) => {
         if (index === i) {
           this.Items[index].selected = true
         }
+        else{
+          this.Items[i].selected = false
+        }
       });
     }
-    //  this.getTaxDetail(this.Items[index].TaxSlabId)
   }
   toggleSelect(evt) {
     console.log('event : ', evt.target.checked)
@@ -992,11 +992,11 @@ export class SaleDirectReturnComponent {
   }
   NewBillNo: any
   getNewBillNo() {
-    
+
     if (+this.OrgId > 0 && this.CurrentDate) {
       let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
       let type = (this.isBillNoManuall) ? 2 : 1
-      this._saleDirectReturnService.getNewBillNoforSaleReturn(+this.OrgId, newBillDate, type,'saleReturn').subscribe(
+      this._saleDirectReturnService.getNewBillNoforSaleReturn(+this.OrgId, newBillDate, type, 'saleReturn').subscribe(
         data => {
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             if (data.Data.length > 0) {
@@ -1022,16 +1022,16 @@ export class SaleDirectReturnComponent {
 
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
-    this.BillNo=''
+    this.BillNo = ''
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.getSPUtilitySaleReturnData()
     this.billSummary = []
     this.outStandingBalance = 0
     this.ReturnQuantity = 0
-  
+
     $('#sale_return_model').modal(UIConstant.MODEL_SHOW)
     this.industryId = +this.settings.industryId
-    console.log( this.industryId ,'ind')
+    console.log(this.industryId, 'ind')
     this.taxTypeData = [
       { id: '0', text: 'Exclusive' },
       { id: '1', text: 'Inclusive' }
@@ -1108,11 +1108,11 @@ export class SaleDirectReturnComponent {
       }
     )
   }
-  TypeOfSP_API:any
+  TypeOfSP_API: any
   getSPUtilitySaleReturnData() {
     this._loaderService.show()
     let _self = this
-    this.TypeOfSP_API = 'SaleReturn' ;
+    this.TypeOfSP_API = 'SaleReturn';
 
     this.commonService.getSPUtilityData(this.TypeOfSP_API)
       .pipe(
@@ -1138,6 +1138,13 @@ export class SaleDirectReturnComponent {
           }
           //_self.purchaseAdd.allItems = [ ...data.Items ]
           // console.log('allItems : ', this.allItems)
+
+          _self.TransactionNoSetups = data.TransactionNoSetups
+          if (!this.editMode) {
+            if (!this.isBillNoManuall) {
+              this.setBillNo(data.TransactionNoSetups)
+            }
+          }
           _self._saleDirectReturnService.createItems(data.Items)
           _self._saleDirectReturnService.createVendors(data.Customers)
           _self._saleDirectReturnService.createTaxProcess(data.TaxProcesses)
@@ -1153,7 +1160,6 @@ export class SaleDirectReturnComponent {
           _self._saleDirectReturnService.createFreightBy(data.FreightModes)
           _self._saleDirectReturnService.createCharges(data.LedgerCharges)
           //    _self.purchaseAdd.clientStateId = data.ClientAddresses[0].StateId
-          //  _self.purchaseAdd.TransactionNoSetups = data.TransactionNoSetups
         },
         (error) => {
           console.log(error)
@@ -1167,21 +1173,21 @@ export class SaleDirectReturnComponent {
         }
       )
   }
-  orgnizationName:any
-  getOrgnization(data){
-    console.log(data,'org-data')
+  orgnizationName: any
+  getOrgnization(data) {
+    console.log(data, 'org-data')
     if (data.length > 0) {
       this.OrgId = +data[0].Id
-      this.orgnizationName =  data[0].Name
+      this.orgnizationName = data[0].Name
       this.organisationValue = +data[0].Id
-       this.OrgGStType = +data[0].GstTypeId
+      this.OrgGStType = +data[0].GstTypeId
       if (this.isBillNoManuall) {
         this.CurrentDate = this.gs.getDefaultDate(this.clientDateFormat)
         this.getNewBillNo()
       }
     }
   }
- 
+
   unitSettingType: number = 1
   setPayDate() {
     this.PayDate = this.gs.getDefaultDate(this.clientDateFormat)
@@ -1349,13 +1355,13 @@ export class SaleDirectReturnComponent {
         if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
           this.ItemId = +evt.value
           this.itemName = evt.data[0].text
-         // this.getItemDetail(this.ItemId)
+          // this.getItemDetail(this.ItemId)
           this.updateAttributes()
         }
       }
     }
   }
- 
+
   getItemDetail(id) {
     this._saleDirectReturnService.getItemDetail(id).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       console.log('item detail : ', data)
@@ -1372,7 +1378,7 @@ export class SaleDirectReturnComponent {
           this.taxSlabName = data.Data[0].TaxSlab
           this.SaleRate = data.Data[0].SaleRate
           this.PurchaseRate = data.Data[0].PurchaseRate
-         
+
           this.MrpRate = data.Data[0].Mrprate
           if (+this.TaxSlabId > 0) {
             this.getTaxDetail(this.TaxSlabId)
@@ -1560,7 +1566,7 @@ export class SaleDirectReturnComponent {
 
 
   calculate() {
-     
+
     let total = +(isNaN(+this.SaleRate) ? 0 : +this.SaleRate)
       * (isNaN(+this.ReturnQuantity) || +this.ReturnQuantity === 0 ? 0 : +this.ReturnQuantity)
       * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
@@ -1645,10 +1651,10 @@ export class SaleDirectReturnComponent {
           }
         }
       } else {
-          this.Items[this.ItemIndex].TaxAmount = 0
-          this.Items[this.ItemIndex].itemTaxTrans = []
-          this.Items[this.ItemIndex].AmountItem = 0
-         this.TaxAmount = 0
+        this.Items[this.ItemIndex].TaxAmount = 0
+        this.Items[this.ItemIndex].itemTaxTrans = []
+        this.Items[this.ItemIndex].AmountItem = 0
+        this.TaxAmount = 0
         this.AmountItem = 0
         this.Items[this.ItemIndex].TaxAmount = this.TaxAmount
 
@@ -1699,7 +1705,7 @@ export class SaleDirectReturnComponent {
 
       this.calculateAllTotal()
     }
-    
+
     this.getBillSummary()
   }
 
@@ -1743,16 +1749,7 @@ export class SaleDirectReturnComponent {
   }
 
   @ViewChild('organisation_select2') organisationSelect2: Select2Component
-  onChangeOrganisationId(evt) {
-    // console.log('on org select : ', evt)
-    if (evt.value && evt.data.length > 0) {
-      if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
-        this.OrgId = +evt.value
-        // this.getNewBillNo()
-      }
-      this.checkForValidation()
-    }
-  }
+
 
   newDate: string = ''
   @ViewChild('godown_select2') godownSelect2: Select2Component
@@ -1876,40 +1873,40 @@ export class SaleDirectReturnComponent {
       forkJoin(...observables).subscribe(
         data => {
           // console.log(data)
-          if(this.OrgGStType===1){
-          data.forEach((element, index) => {
-            let appliedTaxRatesItem = []
-            let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
-            if (element.Data.TaxRates.length > 0 && +this.Items[index].AmountItem > 0) {
-              if (this.Items[index].TaxType === 1) {
-                let returnTax = this._saleDirectReturnService.taxCalCulationForInclusive(element.Data.TaxRates,
-                  taxSlabType,
-                  +this.Items[index].AmountItem,
-                  this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
-                this.Items[index]['TaxAmount'] = returnTax.taxAmount
-                appliedTaxRatesItem = returnTax.appliedTaxRates
-              } else if (this.Items[index].TaxType === 0) {
-                let returnTax = this._saleDirectReturnService.taxCalculation(element.Data.TaxRates,
-                  taxSlabType,
-                  +this.Items[index].AmountItem,
-                  this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
-                this.Items[index]['TaxAmount'] = returnTax.taxAmount
-                appliedTaxRatesItem = returnTax.appliedTaxRates
-              }
+          if (this.OrgGStType === 1) {
+            data.forEach((element, index) => {
+              let appliedTaxRatesItem = []
+              let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
+              if (element.Data.TaxRates.length > 0 && +this.Items[index].AmountItem > 0) {
+                if (this.Items[index].TaxType === 1) {
+                  let returnTax = this._saleDirectReturnService.taxCalCulationForInclusive(element.Data.TaxRates,
+                    taxSlabType,
+                    +this.Items[index].AmountItem,
+                    this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
+                  this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                  appliedTaxRatesItem = returnTax.appliedTaxRates
+                } else if (this.Items[index].TaxType === 0) {
+                  let returnTax = this._saleDirectReturnService.taxCalculation(element.Data.TaxRates,
+                    taxSlabType,
+                    +this.Items[index].AmountItem,
+                    this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
+                  this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                  appliedTaxRatesItem = returnTax.appliedTaxRates
+                }
 
-              if (appliedTaxRatesItem.length > 0) {
-                appliedTaxRatesItem.forEach((taxRate) => {
-                  if (this.Items[index].Id !== 0) {
-                    taxRate['ItemTransTaxId'] = this.Items[index].Id
-                  } else {
-                    taxRate['ItemTransTaxId'] = this.Items[index].Sno
-                  }
-                })
+                if (appliedTaxRatesItem.length > 0) {
+                  appliedTaxRatesItem.forEach((taxRate) => {
+                    if (this.Items[index].Id !== 0) {
+                      taxRate['ItemTransTaxId'] = this.Items[index].Id
+                    } else {
+                      taxRate['ItemTransTaxId'] = this.Items[index].Sno
+                    }
+                  })
+                }
+                this.Items[index].itemTaxTrans = appliedTaxRatesItem
               }
-              this.Items[index].itemTaxTrans = appliedTaxRatesItem
-            }
-            this.Items[index]['SubTotal'] = +this.Items[index].AmountItem + +this.Items[index]['TaxAmount']
-          });
+              this.Items[index]['SubTotal'] = +this.Items[index].AmountItem + +this.Items[index]['TaxAmount']
+            });
           }
           this.calculateAllTotal()
         },
@@ -1976,7 +1973,7 @@ export class SaleDirectReturnComponent {
       if (+event.value !== 1) {
         this.BankLedgerName = ''
         this.LedgerId = 0
-        this.setpaymentLedgerSelect2(0,+event.value)
+        this.setpaymentLedgerSelect2(0, +event.value)
       } else if (+event.value === 1) {
         this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
         this.BankLedgerName = 'Cash'
@@ -2011,7 +2008,7 @@ export class SaleDirectReturnComponent {
     }
   }
 
-  setpaymentLedgerSelect2(i,paymentID) {
+  setpaymentLedgerSelect2(i, paymentID) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.commonService.getPaymentLedgerDetail(paymentID).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
@@ -2109,8 +2106,8 @@ export class SaleDirectReturnComponent {
 
   addTransactions() {
     //  && this.PayDate
-   if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
-      if ((+this.PayModeId !== 1 ) || (+this.PayModeId === 1)) {
+    if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
+      if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
         if (this.checkValidationForAmount()) {
           this.addTransaction()
           this.clickTrans = true
@@ -2146,7 +2143,7 @@ export class SaleDirectReturnComponent {
         Amount: +this.Amount,
         PayDate: this.PayDate,
         ChequeNo: this.ChequeNo,
-        isEditable:true
+        isEditable: true
 
       })
     } else {
@@ -2161,7 +2158,7 @@ export class SaleDirectReturnComponent {
         Amount: this.Amount,
         PayDate: this.PayDate,
         ChequeNo: this.ChequeNo,
-        isEditable:true
+        isEditable: true
       })
     }
     setTimeout(() => {
@@ -2173,24 +2170,14 @@ export class SaleDirectReturnComponent {
   }
 
   addItems() {
-    // if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
-
-    if (this.validDiscount && +this.ItemId > 0&& +this.UnitId > 0 && this.SaleRate > 0) {
-      // if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
-      //   || (this.industryId === 3)
-      //   || (this.industryId === 2 || this.industryId === 6)) {
-        this.addItem()
-        this.clickItem = true
-        console.log('items : ', this.Items)
-        if (!this.editMode) {
-          this.calculateAllTotal()
-        }
-        //  this.initItem()
-        if (this.industryId === 5) {
-          // this.setExpiryDate()
-          // this.setMfdDate()
-        }
-    //  }
+    if (this.validDiscount && +this.ItemId > 0 && +this.UnitId > 0 && this.SaleRate > 0) {
+      this.addItem()
+      this.clickItem = true
+      console.log('items : ', this.Items)
+      if (!this.editMode) {
+        this.calculateAllTotal()
+      }
+    
     }
   }
 
@@ -2204,7 +2191,7 @@ export class SaleDirectReturnComponent {
   }
 
   addItemBasedOnIndustry() {
-    
+
     let Sno = 0
     if (this.Items.length === 0) {
       Sno = 1
@@ -2219,11 +2206,11 @@ export class SaleDirectReturnComponent {
       element['Sno'] = Sno
       element['ItemTransId'] = Sno
     })
-  // if(this.editMode && this.ReturnQuantity !==0  ){
+    // if(this.editMode && this.ReturnQuantity !==0  ){
     this.Items.push({
       Id: 0,
       Sno: Sno,
-      SaleTransId:this.SaleTransId,
+      SaleTransId: this.SaleTransId,
       TransType: this.TransType,
       TransId: this.TransId,
       ChallanId: this.ChallanId,
@@ -2251,7 +2238,6 @@ export class SaleDirectReturnComponent {
       BatchNo: this.BatchNo,
       Remark: this.Remark,
       itemName: this.itemName,
-      //categoryName: this.getPattern(),
       unitName: this.unitName,
       taxSlabName: this.taxSlabName,
       taxTypeName: this.taxTypeName,
@@ -2262,10 +2248,10 @@ export class SaleDirectReturnComponent {
       taxRates: this.taxRates,
       itemTaxTrans: this.appliedTaxRatesItem,
       categoryName: this.categoryName,
-      selected: false,
-      isDisabled:true
+      selected:this.DisabledRow,
+      isDisabled: true
     })
- // }
+    // }
     setTimeout(() => {
       this.commonService.fixTableHFL('item-table')
     }, 1)
@@ -2273,19 +2259,17 @@ export class SaleDirectReturnComponent {
     if (this.editItemId !== -1) {
       this.Items[this.Items.length - 1].Id = 0
     }
-    console.log(this.Items ,'dddd-----------')
+    console.log(this.Items, 'dddd-----------')
   }
-
+  DisabledRow: boolean = true
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
     console.log('editId : ', editId)
     if (type === 'charge') {
       this.editChargeId = editId
       this.editChargeSno = sno
-      // i = i - 1
       this.LedgerName = this.AdditionalCharges[i].LedgerName
       this.LedgerChargeId = this.AdditionalCharges[i].LedgerChargeId
-      // this.alreadySelectCharge(this.LedgerChargeId, this.LedgerName, false)
       this.AmountCharge = this.AdditionalCharges[i].AmountCharge
       this.TaxSlabChargeId = this.AdditionalCharges[i].TaxSlabChargeId
       this.TaxChargeName = this.AdditionalCharges[i].TaxChargeName
@@ -2307,16 +2291,13 @@ export class SaleDirectReturnComponent {
         this.validateCharge()
       }, 100)
     }
-    // else if (type === 'charge' && this.editChargeId !== -1) {
-    //   this.toastrService.showInfo('', 'There is already one transaction to edit, please update it this first in order to edit others')
-    // }
+   
     if (type === 'trans') {
       this.editTransId = editId
-      //i = i - 1
-      if (+this.PaymentDetail[i].PayModeId !==1) {
+      if (+this.PaymentDetail[i].PayModeId !== 1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
-        this.setpaymentLedgerSelect2(i,+this.PaymentDetail[i].PayModeId)
+        this.setpaymentLedgerSelect2(i, +this.PaymentDetail[i].PayModeId)
       } else if (+this.PaymentDetail[i].PayModeId === 1) {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.Paymode = this.PaymentDetail[i].Paymode
@@ -2331,9 +2312,6 @@ export class SaleDirectReturnComponent {
         this.deleteItem(i, type)
       }
     }
-    //  else if (type === 'trans' && this.editTransId !== -1) {
-    //   this.toastrService.showInfo('', 'Already in edit mode')
-    // }
     if (type === 'items' && editId > 0) {
       this.editItemId = editId
       this.editItemSno = sno
@@ -2341,6 +2319,8 @@ export class SaleDirectReturnComponent {
       this.TransType = 0
       this.TransId = 0
       this.ChallanId = 0
+      this.Items[i].selected = false
+      this.DisabledRow = true
       this.categoryName = this.Items[i].categoryName
       this.itemName = this.Items[i].itemName
       this.unitName = this.Items[i].unitName
@@ -2374,15 +2354,8 @@ export class SaleDirectReturnComponent {
       this.itemAttributeTrans = this.Items[i].itemAttributeTrans
       this.appliedTaxRatesItem = this.Items[i].itemTaxTrans
       this.taxRates = this.Items[i].taxRates
-      if (this.attrSelect2.length > 0) {
-        this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-          item.setElementValue(this.itemAttributeTrans[index].AttributeId)
-        })
-      }
-      let ItemId = this.Items[i].ItemId
-      let _self = this
-      setTimeout(() => {
-      }, 1)
+     
+   
     }
   }
 
@@ -2397,7 +2370,7 @@ export class SaleDirectReturnComponent {
       this.Items.forEach(item => {
         this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
       })
-    }  
+    }
   }
   closePurchase() {
     this.commonService.closeSaleDirectReturn()
@@ -2708,7 +2681,7 @@ export class SaleDirectReturnComponent {
 
     const saleReturnItem = {
       obj: {
-        Id: this.editMode ===true ? this.Id : 0,
+        Id: this.editMode === true ? this.Id : 0,
         SaleId: this.Id ? this.Id : UIConstant.ZERO,
         ReferralCommissionTypeId: 0,
         ReferralCommission: 0,
@@ -2887,14 +2860,14 @@ export class SaleDirectReturnComponent {
       //       this.invalidObj['Width'] = true
       //     }
       //   }
-        // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-        //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-        //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-        //   } else {
-        //     isValid = 0
-        //     $('#' + $('.attr')[index].id).addClass('errorSelecto')
-        //   }
-        // })
+      // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
+      //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
+      //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+      //   } else {
+      //     isValid = 0
+      //     $('#' + $('.attr')[index].id).addClass('errorSelecto')
+      //   }
+      // })
       //}
       return !!isValid
     }
@@ -3066,7 +3039,7 @@ export class SaleDirectReturnComponent {
     })
     return isValid
   }
- DisabledSaveBtn  :boolean = false
+  DisabledSaveBtn: boolean = false
   SaveSaleReturn() {
     let _self = this
     this.submitSave = true
@@ -3102,9 +3075,9 @@ export class SaleDirectReturnComponent {
           this.validateTransaction()
           this.checkValidationForAmount()
           if (valid) {
-            if (this.checkForValidation() && this.isValidAmount  && this.validTransaction) {
+            if (this.checkForValidation() && this.isValidAmount && this.validTransaction) {
               if (this.validateItem()) {
-            this.DisabledSaveBtn = true
+                this.DisabledSaveBtn = true
 
                 this._saleDirectReturnService.postSaleReturnData(this.saleReturnAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
                   data => {
@@ -3123,24 +3096,24 @@ export class SaleDirectReturnComponent {
                         _self.initialiseExtras()
                       }
                     } else if (data.Code === UIConstant.THOUSANDONE) {
-            this.DisabledSaveBtn = false
+                      this.DisabledSaveBtn = false
 
                       _self.toastrService.showError(data.Message, 'Please change Bill No.')
                     } else {
-            this.DisabledSaveBtn = false
+                      this.DisabledSaveBtn = false
 
                       _self.toastrService.showError(data.Message, '')
                     }
                   },
                   (error) => {
-            this.DisabledSaveBtn = false
+                    this.DisabledSaveBtn = false
 
                     _self.toastrService.showError(error, '')
                   }
                 )
               }
               else {
-            this.DisabledSaveBtn = false
+                this.DisabledSaveBtn = false
 
                 this.toastrService.showError('Return Quantity never more then Sale Quantity', '')
               }
@@ -3164,7 +3137,7 @@ export class SaleDirectReturnComponent {
       this.validateTransaction()
       this.checkValidationForAmount()
       if (valid) {
-        if ( this.checkForValidation() && this.isValidAmount && this.validTransaction) {
+        if (this.checkForValidation() && this.isValidAmount && this.validTransaction) {
           this.DisabledSaveBtn = true
           if (this.validateItem()) {
             this.DisabledSaveBtn = true
@@ -3188,28 +3161,28 @@ export class SaleDirectReturnComponent {
                     _self.initialiseExtras()
                   }
                 } else if (data.Code === UIConstant.THOUSANDONE) {
-            this.DisabledSaveBtn = false
+                  this.DisabledSaveBtn = false
 
                   _self.toastrService.showError(data.Message, 'Please change Bill No.')
                 } else {
-            this.DisabledSaveBtn = false
+                  this.DisabledSaveBtn = false
 
                   _self.toastrService.showError(data.Message, '')
                 }
               },
               (error) => {
-            this.DisabledSaveBtn = false
+                this.DisabledSaveBtn = false
 
                 _self.toastrService.showError(error, '')
               }
             )
           }
-          else{
+          else {
             this.DisabledSaveBtn = false
 
             this.toastrService.showError('Invalid Return Quantity', '')
           }
-         
+
         }
       } else {
         this.DisabledSaveBtn = false
@@ -3297,7 +3270,7 @@ export class SaleDirectReturnComponent {
       taxChargeRates: this.taxChargeRates,
       itemTaxTrans: this.appliedTaxRatesCharge,
       TaxableAmountCharge: this.TaxableAmountCharge,
-      isEditable:true
+      isEditable: true
     })
     setTimeout(() => {
       this.commonService.fixTableHFL('charge-table')
@@ -3345,7 +3318,7 @@ export class SaleDirectReturnComponent {
           this.taxChargeSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
           this.taxChargeRates = data.Data.TaxRates
           this.calculate()
-         // this.createTaxes(FormConstants.ChargeForm)
+          // this.createTaxes(FormConstants.ChargeForm)
           this.getBillSummary()
         }
       }
@@ -3376,7 +3349,7 @@ export class SaleDirectReturnComponent {
       }
       console.log('tax rates applied : ', this.appliedTaxRatesCharge)
     } else if (parentType === FormConstants.SaleForm) {
-     
+
       if (this.editItemId !== -1) {
         Sno = this.editItemSno
       } else {
@@ -3434,9 +3407,9 @@ export class SaleDirectReturnComponent {
           console.log('tax slab data : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             if (this.OrgGStType === 1) {
-            this.itemTaxListFlag = true
-            this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
-            this.taxRates = data.Data.TaxRates
+              this.itemTaxListFlag = true
+              this.taxSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
+              this.taxRates = data.Data.TaxRates
             }
             else {
               this.itemTaxListFlag = false
@@ -3447,9 +3420,8 @@ export class SaleDirectReturnComponent {
             //
             this.createTaxes(FormConstants.SaleForm)
             this.calculate()
-           
-           // this.getBillSummary()
-            this.validateItem()
+            this.getBillSummary()
+            // this.validateItem()
           }
         }
       )
@@ -3536,12 +3508,12 @@ export class SaleDirectReturnComponent {
   //   this.calculateBillTotal()
   // }
   getBillSummary() {
-    
+
     let taxableValue = 0
     let ItemTaxTrans = []
     let itemtaxForSumry = []
-    this.billSummary = [] 
-    console.log( this.Items ,'items---')
+    this.billSummary = []
+    console.log(this.Items, 'items---')
     this.Items.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
       taxableValue += +element.AmountItem
@@ -3558,7 +3530,7 @@ export class SaleDirectReturnComponent {
     // });
 
     this.TaxableValue = taxableValue
-   
+
     let groupOnId = _.groupBy(ItemTaxTrans, (tax) => {
       return tax.TaxRateId
     })

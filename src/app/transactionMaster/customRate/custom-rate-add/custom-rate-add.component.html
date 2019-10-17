@@ -1,10 +1,10 @@
-<div *ngIf="loading" class="table-responsive table-item" >
+<!-- <div *ngIf="loading" class="table-responsive table-item" >
   <div style="height:inherit;" >
     <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 25px;height: 25px;position: absolute;left: 46%;top:46%;" />
   </div>
-</div>
-<div *ngIf="!loading" >
-  <div id="demo" class="collapse show">
+</div> --><!--*ngIf="!loading"-->
+<div>
+  <!-- <div id="demo" class="collapse show">
     <div class="form-row bdrs-3 mB-5">
       <div class="form-group col-md-3">
         <label for="bill_no">Category</label>
@@ -20,36 +20,33 @@
         <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="masterData.search" name="searchtext">
       </div>
     </div>
-  </div>
+  </div> -->
   <div class="form-row">
-    <fieldset id="group">
-      <div class="custom-control custom-radio custom-control-inline">
-        <input
-          type="radio"
-          class="custom-control-input"
-          id="customrate"
-          name="group"
-          [checked]="isDiscountSystem === true"
-          (change)="isDiscountSystem = $event.target.checked ? true : false;switchView()"/>
-        <label class="custom-control-label" for="customrate">Discount System</label>
-      </div>
-      <div class="custom-control custom-radio custom-control-inline" >
-        <input
-          type="radio"
-          class="custom-control-input"
-          id="customrate10"
-          name="group"
-          [checked]="isDiscountSystem === false"
-          (change)="isDiscountSystem = $event.target.checked ? false : true;switchView()"/>
-        <label class="custom-control-label" for="customrate10">Custom Rate System</label>
-      </div>
-    </fieldset>
-  </div>
-  <div *ngIf="isDiscountSystem; then discountTemp else rateTemplate;" ></div>
-  <ng-template #discountTemp>
-    <div id="div1" >
-      <div class="form-row">
-        <div class="form-group col-md-3">
+    <div class="form-col col-md-8" >
+      <fieldset id="group">
+        <div class="custom-control custom-radio custom-control-inline">
+          <input
+            type="radio"
+            class="custom-control-input"
+            id="customrate"
+            name="group"
+            [checked]="isDiscountSystem === true"
+            (change)="isDiscountSystem = $event.target.checked ? true : false;switchView()"/>
+          <label class="custom-control-label" for="customrate">Discount System</label>
+        </div>
+        <div class="custom-control custom-radio custom-control-inline" >
+          <input
+            type="radio"
+            class="custom-control-input"
+            id="customrate10"
+            name="group"
+            [checked]="isDiscountSystem === false"
+            (change)="isDiscountSystem = $event.target.checked ? false : true;switchView()"/>
+          <label class="custom-control-label" for="customrate10">Custom Rate System</label>
+        </div>
+      </fieldset>
+      <div class="form-row" *ngIf="isDiscountSystem" >
+        <div class="form-group col-md-4" *ngIf="isDiscountSystem" >
           <label for="bill_no">Customer Type</label>
           <div class="input-group adw_select">
             <select2 [data]="masterData.customerTypes" #customer_select2 class="control_select" 
@@ -58,163 +55,221 @@
             [value]="masterData.customerValue"></select2>
           </div>
         </div>
-        <div class="form-group col-md-2">
+        <div class="form-group col-md-4" *ngIf="isDiscountSystem" >
           <label>Discount %</label>
           <input type="text" appIncludeDecimal [(ngModel)]="masterData.Discount" (input)="setDis()" class="form-control">
         </div>
         <div class="form-group col-md-2 pt-3" 
-          *ngIf="masterData?.selectedItems?.length > 0 && masterData.CustomerTypeId > 0 && masterData.Discount > 0" >
+          *ngIf="isDiscountSystem && masterData?.selectedItems?.length > 0 && masterData.CustomerTypeId > 0 && masterData.Discount > 0" >
           <button type="button" (click)="addToQueue()" class="btn btn-primary waves-effect waves-light">Add to Queue</button>
         </div>
         <div class="form-group col-md-2 pt-3" 
-          *ngIf="masterData?.queueToPost?.length > 0" >
+          *ngIf="isDiscountSystem && masterData?.queueToPost?.length > 0" >
           <button type="button" (click)="manipulateData(masterData.queueToPost)"
           class="btn btn-primary waves-effect waves-light">Save</button>
         </div>
-      </div>
-      <div class="form-row">
-        <div class="col-md-12">
-          <div class="bgc-white bdrs-3 mB-20">
-            <div class="table-responsive table_height3">
-              <table class="table custom-rate-table table-hover">
-                <thead>
-                  <tr>
-                    <th>
-                      <div class="custom-control custom-checkbox" *ngIf="masterData?.list?.length > 0" >
-                        <input type="checkbox" class="custom-control-input" id="customratecheckall"
-                         name="customrate2" [(ngModel)]="allItems" (change)="checkAllItems(allItems);">
-                        <label class="custom-control-label" for="customratecheckall"></label>
-                      </div>
-                    </th>
-                    <th>Sr No.</th>
-                    <th>Item</th>
-                    <th>Unit</th>
-                    <th>Sale Rate</th>
-                    <th>Mrp Rate</th>
-                    <th>Discount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let item of masterData.list | searchByItemCustom : masterData.search; let i = index;" >
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input name="customrate-{{ i }}" [(ngModel)]="item.checked" (change)="toggleSelect(item, i)"
-                        type="checkbox" class="custom-control-input" id="itemcustomrate-{{ i }}" />
-                        <label class="custom-control-label" for="itemcustomrate-{{ i }}"></label>
-                      </div>
-                    </td>
-                    <td>{{ i + 1 }}</td>
-                    <td>{{item.ItemName}}</td>
-                    <td>
-                      <select id="selectcustomrate-{{i}}" class="custom-select" [(ngModel)]="item.UnitId"
-                        (ngModelChange)="onUnitChange($event, item)" >
-                        <option *ngFor="let val of item.unitData" [value]="val.UnitId">{{val.Name}}</option>
-                      </select>
-                    </td>
-                    <td>{{item.SaleRate}}</td>
-                    <td>{{item.Mrprate}}</td>
-                    <td>{{item.Discount}}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+        <div class="form-group col-md-2 pt-3" *ngIf="!isDiscountSystem" >
+          <button type="button" (click)="manipulateData(masterData.selectedItems)"
+          class="btn btn-primary waves-effect waves-light">Save</button>
         </div>
       </div>
-
-      <!--queue-->
-      <div class="form-row" *ngIf="masterData?.queueToPost?.length > 0" >
-        <div class="col-md-12">
-          <div class="bgc-white bdrs-3 mB-20">
-            <div class="table-responsive table_height2">
-              <table class="table queue-discount-table table-hover">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Sr No.</th>
-                    <th>Item</th>
-                    <th>Unit</th>
-                    <th>Sale Rate</th>
-                    <th>Mrp Rate</th>
-                    <th>Discount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let item of masterData.queueToPost; let i = index;" >
-                    <td></td>
-                    <td>{{ i + 1 }}</td>
-                    <td>{{item.ItemName}}</td>
-                    <td>{{item.UnitName}}</td>
-                    <td>{{item.SaleRate}}</td>
-                    <td>{{item.Mrprate}}</td>
-                    <td>{{item.Discount}}</td>
-                  </tr>
-                </tbody>
-              </table>
+    </div>
+    <div class="form-col col-md-4" >
+      <div id="demo" class="collapse show">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="bill_no">Category</label>
+            <div class="input-group adw_select">
+              <select2 [data]="masterData.categoryData" #cat_select2 class="control_select" 
+              (valueChanged)="masterData.categoryId = +$event.value; filterData(masterData.categoryId);"
+              autocomplete="true" [options]="{placeholder: 'Select Category'}"></select2>
             </div>
+          </div>
+          <div class="form-group col-md-6">
+            <label>Search For Item</label>
+            <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="masterData.search" name="searchtext">
           </div>
         </div>
       </div>
     </div>
-  </ng-template>
-  <ng-template #rateTemplate>
-    <div class="form-group col-md-2 pt-3" >
-      <button type="button" (click)="manipulateData(masterData.selectedItems)"
-      class="btn btn-primary waves-effect waves-light">Save</button>
+  </div>
+  <div *ngIf="loading" class="form-row" >
+    <div style="height: 150px;" >
+      <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 25px;height: 25px;position: absolute;left: 46%;top:46%;" />
     </div>
-    <div class="show1" id="div2">
-      <div class="row ">
-        <div class="col-md-12">
-          <div class="bgc-white bdrs-3 mB-20">
-            <div class="table-responsive">
-              <table class="table cat-table table-hover">
-                <thead>
-                  <tr>
-                    <th>
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customraterate22222" 
-                        name="example1" [(ngModel)]="allItems" (change)="checkAllItems(allItems);" >
-                        <label class="custom-control-label" for="customraterate22222"></label>
-                      </div>
-                    </th>
-                    <th>Sr No.</th>
-                    <th>Item Name</th>
-                    <th>Unit</th>
-                    <th>MRP</th>
-                    <th>Sale Rate</th>
-                    <th *ngFor="let item of masterData?.CustomerTypesArr" >{{item.text}}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let item of masterData.list | searchByItemCustom : masterData.search; let i = index;" >
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input name="customraterate-{{ i }}" [(ngModel)]="item.checked" (change)="toggleSelect(item, i)"
-                        type="checkbox" class="custom-control-input" id="itemcustomraterate-{{ i }}" />
-                        <label class="custom-control-label" for="itemcustomraterate-{{ i }}"></label>
-                      </div>
-                    </td>
-                    <td>{{ i + 1 }}</td>
-                    <td>{{item.ItemName}}</td>
-                    <td>
-                      <select id="selectcustomraterate-{{i}}" class="custom-select" [(ngModel)]="item.UnitId"
-                        (ngModelChange)="onUnitChange($event, item)" >
-                        <option *ngFor="let val of item.unitData" [value]="val.UnitId">{{val.Name}}</option>
-                      </select>
-                    </td>
-                    <td>{{item.SaleRate}}</td>
-                    <td>{{item.Mrprate}}</td>
-                    <td *ngFor="let type of item?.CustomerTypesArr; let j = index;" >
-                      <input type="text" [disabled]="!item.checked" class="form-control" 
-                      id="custom-rate-type-{{j}}" appIncludeDecimal [(ngModel)]="type.Rate" />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+  </div>
+  <div *ngIf="!loading" >
+    <div *ngIf="isDiscountSystem; then discountTemp else rateTemplate;" ></div>
+    <ng-template #discountTemp>
+      <div id="div1" >
+        <!-- <div class="form-row">
+          <div class="form-group col-md-3">
+            <label for="bill_no">Customer Type</label>
+            <div class="input-group adw_select">
+              <select2 [data]="masterData.customerTypes" #customer_select2 class="control_select" 
+              (valueChanged)="masterData.CustomerTypeId = +$event.value" 
+              autocomplete="true" [options]="{placeholder: 'Select Customer Type'}"
+              [value]="masterData.customerValue"></select2>
+            </div>
+          </div>
+          <div class="form-group col-md-2">
+            <label>Discount %</label>
+            <input type="text" appIncludeDecimal [(ngModel)]="masterData.Discount" (input)="setDis()" class="form-control">
+          </div>
+          <div class="form-group col-md-2 pt-3" 
+            *ngIf="masterData?.selectedItems?.length > 0 && masterData.CustomerTypeId > 0 && masterData.Discount > 0" >
+            <button type="button" (click)="addToQueue()" class="btn btn-primary waves-effect waves-light">Add to Queue</button>
+          </div>
+          <div class="form-group col-md-2 pt-3" 
+            *ngIf="masterData?.queueToPost?.length > 0" >
+            <button type="button" (click)="manipulateData(masterData.queueToPost)"
+            class="btn btn-primary waves-effect waves-light">Save</button>
+          </div>
+        </div> -->
+        <div class="form-row" *ngIf="masterData?.list?.length > 0" >
+          <div class="col-md-12">
+            <div class="bgc-white bdrs-3 mB-20">
+              <div class="table-responsive table_height3">
+                <table class="table custom-rate-table table-hover">
+                  <thead>
+                    <tr>
+                      <th>
+                        <div class="custom-control custom-checkbox" >
+                          <input type="checkbox" class="custom-control-input" id="customratecheckall"
+                           name="customrate2" [(ngModel)]="allItems" (change)="checkAllItems(allItems);">
+                          <label class="custom-control-label" for="customratecheckall"></label>
+                        </div>
+                      </th>
+                      <th>Sr No.</th>
+                      <th>Item</th>
+                      <th>Unit</th>
+                      <th>Sale Rate</th>
+                      <th>Mrp Rate</th>
+                      <th>Discount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of masterData?.list | searchByItemCustom : masterData.search; let i = index;" >
+                      <td>
+                        <div class="custom-control custom-checkbox">
+                          <input name="customrate-{{ i }}" [(ngModel)]="item.checked" (change)="toggleSelect(item, i)"
+                          type="checkbox" class="custom-control-input" id="itemcustomrate-{{ i }}" />
+                          <label class="custom-control-label" for="itemcustomrate-{{ i }}"></label>
+                        </div>
+                      </td>
+                      <td>{{ i + 1 }}</td>
+                      <td>{{item.ItemName}}</td>
+                      <td>
+                        <select id="selectcustomrate-{{i}}" class="custom-select" [(ngModel)]="item.UnitId"
+                          (ngModelChange)="onUnitChange($event, item)" >
+                          <option *ngFor="let val of item.unitData" [value]="val.UnitId">{{val.Name}}</option>
+                        </select>
+                      </td>
+                      <td>{{item.SaleRate}}</td>
+                      <td>{{item.Mrprate}}</td>
+                      <td>{{item.Discount}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!--queue-->
+        <div class="form-row" *ngIf="masterData?.queueToPost?.length > 0" >
+          <div class="col-md-12">
+            <div class="bgc-white bdrs-3 mB-20">
+              <div class="table-responsive table_height2">
+                <table class="table queue-discount-table table-hover">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Sr No.</th>
+                      <th>Item</th>
+                      <th>Unit</th>
+                      <th>Sale Rate</th>
+                      <th>Mrp Rate</th>
+                      <th>Discount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of masterData.queueToPost; let i = index;" >
+                      <td></td>
+                      <td>{{ i + 1 }}</td>
+                      <td>{{item.ItemName}}</td>
+                      <td>{{item.UnitName}}</td>
+                      <td>{{item.SaleRate}}</td>
+                      <td>{{item.Mrprate}}</td>
+                      <td>{{item.Discount}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </ng-template>
+    </ng-template>
+    <ng-template #rateTemplate>
+      <!-- <div class="form-group col-md-2 pt-3" >
+        <button type="button" (click)="manipulateData(masterData.selectedItems)"
+        class="btn btn-primary waves-effect waves-light">Save</button>
+      </div> -->
+      <div class="show1" id="div2">
+        <div class="row ">
+          <div class="col-md-12">
+            <div class="bgc-white bdrs-3 mB-20">
+              <div class="table-responsive table_height3">
+                <table class="table non-dis-table table-hover">
+                  <thead>
+                    <tr>
+                      <th>
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input" id="customraterate22222" 
+                          name="example1" [(ngModel)]="allItems" (change)="checkAllItems(allItems);" >
+                          <label class="custom-control-label" for="customraterate22222"></label>
+                        </div>
+                      </th>
+                      <th>Sr No.</th>
+                      <th>Item Name</th>
+                      <th>Unit</th>
+                      <th>MRP</th>
+                      <th>Sale Rate</th>
+                      <th *ngFor="let item of masterData?.CustomerTypesArr" >{{item.text}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of masterData.list | searchByItemCustom : masterData.search; let i = index;" >
+                      <td>
+                        <div class="custom-control custom-checkbox">
+                          <input name="customraterate-{{ i }}" [(ngModel)]="item.checked" (change)="toggleSelect(item, i)"
+                          type="checkbox" class="custom-control-input" id="itemcustomraterate-{{ i }}" />
+                          <label class="custom-control-label" for="itemcustomraterate-{{ i }}"></label>
+                        </div>
+                      </td>
+                      <td>{{ i + 1 }}</td>
+                      <td>{{item.ItemName}}</td>
+                      <td>
+                        <select id="selectcustomraterate-{{i}}" class="custom-select" [(ngModel)]="item.UnitId"
+                          (ngModelChange)="onUnitChange($event, item)" >
+                          <option *ngFor="let val of item.unitData" [value]="val.UnitId">{{val.Name}}</option>
+                        </select>
+                      </td>
+                      <td>{{item.SaleRate}}</td>
+                      <td>{{item.Mrprate}}</td>
+                      <td *ngFor="let type of item?.CustomerTypesArr; let j = index;" >
+                        <input type="text" [disabled]="!item.checked" class="form-control" 
+                        id="custom-rate-type-{{j}}" appIncludeDecimal [(ngModel)]="type.Rate" />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </div>
 </div>

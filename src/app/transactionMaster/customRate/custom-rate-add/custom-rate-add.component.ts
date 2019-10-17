@@ -15,7 +15,7 @@ export class CustomRateAddComponent implements OnInit {
   isDiscountSystem: boolean = true
   list = []
   subscription: Subscription
-  masterData = {}
+  masterData: any = {}
   allItems: boolean = false
   loading = true
   listBefore = []
@@ -24,6 +24,7 @@ export class CustomRateAddComponent implements OnInit {
     private _itemmasterServices: ItemmasterServices,
     private gs: GlobalService,
     private commonService: CommonService) {
+    this.masterData = { categoryData: [], search: '', categoryId: '0' }
     this.subscription = this.customRateService.unit$.subscribe((data: any) => {
       if (data.units && data.types) {
         this.masterData['unitsData'] = data.units
@@ -70,7 +71,11 @@ export class CustomRateAddComponent implements OnInit {
     console.log(this.list)
     this.masterData['list'] = this.list
     this.checkForAlreadyExist()
+    if (typeof this.masterData['categoryId'] != 'undefined') {
+      this.filterData(this.masterData['categoryId'])
+    }
     this.commonService.fixTableHF('custom-rate-table')
+    this.commonService.fixTableHF('non-dis-table')
   }
 
   addToQueue () {
@@ -152,13 +157,15 @@ export class CustomRateAddComponent implements OnInit {
 
   filterData (categoryId) {
     // console.log('categoryId : ', categoryId)
-    if (categoryId === 0) {
-      this.masterData['list'] = JSON.parse(JSON.stringify(this.masterData['listCopy']))
-    } else {
-      const selected = this.masterData['listCopy'].filter((item) => +item['CategoryId'] === +categoryId)
-      this.masterData['list'] = selected
+    if (this.masterData['listCopy'] && this.masterData['listCopy'].length > 0) {
+      if (categoryId === 0) {
+        this.masterData['list'] = JSON.parse(JSON.stringify(this.masterData['listCopy']))
+      } else {
+        const selected = this.masterData['listCopy'].filter((item) => +item['CategoryId'] === +categoryId)
+        this.masterData['list'] = selected
+      }
+      this.setDis()
     }
-    this.setDis()
   }
 
   setDis () {
@@ -213,6 +220,7 @@ export class CustomRateAddComponent implements OnInit {
     if (this.listBefore.length > 0) {
       if (this.isDiscountSystem) {
         const checkfor = this.listBefore.filter((element) => element.IsManual === 0)
+        console.log('checkfor : ', checkfor)
         this.masterData['list'].forEach((element) => {
           for (let i = 0; i < checkfor.length; i++) {
             if (checkfor[i].ItemId === element.ItemId) {

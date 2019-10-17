@@ -44,7 +44,11 @@ export class UserRightsComponent implements OnInit, OnDestroy {
     this.getOrgnizationList()
     this.checkLoginUserCodematch()
    }
-
+   onOrgChange (evt){
+     if(evt && evt.data && evt.data.length>0){
+      this.model.orgId = evt.data[0].id
+     }
+   }
   ngOnInit() {
     this.userTypeData = [{ id: UIConstant.ZERO, text: 'Select User Type' }]
     this.userData = [{ id: UIConstant.ZERO, text: 'Select User' }]

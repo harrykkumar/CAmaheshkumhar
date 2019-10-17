@@ -89,15 +89,6 @@
                   [ngClass]="{'errorSelecto': submitSave && invalidObj?.GodownId }" [value]="godownValue"></select2>
               </div>
             </div>
-            <!-- <div class="form-group col-md-3 col-lg-3 col-xl-3">
-              <label>Billing Address</label>
-              <div class="input-group adw_select">
-                <input [disabled]='true' type="text" class="form-control" id="e-way" placeholder="Billing Address"
-                  class="form-control" name="BillingAddress" [(ngModel)]="BillingAddress">
-
-              </div>
-            </div> -->
-
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label>Billing Currency</label>
               <div class="input-group adw_select">
@@ -137,46 +128,41 @@
               <table class="table fixTable1 editable_tbl item-table table-hover" id="table">
                 <thead>
                   <tr class="default_row table">
-                    <th [colSpan]="categories.length">Category</th>
-                    <th>Item</th>
+                      <!-- <th width='10px'>#</th> -->
+
+                    <th   [colSpan]="categories.length">Category</th>
+                    <th  >Item</th>
                     <th *ngFor="let column of attributeKeys ; ">
                       {{column}}
                     </th>
-                    <th>Unit</th>
-                    <th> Purchase Quantity</th>
-                    <th>Return Quantity</th>
-
-                    <th class="cust_width_200">Remark</th>
+                    <th  width='6px'>Unit</th>
+                    <th  width='6px'>Qty</th>
+                    <th  width='6px'>Return Qty</th>
+                    <th >Remark</th>
                     <ng-container *ngIf="industryId === 3">
-                      <th>Length</th>
-                      <th>Width</th>
-                      <th>Height</th>
+                      <th  width='6px' >Length</th>
+                      <th  width='6px' >Width</th>
+                      <th  width='6px'>Height</th>
                     </ng-container>
                     <ng-container *ngIf="industryId === 5">
-                      <th class="cust_width_150">Batch No</th>
-                      <th class="cust_width_150">Mfd Date</th>
-                      <th class="cust_width_150">Expiry Date</th>
+                      <th  >Batch No</th>
+                      <th >Mfd Date</th>
+                      <th >Expiry Date</th>
                     </ng-container>
 
-                    <th>Purchase Rate</th>
-                    <th>Return Rate</th>
-                    <th>Total</th>
-                    <th>Discount</th>
-                    <th>Discount Amount</th>
-                    <th>TaxSlab</th>
-                    <th>Tax Type</th>
-                    <th>Tax Amount</th>
-                    <th>Sub Amount</th>
+                    <th width='6px' > Rate</th>
+                    <th  width='6px'>Return Rate</th>
+                    <th >Total</th>
+                    <th >Discount</th>
+                    <th >Discount Amount</th>
+                    <th >TaxSlab</th>
+                    <th >Tax Type</th>
+                    <th >Tax Amount</th>
+                    <th >Sub Amount</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr class="default_row" *ngFor="let item of Items; let i = index;" (click)="onItemToggle(i,$event)">
-                    <!-- <td class="align-middle" >
-                          <div class="custom-control custom-checkbox" >
-                            <input type="checkbox" id="row{{i}}" class="custom-control-input item-container" [(ngModel)]="item.selected" name="checkbox-cont"  />
-                            <label class="custom-control-label" for="row{{i}}"></label>
-                          </div>
-                        </td> -->
                     <td [colSpan]="categories.length">{{item.categoryName}}</td>
                     <td>{{item.itemName}}</td>
                     <td *ngFor="let attribute of item.itemAttributeTrans;">

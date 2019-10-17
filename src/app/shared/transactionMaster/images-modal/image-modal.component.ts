@@ -22,7 +22,7 @@ export class ImageModalComponent implements OnDestroy {
         if (data.open) {
           this.imageType = data.imageType
           this.openModal()
-          if (data.images.length > 0) {
+          if (data.images && data.images.length > 0) {
             this.imageAddedBefore = true
             this.images = { 'images': [...data.images], 'queue': [...data.queue], 'safeUrls': [...data.images], 'baseImages': [...data.baseImages], 'id': [...data.id] }
           } else {

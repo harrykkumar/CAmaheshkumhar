@@ -1,0 +1,189 @@
+<div class="modal fade" id="packaging" tabindex="-1" role="dialog" aria-labelledby="material_reqirment"
+  aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <!--Header-->
+      <div class="modal-header primary-bg">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-6 left_side_head">
+              <p class="heading_lead"><i class="fas fa-chart-line" aria-hidden="true"></i>Order Packing</p>
+            </div>
+            <div class="col-md-6">
+              <div class="btn_header">
+                <a (click)="postData()" class="btn btn-default waves-effect">Save </a>
+                <!-- <a class="btn btn-info waves-effect">Save and New</a> -->
+                <button type="button" class="close" (click)="closeModal()" aria-label="Close"><span aria-hidden="true"
+                    class="white-text">×</span> </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Body-->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-8">
+            <form #packagingForm="ngForm" (ngSubmit)="validateItems() && tempAdd()" #packingModelForm>
+              <div class="card p-2">
+                <div class="form-row ">
+                  <div class="form-group col-lg-3" >
+                    <span class="font-weight-bold-light" >Buyer Name</span> - {{masterData?.BuyerName}}</div>
+                  <div class="form-group col-lg-3" >
+                    <span class="font-weight-bold-light" >Buyer Code</span> - {{masterData?.BuyerCode}}</div>
+                  <div class="form-group col-lg-3" >
+                    <span class="font-weight-bold-light" >Style No</span> - {{masterData?.StyleName}}</div>
+                  <div class="form-group col-lg-3" >
+                    <span class="font-weight-bold-light" >Order Date</span> - {{masterData?.OrderDate | dateFormat : clientDateFormat}}</div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-lg-2">
+                    <label>Packet</label>
+                    <input type="text" readonly [(ngModel)]="masterData.Code" name="packetCode" class="form-control">
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label>P.Code</label>
+                    <input type="text" readonly [(ngModel)]="masterData.Code" name="pCode" class="form-control">
+                  </div>
+                  <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-primary waves-effect waves-light" >Done</button>
+                  </div>
+                </div>
+              </div>
+              <div class="card mt-2 p-2">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th style="width: 5%;" >Sno.</th>
+                        <th>Item</th>
+                        <th *ngIf="this.masterData?.isAttr" >Measurement Attribute</th>
+                        <th *ngIf="this.masterData?.isAttr" >Attribute Combination</th>
+                        <th>Order Quantity</th>
+                        <th>Unpacked Quantity</th>
+                        <th>Qty To Pack</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <ng-container *ngIf="!editItemMode" >
+                        <tr class="default_row attr-cont" *ngFor="let item of this.masterData?.itemData; let i = index">
+                          <td>
+                            <div class="custom-control custom-checkbox">
+                              <input name="checkOrder-{{ i }}" [(ngModel)]="item.checked"
+                              (keydown.enter)="item.checked = !item.checked"
+                              type="checkbox" class="custom-control-input" id="orderAttribute-{{ i }}" />
+                              <label class="custom-control-label" for="orderAttribute-{{ i }}"></label>
+                            </div>
+                          </td>
+                          <td>{{ item?.Sno }}</td>
+                          <td>{{ item?.itemName }}</td>
+                          <td *ngIf="this.masterData?.isAttr" >{{ item?.defaultAttrName }}</td>
+                          <td *ngIf="this.masterData?.isAttr" >{{ item?.attributeValueName }}</td>
+                          <td>{{ item?.OrderQty }}</td>
+                          <td>{{ item?.UnPackedQty }}</td>
+                          <td>
+                            <input type="number" class="form-control" name="packedQty-{{ i }}"
+                            [(ngModel)]="item.Quantity" limitqty
+                            [maxNum]="item.UnPackedQty" 
+                          />
+                          </td>
+                        </tr>
+                      </ng-container>
+                      <ng-container *ngIf="editItemMode" >
+                        <tr>
+                          <td></td>
+                          <td>{{ masterData?.itemToEdit?.Sno }}</td>
+                          <td>{{ masterData?.itemToEdit?.itemName }}</td>
+                          <td *ngIf="this.masterData?.isAttr" >{{ masterData?.itemToEdit?.defaultAttrName }}</td>
+                          <td *ngIf="this.masterData?.isAttr" >{{ masterData?.itemToEdit?.attributeValueName }}</td>
+                          <td>{{ masterData?.itemToEdit?.OrderQty }}</td>
+                          <td>{{ masterData?.itemToEdit?.UnPackedQty }}</td>
+                          <td>
+                            <input type="number" class="form-control" name="packedQuantity"
+                              [(ngModel)]="masterData?.itemToEdit.Quantity" limitqty
+                              [maxNum]="masterData?.itemToEdit.UnPackedQty"
+                            />
+                          </td>
+                        </tr>
+                      </ng-container>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-4">
+            <h6 style="text-align: center;" *ngIf="previousPacketItems && previousPacketItems.length > 0" >Previous Packets</h6>
+            <div class="card table-responsive table_height4" *ngIf="previousPacketItems && previousPacketItems.length > 0" >
+              <table class="table previous-packets table-hover">
+                <thead>
+                  <tr>
+                    <th>S.NO.</th>
+                    <th>P.Code</th>
+                    <th>Qty</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of previousPacketItems; let i = index" >
+                    <td>{{i + 1}}</td>
+                    <td>{{item.Code}}</td>
+                    <td>{{item.Quantity}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <br>
+            <h6 style="text-align: center;" *ngIf="this.masterData?.itemToPack?.length > 0" >Order Packets</h6>
+            <div class="card table-responsive table_height4" *ngIf="this.masterData?.itemToPack?.length > 0" >
+              <table class="table new-packets table-hover">
+                <thead>
+                  <tr>
+                    <th>S.NO.</th>
+                    <th>P.Code</th>
+                    <th>Qty</th>
+                  <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of this.masterData?.itemToPack; let i = index" >
+                    <td>{{i + 1}}</td>
+                    <td>{{item.Code}}</td>
+                    <td>{{item.Quantity}}</td>
+                    <td>
+                      <a (click)="editItem(item)">
+                      <i class="fas fa-pen fa-1x"></i>
+                      </a>
+                      <a (click)="deleteItem(item)">
+                          <i class="fas fa-trash fa-1x"></i>
+                          </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer footer-fixed footer_modal_form">
+        <button type="submit" class="btn waves-effect btn-succ-ess" >
+          Save
+        </button>
+        <button type="button" class="btn waves-effect btn-default def-ault-btn" >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+

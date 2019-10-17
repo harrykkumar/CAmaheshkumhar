@@ -38,7 +38,7 @@
         </div>
       </div>
       <div class="modal-body" *ngIf="!loading">
-        <form>
+        <form >
           <div class="form-row">
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label><span>Party</span>
@@ -76,7 +76,7 @@
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label class="fw-500">Invoice Date</label>
               <datepicker-popup [disableInput]="editMode" [toSetDate]="CurrentDate" [isBackDate]="backDateEntry"
-                (dateInFormat)="CurrentDate = $event; PayDate = $event; getNewBillNo();checkForValidation();"
+                (dateInFormat)="CurrentDate = $event;setDueDateAsCurrent($event); PayDate = $event; getNewBillNo();checkForValidation();"
                 [class]="submitSave && invalidObj?.CurrentDate"></datepicker-popup>
             </div>
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
@@ -97,7 +97,7 @@
             </div>
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label for="due-date">Due Date</label>
-              <datepicker-popup [toSetDate]="DueDate" [disableInput]="editMode" [daysToAdd]="CreditDays"
+              <datepicker-popup [toSetDate]="DueDate"  [daysToAdd]="CreditDays"
                 (dateInFormat)="DueDate = $event">
               </datepicker-popup>
             </div>
@@ -172,7 +172,7 @@
                 <input #barcode type="text" class="form-control" id="barcode" placeholder="Barcode" class="form-control"
                   name="Barcode" (change)="barCodeReader()" [(ngModel)]="Barcode">
               </div>
-              <div *ngIf="applyCustomeRate && applyAutoDiscount" class="form-group col-md-3 col-lg-2 col-xl-2">
+              <div *ngIf="!BarCodeEnableFlag && applyCustomeRate && applyAutoDiscount" class="form-group col-md-3 col-lg-2 col-xl-2">
                 <div class="custom-control custom-radio custom-control-inline">
                     <input
                     type="radio"
@@ -210,7 +210,8 @@
                     <th *ngFor="let column of attributeKeys ; ">
                       {{column}}
                     </th>
-                    <th>Quantity</th>
+                    <th>Quantity 
+                    </th>
                     <th>Unit</th>
                     <ng-container *ngIf="industryId === 3">
                       <th>Length</th>
@@ -252,6 +253,9 @@
                           </a>
                         </ng-container>
                       </div>
+                      <div>
+                        {{item.SrNo}}
+                     </div>
                     </td>
 
                     <ng-container *ngIf="item.isDisabled">
@@ -293,7 +297,11 @@
                         </div>
                       </td>
                     </ng-container>
-                    <td *ngIf="item.isDisabled" class="align-middle">{{(item.Quantity).toFixed(2)}}</td>
+                    <td [ngClass]="{'errorSelecto':  item.RemainQuantity>0 }" *ngIf="item.isDisabled" class="align-middle">{{(item.Quantity).toFixed(2)}}
+                      <span *ngIf='item.RemainQuantity>0' style='color: red'>
+                         {{'/' +item.RemainQuantity }}
+                      </span>
+                    </td>
                     <td *ngIf="!item.isDisabled" class="highLightRow">
                       <input type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
                         (input)="validateItem();calculate();"
@@ -367,11 +375,13 @@
                     <td *ngIf="item.isDisabled" class="align-middle">{{(item.TotalRate).toFixed(noOfDecimalPoint)}}</td>
                     <td *ngIf="!item.isDisabled" class="highLightRow">
                       <input type="text" class="form-control" placeholder="Total Rate" appIncludeDecimal
-                        (input)="getPurchaseRate()" name="TotalRate" [(ngModel)]="TotalRate">
+                        (input)="getTotalSaleRate()" name="TotalRate" [(ngModel)]="TotalRate">
                     </td>
                     <td *ngIf="item.isDisabled" class="align-middle">
                       {{item.Discount}}&nbsp;{{item.DiscountType === 0 && item.Discount != 0 ? '%' : defaultCurrency}}
-                    <td *ngIf="!item.isDisabled" class="highLightRow">
+                    <td *ngIf="!item.isDisabled" class="highLightRow
+                    
+                    ">
                       <div class="discount">
                         <input [disabled]='IsNotDiscountable' type="text" class="form-control" placeholder="Discount" appIncludeDecimal name="Discount"
                           [(ngModel)]="Discount" min="0" max="100"
@@ -395,7 +405,9 @@
                       <div class="discount">
                         <select2 [disabled]='DisabledTaxSlab' #taxSlab_select2 [data]="taxSlabsData"
                           class="control_select" (valueChanged)="onTaxSlabSelect($event)" autocomplete="true"
-                          [options]="{ placeholder: 'Select Tax Slab' }" [value]="taxSlabValue"></select2>
+                          [options]="{ placeholder: 'Select Tax Slab' }"
+                           [value]="taxSlabValue">
+                          </select2>
                       </div>
                     </td>
                     <td *ngIf="item.isDisabled" class="align-middle">{{item.taxTypeName}}</td>
@@ -517,7 +529,7 @@
                     </td>
                     <td>
                       <input type="text" class="form-control" placeholder="Total Rate" appIncludeDecimal
-                        (input)="getPurchaseRate()" name="TotalRate" [(ngModel)]="TotalRate">
+                        (input)="getTotalSaleRate()" name="TotalRate" [(ngModel)]="TotalRate">
                     </td>
                     <td>
                       <div class="discount">
@@ -764,8 +776,9 @@
                         <div class="discount">
                           <input [disabled]="MultipleBillDiscount || addItemDisbaled" type="number" class="form-control"
                             placeholder="Bill Discount" appIncludeDecimal name="BillDiscount" [(ngModel)]="BillDiscount"
-                            min="0" max="100" (keyup)="BillDiscountValidation($event);BillDiscountCalculate();"
-                            [ngClass]="{'errorSelecto': invalidObj?.Discount }">
+                            min="0" max="100" (input)="BillDiscountValidation($event);BillDiscountCalculate();"
+                            >
+                            
                           <select *ngIf='!MultipleBillDiscount' style="width: 70px !important;"
                             class="form-control discount_type" id="BillDiscountType" [(ngModel)]="BillDiscountType"
                             (ngModelChange)="BillDiscountCalculate()" name="BillDiscountType">
@@ -1003,12 +1016,12 @@
         </form>
       </div>
       <div class="modal-footer footer-fixed footer_modal_form">
-        <button
+        <button [disabled]='DisabledSaveBtn'
           type="submit"
           class="btn waves-effect btn-succ-ess"
           (click)="keepOpen=false;saveSaleDirect()"
           >
-          Save
+          {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
         </button>
         <button
           type="button"

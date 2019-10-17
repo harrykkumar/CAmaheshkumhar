@@ -615,6 +615,12 @@
                   >
                   </datepicker-popup>
                 </div>
+                <ng-container *ngIf="sumDr > 0 || sumCr > 0" >
+                  <div class="col-md-6" ></div>
+                  <div class="col-md-3" ><span class="font-weight-bold" >CR - </span> {{sumCr}}</div>
+                  <div class="col-md-3" ><span class="font-weight-bold" >DR - </span> {{sumDr}}</div>
+                </ng-container>
+                
                 <ng-container
                   *ngFor="let voucherData of voucherDataJ; let i = index"
                 >

@@ -287,15 +287,10 @@ export class SaleDirectAddComponent {
     this.commonService.getPurchaseStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (status: AddCust) => {
         if (status.open) {
-          if (status.editId !== '') {
-            this.creatingForm = true
-            this.editMode = true
-            this.Id = +status.editId
-          } else {
-            this.Id = UIConstant.ZERO
-            this.editMode = false
-            this.creatingForm = false
-          }
+          this.Id = UIConstant.ZERO
+          this.editMode = false
+          this.creatingForm = false
+          this.ItemEdtMode = false
           this.openModal()
         } else {
           this.closeModal()
@@ -308,6 +303,7 @@ export class SaleDirectAddComponent {
           this.creatingForm = true
           this.editMode = true
           this.Id = +action.id
+          this.ItemEdtMode = true
           this.openModal()
           //this.openModal(action.id, action.printId, action.viewPrint)
         }
@@ -704,7 +700,12 @@ export class SaleDirectAddComponent {
           if (data.ItemCategorys.length > 0) {
             //     _self.saledirectAdd.getCatagoryDetail(data.ItemCategorys)
           }
-          // _self.saledirectAdd.allItems = [ ...data.Items ]
+          _self.TransactionNoSetups = data.TransactionNoSetups
+          if (!this.editMode) {
+            if (!this.isBillNoManuall) {
+              this.setBillNo(data.TransactionNoSetups)
+            }
+          }
           _self._saleDirectService.createItems(data.Items)
           _self._saleDirectService.createCustomers(data.Customers)
           _self._saleDirectService.createTaxProcess(data.TaxProcesses)
@@ -716,7 +717,6 @@ export class SaleDirectAddComponent {
           _self._saleDirectService.createCurrencies(data.Currencies)
           _self._saleDirectService.createCharges(data.LedgerCharges)
           //_self.saledirectAdd.clientStateId = data.ClientAddresses[0].StateId
-          //_self.saledirectAdd.TransactionNoSetups = data.TransactionNoSetups
         },
         (error) => {
           console.log(error)
@@ -739,10 +739,13 @@ export class SaleDirectAddComponent {
       if (this.isBillNoManuall) {
         this.CurrentDate = this.gs.getDefaultDate(this.clientDateFormat)
         this.getNewBillNo()
+
       }
     }
   }
+  getTemBillNumber(data) {
 
+  }
   orgnizationName: any
   dataForEdit: any
   taxRatesForEdit = []
@@ -821,12 +824,20 @@ export class SaleDirectAddComponent {
     }, 1000)
     this.getBillSummary()
     this.creatingForm = false
-    this.BillDiscountApplied = []
-    data.DiscountTrans.forEach((ele, indx) => {
-      data.DiscountTrans[indx]['isChecked'] = true
-    });
-    this.BillDiscountApplied = data.DiscountTrans
-    this.MultipleDiscountCalculate(data.DiscountTrans)
+    if (data.DiscountTrans.length > 0) {
+      if (this.MultipleBillDiscount) {
+        this.BillDiscountApplied = []
+        data.DiscountTrans.forEach((ele, indx) => {
+          data.DiscountTrans[indx]['isChecked'] = true
+        });
+        this.BillDiscountApplied = data.DiscountTrans
+        this.MultipleDiscountCalculate(data.DiscountTrans)
+      }
+      else {
+        this.editSimpleBillDiscount(data.DiscountTrans)
+      }
+
+    }
   }
 
   createItemTaxTrans(taxRates) {
@@ -992,6 +1003,7 @@ export class SaleDirectAddComponent {
       this.MrpRate = element.MrpRate
       this.TotalRate = +element.Total
       this.DisabledRow = true
+      this.IsNotDiscountable = element.IsNonDiscountItem === 1 ? true : false
       this.TaxSlabId = element.TaxSlabId
       this.TaxType = element.TaxType
       this.TaxAmount = element.TaxAmount
@@ -1032,7 +1044,7 @@ export class SaleDirectAddComponent {
         this.Items[this.Items.length - 1].Id = element.Id
         this.Items[this.Items.length - 1].itemTaxTrans = itemTaxTrans
       } else {
-        this.toastrService.showError('Data Feching Error', '')
+        this.toastrService.showError('Data fetching Error', '')
       }
     })
 
@@ -1050,6 +1062,7 @@ export class SaleDirectAddComponent {
   }
 
   createTransaction(paymentDetails) {
+    debugger
     if (paymentDetails.length > 0) {
       paymentDetails.forEach(element => {
         this.Paymode = element.Paymode
@@ -1065,7 +1078,7 @@ export class SaleDirectAddComponent {
         if (this.PaymentDetail[this.PaymentDetail.length - 1]) {
           this.PaymentDetail[this.PaymentDetail.length - 1].Id = element.Id
         } else {
-          this.toastrService.showError('Data fetching Error', '')
+          this.toastrService.showError('Data fetching Error 11', '')
         }
       })
 
@@ -1189,6 +1202,8 @@ export class SaleDirectAddComponent {
   DisabledTaxSlab: number = 1
   MultipleBillDiscount: number = 1
   BarCodeEnableFlag: number = 0
+  applyRevugainAPI: number = 0
+  RevugainAPIKey: any
   getSetUpModules(settings) {
 
     this.applyCustomRateOnItemFlag = false
@@ -1235,6 +1250,13 @@ export class SaleDirectAddComponent {
       if (element.id === SetUpIds.BarCodeEnable) {
         this.BarCodeEnableFlag = +element.val
       }
+      if (element.id === SetUpIds.applyRevugainAPI) {
+        this.applyRevugainAPI = +element.val
+      }
+      if (element.id === SetUpIds.RevugainAPIKey) {
+        this.RevugainAPIKey = element.val
+
+      }
     })
     this.createModels(this.catLevel)
   }
@@ -1243,6 +1265,7 @@ export class SaleDirectAddComponent {
   }
   CustomerID: any = 0
   @ViewChild('vendor_select2') vendorSelect2: Select2Component
+  CustomerName: any
   onCustomerSelect(event) {
     if (event.value && event.data.length > 0) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
@@ -1257,7 +1280,6 @@ export class SaleDirectAddComponent {
           this.PartyId = +event.value
           this.CustomerID = +event.value
           this.isCaseSaleFlag = true
-
           this.getAllAddresses(this.PartyId)
           caseId = this.caseSaleArrayId.filter(s => s.id === this.PartyId)
 
@@ -1310,11 +1332,13 @@ export class SaleDirectAddComponent {
       }
     })
   }
+  ledgerDetails: any
   getAllAddresses(vendorId) {
     this._saleDirectService.getAllAddresses(vendorId).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.AddressDetails && data.Data.AddressDetails.length > 0) {
           this.allAddressData = data.Data.AddressDetails
+          this.getCustomerAddress()
           this.AddressId = data.Data.AddressDetails[0].Id
           this.SupplyStateId = data.Data.AddressDetails[0].Id
           this._saleDirectService.createAddress(data.Data.AddressDetails)
@@ -1331,8 +1355,15 @@ export class SaleDirectAddComponent {
         if (data.Data.LedgerDetails && data.Data.LedgerDetails.length > 0) {
           const LedgerDetails = data.Data.LedgerDetails[0]
           this.CreditLimit = LedgerDetails.CreditLimit
+          this.CustomerName = data.Data.LedgerDetails[0].Name
+          this.ledgerDetails = data.Data.LedgerDetails
           this.CreditDays = LedgerDetails.CreditDays;
-          this.CreditDays === 0 ? this.updateDuedate() : this.updateCurrentdate()
+          this.ContactNo = data.Data.LedgerDetails[0].ContactNo,
+            this.Email = data.Data.LedgerDetails[0].EmailAddress,
+            this.DOA = data.Data.LedgerDetails[0].DOA,
+            this.DOB = data.Data.LedgerDetails[0].DOB,
+            this.Gender = data.Data.LedgerDetails[0].Gender,
+            this.CreditDays === 0 ? this.updateDuedate() : this.updateCurrentdate()
           this.outStandingBalance = (data.Data.LedgerDetails[0].OpeningAmount).toFixed(this.noOfDecimalPoint)
           this.setCRDR = data.Data.LedgerDetails[0].Crdr === 0 ? 'Dr' : 'Cr';
 
@@ -1342,47 +1373,44 @@ export class SaleDirectAddComponent {
       }
     })
   }
-
+  ContactNo: any
+  Email: any
+  DOA: any
+  DOB: any
+  Gender: any
   getNewBillNo() {
-    if (+this.OrgId > 0 && this.CurrentDate) {
-      let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
-      let type = (this.isBillNoManuall) ? 2 : 1
-      this._saleDirectService.getNewBillNoSale(+this.OrgId, newBillDate, type, 'Sale').subscribe(
-        data => {
-          if (data.Code === UIConstant.THOUSAND && data.Data) {
-            if (data.Data.length > 0) {
-              if (!this.isBillNoManuall) {
-                this.BillNo = data.Data[0].BillNo
+    if (!this.editMode) {
+      if (+this.OrgId > 0 && this.CurrentDate) {
+        let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+        let type = (this.isBillNoManuall) ? 2 : 1
+        this._saleDirectService.getNewBillNoSale(+this.OrgId, newBillDate, type, 'Sale').subscribe(
+          data => {
+            if (data.Code === UIConstant.THOUSAND && data.Data) {
+              if (data.Data.length > 0) {
+                if (!this.isBillNoManuall) {
+                  this.BillNo = data.Data[0].BillNo
+                } else {
+                  this.previousBillNo = data.Data[0].BillNo
+                }
               } else {
-                this.previousBillNo = data.Data[0].BillNo
+                this.previousBillNo = ''
+                this.BillNo = ''
               }
             } else {
-              this.previousBillNo = ''
-              this.BillNo = ''
+              this.toastrService.showError(data.Message, '')
             }
-          } else {
-            this.toastrService.showError(data.Message, '')
           }
-        }
-      )
+        )
+      }
     }
   }
   caseSaleArrayId: any = []
   isCaseSaleFlag: boolean
   NoAddressNeed: boolean = true
   @ViewChild('currency_select2') currencySelect2: Select2Component
+
   openModal() {
-    this.attributesData = []
-    this.caseSaleCustomerDetails = []
-    this.clearCaseCustomer()
-    this.BillNo = ''
-    this.showHideAddItemRow = true
-    this.showHideItemCharge = true
-    this.showHidePayment = true
-    this.addItemDisbaled = this.editMode === true ? false : true
-    this.EwayBillNo = ''
-    this.isCaseSaleFlag = true
-    this.caseSaleArrayId = [{ id: 6 }, { id: 5 }]
+    this.onLoading()
     this.SPUtilityData()
     this.outStandingBalance = 0
     this.getListOfChargeData()
@@ -1401,7 +1429,7 @@ export class SaleDirectAddComponent {
     if (!this.editMode) {
       this.getNewCurrentDate()
       if (!this.isBillNoManuall) {
-        this.setBillNo(this.TransactionNoSetups)
+        //  this.setBillNo(this.TransactionNoSetups)
         this.getNewBillNo()
       }
       // this.getNewBillNo()
@@ -1450,7 +1478,28 @@ export class SaleDirectAddComponent {
       (error) => { this.toastrService.showError(error, '') }
     )
   }
-
+  editItemFlag: boolean
+  getBillSummryListFlag:boolean
+  onLoading() {
+    this.editItemFlag = false
+    this.getBillSummryListFlag =false
+    this.BillDiscountType = 0
+    this.BillDiscountArray = []
+    this.NotItemInStock = []
+    this.attributesData = []
+    this.isDiscountedItem = []
+    this.caseSaleCustomerDetails = []
+    this.clearCaseCustomer()
+    this.BillNo = ''
+    this.showHideAddItemRow = true
+    this.showHideItemCharge = true
+    this.showHidePayment = true
+    this.addItemDisbaled = this.editMode === true ? false : true
+    this.EwayBillNo = ''
+    this.isCaseSaleFlag = true
+    this.caseSaleArrayId = [{ id: 6 }, { id: 5 }]
+    this.editItemIndex = -1
+  }
   closeModal() {
     if ($('#purchase_modal').length > 0) {
       $('#purchase_modal').modal(UIConstant.MODEL_HIDE)
@@ -1638,6 +1687,7 @@ export class SaleDirectAddComponent {
           this.ItemId = +evt.value
           this.itemName = evt.data[0].text
           let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+
           this.getItemRateByLedgerData(newBillDate, '', this.ItemId, this.PartyId)
           this.updateAttributes()
         }
@@ -1676,6 +1726,7 @@ export class SaleDirectAddComponent {
   notItemAddedOutOfStock: boolean = true
   barCodeReader() {
     if (this.Barcode.length > 0) {
+
       let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
       this.getItemRateByLedgerData(newBillDate, this.Barcode, 0, this.PartyId)
     }
@@ -1693,7 +1744,7 @@ export class SaleDirectAddComponent {
         this.itemAttributeTrans[index] = {
           ItemId: element.ItemId,
           ItemTransId: Sno,
-          AttributeId: +element.AttributeId,
+          AttributeId: +element.AttributeValueId,
           ParentTypeId: FormConstants.SaleForm,
           name: element.AttributeValueName,
           id: 0,
@@ -1701,20 +1752,34 @@ export class SaleDirectAddComponent {
         }
       }
     });
-  }
-  isDiscountableItem(isDiscountableFlag) {
-    //true  Disabled of Discount text
-    if (isDiscountableFlag) {
+    if (this.attrSelect2.length > 0) {
+      this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
+        item.setElementValue(this.itemAttributeTrans[index].AttributeId)
+      })
     }
   }
-  ItemNotInStock() {
-    var str = "1,20#2,15#3,20#";
-    var myarray = str.split('#');
-    let allvalue = []
-    for (var i = 0; i < myarray.length; i++) {
-      allvalue.push(myarray[i])
-      console.log(allvalue);
+
+  NotItemInStock: any = []
+  splitItemInStock(itemStringSno) {
+    this.NotItemInStock = []
+    var myarray = itemStringSno.split('#');
+    if (myarray.length > 0) {
+      for (var i = 0; i < myarray.length; i++) {
+        if (myarray[i]) {
+          let val = myarray[i].split(',');
+          this.NotItemInStock.push({ Sno: val[0], Qty: val[1] })
+        }
+      }
+      this.Items.forEach((element, index1) => {
+        this.NotItemInStock.forEach(element2 => {
+          if (element.Sno === JSON.parse(element2.Sno)) {
+            this.Items[index1]['RemainQuantity'] = element2.Qty
+          }
+        });
+      });
+      console.log(this.Items)
     }
+
   }
 
   customeRateDiscount(flag) {
@@ -1730,7 +1795,10 @@ export class SaleDirectAddComponent {
 
     }
   }
-
+  setIniData() {
+    this.SaleRate = 0
+    this.Discount = 0
+  }
   ItemRate: any = 0
   ItemDiscount: any = 0
 
@@ -1744,7 +1812,9 @@ export class SaleDirectAddComponent {
   getItemRateByLedgerData(BillDate, Barcode, ItemId, CustomerId) {
     this.commonService.barcodeAPI(BillDate, Barcode, ItemId, CustomerId).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
-        this.initItem()
+        this.getBillSummryListFlag =true
+        this.setIniData()
+        this.ItemEdtMode = false
         if (Data.Data && Data.Data.ItemCustomRateWithItemDetails.length > 0) {
           if (this.applyCustomRateOnItemFlag) {
             this.applyCustomeRate = false
@@ -1774,33 +1844,16 @@ export class SaleDirectAddComponent {
                   this.DiscountType = element.DiscountType
                 }
                 this.SaleRate = element.SaleRate
-                this.toastrService.showError('', 'You want to apply Discount ' + this.Discount + '%')
+                if (!this.BarCodeEnableFlag) {
+                  this.toastrService.showError('', 'You want to apply Discount ' + this.Discount + '%')
+                }
 
               }
               else {
                 this.isDiscountApplyed = false
               }
             });
-            // this.ItemId = Data.Data.ItemCustomRateWithItemDetails[0].ItemId
-            // this.itemName = Data.Data.ItemCustomRateWithItemDetails[0].Name
-            // this.categoryName = Data.Data.ItemCustomRateWithItemDetails[0].CategoryName
-            // this.categoryId = Data.Data.ItemCustomRateWithItemDetails[0].CategoryIdStr
-            // this.updateCategories(+Data.Data.ItemCustomRateWithItemDetails[0].CategoryIdStr)
-            // this.UnitId = Data.Data.ItemCustomRateWithItemDetails[0].UnitId
-            // this.TaxSlabId = Data.Data.ItemCustomRateWithItemDetails[0].TaxId
-            // this.unitName = Data.Data.ItemCustomRateWithItemDetails[0].UnitName
-            // this.itemInStock = Data.Data.ItemCustomRateWithItemDetails[0].MainStockValue
-            // this.taxSlabName = Data.Data.ItemCustomRateWithItemDetails[0].TaxSlab
-            // this.taxSlabSelect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].TaxId)
-            // this.unitSelect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].UnitId)
-            // this.itemselect2.setElementValue(Data.Data.ItemCustomRateWithItemDetails[0].ItemId)
-            // this.withoutAttributeData()
-            // Data.Data.ItemCustomRateWithItemDetails[0].MainStockValue > 0 ? this.toastrService.showInfo('', 'Item Current Stock Value ' + this.itemInStock) : this.toastrService.showError('', 'Item Current Stock Value ' + this.itemInStock)
-            // this.notItemAddedOutOfStock = true
-            // if (0 >= this.itemInStock && !this.itemInStockFlag) {
-            //   this.notItemAddedOutOfStock = false
-            // //  this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
-            // }
+
           }
         }
         else if (Data.Data && Data.Data.ItemDetails.length > 0) {
@@ -1809,11 +1862,11 @@ export class SaleDirectAddComponent {
           this.isDiscountApplyed = false
           this.SaleRate = Data.Data.ItemDetails[0].SaleRate
           this.MrpRate = Data.Data.ItemDetails[0].Mrprate
-          this.IsNotDiscountable = Data.Data.ItemDetails[0].IsNotDiscountable
-          this.isDiscountableItem(Data.Data.ItemDetails[0].IsNotDiscountable)
+          //this.isDiscountableItem(Data.Data.ItemDetails[0].IsNotDiscountable)
         }
         if (Data.Data && Data.Data.ItemDetails.length > 0) {
-          this.itemselect2.setElementValue(Data.Data.ItemDetails[0].Id)
+          this.IsNotDiscountable = Data.Data.ItemDetails[0].IsNotDiscountable
+          // this.nonDiscountedItem(Data.Data.ItemDetails[0].IsNotDiscountable)
           this.categoryName = Data.Data.ItemDetails[0].CategoryName
           this.categoryId = Data.Data.ItemDetails[0].CategoryId
           this.updateCategories(Data.Data.ItemDetails[0].CategoryId)
@@ -1827,6 +1880,7 @@ export class SaleDirectAddComponent {
           Data.Data.ItemDetails[0].MainStockValue > 0 ? this.toastrService.showInfo('', 'Item Current Stock Value ' + this.itemInStock) : this.toastrService.showError('', 'Item Current Stock Value ' + this.itemInStock)
           this.notItemAddedOutOfStock = true
           this.ItemId = Data.Data.ItemDetails[0].Id
+          this.itemselect2.setElementValue(Data.Data.ItemDetails[0].Id)
           this.itemName = Data.Data.ItemDetails[0].Name
           this.withoutAttributeData()
           if (0 >= this.itemInStock && !this.itemInStockFlag) {
@@ -1899,6 +1953,13 @@ export class SaleDirectAddComponent {
         this.toastrService.showError(error, '')
       })
   }
+  // SpItemUtilities:[{
+  //   "ItemId":number,
+  //   "Sno":number,
+  //   "IsNonDiscountItem":"0 or 1"
+  //   }]
+  isDiscountedItem: any = []
+
   withoutAttributeData() {
     if (this.attributesData.length > 0) {
       this.attributesData.forEach((element, index) => {
@@ -1921,7 +1982,6 @@ export class SaleDirectAddComponent {
         }
       });
     }
-
   }
   onAttributeSelect(evt, index, attributeId) {
     if (+evt.value >= 0 && evt.data.length > 0) {
@@ -2104,18 +2164,19 @@ export class SaleDirectAddComponent {
   }
 
   UpdateBillDiscountHistory() {
+
     let taxableValue = 0
     let ItemTaxTrans = []
     this.Items.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
       taxableValue += +element.AmountItemBillDiscount
     });
-    if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
-      taxableValue += +this.AmountItem
-      if (this.appliedTaxRatesItem.length > 0) {
-        ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
-      }
-    }
+    // if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
+    //   taxableValue += +this.AmountItem
+    //   if (this.appliedTaxRatesItem.length > 0) {
+    //     ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
+    //   }
+    // }
     this.AdditionalChargesToShow = JSON.parse(JSON.stringify(this.AdditionalCharges))
     this.AdditionalCharges.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
@@ -2168,10 +2229,13 @@ export class SaleDirectAddComponent {
     }
     return discountAmt
   }
-
+  editSimpleBillDiscount(multipleDiscount) {
+    this.BillDiscountType = multipleDiscount[0].ValueType
+    this.BillDiscount = multipleDiscount[0].Value
+    this.BillDiscountCalculate()
+  }
   localTaxableValueled: any = 0
   MultipleDiscountCalculate(multipleDiscount) {
-
     this.localTaxableValueled = this.TaxableValue
     if (multipleDiscount.length > 0) {
       multipleDiscount.forEach(element => {
@@ -2212,7 +2276,7 @@ export class SaleDirectAddComponent {
         this.PerItemDiscountPerCentage = 0
       }
     } else {
-      this.PerItemDiscountPerCentage = ((this.BillDiscount * 100) / (this.TaxableValue)).toFixed(this.noOfDecimalPoint)
+      this.PerItemDiscountPerCentage = ((this.BillDiscount * 100) / (this.TaxableValue)).toFixed(4)
       if (this.PerItemDiscountPerCentage === 'Infinity') {
         this.BillDiscount = 0
         this.PerItemDiscountPerCentage = 0
@@ -2223,7 +2287,6 @@ export class SaleDirectAddComponent {
   }
   AmountItemBillDiscount: number = 0
   updateAfterBillDiscount() {
-
     if (this.Items.length > 0) {
       const observables = [];
       for (const item of this.Items) {
@@ -2233,81 +2296,111 @@ export class SaleDirectAddComponent {
       }
       forkJoin(...observables).subscribe(
         data => {
-          if (this.OrgGStType === 1) {
-            this.totalBillDiscount = 0
-            data.forEach((element, index) => {
-              let appliedTaxRatesItem = []
-              let AmountItem = 0
-              let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
-              if (+this.PerItemDiscountPerCentage > 0) {
-                this.BillDiscountAmt = +((this.PerItemDiscountPerCentage / 100) * (this.Items[index].AmountItem)).toFixed(this.noOfDecimalPoint)
-              }
-              else {
-                this.totalBillDiscount = 0
+
+          this.totalBillDiscount = 0
+          data.forEach((element, index) => {
+            let appliedTaxRatesItem = []
+            let AmountItem = 0
+            element.Data.TaxRates = this.OrgGStType === 1 ? element.Data.TaxRates : []
+            let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
+            if (+this.PerItemDiscountPerCentage > 0) {
+              if (this.Items[index].IsNotDiscountable) {
                 this.BillDiscountAmt = 0
               }
-              this.totalBillDiscount = this.totalBillDiscount + +this.BillDiscountAmt
-              if (this.Items.length > 0) {
-                AmountItem = this.Items[index].AmountItem - this.BillDiscountAmt
-                this.AmountItemBillDiscount = AmountItem
-                this.Items[index]['AmountItemBillDiscount'] = AmountItem
-                if (element.Data.TaxRates.length > 0 && +AmountItem > 0) {
-                  if (this.Items[index].TaxType === 1) {
-                    let returnTax = this._saleDirectService.taxCalCulationForInclusive(element.Data.TaxRates,
-                      taxSlabType,
-                      +AmountItem,
-                      this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
-                    this.Items[index]['TaxAmount'] = returnTax.taxAmount
-                    //this.TaxAmount =returnTax.taxAmount
-                    appliedTaxRatesItem = returnTax.appliedTaxRates
-                    this.appliedTaxRatesItem = []
-                  } else if (this.Items[index].TaxType === 0) {
-                    let returnTax = this._saleDirectService.taxCalculation(element.Data.TaxRates,
-                      taxSlabType,
-                      +AmountItem,
-                      this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
-                    this.Items[index]['TaxAmount'] = returnTax.taxAmount
-                    // this.TaxAmount =returnTax.taxAmount
-                    appliedTaxRatesItem = returnTax.appliedTaxRates
-                    this.appliedTaxRatesItem = []
-                  }
-                  if (appliedTaxRatesItem.length > 0) {
-                    appliedTaxRatesItem.forEach((taxRate) => {
-                      if (this.Items[index].Id !== 0) {
-                        taxRate['ItemTransTaxId'] = this.Items[index].Id
-                      } else {
-                        taxRate['ItemTransTaxId'] = this.Items[index].Sno
-                      }
-                    })
-                  }
-                  this.Items[index].itemTaxTrans = appliedTaxRatesItem
-                }
-                this.Items[index]['SubTotal'] = +AmountItem + +this.Items[index]['TaxAmount']
+              else {
+                this.BillDiscountAmt = +((this.PerItemDiscountPerCentage / 100) * (this.Items[index].AmountItem)).toFixed(this.noOfDecimalPoint)
               }
-            });
-          }
+            }
+            else {
+              this.totalBillDiscount = 0
+              this.BillDiscountAmt = 0
+            }
+            this.totalBillDiscount = this.totalBillDiscount + +this.BillDiscountAmt
+            if (this.Items.length > 0) {
+              AmountItem = this.Items[index].AmountItem - this.BillDiscountAmt
+              this.AmountItemBillDiscount = AmountItem
+              this.Items[index]['AmountItemBillDiscount'] = AmountItem
+              if (element.Data.TaxRates.length > 0 && +AmountItem > 0) {
+                if (this.Items[index].TaxType === 1) {
+                  let returnTax = this._saleDirectService.taxCalCulationForInclusive(element.Data.TaxRates,
+                    taxSlabType,
+                    +AmountItem,
+                    this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
+                  this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                  //this.TaxAmount =returnTax.taxAmount
+                  appliedTaxRatesItem = returnTax.appliedTaxRates
+                  this.appliedTaxRatesItem = []
+                } else if (this.Items[index].TaxType === 0) {
+                  let returnTax = this._saleDirectService.taxCalculation(element.Data.TaxRates,
+                    taxSlabType,
+                    +AmountItem,
+                    this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
+                  this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                  // this.TaxAmount =returnTax.taxAmount
+                  appliedTaxRatesItem = returnTax.appliedTaxRates
+                  this.appliedTaxRatesItem = []
+                }
+                if (appliedTaxRatesItem.length > 0) {
+                  appliedTaxRatesItem.forEach((taxRate) => {
+                    if (this.Items[index].Id !== 0) {
+                      taxRate['ItemTransTaxId'] = this.Items[index].Id
+                    } else {
+                      taxRate['ItemTransTaxId'] = this.Items[index].Sno
+                    }
+                  })
+                }
+                this.Items[index].itemTaxTrans = appliedTaxRatesItem
+              }
+              this.Items[index]['SubTotal'] = +AmountItem + +this.Items[index]['TaxAmount']
+            }
+          });
+
           if (!this.MultipleBillDiscount) {
-            this.BillDiscountArray = [{
-              "Id": 0,
-              "DiscountId": 0,
-              "Value": this.BillDiscount,
-              "ValueType": this.BillDiscountType,
-              "Name": "Bill Discount",
-              "Amount": this.totalBillDiscount
-            }]
+            if (this.PerItemDiscountPerCentage > 0) {
+              this.BillDiscountArray = [{
+                "Id": 0,
+                "DiscountId": 0,
+                "Value": this.BillDiscount,
+                "ValueType": this.BillDiscountType,
+                "Name": "Bill Discount",
+                "Amount": this.totalBillDiscount
+              }]
+            }
+
           }
 
           this.UpdateBillDiscountHistory()
-          this.calculateAllTotal()
+          this.calculateAllTotalWithBillDiscount()
         }
       )
     }
   }
 
+  calculateAllTotalWithBillDiscount() {
+    let totalDiscount = 0
+    let totalTax = 0
+    let totalQuantity = 0
+    let totalAmount = 0
+    for (let i = 0; i < this.Items.length; i++) {
+      totalDiscount = totalDiscount + +this.Items[i].DiscountAmt
+      totalTax = totalTax + +this.Items[i].TaxAmount
+      totalQuantity = totalQuantity + +this.Items[i].Quantity
+      totalAmount = +totalAmount + +this.Items[i].SubTotal
+    }
+    if (this.ItemId > 0) {
+      if (+this.DiscountAmt > 0) { totalDiscount }
+      if (+this.TaxAmount > 0) { totalTax }
+      if (+this.Quantity > 0) { totalQuantity }
+      if (+this.SubTotal > 0) { totalAmount }
+    }
+    this.TotalDiscount = +(totalDiscount).toFixed(this.noOfDecimalPoint)
+    this.TotalTaxAmount = +(totalTax).toFixed(4)
+    this.TotalQty = +(totalQuantity).toFixed(2)
+    this.SubTotalAmount = +(totalAmount).toFixed(this.noOfDecimalPoint)
+  }
   appliedTaxRatesItem: any = []
   appliedTaxRatesCharge: any = []
   calculate() {
-    debugger
     let total = +(isNaN(+this.SaleRate) ? 0 : +this.SaleRate)
       * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
       * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
@@ -2325,21 +2418,44 @@ export class SaleDirectAddComponent {
         this.DiscountAmt = isNaN(+this.Discount) ? 0 : +this.Discount
       }
       if (total > 0) {
+        if (this.editItemIndex > -1) {
+          this.Items[this.editItemIndex].SaleRate = this.SaleRate
+          this.Items[this.editItemIndex].Quantity = this.Quantity
+          this.Items[this.editItemIndex].Width = this.Width
+          this.Items[this.editItemIndex].Length = this.Length
+          this.Items[this.editItemIndex].Height = this.Height
+
+
+        }
         let discountedAmount = 0
         if (this.DiscountAmt === total) {
           if (this.DiscountFor100Perct) {
             discountedAmount = total
             this.AmountItem = discountedAmount
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].AmountItem = discountedAmount
+            }
           }
           else {
             discountedAmount = total
             this.AmountItem = 0
             this.taxRates = []
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].AmountItem = 0
+
+              this.Items[this.editItemIndex].taxRates = []
+            }
+
           }
 
         } else {
           discountedAmount = total - this.DiscountAmt
           this.AmountItem = discountedAmount
+          if (this.editItemIndex > -1) {
+            this.Items[this.editItemIndex].AmountItem = this.AmountItem
+            this.Items[this.editItemIndex].SaleRate = this.SaleRate
+
+          }
         }
         if (this.TaxType === 0) {
           let returnTax = this._saleDirectService.taxCalculation(this.taxRates,
@@ -2348,6 +2464,11 @@ export class SaleDirectAddComponent {
             this.isOtherState, FormConstants.SaleForm, this.taxSlabName)
           this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
           this.appliedTaxRatesItem = returnTax.appliedTaxRates
+          if (this.editItemIndex > -1) {
+            this.Items[this.editItemIndex].TaxAmount = this.TaxAmount
+            this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
+          }
+
         } else {
           if (this.taxCalInclusiveType === 1) {
             let AmountItem = +(this._saleDirectService.calcTaxableAmountType1(this.taxRates,
@@ -2355,12 +2476,22 @@ export class SaleDirectAddComponent {
               discountedAmount,
               this.isOtherState)).toFixed(4)
             this.AmountItem = AmountItem
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].AmountItem = this.AmountItem
+            }
             let returnTax = this._saleDirectService.taxCalCulationForInclusive(this.taxRates,
               this.taxSlabType,
               this.AmountItem,
               this.isOtherState, FormConstants.SaleForm, this.taxSlabName)
             this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
             this.appliedTaxRatesItem = returnTax.appliedTaxRates
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].TaxAmount = this.TaxAmount
+              this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
+            }
+
+
+
           } else {
             let AmountItem = +(this._saleDirectService.calcTaxableAmountType2(this.taxRates,
               this.taxSlabType,
@@ -2371,26 +2502,55 @@ export class SaleDirectAddComponent {
                 this.DiscountAmt = +((+this.Discount / 100) * (AmountItem)).toFixed(this.noOfDecimalPoint)
               } else if (+this.Discount === 100 || +this.Discount === 0) {
                 this.DiscountAmt = 0
+                if (this.editItemIndex > -1) {
+                  this.Items[this.editItemIndex].DiscountAmt = this.DiscountAmt
+                }
+
               }
             }
             this.AmountItem = AmountItem - this.DiscountAmt
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].AmountItem = this.AmountItem
+            }
             let returnTax = this._saleDirectService.taxCalCulationForInclusiveType2(this.taxRates,
               this.taxSlabType,
               this.AmountItem,
               this.isOtherState, FormConstants.SaleForm, this.taxSlabName)
             this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
             this.appliedTaxRatesItem = returnTax.appliedTaxRates
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].TaxAmount = this.TaxAmount
+              this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
+
+            }
+            
           }
         }
       } else {
         if (this.editItemId === -1) {
           this.TaxAmount = 0
+          this.AmountItem = 0
+          if (this.editItemIndex > -1) {
+            this.Items[this.editItemIndex].TaxAmount = 0
+            this.Items[this.editItemIndex].AmountItem = 0
+            this.Items[this.editItemIndex].DiscountAmt = 0
+            this.Items[this.editItemIndex].taxRates = []
+
+          }
           this.appliedTaxRatesItem = []
+        }
+        if (this.editItemId !== -1 && this.editItemIndex > -1) {
+                 this.resetCalculate(this.editItemIndex)
         }
       }
     } else {
       this.DiscountAmt = 0
       this.TaxAmount = 0
+      if (this.editItemIndex > -1) {
+        this.Items[this.editItemIndex].DiscountAmt = 0
+        this.Items[this.editItemIndex].TaxAmount = 0
+      }
+
     }
     this.TaxableAmountCharge = +this.AmountCharge
     if (this.taxChargeRates.length > 0 && +this.AmountCharge > 0) {
@@ -2400,6 +2560,7 @@ export class SaleDirectAddComponent {
           +this.AmountCharge,
           this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
         this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
+
         this.appliedTaxRatesCharge = returnTax.appliedTaxRates
       } else {
         if (this.TaxTypeCharge === 1) {
@@ -2425,18 +2586,37 @@ export class SaleDirectAddComponent {
     this.TotalAmountCharge = +this.TotalAmountCharge.toFixed(4)
     this.InterestAmount = 0
     this.SubTotal = +(this.calculateTotalOfRow()).toFixed(this.noOfDecimalPoint)
+    if (this.editItemIndex > -1) {
+      this.Items[this.editItemIndex].SubTotal = this.SubTotal
+    }
     if (+this.ItemId > 0 || +this.LedgerChargeId > 0) {
       this.calculateAllTotal()
     }
     this.getBillSummary()
   }
-
+  resetCalculate(editItemIndex){
+    this.Items[editItemIndex].TaxAmount = 0
+    this.Items[editItemIndex].AmountItem = 0
+    this.Items[editItemIndex].PurchaseRate = 0
+    this.Items[editItemIndex].AmountItemBillDiscount = 0
+    this.Items[editItemIndex].itemTaxTrans = []
+    this.Items[editItemIndex].DiscountAmt = 0
+    this.Items[editItemIndex].taxRates = []
+    this.Items[editItemIndex].TotalRate = 0
+    this.Items[editItemIndex].Quantity =1
+    this.Items[editItemIndex].Length =1
+    this.Items[editItemIndex].Width =1
+    this.Items[editItemIndex].Height =1
+    this.TaxAmount = 0
+    this.AmountItem = 0
+   }
   calculateTotalOfRow() {
     let totalAmount = this.AmountItem + (isNaN(+this.TaxAmount) ? 0 : +this.TaxAmount)
     return isNaN(totalAmount) ? 0 : totalAmount
   }
 
   calculatePaymentAmount() {
+    debugger
     let paymentTotal = 0
     for (let i = 0; i <= this.PaymentDetail.length - 1; i++) {
       paymentTotal = paymentTotal + +this.PaymentDetail[i].Amount
@@ -2470,15 +2650,7 @@ export class SaleDirectAddComponent {
   }
 
   @ViewChild('organisation_select2') organisationSelect2: Select2Component
-  onChangeOrganisationId(evt) {
-    if (evt.value && evt.data.length > 0) {
-      if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
-        this.OrgId = +evt.value
-        this.getNewBillNo()
-      }
-      this.checkForValidation()
-    }
-  }
+
 
   newDate: string = ''
   @ViewChild('godown_select2') godownSelect2: Select2Component
@@ -2502,11 +2674,11 @@ export class SaleDirectAddComponent {
           this.toastrService.showError('First Select Customer', '')
         }
       } else {
-        if (evt.id > 0) {
+        if (evt.id > 0 && evt.data[0].selected) {
           this.AddressId = +evt.id
           this.checkForGST()
         }
-        if (evt.id === 0) {
+        if (+evt.value === 0) {
           this.AddressId = 0
           this.isOtherState = false
           this.updateItemTax()
@@ -2518,20 +2690,18 @@ export class SaleDirectAddComponent {
   onAddressShippingSelect(evt) {
     if (this.addressShippingValue !== null) {
       if (+evt.id === -1) {
-        //this.addressSelect2.selector.nativeElement.value = ''
         if (this.PartyId) {
           this.commonService.openAddress(this.PartyId)
         } else {
           this.toastrService.showError('First Select Customer', '')
         }
       } else {
-        if (evt.id > 0) {
+        if (evt.id > 0 && evt.data[0].selected) {
           this.SupplyStateId = +evt.id
           this.SupplyState = +evt.id
           this.checkForGST()
         }
       }
-      // this.checkForValidation()
     }
   }
   checkGSTTaxType() {
@@ -2769,6 +2939,9 @@ export class SaleDirectAddComponent {
 
   enterPressItem(e: KeyboardEvent) {
     this.addItems()
+    this.itemFirstPosition()
+  }
+  itemFirstPosition() {
     setTimeout(() => {
       let item = this.catSelect2.find((item: Select2Component, index: number, array: Select2Component[]) => {
         return index === 0
@@ -2908,6 +3081,7 @@ export class SaleDirectAddComponent {
   }
 
   addTransactions() {
+    debugger
     if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
       if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
 
@@ -2975,26 +3149,47 @@ export class SaleDirectAddComponent {
   }
 
   checkItemQuantityForStock() {
-    if (this.Quantity > this.itemInStock) {
-      this.notItemAddedOutOfStock = false
+    if (!this.itemInStockFlag) {
+      if (this.Quantity > this.itemInStock) {
+        this.notItemAddedOutOfStock = false
+      }
+      else {
+        this.notItemAddedOutOfStock = true
+      }
     }
     else {
       this.notItemAddedOutOfStock = true
+
     }
+
   }
+  ItemEdtMode: boolean
   addItems() {
-    if (this.validDiscount && +this.UnitId > 0 && this.SaleRate > 0) {
-      this.checkItemQuantityForStock()
+    if (this.validDiscount && +this.UnitId >  0 &&this.Quantity>0 && this.SaleRate > 0) {
+
+      if (!this.ItemEdtMode) {
+        this.checkItemQuantityForStock()
+      }
+
       if (this.notItemAddedOutOfStock) {
         this.addItem()
         this.clickItem = true
         this.applyCustomeRate = false
         this.applyAutoDiscount = false
-        this.calculateAllTotal()
+        if (this.editItemFlag) {
+          this.BillDiscount = 0
+          this.BillDiscountArray = []
+          this.BillDiscountCalculate()
+        }
+        else {
+          this.calculateAllTotal()
+          if(this.getBillSummryListFlag){
+             this.getBillSummary()
+          }
+       
+        }
         this.initItem()
-        this.BillDiscount = 0
-        this.BillDiscountArray = []
-        this.BillDiscountCalculate()
+
       }
       else {
         this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
@@ -3021,14 +3216,17 @@ export class SaleDirectAddComponent {
 
   createAddedItem() {
     let Sno = 0
+    let SrNo = 0
     if (this.Items.length === 0) {
       Sno = 1
+      SrNo = 1
     } else if (this.Items.length > 0) {
       Sno = +this.Items[this.Items.length - 1].Sno + 1
       this.Items.forEach((element, i) => {
         if (this.editItemId > 0) {
           if (element.Id === this.editItemId) {
             this.Items.splice(i, 1)
+            this.isDiscountedItem.splice(i, 1)
             this.ItemAttributeTrans = []
             this.Items.forEach(item => {
               this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
@@ -3038,15 +3236,33 @@ export class SaleDirectAddComponent {
         if (element.Id === 0) {
           if (element.Sno === this.editItemSno) {
             this.Items.splice(i, 1)
+            this.isDiscountedItem.splice(i, 1)
             this.ItemAttributeTrans = []
             this.Items.forEach(item => {
               this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
             })
           }
         }
-
       })
+      if (this.editItemFlag) {
+        SrNo = this.SrNo
+      }
+      else {
+        SrNo = this.Items[this.Items.length - 1].SrNo + 1
+        for (let i = 0; i < this.Items.length; i++) {
+          if (SrNo === this.Items[i].SrNo) {
+            SrNo = SrNo + 1
+            continue;
+          }
+        }
+      }
     }
+    this.isDiscountedItem.push({
+      ItemId: +this.ItemId,
+      Sno: Sno,
+      IsNonDiscountItem: this.IsNotDiscountable
+    })
+
     this.appliedTaxRatesItem.forEach(element => {
       element['Sno'] = Sno
       element['ItemTransTaxId'] = Sno
@@ -3058,6 +3274,7 @@ export class SaleDirectAddComponent {
     this.Items.push({
       Id: 0,
       Sno: Sno,
+      SrNo: SrNo,
       TransType: this.TransType,
       TransId: this.TransId,
       ChallanId: this.ChallanId,
@@ -3097,9 +3314,13 @@ export class SaleDirectAddComponent {
       isDisabled: this.DisabledRow,
       IsNotDiscountable: this.IsNotDiscountable,
       perItemDiscount: this.perItemDiscount,
-      customRate: this.customRate
+      customRate: this.customRate,
+      SpItemUtilities: this.isDiscountedItem
+
+
 
     })
+    console.log(this.Items)
     this.addItemDisbaled = false
     setTimeout(() => {
       this.commonService.fixTableHFL('item-table')
@@ -3110,7 +3331,7 @@ export class SaleDirectAddComponent {
     }
   }
   editchargeFlag: boolean = true
-
+  SrNo: any = 0
   DisabledRow: boolean = true
   EditabledChargeRow: boolean = true
   EditabledPay: boolean = true
@@ -3118,6 +3339,7 @@ export class SaleDirectAddComponent {
   showHideItemCharge: any = true
   showHidePayment: any = true
   editTransSno: number = 0
+  editItemIndex: number = -1
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
     if (type === 'charge' && this.editChargeId === -1) {
@@ -3179,20 +3401,24 @@ export class SaleDirectAddComponent {
       this.editItemId = editId
       this.editItemSno = sno
       i = i - 1
+      this.editItemFlag = true
+
       this.showHideAddItemRow = false
       this.perItemDiscount = this.Items[i].perItemDiscount
       this.customRate = this.Items[i].customRate
-     
+      this.SrNo = this.Items[i].SrNo
       if (this.Items[i].perItemDiscount > 0 && this.Items[i].customRate > 0) {
         this.applyCustomeRate = true
         this.applyAutoDiscount = true
         this.isDiscountApplyed = true
       }
+      this.editItemIndex = i
       this.Items[i].isDisabled = false
       this.DisabledRow = true
       this.TransType = 0
       this.TransId = 0
       this.ChallanId = 0
+      this.isDiscountedItem = this.Items[i].SpItemUtilities
       this.categoryName = this.Items[i].categoryName
       this.IsNotDiscountable = this.Items[i].IsNotDiscountable
       this.itemName = this.Items[i].itemName
@@ -3210,7 +3436,7 @@ export class SaleDirectAddComponent {
       this.PurchaseRate = this.Items[i].PurchaseRate
       this.TaxSlabId = this.Items[i].TaxSlabId
       this.TaxType = this.Items[i].TaxType
-      this.TaxAmount = this.Items[i].TaxAmount
+      this.TaxAmount = +this.Items[i].TaxAmount.toFixed(4)
       this.DiscountType = this.Items[i].DiscountType
       this.Discount = this.Items[i].Discount
       this.DiscountAmt = this.Items[i].DiscountAmt
@@ -3218,7 +3444,7 @@ export class SaleDirectAddComponent {
       this.MfdDate = this.Items[i].MfdDate
       this.BatchNo = this.Items[i].BatchNo
       this.Remark = this.Items[i].Remark
-      this.SubTotal = this.Items[i].SubTotal
+      this.SubTotal = +this.Items[i].SubTotal.toFixed(4)
       this.TotalRate = this.Items[i].TotalRate
       this.AmountItem = this.Items[i].AmountItem
       this.taxSlabType = this.Items[i].taxSlabType
@@ -3229,11 +3455,6 @@ export class SaleDirectAddComponent {
       this.getEditUnitByItem(this.Items[i].ItemId, this.PartyId)
       this.unitSelect2.setElementValue(this.UnitId)
 
-      if (this.attrSelect2.length > 0) {
-        this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
-          item.setElementValue(this.itemAttributeTrans[index].AttributeId)
-        })
-      }
       let ItemId = this.Items[i].ItemId
       this.updateCategories(this.categoryId)
       this.checkForItems(this.categoryId)
@@ -3251,7 +3472,15 @@ export class SaleDirectAddComponent {
         _self.TaxSlabId = TaxSlabId
         _self.taxTypeSelect2.setElementValue(TaxType)
         _self.TaxType = TaxType
-      }, 1)
+      }, 10)
+      setTimeout(() => {
+        if (this.attrSelect2.length > 0) {
+          this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
+            item.setElementValue(this.itemAttributeTrans[index].AttributeId)
+          })
+        }
+      }, 500)
+
     }
 
   }
@@ -3297,12 +3526,16 @@ export class SaleDirectAddComponent {
     this.showHidePayment = true
     this.addressBillingValue = null
     this.addressShippingValue = null
+    this.itemFirstPosition()
     this.closeModal()
     this.commonService.closePurchase()
 
   }
 
   initItem() {
+    this.getBillSummryListFlag =false
+    this.editItemFlag = false
+    this.editItemIndex = -1
     this.perItemDiscount = 0
     this.IsNotDiscountable = false
     this.TransType = 0
@@ -3322,7 +3555,7 @@ export class SaleDirectAddComponent {
     this.MrpRate = 0
     this.PurchaseRate = 0
     this.DiscountType = 0
-    this.BillDiscountType = this.editMode === true ? 1 : 0
+    // this.BillDiscountType = this.editMode === true ? 1 : 0
     this.BillDiscount = 0
     this.Discount = 0
     this.DiscountAmt = 0
@@ -3575,8 +3808,6 @@ export class SaleDirectAddComponent {
     this.AddressData = []
     this.setBillDate()
     this.setPayDate()
-    // this.getNewBillNo()
-    //this.getNewCurrentDate()
   }
   updateCurrentdate() {
     this._saleDirectService.getCurrentDate().subscribe(
@@ -3596,7 +3827,15 @@ export class SaleDirectAddComponent {
       }
     )
   }
+  setDueDateAsCurrent(evt) {
+    this.DueDate = evt
+    if (this.CreditDays > 0) {
+      this.updateDuedate()
+    }
+
+  }
   getNewCurrentDate() {
+
     this._saleDirectService.getCurrentDate().subscribe(
       data => {
         if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
@@ -3610,8 +3849,6 @@ export class SaleDirectAddComponent {
   EwayBillNo: any = ''
   private saleDirectParams(): SaleDirectAdd {
     let BillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
-    // let CurrentDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
-    //  let PartyBillDate = this.gs.clientToSqlDateFormat(this.PartyBillDate, this.clientDateFormat)
     let DueDate = this.gs.clientToSqlDateFormat(this.DueDate, this.clientDateFormat)
     let Items = JSON.parse(JSON.stringify(this.Items))
     let PaymentDetail = JSON.parse(JSON.stringify(this.PaymentDetail))
@@ -3622,7 +3859,14 @@ export class SaleDirectAddComponent {
     PaymentDetail.forEach(transaction => {
       transaction.PayDate = this.gs.clientToSqlDateFormat(transaction.PayDate, this.clientDateFormat)
     })
-
+    let isDiscountdOnItem = []
+    this.isDiscountedItem.forEach(ele => {
+      isDiscountdOnItem.push({
+        ItemId: ele.ItemId,
+        Sno: ele.Sno,
+        IsNonDiscountItem: ele.IsNonDiscountItem === true ? 1 : 0
+      })
+    })
     const saleDirectParams = {
       obj: {
         Id: this.Id ? this.Id : UIConstant.ZERO,
@@ -3675,10 +3919,11 @@ export class SaleDirectAddComponent {
         ItemTaxTrans: this.ItemTaxTrans,
         AdditionalCharges: this.AdditionalCharges,
         CustomerTypes: this.caseSaleCustomerDetails,
-        DiscountTrans: this.BillDiscountArray
-
+        DiscountTrans: this.BillDiscount === 0 ? [] : this.BillDiscountArray,
+        SpItemUtilities: isDiscountdOnItem
       } as SaleDirectAdd
     }
+
     return saleDirectParams.obj
   }
 
@@ -4009,13 +4254,50 @@ export class SaleDirectAddComponent {
   }
   SaveName: string = 'Save'
   DisabledSaveBtn: any = false
+  //applyRevugainAPI
+  getCustomerAddress() {
+    if (this.allAddressData.length > 0) {
+
+      return this.allAddressData[0].AddressValue + ' ' + ' ' + this.allAddressData[0].CityName + ' ' + this.allAddressData[0].StateName + ' ' + this.allAddressData[0].CountryName
+    }
+  }
+
+  RevugainDetails() {
+    let postReq = {}
+    postReq = {
+      PropertyGuid: this.RevugainAPIKey,
+      CustomerList: [
+        {
+          "RecordId": 1, "CustomerName": this.CustomerName,
+          "ContactNo": this.ContactNo === null ? '' : this.ContactNo,
+          "Email": this.Email === null ? '' : this.Email,
+          "DOA": this.DOA === null ? '' : this.DOA,
+          "DOB": this.DOB === null ? '' : this.DOB,
+          "Gender": "M",
+          "Address": this.getCustomerAddress(),
+          "BillingList": [
+            { "RecordId": 1, "Id": 0, "BillAmount": this.BillAmount, "BillNo": this.BillNo }
+
+          ]
+        }
+      ]
+    }
+    console.log(postReq)
+    this._saleDirectService.CustomerDetailsForRevugain(postReq).subscribe((data) => {
+      if (data.Code === 1000) {
+
+      }
+    })
+  }
+
+
+
   saveSaleDirect() {
     let _self = this
     this.submitSave = true
     let dataToSend = this.saleDirectParams()
     let valid = 1
     if (!this.editMode) {
-
       this.commonService.checkForExistence(this.checkForExistence, dataToSend).subscribe(
         (data) => {
           if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -4050,6 +4332,10 @@ export class SaleDirectAddComponent {
                   if (data.Code === UIConstant.THOUSAND && data.Data) {
                     _self.toastrService.showSuccess('Saved Successfully', '')
                     this.DisabledSaveBtn = false
+                    if (this.applyRevugainAPI && !this.editMode) {
+                      this.RevugainDetails()
+                    }
+                    this.itemFirstPosition()
                     this.SaveName
                     this.commonService.AddedItem()
                     this.addressBillingValue = null
@@ -4082,6 +4368,12 @@ export class SaleDirectAddComponent {
                   } else if (data.Code === UIConstant.REQUIRED_5020) {
                     this.DisabledSaveBtn = false
                     _self.toastrService.showError(data.Message, '')
+                  }
+                  else if (data.Code === 5004) {
+                    this.DisabledSaveBtn = false
+                    _self.toastrService.showError(data.Message, '')
+                    this.splitItemInStock(data.Data)
+
                   }
                   else {
                     this.DisabledSaveBtn = false
@@ -4117,6 +4409,10 @@ export class SaleDirectAddComponent {
               if (data.Code === UIConstant.THOUSAND && data.Data) {
                 _self.toastrService.showSuccess('Saved Successfully', '')
                 this.DisabledSaveBtn = false
+                this.itemFirstPosition()
+                if (this.applyRevugainAPI && !this.editMode) {
+                  this.RevugainDetails()
+                }
                 this.addressBillingValue = null
                 this.addressShippingValue = null
                 this.commonService.AddedItem()
@@ -4446,7 +4742,7 @@ export class SaleDirectAddComponent {
       taxableValue += +element.AmountItem
 
     });
-    if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
+    if (!this.clickItem && this.editItemIndex === -1 && +this.ItemId > 0 && +this.AmountItem > 0) {
       taxableValue += +this.AmountItem
       if (this.appliedTaxRatesItem.length > 0) {
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
@@ -4514,6 +4810,7 @@ export class SaleDirectAddComponent {
   }
 
   calculateAllTotal() {
+
     let totalDiscount = 0
     let totalTax = 0
     let totalQuantity = 0
@@ -4524,7 +4821,13 @@ export class SaleDirectAddComponent {
       totalQuantity = totalQuantity + +this.Items[i].Quantity
       totalAmount = +totalAmount + +this.Items[i].SubTotal
     }
-    if (!this.clickItem && this.ItemId > 0) {
+    if (this.editItemIndex > -1 && this.ItemId > 0) {
+      if (+this.DiscountAmt > 0) { totalDiscount }
+      if (+this.TaxAmount > 0) { totalTax }
+      if (+this.Quantity > 0) { totalQuantity }
+      if (+this.SubTotal > 0) { totalAmount }
+    }
+    if (!this.clickItem && this.editItemIndex === -1 && this.ItemId > 0) {
       if (+this.DiscountAmt > 0) { totalDiscount += +this.DiscountAmt }
       if (+this.TaxAmount > 0) { totalTax += +this.TaxAmount }
       if (+this.Quantity > 0) { totalQuantity += +this.Quantity }
@@ -4543,12 +4846,15 @@ export class SaleDirectAddComponent {
     }, 10)
   }
 
-  getPurchaseRate() {
+  getTotalSaleRate() {
     if (+this.Quantity > 0 && +this.TotalRate > 0) {
       let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
         * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
         * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
       this.SaleRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
+    }
+    if (this.TotalRate === 0 || '' + this.TotalRate === '') {
+      this.SaleRate = 0
     }
     this.calculate()
   }
@@ -4869,4 +5175,5 @@ export class SaleDirectAddComponent {
       }
     })
   }
+
 }

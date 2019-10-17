@@ -11,8 +11,8 @@
             </div>
             <div class="col-md-9">
               <div class="btn_header">
-                  <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-default waves-effect"  #savebutton (click)="keepOpen=false;saveBilling()">
-                  
+                  <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-default waves-effect"  #savebutton 
+                  (click)="keepOpen=false;saveBilling()">
                       {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
                       </button>
                       <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-info waves-effect"   (click)="keepOpen=false;saveBilling()">
@@ -183,6 +183,9 @@
                           </a>
                         </ng-container>
                       </div>
+                      <div>
+                        {{item.SrNo}}
+                     </div>
                     </td>
                     <td *ngIf="item.isDisabled" class="align-middle">{{item.itemName}}</td>
                     <td  *ngIf="!item.isDisabled">
@@ -783,14 +786,13 @@
         <button
           type="submit"
           class="btn waves-effect btn-succ-ess"
-          >
-          Save
+          (click)="keepOpen=false;saveBilling()">
+                      {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
         </button>
         <button
           type="button"
           class="btn waves-effect btn-default def-ault-btn"
-         
-          data-dismiss="modal"
+          (click)="closePurchase()"
         >
           Close
         </button>

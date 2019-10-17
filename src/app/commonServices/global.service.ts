@@ -6,6 +6,7 @@ import { ResponseSale } from '../model/sales-tracker.model';
 import { filter, map } from 'rxjs/operators';
 import { UIConstant } from '../shared/constants/ui-constant';
 import { catchError } from 'rxjs/internal/operators/catchError';
+import * as _ from 'lodash';
 @Injectable({
   providedIn: 'root'
 })
@@ -161,12 +162,32 @@ export class GlobalService {
     arr2 = arr2.splice(0).sort()
     // console.log('arr1 : ', arr1)
     // console.log('arr2 : ', arr2)
-    for (let i = 0; i <= arr1.length - 1; i++) {
-      if (arr1[i].trim().toUpperCase() !== arr2[i].trim().toUpperCase()) {
-        return arr1[i]
+    if (arr1.length > arr2.length) {
+      let diff = _.differenceWith(arr1, arr2)
+      let str = ''
+      if (diff.length > 1) {
+        str = 'PARAMETERS ARE MISSING, PLEASE ADD THE COLUMNS INORDER TO UPLOAD THE SHEET'
+      } else {
+        str = 'PARAMETER IS MISSING, PLEASE ADD THE COLUMN INORDER TO UPLOAD THE SHEET'
       }
+      return diff.join(',') + ' ' + str
+    } else if (arr1.length < arr2.length) {
+      let diff = _.differenceWith(arr2, arr1)
+      let str = ''
+      if (diff.length > 1) {
+        str = 'PARAMETERS ARE EXTRA, PLEASE REMOVE THE COLUMNS INORDER TO UPLOAD THE SHEET'
+      } else {
+        str = 'PARAMETER IS EXTRA, PLEASE REMOVE THE COLUMN INORDER TO UPLOAD THE SHEET'
+      }
+      return diff.join(',') + ' ' + str
+    } else {
+      for (let i = 0; i <= arr1.length - 1; i++) {
+        if (arr1[i].trim().toUpperCase() !== arr2[i].trim().toUpperCase()) {
+          return arr2[i] + ' ' + 'doesn\'t match, please correct the key name to ' + arr1[i]
+        }
+      }
+      return ''
     }
-    return ''
   }
 
   checkForValidNumbers (num) {
@@ -991,7 +1012,7 @@ export class GlobalService {
 
   convertToClient (date, clientDateFormat): string {
     let newDate = '' + (new Date(date))
-    console.log(newDate)
+    // console.log(newDate)
     if (newDate !== 'Invalid Date') {
       const toReturn = this.utcToClientDateFormat(this.sqlToUtc(date), clientDateFormat)
       return toReturn
@@ -1002,7 +1023,9 @@ export class GlobalService {
 
   manipulateResponse (obs: Observable<any>): Observable<any> {
     return obs.pipe(filter((data: ResponseSale) => {
-      if (data.Code === UIConstant.THOUSAND || data.Code === UIConstant.DELETESUCCESS) { return true } else { throw new Error(data.Description) }
+      if (data.Code === UIConstant.THOUSAND || 
+        data.Code === UIConstant.DELETESUCCESS || 
+        data.Code === UIConstant.PARTIALLY_SAVED) { return true } else { throw new Error(data.Description) }
     }), catchError(error => throwError(error) ), map((data: ResponseSale) => data.Data))
   }
 
@@ -1020,6 +1043,16 @@ export class GlobalService {
         }
         return result;
       }
+    }
+  }
+
+  compareDate (toDate, fromDate) {
+    toDate = this.clientToSqlDateFormat(toDate, this.clientDateFormat)
+    fromDate = this.clientToSqlDateFormat(fromDate, this.clientDateFormat)
+    if (new Date(toDate).getTime() < new Date(fromDate).getTime()) {
+      return false
+    } else {
+      return true
     }
   }
 }

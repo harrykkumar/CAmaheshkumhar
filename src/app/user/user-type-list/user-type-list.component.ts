@@ -16,19 +16,23 @@ export class UserTypeListComponent implements OnInit {
   indexLength: number
   userTypeList: Observable<Array<any>> = of([])
   menuData: any;
-  constructor (
+  constructor(
     private _userService: UserFormService,
     private _loginService: LoginService
   ) {
     this.menuData = this._loginService.getMenuPermission('Configuration', 'User Role');
-   }
+  }
 
-  ngOnInit () {
+  ngOnInit() {
     this.getUserTypeListData()
   }
 
-  searchUserType(){
-    
+  searchUserType() {
+  }
+  deleteUserType(id) {
+    if (id > 0) {
+      // no any delete api provided
+    }
   }
   getUserTypeListData = () => {
     this.userTypeList = this._userService.getUserTypeList().pipe(

@@ -37,11 +37,12 @@ import {MatDatepickerModule} from '@angular/material';
 import { ConfirmationPrintModule}  from '../shared/transactionMaster/confirmation-print/confirmation-print.module'
 import {DiscountMasterAddModule} from '../shared/transactionMaster/discountMaster/discountMaster-add/discountMaster-add.module'
 import { CategoryImportModule } from '../shared/transactionMaster/category/category-import/category-import.module';
+import { ActiveInventoryTermAddModule}   from '../shared/transactionMaster/active-Inventory-term-add/active-inventoryTerm-add.module'
 @NgModule({
   declarations: [
     SideMenuComponent,
     StartComponent,
-    CouponComponent,
+    CouponComponent, 
     DiscountComponent,
     LoyalityComponent,
     OfferComponent,
@@ -81,7 +82,8 @@ import { CategoryImportModule } from '../shared/transactionMaster/category/categ
     MatDatepickerModule,
     ConfirmationPrintModule,
     DiscountMasterAddModule,
-    CategoryImportModule
+    CategoryImportModule,
+    ActiveInventoryTermAddModule
   ],
   bootstrap: []
 })

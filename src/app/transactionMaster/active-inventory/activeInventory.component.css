@@ -1,0 +1,8 @@
+.search-align {
+  float: right;
+  padding-right: 0%;
+}
+.modal-backdrop {
+  /* bug fix - no overlay */    
+  display: none;    
+}

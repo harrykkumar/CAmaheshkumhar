@@ -1,0 +1,109 @@
+<div class="modal fade right" id="active_inventory_master" data-backdrop="static" data-keyboard="false" role="dialog"
+    aria-labelledby="active_inventory_master" aria-hidden="true">
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+        <div class="modal-content">
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900">Active Inventory Term</h4>
+                <button type="button" (closeBtn)="closePopup()" class="close" data-dismiss="modal"
+                    aria-label="Close"><span aria-hidden="true" (click)="closeModal()">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <div>
+                        <form #formModel1="ngForm" novalidate>
+                           
+                            <div class="form-row">
+                                    <ng-container *ngIf="optionalForChild">
+                                            <div class="form-group col-md-12">
+                                                    <label for="attrName">Active inventory Name</label>
+                                                    <input #inventory id="attrName" name="attributeName" #attrNameModel="ngModel"
+                                                        type="text" class="form-control" placeholder="Enter Attribute Name"
+                                                        [(ngModel)]="attribute.inventoryName">
+                                                </div>
+                                                <div class="form-group col-md-5">
+                                                    <label for="shortName">Short Name</label>
+                                                    <input id="shortName" name="shortName" #shortNameModel="ngModel" type="text"
+                                                        class="form-control" placeholder="Short Name" [(ngModel)]="attribute.shortName">
+                                                </div>
+                                                <div class="form-group col-md-5">
+                                                    <label for="type">Type </label>
+                                                    <ng-select name="labelname" [items]="TypeList" bindLabel="text" bindValue="id"
+                                                        placeholder="Select Type" (change)="changeType($event)"
+                                                        [(ngModel)]="ApplyTypeId" [ngClass]="{'is-invalid': addFalg &&  !ApplyTypeId}">
+                                                    </ng-select>
+                
+                                                </div>
+                                                <div class="col-md-2 p-3">
+                                                    <button [disabled]='disabledAddNewFlag' type="button" *ngIf="!isParent"
+                                                        class="btn btn-primary waves-effect"
+                                                        (click)="attribute.inventoryName && ApplyTypeId>0 && AddActiveCategoryName()">Add</button>
+                                                    <button type="button" *ngIf="isParent" class="btn btn-primary waves-effect"
+                                                        (click)="attribute.inventoryName && ApplyTypeId>0 && AddActiveCategoryName()">Save</button>
+                                                </div>
+                                                <hr />
+                                        </ng-container>
+                                
+
+                                <ng-container *ngIf="!isParent">
+                                    <div class="form-group col-md-12">
+                                        <label for="attrSelectName">Selected inventory </label>
+                                        <ng-select name="formTypeName" [items]="attributeList" bindLabel="text"
+                                            bindValue="id" placeholder="Select Inventory"
+                                            (change)="onActiveValueChange($event)" [(ngModel)]="selectedInventory"
+                                            [ngClass]="{'is-invalid': formModel1?.submitted && !selectedInventory}">
+                                        </ng-select>
+
+                                    </div>
+                                    <ng-container>
+                                        <div class="form-group col-md-6">
+                                            <label for="fromLimit">From Limit </label>
+                                            <input #fromLimitValue id="fromLimit" name="fromLimit"
+                                                #fromLimitModel="ngModel" type="number" class="form-control"
+                                                placeholder="from Limit" [(ngModel)]="attribute.fromLimit"
+                                                [ngClass]="{ 'is-invalid': formModel1?.submitted && fromLimitModel?.invalid }"
+                                                required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="toLimit">To Limit </label>
+                                            <input #toLimitValue id="toLimit" name="toLimit" #toLimitModel="ngModel"
+                                                type="number" class="form-control" placeholder="To Limit"
+                                                [(ngModel)]="attribute.toLimit"
+                                                [ngClass]="{ 'is-invalid': formModel1?.submitted && toLimitModel?.invalid }"
+                                                required>
+                                        </div>
+                                        <div class="form-group col-md-6 ">
+                                            <label class="fw-500">From</label>
+                                            <div class="timepicker-input input-icon form-group">
+                                                <datepicker-popup [toSetDate]="attribute.fromDatevalue"
+                                                    (dateInFormat)="attribute.fromDatevalue = $event;">
+                                                </datepicker-popup>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="fw-500">To</label>
+                                            <div class="timepicker-input input-icon form-group">
+                                                <datepicker-popup [toSetDate]="attribute.toDateValue"
+                                                    (dateInFormat)="attribute.toDateValue = $event;">
+                                                </datepicker-popup>
+                                            </div>
+                                        </div>
+                                    </ng-container>
+
+
+                                </ng-container>
+                            </div>
+                            <div class="modal-footer" style="padding-right:0;" *ngIf="!isParent">
+                                <button type="button" (click)=" saveAndUpdate('save')"
+                                    class="btn btn-primary waves-effect">Save </button>
+                                <button type="button" (click)="saveAndUpdate('New')"
+                                    class="btn btn-primary waves-effect"> Add New & Save </button>
+
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

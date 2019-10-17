@@ -6,7 +6,6 @@ import { Component, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import * as _ from 'lodash'
 import { GlobalService } from '../../../commonServices/global.service';
 import { ItemmasterServices } from '../../../commonServices/TransactionMaster/item-master.services';
-import { map } from 'rxjs/internal/operators/map';
 import { Settings } from '../../constants/settings.constant';
 import { SetUpIds } from '../../constants/setupIds.constant';
 declare const $: any
@@ -341,28 +340,24 @@ export class OpeningStkComponent implements OnInit, OnChanges {
     this.attrCombos = []
     this.search = ''
     this.allItems = false
-    this.isLoadingItems = true
+    // this.isLoadingItems = true
     this.isLoadingAttributes = true
     this.ItemAttributeDetails = []
   }
 
   getOpeningStkList = () => {
     this.isLoadingItems = true
-    this.gs.manipulateResponse(this.commonService.getOpeningStkList()).pipe(
-      map(data => {
-        this.isLoadingItems = false
-        this.ItemAttributeDetails = data.ItemAttributeDetails
-        console.log('main list : ', data)
-        data.ItemDetails.forEach(element => {
-          element['show'] = false
-          element['checked'] = false
-        })
-        return data.ItemDetails
-      })
-    )
+    this.gs.manipulateResponse(this.commonService.getOpeningStkList())
     .subscribe((data: any) => {
       this.isLoadingItems = false
-      this.masterItemData = data
+      this.ItemAttributeDetails = data.ItemAttributeDetails
+      console.log('main list : ', data)
+
+      this.masterItemData = data.ItemDetails.map((element) => {
+        element['show'] = false
+        element['checked'] = false
+        return element
+      })
       console.log('get opening stk list : ', this.masterItemData)
     },
     (error) => {
@@ -373,7 +368,7 @@ export class OpeningStkComponent implements OnInit, OnChanges {
 
   getSPUtilityData = () => {
     this.gs.manipulateResponse(this.comboService.getSPUtilityData()).subscribe(
-      async (data) => {
+      (data) => {
         if (data) {
           console.log('sp utility data : ', data)
           this.comboService.generateAttributes(data)
@@ -457,11 +452,9 @@ export class OpeningStkComponent implements OnInit, OnChanges {
 
   postFormData () {
     this.gs.manipulateResponse(this.commonService.postOpeningStkList(this.getPostParams())).subscribe((data) => {
-      if (data) {
-        this.toastrService.showSuccess('Success','Saved Successfully')
-        this.initData()
-        this.cancelForm()
-      }
+      this.toastrService.showSuccess('Success','Saved Successfully')
+      this.initData()
+      this.cancelForm()
     }, (error) => {
       console.log(error)
       this.toastrService.showError(error, '');
@@ -597,3 +590,16 @@ export class OpeningStkComponent implements OnInit, OnChanges {
   console.log('arr : ', arr)
   this.attrCombos = arr
   */
+ /*
+.pipe(
+      map(data => {
+        this.isLoadingItems = false
+        this.ItemAttributeDetails = data.ItemAttributeDetails
+        console.log('main list : ', data)
+        data.ItemDetails.forEach(element => {
+          element['show'] = false
+          element['checked'] = false
+        })
+        return data.ItemDetails
+      })
+    ) */

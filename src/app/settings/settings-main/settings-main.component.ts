@@ -15,6 +15,7 @@ export class SettingsMainComponent {
   title = 'Master Settings'
   loggedinUserData: any = {}
   showHeader: boolean = false;
+  search = ''
   constructor(private settingsService: SettingsService,
     private router: Router,
     public loginService: LoginService,
@@ -33,6 +34,10 @@ export class SettingsMainComponent {
     if (_.isEmpty(this.loginService.selectedOrganization)) {
       this.loginService.selectedOrganization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
     }
+  }
+
+  searchFor (value) {
+    this.settingsService.onSearch(value)
   }
 
   saveForm() {

@@ -13,6 +13,7 @@ export class TaxMasterService {
   getTaxDetail (queryParams) {
     return this._basesService.getRequest(ApiConstant.GET_TAX_DETAIL_URL + queryParams)
   }
+  
 
   deleteTax (id) {
     return this._basesService.deleteRequest(ApiConstant.GET_TAX_DETAIL_URL + '?id=' + id)

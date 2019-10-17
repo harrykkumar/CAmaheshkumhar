@@ -249,7 +249,6 @@ export class PurchaseReturnComponent {
     private renderer: Renderer2,
     private gs: GlobalService) {
     this.getFormDependency()
-
     this.data$ = this.commonService.getActionSaleReturnClickedStatus().subscribe(
       (action: any) => {
         console.log(action)
@@ -446,12 +445,7 @@ export class PurchaseReturnComponent {
           this.getAllAddresses(+data.Data.PurchaseTransactions[0].LedgerId)
           this.customerName = data.Data.PurchaseTransactions[0].LedgerName
           this.BillingAddress = data.Data.PurchaseTransactions[0].BillingAddressName
-          //this.ShippingAddress = data.Data.PurchaseTransactions[0].SupplyAddress
           this.OrganizationName= data.Data.PurchaseTransactions[0].OrganizationName
-
-
-          // this.allAddressData = data.Data.AddressDetails
-          // this._saleDirectReturnService.createAddress(data.Data.AddressDetails)
           this.createForm(data.Data)
         } else {
           this.toastrService.showError(data.Message, '')
@@ -475,7 +469,6 @@ export class PurchaseReturnComponent {
   }
   itemTaxListFlag:boolean = false
   createForm(data) {
-    //this.itemTaxListFlag= false
     this.dataForEdit = data
     this.other = {}
     this.Items = []
@@ -487,7 +480,7 @@ export class PurchaseReturnComponent {
     this.taxRatesForEdit = data.TaxRates
     this.createOther(data.PurchaseTransactions[0])
     this.createAttributes(data.ItemAttributesTrans)
-   this.createItemTaxTrans(data.ItemTaxTransDetails)
+    this.createItemTaxTrans(data.ItemTaxTransDetails)
     this.createItems(data.ItemTransactions)
  //   this.createAdditionalCharges(data.AdditionalChargeDetails)
     //this.createTransaction(data.PaymentDetails)
@@ -540,8 +533,6 @@ export class PurchaseReturnComponent {
         } else {
           this.taxTypeChargeName = 'Inclusive'
         }
-        console.log('itemTaxTrans : ', itemTaxTrans)
-
         this.LedgerChargeId = element.LedgerChargeId
         this.LedgerName = element.LedgerName
         this.AmountCharge = element.AmountCharge
@@ -565,7 +556,7 @@ export class PurchaseReturnComponent {
     }
     console.log('this.AdditionalCharges : ', this.AdditionalCharges)
   }
-
+  DisabledRow: boolean = true
   itemAttributesOthers: any = []
   createAttributes(attributes) {
     attributes.forEach((element, index) => {
@@ -631,6 +622,7 @@ export class PurchaseReturnComponent {
       this.SaleRate = element.SaleRate
       this.fixPurchaseRate = element.PurchaseRate
       this.MrpRate = element.MrpRate
+      this.DisabledRow = false
       this.PurchaseRate =this.editMode === true ? element.ReturnPurchaseRate : element.PurchaseRate
       this.TotalRate = this.editMode === true ? element.Total : 0
       this.TaxSlabId = element.TaxSlabId
@@ -672,7 +664,7 @@ export class PurchaseReturnComponent {
         this.Items[this.Items.length - 1].Id = this.editMode ===true ? element.Id : 0
         this.Items[this.Items.length - 1].itemTaxTrans = itemTaxTrans
       } else {
-        this.toastrService.showError('InCompelete fetching Data from server', '')
+        this.toastrService.showError('Data fetching Error', '')
       }
     })
     console.log('items : ', this.Items)
@@ -916,9 +908,14 @@ export class PurchaseReturnComponent {
     this.Remark = this.Items[index].Remark
     this.editItem(index, this.Items[index].Id, 'items', this.Items[index].Sno)
     this.ItemIndex = index
-    this.getTaxDetail(this.Items[index].TaxSlabId)
-    this.calculate()
-    this.validateItem()
+    if(this.Items[index].TaxSlabId>0){
+      this.getTaxDetail(this.Items[index].TaxSlabId)
+    }else{
+      this.calculate()
+      this.getBillSummary()
+    }
+  
+    
    
   }
   ItemIndex: any
@@ -926,20 +923,16 @@ export class PurchaseReturnComponent {
   selectAll: boolean = false
   onItemToggle(index, evt) {
     this.ItemIndex = index
-    
-    setTimeout(() => {
-     // this.returnQty+index.nativeElement.focus()
-    }, 100)
-    console.log('index : ', index)
-    this.returnQty
     if (this.Items.length > 0) {
       this.Items.forEach((element, i) => {
         if (index === i) {
           this.Items[index].selected = true
         }
+        else{
+          this.Items[i].selected = false
+        }
       });
     }
-  //  this.getTaxDetail(this.Items[index].TaxSlabId)
   }
   toggleSelect(evt) {
     console.log('event : ', evt.target.checked)
@@ -2164,12 +2157,7 @@ export class PurchaseReturnComponent {
   }
 
   addItems() {
-    // if (this.validDiscount && +this.ItemId > 0 && this.validateAttribute() && +this.UnitId > 0 && +this.TaxSlabId > 0 && this.PurchaseRate > 0) {
-
-    if (this.validDiscount && +this.ItemId > 0 && +this.UnitId > 0 && this.PurchaseRate > 0) {
-      // if ((this.industryId === 5 && this.BatchNo && this.ExpiryDate && this.MfdDate)
-      //   || (this.industryId === 3 )
-      //   || (this.industryId === 2 || this.industryId === 6)) {
+    if (this.validDiscount && +this.ItemId > 0  && +this.UnitId > 0 && this.PurchaseRate > 0) {
         this.addItem()
         this.clickItem = true
         console.log('items : ', this.Items)
@@ -2177,11 +2165,7 @@ export class PurchaseReturnComponent {
           this.calculateAllTotal()
         }
         //  this.initItem()
-        if (this.industryId === 5) {
-          // this.setExpiryDate()
-          // this.setMfdDate()
-        }
-      //}
+       
     }
   }
 
@@ -2191,15 +2175,19 @@ export class PurchaseReturnComponent {
     if (this.appliedTaxRatesItem.length > 0) {
       this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesItem)
     }
-    console.log('ItemTaxTrans : ', this.ItemTaxTrans)
+  
   }
 
   addItemBasedOnIndustry() {
     let Sno = 0
+    let SrNo =0
     if (this.Items.length === 0) {
       Sno = 1
+      SrNo =1
     } else if (this.Items.length > 0) {
       Sno = +this.Items[this.Items.length - 1].Sno + 1
+      SrNo = +this.Items[this.Items.length - 1].Sno + 1
+
     }
     this.appliedTaxRatesItem.forEach(element => {
       element['Sno'] = Sno
@@ -2212,6 +2200,7 @@ export class PurchaseReturnComponent {
     this.Items.push({
       Id: 0,
       Sno: Sno,
+      SrNo:SrNo,
       SaleTransId:this.SaleTransId,
       TransType: this.TransType,
       TransId: this.TransId,
@@ -2250,8 +2239,10 @@ export class PurchaseReturnComponent {
       taxRates: this.taxRates,
       itemTaxTrans: this.appliedTaxRatesItem,
       categoryName: this.categoryName,
-      selected:true,
+      selected:this.DisabledRow,
       isDisabled: true,
+      SpItemUtilities:[]
+
     })
 
     setTimeout(() => {
@@ -2329,6 +2320,8 @@ export class PurchaseReturnComponent {
       this.TransType = 0
       this.TransId = 0
       this.ChallanId = 0
+      this.Items[i].selected = false
+      this.DisabledRow = true
       this.categoryName = this.Items[i].categoryName
       this.itemName = this.Items[i].itemName
       this.unitName = this.Items[i].unitName
@@ -3516,10 +3509,8 @@ export class PurchaseReturnComponent {
             this.taxSlabType = 0
             this.taxRates = []
           }
-
-          //this.validateItem()
-          this.calculate()
           this.createTaxes(FormConstants.PurchaseForm)
+          this.calculate()
           this.getBillSummary()
         }
       }
@@ -3548,6 +3539,7 @@ export class PurchaseReturnComponent {
   billSummary: Array<any> = []
   AdditionalChargesToShow: any = []
   getBillSummary() {
+    debugger
     let taxableValue = 0
     let ItemTaxTrans = []
     let itemtaxForSumry =[]

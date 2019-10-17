@@ -22,6 +22,7 @@ export class VoucherEntrySearchComponent {
   voucherTypeData: Array<Select2OptionData> = []
   isValid: boolean = true
   @ViewChild('first') first: DatepickerComponent
+  @ViewChild('second') second: DatepickerComponent
   ngOnChanges (changes: SimpleChanges): void {
     if (changes.toShow && changes.toShow.currentValue) {
       setTimeout(() => {
@@ -103,17 +104,17 @@ export class VoucherEntrySearchComponent {
       if (!this.searchForm.value.ToDate) {
         toDate = ''
       } else {
-        toDate = JSON.parse(JSON.stringify(this.gs.clientToSqlDateFormat(this.searchForm.value.ToDate, this.settings.dateFormat)))
+        toDate = JSON.parse(JSON.stringify(this.gs.clientToSqlDateFormat(this.searchForm.value.ToDate,
+        this.settings.dateFormat)))
       }
       if (!this.searchForm.value.ToDate) {
         this.searchForm.value.ToDate = ''
       }
-
       const queryStr = 
        '&FromDate=' + fromDate + 
        '&ToDate=' + toDate + 
        '&LedgerId=' + this.LedgerId +
-       '&VoucherType=' + this.Type + 
+       '&VoucherType=' + this.Type +
        '&ToAmount=' + +this.searchForm.value.ToAmount +
        '&FromAmount=' + +this.searchForm.value.FromAmount
       this.voucherEntryServie.setSearchQueryParamsStr(queryStr)
@@ -147,9 +148,23 @@ export class VoucherEntrySearchComponent {
 
   setToDate (evt) {
     this.searchForm.controls.ToDate.setValue(evt)
+    if (this.searchForm.value.FromDate && this.searchForm.value.ToDate) {
+      if (!this.gs.compareDate(this.searchForm.value.ToDate, this.searchForm.value.FromDate)) {
+        this.searchForm.controls.ToDate.setValue('')
+        // console.log(this.searchForm.value.ToDate)
+        //this.searchForm.value.FromDate
+      }
+    }
   }
 
   setFromDate (evt) {
     this.searchForm.controls.FromDate.setValue(evt)
+    if (this.searchForm.value.FromDate && this.searchForm.value.ToDate) {
+      if (!this.gs.compareDate(this.searchForm.value.ToDate, this.searchForm.value.FromDate)) {
+        this.searchForm.controls.ToDate.setValue(evt)
+      }
+    } else {
+      this.searchForm.controls.ToDate.setValue(evt)
+    }
   }
 }

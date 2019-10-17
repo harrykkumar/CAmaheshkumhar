@@ -13,9 +13,13 @@
                 <a class="btn btn-default waves-effect" href="../../../../assets/static/excels/Item_master.xlsx"
                   download>Download Sample</a>
                 <a class="btn btn-default waves-effect" *ngIf="itemImport && itemImport.length > 0"
-                  (click)="saveItemImport('new')">Save </a>
+                  (click)="modeOfForm='new';saveItemImport('new')">Save
+                  <i class="fa fa-spinner fa-spin" *ngIf="isSaving && modeOfForm === 'new'"></i>
+                </a>
                 <a class="btn btn-info waves-effect" *ngIf="itemImport && itemImport.length > 0"
-                  (click)="saveItemImport('reset')">Save and New</a>
+                  (click)="modeOfForm='reset';saveItemImport('reset')">Save and New
+                  <i class="fa fa-spinner fa-spin" *ngIf="isSaving && modeOfForm === 'reset'"></i>
+                </a>
                 <button type="button" class="close" (click)="closeImportModal()" aria-label="Close"><span
                     aria-hidden="true" class="white-text">×</span> </button>
               </div>
@@ -69,17 +73,21 @@
                   <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchText"
                     name="searchtext">
                 </div>
-                <div class="form-group col-md-1" *ngIf="selectedItems?.length > 0 && categoryId > 0 && taxId > 0">
-                  <label></label>
-                  <a class="btn btn-primary" (click)="addToQueue()">Add to Queue </a>
+                <div class="form-group col-md-1 pt-3" *ngIf="selectedItems?.length > 0 && categoryId > 0 && taxId > 0">
+                  <!-- <label></label> -->
+                  <a class="btn btn-primary" (click)="addToQueue()">Add to Queue
+                    <i class="fa fa-spinner fa-spin" *ngIf="isAdding"></i> 
+                  </a>
                 </div>
-                <div class="form-group col-md-1" *ngIf="selectedItems?.length > 0 && this.isPending">
-                  <label></label>
+                <div class="form-group col-md-1 pt-3" *ngIf="selectedItems?.length > 0 && this.isPending">
+                  <!-- <label></label> -->
                   <a class="btn btn-primary" (click)="deleteList()">Delete List</a>
                 </div>
-                <div class="form-group col-md-1" *ngIf="duplicateTuples.length > 0" >
-                  <label></label>
-                  <a class="btn btn-primary" (click)="deleteDuplicates()" >Delete Duplicates</a>
+                <div class="form-group col-md-1 pt-3" *ngIf="duplicateTuples.length > 0" >
+                  <!-- <label></label> -->
+                  <a class="btn btn-primary" (click)="deleteDuplicates()" >Delete Duplicates
+                    <i class="fa fa-spinner fa-spin" *ngIf="toDisable"></i>
+                  </a>
                 </div>
               </div>
 
@@ -129,7 +137,7 @@
                     <br />
                     <div class="card" *ngIf="itemImport && itemImport.length > 0">
                       <div class="table-responsive table_height2" id="parent1">
-                        <table class="table fixTable2" id="fixTable">
+                        <table class="table fixTable2 item-import-table" id="fixTable">
                           <thead>
                             <tr>
                               <th *ngFor="let key of itemImportKeys">{{key | uppercase }}</th>

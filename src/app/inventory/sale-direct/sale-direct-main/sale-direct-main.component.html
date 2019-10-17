@@ -47,6 +47,7 @@
 </main>
 <app-sale-direct-add #saleDirect_add></app-sale-direct-add>
 <app-saleReturn></app-saleReturn>
+<!-- Full A4 page print -->
 
 <body *ngIf='PrintFormateType ===1' class="modal" id="saleDirect_PrintType1">
     <div *ngIf="setUpPaidUnPaid" style="position:absolute;top:290;bottom:0;left:0;right:0;text-align: center;">
@@ -460,6 +461,7 @@
     </footer>
 
 </body>
+<!-- Print Double on A4 -->
 
 <body *ngIf='PrintFormateType ===2' class="modal" id="saleDirect_PrintType2">
     <div class="row">
@@ -960,14 +962,25 @@
 
 
 </body>
+<!-- Print half on A4 -->
 
-<body *ngIf='PrintFormateType ===4' class="modal" id="saleDirect_PrintType4">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="left_side_print">
-                <div style="position:absolute;top:125px;bottom:0;left:0;right:0;text-align: center;">
+<body *ngIf='PrintFormateType ===4 || PrintFormateType ===5' class="modal" id="saleDirect_PrintType4">
+    <div class="row" 
+    [style.padding-left.px]=" PrintFormateType === 4 ? '0' : '550'"
+    
+    >
+        <div 
+        [ngClass]="{'col-md-6': PrintFormateType ===4, 'col-md-12':PrintFormateType ===5 }"
+        
+        >
+            <div class="left_side_print2"
+        [ngClass]="{'': PrintFormateType ===4, 'col-md-12':PrintFormateType ===5 }"
+>
+
+                <div *ngIf="setUpPaidUnPaid"
+                    style="position:absolute;top:125px;bottom:0;left:0;right:0;text-align: center;">
                     <p style=" color:#97919126;
-            font-size:100px;
+            font-size:100px; 
             transform:rotate(325deg);
             -webkit-transform:rotate(325deg);">{{paidFlag}}</p>
                 </div>
@@ -1211,10 +1224,7 @@
             </div>
 
         </div>
-
     </div>
-
-
 </body>
 
 <div class="modal fade" id="confirmationPage1" role="dialog" aria-labelledby="comman_master" aria-hidden="true">
@@ -1242,6 +1252,7 @@
         </div>
     </div>
 </div>
+<!-- Print 3 MM Roll  -->
 
 <body *ngIf='PrintFormateType ===3' class="modal" id="saleDirect_PrintType3">
     <div id="mainContent">
@@ -1249,27 +1260,33 @@
             <div class="row justify-content-center p-0">
                 <div class="balancesheet bgc-white col-md-11 p-0">
                     <div class="row text-center bs_head p-2">
-                        <div class="name text-center col-md-12 name_size font-weight-bold">{{ClientInfos && ClientInfos[0]?.OfficeName }}</div>
+                        <div class="name text-center col-md-12 name_size font-weight-bold">
+                            {{ClientInfos && ClientInfos[0]?.OfficeName }}</div>
                         <div class="text-center col-md-12">
-                        {{orgAddress && orgAddress[0]?.AddressValue}}
-                        {{orgAddress && orgAddress[0]?.AreaName}}
-                        {{orgAddress && orgAddress[0]?.CityName}}
-                        {{orgAddress && orgAddress[0]?.StateName}}
-                        {{orgAddress && orgAddress[0]?.CountryName }}
-                    </div>
-                        <div class="text-center d-block m-auto font-weight-bold">CONTACT NO : {{ContactOrgInfo && ContactOrgInfo[0]?.ContactNo }}</div>
-                        <div class="text-center d-block m-auto">GST NO:-{{ClientInfos && ClientInfos[0]?.GstinNo }}</div>
+                            {{orgAddress && orgAddress[0]?.AddressValue}}
+                            {{orgAddress && orgAddress[0]?.AreaName}}
+                            {{orgAddress && orgAddress[0]?.CityName}}
+                            {{orgAddress && orgAddress[0]?.StateName}}
+                            {{orgAddress && orgAddress[0]?.CountryName }}
+                        </div>
+                        <div class="text-center d-block m-auto font-weight-bold">CONTACT NO :
+                            {{ContactOrgInfo && ContactOrgInfo[0]?.ContactNo }}</div>
+                        <div class="text-center d-block m-auto">GST NO:-{{ClientInfos && ClientInfos[0]?.GstinNo }}
+                        </div>
 
                     </div>
                     <div class="row p-0" style="border-top:1px dashed #000;">
                         <div class="col-md-12">
                             <div class="row p-0">
                                 <div class="col-md-3">Bill No</div>
-                                <div class="col-md-3">{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillNo }}</div>
+                                <div class="col-md-3">
+                                    {{InventoryTransactionSales && InventoryTransactionSales[0]?.BillNo }}</div>
                                 <!-- <div class="col-md-3">TableNo</div>
                                 <div class="col-md-3">65</div> -->
                                 <div class="col-md-3">Bill Date</div>
-                                <div class="col-md-3">{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillDate | dateFormat :clientDateFormat}}</div>
+                                <div class="col-md-3">
+                                    {{InventoryTransactionSales && InventoryTransactionSales[0]?.BillDate | dateFormat :clientDateFormat}}
+                                </div>
                                 <!-- <div class="col-md-3">Bill Time</div>
                                 <div class="col-md-3">{{BillDateTime | date: 'shortTime'}}</div>  -->
                             </div>
@@ -1298,14 +1315,14 @@
                                         </span>
                                     </td>
                                 </ng-container>
-                              
+
                                 <td style="text-align:right">{{item.Quantity}}</td>
-                                
+
                                 <td style="text-align:right">{{(item.SaleRate).toFixed(dicimalDigitFormat)}}</td>
-    
+
                                 <td style="text-align:right">{{(item.SubTotalAmount).toFixed(dicimalDigitFormat)}}</td>
-    
-    
+
+
                             </tr>
                         </tbody>
 
@@ -1315,7 +1332,7 @@
                         <div class="col font-weight-bold text-right">Sub Total:</div>
                         <div class="col-md-3 font-weight-bold text-right">{{subTotalAmount}} </div>
                     </div>
-                    <div  *ngIf="totalDiscountAmt>0" class="row">
+                    <div *ngIf="totalDiscountAmt>0" class="row">
                         <div class="col font-weight-bold text-right">Discount:</div>
                         <div class="col-md-3 font-weight-bold text-right">{{totalDiscountAmt}} </div>
                     </div>
@@ -1324,26 +1341,33 @@
                         <div class="col-md-3 font-weight-bold text-right">{{totalBillDiscountAmt}} </div>
                     </div>
                     <ng-container *ngIf="!BillDiscountOnPrint">
-                            <div *ngFor="let discount of DiscountTrans; let i=index" class="row">
-                                    <div class="col font-weight-bold text-right">{{discount.Name}}</div>
-                                    <div class="col-md-3 font-weight-bold text-right">{{discount.Value}}{{discount.ValueType ===0 ? '%' :InventoryTransactionSales && InventoryTransactionSales[0]?.Currency}}-{{(discount.Amount).toFixed(dicimalDigitFormat) }}</div>
-                                </div>
-                    </ng-container> 
-                    
+                        <div *ngFor="let discount of DiscountTrans; let i=index" class="row">
+                            <div class="col font-weight-bold text-right">{{discount.Name}}</div>
+                            <div class="col-md-3 font-weight-bold text-right">
+                                {{discount.Value}}{{discount.ValueType ===0 ? '%' :InventoryTransactionSales && InventoryTransactionSales[0]?.Currency}}-{{(discount.Amount).toFixed(dicimalDigitFormat) }}
+                            </div>
+                        </div>
+                    </ng-container>
+
 
                     <div class="row">
                         <div class="col font-weight-bold text-right">Total Tax:</div>
-                        <div class="col-md-3 font-weight-bold text-right">{{InventoryTransactionSales && (InventoryTransactionSales[0]?.TaxAmount).toFixed(dicimalDigitFormat) }}</div>
+                        <div class="col-md-3 font-weight-bold text-right">
+                            {{InventoryTransactionSales && (InventoryTransactionSales[0]?.TaxAmount).toFixed(dicimalDigitFormat) }}
+                        </div>
                     </div>
-                   
+
                     <div class="row">
                         <div class="col font-weight-bold text-right">Round Off:</div>
-                        <div class="col-md-3 font-weight-bold text-right">{{InventoryTransactionSales && (InventoryTransactionSales[0]?.RoundOff).toFixed(dicimalDigitFormat) }}</div>
+                        <div class="col-md-3 font-weight-bold text-right">
+                            {{InventoryTransactionSales && (InventoryTransactionSales[0]?.RoundOff).toFixed(dicimalDigitFormat) }}
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col font-weight-bold text-right">Net Amount:</div>
-                        <div class="col-md-3 font-weight-bold text-right">{{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}
-                                {{billAmount}}</div>
+                        <div class="col-md-3 font-weight-bold text-right">
+                            {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}
+                            {{billAmount}}</div>
                     </div>
                     <!-- <div class="row p-0 font-weight-bold m-auto text-center d-block" style="margin-top:20px;">
                         YOUR ORDER NO MAY OVERLAP

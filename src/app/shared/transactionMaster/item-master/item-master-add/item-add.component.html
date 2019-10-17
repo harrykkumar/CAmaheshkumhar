@@ -255,14 +255,15 @@
         <button
           type="submit"
           class="btn waves-effect btn-succ-ess"
+          (click)="addNewItemMaster('save')"
           >
           Save
         </button>
         <button
           type="button"
           class="btn waves-effect btn-default def-ault-btn"
-         
-          data-dismiss="modal"
+          (click)="closeItemMaster()"
+          
         >
           Close
         </button>

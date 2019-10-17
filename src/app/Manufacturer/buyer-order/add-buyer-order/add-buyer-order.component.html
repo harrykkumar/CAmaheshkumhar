@@ -1,7 +1,6 @@
 <div
   class="modal fade"
   id="buyer_order_form"
-  tabindex="-1"
   role="dialog"
   aria-labelledby="exampleModalLabel"
   aria-hidden="true"
@@ -15,8 +14,7 @@
       <form
         #buyerOrderForm="ngForm"
         novalidate
-        (ngSubmit)="
-          buyerOrderForm.form.valid && validateBuyerOrderForm() && submitForm()
+        (ngSubmit)="validateBuyerOrderForm() && submitForm()
         "
       >
         <div class="modal-header primary-bg">
@@ -55,160 +53,126 @@
             <div class="col-lg-8">
               <div class="card p-2">
                 <div class="form-row ">
-                  <div class="form-group col-md-4 col-lg-6 ">
-                    <label
-                      >Buyer Name <span class="compulsory_field">*</span></label
-                    >
-                    <select2
-                      [data]="listItem?.buyerNameList"
-                      class="control_select"
-                      (valueChanged)="onDropDownChange($event, 'buyerNameId')"
-                      autocomplete="true"
-                      [value]="model?.buyerNameValue"
-                      [ngClass]="{
-                        errorSelecto:
-                        buyerOrderForm?.submitted && !model?.buyerNameId
-                      }"
-                    >
-                    </select2>
-                  </div>
                   <div class="form-group col-md-4 col-lg-3 ">
-                    <label>Date <span class="compulsory_field">*</span></label>
-                    <div class="timepicker-input input-icon form-group">
-                      <datepicker-popup
-                        [toSetDate]="model?.OnDate"
-                        [setMinDate]="''"
-                        [setMaxDate]="''"
-                        (dateInFormat)="model.OnDate = $event"
-                      ></datepicker-popup>
+                    <label>Buyer Name</label>
+                    <div class="input-group adw_select" >
+                      <select2
+                        #first
+                        [data]="listItem?.buyerNameList"
+                        class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'buyerNameId')"
+                        autocomplete="true"
+                        [value]="model?.buyerNameValue"
+                        [ngClass]="{
+                          errorSelecto:
+                          buyerOrderForm?.submitted && !model?.buyerNameId
+                        }"
+                      >
+                      </select2>
+                    </div>
+                  </div>
+                  <div class="form-group col-md-4 col-lg-3">
+                    <label>Address</label>
+                    <div class="input-group adw_select">
+                      <select2 #address_select2 name="address" [data]="listItem?.addressList"
+                        class="control_select"
+                        autocomplete="true" (valueChanged)="onDropDownChange($event, 'AddressId')"
+                        [options]="{placeholder: 'Select Address'}"
+                        [value]="model?.addressValue"
+                        [ngClass]="{
+                          errorSelecto:
+                          buyerOrderForm?.submitted && (!model?.AddressId || model?.AddressId <= 0)
+                        }"
+                        >
+                      </select2>
                     </div>
                   </div>
                   <div class="form-group col-md-4 col-lg-3 ">
-                    <label
-                      >Order Type <span class="compulsory_field">*</span></label
-                    >
+                    <label>Order Type</label>
                     <div class="input-group adw_select">
-                      <div class="input-group adw_select">
-                        <select2
-                          [data]="listItem?.orderTypeList"
-                          class="control_select"
-                          (valueChanged)="
-                            onDropDownChange($event, 'orderTypeId')
-                          "
-                          autocomplete="true"
-                          [value]="model?.orderTypeValue"
-                          [ngClass]="{
-                            errorSelecto:
-                            buyerOrderForm?.submitted && !model?.orderTypeId
-                          }"
-                        >
-                        </select2>
-                      </div>
+                      <select2 [data]="listItem?.orderTypeList"
+                        class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'orderTypeId')"
+                        autocomplete="true"
+                        [value]="model?.orderTypeValue"
+                      >
+                      </select2>
                     </div>
                   </div>
                   <div class="form-group col-md-4 col-lg-3 ">
-                    <label>Season<span class="compulsory_field">*</span></label>
+                    <label>Season</label>
                     <div class="input-group adw_select">
-                      <div class="input-group adw_select">
-                        <select2
-                          [data]="listItem?.seasonList"
-                          class="control_select"
-                          (valueChanged)="onDropDownChange($event, 'seasonId')"
-                          autocomplete="true"
-                          [value]="model?.seasonValue"
-                          [ngClass]="{
-                            errorSelecto:
-                            buyerOrderForm?.submitted && !model?.seasonId
-                          }"
-                        >
-                        </select2>
-                      </div>
+                      <select2
+                        [data]="listItem?.seasonList"
+                        class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'seasonId')"
+                        autocomplete="true"
+                        [value]="model?.seasonValue"
+                      >
+                      </select2>
                     </div>
                   </div>
                   <div class="form-group col-md-4 col-lg-3 ">
-                    <label>Gender<span class="compulsory_field">*</span></label>
+                    <label>Style No.</label>
                     <div class="input-group adw_select">
-                      <div class="input-group adw_select">
-                        <select2
-                          [data]="listItem?.genderList"
-                          class="control_select"
-                          (valueChanged)="onDropDownChange($event, 'genderId')"
-                          autocomplete="true"
-                          [value]="model?.genderValue"
-                          [ngClass]="{
-                            errorSelecto:
-                            buyerOrderForm?.submitted && !model?.genderId
-                          }"
-                        >
-                        </select2>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="form-group col-md-4 col-lg-3 ">
-                    <label
-                      >Style No. <span class="compulsory_field">*</span></label
-                    >
-                    <div class="input-group adw_select">
-                      <div class="input-group adw_select">
-                        <select2
-                          [data]="listItem?.styleNumberList"
-                          class="control_select"
-                          (valueChanged)="
-                            onDropDownChange($event, 'styleNumberId')
-                          "
-                          autocomplete="true"
-                          [value]="model?.styleNumberValue"
-                          [ngClass]="{
-                            errorSelecto:
-                            buyerOrderForm?.submitted && !model?.styleNumberId
-                          }"
-                        >
-                        </select2>
-                      </div>
+                      <select2
+                        [data]="listItem?.styleNumberList"
+                        class="control_select"
+                        (valueChanged)="
+                          onDropDownChange($event, 'styleNumberId')
+                        "
+                        autocomplete="true"
+                        [value]="model?.styleNumberValue"
+                        [ngClass]="{
+                          errorSelecto:
+                          buyerOrderForm?.submitted && !model?.styleNumberId
+                        }"
+                      >
+                      </select2>
                     </div>
                   </div>
                   <div class="form-group col-md-2 col-lg-2 ">
                     <label>Order/PO No. </label>
+                    <a *ngIf="isBillManual" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
+                      <span class="tooltiptext">Last Order No. used is - {{previousBillNo}}</span>
+                    </a>
                     <input
                       name="order_Po_No"
                       #orderPoRefModal="ngModel"
                       type="text"
+                      [disabled]="!isBillManual"
                       class="form-control"
                       placeholder="Enter Order/PO No."
                       [(ngModel)]="model.orderPoNumber"
+                      [ngClass]="{
+                        errorSelecto:
+                        buyerOrderForm?.submitted && !model?.orderPoNumber
+                      }"
                     />
                   </div>
                   <div class="form-group col-md-2 col-lg-2 ">
-                    <label
-                      >Order Date <span class="compulsory_field">*</span></label
-                    >
+                    <label>Order Date</label>
                     <div class="timepicker-input input-icon form-group">
                       <datepicker-popup
                         [toSetDate]="model?.orderDate"
-                        [setMinDate]="''"
-                        [setMaxDate]="''"
-                        (dateInFormat)="model.orderDate = $event"
+                        [applyFinYear]="'true'"
+                        (dateInFormat)="setFromDate($event)"
+                        [class]="buyerOrderForm?.submitted && !model?.orderDate"
                       ></datepicker-popup>
                     </div>
                   </div>
                   <div class="form-group col-md-2 col-lg-2  ">
-                    <label
-                      >Ship Date <span class="compulsory_field">*</span></label
-                    >
+                    <label>Ship Date</label>
                     <div class="timepicker-input input-icon form-group">
                       <datepicker-popup
                         [toSetDate]="model?.shipDate"
-                        [setMinDate]="''"
-                        [setMaxDate]="''"
-                        (dateInFormat)="model.shipDate = $event"
+                        [applyFinYear]="'true'"
+                        (dateInFormat)="setToDate($event)"
                       ></datepicker-popup>
                     </div>
                   </div>
-                  <div class="form-group col-md-2 col-lg-2  ">
-                    <label
-                      >Ex Fact Date
-                      <span class="compulsory_field">*</span></label
-                    >
+                  <div class="form-group col-md-2 col-lg-2">
+                    <label>Ex Fact Date</label>
                     <div class="timepicker-input input-icon form-group">
                       <datepicker-popup
                         [toSetDate]="model?.exFactDate"
@@ -218,28 +182,19 @@
                       ></datepicker-popup>
                     </div>
                   </div>
-                  <!-- <div class="form-group col-md-2 col-lg-2  ">
-                                      <label>Ship Ex. Date1 <span class="compulsory_field">*</span></label>
-                                      <div class="timepicker-input input-icon form-group">
-                                        <datepicker-popup
-                                          [toSetDate]="model?.shipExDate1"
-                                          [setMinDate]="''"
-                                          [setMaxDate]="''"
-                                          (dateInFormat)="model.shipExDate1 = $event"
-                                        ></datepicker-popup>
-                                      </div>
-                                  </div>
-                                  <div class="form-group col-md-2 col-lg-2  ">
-                                      <label>Ship Ex. Date2 <span class="compulsory_field">*</span></label>
-                                      <div class="timepicker-input input-icon form-group">
-                                        <datepicker-popup
-                                          [toSetDate]="model?.shipExDate2"
-                                          [setMinDate]="''"
-                                          [setMaxDate]="''"
-                                          (dateInFormat)="model.shipExDate2 = $event"
-                                        ></datepicker-popup>
-                                      </div>
-                                  </div> -->
+                  <div class="form-group col-md-4 col-lg-3 ">
+                    <label>Gender</label>
+                    <div class="input-group adw_select">
+                      <select2
+                        [data]="listItem?.genderList"
+                        class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'genderId')"
+                        autocomplete="true"
+                        [value]="model?.genderValue"
+                      >
+                      </select2>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -248,90 +203,35 @@
                 <div class="form-row ">
                   <div class="form-group col-md-6">
                     <label>Ship. Mode</label>
-                    <select2
-                      [data]="listItem?.shipModeList"
-                      class="control_select"
-                      (valueChanged)="onDropDownChange($event, 'shipModeId')"
-                      autocomplete="true"
-                      [value]="model?.shipModeValue"
-                      [ngClass]="{
-                        errorSelecto:
-                        buyerOrderForm?.submitted && !model?.shipModeId
-                      }"
-                    >
-                    </select2>
+                    <div class="input-group adw_select" >
+                      <select2
+                        [data]="listItem?.shipModeList"
+                        class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'shipModeId')"
+                        autocomplete="true"
+                        [value]="model?.shipModeValue"
+                      >
+                      </select2>
+                    </div>
                   </div>
-                  <!-- <div class="form-group col-md-6">
-                                        <label>Ship. Terms</label>
-                                        <select2
-                                        [data]="listItem?.shipMentTermList"
-                                        class="control_select"
-                                        (valueChanged)="onDropDownChange($event, 'shipTermId')"
-                                        autocomplete="true"
-                                        [value]="model?.shipMentTermValue">
-                                      </select2>
-                                    </div> -->
-                  <div class="form-group col-md-6">
-                    <label>Payment Mode</label>
-                    <select2
-                      [data]="listItem?.payMentModeList"
-                      class="control_select"
-                      (valueChanged)="onDropDownChange($event, 'paymentModeId')"
-                      autocomplete="true"
-                      [value]="model?.payMentModeValue"
-                      [ngClass]="{
-                        errorSelecto:
-                        buyerOrderForm?.submitted && !model?.paymentModeId
-                      }"
-                    >
-                    </select2>
-                  </div>
-                  <!-- <div class="form-group col-md-6">
-                                        <label>Payment Terms</label>
-                                        <select2
-                                        [data]="listItem?.paymentTermList"
-                                        class="control_select"
-                                        (valueChanged)="onDropDownChange($event, 'paymentTermId')"
-                                        autocomplete="true"
-                                        [value]="model?.payMentTermValue">
-                                      </select2>
-                                    </div> -->
                   <div class="form-group col-md-6">
                     <label>Currency</label>
-                    <select2
-                      [data]="listItem?.currencyList"
-                      class="control_select"
-                      (valueChanged)="onDropDownChange($event, 'currencyId')"
-                      autocomplete="true"
-                      [value]="model?.currencyValue"
-                      [ngClass]="{
-                        errorSelecto:
-                        buyerOrderForm?.submitted && !model?.currencyId
-                      }"
-                    >
-                    </select2>
+                    <div class="input-group adw_select" >
+                      <select2
+                        [data]="listItem?.currencyList"
+                        class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'currencyId')"
+                        autocomplete="true"
+                        [value]="model?.currencyValue"
+                        [ngClass]="{
+                          errorSelecto:
+                          buyerOrderForm?.submitted && !model?.currencyId
+                        }"
+                      >
+                      </select2>
+                    </div>
                   </div>
-                  <!-- <div class="form-group col-md-6">
-                                      <label>Type</label>
-                                      <select2
-                                      [data]="listItem?.typeList"
-                                      class="control_select"
-                                      (valueChanged)="onTypeChange($event)"
-                                      autocomplete="true"
-                                      [value]="model?.typeValue">
-                                    </select2>
-                                  </div>
-                                  <div class="form-group col-md-6">
-                                      <label>Conv. Rate</label>
-                                      <select2
-                                      [data]="listItem?.convertRateList"
-                                      class="control_select"
-                                      (valueChanged)="onConvertRateChange($event)"
-                                      autocomplete="true"
-                                      [value]="model?.convertRateValue">
-                                    </select2>
-                                  </div> -->
-                  <div class="form-group col-md-6 pt-4">
+                  <!-- <div class="form-group col-md-6 pt-4">
                     <div class="form-row">
                       <div class="custom-control custom-checkbox my-1 mr-sm-2">
                         <input
@@ -341,9 +241,7 @@
                           class="custom-control-input"
                           id="completed"
                         />
-                        <label class="custom-control-label" for="completed"
-                          >Completed</label
-                        >
+                        <label class="custom-control-label" for="completed">Completed</label>
                       </div>
                       <div class="custom-control custom-checkbox my-1 mr-sm-2">
                         <input
@@ -358,7 +256,7 @@
                         >
                       </div>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </div>
@@ -366,21 +264,14 @@
           <form
             #itemForm="ngForm"
             novalidate
-            (ngSubmit)="
-              itemForm.form.valid &&
-                validateItemAddForm() &&
-                openAttributeCombinationModal()
-            "
-          >
+            (ngSubmit)="addItem(itemForm.form.valid)">
             <div class="form-row mt-2">
               <div class="col-lg-10">
                 <div class="card p-2">
                   <div class="form-row ">
                     <div class="form-group col-md-2 col-lg-2">
-                      <label
-                        >Item Name
-                        <span class="compulsory_field">*</span></label
-                      >
+                      <label>Item Name
+                       </label>
                       <div class="input-group adw_select">
                         <div class="input-group adw_select">
                           <select2
@@ -391,7 +282,7 @@
                             [value]="model?.itemValue"
                             [ngClass]="{
                               errorSelecto:
-                                itemForm?.submitted && !model?.itemId
+                                (itemForm?.submitted && !model?.itemId)
                             }"
                           >
                           </select2>
@@ -401,7 +292,8 @@
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Order Qty</label>
                       <input
-                        type="number"
+                        type="text"
+                        appIncludeDecimal
                         #orderQtyModal="ngModel"
                         class="form-control"
                         name="orderQuantity"
@@ -409,7 +301,7 @@
                         [(ngModel)]="model.orderQuantity"
                         [ngClass]="{
                           'is-invalid':
-                            itemForm?.submitted && orderQtyModal.invalid
+                            (itemForm?.submitted && orderQtyModal.invalid)
                         }"
                         required
                       />
@@ -417,15 +309,16 @@
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Add %</label>
                       <input
-                        type="number"
+                        type="text"
+                        appIncludeDecimal
                         #addPercentageModal="ngModel"
                         class="form-control"
                         name="add"
-                        (change)="generateProductionQty()"
+                        (input)="generateProductionQty()"
                         [(ngModel)]="model.addPercentage"
                         [ngClass]="{
                           'is-invalid':
-                            itemForm?.submitted && addPercentageModal.invalid
+                            (itemForm?.submitted && addPercentageModal.invalid)
                         }"
                         required
                       />
@@ -433,14 +326,15 @@
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Production Qty</label>
                       <input
-                        type="number"
+                        type="text"
+                        appIncludeDecimal
                         #productionQtyModal="ngModel"
                         class="form-control"
                         name="productionQty"
                         [(ngModel)]="model.productionQty"
                         [ngClass]="{
                           'is-invalid':
-                            itemForm?.submitted && productionQtyModal.invalid
+                            (itemForm?.submitted && productionQtyModal.invalid)
                         }"
                         required
                       />
@@ -456,7 +350,7 @@
                     <div class="form-group col-md-3 col-lg-3">
                       <label
                         >Packing Type
-                        <span class="compulsory_field">*</span></label
+                         </label
                       >
                       <div class="input-group adw_select">
                         <div class="input-group adw_select">
@@ -470,27 +364,13 @@
                             [value]="model?.packageTypeValue"
                             [ngClass]="{
                               errorSelecto:
-                                itemForm?.submitted && !model?.packingTypeId
+                                (itemForm?.submitted && !model?.packingTypeId) 
                             }"
                           >
                           </select2>
                         </div>
                       </div>
                     </div>
-                    <!-- <div class="form-group col-md-3 col-lg-3">
-                                      <label>Item Set Type <span class="compulsory_field">*</span></label>
-                                      <div class="input-group adw_select">
-                                            <div class="input-group adw_select">
-                                              <select2
-                                                [data]="listItem?.itemSetTypeList"
-                                                class="control_select"
-                                                (valueChanged)="itemSetTypeChange($event)"
-                                                autocomplete="true"
-                                                [value]="model?.itemSetTypeValue">
-                                              </select2>
-                                            </div>
-                                          </div>
-                                  </div> -->
                     <div class="form-group col-md-1 mt-3">
                       <button
                         type="submit"
@@ -553,53 +433,72 @@
 
           <div class="form-row">
             <div class="col-md-12 card  p-2">
-              <div class="table-responsive">
-                <table class="table table editable_tbl">
+              <div class="table-responsive table_height4">
+                <table class="table order-list-table editable_tbl table-hover">
                   <thead>
                     <tr class="default_row">
                       <th style="width: 10px;">#</th>
-                      <th>Size</th>
-                      <th>Attribute Combination</th>
+                      <th>Item</th>
+                      <th *ngIf="toOpenAttr" >{{model.defaultAttrName}}</th>
+                      <th *ngIf="toOpenAttr" >Attribute Combination</th>
                       <th>Order Qty</th>
                       <th>Unit</th>
                       <th>Add %</th>
                       <th>Prod. Qty</th>
                       <th>Rate</th>
-                      <!-- <th>PCS</th> -->
                       <th>Amount</th>
-                      <!-- <th>Cancel Qty</th> -->
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let item of orderList" class="selected_row active">
+                    <ng-container *ngIf="editMode && previousOrders.length > 0" >
+                      <tr *ngFor="let item of previousOrders; let i = index" class="selected_row active">
+                        <td>
+                          <div class="action_btn">
+                            <a (click)="deleteItem(i, item, 'old')" >
+                              <i aria-hidden="true" class="fa fa-trash fa-1x"></i>
+                            </a>
+                          </div>
+                        </td>
+                        <td>{{item?.itemName}}</td>
+                        <td *ngIf="toOpenAttr" >{{ item?.sizeName }}</td>
+                        <td *ngIf="toOpenAttr" >{{ item?.attributeValueName }}</td>
+                        <td>{{ item?.orderQuantity?.toFixed(2) }}</td>
+                        <td>{{item?.unitName}}</td>
+                        <td>{{item?.addPercentage}}</td>
+                        <td>{{item?.productionQty?.toFixed(2)}}</td>
+                        <td>{{item?.rate}}</td>
+                        <td>{{item?.amount}}</td>
+                      </tr>
+                    </ng-container>
+                    <tr *ngFor="let item of orderList; let i = index" class="selected_row active">
                       <td>
                         <div class="action_btn">
-                          <a>
+                          <a (click)="deleteItem(i, item, 'new')" >
                             <i aria-hidden="true" class="fa fa-trash fa-1x"></i>
                           </a>
                         </div>
                       </td>
-                      <td>{{ item?.sizeName }}</td>
-                      <td>{{ item?.attributeValueName }}</td>
-                      <td>{{ item?.orderQuantity }}</td>
+                      <td>{{item?.itemName}}</td>
+                      <td *ngIf="toOpenAttr" >{{ item?.sizeName }}</td>
+                      <td *ngIf="toOpenAttr" >{{ item?.attributeValueName }}</td>
+                      <td>{{ item?.orderQuantity?.toFixed(2) }}</td>
                       <td>{{item?.unitName}}</td>
                       <td>{{item?.addPercentage}}</td>
-                      <td>{{item?.productionQty}}</td>
+                      <td>{{item?.productionQty?.toFixed(2)}}</td>
                       <td>{{item?.rate}}</td>
                       <td>{{item?.amount}}</td>
-                      <!-- <td>1500.000</td> -->
-                      <!-- <td>0.000</td> -->
                     </tr>
                     <tr>
                       <td></td>
+                      <td *ngIf="toOpenAttr" ></td>
+                      <td *ngIf="toOpenAttr" ></td>
+                      <td></td>
+                      <td>{{model?.totalOrderedQty?.toFixed(2)}}</td>
                       <td></td>
                       <td></td>
-                      <td>{{model?.totalOrderedQty}}</td>
+                      <td>{{model?.totalProductionQty?.toFixed(2)}}</td>
                       <td></td>
-                      <td></td>
-                      <td>{{model?.totalProductionQty}}</td>
-                      <td></td>
-                      <td></td>
+                      <td>{{model?.totalAmount?.toFixed(2)}}</td>
                     </tr>
                   </tbody>
                 </table>

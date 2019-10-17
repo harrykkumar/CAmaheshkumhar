@@ -246,9 +246,7 @@ export class serviceBillingAddComponent {
   previousBillNo: string = ''
   keepOpen: boolean = false
   isAddNew: boolean = false
-
   creatingForm: boolean = false
-
   TransactionNoSetups: any
   loadingSummary: boolean = false
   constructor ( private _coustomerServices :VendorServices, private _loaderService : NgxSpinnerService,private commonService: CommonService,
@@ -634,12 +632,20 @@ export class serviceBillingAddComponent {
     }, 1000)
     this.getBillSummary()
     this.creatingForm = false
-    this.BillDiscountApplied = []
-    data.DiscountTrans.forEach((ele,indx) => {
-      data.DiscountTrans[indx]['isChecked'] = true
-    });
-    this.BillDiscountApplied = data.DiscountTrans
-    this.MultipleDiscountCalculate(data.DiscountTrans)
+    if(data.DiscountTrans.length>0){
+      if(this.MultipleBillDiscount){
+        this.BillDiscountApplied = []
+        data.DiscountTrans.forEach((ele, indx) => {
+          data.DiscountTrans[indx]['isChecked'] = true
+        });
+        this.BillDiscountApplied = data.DiscountTrans
+        this.MultipleDiscountCalculate(data.DiscountTrans)
+      }
+      else{
+        this.editSimpleBillDiscount(data.DiscountTrans)
+      }
+
+    }
   }
 
   createItemTaxTrans (taxRates) {
@@ -1083,18 +1089,25 @@ getTypeOfGST () {
       )
     }
   }
-
+  getBillSummryListFlag:boolean 
+onLoading(){
+  this.getBillSummryListFlag =false
+  this.editItemIndex = -1
+  this.BillDiscountArray = []
+  this.BillNo=''
+  this.editItemFlag= false
+  this.caseSaleCustomerDetails =[]
+  this.showHideAddItemRow = true
+  this.showHideItemCharge = true
+  this.showHidePayment = true
+  this.addItemDisbaled = this.editMode === true ? false : true   
+  this.caseSaleArrayId = [{ id: 6 }, { id: 5 }]
+}
   caseSaleArrayId:any =[]
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal () {
-    this.BillNo=''
+    this.onLoading()
     this.clearCaseCustomer()
-    this.caseSaleCustomerDetails =[]
-    this.showHideAddItemRow = true
-    this.showHideItemCharge = true
-    this.showHidePayment = true
-    this.addItemDisbaled = this.editMode === true ? false : true   
-    this.caseSaleArrayId = [{ id: 6 }, { id: 5 }]
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.getSpUtilitySaleServiceData()
    
@@ -1247,7 +1260,7 @@ getTypeOfGST () {
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.length > 0) {
 
-
+          this.getBillSummryListFlag =true
           // console.log('categoryname : ', this.categoryName)
           this.TaxSlabId = data.Data[0].TaxId
 
@@ -1346,13 +1359,12 @@ getTypeOfGST () {
 }
   appliedTaxRatesItem: any = []
   appliedTaxRatesCharge: any = []
-
-  calculate () {
+  calculate() {
     let total = +(isNaN(+this.SaleRate) ? 0 : +this.SaleRate)
-    * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
-    * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
-    * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
-    * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
+      * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
     this.TotalRate = +total.toFixed(this.noOfDecimalPoint)
     if (this.validDiscount) {
       if ('' + this.DiscountType === '0') {
@@ -1364,7 +1376,10 @@ getTypeOfGST () {
       } else {
         this.DiscountAmt = isNaN(+this.Discount) ? 0 : +this.Discount
       }
-      if ( total > 0) {
+      if (total > 0) {
+        if (this.editItemIndex > -1) {
+          this.Items[this.editItemIndex].SaleRate = this.SaleRate
+        }
         let discountedAmount = 0
         if (this.DiscountAmt === total) {
           discountedAmount = total
@@ -1372,13 +1387,21 @@ getTypeOfGST () {
           discountedAmount = total - this.DiscountAmt
         }
         this.AmountItem = discountedAmount
+        if (this.editItemIndex > -1) {
+          this.Items[this.editItemIndex].AmountItem = this.AmountItem
+        }
         if (this.TaxType === 0) {
           let returnTax = this.saleServiceBillingService.taxCalculation(this.taxRates,
             this.taxSlabType,
             discountedAmount,
-            this.isOtherState, FormConstants.PurchaseForm, this.taxSlabName)
+            this.isOtherState, FormConstants.SaleForm, this.taxSlabName)
           this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
           this.appliedTaxRatesItem = returnTax.appliedTaxRates
+          if (this.editItemIndex > -1) {
+            this.Items[this.editItemIndex].TaxAmount = this.TaxAmount
+            this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
+          }
+
         } else {
           if (this.taxCalInclusiveType === 1) {
             let AmountItem = +(this.saleServiceBillingService.calcTaxableAmountType1(this.taxRates,
@@ -1386,12 +1409,22 @@ getTypeOfGST () {
               discountedAmount,
               this.isOtherState)).toFixed(4)
             this.AmountItem = AmountItem
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].AmountItem = this.AmountItem
+            }
             let returnTax = this.saleServiceBillingService.taxCalCulationForInclusive(this.taxRates,
               this.taxSlabType,
               this.AmountItem,
-              this.isOtherState, FormConstants.PurchaseForm, this.taxSlabName)
+              this.isOtherState, FormConstants.SaleForm, this.taxSlabName)
             this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
             this.appliedTaxRatesItem = returnTax.appliedTaxRates
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].TaxAmount = this.TaxAmount
+              this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
+            }
+
+
+
           } else {
             let AmountItem = +(this.saleServiceBillingService.calcTaxableAmountType2(this.taxRates,
               this.taxSlabType,
@@ -1400,28 +1433,59 @@ getTypeOfGST () {
             if ('' + this.DiscountType === '0') {
               if (+this.Discount < 100 && +this.Discount > 0) {
                 this.DiscountAmt = +((+this.Discount / 100) * (AmountItem)).toFixed(this.noOfDecimalPoint)
-              } else if (+this.Discount === 100 || +this.Discount === 0 ) {
+              } else if (+this.Discount === 100 || +this.Discount === 0) {
                 this.DiscountAmt = 0
+                if (this.editItemIndex > -1) {
+                  this.Items[this.editItemIndex].DiscountAmt = this.DiscountAmt
+                }
+
               }
             }
             this.AmountItem = AmountItem - this.DiscountAmt
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].AmountItem = this.AmountItem
+            }
             let returnTax = this.saleServiceBillingService.taxCalCulationForInclusiveType2(this.taxRates,
               this.taxSlabType,
               this.AmountItem,
-              this.isOtherState, FormConstants.PurchaseForm, this.taxSlabName)
+              this.isOtherState, FormConstants.SaleForm, this.taxSlabName)
             this.TaxAmount = +(returnTax.taxAmount).toFixed(4)
             this.appliedTaxRatesItem = returnTax.appliedTaxRates
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].TaxAmount = this.TaxAmount
+              this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
+
+            }
+            
           }
         }
       } else {
         if (this.editItemId === -1) {
           this.TaxAmount = 0
+          this.AmountItem = 0
+          if (this.editItemIndex > -1) {
+            this.Items[this.editItemIndex].TaxAmount = 0
+            this.Items[this.editItemIndex].AmountItem = 0
+            this.Items[this.editItemIndex].DiscountAmt = 0
+            this.Items[this.editItemIndex].taxRates = []
+
+
+          }
           this.appliedTaxRatesItem = []
+        }
+        if (this.editItemId !== -1 && this.editItemIndex > -1) {
+          this.resetCalculate(this.editItemIndex)
+         
         }
       }
     } else {
       this.DiscountAmt = 0
       this.TaxAmount = 0
+      if (this.editItemIndex > -1) {
+        this.Items[this.editItemIndex].DiscountAmt = 0
+        this.Items[this.editItemIndex].TaxAmount = 0
+      }
+
     }
     this.TaxableAmountCharge = +this.AmountCharge
     if (this.taxChargeRates.length > 0 && +this.AmountCharge > 0) {
@@ -1431,12 +1495,12 @@ getTypeOfGST () {
           +this.AmountCharge,
           this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
         this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
+
         this.appliedTaxRatesCharge = returnTax.appliedTaxRates
       } else {
         if (this.TaxTypeCharge === 1) {
-          let AmountCharge = this.saleServiceBillingService.calcTaxableAmountType1 (this.taxChargeRates,
+          let AmountCharge = this.saleServiceBillingService.calcTaxableAmountType1(this.taxChargeRates,
             this.taxChargeSlabType, +this.AmountCharge, this.isOtherState)
-         // console.log('amount charge : ', AmountCharge)
           this.TaxableAmountCharge = +AmountCharge.toFixed(this.noOfDecimalPoint)
           let returnTax = this.saleServiceBillingService.taxCalCulationForInclusive(this.taxChargeRates,
             this.taxChargeSlabType,
@@ -1449,21 +1513,34 @@ getTypeOfGST () {
     } else if (this.editChargeId === -1) {
       this.TaxAmountCharge = 0
     }
-    // console.log('TaxAmountCharge : ', this.TaxAmountCharge)
     if (+this.AmountCharge > 0) {
-      this.TotalAmountCharge = +(+this.AmountCharge +  + ((this.TaxTypeCharge === 0) ? (isNaN(+this.TaxAmountCharge) ? 0 : +this.TaxAmountCharge) : 0)).toFixed(this.noOfDecimalPoint)
+      this.TotalAmountCharge = +(+this.AmountCharge + + ((this.TaxTypeCharge === 0) ? (isNaN(+this.TaxAmountCharge) ? 0 : +this.TaxAmountCharge) : 0)).toFixed(this.noOfDecimalPoint)
     } else {
       this.TotalAmountCharge = 0
     }
     this.TotalAmountCharge = +this.TotalAmountCharge.toFixed(4)
     this.InterestAmount = 0
     this.SubTotal = +(this.calculateTotalOfRow()).toFixed(this.noOfDecimalPoint)
+    if (this.editItemIndex > -1) {
+      this.Items[this.editItemIndex].SubTotal = this.SubTotal
+    }
     if (+this.ItemId > 0 || +this.LedgerChargeId > 0) {
       this.calculateAllTotal()
     }
     this.getBillSummary()
   }
-
+  resetCalculate(editItemIndex){
+    this.Items[editItemIndex].TaxAmount = 0
+    this.Items[editItemIndex].AmountItem = 0
+    this.Items[editItemIndex].AmountItemBillDiscount = 0
+    this.Items[editItemIndex].itemTaxTrans = []
+    this.Items[editItemIndex].DiscountAmt = 0
+    this.Items[editItemIndex].taxRates = []
+    this.Items[editItemIndex].TotalRate = 0
+    this.Items[editItemIndex].Quantity =1
+    this.TaxAmount = 0
+    this.AmountItem = 0
+   }
   calculateTotalOfRow () {
     let totalAmount = this.AmountItem + (isNaN(+this.TaxAmount) ? 0 : +this.TaxAmount)
     return isNaN(totalAmount) ? 0 : totalAmount
@@ -1537,7 +1614,7 @@ getTypeOfGST () {
       }
       this.checkForValidation()
     }
-    if(+evt.value=== 0 ){
+    if (+evt.value === 0 && evt.data && evt.data[0] && evt.data[0].selected) {
       this.AddressId = 0
       this.isOtherState =false
       this.updateItemTax()
@@ -1959,10 +2036,17 @@ getTypeOfGST () {
     if (this.validDiscount && +this.ItemId > 0    && this.SaleRate > 0 &&  this.SubTotal >=0) {
         this.addItem()
         this.clickItem = true
-            this.BillDiscount = 0
-              this.BillDiscountArray = []
-              this.BillDiscountCalculate()
-              this.calculateAllTotal()
+        if(this.editItemFlag){
+          this.BillDiscount = 0
+          this.BillDiscountArray = []
+          this.BillDiscountCalculate()
+        }
+        else{
+          this.calculateAllTotal()
+          if(this.getBillSummryListFlag){
+            this.getBillSummary()
+         }
+        }
          this.initItem()
 
     }
@@ -1987,6 +2071,8 @@ getTypeOfGST () {
 
   addItemBasedOnIndustry () {
     let Sno = 0
+    let SrNo = 0
+
     if (this.Items.length === 0) {
       Sno = 1
     } else if (this.Items.length > 0) {
@@ -2004,6 +2090,18 @@ getTypeOfGST () {
        }
       
       })
+      if(this.editItemFlag){
+        SrNo= this.SrNo
+      }
+      else{
+        SrNo = this.Items[this.Items.length - 1].SrNo + 1
+      for(let i=0; i < this.Items.length; i++){
+        if(SrNo ===this.Items[i].SrNo){
+          SrNo =  SrNo+1
+          continue;
+         }
+      }
+      }
     }
     this.appliedTaxRatesItem.forEach(element => {
       element['Sno'] = Sno
@@ -2016,6 +2114,7 @@ getTypeOfGST () {
     this.Items.push({
       Id: 0,
       Sno: Sno,
+      SrNo: SrNo,
       TransType: this.TransType,
       TransId: this.TransId,
       ChallanId: this.ChallanId,
@@ -2059,7 +2158,9 @@ getTypeOfGST () {
   showHideItemCharge: any = true
   showHidePayment: any = true
   editTransSno:number=0
-
+  editItemFlag:boolean
+  SrNo:any=0
+  editItemIndex:any=1
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
     if (type === 'charge' && this.editChargeId === -1) {
@@ -2127,9 +2228,12 @@ getTypeOfGST () {
       this.Items[i].isDisabled = false
       this.DisabledRow =true
       this.TransType = 0
+      this.editItemFlag= true
       this.TransId = 0
       this.ChallanId = 0
+      this.editItemIndex =i
       this.itemName = this.Items[i].itemName
+      this.SrNo = this.Items[i].SrNo
       this.taxSlabName = this.Items[i].taxSlabName
       this.taxTypeName = this.Items[i].taxTypeName
       this.ItemId = this.Items[i].ItemId
@@ -2138,13 +2242,13 @@ getTypeOfGST () {
       this.SaleRate = this.Items[i].SaleRate
       this.TaxSlabId = this.Items[i].TaxSlabId
       this.TaxType = this.Items[i].TaxType
-      this.TaxAmount = this.Items[i].TaxAmount
+      this.TaxAmount = +this.Items[i].TaxAmount.toFixed(4)
       this.DiscountType = this.Items[i].DiscountType
       this.Discount = this.Items[i].Discount
       this.DiscountAmt = this.Items[i].DiscountAmt
       this.Remark = this.Items[i].Remark
       this.TotalRate =this.Items[i].TotalRate
-      this.SubTotal = this.Items[i].SubTotal
+      this.SubTotal = +this.Items[i].SubTotal.toFixed(4)
       this.AmountItem = this.Items[i].AmountItem
       this.taxSlabType = this.Items[i].taxSlabType
       this.appliedTaxRatesItem = this.Items[i].itemTaxTrans
@@ -2215,6 +2319,9 @@ getTypeOfGST () {
   taxTypeChargeValue:any=0
   taxTypeValue:any =0
   initItem () {
+    this.getBillSummryListFlag=false
+    this.editItemIndex =-1
+    this.editItemFlag = false
     this.TransType = 0
     this.TransId = 0
     this.ChallanId = 0
@@ -2385,9 +2492,7 @@ this.taxTypeValue=0
       data => {
         if (data.AttributeValueResponses.length > 0) {
         }
-
-        
-       // _self.saleServiceAdd.allItems = [ ...data.Items ]
+        _self.TransactionNoSetups = data.TransactionNoSetups   
         _self.saleServiceBillingService.createItems(data.Items)
         _self.saleServiceBillingService.createVendors(data.Customers)
         _self.saleServiceBillingService.createTaxProcess(data.TaxProcesses)
@@ -2404,7 +2509,6 @@ this.taxTypeValue=0
         _self.saleServiceBillingService.createFreightBy(data.FreightModes)
         _self.saleServiceBillingService.createCharges(data.LedgerCharges)
         //_self.saleServiceBillingService.clientStateId = data.ClientAddresses[0].StateId
-      //  _self.saleServiceBillingService.TransactionNoSetups = data.TransactionNoSetups
       },
       (error) => {
     //    console.log(error)
@@ -3256,12 +3360,11 @@ this.taxTypeValue=0
   getBillSummary () {
     let taxableValue = 0
     let ItemTaxTrans = []
-    // console.log('item tax trans before bill sumarry : ', ItemTaxTrans)
     this.Items.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
       taxableValue += +element.AmountItem
     });
-    if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
+    if (!this.clickItem && +this.ItemId > 0 && this.editItemIndex === -1 && +this.AmountItem > 0) {
       taxableValue += +this.AmountItem
       if (this.appliedTaxRatesItem.length > 0) {
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
@@ -3331,7 +3434,7 @@ this.taxTypeValue=0
   }
 
   calculateAllTotal () {
-    debugger
+    
     let totalDiscount = 0
     let totalTax = 0
     let totalQuantity = 0
@@ -3342,7 +3445,13 @@ this.taxTypeValue=0
       totalQuantity = totalQuantity + +this.Items[i].Quantity
       totalAmount = +totalAmount + +this.Items[i].SubTotal
     }
-    if (!this.clickItem && this.ItemId > 0) {
+    if (this.editItemIndex > -1 && this.ItemId > 0) {
+      if (+this.DiscountAmt > 0) { totalDiscount }
+      if (+this.TaxAmount > 0) { totalTax }
+      if (+this.Quantity > 0) { totalQuantity }
+      if (+this.SubTotal > 0) { totalAmount }
+    }
+    if (!this.clickItem &&  this.editItemIndex === -1 && this.ItemId > 0) {
       if (+this.DiscountAmt > 0) { totalDiscount += +this.DiscountAmt }
       if (+this.TaxAmount > 0) { totalTax += +this.TaxAmount }
       if (+this.Quantity > 0) { totalQuantity += +this.Quantity }
@@ -3368,9 +3477,12 @@ this.taxTypeValue=0
       * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
       this.SaleRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
     }
+    if (this.TotalRate === 0 || '' + this.TotalRate === '') {
+      this.SaleRate = 0
+    }
+    this.calculate()
   }
 
-  // payDate: string = 'today'
   billDateChange (evt) {
     console.log(evt)
     this.BillDate = evt
@@ -3383,9 +3495,13 @@ this.taxTypeValue=0
   }
 
   BillDiscountArray :any  =[]
+  editSimpleBillDiscount (multipleDiscount) {
+    this.BillDiscountType = multipleDiscount[0].ValueType
+    this.BillDiscount = multipleDiscount[0].Value
+    this.BillDiscountCalculate()
+  }
   localTaxableValueled: any = 0
   MultipleDiscountCalculate(multipleDiscount) {
-    
     this.localTaxableValueled = this.TaxableValue
     if (multipleDiscount.length > 0) {
       multipleDiscount.forEach(element => {
@@ -3474,7 +3590,8 @@ this.taxTypeValue=0
                     this.Items[index]['TaxAmount'] = returnTax.taxAmount
                    // this.TaxAmount =returnTax.taxAmount
                     appliedTaxRatesItem = returnTax.appliedTaxRates
-                    this.appliedTaxRatesItem =[]
+                  this.appliedTaxRatesItem = []
+                    
                   } else if (this.Items[index].TaxType === 0) {
                     let returnTax = this.saleServiceBillingService.taxCalculation(element.Data.TaxRates,
                       taxSlabType,
@@ -3483,7 +3600,8 @@ this.taxTypeValue=0
                     this.Items[index]['TaxAmount'] = returnTax.taxAmount
                     //this.TaxAmount =returnTax.taxAmount
                     appliedTaxRatesItem = returnTax.appliedTaxRates
-                    this.appliedTaxRatesItem =[]
+                  this.appliedTaxRatesItem = []
+                    
                   }
                   if (appliedTaxRatesItem.length > 0) {
                     appliedTaxRatesItem.forEach((taxRate) => {
@@ -3511,10 +3629,32 @@ this.taxTypeValue=0
             }]
           }
           this.UpdateBillDiscountHistory()
-          //this.calculateAllTotal()
+          this.calculateAllTotalWithBillDiscount()
         }
       )
     }
+  }
+  calculateAllTotalWithBillDiscount (){
+    let totalDiscount = 0
+    let totalTax = 0
+    let totalQuantity = 0
+    let totalAmount = 0
+    for (let i = 0; i < this.Items.length; i++) {
+      totalDiscount = totalDiscount + +this.Items[i].DiscountAmt
+      totalTax = totalTax + +this.Items[i].TaxAmount
+      totalQuantity = totalQuantity + +this.Items[i].Quantity
+      totalAmount = +totalAmount + +this.Items[i].SubTotal
+    }
+    if (this.ItemId > 0 ) {
+      if (+this.DiscountAmt > 0) { totalDiscount  }
+      if (+this.TaxAmount > 0) { totalTax }
+      if (+this.Quantity > 0) { totalQuantity  }
+      if (+this.SubTotal > 0) { totalAmount  }
+    }
+    this.TotalDiscount = +(totalDiscount).toFixed(this.noOfDecimalPoint)
+    this.TotalTaxAmount = +(totalTax).toFixed(4)
+    this.TotalQty = +(totalQuantity).toFixed(2)
+    this.SubTotalAmount = +(totalAmount).toFixed(this.noOfDecimalPoint)
   }
   UpdateBillDiscountHistory() {
     let taxableValue = 0
@@ -3523,12 +3663,12 @@ this.taxTypeValue=0
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
       taxableValue += +element.AmountItemBillDiscount
     });
-    if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
-      taxableValue += +this.AmountItem
-      if (this.appliedTaxRatesItem.length > 0) {
-        ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
-      }
-    }
+    // if (!this.clickItem && +this.ItemId > 0 && +this.AmountItem > 0) {
+    //   taxableValue += +this.AmountItem
+    //   if (this.appliedTaxRatesItem.length > 0) {
+    //     ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
+    //   }
+    // }
     this.AdditionalChargesToShow = JSON.parse(JSON.stringify(this.AdditionalCharges))
     this.AdditionalCharges.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)

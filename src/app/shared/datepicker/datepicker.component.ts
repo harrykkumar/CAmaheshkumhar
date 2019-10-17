@@ -59,9 +59,12 @@ export class DatepickerComponent implements OnInit, OnDestroy {
       }, 1)
     }
     if (changes.toSetDate && changes.toSetDate.currentValue === '') {
-      this.dateInFormat.emit('')
       setTimeout(() => {
+        let d = new Date(changes.toSetDate.currentValue)
+        this.resetDatepicker(d)
         this.dt2.dtInput.elementRef.nativeElement.value = changes.toSetDate.currentValue
+        this.class = false
+        this.dateInFormat.emit('')
       }, 1)
     }
     if (changes.isBackDate && !changes.isBackDate.currentValue &&
@@ -139,7 +142,7 @@ export class DatepickerComponent implements OnInit, OnDestroy {
     // console.log(this.inputElem.nativeElement.value)
     if (this.gs.checkForFormatType(this.clientDateFormat) === 1) {
       const date = this.gs.convertToInParts(this.inputElem.nativeElement.value, this.clientDateFormat)
-      console.log(date)
+      // console.log(date)
       if (date !== '') {
         this.today = (new Date(date[0], date[1], date[2])).toISOString()
         let dateToSet = this.gs.utcToClientDateFormat(this.today, this.clientDateFormat)
@@ -153,11 +156,11 @@ export class DatepickerComponent implements OnInit, OnDestroy {
             } else if ((new Date(this.today)).getTime() > this.maxDate.getTime()) {
               this.dateInFormat.emit(this.gs.convertToClient(this.maxDate, this.clientDateFormat))
               this.dt2.select(this.today)
-              this.toastrService.showWarningLong('Date can\'t be greater then ' + this.maxDate, '')
+              this.toastrService.showWarningLong('Date can\'t be greater then ' + new Date(this.maxDate).toDateString(), '')
             } else if ((new Date(this.today)).getTime() < this.minDate.getTime()) {
               this.dateInFormat.emit(this.gs.convertToClient(this.minDate, this.clientDateFormat))
               this.dt2.select(this.today)
-              this.toastrService.showWarningLong('Date can\'t be less then ' + this.minDate, '')
+              this.toastrService.showWarningLong('Date can\'t be less then ' + new Date(this.minDate).toDateString(), '')
             }
           } else {
             this.class = false
@@ -167,7 +170,7 @@ export class DatepickerComponent implements OnInit, OnDestroy {
           this.class = true
         }
       } else {
-        this.class = true
+        this.class = false
       }
       this.isError.emit(this.class)
     } else {
@@ -192,11 +195,11 @@ export class DatepickerComponent implements OnInit, OnDestroy {
                 } else if ((new Date(this.today)).getTime() > this.maxDate.getTime()) {
                   this.dateInFormat.emit(this.gs.convertToClient(this.maxDate, this.clientDateFormat))
                   this.dt2.select(this.today)
-                  this.toastrService.showWarningLong('Date can\'t be greater then ' + this.maxDate, '')
+                  this.toastrService.showWarningLong('Date can\'t be greater then ' + new Date(this.maxDate).toDateString(), '')
                 } else if ((new Date(this.today)).getTime() < this.minDate.getTime()) {
                   this.dateInFormat.emit(this.gs.convertToClient(this.minDate, this.clientDateFormat))
                   this.dt2.select(this.today)
-                  this.toastrService.showWarningLong('Date can\'t be less then ' + this.minDate, '')
+                  this.toastrService.showWarningLong('Date can\'t be less then ' + new Date(this.minDate).toDateString(), '')
                 }
               } else {
                 this.class = false
@@ -216,9 +219,13 @@ export class DatepickerComponent implements OnInit, OnDestroy {
     }
   }
 
+  resetDatepicker (d) {
+    this.dt2.select(d)
+  }
+
   keyCode: number
   eventHandler(evt) {
-    console.log(evt)
+    // console.log(evt)
     this.keyCode = evt.keyCode
   }
 

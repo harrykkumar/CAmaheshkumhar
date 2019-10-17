@@ -155,4 +155,20 @@ export class SetUpIds {
   public static get attributesForPurchase ():number {
     return 29
   }
+
+  public static get defaultMesurementUnit ():number {
+    return 74
+  }
+  public static get buyerOrderAttributes ():number {
+    return 76
+  }
+  public static get manualEntryBuyerOrder ():number {
+    return 73
+  }
+  public static get applyRevugainAPI ():number {
+    return 79
+  }
+  public static get RevugainAPIKey ():number {
+    return 80
+  }
 }

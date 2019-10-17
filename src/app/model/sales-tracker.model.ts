@@ -160,19 +160,19 @@ export interface AddLedger {
   Websites: any[]
   Name: string
   Banks: Banks[]
-    // ContactPersons: ContactPerson;
-    // Code:string;
   IsRcm: boolean
   TaxTypeID: number
-  IsMsmed: boolean
-    // CreditDays:number
+  IsMsmed: SVGAnimatedBoolean
   CrDr: number
   Statutories: Statutories[]
   Addresses: Addresses[]
   ContactPersons: ContactPersons[]
   ContactInfos: any
   Emails: any
- 
+  RCMType: any
+  ITCType: any
+  TaxSlabId: any
+  HsnNo: any
 }
 
 export interface Statutories {
@@ -585,13 +585,16 @@ export interface PurchaseItem {
   AmountItem: number
   taxRates: any
   itemTaxTrans?: Array<ItemTaxTrans>
-  
+  IsNotDiscountable?:boolean
   selected?:boolean
   ReturnQuantity?:number
   fixPurchaseRate?:number
   SaleTransId?:number
   AmountItemBillDiscount?:any
   isDisabled:boolean
+  SpItemUtilities:any
+  SrNo:any
+
 }
 
 export interface SaleReturnItems {
@@ -796,6 +799,7 @@ export interface ServiceBilling {
   itemTaxTrans?: Array<ItemTaxTrans>,
   AmountItemBillDiscount:any
   isDisabled:boolean
+  SrNo:any
 
 }
 
@@ -833,6 +837,7 @@ export class ServiceBillingAdd {
   ConvertedCurrencyId: number
   AdditionalCharges: Array<AdditionalCharges>
   ItemTaxTrans: Array<ItemTaxTrans>
+
 
 }
 
@@ -1121,6 +1126,8 @@ export interface SaleDirectItem {
   IsNotDiscountable?:boolean
   perItemDiscount?:number
   customRate?:number
+  SpItemUtilities:any
+  SrNo:any
 
 }
 
@@ -1170,4 +1177,5 @@ export interface SaleBilingItem {
   isDisabled?:boolean
   subUnitsValue?:any
   itemValue?:any
+  SrNo:any
 }

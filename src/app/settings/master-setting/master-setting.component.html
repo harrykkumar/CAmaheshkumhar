@@ -11,7 +11,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let setting of settings;let i = index;" >
+        <tr *ngFor="let setting of settings | searchOnName: search;let i = index;" >
           <td *ngIf="!isNewSetting">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="customCheck{{i}}" name="example1"
@@ -41,7 +41,7 @@
           </td>
           <td *ngIf="setting.Type === 3 || setting.Type === 5" >
             <select (change)="setting.Value = ( $event.target.value );" class="form-control" >
-              <option value="1" >Select {{setting.name}}</option>
+              <option value="-1" >Select {{setting.name}}</option>
               <option *ngFor="let opt of setting.data" [value]="opt.Id" [selected]="( +setting.DefaultValue === +opt.Id )">
                 {{ opt.Val }}
               </option>

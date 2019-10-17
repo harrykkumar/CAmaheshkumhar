@@ -22,6 +22,9 @@ export class UserFormComponent implements OnInit {
   @ViewChild('mobileDetailModel') mobileDetailModel
   @ViewChild('emailDetailModel') emailDetailModel
   @ViewChild('userFormModel') userFormModel
+  @ViewChild('org_select2') org_select2
+
+  
   @Input() showUserForm: any
   @Output() closeUserForm = new EventEmitter<any>()
   private unSubscribe$ = new Subject<void>()
@@ -66,6 +69,7 @@ disabledFlagOrgBranch:boolean
     this.MultiBranch = this._loginService.userData.LoginUserDetailsinfo[0].MB
 
     if (this.showUserForm.open === true) {
+        this.getOrgnizationList()
       $('#add_user').modal(UIConstant.MODEL_SHOW)
       this.initDropDownData().subscribe((res) => {
         if (this.showUserForm.mode === 'EDIT') {
@@ -85,7 +89,9 @@ disabledFlagOrgBranch:boolean
       this.disabledFlagOrgBranch = false
     }
   }
-  ngOnInit(){}
+  ngOnInit(){
+    
+  }
 
 
   /* Function to initialise dropdown list data */
@@ -170,6 +176,8 @@ disabledFlagOrgBranch:boolean
         })
       ).subscribe((res) => {
         this.orgnizationData = res
+        this.model.orgId =this.orgnizationData[1].id
+        this.org_select2.setElementValue(this.orgnizationData[1].id)
         if (this.officeData.length > 1 && this.dummyData.selectedOffice && this.dummyData.selectedOffice.id) {
           this.model.officeId = this.dummyData.selectedOffice.id
           this.dummyData.selectedOffice.id = 0
@@ -197,11 +205,19 @@ disabledFlagOrgBranch:boolean
 
   /* Function to get under type list data */
   getUnderTypeList = (userTypeId) => {
-    const list = _.filter(this.userTypeData, (element) => {
-      if (element.id < userTypeId) {
-        return true
-      }
-    })
+    debugger
+    let list;
+    if(this.userTypeData.length===2){
+      list =this.userTypeData
+    }
+    else{
+      list = _.filter(this.userTypeData, (element) => {
+        if (element.id < userTypeId) {
+          return true
+        }
+      })
+    }
+   
     this.underTypeData = [...list]
     if (this.underTypeData.length > 1 && this.dummyData.selectedUnderType && this.dummyData.selectedUnderType.id) {
       this.model.underTypeId = this.dummyData.selectedUnderType.id

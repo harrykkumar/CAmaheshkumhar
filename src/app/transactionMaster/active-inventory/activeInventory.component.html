@@ -1,0 +1,117 @@
+<main class="main-content2 bgc-grey">
+    <div id="mainContent">
+        <div class="page-header p-0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4 left_side_head">
+                        <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-file"></i>Active Inventory</p>
+                    </div>
+                    <div class="col-md-8 right_saerch_side p-0">
+                        <div class="mr-2">
+                            <form [formGroup]="searchForm">
+                                <div id="custom-search-input" class="btn_header1">
+                                    <div class="input-group col-md-12">
+                                        <input type="text" 
+                                        class="form-control input-lg"
+                                        placeholder="Search"
+                                        formControlName="searckKey"
+                                        #searchData
+                                        />
+                                        <span class="input-group-btn">
+                                            <a>
+                                                <i class="fas fa-search"></i>
+                                            </a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="btn_header">
+                            <a><img src="assets/img/printer.png"> </a>
+                            <a><img src="assets/img/pdf.png"></a>
+                            <a><img src="assets/img/excel.png"></a>
+                            <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                                (click)="addActiveInventory()">Add Inventory</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="bgc-white bdrs-3 mB-20">
+                    <div class="table-responsive table_height">
+                        <table class="table cat-table table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="10%">Sr No.</th>
+                                    <th width="40%">Inventory Name</th>
+                                    <th width="20%">From Limit</th>
+                                    <th width="20%">To Limit</th>
+                                    <th width="10%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngIf="isSearching" style="height:100px;" >
+                            <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;" />
+                            </tbody>
+                            <tbody>
+                                <tr *ngFor="let item of activeInventList | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total } ; let i = index"
+                                    [attr.data-attributeData]="i">
+                                    <td>{{lastItemIndex + i + 1}}</td>
+                                    <td>{{item?.ActiveInventoryCategoryName}}</td>
+                                    <td>{{item?.FromLimit}}</td>
+                                    <td>{{item?.ToLimit}}</td>
+                                    <td>
+                                        <a class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit">
+                                            <i class="fa fa-edit fa-1x"  aria-hidden="true"
+                                            (click)="editActive(item.Id, item.ActiveInventoryCategoryName, item.ActiveInventoryCategoryId, false)">
+                                            </i>
+                                        </a>
+                                        <a class="actionBtn" data-toggle="tooltip" data-placement="bottom" title="Delete" (click)="deleteActiveInventory(item.Id)"><i
+                                            class="fa fa-trash fa-1x"  aria-hidden="true"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+                (pageNoEmitter)="p = $event;initActiveList();"
+                (pageSizeEmitter)="itemsPerPage = $event;initActiveList();" ></app-pagination>
+            </div>
+            <div class="col-md-4">
+                <div class="bgc-white bdrs-3 mB-20">
+                    <div class="table-responsive table_height">
+                        <table class="table cat-table table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="20%">Sr No.</th>
+                                    <th>Inventory Name</th>
+                                    <th width="10%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of activeinventoryParentList; let i = index"
+                                    [attr.data-attributeData]="i">
+                                    <td>{{i + 1}}</td>
+                                    <td>{{item?.Name}}</td>
+                                    <td>
+                                        <a class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit">
+                                            <i class="fa fa-edit fa-1x"  aria-hidden="true"
+                                            (click)="editActive(item.Id, item.Name, item.Id, true)">
+                                            </i>
+                                        </a>
+                                        <a class="actionBtn" data-toggle="tooltip" data-placement="bottom"
+                                            title="Delete" (click)="deleteActiveParent(item.Id)">
+                                            <i class="fa fa-trash fa-1x"  aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

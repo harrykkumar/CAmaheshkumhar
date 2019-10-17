@@ -78,6 +78,8 @@ export class CommonService {
 
   private setpupsChange = new Subject()
   setupChange$ = this.setpupsChange.asObservable()
+  private openAddActiveInventorySub = new BehaviorSubject<AddCust>({ 'open': false })
+
   //  validation reg ex
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
@@ -434,15 +436,13 @@ export class CommonService {
   getCountryList() {
     return this.baseService.getRequest(ApiConstant.COUNTRY_LIST)
   }
-
+ 
   openAttribute(data, isSubAttr) {
     this.openAddAttributeSub.next({ 'open': true, 'isSubAttr': isSubAttr, 'data': data })
   }
-
   getAttributeStatus() {
     return this.openAddAttributeSub.asObservable()
   }
-
   closeAttributeForDynamicAdd(attribute) {
     if (attribute) {
       this.openAddAttributeSub.next({ 'open': false, 'status': attribute.status, 'name': attribute.name, 'id': attribute.id, 'AttributeId': attribute.AttributeId })
@@ -460,9 +460,38 @@ export class CommonService {
       this.openAddAttributeSub.next({ 'open': false })
     }
   }
-
   closeAttributeStatus() {
     return this.openAddAttributeSub.asObservable()
+  }
+
+
+  closeActiveInventoryPopup() {
+    this.openAddActiveInventorySub.next({ 'open': false })
+  }
+  closeActiveInventory(data) {
+    if (data) {
+      this.openAddActiveInventorySub.next({ 'open': false, 'name': data.name, 'id': data.id })
+    } else {
+      this.openAddActiveInventorySub.next({ 'open': false })
+    }
+  }
+
+  openActiveInventory(data, isSubAttr) {
+    this.openAddActiveInventorySub.next({ 'open': true, 'isSubAttr': isSubAttr, 'data': data })
+  }
+  getActiveInventoryStatus() {
+    return this.openAddActiveInventorySub.asObservable()
+  }
+
+  closeActiveInventoryForDynamicAdd(attribute) {
+    if (attribute) {
+      this.openAddActiveInventorySub.next({ 'open': false, 'status': attribute.status, 'name': attribute.name, 'id': attribute.id, 'AttributeId': attribute.AttributeId })
+    } else {
+      this.openAddActiveInventorySub.next({ 'open': false })
+    }
+  }
+  closeActiveInventoryStatus() {
+    return this.openAddActiveInventorySub.asObservable()
   }
   getsettingforOrgnizationData(orgid, forSaleType, date) {
     return this.baseService.getRequest(ApiConstant.SETTING_FOR_ORGNIZATION_DATA + orgid + '&TransDate=' + date + '&TransactionType=' + forSaleType)
@@ -1056,9 +1085,7 @@ export class CommonService {
   }
   // 
 
-  getDashBoardData(type) {
-    return this.baseService.getRequest(ApiConstant.INIT_DASHBOARD + type)
-  }
+
   private querySaleStrSub = new Subject<string>()
   public querySaleStr$ = this.querySaleStrSub.asObservable()
   setSearchQueryParamsStr(str) {
@@ -1422,5 +1449,30 @@ export class CommonService {
 
   reDirectViewListOfPurchaeStatus() {
     return this.redirectSub.asObservable()
+  }
+  getDashBoardData(type) {
+    return this.baseService.getRequest(ApiConstant.INIT_DASHBOARD + type)
+  }
+  getDashBoardAssestsLiabilities (FromDate,ToDate) {
+    return this.baseService.getRequest(ApiConstant.DASHBOARD_ASSET_LIBILITIES +"?FromDate="+FromDate+"&ToDate="+ToDate)
+  }
+  getDashBoardCashInCashOut (FromDate,ToDate) {
+    return this.baseService.getRequest(ApiConstant.DASHBOARD_CASHIN_CASHOUT +"?FromDate="+FromDate+"&ToDate="+ToDate)
+  }
+ 
+  getDashboardInventory (FromDate,ToDate,type) {
+    return this.baseService.getRequest(ApiConstant.DASHBOARD_INVENTORY +"?FromDate="+FromDate+"&ToDate="+ToDate+"&Type=" + type)
+  }
+  getDashboarCashStatutory (FromDate,ToDate) {
+    return this.baseService.getRequest(ApiConstant.DASHBOARD_CashStatutory +"?FromDate="+FromDate+"&ToDate="+ToDate)
+  }
+  getDashboardOverDues (FromDate,ToDate) {
+    return this.baseService.getRequest(ApiConstant.DASHBOARD_DashboardOverDues +"?FromDate="+FromDate+"&ToDate="+ToDate)
+  }
+  getDashboardCreditorDebitors (FromDate,ToDate,type) {
+    return this.baseService.getRequest(ApiConstant.DASHBOARD_CreditorDebitor +"?FromDate="+FromDate+"&ToDate="+ToDate+"&Type=" + type)
+  } 
+  getAllTax () {
+    return this.baseService.getRequest(ApiConstant.GET_TAX_DETAIL_URL )
   }
 }

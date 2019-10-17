@@ -20,4 +20,8 @@ tr.strikeout td {
   color: red !important;
   text-decoration: line-through red;
 }
+.isDisabled {
+  cursor: not-allowed !important;
+  opacity: 0.3 !important;
+}
 

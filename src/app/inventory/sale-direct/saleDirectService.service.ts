@@ -532,5 +532,8 @@ export class SaleDirectService {
   getCurrentDate(): Observable<ResponseSale> {
     return this.baseService.getRequest(ApiConstant.GET_CURRENT_DATE)
   }
+  CustomerDetailsForRevugain(post)  {
+    return this.baseService.postRequest(ApiConstant.REVUGAIN_FOR_CUSTOMER_DETAILS, post)
+  }
 
 }

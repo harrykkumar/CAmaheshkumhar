@@ -16,19 +16,16 @@
                 <div class="row">
                   <div class="col-md-6 mb-3 pr-0">
                     <div class="widget-flat card bdr-card-4">
+                       
                       <div class="card-header">
+                         
                           Assets
                       </div>
                       <div class="card-body">
-                           <canvas *ngIf='assetsAmountData.length > 0'
-                              baseChart
-                              [chartType]="'pie'"
-                              [datasets]="assetschartData"
-                              [labels]="assetschartLabels"
-                              [options]="AssetschartOptions"
-                              [legend]="true"
-                              (chartClick)="onChartClick($event)">
-                          </canvas>
+                          <span *ngIf="chartLoader" style="height:100px;" >
+                              <img src="assets/img/loader.gif" alt="loading screen" style="width: 70px;height: 70px;position: absolute;left: 40%;top:46%;" />
+                          </span>
+                          <canvas  #AssetsId></canvas>
                       </div>
                   
       
@@ -40,15 +37,10 @@
                           Liabilities
                       </div>
                       <div class="card-body">
-                          <canvas *ngIf='libiabititsAmountData.length > 0'
-                              baseChart
-                              [chartType]="'pie'"
-                              [datasets]="LiabilitieschartData"
-                              [labels]="LiabilitieschartLabels"
-                              [options]="LiabilitieschartOptions"
-                              [legend]="true"
-                             >
-                          </canvas>
+                          <span *ngIf="chartLoader" style="height:100px;" >
+                              <img src="assets/img/loader.gif" alt="loading screen" style="width: 70px;height: 70px;position: absolute;left: 40%;top:46%;" />
+                          </span>
+                          <canvas #LiabilitiesId></canvas>
                       </div>
       
                   </div>
@@ -61,9 +53,10 @@
                       <div class="card-body p-0 height_fix_card">
                         <table class="table-borderless table ">
                           <tbody>
-                            <tr *ngFor ="let Debtors of AllDataDashboard?.Debtors"> 
+                            
+                            <tr *ngFor ="let Debtors of Debitors"> 
                               <td>{{Debtors.Name}}</td>
-                              <td class="text-right">{{Debtors.Amount}}</td>
+                              <td class="text-right">{{Debtors.Amount.toFixed(noOfDecimal)}}</td>
                             </tr> 
                           </tbody>
                         </table>
@@ -77,31 +70,6 @@
                       </div>
                     </div>
                   </div>
-                  <!-- <div class="col-md-6 mb-3 pr-0">
-                    <div class="widget-flat card bdr-card-4">
-                      <div class="card-header">
-                        Top 5 Debtors
-                      </div>
-                      <div class="card-body p-0 height_fix_card">
-                        <table class="table-borderless table height_fix_card">
-                          <tbody>
-                              <tr *ngFor ="let Debtors of AllDataDashboard?.Debtors"> 
-                              <td>{{Debtors.Name}}</td>
-                              <td class="text-right">{{Debtors.Amount}}</td>
-                            </tr> 
-                           
-                          </tbody>
-                        </table>
-                      </div>
-                      <div class="card-footer">
-                        <a
-                          href="JavaScript:void(0)"
-                          class="text-right more_detail"
-                          >More</a
-                        >
-                      </div>
-                    </div>
-                  </div> -->
                   <div class="col-md-6 mb-3 pr-0">
                     <div class="widget-flat card bdr-card-4 ">
                       <div class="card-header">
@@ -110,9 +78,9 @@
                       <div class="card-body p-0 height_fix_card">
                         <table class="table-borderless table ">
                           <tbody>
-                            <tr *ngFor ="let Creators of AllDataDashboard?.Creators"> 
+                            <tr *ngFor ="let Creators of Creditor"> 
                               <td>{{Creators.Name}}</td>
-                              <td class="text-right">{{Creators.Amount}}</td>
+                              <td class="text-right">{{(Creators.Amount).toFixed(noOfDecimal)}}</td>
                             </tr> 
                           </tbody>
                         </table>
@@ -135,10 +103,10 @@
                         <table class="table-borderless table">
                           <tbody>
                            
-                            <tr *ngFor ="let InventoryGrowths of AllDataDashboard?.InventoryGrowths"> 
-                              <td>{{InventoryGrowths.LedgerName}}</td>
-                              <td>{{InventoryGrowths.BillDate | dateFormat : DateFormate}}</td>
-                              <td class="text-right">{{InventoryGrowths.Quantity}}</td>
+                            <tr *ngFor ="let item of InventoryGrowths"> 
+                              <td>{{item.LedgerName}}</td>
+                              <!-- <td>{{ item.BillDate | dateFormat : DateFormate}}</td> -->
+                              <td class="text-right">{{item.Quantity}}</td>
                             </tr> 
                           </tbody>
                         </table>
@@ -201,10 +169,10 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <tr *ngFor ="let OverDueDetails of SaleOverDueItem"> 
-                              <td>{{OverDueDetails.BillNo}}</td>
-                              <td class='text-right'>{{OverDueDetails.DueDays}}</td>
-                              <td class="text-right">{{(OverDueDetails.BillAmount).toFixed(noOfDecimal)}}</td>
+                            <tr *ngFor ="let DataValue of SaleOverDueItem"> 
+                              <td>{{DataValue.BillNo}}</td>
+                              <td class='text-right'>{{DataValue.DueDays}}</td>
+                              <td class="text-right">{{(DataValue.BillAmount).toFixed(noOfDecimal)}}</td>
                               
                             </tr> 
                          
@@ -230,12 +198,12 @@
                           <tbody>
                             <tr>
                               <td>GST</td>
-                              <td class="text-right">{{AllDataDashboard && (AllDataDashboard?.CashinOutGstDetails[0]?.GSTAmount).toFixed(noOfDecimal)}}</td>
+                              <td class="text-right">{{CashStatutory && (CashStatutory[0]?.GSTAmount).toFixed(noOfDecimal)}}</td>
                             </tr>
                             <tr>
                               <td>TDS</td>
       
-                              <td class="text-right">{{AllDataDashboard && (AllDataDashboard?.CashinOutGstDetails[0]?.Tds).toFixed(noOfDecimal)}}</td>
+                              <td class="text-right">{{CashStatutory && (CashStatutory[0]?.Tds).toFixed(noOfDecimal)}}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -258,12 +226,12 @@
                             <tr>
                               <td>Cash IN</td>
       
-                              <td class="text-right">{{AllDataDashboard && (AllDataDashboard?.CashinOutGstDetails[0]?.CashIn).toFixed(noOfDecimal)}}</td>
+                              <td class="text-right">{{CashStatutory && (CashStatutory[0]?.CashIn).toFixed(noOfDecimal)}}</td>
                             </tr>
                             <tr>
                               <td>Cash Out</td>
       
-                              <td class="text-right">{{AllDataDashboard && (AllDataDashboard?.CashinOutGstDetails[0]?.CashOut).toFixed(noOfDecimal)}}</td>
+                              <td class="text-right">{{CashStatutory && (CashStatutory[0]?.CashOut).toFixed(noOfDecimal)}}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -282,17 +250,25 @@
                   <div class="card-header">
                       Finance
                   </div>
-                  <div class="">
-                      <canvas *ngIf='fincialdata.length>0' id="canvas" height="200"
-                      baseChart
-                      [chartType]="'line'"
-                      [datasets]="finacialchartData"
-                      [labels]="finacialLabels"
-                      [options]="finacialchartOptions"
-                      [legend]="true"
-                     >
-                  </canvas>
+                  <div class="card-body">
+                      <span *ngIf="chartLoaderFinacial" style="height:100px;" >
+                          <img src="assets/img/loader.gif" alt="loading screen" style="width: 70px;height: 70px;position: absolute;left: 40%;top:46%;" />
+                      </span>
+                      <canvas #FincialPNL></canvas>
                   </div>
+                  <!-- <div class="">
+                    
+                  <canvas *ngIf='fincialdata.length > 0' id="canvas" baseChart  height="200"
+                  [datasets]="finacialchartData"
+                  [labels]="finacialLabels"
+                  [options]="finacialchartData"
+                  [colors]="lineChartColors"
+                  [legend]="lineChartLegend"
+                  [chartType]="lineChartType"
+                  [plugins]="lineChartPlugins"
+                  (chartHover)="chartHovered($event)"
+                  (chartClick)="chartClicked($event)"></canvas>
+                  </div> -->
       
               </div>
               <div class="widget-flat card bdr-card-4">
@@ -300,15 +276,17 @@
                     Cash Flow
                 </div>
                 <div class="card-body">
-                    <canvas *ngIf='ChartFlowdata.length>0' id="canvas" height="200"
-                    baseChart
-                    [chartType]="'bar'"
-                    [datasets]="cashflowchartData"
-                    [labels]="cashflowLabels"
-                    [options]="cashflowchartOptions"
-                    [legend]="true"
-                   >
-                </canvas>
+                    <span *ngIf="chartLoaderFinacial" style="height:100px;" >
+                        <img src="assets/img/loader.gif" alt="loading screen" style="width: 70px;height: 70px;position: absolute;left: 40%;top:46%;" />
+                    </span>
+                    <canvas #cashFlowId></canvas>
+                          <!-- <canvas   baseChart
+                  [datasets]="cashflowchartData"
+                  [labels]="ChartflowLabelData"
+                  [options]="barChartOptions"
+                  [legend]="barChartLegend"
+                  [chartType]="barChartType">
+                </canvas> -->
                 </div>
             </div>
               </div>

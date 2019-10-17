@@ -43,7 +43,7 @@
                             <label>Orgnization</label>
                             <div class="input-group adw_select">
                               <div class="input-group adw_select">
-                                <select2  [data]="orgnizationData" class="control_select" (valueChanged)="onBranchChange($event)"
+                                <select2 #org_select2  [data]="orgnizationData" class="control_select" (valueChanged)="onBranchChange($event)"
                                   autocomplete="true" [value]="model?.orgId" [ngClass]="{
                                     errorSelecto:
                                       userFormModel?.submitted &&

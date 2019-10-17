@@ -67,7 +67,7 @@
               <form>
                 <div id="custom-search-input" class="btn_header1">
                   <div class="input-group col-md-12">
-                    <input type="text" class="form-control input-lg" placeholder="Search" />
+                    <input type="text" class="form-control input-lg" (input)="searchFor($event.target.value)" placeholder="Search" />
                       <span class="input-group-btn">
                         <a><i class="fas fa-search"></i></a>
                       </span>

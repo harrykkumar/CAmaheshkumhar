@@ -1,286 +1,206 @@
 <main class="main-content bgc-grey">
   <div id="mainpage">
-    <form
-    #userRightsModel="ngForm"
-    (ngSubmit)="userRightsModel.form.valid && validateForm() && savePermission()"
-    novalidate>
-    <div class="page-header p-0">
-      <div class="container-fluid">
+    <form #userRightsModel="ngForm" (ngSubmit)="userRightsModel.form.valid && validateForm() && savePermission()"
+      novalidate>
+      <div class="page-header p-0">
+        <div class="container-fluid">
           <div class="row">
-              <div class="col-md-4 left_side_head">
-                  <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-users"></i>User Rights</p>
-              </div>
-              <div class="col-md-8 right_saerch_side p-0">
-                     
-                      <div class="btn_header">
-                        <button type="submit" class="btn btn-primary waves-effect waves-light">
-                          Save
-                        </button>
-                        <a
-                          href="#demo"
-                          class="btn btn-light waves-effect waves-light"
-                          data-toggle="collapse"
-                          (click)="resetData()"
-                          >Reset
-                          </a>
-                      </div>
-        </div>
-    </div>
-</div>
-</div>
-    
+            <div class="col-md-4 left_side_head">
+              <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-users"></i>User Rights</p>
+            </div>
+            <div class="col-md-8 right_saerch_side p-0">
 
-    <div class="row mb-2">
-      <div class="col-md-12">
-        <div class="bgc-white p-2">
-          <div class="form-row">
-              <ng-container   *ngIf="disabledFlagOrgBranch">
-                  <div *ngIf="Multiorgnization" class="form-group col-md-3">
-                      <label>Orgnization</label>
-                      <div class="input-group adw_select">
-                        <div class="input-group adw_select">
-                          <select2  [data]="orgnizationData" class="control_select" (valueChanged)="onBranchChange($event)"
-                            autocomplete="true" [value]="model?.orgId" [ngClass]="{
+              <div class="btn_header">
+                <button type="submit" class="btn btn-primary waves-effect waves-light">
+                  Save
+                </button>
+                <a href="#demo" class="btn btn-light waves-effect waves-light" data-toggle="collapse"
+                  (click)="resetData()">Reset
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="row mb-2">
+        <div class="col-md-12">
+          <div class="bgc-white p-2">
+            <div class="form-row">
+              <ng-container *ngIf="disabledFlagOrgBranch">
+                <div *ngIf="Multiorgnization" class="form-group col-md-3">
+                  <label>Orgnization</label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2 [data]="orgnizationData" class="control_select" (valueChanged)="onOrgChange($event)"
+                        autocomplete="true" [value]="model?.orgId" [ngClass]="{
                               errorSelecto:
                                 userFormModel?.submitted &&
-                                user?.selectedBranch?.id === '0'
-                            }">
-                          </select2>
-                        </div>
-                      </div>
+                                user?.selectedBranch?.id === '0'}">
+                      </select2>
                     </div>
-              </ng-container  >
-              <ng-container   *ngIf="disabledFlagOrgBranch">
-                  <div *ngIf="MultiBranch" class="form-group col-md-3">
-                      <label>Branch</label>
-                      <div class="input-group adw_select">
-                          <div class="input-group adw_select">
-                            <select2   [data]="branchData" class="control_select" (valueChanged)="onBranchChange($event)"
-                              autocomplete="true" [value]="model?.branchId" [ngClass]="{
+                  </div>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="disabledFlagOrgBranch">
+                <div *ngIf="MultiBranch" class="form-group col-md-3">
+                  <label>Branch</label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2 [data]="branchData" class="control_select" (valueChanged)="onBranchChange($event)"
+                        autocomplete="true" [value]="model?.branchId" [ngClass]="{
                                 errorSelecto:
                                   userFormModel?.submitted &&
-                                  user?.selectedBranch?.id === '0'
-                              }">
-                            </select2>
-                          </div>
-                        </div>
+                                  user?.selectedBranch?.id === '0'}">
+                      </select2>
                     </div>
-              </ng-container >
-            <div class="form-group col-md-3">
-              <label>User Type</label>
-              <div class="input-group adw_select">
+                  </div>
+                </div>
+              </ng-container>
+              <div class="form-group col-md-3">
+                <label>User Type</label>
                 <div class="input-group adw_select">
-                  <select2
-                    [data]="userTypeData"
-                    class="control_select"
-                    (valueChanged)="onUserTypeChange($event)"
-                    autocomplete="true"
-                    [value]="model?.userTypeId"
-                    [ngClass]="{
+                  <div class="input-group adw_select">
+                    <select2 [data]="userTypeData" class="control_select" (valueChanged)="onUserTypeChange($event)"
+                      autocomplete="true" [value]="model?.userTypeId" [ngClass]="{
                       'errorSelecto':
                       userRightsModel?.submitted &&
                         rights?.selectedUserType.id === '0'
-                    }"
-                  >
-                  </select2>
+                    }">
+                    </select2>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="form-group col-md-3">
-              <label>User</label>
-              <div class="input-group adw_select">
+              <div class="form-group col-md-3">
+                <label>User</label>
                 <div class="input-group adw_select">
-                  <select2
-                    [data]="userData"
-                    class="control_select"
-                    (valueChanged)="onUserChange($event)"
-                    autocomplete="true"
-                    [value]="model?.userId"
-                  >
-                  </select2>
+                  <div class="input-group adw_select">
+                    <select2 [data]="userData" class="control_select" (valueChanged)="onUserChange($event)"
+                      autocomplete="true" [value]="model?.userId">
+                    </select2>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group col mt-sm-4">
+                <div class="custom-control custom-checkbox">
+                  <input #tranModel="ngModel" name="tranInput" [(ngModel)]="rights.showTrans" type="checkbox"
+                    class="custom-control-input" id="showtrans" name="example1" />
+                  <label class="custom-control-label" for="showtrans">Show Transction</label>
+                </div>
+              </div>
+              <div class="form-group col mt-sm-4">
+                <div class="custom-control custom-checkbox">
+                  <input #checkAllModel="ngModel" name="checkAllInput" [(ngModel)]="rights.checkAll"
+                    (change)="selectAllPermission($event)" type="checkbox" class="custom-control-input" id="checkall"
+                    name="example1" />
+                  <label class="custom-control-label" for="checkall">Check All</label>
                 </div>
               </div>
             </div>
-            <div class="form-group col-md-2 mt-sm-4">
-              <div class="custom-control custom-checkbox">
-                <input
-                  #tranModel="ngModel"
-                  name="tranInput"
-                  [(ngModel)]="rights.showTrans"
-                  type="checkbox"
-                  class="custom-control-input"
-                  id="showtrans"
-                  name="example1"
-                />
-                <label class="custom-control-label" for="showtrans"
-                  >Show Transction</label
-                >
-              </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Modules list -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="bgc-white bdrs-3">
+            <div id="tabs" class="md-elevation-4dp ">
+              <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" *ngFor="let module of moduleList;let i = index;">
+                  <a (click)="onToggleModule(module, i)" class="nav-link active" data-index="0" data-toggle="tab"
+                    href="#tab-{{module.Id}}" role="tab">
+                    <img [src]="module?.src" class="mx-auto d-block">
+                    <p>{{module?.AlternateName}}</p>
+                  </a>
+                </li>
+              </ul>
             </div>
-            <div class="form-group col-md-2 mt-sm-4">
-              <div class="custom-control custom-checkbox">
-                <input
-                  #checkAllModel="ngModel"
-                  name="checkAllInput"
-                  [(ngModel)]="rights.checkAll"
-                  (change)="selectAllPermission($event)"
-                  type="checkbox"
-                  class="custom-control-input"
-                  id="checkall"
-                  name="example1"
-                />
-                <label class="custom-control-label" for="checkall"
-                  >Check All</label
-                >
+
+            <div class="tab-content">
+              <div class="tab-pane fade active show" id="tab-{{toggledModule.Id}}" role="tabpanel">
+                <table class="table table-hover" style="width: 100%"
+                  *ngFor="let menu of moduleList[toggledModule['index']]?.sideMenu; let j = index">
+                  <thead>
+                    <tr>
+                      <th width="5%">#</th>
+                      <th>{{menu.Name}}</th>
+                      <th width="10%">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input"
+                            id="{{j}}-MenuRead-{{toggledModule['module']?.Name}}"
+                            name="{{j}}-MenuRead-{{toggledModule['module']?.Name}}" [(ngModel)]="menu.read"
+                            (change)="menuPermissionChange($event, menu, 'READ')" />
+                          <label class="custom-control-label"
+                            for="{{j}}-MenuRead-{{toggledModule['module']?.Name}}">Read</label>
+                        </div>
+                      </th>
+                      <th width="10%">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input"
+                            id="{{j}}-MenuWrite-{{toggledModule['module'].Name}}"
+                            name="{{j}}-MenuWrite-{{toggledModule['module'].Name}}" [(ngModel)]="menu.write"
+                            (change)="menuPermissionChange($event, menu, 'WRITE')" />
+                          <label class="custom-control-label"
+                            for="{{j}}-MenuWrite-{{toggledModule['module'].Name}}">Write</label>
+                        </div>
+                      </th>
+                      <th width="10%">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input"
+                            id="{{j}}-MenuDelete-{{toggledModule['module'].Name}}"
+                            name="{{j}}-MenuDelete-{{toggledModule['module'].Name}}" [(ngModel)]="menu.delete"
+                            (change)="menuPermissionChange($event, menu, 'DELETE')" />
+                          <label class="custom-control-label"
+                            for="{{j}}-MenuDelete-{{toggledModule['module'].Name}}">Delete</label>
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let subMenu of menu.subMenu; let k = index;">
+                      <td></td>
+                      <td>{{subMenu?.Name}}</td>
+                      <td>
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input"
+                            id="{{j}}-{{k}}-SubMenuRead-{{toggledModule['module'].Name}}"
+                            name="{{j}}-{{k}}-SubMenuRead-{{toggledModule['module'].Name}}"
+                            [(ngModel)]="subMenu.read" />
+                          <label class="custom-control-label"
+                            for="{{j}}-{{k}}-SubMenuRead-{{toggledModule['module'].Name}}"></label>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input"
+                            id="{{j}}-{{k}}-SubMenuWrite-{{toggledModule['module'].Name}}"
+                            name="{{j}}-{{k}}-SubMenuWrite-{{toggledModule['module'].Name}}" [(ngModel)]="subMenu.write"
+                            (change)="onChangeSubMenu($event, subMenu, 'WRITE')" />
+                          <label class="custom-control-label"
+                            for="{{j}}-{{k}}-SubMenuWrite-{{toggledModule['module'].Name}}"></label>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input"
+                            id="{{j}}-{{k}}-SubMenuDelete-{{toggledModule['module'].Name}}"
+                            name="{{j}}-{{k}}-SubMenuDelete-{{toggledModule['module'].Name}}"
+                            [(ngModel)]="subMenu.delete" (change)="onChangeSubMenu($event, subMenu, 'DELETE')" />
+                          <label class="custom-control-label"
+                            for="{{j}}-{{k}}-SubMenuDelete-{{toggledModule['module'].Name}}"></label>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-
-
-    <!-- Modules list -->
-    <div class="row">
-      <div class="col-md-12">
-        <div class="bgc-white bdrs-3">
-          <div id="tabs" class="md-elevation-4dp ">
-            <ul class="nav nav-tabs" role="tablist">
-              <li class="nav-item" *ngFor="let module of moduleList;let i = index;">
-                <a 
-                  (click)="onToggleModule(module, i)"
-                  class="nav-link active"
-                  data-index="0"
-                  data-toggle="tab"
-                  href="#tab-{{module.Id}}"
-                  role="tab"
-                >
-                  <img [src]="module?.src" class="mx-auto d-block">
-                  <p>{{module?.AlternateName}}</p>
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div class="tab-content">
-            <div
-              class="tab-pane fade active show"
-              id="tab-{{toggledModule.Id}}"
-              role="tabpanel"
-            >
-              <table class="table table-hover" style="width: 100%" *ngFor="let menu of moduleList[toggledModule['index']]?.sideMenu; let j = index">
-                <thead>
-                  <tr>
-                    <th width="5%">#</th>
-                    <th>{{menu.Name}}</th>
-                    <th width="10%">
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id ="{{j}}-MenuRead-{{toggledModule['module']?.Name}}"
-                          name="{{j}}-MenuRead-{{toggledModule['module']?.Name}}"
-                          [(ngModel)]="menu.read"
-                          (change)="menuPermissionChange($event, menu, 'READ')"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="{{j}}-MenuRead-{{toggledModule['module']?.Name}}"
-                          >Read</label
-                        >
-                      </div>
-                    </th>
-                    <th width="10%">
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="{{j}}-MenuWrite-{{toggledModule['module'].Name}}"
-                          name="{{j}}-MenuWrite-{{toggledModule['module'].Name}}"
-                          [(ngModel)]="menu.write"
-                          (change)="menuPermissionChange($event, menu, 'WRITE')"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="{{j}}-MenuWrite-{{toggledModule['module'].Name}}"
-                          >Write</label
-                        >
-                      </div>
-                    </th>
-                    <th width="10%">
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="{{j}}-MenuDelete-{{toggledModule['module'].Name}}"
-                          name="{{j}}-MenuDelete-{{toggledModule['module'].Name}}"
-                          [(ngModel)]="menu.delete"
-                          (change)="menuPermissionChange($event, menu, 'DELETE')"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="{{j}}-MenuDelete-{{toggledModule['module'].Name}}"
-                          >Delete</label
-                        >
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let subMenu of menu.subMenu; let k = index;">
-                    <td></td>
-                    <td>{{subMenu?.Name}}</td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="{{j}}-{{k}}-SubMenuRead-{{toggledModule['module'].Name}}"
-                          name="{{j}}-{{k}}-SubMenuRead-{{toggledModule['module'].Name}}"
-                          [(ngModel)]="subMenu.read"
-                        />
-                        <label class="custom-control-label"
-                         for="{{j}}-{{k}}-SubMenuRead-{{toggledModule['module'].Name}}"></label>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="{{j}}-{{k}}-SubMenuWrite-{{toggledModule['module'].Name}}"
-                          name="{{j}}-{{k}}-SubMenuWrite-{{toggledModule['module'].Name}}"
-                          [(ngModel)]="subMenu.write"
-                          (change)="onChangeSubMenu($event, subMenu, 'WRITE')"
-                        />
-                        <label class="custom-control-label"
-                         for="{{j}}-{{k}}-SubMenuWrite-{{toggledModule['module'].Name}}"></label>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="custom-control custom-checkbox">
-                        <input
-                          type="checkbox"
-                          class="custom-control-input"
-                          id="{{j}}-{{k}}-SubMenuDelete-{{toggledModule['module'].Name}}"
-                          name="{{j}}-{{k}}-SubMenuDelete-{{toggledModule['module'].Name}}"
-                          [(ngModel)]="subMenu.delete"
-                          (change)="onChangeSubMenu($event, subMenu, 'DELETE')"
-                        />
-                        <label
-                          class="custom-control-label"
-                          for="{{j}}-{{k}}-SubMenuDelete-{{toggledModule['module'].Name}}"
-                        ></label>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
+    </form>
   </div>
 </main>

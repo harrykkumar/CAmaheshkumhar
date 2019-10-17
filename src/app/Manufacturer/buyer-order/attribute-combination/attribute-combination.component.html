@@ -45,14 +45,11 @@
 
       <!--Body-->
         <div class="modal-body">
-          <div class="form-row ">
+          <div class="form-row" *ngIf="attributeWithValuesList?.length > 1" >
             <div
               *ngFor="let item of attributeWithValuesList; let i = index"
-              class="form-group col-md-4"
-            >
-              <label
-                >{{ item?.Name }}<span class="compulsory_field">*</span></label
-              >
+              class="form-group col-md-4">
+              <label>{{ item?.Name }}<span class="compulsory_field">*</span></label>
               <div class="input-group adw_select">
                 <div class="input-group adw_select">
                   <select2
@@ -73,14 +70,12 @@
             <div class="col-md-12">
               <div class="bgc-white bdrs-3 mB-20">
                 <div class="table-responsive table-item-attribute">
-                  <table
-                    class="table cat-table fixTable2   table-hover"
-                    id="attribute-combine-table"
-                  >
+                  <table class="table cat-table fixTable5 table-hover"
+                    id="attribute-combine-table">
                     <thead>
                       <tr class="default_row">
-                        <th rowspan="2" colspan="1">SNo.</th>
-                        <th rowspan="2" colspan="1">attributeCombination</th>
+                        <th rowspan="2" colspan="1" >SNo.</th>
+                        <th rowspan="2" colspan="1" >attributeCombination</th>
                         <th
                           rowspan="2"
                           colspan="1"
@@ -92,10 +87,8 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr
-                        class="default_row"
-                        *ngFor="let item of combineAttributeList; let i = index"
-                      >
+                      <tr class="default_row"
+                        *ngFor="let item of combineAttributeList; let i = index">
                         <td>{{ i + 1 }}</td>
                         <td>{{ item?.text }}</td>
                         <td *ngFor="let columnItem of item['values']; let j = index;">

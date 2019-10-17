@@ -44,7 +44,7 @@ export class LedgerCreationService {
   }
 
   deleteList (StrId) {
-    return this.baseService.deleteRequest(`${ApiConstant.POST_LEDGER_IMPORT}?StrId=${StrId}`)
+    return this.baseService.deleteRequest(`${ApiConstant.POST_LEDGER_IMPORT}`, StrId)
   }
 
   returnSelect2List (array: any, type: string, isAddNew?: boolean) {

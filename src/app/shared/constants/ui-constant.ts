@@ -231,4 +231,8 @@ export class UIConstant {
   public static get INCOME_TYPE (): string {
     return 'Income'
   }
+
+  public static get PACKAGINGCHALLAN (): string {
+    return 'OrderChallan'
+  }
 }

@@ -37,9 +37,17 @@ export class BaseServices {
     return this.http.post(path, JSON.stringify(body), { headers: this.setHeaders() })
   }
 
-  deleteRequest(path: string): Observable<any> {
-    return this.http.delete(
-      path, { headers: this.setHeaders() }
-    )
+  deleteRequest(path: string, body?: any): Observable<any> {
+    if (body) {
+      return this.http.request(
+        'delete', path, { body: body, headers: this.setHeaders() }
+      )
+    } else {
+      return this.http.delete(
+        path, { 
+          headers: this.setHeaders()
+        }
+      )
+    }
   }
 }

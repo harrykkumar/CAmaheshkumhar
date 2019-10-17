@@ -74,9 +74,11 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   ledgerCreationModel: Subscription
   getListledger: any = []
   advanceBillNo: number;
+  sumCr: number = 0
+  sumDr: number = 0
   @HostListener('window:keydown',['$event'])
   onKeyPress($event: KeyboardEvent) {
-    console.log($event)
+    // console.log($event)
     if(($event.altKey || $event.metaKey) && $event.keyCode == 18) {
       if (this.tabId < 6 && this.tabId > 0 && !this.dateStatus) {
         this.tabId++
@@ -808,6 +810,8 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     this.idsBefore = []
     this.submitSave = false
     this.dateStatus = false
+    this.sumCr = 0
+    this.sumDr = 0
   }
 
   onAddNew () {
@@ -1263,17 +1267,17 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       }
       return !!isValid
     } else if (this.tabId === 4) {
-      let sumCr = 0
-      let sumDr = 0
+      this.sumCr = 0
+      this.sumDr = 0
       if (this.voucherDataJ.length > 1) {
         this.voucherDataJ.forEach(element => {
           if (element.Type === 1) {
-            sumCr += +element.Amount
+            this.sumCr += +element.Amount
           } else if (element.Type === 0) {
-            sumDr += +element.Amount
+            this.sumDr += +element.Amount
           }
         });
-        if (sumCr !== sumDr && this.submitSave) {
+        if (this.sumCr !== this.sumDr && this.submitSave) {
           isValid = 0
           this.toastrService.showError('Cr is not equal to Dr', '')
         }

@@ -58,6 +58,7 @@ export class LoginService {
 
   /* Function to get user data, modules, menus and menu-permissions */
   getUserDetails = (OrgId) => {
+    
     return new Promise((resolve, reject) => {
       this._basesService.getRequest(`${ApiConstant.USER_PROFILE}?Id=${OrgId}`).subscribe(
         async (data) => {

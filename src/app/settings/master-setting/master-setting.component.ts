@@ -26,6 +26,7 @@ export class MasterSettingComponent implements OnInit, AfterViewInit {
   dateFormat: any
   options: Select2Options
   saveSub$: Subscription
+  search = ''
   constructor (private settingsService: SettingsService,
      private toastrService: ToastrCustomService,
      private _loginService: LoginService,
@@ -36,6 +37,11 @@ export class MasterSettingComponent implements OnInit, AfterViewInit {
     this.saveSub$ = this.settingsService.saveSub$.subscribe(
       (obj) => {
         this.postFormValue()
+      }
+    )
+    this.saveSub$ = this.settingsService.search$.subscribe(
+      (data) => {
+        this.search = data
       }
     )
     this.options = {
@@ -106,7 +112,7 @@ export class MasterSettingComponent implements OnInit, AfterViewInit {
             let defaultValue = data.SetupClients.filter(setup => +setup.SetupId === +element.Id)
             if (+element.Type === SetUpIds.singleVal || +element.Type === SetUpIds.singleId || +element.Type === SetUpIds.multiple) {
               let newData = data.SetupSettings.filter(setup => +setup.SetupId === +element.Id)
-              console.log(newData)
+              // console.log(newData)
               if (+element.Type === SetUpIds.multiple) {
                 let defaultVal = typeof defaultValue !== 'undefined' && defaultValue.length === 1 ? defaultValue[0].DefaultValue : ''
                 let val = typeof defaultValue !== 'undefined' && defaultValue.length === 1 ? defaultValue[0].Value : ''
@@ -239,6 +245,9 @@ export class MasterSettingComponent implements OnInit, AfterViewInit {
         },
         (error) => {
           this.toastrService.showError(error, '')
+        },
+        () => {
+          this.getFormFields()
         }
       )
     }

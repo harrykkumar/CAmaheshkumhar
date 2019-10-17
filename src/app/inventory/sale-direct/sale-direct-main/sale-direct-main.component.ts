@@ -122,11 +122,13 @@ export class SaleDirectMainComponent {
     if (this.PrintFormateType === 3) {
       return 'saleDirect_PrintType3'
     }
-    if (this.PrintFormateType === 4) {
+    if (this.PrintFormateType === 4 || this.PrintFormateType === 5) {
       return 'saleDirect_PrintType4'
     }
 
   }
+
+  
   closeModal() {
     $('#confirmationPage1').modal(UIConstant.MODEL_HIDE)
   }
@@ -724,7 +726,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
     if (this.PrintFormateType === 3) {
       return AppliedCSSForTypeA4_3inch_Roll3
     }
-    if (this.PrintFormateType === 4) {
+    if (this.PrintFormateType === 4 || this.PrintFormateType === 5) {
       return AppliedCSSForTypeA4_Singal_Half4
     }
   }

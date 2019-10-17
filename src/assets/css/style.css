@@ -545,6 +545,12 @@ img.blah {
   background-size: 49px 13px;
 }
 
+
+.table_height4 {
+  max-height: calc(100vh - 500px);
+  /* max-height: 100px; */
+}
+
 .table_height3 {
   max-height: calc(100vh - 350px);
   /* max-height: 100px; */
@@ -5521,4 +5527,8 @@ table.table1 th {
 }
 .btn_collaspe:focus {
   outline:none;
+}
+.left_side_print2 {
+  margin-right: 25px;
+  margin-left: 31px;
 }

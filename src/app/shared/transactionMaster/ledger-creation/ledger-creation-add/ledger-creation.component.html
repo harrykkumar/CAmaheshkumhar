@@ -27,16 +27,7 @@
                                             ></select2>
                                             </div>
                                             </div>
-                                            <!-- <ng-select
-                                            name="ledgerGroup"
-                                            [items]="ledgerGroupData"
-                                            bindLabel="text"
-                                            bindValue="id"
-                                            placeholder="Select Group"
-                                            formControlName="LedgerGroupValue"
-                                            (change)='onChnageGroup(id)'
-                                          >
-                                          </ng-select> -->
+                                          
                                       
                                 </div>
                                 <div class="form-group col-md-6">
@@ -95,10 +86,44 @@
                                       formControlName="gstin" (input)="checkGSTNumber($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': (submitClick && validGSTNumber) || (submitClick && requiredGST ) }"
                                       >
                                 </div>
-                                 <div class="form-group col-md-4">
+                                <div class="form-group col-md-4">
                                     <label class="active">PAN Number</label> <input style="text-transform:uppercase" type="text" class="form-control" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && validPANFlag }" id="org_code" placeholder=" PAN No." formControlName="panNo">
                                 </div>
-                               
+                                <ng-container *ngIf="isTaxedAplly===1" >
+                                    <div class="form-group col-md-4"  >
+                                        <label>Tax Slab</label>
+                                        <div class="input-group adw_select">
+                                            <select2 #taxSlab_select2 [data]="taxSlabsData"
+                                              class="control_select" 
+                                              (valueChanged)="onTaxSlabSelect($event)"
+                                               autocomplete="true"
+                                               [options]="{ placeholder: 'Select Tax' }"
+                                               [value]="taxSlabValue">
+                                            </select2>
+                                        </div>
+                                      </div>
+                                      <div class="form-group col-md-4"  >
+                                        <label>ITC Type</label>
+                                        <div class="input-group adw_select">
+                                          <select2 [data]="ListITCType" #itc_select2 class="control_select"
+                                            (valueChanged)="ITCTypeId = $event.value" 
+                                             autocomplete="true"
+                                            [options]="{placeholder: 'Select ITC'}" [value]="ITCTypeValue" ></select2>
+                                        </div>
+                                      </div>
+                                      <div class="form-group col-md-4"  >
+                                        <label>RCM Type</label>
+                                        <div class="input-group adw_select">
+                                          <select2 [data]="ListRCMType" #rcm_select2 class="control_select"
+                                            (valueChanged)="RCMTypeId = $event.value" 
+                                           autocomplete="true"
+                                            [options]="{placeholder: 'Select RCM'}" [value]="RCMTypeValue" ></select2>
+                                        </div>
+                                      </div>
+                                      <div class="form-group col-md-4">
+                                        <label class="active">HSN</label> <input  type="text" class="form-control"  id="HSN" placeholder=" HSN No." formControlName="HSNNo">
+                                    </div>
+                                </ng-container>
                                        <div class="form-group col-md-4">
                                     <label for="bill_no">Country</label>
                                     <div class="input-group adw_select">
