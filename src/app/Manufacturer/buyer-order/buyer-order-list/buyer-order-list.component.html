@@ -58,13 +58,14 @@
                 <tr>
                   <th width="7%">SNo.</th>
                   <th>Buyer Code</th>
-                <th>Style Name</th>
-                <th>Buyer</th>
-                <th>Order Date</th>
-                <th>Order Qty</th>
-                <th>Production Qty</th>
-                <th>Amount</th>
-                <th>Action</th>
+                  <th>Style Name</th>
+                  <th>Buyer</th>
+                  <th>Order No.</th>
+                  <th>Order Date</th>
+                  <th>Order Qty</th>
+                  <th>Production Qty</th>
+                  <th>Amount</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -77,6 +78,7 @@
                   <td>{{item?.BuyerCode}}</td>
                   <td>{{item?.StyleName}}</td>
                   <td>{{item?.BuyerName}}</td>
+                  <td>{{item?.OrderNo}}</td>
                   <td>{{item?.OrderDate | dateFormat: clientDateFormat}}</td>
                   <td>{{item?.TotalOrderQty}}</td>
                   <td>{{item?.TotalProductionQty}}</td>

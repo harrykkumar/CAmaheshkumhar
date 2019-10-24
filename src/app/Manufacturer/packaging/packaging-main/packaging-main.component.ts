@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { PackagingService } from '../packaging.service';
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { Settings } from '../../../shared/constants/settings.constant';
+import { Subscription } from 'rxjs/Subscription';
+import { CommonService } from '../../../commonServices/commanmaster/common.services';
 @Component({
   selector: 'packaging-main',
   templateUrl: './packaging-main.component.html'
@@ -12,28 +14,48 @@ export class PackagingMainComponent {
   disableBtn = true
   orderPacketId: string = ''
   bOrderId: number = 0
-  constructor (private _ps: PackagingService, private _ts: ToastrCustomService, private settings: Settings) {
+  destroy$: Subscription
+  queryStr: string = ''
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
+  lastItemIndex: number = 0
+  isSearching: boolean = true
+  constructor (private _ps: PackagingService, private _ts: ToastrCustomService, private settings: Settings, private _cs: CommonService) {
     this.clientDateFormat = this.settings.dateFormat;
-    this._ps.challanAdded$.subscribe(() => {
+    this.destroy$ = this._ps.challanAdded$.subscribe(() => {
       this.getPacketsList()
     })
+    this.destroy$ = this._ps.queryStr$.subscribe(
+      (str) => {
+        console.log(str)
+        this.queryStr = str
+        this.p = 1
+        this.getPacketsList()
+      }
+    )
   }
 
   ngOnInit () {
     this.getPacketsList()
   }
 
+  ngAfterViewInit () {
+    this._cs.fixTableHF('packaging-table')
+  }
+
   getPacketsList () {
-    this._ps.getPacketsList().subscribe(
+    this.isSearching = true
+    this._ps.getPacketsList('?' + this.queryStr).subscribe(
       (data) => {
-        if (data.length > 0) {
-          this.packetLists = data
-          this.packetLists.forEach((element) => {
-            element['checked'] = false
-          })
-        }
+        this.isSearching = false
+        this.packetLists = data
+        this.packetLists.forEach((element) => {
+          element['checked'] = false
+        })
       },
       (error) => {
+        this.isSearching = false
         console.log(error)
         this._ts.showError(error, '')
       }
@@ -68,5 +90,10 @@ export class PackagingMainComponent {
 
   generateChallan () {
     this._ps.openChallan({bOrderId: this.bOrderId, orderStr: this.orderPacketId})
+  }
+
+  toShowSearch = false
+  toggleSearch() {
+    this.toShowSearch = !this.toShowSearch
   }
 }

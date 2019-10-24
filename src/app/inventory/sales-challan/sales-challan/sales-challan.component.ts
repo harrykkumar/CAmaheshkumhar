@@ -11,6 +11,7 @@ import { ToastrCustomService } from '../../../commonServices/toastr.service'
 import { PagingComponent } from '../../../shared/pagination/pagination.component'
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { Settings } from '../../../shared/constants/settings.constant'
+import * as _ from 'lodash'
 
 @Component({
   selector: 'app-sales-challan',
@@ -25,6 +26,7 @@ export class SalesChallanComponent implements OnInit {
   masterData: any
   subcribe: Subscription
   saleTravelDetails: SaleTravel[]
+  ledgerItemList: Array<any> = [];  
   saletravelForm: FormGroup
   bankForm: FormGroup
   newBillSub: Subscription
@@ -85,11 +87,21 @@ export class SalesChallanComponent implements OnInit {
     'pharmacode',
     'codabar'
   ]
+  formTypeNmae:any='Select Customer'
   clientDateFormat: any
   dicimalDigitFormat: any = 0
+  dataStatus:any =[]
   industryId: any
+  StausValue:any=0
   constructor(public _settings: Settings, private _formBuilder: FormBuilder, private _coustomerServices: VendorServices, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
     this.formSearch()
+    this.StausValue=0
+
+    this.getLedgerItemList()
+    this.dataStatus = [
+      { id: '0', text: 'Running' },
+      { id: '1', text: 'Canceled' },
+    ]
     this.itemIdCollection = []
     this.generateBillFlagEnable = true
     this.clientDateFormat = this._settings.dateFormat
@@ -100,12 +112,9 @@ export class SalesChallanComponent implements OnInit {
       (obj: any) => {
         this.getSaleChallanDetail()
         $(document).ready(function () {
-
           $('.table_challan').tableHeadFixer({
             head: true,
             foot: true,
-
-
           });
         });
       }
@@ -150,12 +159,68 @@ export class SalesChallanComponent implements OnInit {
   totaltax: number
   totalBillAmount: number
   @ViewChild('searchData') searchData: ElementRef
+   isViewPrint :any
+   ledgerItemId:any=null
+   selectedLedgerId: number = 0
+   selectedStatusId:number=0
+   statusId:number =null
+   LedgerName: any = ''
+   fromDatevalue:any=''
+   toDateValue:any=''
+   statusChange (event){
+    if (event.id > 0) {
+      this.selectedStatusId = +event.id
+    }
+   }
+   onLedgerItemChange = (event) => {
+   // if (this.ledgerItemId !== null) {
+     
+      if (event.id > 0) {
+        this.selectedLedgerId = +event.id
+        this.LedgerName = event.text
+      }
+    //}
+  }
+  StausType:any=0
+  formTypeNmae2:any ='Status'
+  searchResetButton() {
+    this.toDateValue = ''
+    this.fromDatevalue = ''
+    this.selectedLedgerId = 0
+    this.selectedStatusId=0
+    this.ledgerItemId = null
+    this.statusId=null
+    this.getSaleChallanDetail()
+  }
+  searchButton() {
+        this.getSaleChallanDetail()
+  }
 
+  getLedgerItemList = () => {
+    this.isViewPrint = false
+    this._commonService.getCustomer(5).pipe(
+      map((data: any) => {
+        return _.map(data.Data, (element) => {
+          return {
+            id: element.Id,
+            text: element.Name
+          }
+        })
+      })
+    )
+      .subscribe((response: any) => {
+        this.ledgerItemList = [{ id: UIConstant.ZERO, text: 'Select Ledger' }, ...response];
+      })
+  }
   getSaleChallanDetail() {
     if (!this.searchForm.value.searckKey) {
       this.searchForm.value.searckKey = ''
     }
-    this._commonService.getAllDataOfSaleChallan('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
+  let ToDate =  this.toDateValue 
+  let FromDate =  this.fromDatevalue
+
+
+    this._commonService.getAllDataOfSaleChallan('?Strsearch=' + this.searchForm.value.searckKey+'&Status='+this.StausType+'&ToDate='+ToDate+'&FromDate='+FromDate +'&LedgerId='+this.selectedLedgerId+ '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         console.log('sales data: ', data)
         this.totalBillAmount = 0

@@ -1267,16 +1267,14 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       }
       return !!isValid
     } else if (this.tabId === 4) {
-      this.sumCr = 0
-      this.sumDr = 0
       if (this.voucherDataJ.length > 1) {
-        this.voucherDataJ.forEach(element => {
-          if (element.Type === 1) {
-            this.sumCr += +element.Amount
-          } else if (element.Type === 0) {
-            this.sumDr += +element.Amount
-          }
-        });
+        // this.voucherDataJ.forEach(element => {
+        //   if (element.Type === 1) {
+        //     this.sumCr += +element.Amount
+        //   } else if (element.Type === 0) {
+        //     this.sumDr += +element.Amount
+        //   }
+        // });
         if (this.sumCr !== this.sumDr && this.submitSave) {
           isValid = 0
           this.toastrService.showError('Cr is not equal to Dr', '')
@@ -1317,6 +1315,18 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           }
         })
       }, 100)
+
+      if (this.voucherDataJ.length > 1) {
+        this.sumCr = 0
+        this.sumDr = 0
+        this.voucherDataJ.forEach(element => {
+          if (element.Type === 1) {
+            this.sumCr += +element.Amount
+          } else if (element.Type === 0) {
+            this.sumDr += +element.Amount
+          }
+        });
+      }
     }
   }
   CRDRId: number

@@ -1102,6 +1102,8 @@ onLoading(){
   this.showHidePayment = true
   this.addItemDisbaled = this.editMode === true ? false : true   
   this.caseSaleArrayId = [{ id: 6 }, { id: 5 }]
+  this.editChargeIndex =-1
+
 }
   caseSaleArrayId:any =[]
   @ViewChild('currency_select2') currencySelect2: Select2Component
@@ -1495,8 +1497,12 @@ onLoading(){
           +this.AmountCharge,
           this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
         this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
-
         this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+        if (this.editChargeIndex > -1) {
+          this.AdditionalCharges[this.editChargeIndex].TaxAmountCharge = this.TaxAmountCharge
+          this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = this.TaxableAmountCharge
+          this.AdditionalCharges[this.editChargeIndex].itemTaxTrans = returnTax.appliedTaxRates
+        }
       } else {
         if (this.TaxTypeCharge === 1) {
           let AmountCharge = this.saleServiceBillingService.calcTaxableAmountType1(this.taxChargeRates,
@@ -1508,17 +1514,42 @@ onLoading(){
             this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
           this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
           this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+          if (this.editChargeIndex > -1) {
+            this.AdditionalCharges[this.editChargeIndex].TaxAmountCharge = this.TaxAmountCharge
+            this.AdditionalCharges[this.editChargeIndex].itemTaxTrans = returnTax.appliedTaxRates
+            this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = this.TaxableAmountCharge
+
+          }
         }
       }
     } else if (this.editChargeId === -1) {
       this.TaxAmountCharge = 0
+      this.TotalAmountCharge=0
+      this.TaxableAmountCharge=0
+      this.appliedTaxRatesCharge = []
     }
     if (+this.AmountCharge > 0) {
       this.TotalAmountCharge = +(+this.AmountCharge + + ((this.TaxTypeCharge === 0) ? (isNaN(+this.TaxAmountCharge) ? 0 : +this.TaxAmountCharge) : 0)).toFixed(this.noOfDecimalPoint)
+      if (this.editChargeIndex > -1) {
+        this.AdditionalCharges[this.editChargeIndex].TotalAmountCharge = this.TotalAmountCharge
+      }
     } else {
-      this.TotalAmountCharge = 0
+      if (this.editChargeIndex > -1) {
+        this.TaxAmountCharge = 0
+        this.TotalAmountCharge=0
+        this.TaxableAmountCharge=0
+        this.AdditionalCharges[this.editChargeIndex].TaxAmountCharge = 0
+        this.AdditionalCharges[this.editChargeIndex].itemTaxTrans = []
+        this.AdditionalCharges[this.editChargeIndex].taxChargeRates = []
+        this.AdditionalCharges[this.editChargeIndex].TotalAmountCharge = 0
+        this.AdditionalCharges[this.editChargeIndex].AmountCharge = 0
+        this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = 0  
+      }
     }
     this.TotalAmountCharge = +this.TotalAmountCharge.toFixed(4)
+    if (this.editChargeIndex > -1) {
+      this.AdditionalCharges[this.editChargeIndex].TotalAmountCharge = 0
+    }
     this.InterestAmount = 0
     this.SubTotal = +(this.calculateTotalOfRow()).toFixed(this.noOfDecimalPoint)
     if (this.editItemIndex > -1) {
@@ -2161,12 +2192,14 @@ onLoading(){
   editItemFlag:boolean
   SrNo:any=0
   editItemIndex:any=1
+  editChargeIndex:number=-1
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
     if (type === 'charge' && this.editChargeId === -1) {
       this.editChargeId = editId
       this.editChargeSno = sno
       i = i - 1
+      this.editChargeIndex=-1
       this.showHideItemCharge =false
       this.AdditionalCharges[i].isEditable = false
       this.EditabledChargeRow =true
@@ -2393,6 +2426,7 @@ this.taxTypeValue=0
   @ViewChild('taxSlabCharge_select2') taxSlabChargeSelect2: Select2Component
   @ViewChild('charge_select2') chargeSelect2: Select2Component
   initCharge () {
+    this.editChargeIndex =-1
     this.LedgerChargeId = 0
     this.LedgerName = ''
     this.AmountCharge = 0
@@ -3374,7 +3408,7 @@ this.taxTypeValue=0
     this.AdditionalCharges.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
     });
-    if (!this.clickCharge && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
+    if (!this.clickCharge &&  this.editChargeIndex === -1 && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
       if (this.appliedTaxRatesCharge.length > 0) {
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesCharge)
       }

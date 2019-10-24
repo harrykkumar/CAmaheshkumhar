@@ -42,6 +42,7 @@ export class ActiveInventoryComponent implements OnInit {
     this.refreshPage = this.commonService.newRefreshItemStatus().subscribe(
       (obj) => {
         this.initActiveList() 
+        this.getParentActiveList()
       }
     ) 
   }
@@ -102,6 +103,7 @@ export class ActiveInventoryComponent implements OnInit {
   }
   /* Function to intialising attribute list to show in table */
   initActiveList = () => {
+    
     if (!this.searchForm.value.searckKey) {
       this.searchForm.value.searckKey = ''
     }
@@ -111,6 +113,7 @@ export class ActiveInventoryComponent implements OnInit {
       if (Data.Code === UIConstant.THOUSAND && Data.Data) {
         this.activeInventList = [...Data.Data]
         this.total = this.activeInventList[0] ? this.activeInventList[0].TotalRows : 0
+        
       }
     }, error => console.log(error))
   }
@@ -152,7 +155,8 @@ export class ActiveInventoryComponent implements OnInit {
   }
 
   deleteActiveParent = (id) => {
-    this.commonService.openDelete(id, 'activeInventory', 'ActiveInventory')
+    // this.commonService.openDelete(id, 'activeInventory', 'ActiveInventory')
+    this.commonService.openDelete(id, 'activeInventoryParent', 'ActiveInventory')
   }
 
   //  Function to emit and open add-attribute-modal in edit mode
@@ -170,7 +174,7 @@ export class ActiveInventoryComponent implements OnInit {
         if (obj.id && obj.type && obj.type === 'activeInventory') {
           this.confirmDeleteActive(obj.id)
         }
-        if (obj.id && obj.type && obj.type === 'activeInventory') {
+        if (obj.id && obj.type && obj.type === 'activeInventoryParent') {
           this.confirmDeleteParentActive(obj.id)
         }
       }, error => console.log(error)
@@ -179,6 +183,7 @@ export class ActiveInventoryComponent implements OnInit {
 
   /* Function to listen the confirm delete action */
   confirmDeleteActive = (id) => {
+    debugger
     this.activeService.deleteActiveInventory(id).
     pipe(takeUntil(this.unSubscribe$)).
     subscribe((Data) => {

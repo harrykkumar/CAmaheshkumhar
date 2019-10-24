@@ -12,6 +12,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     CommonModule,
     SampleApprovalRoutingModule,
     SharedModule
-  ]
+  ],
+  entryComponents: [AddSampleApprovalComponent]
 })
 export class SampleApprovalModule { }

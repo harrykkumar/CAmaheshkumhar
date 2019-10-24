@@ -321,7 +321,6 @@ export class SaleDirectReturnComponent {
       data => {
         if (data.data) {
           this.vendorData = data.data
-          console.log('this.vendorData : ', this.vendorData)
         }
       }
     )
@@ -407,7 +406,6 @@ export class SaleDirectReturnComponent {
             { id: '0', symbol: '%' },
             { id: '1', symbol: this.defaultCurrency }
           ]
-          // console.log('currencyValues : ', this.currencyValues)
           this.convertToCurrencyData = [...this.currencyData]
           if (this.currencyData.length >= 1) {
             this.CurrencyId = +this.currencyData[0].id
@@ -451,12 +449,10 @@ export class SaleDirectReturnComponent {
   ShippingAddress: any = ''
   OrganizationName: any = ''
   getEditData() {
-    console.log('edit id : ', this.Id)
     let Id_for_change = this.editMode === true ? this.EditID : this.ReturnID
     let type = this.editMode === true ? 'SaleReturnDetails?Id=' : 'saledetails?Id='
     this._saleDirectReturnService.getSaleReturnEditData(type, Id_for_change).pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
-        console.log('edit data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           this.getAllAddresses(+data.Data.SaleTransactionses[0].LedgerId)
           this.customerName = data.Data.SaleTransactionses[0].LedgerName
@@ -537,7 +533,6 @@ export class SaleDirectReturnComponent {
       }
     })
 
-    console.log('this.ItemTaxTrans : ', this.ItemTaxTrans)
   }
 
   createAdditionalCharges(charges) {
@@ -555,7 +550,6 @@ export class SaleDirectReturnComponent {
         } else {
           this.taxTypeChargeName = 'Inclusive'
         }
-        console.log('itemTaxTrans : ', itemTaxTrans)
 
         this.LedgerChargeId = element.LedgerChargeId
         this.LedgerName = element.LedgerName
@@ -578,7 +572,6 @@ export class SaleDirectReturnComponent {
         }
       })
     }
-    console.log('this.AdditionalCharges : ', this.AdditionalCharges)
   }
 
   itemAttributesOthers: any = []
@@ -594,7 +587,6 @@ export class SaleDirectReturnComponent {
         Sno: index + 1
       }
     })
-    // console.log('this.itemAttributesOthers : ', this.itemAttributesOthers)
   }
   SaleTransId: number
   createItems(ItemTransactions) {
@@ -617,7 +609,6 @@ export class SaleDirectReturnComponent {
           return taxRate
         }
       })
-      console.log('itemTaxTrans : ', itemTaxTrans)
       let itemAttributeTrans = []
       if (this.itemAttributesOthers.length > 0) {
         itemAttributeTrans = this.itemAttributesOthers.filter((attr) => {
@@ -631,7 +622,6 @@ export class SaleDirectReturnComponent {
       } else {
         this.taxTypeName = 'Inclusive'
       }
-      console.log('itemAttributeTrans : ', itemAttributeTrans)
       this.TransType = element.TransType
       this.TransId = element.TransId
       this.ChallanId = element.ChallanId
@@ -683,7 +673,6 @@ export class SaleDirectReturnComponent {
         // this.AmountItem = this.AmountItem - this.DiscountAmt
       }
       this.addItems()
-      console.log(this.Items, 'items-eddd')
 
       if (this.Items[this.Items.length - 1]) {
         this.Items[this.Items.length - 1].Id = this.editMode === true ? element.Id : 0
@@ -692,7 +681,7 @@ export class SaleDirectReturnComponent {
         this.toastrService.showError('inProper fetching Data', '')
       }
     })
-    console.log('items : ', this.Items)
+    
   }
 
   calcTotal() {
@@ -724,7 +713,6 @@ export class SaleDirectReturnComponent {
         }
       })
     }
-    // console.log('this.PaymentDetail : ', this.PaymentDetail)
   }
 
   other: any = {}
@@ -776,7 +764,6 @@ export class SaleDirectReturnComponent {
     this.LocationTo = others.LocationTo
     this.isOtherState = !!others.IsOtherStatemain
     this.defaultCurrency = others.Currency
-    // console.log('currency values : ', this.currencyValues)
     this.setPayDate()
     this.other = others
     this.formReadySub.next(true)
@@ -785,7 +772,6 @@ export class SaleDirectReturnComponent {
   getAllCategories(categoryName, categoryId, isAddNew) {
     this.commonService.getAllCategories().subscribe(
       data => {
-        // console.log('all categories : ', data)
         let levelNo = 0
         if (data.Code === UIConstant.THOUSAND && data.Data && data.Data.length > 0) {
           this.getCatagoryDetail(data.Data)
@@ -802,8 +788,6 @@ export class SaleDirectReturnComponent {
               item.setElementValue(this.categoryId)
             }
           })
-          // this.updateCategories(categoryId)
-          // console.log('categoryname : ', this.categoryName)
           let evt = { value: categoryId, data: [{ text: categoryName }] }
           this.onSelectCategory(evt, levelNo)
         }
@@ -818,7 +802,6 @@ export class SaleDirectReturnComponent {
   isBillNoManuall: boolean = false
   taxCalInclusiveType: number = 2
   getSetUpModules(settings) {
-    console.log('settings : ', settings)
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
         this.catLevel = +element.val
@@ -838,7 +821,6 @@ export class SaleDirectReturnComponent {
       }
       if (element.id === SetUpIds.isManualBillNoEntryForsale) {
         this.isBillNoManuall = !!(+element.val)
-        // console.log('isBillNoManuall : ', this.isBillNoManuall)
       }
       if (element.id === SetUpIds.taxCalInclusive) {
         this.taxCalInclusiveType = +element.val
@@ -849,7 +831,6 @@ export class SaleDirectReturnComponent {
 
   @ViewChild('vendor_select2') vendorSelect2: Select2Component
   onVendorSelect(event) {
-    console.log('vendor select : ', event)
     if (event.value && event.data.length > 0) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
         this.vendorSelect2.selector.nativeElement.value = ''
@@ -872,16 +853,13 @@ export class SaleDirectReturnComponent {
   vendorGSTType: any
   getAllAddresses(vendorId) {
     this._saleDirectReturnService.getAllAddresses(vendorId).subscribe(data => {
-      // console.log('addresses : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.AddressDetails && data.Data.AddressDetails) {
           this.allAddressData = data.Data.AddressDetails
-          console.log(data.Data.LedgerDetails, 'ikkkki--')
           this._saleDirectReturnService.createAddress(data.Data.AddressDetails)
         }
         if (data.Data.LedgerDetails && data.Data.LedgerDetails.length > 0) {
           const LedgerDetails = data.Data.LedgerDetails[0]
-          console.log('LedgerDetails : ', LedgerDetails)
           this.CreditLimit = LedgerDetails.CreditLimit
           this.CreditDays = LedgerDetails.CreditDays
           //  this.vendorGSTType = data.Data.LedgerDetails[0].TaxTypeId
@@ -965,7 +943,6 @@ export class SaleDirectReturnComponent {
       }
     })
 
-    console.log('this.ItemTaxTrans : ', this.ItemTaxTrans)
   }
   ItemIndex: any
   @ViewChild('returnQty') returnQty
@@ -984,7 +961,6 @@ export class SaleDirectReturnComponent {
     }
   }
   toggleSelect(evt) {
-    console.log('event : ', evt.target.checked)
     for (let i = 0; i < this.Items.length; i++) {
       this.Items[i].selected = evt.target.checked
     }
@@ -1031,7 +1007,6 @@ export class SaleDirectReturnComponent {
 
     $('#sale_return_model').modal(UIConstant.MODEL_SHOW)
     this.industryId = +this.settings.industryId
-    console.log(this.industryId, 'ind')
     this.taxTypeData = [
       { id: '0', text: 'Exclusive' },
       { id: '1', text: 'Inclusive' }
@@ -1064,7 +1039,6 @@ export class SaleDirectReturnComponent {
       if (data.Code === UIConstant.THOUSAND) { return true } else { console.log(data); throw new Error(data.Description) }
     }), catchError(error => { return throwError(error) }), map(data => data.Data)).subscribe(
       data => {
-        // console.log('form dependency : ', data)
         if (data) {
           data.forEach((element) => {
             if (element.IsIdentity) {
@@ -1129,15 +1103,10 @@ export class SaleDirectReturnComponent {
         map(data => data.Data)
       ).subscribe(
         data => {
-          console.log('sputility data : ', data)
           if (data.AttributeValueResponses.length > 0) {
             _self._saleDirectReturnService.generateAttributes(data)
           }
-          if (data.ItemCategorys.length > 0) {
-            //   _self.purchaseAdd.getCatagoryDetail(data.ItemCategorys)
-          }
-          //_self.purchaseAdd.allItems = [ ...data.Items ]
-          // console.log('allItems : ', this.allItems)
+          
 
           _self.TransactionNoSetups = data.TransactionNoSetups
           if (!this.editMode) {
@@ -1175,7 +1144,6 @@ export class SaleDirectReturnComponent {
   }
   orgnizationName: any
   getOrgnization(data) {
-    console.log(data, 'org-data')
     if (data.length > 0) {
       this.OrgId = +data[0].Id
       this.orgnizationName = data[0].Name
@@ -1220,12 +1188,10 @@ export class SaleDirectReturnComponent {
         this.categories.push({ ...obj })
       }
     }
-    // console.log('categories : ', this.categories)
   }
 
   allCategories: any = []
   getCatagoryDetail(data) {
-    // console.log('category data : ', data)
     for (let i = 0; i < this.catLevel; i++) {
       if (this.categories[i]) {
         this.categories[i].data = [{ id: '0', text: 'Select Category' }]
@@ -1234,7 +1200,6 @@ export class SaleDirectReturnComponent {
     this.allCategories = [...data]
     let _self = this
     data.forEach(category => {
-      // console.log('category.LevelNo : ', category.LevelNo)
       if (_self.categories[category.LevelNo - 1]) {
         _self.categories[category.LevelNo - 1].data.push({
           text: category.Name,
@@ -1247,14 +1212,12 @@ export class SaleDirectReturnComponent {
         this.categories[i].data = Object.assign([], this.categories[i].data)
       }
     }
-    // console.log('dynamic categories : ', this.categories)
     this._loaderService.hide()
 
   }
 
   catStr: string = ''
   onSelectCategory(evt, levelNo) {
-    // console.log('evt on change of category : ', evt, 'level : ', levelNo)
     if (this.catLevel > 1) {
       if (+evt.value > 0) {
         if (levelNo === this.catLevel) {
@@ -1337,7 +1300,6 @@ export class SaleDirectReturnComponent {
   @ViewChild('item_select2') itemselect2: Select2Component
   onItemSelect(evt) {
     if (evt.value && evt.data.length > 0) {
-      // console.log('evt on change of item : ', evt)
       if (+evt.value === 0) {
         this.ItemId = +evt.value
         //   this.validateItem()
@@ -1364,12 +1326,11 @@ export class SaleDirectReturnComponent {
 
   getItemDetail(id) {
     this._saleDirectReturnService.getItemDetail(id).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
-      console.log('item detail : ', data)
+     
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.length > 0) {
           this.categoryName = data.Data[0].CategoryName
           this.updateCategories(data.Data[0].CategoryId)
-          // console.log('categoryname : ', this.categoryName)
           this.TaxSlabId = data.Data[0].TaxId
           this.UnitId = data.Data[0].UnitId
           this.unitSelect2.setElementValue(data.Data[0].UnitId)
@@ -1397,7 +1358,6 @@ export class SaleDirectReturnComponent {
   }
 
   onAttributeSelect(evt, index, attributeId) {
-    // console.log('evt on change of attribute : ', evt)
     if (+evt.value > 0 && evt.data.length > 0) {
       let Sno = 0
       if (this.Items.length === 0) {
@@ -1435,15 +1395,6 @@ export class SaleDirectReturnComponent {
       this.commonService.openAttribute(data, true)
     }
 
-    // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-    //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-    //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-    //   } else {
-    //     $('#' + $('.attr')[index].id).addClass('errorSelecto')
-    //   }
-    // })
-    // console.log('this.itemAttributeTrans : ', this.itemAttributeTrans)
-    //  this.validateItem()
   }
 
   updateAttributes() {
@@ -1485,10 +1436,6 @@ export class SaleDirectReturnComponent {
 
     return str
   }
-
-  // console.log('id : ', id)
-  // console.log('level : ', level)
-  // console.log('parentMostCategory : ', parentMostCategory)
   getParentMostCat(id, level) {
     let parentMostCategory = 0
     while (level !== 0) {
@@ -1520,8 +1467,6 @@ export class SaleDirectReturnComponent {
   //console.log('new cateogries : ', this.categories)
   @ViewChildren('cat_select2') catSelect2: QueryList<Select2Component>
   updateCategories(childmostId) {
-    console.log('childmostId id : ', childmostId)
-    console.log('this.categoryId id : ', this.categoryId)
     if (this.categoryId !== childmostId || this.editItemId !== -1) {
       let pattern = [childmostId]
       this.catSelect2.forEach(() => {
@@ -1541,7 +1486,6 @@ export class SaleDirectReturnComponent {
   }
 
   updateCatArray(id, levelNo) {
-    console.log('evt on updateCatArray of category : ', id, 'level : ', levelNo)
     if (levelNo < this.catLevel) {
       let categoryId = +id
       let newData = []
@@ -1554,7 +1498,6 @@ export class SaleDirectReturnComponent {
           })
         }
       })
-      console.log('level no : ', levelNo, 'new data : ', newData)
       this.categories[levelNo].data = newData
       // this.categories = Object.assign([], this.categories)
     }
@@ -1680,7 +1623,6 @@ export class SaleDirectReturnComponent {
         if (this.TaxTypeCharge === 1) {
           let AmountCharge = this._saleDirectReturnService.calcTaxableAmountType1(this.taxChargeRates,
             this.taxChargeSlabType, +this.AmountCharge, this.isOtherState)
-          console.log('amount charge : ', AmountCharge)
           this.TaxableAmountCharge = +AmountCharge.toFixed(this.noOfDecimalPoint)
           let returnTax = this._saleDirectReturnService.taxCalCulationForInclusive(this.taxChargeRates,
             this.taxChargeSlabType,
@@ -1691,7 +1633,6 @@ export class SaleDirectReturnComponent {
         }
       }
     }
-    // console.log('TaxAmountCharge : ', this.TaxAmountCharge)
     if (+this.AmountCharge > 0) {
       this.TotalAmountCharge = +(+this.AmountCharge + + ((this.TaxTypeCharge === 0) ? (isNaN(+this.TaxAmountCharge) ? 0 : +this.TaxAmountCharge) : 0)).toFixed(this.noOfDecimalPoint)
     } else {
@@ -1744,7 +1685,6 @@ export class SaleDirectReturnComponent {
           this.unitName = evt.data[0].text
         }
       }
-      //  this.validateItem()
     }
   }
 
@@ -1754,7 +1694,6 @@ export class SaleDirectReturnComponent {
   newDate: string = ''
   @ViewChild('godown_select2') godownSelect2: Select2Component
   onGodownSelect(evt) {
-    // console.log(evt)
     if (evt.value && evt.data.length > 0) {
       if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
         this.GodownId = +evt.value
@@ -1765,7 +1704,6 @@ export class SaleDirectReturnComponent {
 
   @ViewChild('address_select2') addressSelect2: Select2Component
   onAddressSelect(evt) {
-    // console.log('onAddressSelect : ', evt)
     if (evt.value && evt.data.length > 0) {
       if (+evt.value === -1) {
         this.addressSelect2.selector.nativeElement.value = ''
@@ -1811,7 +1749,6 @@ export class SaleDirectReturnComponent {
       }
       forkJoin(...observables).subscribe(
         data => {
-          // console.log(data)
           data.forEach((element, index) => {
             let appliedTaxRatesCharge = []
             let taxChargeSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
@@ -1872,7 +1809,6 @@ export class SaleDirectReturnComponent {
       }
       forkJoin(...observables).subscribe(
         data => {
-          // console.log(data)
           if (this.OrgGStType === 1) {
             data.forEach((element, index) => {
               let appliedTaxRatesItem = []
@@ -1930,19 +1866,16 @@ export class SaleDirectReturnComponent {
   }
 
   onCurrencySelect(evt) {
-    // console.log('selected currency : ', evt)
     if (evt.value > 0 && evt.data && evt.data.length > 0 && evt.data[0].text) {
       this.CurrencyId = +evt.value
       this.defaultCurrency = evt.data[0].text
       this.currencyValues[1] = { id: '1', symbol: evt.data[0].text }
-      // console.log('currencyValues : ', this.currencyValues)
     }
     this.checkForValidation()
   }
 
   @ViewChild('referraltype_select2') referraltypeSelect2: Select2Component
   onReferralTypeSelect(evt) {
-    // console.log(evt)
     if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
       this.ReferralTypeId = +evt.value
     }
@@ -1950,7 +1883,6 @@ export class SaleDirectReturnComponent {
 
   ConvertToCurrencyId: number
   onConvertToCurrencySelect(evt) {
-    // console.log(evt)
     if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
       this.ConvertToCurrencyId = +evt.value
     }
@@ -1958,7 +1890,6 @@ export class SaleDirectReturnComponent {
 
   @ViewChild('referral_select2') referralSelect2: Select2Component
   onRefferalPartnerSelect(evt) {
-    // console.log(evt)
     if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
       this.ReferralId = +evt.value
     }
@@ -1966,7 +1897,6 @@ export class SaleDirectReturnComponent {
 
   @ViewChild('payment_select2') paymentSelect2: Select2Component
   onPaymentModeSelect(event) {
-    // console.log('payment method select: ', event)
     if (+event.value > 0 && event.data[0] && event.data[0].text) {
       this.Paymode = event.data[0].text
       this.PayModeId = +event.value
@@ -2042,7 +1972,6 @@ export class SaleDirectReturnComponent {
 
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
   onPaymentLedgerSelect(event) {
-    // console.log('payment ledger id : ', event)
     if (+event.value === -1) {
       this.commonService.openLedger('')
       this.ledgerSelect2.selector.nativeElement.value = ''
@@ -2072,7 +2001,6 @@ export class SaleDirectReturnComponent {
     let paymentTotal = this.getPaymentTotal()
     paymentTotal = (isNaN(+paymentTotal)) ? 0 : +paymentTotal
     this.BillAmount = (isNaN(+this.BillAmount)) ? 0 : +this.BillAmount
-    console.log('this.BillAmount : ', this.BillAmount)
     if (this.BillAmount !== 0) {
       if (paymentTotal > this.BillAmount) {
         this.toastrService.showError('Error', 'Payment can\'t be more than bill amount')
@@ -2112,7 +2040,6 @@ export class SaleDirectReturnComponent {
           this.addTransaction()
           this.clickTrans = true
           this.initialiseTransaction()
-          // console.log('transactions : ', this.PaymentDetail)
           // this.setPayDate()
           this.calculatePaymentAmount()
         }
@@ -2173,7 +2100,6 @@ export class SaleDirectReturnComponent {
     if (this.validDiscount && +this.ItemId > 0 && +this.UnitId > 0 && this.SaleRate > 0) {
       this.addItem()
       this.clickItem = true
-      console.log('items : ', this.Items)
       if (!this.editMode) {
         this.calculateAllTotal()
       }
@@ -2187,7 +2113,6 @@ export class SaleDirectReturnComponent {
     if (this.appliedTaxRatesItem.length > 0) {
       this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesItem)
     }
-    console.log('ItemTaxTrans : ', this.ItemTaxTrans)
   }
 
   addItemBasedOnIndustry() {
@@ -2259,12 +2184,10 @@ export class SaleDirectReturnComponent {
     if (this.editItemId !== -1) {
       this.Items[this.Items.length - 1].Id = 0
     }
-    console.log(this.Items, 'dddd-----------')
   }
   DisabledRow: boolean = true
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
-    console.log('editId : ', editId)
     if (type === 'charge') {
       this.editChargeId = editId
       this.editChargeSno = sno
@@ -2656,7 +2579,6 @@ export class SaleDirectReturnComponent {
   getNewCurrentDate() {
     this._saleDirectReturnService.getCurrentDate().subscribe(
       data => {
-        console.log('current date : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
           this.setCurrentDate(data.Data)
         }
@@ -3048,7 +2970,6 @@ export class SaleDirectReturnComponent {
     if (!this.editMode) {
       this.commonService.checkForExistence(this.checkForExistence, dataToSend).subscribe(
         (data) => {
-          console.log('existence : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             data.Data.forEach(element => {
               if (+element.Status === 1) {
@@ -3081,7 +3002,6 @@ export class SaleDirectReturnComponent {
 
                 this._saleDirectReturnService.postSaleReturnData(this.saleReturnAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
                   data => {
-                    console.log('data : ', data)
                     if (data.Code === UIConstant.THOUSAND && data.Data) {
                       _self.toastrService.showSuccess('Saved Successfully', '')
                       _self.commonService.newPurchaseAdd()
@@ -3144,7 +3064,6 @@ export class SaleDirectReturnComponent {
 
             this._saleDirectReturnService.postSaleReturnData(this.saleReturnAddParams()).pipe(takeUntil(this.onDestroy$)).subscribe(
               data => {
-                console.log('data : ', data)
                 if (data.Code === UIConstant.THOUSAND && data.Data) {
                   _self.toastrService.showSuccess('Saved Successfully', '')
                   this.DisabledSaveBtn = true
@@ -3220,7 +3139,6 @@ export class SaleDirectReturnComponent {
       this.addCustomCharge()
       this.clickCharge = true
       this.initCharge()
-      console.log('charge : ', this.AdditionalCharges)
     }
   }
 
@@ -3243,7 +3161,6 @@ export class SaleDirectReturnComponent {
     if (this.appliedTaxRatesCharge.length > 0) {
       this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesCharge)
     }
-    console.log('ItemTaxTrans : ', this.ItemTaxTrans)
     let index = 0
     if (this.AdditionalCharges.length === 0) {
       index = 1
@@ -3296,7 +3213,6 @@ export class SaleDirectReturnComponent {
   }
 
   onTaxSlabChargeSelect(evt) {
-    // console.log('on change of tax slab : ', evt)
     if (+evt.value === -1) {
       this.commonService.openTax('')
       this.taxSlabChargeSelect2.selector.nativeElement.value = ''
@@ -3313,7 +3229,6 @@ export class SaleDirectReturnComponent {
   getTaxChargeDetail(TaxSlabId) {
     this._saleDirectReturnService.getSlabData(TaxSlabId).subscribe(
       data => {
-        console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
           this.taxChargeSlabType = (data.Data.TaxSlabs[0]) ? data.Data.TaxSlabs[0].Type : 0
           this.taxChargeRates = data.Data.TaxRates
@@ -3347,7 +3262,6 @@ export class SaleDirectReturnComponent {
       if (charge) {
         charge['itemTaxTrans'] = this.appliedTaxRatesCharge
       }
-      console.log('tax rates applied : ', this.appliedTaxRatesCharge)
     } else if (parentType === FormConstants.SaleForm) {
 
       if (this.editItemId !== -1) {
@@ -3369,13 +3283,11 @@ export class SaleDirectReturnComponent {
       if (item) {
         item['itemTaxTrans'] = this.appliedTaxRatesItem
       }
-      console.log('tax rates hhhhhhhhhapplied : ', this.appliedTaxRatesItem)
     }
   }
 
   @ViewChild('taxTypecharge_select2') taxTypeChargeSelect2: Select2Component
   onTaxTypeChargeSelect(evt) {
-    // console.log('on change of tax Type charge : ', evt)
     if (+evt.value >= 0 && evt.data[0] && evt.data[0].text) {
       this.TaxTypeCharge = +evt.value
       this.taxTypeChargeName = evt.data[0].text
@@ -3385,7 +3297,6 @@ export class SaleDirectReturnComponent {
 
   @ViewChild('taxSlab_select2') taxSlabSelect2: Select2Component
   onTaxSlabSelect(evt) {
-    // console.log('on change of tax slab : ', evt)
     if (+evt.value === -1) {
       this.commonService.openTax('')
       this.taxSlabSelect2.selector.nativeElement.value = ''
@@ -3404,7 +3315,6 @@ export class SaleDirectReturnComponent {
     if (TaxSlabId > 0) {
       this._saleDirectReturnService.getSlabData(TaxSlabId).subscribe(
         data => {
-          console.log('tax slab data : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             if (this.OrgGStType === 1) {
               this.itemTaxListFlag = true
@@ -3435,7 +3345,6 @@ export class SaleDirectReturnComponent {
 
   @ViewChild('taxType_select2') taxTypeSelect2: Select2Component
   onTaxTypeSelect(evt) {
-    // console.log('on change of tax Type : ', evt)
     if (+evt.value >= 0 && evt.data[0] && evt.data[0].text) {
       this.TaxType = +evt.value
       this.taxTypeName = evt.data[0].text
@@ -3513,7 +3422,6 @@ export class SaleDirectReturnComponent {
     let ItemTaxTrans = []
     let itemtaxForSumry = []
     this.billSummary = []
-    console.log(this.Items, 'items---')
     this.Items.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
       taxableValue += +element.AmountItem

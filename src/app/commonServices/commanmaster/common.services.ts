@@ -915,6 +915,9 @@ export class CommonService {
   getLedgerItemList = () => {
     return this.baseService.getRequest(`${ApiConstant.LEDGER_DETAIL_URL}`)
   }
+  getCustomer = (id) => {
+    return this.baseService.getRequest(`${ApiConstant.LEDGER_DETAIL_URL+'?Glid='+id}`)
+  }
 
   getBalanceSheetList(todate, fromdate) {
     return this.baseService.getRequest(ApiConstant.BALANCE_SHEET_API + '?OnDate=' + fromdate + '&ToDate=' + todate)
@@ -1204,7 +1207,6 @@ export class CommonService {
     return this.baseService.getRequest(url)
   }
 
-
   getSalePurchaseRegisterReport(data) {
     const url = `${ApiConstant.REPORT_SALE_PURCHASE_REGISTER}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
     return this.baseService.getRequest(url)
@@ -1474,5 +1476,12 @@ export class CommonService {
   } 
   getAllTax () {
     return this.baseService.getRequest(ApiConstant.GET_TAX_DETAIL_URL )
+  }
+  geActiveInventoryReport(data) {
+    const url = `${ApiConstant.REPORT_ACTIVE_INVENTORY}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&ItemId=${data.ItemId}&ActiveCategoryId=${data.ActiveCategoryId}&StrSearch=${data.StrSearch}`; 
+    return this.baseService.getRequest(url)
+  }
+  getItem () {
+    return this.baseService.getRequest(ApiConstant.ITEM_MASTER_DETAIL_URL)
   }
 }

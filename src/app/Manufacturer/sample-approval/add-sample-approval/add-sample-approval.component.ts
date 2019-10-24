@@ -41,28 +41,9 @@ ImageFiles: any = []
   ) {
     this.clientDateFormat = this._settings.dateFormat
   }
-  date = () => {
-    $('#ref-date').flatpickr({
-      dateFormat: 'm/d/Y',
-      onOpen: () => {
-        this.model.date = ''
-      }
-    })
-  }
-
-  expectedDate = () => {
-    $('#expected-date').flatpickr({
-      dateFormat: 'm/d/Y',
-      onOpen: () => {
-        this.model.expectedReplyDate = ''
-      }
-    })
-  }
-  clientDateFormat: any;
+  clientDateFormat: string = '';
 
   ngOnInit() {
-    this.date();
-    this.expectedDate();
     this.getFormUtilityData()
     this.getUploadedImages()
   }
@@ -75,7 +56,8 @@ ImageFiles: any = []
   }
 
   closeModal(){
-    $('#sample_approval_form').modal(UIConstant.MODEL_HIDE)    
+    $('#sample_approval_form').modal(UIConstant.MODEL_HIDE)
+    this.triggerCloseModal.emit();
   }
 
   onSampleShipMentByChange(event){
@@ -99,10 +81,10 @@ ImageFiles: any = []
     return new Promise((resolve, reject) => {
       const data = {
         Id: this.model.Id ? this.model.Id : 0,
-        ExpectedReplyDate: this.model.ExpectedReplyDate ? this.model.ExpectedReplyDate : '',
+        ExpectedReplyDate: this.model.ExpectedReplyDate ? this._globalService.clientToSqlDateFormat(this.model.ExpectedReplyDate, this.clientDateFormat) : '',
         Reference: this.model.Reference ? this.model.Reference : '',
         Remark: this.model.Remark ? this.model.Remark : '',
-        SampleDate: this.model.SampleDate ? this.model.SampleDate : 0,
+        SampleDate: this.model.SampleDate ? this._globalService.clientToSqlDateFormat(this.model.SampleDate, this.clientDateFormat) : 0,
         SampleTypeId: this.model.SampleTypeId,
         ShipmentById: this.model.ShipmentById ? this.model.ShipmentById : 0,
         ShipmentNo: this.model.ShipmentNo ? this.model.ShipmentNo : 0,
@@ -155,12 +137,14 @@ ImageFiles: any = []
   openImageModal () {
     this.itemMaster.openImageModal(this.imageList)
   }
+
   getUploadedImages = () => {
     this.itemMaster.imageAdd$.subscribe((response)=> {
       this.imageList = response;
       this.createImageFiles()
     })
   }
+
   removeImage = (index) => {
     _.forIn(this.imageList, (value) => {
       value.splice(index, 1)
@@ -174,7 +158,6 @@ ImageFiles: any = []
       if(res.Code === 1000) {
         this._toastService.showSuccess('success', 'Approval Saved Successfully')
         this.closeModal();
-        this.triggerCloseModal.emit();
       } else {
         this._toastService.showError('Error', res.Message)
       }

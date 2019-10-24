@@ -11,7 +11,6 @@ import { Subject } from 'rxjs';
 import { Subscription, from } from 'rxjs'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { ExcelService } from '../../commonServices/excel.service';
-
 declare var $: any
 declare var flatpickr: any
 import { AddCust, ResponseSale, TravelPayments } from '../../model/sales-tracker.model'

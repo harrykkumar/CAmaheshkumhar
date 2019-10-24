@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ItemRequirementComponent } from './item-requirement.component';
+import { AdminMasterSettingComponent } from './admin-master-setting.component';
 
-describe('ItemRequirementComponent', () => {
-  let component: ItemRequirementComponent;
-  let fixture: ComponentFixture<ItemRequirementComponent>;
+describe('AdminMasterSettingComponent', () => {
+  let component: AdminMasterSettingComponent;
+  let fixture: ComponentFixture<AdminMasterSettingComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ItemRequirementComponent ]
+      declarations: [ AdminMasterSettingComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ItemRequirementComponent);
+    fixture = TestBed.createComponent(AdminMasterSettingComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

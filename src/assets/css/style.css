@@ -4521,7 +4521,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .errorSelecto {
-  border: 1px solid red !important;
+  border-left: 2px solid red;
   outline: 0 !important;
 }
 .tab-Invalid {
@@ -5531,4 +5531,8 @@ table.table1 th {
 .left_side_print2 {
   margin-right: 25px;
   margin-left: 31px;
+}
+
+.ng-select-invalid .ng-select-container {
+  border-color: red !important;
 }

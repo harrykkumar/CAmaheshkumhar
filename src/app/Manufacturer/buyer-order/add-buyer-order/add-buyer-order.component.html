@@ -28,10 +28,9 @@
               </div>
               <div class="col-md-9">
                 <div class="btn_header">
-                  <button type="submit" class="btn btn-default waves-effect">
-                    Save
+                  <button type="submit" class="btn btn-default waves-effect" >
+                    Save<i class="fa fa-spinner fa-spin" *ngIf="disableBtnSubmit"></i>
                   </button>
-                  <!-- <a href="#" class="btn btn-info waves-effect">Save and New</a> -->
                   <button
                     type="button"
                     class="close"
@@ -39,7 +38,7 @@
                     aria-label="Close"
                     (click)="resetBuyerOrderForm()"
                   >
-                    <span aria-hidden="true" class="white-text">×</span>
+                  <span aria-hidden="true" class="white-text">×</span>
                   </button>
                 </div>
               </div>

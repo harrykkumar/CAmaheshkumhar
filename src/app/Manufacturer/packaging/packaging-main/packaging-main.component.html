@@ -18,25 +18,36 @@
                   <img src="../assets/img/excel.png"></a>
                 <button type="button" [disabled]="disableBtn" class="btn btn-primary waves-effect waves-light" 
                 (click)="generateChallan()">Generate Challan</button>
+                <button type="button" (click)="toggleSearch()" class="btn btn-primary waves-effect waves-light" >
+                  Search
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <packaging-search [toShow]="toShowSearch" ></packaging-search>
       <div class="bgc-white bdrs-3 mB-20">
         <div class="table-responsive parent" style="overflow: auto;">
-          <table class="table fixTable table-bordered table-hover">
+          <table class="table fixTable packaging-table table-bordered table-hover">
             <thead>
               <tr>
                 <th></th>
                 <th>Buyer Name</th>
-                <th>No of Packets</th>
-                <th>Date</th>
+                <th>Buyer Code</th>
+                <th>No of Items</th>
+                <th>Order No.</th>
+                <th>Order Date</th>
+                <th>Packing Date</th>
                 <th>Total Qty</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let item of packetLists; let i = index;" >
+              <tr *ngFor="let item of packetLists | paginate : {
+                itemsPerPage: itemsPerPage,
+                currentPage: p,
+                totalItems: total
+              }; let i = index;" >
                 <td>
                   <div class="custom-control custom-checkbox" *ngIf="item.ChallanId === 0" >
                     <input name="packingorder-{{ i }}" [(ngModel)]="item.checked"
@@ -46,8 +57,11 @@
                     <label class="custom-control-label" for="packingorderAttribute-{{ i }}"></label>
                   </div>
                 </td>
-                <td>{{item?.Name}}</td>
+                <td>{{item?.BuyerName}}</td>
+                <td>{{item?.Code}}</td>
                 <td>{{item?.NoOfPackets}}</td>
+                <td>{{item?.OrderNo}}</td>
+                <td>{{item?.OrderDate | dateFormat: clientDateFormat}}</td>
                 <td>{{item?.PackingDate | dateFormat: clientDateFormat}}</td>
                 <td>{{item?.TotalQty}}</td>
               </tr>
@@ -59,3 +73,8 @@
   </div>
 </main>
 <packaging-challan></packaging-challan>
+<app-pagination
+  (lastValueEmitter)="lastItemIndex = $event"
+  (pageNoEmitter)="p = $event; getPacketsList()"
+  (pageSizeEmitter)="itemsPerPage = $event; getPacketsList()"
+></app-pagination>

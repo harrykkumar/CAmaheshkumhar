@@ -1,10 +1,9 @@
-import { Component, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core'
+import { Component, Output, EventEmitter, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { Subscription } from 'rxjs'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { FormBuilder, Validators, FormGroup } from '@angular/forms'
 import { AddCust, Ledger } from '../../../../model/sales-tracker.model'
 import { SaniiroCommonService } from '../../../../commonServices/SaniiroCommonService'
-
 import { CommonSetGraterServices } from '../../../../commonServices/setgatter.services'
 import { UIConstant } from '../../../constants/ui-constant'
 import { VendorServices } from '../../../../commonServices/TransactionMaster/vendoer-master.services'
@@ -12,7 +11,6 @@ import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { CommonService } from '../../../../commonServices/commanmaster/common.services'
 import { GlobalService } from '../../../../commonServices/global.service'
 import { Settings } from '../../../../shared/constants/settings.constant'
-import { bypassSanitizationTrustResourceUrl } from '@angular/core/src/sanitization/bypass'
 declare const $: any
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { Subject } from 'rxjs';
@@ -26,9 +24,9 @@ declare const flatpickr: any
 
 export class VendorAddComponent implements OnDestroy {
   @Output() onFilter = new EventEmitter()
-  vendorForm: FormGroup
-  bankForm: FormGroup
-  adressForm: FormGroup
+  vendorForm2: any
+  bankForm2: any
+  adressForm2: any
   subscribe: Subscription
   confirmSUB: Subscription
   VendorDetailShow: Ledger[]
@@ -40,7 +38,7 @@ export class VendorAddComponent implements OnDestroy {
   ContactInfoId: number
   bankArray: any = []
   vendorRegiError: any
-  areaForm: FormGroup
+  areaForm2: any
   public selectVendor: Array<Select2OptionData>
   public selectCrDr: Array<Select2OptionData>
   public countryList: Array<Select2OptionData>
@@ -69,9 +67,6 @@ export class VendorAddComponent implements OnDestroy {
   editId: any
   noOfDecimal: any = 0
   private unSubscribe$ = new Subject<void>()
-  get f() { return this.vendorForm.controls }
-  get bank() { return this.bankForm.controls }
-  get address() { return this.adressForm.controls }
   @ViewChild('vendor_registerType') vendorRegisterTypeSelect2: Select2Component
 
   // cleckTab:any
@@ -83,10 +78,10 @@ export class VendorAddComponent implements OnDestroy {
     public _globalService: GlobalService, public _settings: Settings) {
     //this.clientDateFormat = this._settings.dateFormat
     this.noOfDecimal = this._settings.noOfDecimal
-    this.formVendor()
-    this.formBank()
-    this.addTyperessForm()
-    this.addArea()
+    //this.formVendor()
+    //this.formBank()
+    //this.addTyperessForm()
+    // this.addArea()
     this.modalSub = this._CommonService.getVendStatus().subscribe(
       (data: AddCust) => {
         if (data.open) {
@@ -139,7 +134,6 @@ export class VendorAddComponent implements OnDestroy {
 
   }
 
-  get adAre() { return this.areaForm.controls }
   ngOnDestroy() {
     this.modalSub.unsubscribe()
     this.confirmSUB.unsubscribe()
@@ -164,8 +158,34 @@ export class VendorAddComponent implements OnDestroy {
   addressRequiredForLedger: boolean
   mobileRequirdForSetting: boolean
   emailRequirdForSetting: boolean
-
+  customerError: any
+  persnalError: any
+  openingBlance: any
+  gstin: any
+  panNo: any
+  registrationNo: any
+  contactPerson: any
+  vendorName: any
+  dobDate: any
+  daoDate: any
+  initModel() {
+    this.customerError = true
+    this.persnalError = true
+    this.contactPerson = ''
+    this.mobileNo = ''
+    this.registrationNo = ''
+    this.gstin = ''
+    this.gstNo = ''
+    this.openingBlance = 0
+    this.panNo = ''
+    this.vendorName = ''
+    this.daoDate = ''
+    this.dobDate = ''
+    this.EmailAddress = ''
+    this.areaName = ''
+  }
   openModal() {
+    this.initModel()
     this.statutoriesId = 0
     this.contactPersonId = 0
     this.disabledGSTfor_UnRegi = false
@@ -186,11 +206,7 @@ export class VendorAddComponent implements OnDestroy {
     this.addressRequiredForLedger = false
     this.mobileRequirdForSetting = false
     this.emailRequirdForSetting = false
-     
-    if (this.vendorForm) {
-      this.vendorForm.reset()
-      this.bankForm.reset()
-    }
+    this.onloadingbank()
     if (this.editMode) {
       this.select2VendorValue(UIConstant.ZERO)
       this.getVendorEditData(this.id)
@@ -215,9 +231,6 @@ export class VendorAddComponent implements OnDestroy {
       this.select2CrDrValue(1)
       this.getCountry(0)
       this.vendorRegisterTypeSelect2.setElementValue(1)
-      this.formVendor()
-      this.formBank()
-      this.addTyperessForm()
       this.bankArray = []
       this.isMsdm = false
       this.isRcm = false
@@ -227,16 +240,14 @@ export class VendorAddComponent implements OnDestroy {
       this.addressDiv = false
       this.vendorDiv = true
       this.bankDiv = false
-      this.getOrgnizationAddress()
-      //this.select2VendorValue(UIConstant.ZERO)
+      if (!this.editMode) {
+        this.getOrgnizationAddress()
+      }
       $('#tradediscount').prop('checked', false)
       $('#cashdiscount').prop('checked', false)
       $('#volumediscount1').prop('checked', false)
-      
+
       this.enableContactFlag = true
-
-
-      /* ............................completed..................... */
     }
   }
   getModuleSettingValue: any
@@ -248,6 +259,7 @@ export class VendorAddComponent implements OnDestroy {
       $('#vendor_form').modal(UIConstant.MODEL_HIDE)
     }
   }
+  gstNo: any
   getVendorEditData(id) {
     setTimeout(() => {
       this.ledgerName.nativeElement.focus()
@@ -257,16 +269,13 @@ export class VendorAddComponent implements OnDestroy {
     this.editvenderSubscribe = this._vendorServices.editvendor(id).subscribe(
       (Data) => {
         if (Data.Code === UIConstant.THOUSAND) {
-          // this.emailMobileValidationRequired()  
           if (Data.Data && Data.Data.Addresses.length > 0) {
-
             this.addressRequiredForLedger = false
             this.collectionOfAddress = []
             this.collectionOfAddress = Data.Data.Addresses
           } else {
             this.collectionOfAddress = []
           }
-
           if (Data.Data && Data.Data.Emails.length > 0) {
             this.emailRequirdForSetting = false
             this.emailArray = []
@@ -293,7 +302,7 @@ export class VendorAddComponent implements OnDestroy {
             this.bankArray = []
           }
           if (Data.Data && Data.Data.LedgerDetails.length > 0) {
-            this.vendorForm.controls.vendorName.setValue(Data.Data.LedgerDetails[0].Name)
+            this.vendorName = Data.Data.LedgerDetails[0].Name
             this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
             this.select2VendorValue(Data.Data.LedgerDetails[0].TaxTypeId)
             this.requiredGSTNumber = Data.Data.LedgerDetails[0].TaxTypeId === 1 ? true : false
@@ -304,31 +313,31 @@ export class VendorAddComponent implements OnDestroy {
             this.disabledGSTfor_UnRegi = Data.Data.LedgerDetails[0].TaxTypeId === 4 ? true : false
 
 
-            this.vendorForm.controls.openingBlance.setValue((Data.Data.LedgerDetails[0].OpeningBalance).toFixed(this.noOfDecimal))
+            this.openingBlance = Data.Data.LedgerDetails[0].OpeningBalance.toFixed(this.noOfDecimal)
           }
 
           if (Data.Data && Data.Data.Statutories.length > 0) {
             this.statutoriesId = Data.Data.Statutories[0].Id
             this.parentTypeIdofStatutoriesId = Data.Data.Statutories[0].ParentTypeId
-            this.vendorForm.controls.gstNo.setValue(Data.Data.Statutories[0].GstinNo)
-            this.vendorForm.controls.panNo.setValue(Data.Data.Statutories[0].PanNo)
+            this.gstNo = Data.Data.Statutories[0].GstinNo
+            this.panNo = Data.Data.Statutories[0].PanNo
           }
           if (Data.Data && Data.Data.ContactPersons.length > 0) {
             this.contactPersonId = Data.Data.ContactPersons[0].Id
-            this.vendorForm.controls.contactPerson.setValue(Data.Data.ContactPersons[0].Name)
+            this.contactPerson = Data.Data.ContactPersons[0].Name
             if (Data.Data.ContactPersons[0].DOA !== null) {
               this.DateOfAnniry = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOA, this.clientDateFormat)
-              //  this.vendorForm.controls.daoDate.setValue(DOA)
+
             }
             else {
-              this.vendorForm.controls.daoDate.setValue('')
+              this.daoDate = ''
             }
             if (Data.Data.ContactPersons[0].DOA !== null) {
               this.DateOfBirth = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOB, this.clientDateFormat)
-              //this.vendorForm.controls.dobDate.setValue(DOB)
+
             }
             else {
-              this.vendorForm.controls.dobDate.setValue('')
+              this.dobDate = ''
 
 
             }
@@ -352,43 +361,28 @@ export class VendorAddComponent implements OnDestroy {
 
           // }
         }
-        if(Data.Code ===5000){
-          this._toastrcustomservice.showError('',Data.Description)
+        if (Data.Code === 5000) {
+          this._toastrcustomservice.showError('', Data.Description)
         }
       })
 
   }
-  private formVendor() {
-    this.vendorForm = this._formBuilder.group({
-      'vendorName': [UIConstant.BLANK, Validators.required],
-      'contactPerson': [UIConstant.BLANK, Validators.required],
-      'registrationNo': [UIConstant.BLANK],
-      'gstNo': [UIConstant.BLANK],
-      'panNo': [UIConstant.BLANK],
-      'openingBlance': [UIConstant.BLANK],
-      'daoDate': [UIConstant.BLANK],
-      'dobDate': [UIConstant.BLANK],
-      'mobileNo': [UIConstant.BLANK],
-      'EmailAddress': [UIConstant.BLANK]
-    })
-  }
 
-  private formBank() {
-    this.bankForm = this._formBuilder.group({
-      'bankName': [UIConstant.BLANK, Validators.required],
-      'accountNo': [UIConstant.BLANK, Validators.required],
-      'ifscCode': [UIConstant.BLANK, Validators.required],
-      'branch': [UIConstant.BLANK, Validators.required],
-      'micrNo': [UIConstant.BLANK, Validators]
-    })
-  }
 
-  private addTyperessForm() {
-    this.adressForm = this._formBuilder.group({
-      'adressvalue': [UIConstant.BLANK, Validators.required],
-      'postcode': [UIConstant.BLANK, Validators.required]
+  bankName: any = ''
+  accountNo: any
+  ifscCode: any
+  branch: any
+  micrNo: any
+  postcode: any
+  adressvalue: any
 
-    })
+  onloadingbank() {
+    this.bankName = ''
+    this.ifscCode = ''
+    this.branch = ''
+    this.accountNo = ''
+    this.micrNo = ''
   }
 
   ngOnInit() {
@@ -414,9 +408,7 @@ export class VendorAddComponent implements OnDestroy {
     this.emailAdressArray = []
     //this.select2VendorValue(UIConstant.ZERO)
     this.select2CrDrValue(1)
-    this.formVendor()
-    this.formBank()
-    this.addTyperessForm()
+
     this.bankArray = []
     this.adressType(0)
     this.addressDiv = false
@@ -476,9 +468,11 @@ export class VendorAddComponent implements OnDestroy {
         if (response.Code === UIConstant.THOUSAND && response.Data.length > 0) {
           this.countrId = response.Data[0].CommonId
           this.stateId = response.Data[0].Id
-          this.countryselecto.setElementValue(response.Data[0].CommonId)
+          this.countryValue =response.Data[0].CommonId
+          //this.countryselecto.setElementValue(response.Data[0].CommonId)
           this.getOneState(response)
-          this.stateselecto.setElementValue(response.Data[0].Id)
+          this.stateValue = response.Data[0].Id
+          // this.stateselecto.setElementValue(response.Data[0].Id)
 
         }
       })
@@ -498,8 +492,8 @@ export class VendorAddComponent implements OnDestroy {
   }
 
   checkGSTNumber(event) {
-    this.vendorForm.value.gstNo = event.target.value;
-    let str = this.vendorForm.value.gstNo
+    this.gstNo = event.target.value;
+    let str = this.gstNo
     let val = str.trim();
     this.GstinNoCode = val.substr(0, 2);
     if (this.GstinNoCode !== '') {
@@ -513,11 +507,9 @@ export class VendorAddComponent implements OnDestroy {
     this.checkGSTNumberValid()
   }
   checkGSTNumberValid() {
-    // this.GSTNumber  =''
-    if (this.vendorForm.value.gstNo !== '' && this.vendorForm.value.gstNo !== null) {
-      //  this.GSTNumber = (this.vendorForm.value.gstNo).toUpperCase()
+    if (this.gstNo !== '') {
       if (+this.vendorId === 1) {
-        if (this._CommonService.gstNumberRegxValidation((this.vendorForm.value.gstNo).toUpperCase())) {
+        if (this._CommonService.gstNumberRegxValidation((this.gstNo).toUpperCase())) {
           this.validGSTNumber = false
           this.requiredGSTNumber = false
 
@@ -541,13 +533,13 @@ export class VendorAddComponent implements OnDestroy {
   mobileNo: any
   checkNumberByCountry(e) {
     this.mobileNo = e.target.value
-   // if (this.checkSelectCode) {
-      if (this.validmobileLength === this.mobileNo.length) {
-        this.validMobileFlag = false
-      } else {
-        this.validMobileFlag = true
-      }
-   // }
+    // if (this.checkSelectCode) {
+    if (this.validmobileLength === this.mobileNo.length) {
+      this.validMobileFlag = false
+    } else {
+      this.validMobileFlag = true
+    }
+    // }
 
   }
   checkSelectCode: boolean = false
@@ -586,7 +578,7 @@ export class VendorAddComponent implements OnDestroy {
         this.contactType = this.mobileArray[i].ContactType
         this.select_Mobile.setElementValue(this.mobileArray[i].ContactType)
         this.contactTypeName = this.mobileArray[i].ContactTypeName
-        this.vendorForm.controls.mobileNo.setValue(this.mobileArray[i].ContactNo)
+        this.mobileNo = this.mobileArray[i].ContactNo
         this.CountryCode = this.mobileArray[i].CountryCode
         this.phoneCodeselect2.setElementValue(this.mobileArray[i].CodeId)
         this.CodeId = this.mobileArray[i].CodeId
@@ -607,7 +599,7 @@ export class VendorAddComponent implements OnDestroy {
         this.EmailType = this.emailArray[i].EmailType
         this.select_email.setElementValue(this.emailArray[i].EmailType)
         this.EmailAddressTypeName = this.emailArray[i].EmailTypeName
-        this.vendorForm.controls.EmailAddress.setValue(this.emailArray[i].EmailAddress)
+        this.EmailAddress = this.emailArray[i].EmailAddress
         this.deleteArrayMobileType(i, 'email')
       }
       else {
@@ -692,7 +684,7 @@ export class VendorAddComponent implements OnDestroy {
     }
     else if (+event.value === 4) {
       this.disabledGSTfor_UnRegi = true
-      this.vendorForm.controls.gstNo.setValue('')
+      this.gstNo = ''
       this.requiredGSTNumber = false
     }
     else {
@@ -723,7 +715,7 @@ export class VendorAddComponent implements OnDestroy {
     this.crDrId = event.value
   }
 
-  countryValue: any
+  countryValue: any = null
   getCountry(value) {
     this.subscribe = this._vendorServices.getCommonValues('101').subscribe(Data => {
       this.countryListPlaceHolder = { placeholder: 'Select Country' }
@@ -734,21 +726,24 @@ export class VendorAddComponent implements OnDestroy {
           text: element.CommonDesc
         })
       })
-      this.countryValue = value
+      // this.countryValue = value
       // });
     })
   }
+
   countrId: any
   selectCountryListId(event) {
-    this.countrId = event.value
-    this.countryError = false
-    if (this.countrId > 0) {
-      this.getStaeList(this.countrId, 0)
+    if (this.countryValue !== null) {
+      this.countrId = event.id
+      this.countryError = false
+      if (this.countrId > 0) {
+        this.getStaeList(this.countrId, 0)
 
+      }
     }
-    // this.addressDetailsValidation()
+
   }
-  stateValue: any
+  stateValue: any = null
   getStaeList(id, value) {
     this.subscribe = this._vendorServices.gatStateList(id).subscribe(Data => {
       this.stateListplaceHolder = { placeholder: 'Select State' }
@@ -759,20 +754,20 @@ export class VendorAddComponent implements OnDestroy {
           text: element.CommonDesc1
         })
       })
-      this.stateValue = value
     })
   }
 
   stateId: any
   selectStatelist(event) {
-    this.stateId = event.value
-    this.stateError = false
-    if (this.stateId > UIConstant.ZERO) {
-      this.getCitylist(this.stateId, 0)
+    if (this.stateValue !== null) {
+      this.stateId = event.id
+      this.stateError = false
+      if (this.stateId > UIConstant.ZERO) {
+        this.getCitylist(this.stateId, 0)
+      }
     }
-    // this.addressDetailsValidation()
   }
-  cityValue: any
+  cityValue: any = null
   getCitylist(id, value) {
     this.subscribe = this._vendorServices.getCityList(id).subscribe(Data => {
       this.cityList = []
@@ -784,22 +779,21 @@ export class VendorAddComponent implements OnDestroy {
         })
       })
       this.cityList = newData
-      //this.cityValue = value
     })
   }
 
   cityId: any
   selectedCityId(event) {
-    this.cityId = event.value
-    this.cityError = false
-    if (this.cityId > 0) {
-      this.getAreaId(this.cityId)
+    if (this.cityValue !== null) {
+      this.cityId = event.id
+      this.cityError = false
+      if (this.cityId > 0) {
+        this.getAreaId(this.cityId)
+      }
     }
-    // this.addressDetailsValidation()
   }
   private getAreaId(id) {
     this.subscribe = this._vendorServices.getAreaList(id).subscribe(Data => {
-      // console.log(' area list : ', Data)
       this.areaListPlaceHolder = { placeholder: 'Select Area' }
       this.areaList = [{ id: UIConstant.BLANK, text: 'Select Area' }, { id: '0', text: '+Add New' }]
       Data.Data.forEach(element => {
@@ -810,16 +804,12 @@ export class VendorAddComponent implements OnDestroy {
       })
     })
   }
-  addArea() {
-    this.areaForm = this._formBuilder.group({
-      'areaName': ['', Validators.required]
-    })
-  }
-  @ViewChild('areaName') areaname
+
+  @ViewChild('areaNameRef') areanameRef: ElementRef
 
   openAreaModel() {
     setTimeout(() => {
-      this.areaname.nativeElement.focus()
+      this.areanameRef.nativeElement.focus()
     }, 500)
     $('#add_area_Popup1').modal(UIConstant.MODEL_SHOW)
   }
@@ -828,31 +818,33 @@ export class VendorAddComponent implements OnDestroy {
   }
   areaID: any
   addAreaClick: boolean
-  areNameId: any
+  areNameId: any =null
+  areaName: any = ''
+
   areaAdd() {
     this.addAreaClick = true
     const addValue = {
       Id: 0,
-      CommonDesc3: this.areaForm.value.areaName,
-      ShortName3: this.areaForm.value.areaName,
+      CommonDesc3: this.areaName,
+      ShortName3: this.areaName,
       CommonCode: 104,
       CommonId2: this.cityId
     }
-    if (this.areaForm.valid && this.cityId > 0) {
+    if (this.areaName !== '' && this.cityId > 0) {
       this.subscribe = this._CommonService.addAreaNameUnderCity(addValue).subscribe(data => {
         if (data.Code === 1000 && data.Data.length > 0) {
-          //  const Send = { id: data.Data, name: this.areaForm.value.areaName }
+
 
           let newData = Object.assign([], this.areaList)
-          newData.push({ id: data.Data, text: this.areaForm.value.areaName })
+          newData.push({ id: data.Data, text: this.areaName })
           this.areaList = newData
           this.areNameId = data.Data
           this.areaID = data.Data
           this._toastrcustomservice.showSuccess('', 'Area Added !')
-          this.areaForm.reset()
+          this.areaName = ''
           this.closeAreaModel()
           setTimeout(() => {
-            this.areaSelect2.selector.nativeElement.focus()
+         //   this.areaSelect2.selector.nativeElement.focus()
           }, 500)
         }
         if (data.Code === UIConstant.SERVERERROR) {
@@ -867,24 +859,14 @@ export class VendorAddComponent implements OnDestroy {
   @ViewChild('area_selecto2') areaSelect2: Select2Component
   Areaname: any
   selectedArea(event) {
-
-    // debugger
-    if (event.data.length > 0) {
-      if (event.data[0].id !== '0') {
-        if (event.data[0].text !== 'Select Area') {
-          this.areaID = event.value
-          this.Areaname = event.data[0].text
-        } else {
-          this.areaID = undefined
-          this.Areaname = ' '
-        }
+    if (this.areNameId !== null) {
+      if (event.id !== '0') {
+        this.areaID = event.id
+        this.Areaname = event.text
       } else {
-        this.areaSelect2.selector.nativeElement.value = ''
         this.openAreaModel()
       }
-
     }
-
   }
 
   addresTypeId: any
@@ -910,15 +892,40 @@ export class VendorAddComponent implements OnDestroy {
     this.addressError = false
   }
 
+  checkValidationName() {
+    if (this.vendorName !== "") {
+      this.customerError = false
+    } else {
+      this.customerError = true
+    }
+  }
+  checkValidationPerson() {
+    if (this.contactPerson !== "") {
+      this.persnalError = false
+    } else {
+      this.persnalError = true
+    }
+  }
+  dynamicFocus() {
+    if (this.customerError) {
+      this.ledgerName.nativeElement.focus()
+    }
+    if (this.persnalError) {
+      this.conatctPerRef.nativeElement.focus()
+    }
+  }
+  @ViewChild('conatctPerRef') conatctPerRef: ElementRef
+
+  
   @ViewChild('state_select2') stateselecto: Select2Component
 
   @ViewChild('country_selecto') countryselecto: Select2Component
-  @ViewChild('bankName') bankName
+  @ViewChild('bankNameref') bankNameref: ElementRef
 
   addressDiv: boolean
   adressTab() {
     setTimeout(() => {
-      this.countryselecto.selector.nativeElement.focus()
+     // this.countryselecto.selector.nativeElement.focus()
     }, 1000)
 
   }
@@ -932,7 +939,7 @@ export class VendorAddComponent implements OnDestroy {
   bankDiv: boolean
   bankeDetailTab() {
     setTimeout(() => {
-      this.bankName.nativeElement.focus()
+      this.bankNameref.nativeElement.focus()
     }, 1000)
 
   }
@@ -974,7 +981,7 @@ export class VendorAddComponent implements OnDestroy {
       this.getCountry(0)
       this.select2CrDrValue(1)
       this.crdrSelect2.setElementValue(1)
-    } else if (this.vendorForm.valid && !this.validMobileFlag && this.getEmailvalid && this.vendorId > UIConstant.ZERO) {
+    } else if (this.vendorName !== '' && !this.validMobileFlag && this.getEmailvalid && this.vendorId > UIConstant.ZERO) {
       if (!this.requiredGSTNumber) {
         if (!this.mobileRequirdForSetting) {
           if (!this.emailRequirdForSetting) {
@@ -987,7 +994,7 @@ export class VendorAddComponent implements OnDestroy {
                       this._commonGaterSeterServices.setVendorName(Data.Data)
                       this._sanariioservices.filter()
                       if (value === 'save') {
-                        const dataToSend = { id: Data.Data, name: this.vendorForm.value.vendorName, gstType: this.vendorId }
+                        const dataToSend = { id: Data.Data, name: this.vendorName, gstType: this.vendorId }
                         this._CommonService.closeVend({ ...dataToSend })
                         this._CommonService.AddedItem()
                         let saveFlag = this.editId === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
@@ -1055,7 +1062,7 @@ export class VendorAddComponent implements OnDestroy {
   };
 
   resetForNewFoem() {
-    this.vendorForm.reset()
+    this.initModel()
     this.select2VendorValue(0)
     //this.phoneCodeselect2.setElementValue(0)
     this.select_Mobile.setElementValue(1)
@@ -1063,7 +1070,7 @@ export class VendorAddComponent implements OnDestroy {
     this.mobileArray = []
     this.emailArray = []
     this.collectionOfAddress = []
-    this.formVendor()
+    //this.formVendor()
     this.bankArray = []
     this.submitClick = false
     this.vendorRegisterTypeSelect2.setElementValue(1)
@@ -1075,8 +1082,8 @@ export class VendorAddComponent implements OnDestroy {
 
   }
   private getopeinAmountValue() {
-    if (this.vendorForm.value.openingBlance > 0) {
-      return this.vendorForm.value.openingBlance
+    if (this.openingBlance > 0) {
+      return this.openingBlance
     } else {
       return 0
     }
@@ -1106,7 +1113,7 @@ export class VendorAddComponent implements OnDestroy {
         Websites: [],
         GlId: 4,
         OpeningAmount: this.getopeinAmountValue(),
-        Name: this.vendorForm.value.vendorName,
+        Name: this.vendorName,
         TaxTypeID: this.vendorId,
         CrDr: this.crDrId,
         IsRcm: this.isRcm,
@@ -1114,13 +1121,13 @@ export class VendorAddComponent implements OnDestroy {
         Statutories: [{
           Id: this.statutoriesId !== 0 ? this.statutoriesId : 0,
           PanNo: this.PANNumber,
-          GstinNo: this.vendorForm.value.gstNo,
+          GstinNo: this.gstNo,
           ParentTypeId: 5
         }],
         ContactPersons: [{
           Id: this.contactPersonId !== 0 ? this.contactPersonId : 0,
           ParentTypeId: 5,
-          Name: this.vendorForm.value.contactPerson,
+          Name: this.contactPerson,
           DOB: dob,
           DOA: doa
         }],
@@ -1140,7 +1147,7 @@ export class VendorAddComponent implements OnDestroy {
   addNewAdress() {
     this.addressClick = true
     this.addressDetailsValidation()
-    if (this.countrId > 0 && this.stateId > 0 && this.cityId > 0 && this.adressForm.value.adressvalue !== '' && this.adressForm.value.adressvalue !== null) {
+    if (this.countrId > 0 && this.stateId > 0 && this.cityId > 0 && this.adressvalue !== '') {
       this.addressRequiredForLedger = false
       this.countryList.forEach(element => {
         if (element.id === JSON.parse(this.countrId)) {
@@ -1168,10 +1175,10 @@ export class VendorAddComponent implements OnDestroy {
             CityId: this.cityId,
             AddressType: this.addresTypeId,
             AddressTypeName: this.addTypeName,
-            PostCode: this.adressForm.value.postcode,
+            PostCode: this.postcode,
             AreaName: this.Areaname,
             AreaId: this.areaID,
-            AddressValue: this.adressForm.value.adressvalue,
+            AddressValue: this.adressvalue,
             CountryName: this.country,
             Statename: this.stateName,
             CityName: this.cityName
@@ -1188,30 +1195,44 @@ export class VendorAddComponent implements OnDestroy {
           CityId: this.cityId,
           AddressType: this.addresTypeId,
           AddressTypeName: this.addTypeName,
-          PostCode: this.adressForm.value.postcode,
+          PostCode: this.postcode,
           AreaId: this.areaID,
           AreaName: this.Areaname,
-          AddressValue: this.adressForm.value.adressvalue,
+          AddressValue: this.adressvalue,
           CountryName: this.country,
           Statename: this.stateName,
           CityName: this.cityName
         })
-        //    console.log(this.collectionOfAddress, 'add')
       }
 
       this.addressClick = false
     }
-    this.adressForm.reset()
-    //this.resetAddress()
+     
     this.adressType(0)
-
-    // this.activaTab('vendor3')
-    //this.adressTab()
     setTimeout(() => {
-      this.bankName.nativeElement.focus()
+      this.bankNameref.nativeElement.focus()
     }, 500)
+    this.onloadingAddress()
   }
-  // }
+
+  onloadingAddress() {
+    this.countrId = 0
+    this.countryValue = null
+    this.stateValue = null
+    this.cityValue = null
+    this.areNameId = null
+    this.stateId = 0
+    this.cityId = 0
+    this.addresTypeId = 0
+    this.addTypeName = ''
+    this.postcode = ''
+    this.areaID = 0
+    this.Areaname = ''
+    this.adressvalue = ''
+    this.country = ''
+    this.stateName = ''
+    this.cityName = ''
+  }
   resetAddress() {
     this.getCountry(0)
     this.countryList = []
@@ -1222,10 +1243,50 @@ export class VendorAddComponent implements OnDestroy {
   addressIndex: any
   getEditAddress(address, index) {
     this.addressIndex = index
-    this.adressForm.controls.postcode.setValue(address.PostCode)
-    this.adressForm.controls.adressvalue.setValue(address.AddressValue)
-    this.getCountry(address.CountryId)
+    this.postcode = address.PostCode
+    this.adressvalue = address.AddressValue
+    this.loadAddressDetails(address)
     this.adressType(address.AddressType)
+  }
+  loadAddressDetails(Address) {
+    this.cityId = Address.CityId
+    this.countrId =Address.CountryId
+    this.stateId=Address.StateId
+    this.areaID = Address.AreaId
+    this.adressvalue = Address.addressValue
+    let country = {
+      id: Address.CountryId,
+      text: Address.CountryName
+    }
+    this.selectCountryListId(country)
+    this.countryValue = Address.CountryId
+
+    let state = {
+      id: Address.StateId,
+      text: Address.Statename
+    }
+
+    let city = {
+      id: Address.CityId,
+      text: Address.CityName
+    }
+    let area = {
+      id: Address.AreaId,
+      text: Address.AreaName
+    }
+    setTimeout(() => {
+      this.selectStatelist(state)
+    }, 100);
+    this.stateValue = Address.StateId
+    setTimeout(() => {
+      this.selectedCityId(city)
+    }, 200);
+    this.cityValue = Address.CityId
+    setTimeout(() => {
+      this.selectedArea(area)
+    }, 200);
+    this.areNameId = Address.AreaId
+
 
   }
 
@@ -1241,9 +1302,8 @@ export class VendorAddComponent implements OnDestroy {
       }
   }
   crossButton() {
-    this.formVendor()
     this.getCountry(0)
-    this.vendorForm.reset()
+    this.initModel()
     this.emailAdressArray = []
     this.mobileArray = []
     this.adressArray = []
@@ -1263,28 +1323,28 @@ export class VendorAddComponent implements OnDestroy {
   getEditBankData(bankData, index) {
     this.bankIndex = index
     this.editBankDataFlag = true
-    this.bankForm.controls.bankName.setValue(bankData.Name)
-    this.bankForm.controls.accountNo.setValue(bankData.AcNo)
-    this.bankForm.controls.ifscCode.setValue(bankData.IfscCode)
-    this.bankForm.controls.branch.setValue(bankData.Branch)
-    this.bankForm.controls.micrNo.setValue(bankData.MicrNo)
+    this.bankName = bankData.Name
+    this.accountNo = bankData.AcNo
+    this.ifscCode = bankData.IfscCode
+    this.branch = bankData.Branch
+    this.micrNo = bankData.MicrNo
 
   }
 
   addNewbankDetail() {
     this.bankClick = true
-    if (this.bankForm.valid) {
+    if (this.bankName !== '') {
       if (this.bankIndex !== undefined) {
         if (this.bankArray.length > 0) {
 
           let newarray = {
             Id: this.bankArray[this.bankIndex].Id !== 0 ? this.bankArray[this.bankIndex].Id : 0,
-            Name: this.bankForm.value.bankName,
-            AcNo: this.bankForm.value.accountNo,
-            IfscCode: this.bankForm.value.ifscCode,
+            Name: this.bankName,
+            AcNo: this.accountNo,
+            IfscCode: this.ifscCode,
             ParentTypeId: 5,
-            Branch: this.bankForm.value.branch,
-            MicrNo: this.bankForm.value.micrNo
+            Branch: this.branch,
+            MicrNo: this.micrNo
           }
           this.bankArray.splice(this.bankIndex, 1, newarray)
         }
@@ -1292,19 +1352,19 @@ export class VendorAddComponent implements OnDestroy {
       } else {
         this.bankArray.push({
           Id: 0,
-          Name: this.bankForm.value.bankName,
-          AcNo: this.bankForm.value.accountNo,
-          IfscCode: this.bankForm.value.ifscCode,
+          Name: this.bankName,
+          AcNo: this.accountNo,
+          IfscCode: this.ifscCode,
           ParentTypeId: 5,
-          Branch: this.bankForm.value.branch,
-          MicrNo: this.bankForm.value.micrNo
+          Branch: this.branch,
+          MicrNo: this.micrNo
         })
       }
       this.bankClick = false
     }
-    this.formBank()
+    this.onloadingbank()
     setTimeout(() => {
-      this.bankName.nativeElement.focus()
+      this.bankNameref.nativeElement.focus()
     }, 1000)
   }
   removeIndexOfBank(index) {
@@ -1312,7 +1372,7 @@ export class VendorAddComponent implements OnDestroy {
   }
 
   reapeatName(name: string) {
-    this.vendorForm.controls.contactPerson.setValue(name)
+    this.contactPerson = (name)
 
   }
 
@@ -1446,13 +1506,13 @@ export class VendorAddComponent implements OnDestroy {
   emailAddingArray() {
     this.editEmailFlg = true
     this.checkvalidationEmail()
-    if (this.EmailType > 0 && this.getEmailvalid && this.vendorForm.value.EmailAddress !== null && this.vendorForm.value.EmailAddress !== '') {
+    if (this.EmailType > 0 && this.getEmailvalid && this.EmailAddress !== '') {
       this.emailRequirdForSetting = false
       this.emailArray.push({
         Id: this.EmailId === 0 ? 0 : this.EmailId,
         EmailType: this.EmailType,
         EmailTypeName: this.EmailAddressTypeName,
-        EmailAddress: this.vendorForm.value.EmailAddress,
+        EmailAddress: this.EmailAddress,
         ParentTypeId: 5
 
       })
@@ -1466,14 +1526,14 @@ export class VendorAddComponent implements OnDestroy {
 
   clear(type) {
     if (type === 'email') {
-      this.vendorForm.controls.EmailAddress.setValue('')
+      this.EmailAddress = ''
       this.select_email.setElementValue(1)
       this.EmailType = '1'
 
     }
     if (type === 'contact') {
-      this.vendorForm.controls.mobileNo.setValue('')
-     // this.phoneCodeselect2.setElementValue(0)
+      this.mobileNo = ''
+      // this.phoneCodeselect2.setElementValue(0)
       this.select_Mobile.setElementValue(1)
       this.contactType = '1'
       this.CountryCode = 0
@@ -1487,14 +1547,14 @@ export class VendorAddComponent implements OnDestroy {
     this.addConctFlag = true
     this.editFlg = true
     this.validateContact()
-    if (this.contactType > 0 && this.CountryCode > 0 && !this.validMobileFlag && this.vendorForm.value.mobileNo !== '') {
+    if (this.contactType > 0 && this.CountryCode > 0 && !this.validMobileFlag && this.mobileNo !== '') {
 
       this.mobileRequirdForSetting = false
       this.mobileArray.push({
         Id: this.mobileNoId === 0 ? 0 : this.mobileNoId,
         ContactType: this.contactType,
         ContactTypeName: this.contactTypeName,
-        ContactNo: this.vendorForm.value.mobileNo,
+        ContactNo: this.mobileNo,
         CountryCode: this.CountryCode,
         CodeId: this.CountryCodeId,
         ParentTypeId: 5
@@ -1523,11 +1583,11 @@ export class VendorAddComponent implements OnDestroy {
   }
   getEmailvalid: any
   checkvalidationEmail() {
-    if (this.vendorForm.value.EmailAddress === "" || this.vendorForm.value.EmailAddress === null) {
+    if (this.EmailAddress === "") {
       this.getEmailvalid = true
     }
     else {
-      this.getEmailvalid = this.validateEmail(this.vendorForm.value.EmailAddress)
+      this.getEmailvalid = this.validateEmail(this.EmailAddress)
       return this.getEmailvalid
     }
 
@@ -1552,12 +1612,15 @@ export class VendorAddComponent implements OnDestroy {
 
     this.enableContactFlag = true
   }
-  countryCodeId:any
+  countryCodeId: any
   getOrgnizationAddress() {
     let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
-    this.validmobileLength = Address.Length
-    this.CountryCode= Address.CountryCode
-    this.phoneCodeselect2.setElementValue(Address.CountryCode)
-    
+    if (Address !== null) {
+      this.validmobileLength = Address.Length
+      this.CountryCode = Address.CountryCode
+      this.phoneCodeselect2.setElementValue(Address.CountryCode)
+    }
+
+
   }
 }

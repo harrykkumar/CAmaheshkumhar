@@ -1,0 +1,298 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <!-- Header Section -->
+    <div class="modal-header page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900">
+              <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+              Admin Master Setting
+            </p>
+          </div>
+          <div class="col-md-6">
+            <form>
+              <div id="custom-search-input" class="btn_header1">
+                <div class="input-group col-md-12">
+                  <input
+                    type="text"
+                    class="form-control input-lg"
+                    (input)="search = $event.target.value"
+                    placeholder="Search"
+                  />
+                  <span class="input-group-btn">
+                    <a><i class="fas fa-search"></i></a>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Collapsible Search Form Section -->
+    <div id="masterSettingSearchForm" class="card mb-2">
+      <div class="px-3 pt-2">
+        <form
+          #masterSettingFormControl="ngForm"
+          (ngSubmit)="
+            masterSettingFormControl.form.valid &&
+              validateSearchForm() &&
+              searchSubmit()
+          "
+          novalidate
+        >
+          <div class="form row">
+            <div class="form-group col-md-3">
+              <label
+                [ngClass]="{
+                  'text-danger':
+                    masterSettingFormControl?.submitted &&
+                    !utilityModal?.selectedClientId
+                }"
+                >Client
+                {{
+                  masterSettingFormControl?.submitted &&
+                  !utilityModal?.selectedClientId
+                    ? "- Required"
+                    : ""
+                }}
+              </label>
+              <ng-select
+                name="clientName"
+                [items]="utilityModal?.clientAdminList"
+                bindLabel="Name"
+                bindValue="Id"
+                placeholder="Select Client"
+                (change)="onClientChange($event)"
+                [(ngModel)]="utilityModal.selectedClientId"
+              >
+              </ng-select>
+            </div>
+            <div
+              class="form-group col-md-3"
+              *ngIf="
+                utilityModal?.selectedClientObject?.IsMultiOrganization > 0
+              "
+            >
+              <label
+                [ngClass]="{
+                  'text-danger':
+                    masterSettingFormControl?.submitted &&
+                    !utilityModal?.selectedOrganizationId
+                }"
+                >Organization
+                {{
+                  masterSettingFormControl?.submitted &&
+                  !utilityModal?.selectedOrganizationId
+                    ? "- Required"
+                    : ""
+                }}
+              </label>
+              <ng-select
+                name="organizationName"
+                [items]="utilityModal?.clientOrganizationList"
+                bindLabel="Name"
+                bindValue="Id"
+                placeholder="Select Organization"
+                [(ngModel)]="utilityModal.selectedOrganizationId"
+              >
+              </ng-select>
+            </div>
+            <div
+              class="form-group col-md-3"
+              *ngIf="utilityModal?.selectedClientObject?.IsMultiBranch > 0"
+            >
+              <label
+                [ngClass]="{
+                  'text-danger':
+                    masterSettingFormControl?.submitted &&
+                    !utilityModal?.selectedBranchId
+                }"
+                >Branch
+                {{
+                  masterSettingFormControl?.submitted &&
+                  !utilityModal?.selectedBranchId
+                    ? "- Required"
+                    : ""
+                }}
+              </label>
+              <ng-select
+                name="branchName"
+                [items]="utilityModal?.clientBranchList"
+                bindLabel="Name"
+                bindValue="Id"
+                placeholder="Select Branch"
+                [(ngModel)]="utilityModal.selectedBranchId"
+              >
+              </ng-select>
+            </div>
+            <div class="form-group col-md-3 pt-3">
+              <button
+                type="submit"
+                class="btn btn-primary waves-effect waves-light"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                (click)="resetForm()"
+                class="btn btn_close waves-effect"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Setting Main Content Table Section -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="bgc-white bdrs-3 pb-3 mB-20">
+          <div class="table-responsive">
+            <table class="table cat-table table-hover">
+              <thead>
+                <tr>
+                  <th style="width:10%;">#</th>
+                  <th style="width:10%;">Sno.</th>
+                  <th style="width:30%;">Setup Name</th>
+                  <th style="width: 50%;">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let setting of settings | searchOnName: search;
+                    let i = index
+                  "
+                >
+                  <td>
+                    <div class="custom-control custom-checkbox">
+                      <input
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="customCheck{{ i }}"
+                        name="example1"
+                        (change)="setting.selected = $event.target.checked"
+                      />
+                      <label
+                        class="custom-control-label"
+                        for="customCheck{{ i }}"
+                      ></label>
+                    </div>
+                  </td>
+                  <td style="width: 10%">{{ i + 1 }}</td>
+                  <td>
+                    <div class="font-weight-bold">{{ setting.name }}</div>
+                  </td>
+                  <td *ngIf="setting.Type === 1">
+                    <fieldset id="group{{ i }}">
+                      <div
+                        class="custom-control custom-radio custom-control-inline"
+                      >
+                        <input
+                          type="radio"
+                          class="custom-control-input"
+                          id="customRadio{{ i }}"
+                          name="group{{ i }}"
+                          [checked]="+setting.Value === 1"
+                          (change)="
+                            setting.Value = $event.target.checked ? 1 : 0
+                          "
+                        />
+                        <label
+                          class="custom-control-label"
+                          for="customRadio{{ i }}"
+                          >Yes</label
+                        >
+                      </div>
+                      <div
+                        class="custom-control custom-radio custom-control-inline"
+                      >
+                        <input
+                          type="radio"
+                          class="custom-control-input"
+                          id="customRadio10{{ i }}"
+                          name="group{{ i }}"
+                          [checked]="+setting.Value === 0"
+                          (change)="
+                            setting.Value = $event.target.checked ? 0 : 1
+                          "
+                        />
+                        <label
+                          class="custom-control-label"
+                          for="customRadio10{{ i }}"
+                          >No</label
+                        >
+                      </div>
+                    </fieldset>
+                  </td>
+                  <td *ngIf="setting.Type === 2">
+                    <input
+                      type="text"
+                      class="form-control"
+                      *ngIf="setting.BaseType === 2"
+                      [value]="setting.DefaultValue"
+                      (input)="setting.Value = $event.target.value"
+                    />
+                    <input
+                      type="text"
+                      class="form-control"
+                      appDigitsOnlyDirective
+                      *ngIf="setting.BaseType === 1"
+                      [value]="setting.DefaultValue"
+                      (input)="setting.Value = $event.target.value"
+                    />
+                  </td>
+                  <td *ngIf="setting.Type === 3 || setting.Type === 5">
+                    <select
+                      (change)="setting.Value = $event.target.value"
+                      class="form-control"
+                    >
+                      <option value="-1">Select {{ setting.name }}</option>
+                      <option
+                        *ngFor="let opt of setting.data"
+                        [value]="opt.Id"
+                        [selected]="+setting.DefaultValue === +opt.Id"
+                      >
+                        {{ opt.Val }}
+                      </option>
+                    </select>
+                  </td>
+                  <td *ngIf="setting.Type === 4">
+                    <div class="input-group adw_select">
+                      <select2
+                        [data]="setting.data"
+                        class="control_select"
+                        [options]="options"
+                        (valueChanged)="setting.Value = $event.value"
+                        autocomplete="true"
+                        [options]="{ placeholder: 'Select' }"
+                        [value]="setting.Value"
+                      >
+                      </select2>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Settings Save Button in footer Section -->
+    <div class="footer" *ngIf="settings?.length > 0">
+      <button
+        type="button"
+        (click)="postAdminMasterSetting()"
+        class="btn btn-primary waves-effect waves-light"
+      >
+        Save
+      </button>
+    </div>
+  </div>
+</main>

@@ -401,6 +401,7 @@ export class PurchaseAddComponent {
     this.purchaseService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
+          debugger
           this.organisationsData = data.data
           if (this.organisationsData.length >= 1) {
               this.OrgId = +this.organisationsData[0].id
@@ -1181,6 +1182,7 @@ onLoading(){
   this.outStandingBalance = 0
   this.editItemFlag =false
   this.editItemIndex=-1
+  this.editChargeIndex=-1
 }
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
@@ -1763,8 +1765,6 @@ onLoading(){
           this.Items[this.editItemIndex].Length =this.Length 
           this.Items[this.editItemIndex].Width =this.Width 
           this.Items[this.editItemIndex].Height =this.Height 
-
-
             }
         let discountedAmount = 0
         if (this.DiscountAmt === total) {
@@ -1869,6 +1869,11 @@ onLoading(){
           this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
         this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
         this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+        if (this.editChargeIndex > -1) {
+          this.AdditionalCharges[this.editChargeIndex].TaxAmountCharge = this.TaxAmountCharge
+          this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = this.TaxableAmountCharge
+          this.AdditionalCharges[this.editChargeIndex].itemTaxTrans = returnTax.appliedTaxRates
+        }
       } else {
         if (this.TaxTypeCharge === 1) {
           let AmountCharge = this.purchaseService.calcTaxableAmountType1(this.taxChargeRates,
@@ -1881,18 +1886,42 @@ onLoading(){
             this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
           this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
           this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+          if (this.editChargeIndex > -1) {
+            this.AdditionalCharges[this.editChargeIndex].TaxAmountCharge = this.TaxAmountCharge
+            this.AdditionalCharges[this.editChargeIndex].itemTaxTrans = returnTax.appliedTaxRates
+            this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = this.TaxableAmountCharge
+
+          }
         }
       }
     } else if (this.editChargeId === -1) {
       this.TaxAmountCharge = 0
+      this.TotalAmountCharge=0
+      this.TaxableAmountCharge=0
+      this.appliedTaxRatesCharge = []
     }
-    // console.log('TaxAmountCharge : ', this.TaxAmountCharge)
     if (+this.AmountCharge > 0) {
       this.TotalAmountCharge = +(+this.AmountCharge + + ((this.TaxTypeCharge === 0) ? (isNaN(+this.TaxAmountCharge) ? 0 : +this.TaxAmountCharge) : 0)).toFixed(this.noOfDecimalPoint)
+      if (this.editChargeIndex > -1) {
+        this.AdditionalCharges[this.editChargeIndex].TotalAmountCharge = this.TotalAmountCharge
+      }
     } else {
-      this.TotalAmountCharge = 0
+      if (this.editChargeIndex > -1) {
+        this.TaxAmountCharge = 0
+        this.TotalAmountCharge=0
+        this.TaxableAmountCharge=0
+        this.AdditionalCharges[this.editChargeIndex].TaxAmountCharge = 0
+        this.AdditionalCharges[this.editChargeIndex].itemTaxTrans = []
+        this.AdditionalCharges[this.editChargeIndex].taxChargeRates = []
+        this.AdditionalCharges[this.editChargeIndex].TotalAmountCharge = 0
+        this.AdditionalCharges[this.editChargeIndex].AmountCharge = 0
+        this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = 0  
+      }
     }
     this.TotalAmountCharge = +this.TotalAmountCharge.toFixed(4)
+    if (this.editChargeIndex > -1) {
+      this.AdditionalCharges[this.editChargeIndex].TotalAmountCharge = 0
+    }
     this.InterestAmount = 0
     this.SubTotal = +(this.calculateTotalOfRow()).toFixed(this.noOfDecimalPoint)
     if (this.editItemIndex > -1) {
@@ -2557,6 +2586,7 @@ onLoading(){
   SrNo:any =0
   editItemFlag:boolean
   editItemIndex:number=-1
+  editChargeIndex:number=-1
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
     if (type === 'charge' && this.editChargeId === -1) {
@@ -2564,6 +2594,7 @@ onLoading(){
       this.editChargeSno = sno
       i = i - 1
       this.showHideItemCharge = false
+      this.editChargeIndex=i
       this.AdditionalCharges[i].isEditable = false
       this.EditabledChargeRow = true
       this.LedgerName = this.AdditionalCharges[i].LedgerName
@@ -2835,6 +2866,7 @@ onLoading(){
   @ViewChild('taxSlabCharge_select2') taxSlabChargeSelect2: Select2Component
   @ViewChild('charge_select2') chargeSelect2: Select2Component
   initCharge() {
+    this.editChargeIndex =-1
     this.LedgerChargeId = 0
     this.LedgerName = ''
     this.AmountCharge = 0
@@ -2961,7 +2993,7 @@ onLoading(){
     this.ItemTaxTrans = []
     this.clickTrans = false
     this.clickItem = false
-    this.OrganisationName=''
+    //this.OrganisationName=''
     this.clickCharge = false
     this.submitSave = false
     this.isValidAmount = true
@@ -3243,12 +3275,6 @@ onLoading(){
         this.invalidObj['GodownId'] = true
         isValid = 0
       }
-      // if (this.AddressId) {
-      //   this.invalidObj['AddressId'] = false
-      // } else {
-      //   this.invalidObj['AddressId'] = true
-      //   isValid = 0
-      // }
       if (this.Items.length === 0 && this.submitSave) {
         isValid = 0
         if (+this.ItemId > 0) {
@@ -3321,14 +3347,6 @@ onLoading(){
             this.invalidObj['Width'] = true
           }
         }
-        // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-        //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-        //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-        //   } else {
-        //     isValid = 0
-        //     $('#' + $('.attr')[index].id).addClass('errorSelecto')
-        //   }
-        // })
       }
       return !!isValid
     }
@@ -3907,7 +3925,7 @@ onLoading(){
     this.AdditionalCharges.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
     });
-    if (!this.clickCharge && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
+    if (!this.clickCharge && this.editChargeIndex === -1 && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
       if (this.appliedTaxRatesCharge.length > 0) {
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesCharge)
       }
@@ -4031,7 +4049,6 @@ onLoading(){
   }
 
   BillDiscountValidation(e) {
-
     if ('' + this.BillDiscountType === '0') {
       if (e === '0') {
         this.BillDiscount = 0

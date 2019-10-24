@@ -22,6 +22,7 @@ export class ActiveInventoryTermAddComponent implements OnInit, OnDestroy {
   @ViewChild('formModel1') formModel
   attribute: any = {}
   attrEditId: number = null
+  
   attributeList: Array<any> = []
   selectedInventory: number = null
   ApplyTypeId: number = null
@@ -236,17 +237,25 @@ export class ActiveInventoryTermAddComponent implements OnInit, OnDestroy {
         this.selectedInventory = data ? data.id : null
         this.attributeList = [...this.attributeList, { id: response.Data, text: this.attribute.inventoryName, ApplyTypeId: this.ApplyTypeId }]
         this.selectedInventory = response.Data
+        this.resetCategory()
         if (this.isParent) {
           const data = { status: 'saved' }
           this._CommonService.closeActiveInventoryForDynamicAdd({ ...data })
           this._CommonService.closeActiveInventoryPopup()
+         
         } else {
           this.activeService.onParentAttrAdd()
         }
+        this._CommonService.AddedItem()
       }
     }, error => console.log(error))
   }
-
+resetCategory(){
+  this.attribute.inventoryName =''
+  this.attribute.shortName =''
+  this.ApplyTypeId =null
+  
+}
   closeModal() {
     if ($('#active_inventory_master')) {
       $('#active_inventory_master').modal(UIConstant.MODEL_HIDE)
@@ -283,6 +292,7 @@ export class ActiveInventoryTermAddComponent implements OnInit, OnDestroy {
             this.toastrService.showSuccess('', saveName)
             $('#active_inventory_master').modal(UIConstant.MODEL_HIDE)
             // this._CommonService.closeAttribute({ status: 'saved' })
+            this._CommonService.AddedItem()
             const data = { status: 'saved', id: response.Data, name: this.attribute.value, AttributeId: this.selectedInventory }
             this._CommonService.closeActiveInventoryForDynamicAdd({ ...data })
             this.resetFormData()

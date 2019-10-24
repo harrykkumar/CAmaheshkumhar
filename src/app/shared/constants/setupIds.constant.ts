@@ -171,4 +171,7 @@ export class SetUpIds {
   public static get RevugainAPIKey ():number {
     return 80
   }
+  public static get AttributeForRequirement ():number {
+    return 19
+  }
 }

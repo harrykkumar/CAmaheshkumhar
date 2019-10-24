@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-full-height modal-right" role="document">
         <div class="modal-content">
             <div class="modal-header close_popup">
-                <h4 class="modal-title w-100 c-grey-900">Active Inventory Term</h4>
+                <h4 class="modal-title w-100 c-grey-900">Item Active Inventory </h4>
                 <button type="button" (closeBtn)="closePopup()" class="close" data-dismiss="modal"
                     aria-label="Close"><span aria-hidden="true" (click)="closeModal()">&times;</span></button>
             </div>
@@ -17,7 +17,7 @@
                                             <div class="form-group col-md-12">
                                                     <label for="attrName">Active inventory Name</label>
                                                     <input #inventory id="attrName" name="attributeName" #attrNameModel="ngModel"
-                                                        type="text" class="form-control" placeholder="Enter Attribute Name"
+                                                        type="text" class="form-control" placeholder="Enter inventory Name"
                                                         [(ngModel)]="attribute.inventoryName">
                                                 </div>
                                                 <div class="form-group col-md-5">
@@ -57,7 +57,7 @@
                                     <ng-container>
                                         <div class="form-group col-md-6">
                                             <label for="fromLimit">From Limit </label>
-                                            <input #fromLimitValue id="fromLimit" name="fromLimit"
+                                            <input #fromLimitValue id="fromLimit" name="fromLimit" appIncludeDecimal
                                                 #fromLimitModel="ngModel" type="number" class="form-control"
                                                 placeholder="from Limit" [(ngModel)]="attribute.fromLimit"
                                                 [ngClass]="{ 'is-invalid': formModel1?.submitted && fromLimitModel?.invalid }"
@@ -65,7 +65,8 @@
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="toLimit">To Limit </label>
-                                            <input #toLimitValue id="toLimit" name="toLimit" #toLimitModel="ngModel"
+                                            <!-- <input type="number" name="myDecimal" placeholder="Decimal"  [(ngModel)]="myDecimal | number : 2"  step="0.01" /> -->
+                                               <input #toLimitValue id="toLimit"  step="0.01" name="toLimit" #toLimitModel="ngModel" appIncludeDecimal
                                                 type="number" class="form-control" placeholder="To Limit"
                                                 [(ngModel)]="attribute.toLimit"
                                                 [ngClass]="{ 'is-invalid': formModel1?.submitted && toLimitModel?.invalid }"

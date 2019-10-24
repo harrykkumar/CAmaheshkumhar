@@ -3,49 +3,27 @@ import { BaseServices } from 'src/app/commonServices/base-services';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import * as _ from 'lodash'
-
+import { GlobalService } from '../../commonServices/global.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ItemRequirementService {
-
+  private select2ArrSub = new Subject()
+  select2List$ = this.select2ArrSub.asObservable()
+  private attrSub = new Subject()
+  attr$ = this.attrSub.asObservable()
   constructor(
-    private baseService: BaseServices
+    private baseService: BaseServices, private _gs: GlobalService
   ) { }
 
   getItemRequirement() {
-    return this.baseService.getRequest(ApiConstant.ITEM_REQUIREMENT).pipe(
-      map((res: any) => {
-        return {
-          Items: _.map(res.Data.Items, (element) => {
-            return {
-              id: element.Id,
-              text: element.Name,
-              CategoryId: element.CategoryId
-            }
-          }),
-          ItemCategorys: _.map(res.Data.ItemCategorys, (element) => {
-            return {
-              id: element.Id,
-              text: element.Name
-            }
-          }),
-          Attributes: res.Data.Attributes,
-          AttributeValues: res.Data.AttributeValues,
-          // SubUnits: _.map(res.Data.SubUnits, (element) => {
-          //   return {
-          //     id: element.Id,
-          //     text: element.Name
-          //   }
-          // })
-        }
-      })
-    )
+    return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.ITEM_REQUIREMENT))
   }
 
   postItemRequirementDat(data){
-    return this.baseService.postRequest(ApiConstant.ITEM_REQUIRE_POST, data)
+    return this._gs.manipulateResponse(this.baseService.postRequest(ApiConstant.ITEM_REQUIRE_POST, data))
   }
 
   getInstructionListData(){
@@ -93,5 +71,56 @@ export class ItemRequirementService {
 
   deleteItemRequirement(data){
     return this.baseService.deleteRequest(`${ApiConstant.ITEM_REQUIRE_POST}?ParentId=${data.ParentId}&ParentTypeId=${data.ParentTypeId}`)
+  }
+
+  getSelect2Arr(data, key, title) {
+    const list = _.map(data, (item) => {
+      return {
+        id: item.Id,
+        text: item[key]
+      }
+    })
+    this.select2ArrSub.next({data: [{ id: 0, text: 'Select ' + title }, ...list], title: title})
+  }
+
+  generateAttrs (AttributeValues) {
+    return _.groupBy(AttributeValues, element => element.AttributeId)
+  }
+
+  checkForAttrsCombos (obj, defaultAttrId) {
+    let defaultMesAttrs = []
+    let generateCasesForIds = []
+    let generateCasesForText = []
+    if (defaultAttrId > 0) {
+      for (const attrId in obj) {
+        if (+attrId === defaultAttrId) {
+          defaultMesAttrs = JSON.parse(JSON.stringify(obj[attrId]))
+          delete obj[attrId]
+          break;
+        }
+      }
+    }
+    if (!_.isEmpty(obj)) {
+      for (const attrId in obj) {
+        const Ids = _.map(obj[attrId], element => {
+          return element.Id
+        })
+        const texts = _.map(obj[attrId], element => {
+          return element.Name
+        })
+        generateCasesForIds.push(Ids)
+        generateCasesForText.push(texts)
+      }
+      const ids = this._gs.allPossibleCases(generateCasesForIds)
+      const text = this._gs.allPossibleCases(generateCasesForText)
+      let newData = []
+      ids.forEach((element, index) => {
+        newData.push({
+          id: element,
+          text: text[index]
+        })
+      })
+      this.attrSub.next({default: defaultMesAttrs, combos: [{id: 0, text: 'Select Attribute'}, ...newData]})
+    }
   }
 }

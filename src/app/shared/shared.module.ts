@@ -32,6 +32,7 @@ import  { DatePicker2AppModule} from './datepicker-2/datepicker2.module'
 import { SkipWhiteSpacesDirective } from './directives/no-white-spaces.directive';
 import { ItemSearchPipe } from '../pipes/item-search.pipe';
 import { LimitQty } from '../Manufacturer/buyer-order/limitQty.directive';
+import { NameSearchPipe } from '../additional-settings/search.pipe';
 @NgModule({
   imports: [
     FormsModule,
@@ -87,7 +88,8 @@ import { LimitQty } from '../Manufacturer/buyer-order/limitQty.directive';
     ChartsModule,
     DatePicker2AppModule,
     ItemSearchPipe,
-    LimitQty
+    LimitQty,
+    NameSearchPipe
   ],
   declarations: [
     ControlMessageComponent,
@@ -104,7 +106,8 @@ import { LimitQty } from '../Manufacturer/buyer-order/limitQty.directive';
     AddNewAreaComponent,
     CompanyProfileComponent,
     ItemSearchPipe,
-    LimitQty
+    LimitQty,
+    NameSearchPipe
   ],
   entryComponents: [
     CompanyProfileComponent,

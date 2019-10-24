@@ -89,37 +89,20 @@ export class SideMenuComponent {
         menu['icon'] = matchedMenu.icon
       }
       if (menu && menu.subMenu && menu.subMenu.length > 0) {
-        // console.log('sub menus : ', menu.subMenu)
         _.map(menu.subMenu, (subMenu) => {
           const matchedSubMenu = _.find(SIDE_MENU_MODEL, {Id: subMenu.Id});
           if (!_.isEmpty(matchedSubMenu)) {
             subMenu['path'] = matchedSubMenu.path
             subMenu['icon'] = matchedSubMenu.icon
-            // console.log('submenu : ', subMenu)
+          } else if(subMenu.CommonCode > 0) {
+            subMenu['path'] = "common-menu"
+            subMenu['icon'] = ""
           }
         })
       }
     })
   }
 
-  // initMenuPath = () => {
-  //   _.map(this.sideMenu, (menu) => {
-  //     const matchedMenu = _.find(SIDE_MENU_MODEL, {Id: menu.Id});
-  //     if (!_.isEmpty(matchedMenu)) {
-  //       menu['path'] = matchedMenu.path
-  //       menu['icon'] = matchedMenu.icon
-  //     }
-  //     if (menu && menu.subMenu && menu.subMenu.length > 0) {
-  //       _.map(menu.subMenu, (subMenu) => {
-  //         const matchedSubMenu = _.find(SIDE_MENU_MODEL, {Id: subMenu.Id});
-  //         if (!_.isEmpty(matchedSubMenu)) {
-  //           subMenu['path'] = matchedSubMenu.path
-  //           subMenu['icon'] = matchedSubMenu.icon
-  //         }
-  //       })
-  //     }
-  //   })
-  // }
 
   navigateTo = (selectedMenu) => {
     if (selectedMenu.path === "") {

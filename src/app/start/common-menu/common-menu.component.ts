@@ -24,20 +24,28 @@ export class CommonMenuComponent implements OnInit {
     private route: ActivatedRoute,
     private commonService: CommonService,
     private toastr: ToastrCustomService) {
-      this.route.paramMap.subscribe((parameters) => {
+      this.route.paramMap.subscribe(
+       async (parameters) => {
         this.menuCode = parameters.get('code');
+        if (this.menuCode) {
+          this.menuData = await this.commonService.getCommonMenu(this.menuCode);
+          if (this.menuData) {
+            this.getCommonMenuListData();
+          }
+          this.initDeleteCommonMenu()
+        }
       })
     this.buildForm()
    }
 
   async ngOnInit() {
-    if (this.menuCode) {
-      this.menuData = await this.commonService.getCommonMenu(this.menuCode);
-      if (this.menuData) {
-        this.getCommonMenuListData();
-      }
-      this.initDeleteCommonMenu()
-    }
+    // if (this.menuCode) {
+    //   this.menuData = await this.commonService.getCommonMenu(this.menuCode);
+    //   if (this.menuData) {
+    //     this.getCommonMenuListData();
+    //   }
+    //   this.initDeleteCommonMenu()
+    // }
   }
 
   getCommonMenuListData(){

@@ -65,7 +65,8 @@
               </div>
             </div>
           </div>
-
+          <div class="form-row" *ngIf="buyerFormData?.productionQty > 0" ><span class="font-weight-bold-light" >Production Quantity -&nbsp;</span> {{buyerFormData?.productionQty}}</div>
+          <br/>
           <div class="row animated-background">
             <div class="col-md-12">
               <div class="bgc-white bdrs-3 mB-20">

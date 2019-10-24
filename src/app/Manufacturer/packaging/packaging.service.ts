@@ -4,7 +4,6 @@ import { GlobalService } from '../../commonServices/global.service';
 import { ApiConstant } from "src/app/shared/constants/api";
 import * as _ from 'lodash';
 import { Subject } from 'rxjs/internal/Subject';
-import { Select2OptionData } from 'ng2-select2';
 @Injectable({
   providedIn: 'root'
 })
@@ -15,6 +14,10 @@ export class PackagingService {
   openChallan$ = this.openChallanSub.asObservable()
   private challanAddedSub = new Subject()
   challanAdded$ = this.challanAddedSub.asObservable()
+  private queryStrSub = new Subject<string>()
+  public queryStr$ = this.queryStrSub.asObservable()
+  private previousPacketsSub = new Subject()
+  public previousPackets$ = this.previousPacketsSub.asObservable()
   constructor (private baseService: BaseServices, private gs: GlobalService) { }
   getItemList (id) {
     return this.gs.manipulateResponse(this.baseService.getRequest(`${ApiConstant.GET_ITEMS_IN_ORDER}?Id=${id}`))
@@ -84,8 +87,8 @@ export class PackagingService {
     return this.gs.manipulateResponse(this.baseService.postRequest(`${ApiConstant.POST_ORDER_PACKET}`, obj))
   }
 
-  getPacketsList () {
-    return this.gs.manipulateResponse(this.baseService.getRequest(`${ApiConstant.POST_ORDER_PACKET}`))
+  getPacketsList (query) {
+    return this.gs.manipulateResponse(this.baseService.getRequest(`${ApiConstant.POST_ORDER_PACKET}${query}`))
   }
 
   openChallan (data) {
@@ -117,5 +120,59 @@ export class PackagingService {
 
   onChallanAdded () {
     this.challanAddedSub.next()
+  }
+
+  createPreviousPackets (arr) {
+    const packets = _.groupBy(arr, element => element.Code)
+    let packetsToSend = []
+    console.log(packets)
+    for (const key in packets) {
+      if (packets.hasOwnProperty(key)) {
+        const element = packets[key];
+        console.log(element)
+        let obj = {}
+        obj['code'] = key
+        obj['packets'] = JSON.parse(JSON.stringify(element))
+        obj['count'] = this.getCount(element)
+        // console.log(obj['count'])
+        packetsToSend.push(obj)
+      }
+    }
+    this.previousPacketsSub.next(packetsToSend)
+  }
+
+  createPackets (arr) {
+    const packets = _.groupBy(arr, element => element.Code)
+    let packetsToSend = []
+    console.log(packets)
+    for (const key in packets) {
+      if (packets.hasOwnProperty(key)) {
+        const element = packets[key];
+        console.log(element)
+        let obj = {}
+        obj['code'] = key
+        obj['packets'] = JSON.parse(JSON.stringify(element))
+        obj['count'] = this.getCount(element)
+        // console.log(obj['count'])
+        packetsToSend.push(obj)
+      }
+    }
+    return packetsToSend
+  }
+
+  getCount (packets) {
+    let sum = 0
+    packets.forEach((element) => {
+      sum += element.Quantity
+    })
+    return sum
+  }
+
+  getStatusList () {
+    return this.gs.manipulateResponse(this.baseService.getRequest(ApiConstant.COUNTRY_LIST_URL + 183))
+  }
+
+  setSearchQueryParamsStr (str) {
+    this.queryStrSub.next(str)
   }
 }

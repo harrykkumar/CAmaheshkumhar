@@ -233,6 +233,6 @@ export class UIConstant {
   }
 
   public static get PACKAGINGCHALLAN (): string {
-    return 'OrderChallan'
+    return 'SALECHALLAN'
   }
 }

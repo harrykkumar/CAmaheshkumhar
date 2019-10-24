@@ -75,7 +75,7 @@
                     <td>{{ i + 1 }}</td>
                     <td>{{ item?.ParentName }}</td>
                     <td>{{ item?.ParentTypeName }}</td>
-                    <td>{{ item?.OnDate }}</td>
+                    <td>{{ item?.OnDate | dateFormat: clientDateFormat }}</td>
                     <td>{{ item?.Cost }}</td>
                     <td>{{ item?.TotalItems }}</td>
                     <td>

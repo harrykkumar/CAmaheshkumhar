@@ -4,11 +4,13 @@ import { PackagingMainComponent } from './packaging-main/packaging-main.componen
 import { SharedModule } from '../../shared/shared.module';
 import { PackagingRoutingModule } from './packaging.routing.module';
 import { PackagingChallanComponent } from './challan/challan.component';
+import { PackagingSearchComponent } from './packaging-search/packaging-search.component';
 
 @NgModule({
   declarations: [
     PackagingMainComponent,
-    PackagingChallanComponent
+    PackagingChallanComponent,
+    PackagingSearchComponent
   ],
   imports: [
     CommonModule,

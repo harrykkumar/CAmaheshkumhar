@@ -60,7 +60,7 @@ export class ActiveInventoryService {
   }
 
   getAttributeListBySearhFilter = (data) => {
-    return this.baseService.getRequest(ApiConstant.ATTRIBUTE_SEARCH_URL + data)
+    return this.baseService.getRequest(ApiConstant.POST_ACTIVE_INVENTORY_TERMURL + data)
   }
 
   getParentActiveList = () => {

@@ -407,7 +407,7 @@ export class ItemAddComponent {
         if (this.barcode && this.barcode.nativeElement.value.trim()) {
           fromEvent(this.barcode.nativeElement, 'keyup').pipe(
             map((event: any) => {
-              return event.target.value.tim()
+              return event.target.value.trim()
             }),
             filter(res => res.length > 0),
             debounceTime(1000),

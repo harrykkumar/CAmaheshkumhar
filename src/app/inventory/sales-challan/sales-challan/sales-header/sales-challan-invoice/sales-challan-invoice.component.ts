@@ -1825,7 +1825,7 @@ export class SalesChallanInvoiceComponent {
           this.clientNameId = this.inventoryItemSales[0].LedgerId
           this.orgNameId = this.inventoryItemSales[0].OrgId
           this.stateId = this.inventoryItemSales[0].SupplyState
-          this.orgnizationSelect2.setElementValue(this.inventoryItemSales[0].OrgId)
+          //this.orgnizationSelect2.setElementValue(this.inventoryItemSales[0].OrgId)
           this.clientSelect2.setElementValue(this.inventoryItemSales[0].LedgerId)
           this.BillNo = this.inventoryItemSales[0].BillNo
           this.InvoiceDate = this._globalService.utcToClientDateFormat(this.inventoryItemSales[0].BillDate, this.clientDateFormat)

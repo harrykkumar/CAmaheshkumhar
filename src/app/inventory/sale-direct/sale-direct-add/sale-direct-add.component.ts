@@ -765,7 +765,6 @@ export class SaleDirectAddComponent {
   @ViewChild('state_select2') stateselect2: Select2Component
   @ViewChild('city_select2') cityselect2: Select2Component
   createCustomerDetails(data) {
-
     if (data.length > 0) {
       this.CaseCustId = data[0].Id
       this.customerMobileNo = data[0].MobileNo
@@ -775,28 +774,29 @@ export class SaleDirectAddComponent {
       this.PartyGstinNo = data[0].PartyGstinNo
       this.countryValue1 = data[0].CountryId
       this.stateValuedata1 = data[0].StateId
-      let phonecode = {
-        id: data[0].CountryCode, text: data[0].CountryName,
-        PhoneCode: data[0].CountryCode,
-        Length: data[0].Length
-      }
-      this.onCountryCodeSelectionChange(phonecode)
-      this.countryCodeFlag = data[0].CountryCode
+      // let phonecode = {
+      //   id: data[0].CountryCode, text: data[0].CountryName,
+      //   PhoneCode: data[0].CountryCode,
+      //   Length: data[0].Length
+      // }
+      this.loadAddressDetails(data[0])
+      // this.onCountryCodeSelectionChange(phonecode)
+      // this.countryCodeFlag = data[0].CountryCode
 
-      this.cityValue1 = data[0].CityId
-      this.areNameId = data[0].AreaId
-      let country = {
-        id: data[0].CountryId, text: data[0].CountryName
-      }
-      this.selectCountryListId(country)
-      let state = {
-        id: data[0].StateId, text: data[0].StateName
-      }
-      this.selectState(state)
-      let city = {
-        id: data[0].CityId, text: data[0].CityName
-      }
-      this.selectedCityId(city)
+      // this.cityValue1 = data[0].CityId
+      // this.areNameId = data[0].AreaId
+      // let country = {
+      //   id: data[0].CountryId, text: data[0].CountryName
+      // // }
+      // this.selectCountryListId(country)
+      // let state = {
+      //   id: data[0].StateId, text: data[0].StateName
+      // }
+      // this.selectState(state)
+      // let city = {
+      //   id: data[0].CityId, text: data[0].CityName
+      // }
+      // this.selectedCityId(city)
     }
   }
   createForm(data) {
@@ -1479,10 +1479,10 @@ export class SaleDirectAddComponent {
     )
   }
   editItemFlag: boolean
-  getBillSummryListFlag:boolean
+  getBillSummryListFlag: boolean
   onLoading() {
     this.editItemFlag = false
-    this.getBillSummryListFlag =false
+    this.getBillSummryListFlag = false
     this.BillDiscountType = 0
     this.BillDiscountArray = []
     this.NotItemInStock = []
@@ -1499,6 +1499,7 @@ export class SaleDirectAddComponent {
     this.isCaseSaleFlag = true
     this.caseSaleArrayId = [{ id: 6 }, { id: 5 }]
     this.editItemIndex = -1
+    this.editChargeIndex = -1
   }
   closeModal() {
     if ($('#purchase_modal').length > 0) {
@@ -1812,7 +1813,7 @@ export class SaleDirectAddComponent {
   getItemRateByLedgerData(BillDate, Barcode, ItemId, CustomerId) {
     this.commonService.barcodeAPI(BillDate, Barcode, ItemId, CustomerId).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
-        this.getBillSummryListFlag =true
+        this.getBillSummryListFlag = true
         this.setIniData()
         this.ItemEdtMode = false
         if (Data.Data && Data.Data.ItemCustomRateWithItemDetails.length > 0) {
@@ -2338,6 +2339,7 @@ export class SaleDirectAddComponent {
                   this.Items[index]['TaxAmount'] = returnTax.taxAmount
                   // this.TaxAmount =returnTax.taxAmount
                   appliedTaxRatesItem = returnTax.appliedTaxRates
+
                   this.appliedTaxRatesItem = []
                 }
                 if (appliedTaxRatesItem.length > 0) {
@@ -2476,6 +2478,7 @@ export class SaleDirectAddComponent {
               discountedAmount,
               this.isOtherState)).toFixed(4)
             this.AmountItem = AmountItem
+
             if (this.editItemIndex > -1) {
               this.Items[this.editItemIndex].AmountItem = this.AmountItem
             }
@@ -2489,9 +2492,6 @@ export class SaleDirectAddComponent {
               this.Items[this.editItemIndex].TaxAmount = this.TaxAmount
               this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
             }
-
-
-
           } else {
             let AmountItem = +(this._saleDirectService.calcTaxableAmountType2(this.taxRates,
               this.taxSlabType,
@@ -2521,9 +2521,8 @@ export class SaleDirectAddComponent {
             if (this.editItemIndex > -1) {
               this.Items[this.editItemIndex].TaxAmount = this.TaxAmount
               this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
-
             }
-            
+
           }
         }
       } else {
@@ -2540,7 +2539,7 @@ export class SaleDirectAddComponent {
           this.appliedTaxRatesItem = []
         }
         if (this.editItemId !== -1 && this.editItemIndex > -1) {
-                 this.resetCalculate(this.editItemIndex)
+          this.resetCalculate(this.editItemIndex)
         }
       }
     } else {
@@ -2560,8 +2559,12 @@ export class SaleDirectAddComponent {
           +this.AmountCharge,
           this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
         this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
-
         this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+        if (this.editChargeIndex > -1) {
+          this.AdditionalCharges[this.editChargeIndex].TaxAmountCharge = this.TaxAmountCharge
+          this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = this.TaxableAmountCharge
+          this.AdditionalCharges[this.editChargeIndex].itemTaxTrans = returnTax.appliedTaxRates
+        }
       } else {
         if (this.TaxTypeCharge === 1) {
           let AmountCharge = this._saleDirectService.calcTaxableAmountType1(this.taxChargeRates,
@@ -2571,19 +2574,48 @@ export class SaleDirectAddComponent {
             this.taxChargeSlabType,
             +AmountCharge,
             this.isOtherState, FormConstants.ChargeForm, this.TaxChargeName)
+
           this.TaxAmountCharge = +(returnTax.taxAmount).toFixed(4)
           this.appliedTaxRatesCharge = returnTax.appliedTaxRates
+          if (this.editChargeIndex > -1) {
+            this.AdditionalCharges[this.editChargeIndex].TaxAmountCharge = this.TaxAmountCharge
+            this.AdditionalCharges[this.editChargeIndex].itemTaxTrans = returnTax.appliedTaxRates
+            this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = this.TaxableAmountCharge
+
+          }
         }
       }
-    } else if (this.editChargeId === -1) {
+    } else 
+    if (this.editChargeId === -1) {
       this.TaxAmountCharge = 0
+      this.TotalAmountCharge=0
+      this.TaxableAmountCharge=0
+      this.appliedTaxRatesCharge = []
     }
+
     if (+this.AmountCharge > 0) {
       this.TotalAmountCharge = +(+this.AmountCharge + + ((this.TaxTypeCharge === 0) ? (isNaN(+this.TaxAmountCharge) ? 0 : +this.TaxAmountCharge) : 0)).toFixed(this.noOfDecimalPoint)
+      if (this.editChargeIndex > -1) {
+        this.AdditionalCharges[this.editChargeIndex].TotalAmountCharge = this.TotalAmountCharge
+      }
+
     } else {
-      this.TotalAmountCharge = 0
+      if (this.editChargeIndex > -1) {
+        this.TaxAmountCharge = 0
+        this.TotalAmountCharge=0
+        this.TaxableAmountCharge=0
+        this.AdditionalCharges[this.editChargeIndex].TaxAmountCharge = 0
+        this.AdditionalCharges[this.editChargeIndex].itemTaxTrans = []
+        this.AdditionalCharges[this.editChargeIndex].taxChargeRates = []
+        this.AdditionalCharges[this.editChargeIndex].TotalAmountCharge = 0
+        this.AdditionalCharges[this.editChargeIndex].AmountCharge = 0
+        this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = 0  
+      }
     }
     this.TotalAmountCharge = +this.TotalAmountCharge.toFixed(4)
+    if (this.editChargeIndex > -1) {
+      this.AdditionalCharges[this.editChargeIndex].TotalAmountCharge = 0
+    }
     this.InterestAmount = 0
     this.SubTotal = +(this.calculateTotalOfRow()).toFixed(this.noOfDecimalPoint)
     if (this.editItemIndex > -1) {
@@ -2594,7 +2626,9 @@ export class SaleDirectAddComponent {
     }
     this.getBillSummary()
   }
-  resetCalculate(editItemIndex){
+
+
+  resetCalculate(editItemIndex) {
     this.Items[editItemIndex].TaxAmount = 0
     this.Items[editItemIndex].AmountItem = 0
     this.Items[editItemIndex].PurchaseRate = 0
@@ -2603,13 +2637,13 @@ export class SaleDirectAddComponent {
     this.Items[editItemIndex].DiscountAmt = 0
     this.Items[editItemIndex].taxRates = []
     this.Items[editItemIndex].TotalRate = 0
-    this.Items[editItemIndex].Quantity =1
-    this.Items[editItemIndex].Length =1
-    this.Items[editItemIndex].Width =1
-    this.Items[editItemIndex].Height =1
+    this.Items[editItemIndex].Quantity = 1
+    this.Items[editItemIndex].Length = 1
+    this.Items[editItemIndex].Width = 1
+    this.Items[editItemIndex].Height = 1
     this.TaxAmount = 0
     this.AmountItem = 0
-   }
+  }
   calculateTotalOfRow() {
     let totalAmount = this.AmountItem + (isNaN(+this.TaxAmount) ? 0 : +this.TaxAmount)
     return isNaN(totalAmount) ? 0 : totalAmount
@@ -3165,7 +3199,7 @@ export class SaleDirectAddComponent {
   }
   ItemEdtMode: boolean
   addItems() {
-    if (this.validDiscount && +this.UnitId >  0 &&this.Quantity>0 && this.SaleRate > 0) {
+    if (this.validDiscount && +this.UnitId > 0 && this.Quantity > 0 && this.SaleRate > 0) {
 
       if (!this.ItemEdtMode) {
         this.checkItemQuantityForStock()
@@ -3183,10 +3217,10 @@ export class SaleDirectAddComponent {
         }
         else {
           this.calculateAllTotal()
-          if(this.getBillSummryListFlag){
-             this.getBillSummary()
+          if (this.getBillSummryListFlag) {
+            this.getBillSummary()
           }
-       
+
         }
         this.initItem()
 
@@ -3340,12 +3374,15 @@ export class SaleDirectAddComponent {
   showHidePayment: any = true
   editTransSno: number = 0
   editItemIndex: number = -1
+  editChargeIndex: number = -1
+
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
     if (type === 'charge' && this.editChargeId === -1) {
       this.editChargeId = editId
       this.editChargeSno = sno
       i = i - 1
+      this.editChargeIndex = i
       this.showHideItemCharge = false
       this.AdditionalCharges[i].isEditable = false
       this.EditabledChargeRow = true
@@ -3533,7 +3570,7 @@ export class SaleDirectAddComponent {
   }
 
   initItem() {
-    this.getBillSummryListFlag =false
+    this.getBillSummryListFlag = false
     this.editItemFlag = false
     this.editItemIndex = -1
     this.perItemDiscount = 0
@@ -3640,6 +3677,7 @@ export class SaleDirectAddComponent {
     this.taxChargeRates = []
     this.appliedTaxRatesCharge = []
     this.editChargeId = -1
+    this.editChargeIndex = -1
     if (this.taxSlabChargeSelect2) {
       this.taxSlabChargeSelect2.setElementValue('')
     }
@@ -4268,7 +4306,8 @@ export class SaleDirectAddComponent {
       PropertyGuid: this.RevugainAPIKey,
       CustomerList: [
         {
-          "RecordId": 1, "CustomerName": this.CustomerName,
+          "RecordId": 1,
+          "CustomerName": this.CustomerName,
           "ContactNo": this.ContactNo === null ? '' : this.ContactNo,
           "Email": this.Email === null ? '' : this.Email,
           "DOA": this.DOA === null ? '' : this.DOA,
@@ -4735,6 +4774,7 @@ export class SaleDirectAddComponent {
   billSummary: Array<any> = []
   AdditionalChargesToShow: any = []
   getBillSummary() {
+    
     let taxableValue = 0
     let ItemTaxTrans = []
     this.Items.forEach(element => {
@@ -4751,8 +4791,9 @@ export class SaleDirectAddComponent {
     this.AdditionalChargesToShow = JSON.parse(JSON.stringify(this.AdditionalCharges))
     this.AdditionalCharges.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
+      
     });
-    if (!this.clickCharge && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
+    if (!this.clickCharge && this.editChargeIndex === -1 && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
       if (this.appliedTaxRatesCharge.length > 0) {
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesCharge)
       }
@@ -4886,7 +4927,10 @@ export class SaleDirectAddComponent {
         this.custName.nativeElement.focus()
       }, 600)
     }
-    this.getOrgnizationAddress()
+    if(!this.editMode){
+      this.getOrgnizationAddress()
+
+    }
   }
   countryValue1: any = null
   stateValuedata1: any = null
@@ -4910,6 +4954,7 @@ export class SaleDirectAddComponent {
   countryCodeId: any
   countryListWithCode: any
   onCountryCodeSelectionChange = (event) => {
+    debugger
     if (this.countryCodeFlag !== null) {
       if (event.id > 0) {
         if (event.id !== '0') {
@@ -4919,11 +4964,8 @@ export class SaleDirectAddComponent {
       }
     }
   }
-  getOrgnizationAddress() {
-    let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
-    console.log(Address)
-    this.countryValue1 = Address.CountryId
-    this.stateValuedata1 = Address.StateId
+  loadAddressDetails(Address){
+    this.countryValue = Address.CountryId
     let phonecode = {
       id: Address.CountryCode, text: Address.CountryName,
       PhoneCode: Address.CountryCode,
@@ -4931,21 +4973,56 @@ export class SaleDirectAddComponent {
     }
     this.onCountryCodeSelectionChange(phonecode)
     this.countryCodeFlag = Address.CountryCode
-
-    this.cityValue1 = Address.CityId
-    this.areNameId = Address.AreaId
     let country = {
-      id: Address.CountryId, text: Address.CountryName
+      id: Address.CountryId,
+      text: Address.CountryName
     }
-    this.selectCountryListId(country)
+   this.selectCountryListId(country)
     let state = {
-      id: Address.StateId, text: Address.StateName
+      id: Address.StateId,
+      text: Address.Statename
     }
-    this.selectState(state)
     let city = {
-      id: Address.CityId, text: Address.CityName
+      id: Address.CityId,
+      text: Address.CityName
     }
-    this.selectedCityId(city)
+    setTimeout(() => {
+      this.selectState(state)
+    }, 100);
+    setTimeout(() => {
+      this.selectedCityId(city)
+    }, 200);
+  }
+  getOrgnizationAddress() {
+    let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS')); 
+    if (Address !== null) {
+      this.loadAddressDetails(Address)
+     }
+
+    // this.countryValue1 = Address.CountryId
+    // this.stateValuedata1 = Address.StateId
+    // let phonecode = {
+    //   id: Address.CountryCode, text: Address.CountryName,
+    //   PhoneCode: Address.CountryCode,
+    //   Length: Address.Length
+    // }
+    // this.onCountryCodeSelectionChange(phonecode)
+    // this.countryCodeFlag = Address.CountryCode
+
+    // this.cityValue1 = Address.CityId
+    // this.areNameId = Address.AreaId
+    // let country = {
+    //   id: Address.CountryId, text: Address.CountryName
+    // }
+    // this.selectCountryListId(country)
+    // let state = {
+    //   id: Address.StateId, text: Address.StateName
+    // }
+    // this.selectState(state)
+    // let city = {
+    //   id: Address.CityId, text: Address.CityName
+    // }
+    // this.selectedCityId(city)
 
   }
   searchCountryCodeForMobile(name) {

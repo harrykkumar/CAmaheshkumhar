@@ -449,6 +449,9 @@ export class ApiConstant {
 
   public static get POST_PACKAGING_CHALLAN (): string { return this.BASE_URL + '/api/v1/manufacture/orderpacketchallan' }
 
+  public static get GET_ORDER_DATA_BY_TYPE (): string { return this.BASE_URL + '/api/v1/manufacture/buyerorderpacket?Type=' }
 
+  public static get REPORT_ACTIVE_INVENTORY(): string { return this.BASE_URL + '/api/v1/inventory/itemactivestatus' }
 
+  public static get CLIENT_BRANCH(): string { return this.BASE_URL + '/api/v1/Owner/Branch' }
 }

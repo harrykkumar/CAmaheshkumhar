@@ -5,7 +5,7 @@ import { CommonService } from 'src/app/commonServices/commanmaster/common.servic
 import { Settings } from './../../../shared/constants/settings.constant';
 import { GlobalService } from 'src/app/commonServices/global.service';
 import { PagingComponent } from './../../../shared/pagination/pagination.component';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import * as _ from 'lodash'
@@ -18,7 +18,8 @@ declare var flatpickr: any
   styleUrls: ['./sample-approval-list.component.css']
 })
 export class SampleApprovalListComponent implements OnInit {
-  @ViewChild('sampleApprovalForm') sampleApprovalFormModal: AddSampleApprovalComponent
+  @ViewChild('addSampleApprovalContainerRef', { read: ViewContainerRef}) addSampleApprovalContainerRef: ViewContainerRef;
+  addSampleApprovalRef: any;
   model: any = {};
   listModel:any = {};
   lastItemIndex: number = 0
@@ -35,7 +36,8 @@ export class SampleApprovalListComponent implements OnInit {
     public _settings: Settings,
     public _commonService: CommonService,
     private _toastService: ToastrCustomService,
-    private sampleApprovalService: SampleApprovalService
+    private sampleApprovalService: SampleApprovalService,
+    private resolver: ComponentFactoryResolver,
   ) {
     this.clientDateFormat = this._settings.dateFormat
   }
@@ -44,11 +46,21 @@ export class SampleApprovalListComponent implements OnInit {
     this.getSampleApprovalListData()
   }
 
+  addSampleApproval(item?) {
+    this.addSampleApprovalContainerRef.clear();
+    const factory = this.resolver.resolveComponentFactory(AddSampleApprovalComponent);
+    this.addSampleApprovalRef = this.addSampleApprovalContainerRef.createComponent(factory);
+    this.addSampleApprovalRef.instance.openModal(item);
+    this.addSampleApprovalRef.instance.triggerCloseModal.subscribe(
+      (data) => {
+        this.addSampleApprovalRef.destroy();
+        this.getSampleApprovalListData()
+      });
+  }
+
   onLedgerItemChange = (event) => {
     this.model.selectedLedgerItem = event.data[0]
   }
-
-
 
   getSampleApprovalListData = () => {
     const data = {
@@ -92,13 +104,6 @@ export class SampleApprovalListComponent implements OnInit {
   ngOnDestroy(): void {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
-  }
-
-  addSampleApproval(item?){
-    this.sampleApprovalFormModal.openModal(item);
-  }
-  onModalClosed(event){
-    this.getSampleApprovalListData()
   }
 
   onApprove(item){

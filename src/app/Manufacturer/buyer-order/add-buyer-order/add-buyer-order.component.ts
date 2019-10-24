@@ -32,6 +32,7 @@ export class AddBuyerOrderComponent implements OnInit {
   editMode: boolean
   previousOrders: Array<any> = []
   destroy$: Subscription
+  disableBtnSubmit = false
   constructor(
     private _buyerOrderService: BuyerOrderService,
     private setting: Settings,
@@ -405,6 +406,7 @@ export class AddBuyerOrderComponent implements OnInit {
     this.model.orderDate = this._gs.getDefaultDate(this.clientDateFormat)
     this.model.shipDate = ''
     this.model.exFactDate = ''
+    this.disableBtnSubmit = false
     this.resetItemAddForm()
     this.attributeFormModal.resetForm()
     this.buyerOrderFormModal.resetForm()
@@ -542,17 +544,18 @@ export class AddBuyerOrderComponent implements OnInit {
   }
 
   submitForm() {
+    this.disableBtnSubmit = true
     const requestData = this.preparePayload()
     requestData['Id'] = (this.editMode) ? this.model.editId : 0
     console.log('obj : ', JSON.stringify(requestData))
     this._buyerOrderService.postBuyerOrderData(requestData).subscribe((res) => {
-      if (res.Code === UIConstant.THOUSAND) {
-        this._toaster.showSuccess('Success', 'Buyer Order Saved Successfully')
+      this._toaster.showSuccess('Success', 'Buyer Order Saved Successfully')
         this.resetBuyerOrderForm()
         this.triggerCloseModal.emit()
-      } else {
-        this._toaster.showError('Error', res.Message)
-      }
+    },
+    (error) => {
+      this.disableBtnSubmit = false
+      this._toaster.showError(error, '')
     })
   }
 

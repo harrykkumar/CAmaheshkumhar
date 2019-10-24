@@ -341,12 +341,12 @@ export const SIDE_MENU_MODEL = [
     path: "account/trading",
     icon: ""
   },
-  {
-    Id: 59,
-    Name: "Customer-Type",
-    path: "common-menu",
-    icon: ""
-  },
+  // {
+  //   Id: 59,
+  //   Name: "Customer-Type",
+  //   path: "common-menu",
+  //   icon: ""
+  // },
   {
     Id: 60,
     Name: "TransactionNo",
@@ -514,5 +514,35 @@ export const SIDE_MENU_MODEL = [
     Name: "Item ActiveStatus",
     path: "ims/item-active-status",
     icon: "fas-fa-exchange-alt"
-  }
+  },
+  {
+    Id: 94,
+    Name: "Packed Order",
+    path: "report/packed-orders",
+    icon: "fas-fa-exchange-alt"
+  },
+  {
+    Id: 95,
+    Name: "Packed Packets",
+    path: "report/packed-packets",
+    icon: "fas-fa-exchange-alt"
+  },
+  {
+    Id: 96,
+    Name: "Packed Items",
+    path: "report/packed-items",
+    icon: "fas-fa-exchange-alt"
+  },
+  {
+    Id: 91,
+    Name: "Item Growth",
+    path: "ims/report/active-inventory-item",
+    icon: "fas-fa-exchange-alt"
+  },
+  {
+    Id: 99,
+    Name: "Admin Master Setting",
+    path: "super-admin/master-setting",
+    icon: ""
+  },
 ];

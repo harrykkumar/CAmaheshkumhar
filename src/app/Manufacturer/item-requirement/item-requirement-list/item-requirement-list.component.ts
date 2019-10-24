@@ -21,6 +21,7 @@ export class ItemRequirementListComponent implements OnInit {
   pageNo: number = 1
   totalItemSize: number = 0
   itemRequirementListData: Array<any> = []
+  clientDateFormat: string = ''
   private unSubscribe$ = new Subject<void>()
 
   constructor( private _itemRequirementService: ItemRequirementService,
@@ -28,7 +29,9 @@ export class ItemRequirementListComponent implements OnInit {
     private _toastService: ToastrCustomService,
     private gs: GlobalService,
     private _settings: Settings
-    ) { }
+    ) {
+      this.clientDateFormat = this._settings.dateFormat
+    }
   ngOnInit() {
     this.getItemRequirementListData()
   }

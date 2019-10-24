@@ -1,179 +1,194 @@
-
-  <div class="modal right fade" id="ledger_creation_id"  role="dialog" data-backdrop="static" data-keyboard="false">
-
-    <!-- Change class .modal-sm to change the size of the modal -->
+<div class="modal right fade" id="ledger_creation_id" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
         <div class="modal-content">
             <div class="modal-header close_popup">
                 <h4 class="modal-title w-100 c-grey-900">Ledger </h4>
-                <button type="button" (click)="clearValidation()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span> </button>
+                <button type="button" (click)="clearValidation()" class="close" data-dismiss="modal"
+                    aria-label="Close"><span aria-hidden="true">×</span> </button>
             </div>
             <div class="modal-body">
                 <div class="card-body">
                     <div>
-                        <form [formGroup]="ledgerForm">
+                        <form #heroForm="ngForm">
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label>Under Group</label>
                                     <div class="input-group adw_select">
                                         <div class="input-group adw_select">
-                                            <select2  [data]="ledgerGroupData"
-                                            #under_group_select2 class="control_select"
-                                            (valueChanged)="onChnageGroup($event)"
-                                            autocomplete="true"
-                                            [options]="{placeholder: 'Select Group'}"
-                                            [value]="LedgerGroupValue"
-                                            [ngClass]="{'errorSelecto': submitClick && isSelectParentGrp }"
-                                            ></select2>
-                                            </div>
-                                            </div>
-                                          
-                                      
+                                            <select2  autofocus [data]="ledgerGroupData" #under_group_select2
+                                                class="control_select" (valueChanged)="onChnageGroup($event)"
+                                                autocomplete="true" [options]="{placeholder: 'Select Under Group'}"
+                                                [value]="LedgerGroupValue"
+                                                [ngClass]="{'errorTextBoxBorder1': submitClick && isSelectParentGrp }">
+                                            </select2>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label class="active">Ledger Name</label>
-                                    <input type="text"
-                                     formControlName="ledgerName"
-                                      class="form-control" 
-                                      placeholder="Enter Value"
-                                      [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && f.ledgerName.errors?.required}"
-                                      >
+                                    <input #ledgerNameRef   type="text" name='ledgerName' [(ngModel)]="ledgerName" class="form-control"
+                                        placeholder="Ledger Name" (input)="checkValidationName()"
+                                        [ngClass]="{'errorTextBoxBorder1': submitClick && ledgerNameEr }" required>
+
+                                         
                                 </div>
                                 <div class="form-group col-md-6">
-                                        <label class="active">Short Name</label>
-                                        <input     type="text" formControlName="ShortName" class="form-control" placeholder="Enter Value">
-                                    </div>
-                                     <div class="form-group col-md-6 ">
-                                        <label>Opening Balance</label>
-                                        <div class="opening_stcock">
-                                            <div class="discount">
-                                                <input [attr.disabled]="disabledInputField? '':null"  style="width:158px" (input)="calculate();" type="number" class="form-control  width_70 mr-1" appIncludeDecimal name="openingblance"  placeholder="Opening Balance " formControlName="openingblance">
-                                                <div class="input-group">
-                                                        <select2 #crdr_selecto2 [data]="selectCrDr" class="dropdown_width_100" (valueChanged)="selectCRDRId($event)" autocomplete="true" [options]="select2CrDrPlaceHolder" [value]="valueCRDR"></select2>
-                                                      </div>
-                                              </div>
+                                    <label class="active">Short Name</label>
+                                    <input type="text" name='ShortName' [(ngModel)]="ShortName" class="form-control"
+                                        placeholder="Short Name">
+                                </div>
+                                <div class="form-group col-md-6 ">
+                                    <label>Opening Balance</label>
+                                    <div class="opening_stcock">
+                                        <div class="discount">
+                                            <input [attr.disabled]="disabledInputField? '':null" style="width:158px"
+                                                (input)="calculate();" type="number" class="form-control  width_70 mr-1"
+                                                appIncludeDecimal name="openingblance" placeholder="Opening Balance "
+                                                name='openingblance' [(ngModel)]="openingblance">
+                                            <div class="input-group">
+                                                <select2 #crdr_selecto2 [data]="selectCrDr" class="dropdown_width_100"
+                                                    (valueChanged)="selectCRDRId($event)" autocomplete="true"
+                                                    [options]="select2CrDrPlaceHolder" [value]="valueCRDR"></select2>
+                                            </div>
                                         </div>
-                                     </div>
-                                      <div class="form-group col-md-12">
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12">
                                     <label class="pr-3">GST Applicable or not?</label>
-                                 
+
                                     <div class="custom-control custom-radio mr-3">
-                                        <input type="radio" class="custom-control-input" id="customRadio1" name="example1" value="customEx" (click)="showGSTYesOrNot('Yes')" [checked]="showHideFlag">
+                                        <input type="radio" class="custom-control-input" id="customRadio1"
+                                            name="example1" value="customEx" (click)="showGSTYesOrNot('Yes')"
+                                            [checked]="showHideFlag">
                                         <label class="custom-control-label" for="customRadio1">Yes</label>
                                     </div>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="customRadio2" name="example1" (click)="showGSTYesOrNot('No');" [checked]="!showHideFlag" value="customEx">
+                                        <input type="radio" class="custom-control-input" id="customRadio2"
+                                            name="example1" (click)="showGSTYesOrNot('No');" [checked]="!showHideFlag"
+                                            value="customEx">
                                         <label class="custom-control-label" for="customRadio2">No</label>
                                     </div>
-                                
-                                </div>
-                                 </div>
-                            <div *ngIf='showHideFlag' class="hide" id="div1">
-                                  <div class="form-row">
-                                        <div class="form-group col-md-4">
-                                                <label for="bill_no">Registration Type</label>
-                                                <div class="input-group adw_select">
-                                                    <div class="input-group adw_select">
-                                                      <select2  #select_regiType [data]="selectyCoustmoreRegistration" class="control_select" (valueChanged)="selectCoustmoreId($event)" autocomplete="true" [options]="{placeholder:'Select Type'}" [value]="coustomerValue" ></select2>
-                                                    </div>
-                                                  </div>
-                                            </div>
-                                 <div class="form-group col-md-4">
-                                    <label class="active">GSTIN Number</label>
-                                    <input [attr.disabled]="disabledGSTfor_UnRegi?'':null" style="text-transform:uppercase" 
-                                    type="text" class="form-control"
-                                     id="org_code" placeholder=" GSTIN No"
-                                      formControlName="gstin" (input)="checkGSTNumber($event)" [ngClass]="{ 'errorTextBoxBorder is-invalid': (submitClick && validGSTNumber) || (submitClick && requiredGST ) }"
-                                      >
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label class="active">PAN Number</label> <input style="text-transform:uppercase" type="text" class="form-control" [ngClass]="{ 'errorTextBoxBorder is-invalid': submitClick && validPANFlag }" id="org_code" placeholder=" PAN No." formControlName="panNo">
-                                </div>
-                                <ng-container *ngIf="isTaxedAplly===1" >
-                                    <div class="form-group col-md-4"  >
-                                        <label>Tax Slab</label>
-                                        <div class="input-group adw_select">
-                                            <select2 #taxSlab_select2 [data]="taxSlabsData"
-                                              class="control_select" 
-                                              (valueChanged)="onTaxSlabSelect($event)"
-                                               autocomplete="true"
-                                               [options]="{ placeholder: 'Select Tax' }"
-                                               [value]="taxSlabValue">
-                                            </select2>
-                                        </div>
-                                      </div>
-                                      <div class="form-group col-md-4"  >
-                                        <label>ITC Type</label>
-                                        <div class="input-group adw_select">
-                                          <select2 [data]="ListITCType" #itc_select2 class="control_select"
-                                            (valueChanged)="ITCTypeId = $event.value" 
-                                             autocomplete="true"
-                                            [options]="{placeholder: 'Select ITC'}" [value]="ITCTypeValue" ></select2>
-                                        </div>
-                                      </div>
-                                      <div class="form-group col-md-4"  >
-                                        <label>RCM Type</label>
-                                        <div class="input-group adw_select">
-                                          <select2 [data]="ListRCMType" #rcm_select2 class="control_select"
-                                            (valueChanged)="RCMTypeId = $event.value" 
-                                           autocomplete="true"
-                                            [options]="{placeholder: 'Select RCM'}" [value]="RCMTypeValue" ></select2>
-                                        </div>
-                                      </div>
-                                      <div class="form-group col-md-4">
-                                        <label class="active">HSN</label> <input  type="text" class="form-control"  id="HSN" placeholder=" HSN No." formControlName="HSNNo">
-                                    </div>
-                                </ng-container>
-                                       <div class="form-group col-md-4">
-                                    <label for="bill_no">Country</label>
-                                    <div class="input-group adw_select">
-                                        <select2 [disabled]='disabledStateCountry' #country_selecto [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)" autocomplete="true" [options]="{placeholder :'Select Country '}" [value]="countryValue" [ngClass]="{ 'errorSelecto is-invalid': addressClick && countryError  }"></select2>
-                                    </div>
-                                </div>
-                                  <div class="form-group col-md-4">
-                                    <label for="bill_no">State</label>
-                                    <div class="input-group adw_select">
-                                        <select2 [disabled]='disabledStateCountry' #state_select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)" autocomplete="true" [options]="{placeholder:'Select State'}" [value]="stateValue" [ngClass]="{ 'errorSelecto is-invalid': addressClick &&  stateError  }"></select2>
-                                    </div>
-                                </div>
-                                       <div class="form-group col-md-4">
-                                    <label for="bill_no">City</label>
-                                    <div class="input-group adw_select">
-                                        <select2 #city_select2 [data]="cityList" class="control_select" autocomplete="true" (valueChanged)="selectedCityId($event)" [value]="cityValue" [options]="{placeholder:'Select City'}" [ngClass]="{ 'errorSelecto is-invalid':  addressClick && cityError  }"></select2>
-                                    </div>
-                                </div>
-                              <div class="col-md-12">
-                                 <label class="">Address</label>
-                                     <textarea class="form-control" formControlName="address" ></textarea>
-                                      </div>
+
                                 </div>
                             </div>
-                          
-                           <div class="form-row">
+                            <div *ngIf='showHideFlag' class="hide" id="div1">
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="bill_no">Registration Type</label>
+                                        <div class="input-group adw_select">
+                                            <div class="input-group adw_select">
+                                                <select2 #select_regiType [data]="selectyCoustmoreRegistration"
+                                                    class="control_select" (valueChanged)="selectCoustmoreId($event)"
+                                                    autocomplete="true" [options]="{placeholder:'Select Type'}"
+                                                    [value]="coustomerValue"></select2>
+                                            </div>
+                                            <!-- <ng-select name="taxName" [items]="selectyCoustmoreRegistration" 
+                                            bindLabel="text"
+                                            bindValue="id" placeholder="Select Tax Slab"
+                                            (change)="TaxSlabId = $event.id" [(ngModel)]="coustomerValue">
+                                        </ng-select> -->
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="active">GSTIN Number</label>
+                                        <input #GStRequire [attr.disabled]="disabledGSTfor_UnRegi?'':null"
+                                            style="text-transform:uppercase" type="text" class="form-control"
+                                            id="org_code" placeholder=" GSTIN Number" name='gstin' [(ngModel)]="gstin"
+                                            (input)="checkGSTNumber($event)"
+                                            [ngClass]="{ 'errorTextBoxBorder1 ': (submitClick && validGSTNumber) || (submitClick && requiredGST ) }">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="active">PAN Number</label> <input style="text-transform:uppercase"
+                                            type="text" class="form-control"
+                                            id="org_code" placeholder=" PAN Number" name='panno' [(ngModel)]="panNo">
+                                    </div>
+                                    <ng-container *ngIf="isTaxedAplly===1">
+                                        <div class="form-group col-md-4">
+                                            <label>Tax Slab</label>
+                                            <ng-select name="taxName" [items]="taxSlabsData" bindLabel="text"
+                                            bindValue="id" placeholder="Select Tax Slab"
+                                            (change)="TaxSlabId = $event.id" [(ngModel)]="taxSlabValue">
+                                        </ng-select>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>ITC Type</label>
+                                            <ng-select name="ITCName" [items]="ListITCType" bindLabel="text"
+                                                bindValue="id" placeholder="Select ITC Type"
+                                                (change)="ITCTypeId = $event.id" [(ngModel)]="ITCTypeValue">
+                                            </ng-select>
+
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>RCM Type</label>
+                                            <ng-select name="RCMName" [items]="ListRCMType" bindLabel="text"
+                                            bindValue="id" placeholder="Select RCM Type"
+                                            (change)="RCMTypeId = $event.id" [(ngModel)]="RCMTypeValue">
+                                        </ng-select>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label class="active">HSN</label> <input type="text" class="form-control"
+                                                id="HSN" placeholder=" HSN" name='HSN' [(ngModel)]="HSNNo">
+                                        </div>
+                                    </ng-container>
+                                    <div class="form-group col-md-4">
+                                        <label for="bill_no">Country</label>
+                                        <ng-select #country_selecto name="CountryName" [items]="countryList"
+                                            bindLabel="text" bindValue="id" placeholder="Select Country"
+                                            (change)="selectCountryListId($event)" [(ngModel)]="countryValue">
+                                        </ng-select>
+
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="bill_no">State</label>
+                                        <ng-select #state_select2 name="StateName" [items]="stateList" bindLabel="text"
+                                            bindValue="id" placeholder="Select State" (change)="selectStatelist($event)"
+                                            [(ngModel)]="stateValue">
+                                        </ng-select>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="bill_no">City</label>
+                                        <ng-select #city_select2 name="CityName" [items]="cityList" bindLabel="text"
+                                            bindValue="id" placeholder="Select City" (change)="selectedCityId($event)"
+                                            [(ngModel)]="cityId">
+                                        </ng-select>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="">Address</label>
+                                        <textarea class="form-control"placeholder='Address' name='address' [(ngModel)]="address"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label class="active">Assets</label>
-                                    <input readonly type="text" class="form-control" formControlName ="Assets" placeholder="Enter Value">
+                                    <input readonly type="text" class="form-control" name='Assets' [(ngModel)]="Assets"
+                                        placeholder="Assets">
                                 </div>
-                               <div class="form-group col-md-4">
-                                    <label  class="active">Liabilities</label>
-                                    <input readonly type="text" class="form-control"  formControlName = "Liabilities" placeholder="Enter Value">
+                                <div class="form-group col-md-4">
+                                    <label class="active">Liabilities</label>
+                                    <input readonly type="text" class="form-control" name='Liabilities'
+                                        [(ngModel)]="Liabilities" placeholder="Liabilities">
                                 </div>
-                               <div class="form-group col-md-4">
+                                <div class="form-group col-md-4">
                                     <label class="active">Difference</label>
-                                    <input readonly type="text" class="form-control" formControlName="Difference" placeholder="Enter Value">
+                                    <input readonly type="text" class="form-control" name="Difference"
+                                        [(ngModel)]="Difference" placeholder="Difference">
                                 </div>
-                           </div>    
+                            </div>
 
 
-                           
+
                         </form>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <!-- <button type="button" (click)='clearValidation()' class="btn btn_close waves-effect" data-dismiss="modal">Close</button> -->
-                <button type="button"(click)="saveLedgerCreation('save')"  class="btn btn-primary waves-effect">Save </button>
-                <button type="button"(click)="saveLedgerCreation('new')"  class="btn btn-primary waves-effect">Save & Add New </button>
+                <button type="button" (click)="saveLedgerCreation('save')" class="btn btn-primary waves-effect">Save
+                </button>
+                <button type="button" (click)="saveLedgerCreation('new')" class="btn btn-primary waves-effect">Save &
+                    Add New </button>
 
             </div>
         </div>

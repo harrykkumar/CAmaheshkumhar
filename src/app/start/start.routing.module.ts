@@ -12,428 +12,479 @@ const routes: Routes = [
     children: [
       {
         path: 'admin',
-        // loadChildren: async () => {
-        //   const { AdminModule } = await import('../admin/admin.module');
-        //   return AdminModule;
-        // },
-        loadChildren: () => import('../admin/admin.module').then(m => m.AdminModule),
-
+       loadChildren: '../admin/admin.module#AdminModule'
       },
       {
         path: 'dashboard',
-        loadChildren: () => import('../start/dashboard/ims-dashboard/ims-dashboard.module').then(m => m.DashboardModule),
+       loadChildren: '../start/dashboard/ims-dashboard/ims-dashboard.module#DashboardModule'
+
+        // loadChildren: () => import('../start/dashboard/ims-dashboard/ims-dashboard.module').then(m => m.DashboardModule),
 
       },
       {
         path: 'ims/sale-travel',
-        loadChildren: () =>  import('../sales-travel/sales/sales.module').then(m => m.SalesTravelModule)
+        loadChildren:'../sales-travel/sales/sales.module#SalesTravelModule'
+       // loadChildren: () =>  import('../sales-travel/sales/sales.module').then(m => m.SalesTravelModule)
       },
       {
         path: 'ims/sale-travel/sale-return',
-        loadChildren: () =>  import('../sales-travel/sales-return/sales-return.module').then(m => m.SalesReturnModule)
+        loadChildren:'../sales-travel/sales-return/sales-return.module#SalesReturnModule'
+        // loadChildren: () =>  import('../sales-travel/sales-return/sales-return.module').then(m => m.SalesReturnModule)
        
       },
       {
         path: 'ims/sale-courier',
-        loadChildren: () =>  import('../sales-courier-local/sales-courier-local.module').then(m => m.SalesCourierLocalModule)
+        loadChildren: '../sales-courier-local/sales-courier-local.module#SalesCourierLocalModule'
          
       },
       {
         path: 'ims/sale-courier-parcel',
-        loadChildren: () => import('../sales-courier-parcel/sale-courier-parcel.module').then(m => m.SalesCourierParcelModule)
+        loadChildren:'../sales-courier-parcel/sale-courier-parcel.module#SalesCourierParcelModule'
          
       },
       {
         path: 'ims/unit',
-        loadChildren:  () => import('../transactionMaster/unit/unit.module').then(m => m.UnitModule)
+        loadChildren: '../transactionMaster/unit/unit.module#UnitModule'
           
       },
       {
         path: 'ims/category',
-        loadChildren:  () =>  import('../transactionMaster/category/category.module').then(m => m.CategoryModule)
+        loadChildren:  '../transactionMaster/category/category.module#CategoryModule'
                
       },
       {
         path: 'ims/composite',
-        loadChildren:  () =>  import('../transactionMaster/composite-unit/composite-unit.module').then(m => m.CompositeUnitModule)
+        loadChildren:  '../transactionMaster/composite-unit/composite-unit.module#CompositeUnitModule'
           
         
       },
       {
         path: 'ims/tax',
-        loadChildren:  () =>  import('../transactionMaster/tax/tax.module').then(m => m.TaxModule)
+        loadChildren:  '../transactionMaster/tax/tax.module#TaxModule'
           
       },
       {
         path: 'ims/item',
-        loadChildren:  () =>  import('../transactionMaster/item-master/item-master.module').then(m => m.ItemMasterModule)
+        loadChildren:  '../transactionMaster/item-master/item-master.module#ItemMasterModule'
                 
       },
       {
         path: 'ims/routing',
-        loadChildren:  () =>  import('../transactionMaster/route/route.module').then(m => m.RouteModule)
+        loadChildren:  '../transactionMaster/route/route.module#RouteModule'
            
       },
       {
         path: 'ims/customer',
-        loadChildren:  () =>  import('../transactionMaster/customer/customer.module').then(m => m.CustomerModule)
+        loadChildren:  '../transactionMaster/customer/customer.module#CustomerModule'
              },
       {
         path: 'ims/vendor',
-        loadChildren:  () => import('../transactionMaster/vendor/vendor.module').then(m => m.VendorModule)
+        loadChildren: '../transactionMaster/vendor/vendor.module#VendorModule'
             
       },
       {
         path: 'ims/sale-challan',
-        loadChildren:  () =>  import('../inventory/sales-challan/sales-challan/sales-challan.module').then(m => m.SalesChallanModule)
+        loadChildren:  '../inventory/sales-challan/sales-challan/sales-challan.module#SalesChallanModule'
        
       },
       {
         path: 'ims/attribute',
-        loadChildren:  () =>  import('../transactionMaster/attribute/attribute.module').then(m => m.AttributeModule)
+        loadChildren:  '../transactionMaster/attribute/attribute.module#AttributeModule'
          
       },
       {
         path: 'ims/purchase',
-        loadChildren:  () =>  import('../inventory/purchase/purchase.module').then(m => m.PurchaseModule)
+        loadChildren:  '../inventory/purchase/purchase.module#PurchaseModule'
          
       },
       {
         path: 'ims/report',
-        loadChildren:  () =>  import('../report/item-stock-report/item-stock-report.module').then(m => m.ItemStockReportModule)
+        loadChildren:  '../report/item-stock-report/item-stock-report.module#ItemStockReportModule'
           
       },
       {
         path: 'ims/profit-report',
-        loadChildren:  () => import('../report/profit-report/profit-report.module').then(m => m.ProfitReportModule)
+        loadChildren: '../report/profit-report/profit-report.module#ProfitReportModule'
        
       },
       {
         path: 'ims/attribute',
-        loadChildren:  () => import('../transactionMaster/attribute/attribute.module').then(m => m.AttributeModule)
+        loadChildren: '../transactionMaster/attribute/attribute.module#AttributeModule'
          
       },
       {
         path: 'owner/branch',
-        loadChildren:  () => import('./org-branch/org-branch-list/org-branch-list.module').then(m => m.OrgBranchModule)
+        loadChildren: './org-branch/org-branch-list/org-branch-list.module#OrgBranchModule'
          
       },
       {
         path: 'owner/branch/office',
-        loadChildren:  () =>  import('./org-branch/org-branch-office-list/org-branch-office-list.module').then(m => m.OrgBranchOfficeModule)
+        loadChildren:  './org-branch/org-branch-office-list/org-branch-office-list.module#OrgBranchOfficeModule'
         
       },
       {
         path: 'users',
-        loadChildren:  () =>  import('../user/user-list/user-list.module').then(m => m.UserListModule)
+        loadChildren:  '../user/user-list/user-list.module#UserListModule'
         
       },
       {
         path: 'usertypes',
-        loadChildren:  () =>  import('../user/user-type-list/user-type-list.module').then(m => m.UserTypeListModule)
+        loadChildren:  '../user/user-type-list/user-type-list.module#UserTypeListModule'
           
       },
       {
         path: 'user-rights',
-        loadChildren:  () =>  import('../user/user-rights/user-rights.module').then(m => m.UserRightsModule)
+        loadChildren:  '../user/user-rights/user-rights.module#UserRightsModule'
          
       },
       {
         path: 'ims/sale',
-        loadChildren:  () => import('../inventory/sale-direct/sale-direct.module').then(m => m.SalesDirectModule)
+        loadChildren: '../inventory/sale-direct/sale-direct.module#SalesDirectModule'
          
       },
       {
         path: 'ims/bank',
-        loadChildren:  () =>  import('../transactionMaster/bank/bank.module').then(m => m.BankModule)
+        loadChildren:  '../transactionMaster/bank/bank.module#BankModule'
          
       },
       {
         path: 'ims/report/item-category',
-        loadChildren:  () =>  import('../report/item-category-sale/item-sale-category-report.module').then(m => m.ItemSaleCategoryReportModule)
+        loadChildren:  '../report/item-category-sale/item-sale-category-report.module#ItemSaleCategoryReportModule'
         
       },
       {
         path: 'settings',
-        loadChildren:  () => import('../settings/settings.module').then(m => m.SettingsModule)
+        loadChildren: '../settings/settings.module#SettingsModule'
          
       },
       {
         path: 'account/ledgergroup',
-        loadChildren:  () =>  import('../transactionMaster/ledger-group/ledger-group.module').then(m => m.LedgerGroupModule)
+        loadChildren:  '../transactionMaster/ledger-group/ledger-group.module#LedgerGroupModule'
          
       },
       {
         path: 'account/ledgercreation',
-        loadChildren:  () =>  import('../transactionMaster/ledger-creation/ledger-creation.module').then(m => m.LedgerCreationModule)
+        loadChildren:  '../transactionMaster/ledger-creation/ledger-creation.module#LedgerCreationModule'
         
       },
       {
         path: 'account/ledger-summary',
-        loadChildren:  () =>  import('../report/ledger-summary/ledger-summary.module').then(m => m.LedgerSummaryModule)
+        loadChildren:  '../report/ledger-summary/ledger-summary.module#LedgerSummaryModule'
          
       },
       {
         path: 'account/balance-sheet',
-        loadChildren:  () => import('../account/balance-sheet/balance-sheet-report.module').then(m => m.BalanceSheetReportModule)
+        loadChildren: '../account/balance-sheet/balance-sheet-report.module#BalanceSheetReportModule'
           
       },
       {
         path: 'ims/report/sale-item',
-        loadChildren:  () =>  import('../report/item-sale-report/item-sale-report.module').then(m => m.ItemSaleReportModule)
+        loadChildren:  '../report/item-sale-report/item-sale-report.module#ItemSaleReportModule'
          
       },
       {
         path: 'opening-stk',
-        loadChildren:  () =>  import('../shared/transactionMaster/opening-stk/opening-stk.module').then(m => m.OpeningStkModule)
+        // loadChildren:  '../shared/transactionMaster/opening-stk/opening-stk.module').then(m => m.OpeningStkModule)
+        loadChildren:  '../shared/transactionMaster/opening-stk/opening-stk.module#OpeningStkModule'
          
       },
       {
         path: 'ims/report/purchase-item',
-        loadChildren:  () =>  import('../report/item-purchase-report/item-purchase-report.module').then(m => m.ItemPurchaseReportModule)
+        // loadChildren:  () =>  import('../report/item-purchase-report/item-purchase-report.module').then(m => m.ItemPurchaseReportModule)
+        loadChildren:'../report/item-purchase-report/item-purchase-report.module#ItemPurchaseReportModule'
+
           
       },
       {
         path: 'account/Profit-Loss',
-        loadChildren:  () => import('../account/profit-and-loss/profit-and-loss-report.module').then(m => m.ProfitAndLossReportModule)
+        // loadChildren:  () => import('../account/profit-and-loss/profit-and-loss-report.module').then(m => m.ProfitAndLossReportModule)
+        loadChildren: '../account/profit-and-loss/profit-and-loss-report.module#ProfitAndLossReportModule'
+
          
       },
       {
         path: 'account/trading',
-        loadChildren:  () =>  import('../account/trading/trading-report.module').then(m => m.TradingReportModule)
+        // loadChildren:  () =>  import('../account/trading/trading-report.module').then(m => m.TradingReportModule)
+        loadChildren:'../account/trading/trading-report.module#TradingReportModule'
           
       },
       {
         path: 'ims/voucher-entry',
-        loadChildren:  () =>  import('../inventory/voucher-entry/voucher-entry.module').then(m => m.VoucherEntryModule)
+        // loadChildren:  () =>  import('../inventory/voucher-entry/voucher-entry.module').then(m => m.VoucherEntryModule)
+        loadChildren:'../inventory/voucher-entry/voucher-entry.module#VoucherEntryModule'
+
     ,
         pathMatch: 'full'
       },
       {
         path: 'common-menu/:code',
-        loadChildren:  () => import('../start/common-menu/common-menu.module').then(m => m.CommonMenuModule)
+        // loadChildren:  () => import('../start/common-menu/common-menu.module').then(m => m.CommonMenuModule)
+        loadChildren:'../start/common-menu/common-menu.module#CommonMenuModule'
+
          
       },
       {
         path: 'transaction-number',
-        loadChildren:  () =>  import('../shared/transaction-number/transaction-number.module').then(m => m.TransactionNumberModule)
+        // loadChildren:  () =>  import('../shared/transaction-number/transaction-number.module').then(m => m.TransactionNumberModule)
+        loadChildren:'../shared/transaction-number/transaction-number.module#TransactionNumberModule'
+
         
       },
       {
         path: 'sample-approval',
-        loadChildren:  () => import('../Manufacturer/sample-approval/sample-approval.module').then(m => m.SampleApprovalModule)
+        // loadChildren:  () => import('../Manufacturer/sample-approval/sample-approval.module').then(m => m.SampleApprovalModule)
+        loadChildren: '../Manufacturer/sample-approval/sample-approval.module#SampleApprovalModule'
+
         
       },
       {
         path: 'style',
-        loadChildren:  () => import('../Manufacturer/style/style.module').then(m => m.StyleModule)
+        // loadChildren:  () => import('../Manufacturer/style/style.module').then(m => m.StyleModule)
+        loadChildren:'../Manufacturer/style/style.module#StyleModule'
       
       },
       {
         path: 'material-requirement',
-        loadChildren:  () =>  import('../Manufacturer/item-requirement/item-requirement.module').then(m => m.ItemRequirementModule)
+        // loadChildren:  () =>  import('../Manufacturer/item-requirement/item-requirement.module').then(m => m.ItemRequirementModule)
+        loadChildren:'../Manufacturer/item-requirement/item-requirement.module#ItemRequirementModule'
          
       },
       {
         path: 'ims/report/item-inventory',
-        loadChildren:  () => import('../report/item-inventory-report/item-inventory-report.module').then(m => m.ItemInventoryReportModule)
+        // loadChildren:  () => import('../report/item-inventory-report/item-inventory-report.module').then(m => m.ItemInventoryReportModule)
+        loadChildren: '../report/item-inventory-report/item-inventory-report.module#ItemInventoryReportModule'
+
           
       },
       {
         path: 'account/trail-balance',
-        loadChildren:  () =>  import('../account/trail-balance/trail-balance-report.module').then(m => m.TrailBalanceReportModule)
+        // loadChildren:  () =>  import('../account/trail-balance/trail-balance-report.module').then(m => m.TrailBalanceReportModule)
+        loadChildren:'../account/trail-balance/trail-balance-report.module#TrailBalanceReportModule'
           
       },
       {
         path: 'ims/report/cashbook',
-        loadChildren:  () => import('../report/cashbook/cashbook.module').then(m => m.CashBookModule)
+        loadChildren: '../report/cashbook/cashbook.module#CashBookModule'
+        // loadChildren:  () => import('../report/cashbook/cashbook.module').then(m => m.CashBookModule)
          
       },
       {
         path: 'ims/report/daybook',
-        loadChildren:  () =>  import('../report/daybook/daybook.module').then(m => m.DayBookModule)
+        loadChildren:'../report/daybook/daybook.module#DayBookModule'
+        // loadChildren:  () =>  import('../report/daybook/daybook.module').then(m => m.DayBookModule)
          
       },
       {
         path: 'report/item-group-stock',
-        loadChildren:  () =>  import('../report/item-group-stock/item-group-stock.module').then(m => m.ItemGroupStockModule)
+        loadChildren:'../report/item-group-stock/item-group-stock.module#ItemGroupStockModule'
+        // loadChildren:  () =>  import('../report/item-group-stock/item-group-stock.module').then(m => m.ItemGroupStockModule)
          
       }
       , {
         path: 'report/outstanding-payables',
-        // loadChildren: '../report/outstanding-payables-report/outstanding-payables-report.module#OutStandingPayablesReportModule'
-        loadChildren:  () => import('../report/outstanding-payables-report/outstanding-payables-report.module').then(m => m.OutStandingPayablesReportModule)
+        loadChildren: '../report/outstanding-payables-report/outstanding-payables-report.module#OutStandingPayablesReportModule'
+        // loadChildren:  () => import('../report/outstanding-payables-report/outstanding-payables-report.module').then(m => m.OutStandingPayablesReportModule)
          
       }
       , {
         path: 'report/outstanding-receiables',
-        //loadChildren: '../report/outstanding-receiables-report/outstanding-receiables-report.module#OutStandingReceiablesReportModule'
-        loadChildren:  () => import('../report/outstanding-receiables-report/outstanding-receiables-report.module').then(m => m.OutStandingReceiablesReportModule)
+        loadChildren: '../report/outstanding-receiables-report/outstanding-receiables-report.module#OutStandingReceiablesReportModule'
+        // loadChildren:  () => import('../report/outstanding-receiables-report/outstanding-receiables-report.module').then(m => m.OutStandingReceiablesReportModule)
          
       }
       , {
         path: 'ims/report/cashbook-day',
-        //  loadChildren: '../report/cashbook-dayBalance/cashbook-dayBalance.module#CashBookDayBalanceModule'
-        loadChildren:  () =>  import('../report/cashbook-dayBalance/cashbook-dayBalance.module').then(m => m.CashBookDayBalanceModule)
+         loadChildren: '../report/cashbook-dayBalance/cashbook-dayBalance.module#CashBookDayBalanceModule'
+        // loadChildren:  () =>  import('../report/cashbook-dayBalance/cashbook-dayBalance.module').then(m => m.CashBookDayBalanceModule)
           
       },
       {
         path: 'ims/report/bankbook',
-        // loadChildren: '../report/bankbook/bankbook.module#BankBookModule'
-        loadChildren:  () => import('../report/bankbook/bankbook.module').then(m => m.BankBookModule)
+        loadChildren: '../report/bankbook/bankbook.module#BankBookModule'
+        // loadChildren:  () => import('../report/bankbook/bankbook.module').then(m => m.BankBookModule)
           
       },
       {
         path: 'ims/report/purchase-register',
-        //  loadChildren: '../report/purchase-register/purchase-register.module#PurchaseRegisterModule'
-        loadChildren:  () =>  import('../report/purchase-register/purchase-register.module').then(m => m.PurchaseRegisterModule)
+         loadChildren: '../report/purchase-register/purchase-register.module#PurchaseRegisterModule'
+        // loadChildren:  () =>  import('../report/purchase-register/purchase-register.module').then(m => m.PurchaseRegisterModule)
           
       },
       {
         path: 'ims/report/sale-register',
-        // loadChildren: '../report/sale-register/sale-register.module#SaleRegisterModule'
-        loadChildren:  () =>  import('../report/sale-register/sale-register.module').then(m => m.SaleRegisterModule)
+        loadChildren: '../report/sale-register/sale-register.module#SaleRegisterModule'
+        // loadChildren:  () =>  import('../report/sale-register/sale-register.module').then(m => m.SaleRegisterModule)
         
       },
       {
         path: 'ims/report/purchase-summary',
-        // loadChildren: '../report/purchase-summary/purchase-summary.module#PurchaseSummaryReportModule'
-        loadChildren:  () =>  import('../report/purchase-summary/purchase-summary.module').then(m => m.PurchaseSummaryReportModule)
+        loadChildren: '../report/purchase-summary/purchase-summary.module#PurchaseSummaryReportModule'
+        // loadChildren:  () =>  import('../report/purchase-summary/purchase-summary.module').then(m => m.PurchaseSummaryReportModule)
          
       },
       {
         path: 'ims/report/sale-summary',
-        // loadChildren: '../report/sale-summary/sale-summary.module#SaleSummaryReportModule'
-        loadChildren:  () => import('../report/sale-summary/sale-summary.module').then(m => m.SaleSummaryReportModule)
+        loadChildren: '../report/sale-summary/sale-summary.module#SaleSummaryReportModule'
+        // loadChildren:  () => import('../report/sale-summary/sale-summary.module').then(m => m.SaleSummaryReportModule)
          
       },
       {
         path: 'ims/report/journal-register',
-        // loadChildren: '../report/journal-register/journal-register.module#JournalRegisterModule'
-        loadChildren:  () =>  import('../report/journal-register/journal-register.module').then(m => m.JournalRegisterModule)
+        loadChildren: '../report/journal-register/journal-register.module#JournalRegisterModule'
+        // loadChildren:  () =>  import('../report/journal-register/journal-register.module').then(m => m.JournalRegisterModule)
          
       },
       {
         path: 'ims/service',
-        // loadChildren: '../transactionMaster/service-item/service-item.module#ServiceItemMasterModule'
-        loadChildren:  () =>  import('../transactionMaster/service-item/service-item.module').then(m => m.ServiceItemMasterModule)
+        loadChildren: '../transactionMaster/service-item/service-item.module#ServiceItemMasterModule'
+        // loadChildren:  () =>  import('../transactionMaster/service-item/service-item.module').then(m => m.ServiceItemMasterModule)
           
       },
       {
         path: 'ims/service-billing',
-        loadChildren:  () =>  import('../inventory/service-billing/serviceBilling.module').then(m => m.serviceBillingModule)
+        loadChildren: '../inventory/service-billing/serviceBilling.module#serviceBillingModule'
+
+        // loadChildren:  () =>  import('../inventory/service-billing/serviceBilling.module').then(m => m.serviceBillingModule)
          
       },
       {
         path: 'ims/sale-return',
-        // loadChildren: '../inventory/sale-direct/sales-return/saleReturn.module#SaleDirectReturnModule'
-        loadChildren:  () => import('../inventory/sale-direct/sales-return/saleReturn.module').then(m => m.SaleDirectReturnModule)
+        loadChildren: '../inventory/sale-direct/sales-return/saleReturn.module#SaleDirectReturnModule'
+        // loadChildren:  () => import('../inventory/sale-direct/sales-return/saleReturn.module').then(m => m.SaleDirectReturnModule)
          
       },
       {
         path: 'ims/purchase-return',
-        // loadChildren: '../inventory/purchase/purchase-return/purchaseReturn.module#PurchaseReturnModule'
-        loadChildren:  () =>  import('../inventory/purchase/purchase-return/purchaseReturn.module').then(m => m.PurchaseReturnModule)
+        loadChildren: '../inventory/purchase/purchase-return/purchaseReturn.module#PurchaseReturnModule'
+        // loadChildren:  () =>  import('../inventory/purchase/purchase-return/purchaseReturn.module').then(m => m.PurchaseReturnModule)
          
       },
       {
         path: 'report/gstr-anx-1-summary',
-        // loadChildren: '../report/gstr-anx-1-list/gstr-anx-1-list.module#GstrAnx1ListModule'
-        loadChildren: async () => import('../report/gstr-anx-1-list/gstr-anx-1-list.module').then(m => m.GstrAnx1ListModule)
+        loadChildren: '../report/gstr-anx-1-list/gstr-anx-1-list.module#GstrAnx1ListModule'
+        // loadChildren: async () => import('../report/gstr-anx-1-list/gstr-anx-1-list.module').then(m => m.GstrAnx1ListModule)
          
       },
       {
         path: 'report/gstr-anx-1-b2c-details',
-        // loadChildren: '../report/gstr-anx-1-b2c-details/gstr-anx-1-b2c-details.module#GstrAnx1B2cDetailsModule'
-        loadChildren:  () =>  import('../report/gstr-anx-1-b2c-details/gstr-anx-1-b2c-details.module').then(m => m.GstrAnx1B2cDetailsModule)
+        loadChildren: '../report/gstr-anx-1-b2c-details/gstr-anx-1-b2c-details.module#GstrAnx1B2cDetailsModule'
+        // loadChildren:  () =>  import('../report/gstr-anx-1-b2c-details/gstr-anx-1-b2c-details.module').then(m => m.GstrAnx1B2cDetailsModule)
          
       },
       {
         path: 'report/gstr-anx-1-b2b-details',
-        // loadChildren: '../report/gstr-anx-1-b2b-details/gstr-anx-1-b2b-details.module#GstrAnx1B2bDetailsModule'
-        loadChildren:  () =>  import('../report/gstr-anx-1-b2b-details/gstr-anx-1-b2b-details.module').then(m => m.GstrAnx1B2bDetailsModule)
+        loadChildren: '../report/gstr-anx-1-b2b-details/gstr-anx-1-b2b-details.module#GstrAnx1B2bDetailsModule'
+        // loadChildren:  () =>  import('../report/gstr-anx-1-b2b-details/gstr-anx-1-b2b-details.module').then(m => m.GstrAnx1B2bDetailsModule)
  
       },
       {
         path: 'report/gstr-anx-2-summary',
-        // loadChildren: '../report/gstr-anx-2-list/gstr-anx-2-list.module#GstrAnx2ListModule'
-        loadChildren:  () =>import('../report/gstr-anx-2-list/gstr-anx-2-list.module').then(m => m.GstrAnx2ListModule)
+        loadChildren: '../report/gstr-anx-2-list/gstr-anx-2-list.module#GstrAnx2ListModule'
+        // loadChildren:  () =>import('../report/gstr-anx-2-list/gstr-anx-2-list.module').then(m => m.GstrAnx2ListModule)
    
       },
       {
         path: 'report/gstr-anx-2-details',
-        // loadChildren: '../report/gstr-anx-2-details/gstr-anx-2-details.module#GstrAnxTwoDetailsModule'
-        loadChildren: () => import('../report/gstr-anx-2-details/gstr-anx-2-details.module').then(m => m.GstrAnxTwoDetailsModule)
+        loadChildren: '../report/gstr-anx-2-details/gstr-anx-2-details.module#GstrAnxTwoDetailsModule'
+        // loadChildren: () => import('../report/gstr-anx-2-details/gstr-anx-2-details.module').then(m => m.GstrAnxTwoDetailsModule)
   
       },
       {
         path: 'ims/Terms&Condition',
-        // loadChildren: '../transactionMaster/terms-and-condition/terms-and-condition.module#TermsAndConditionModule'
-        loadChildren: async () =>  import('../transactionMaster/terms-and-condition/terms-and-condition.module').then(m => m.TermsAndConditionModule)
+        loadChildren: '../transactionMaster/terms-and-condition/terms-and-condition.module#TermsAndConditionModule'
+        // loadChildren: async () =>  import('../transactionMaster/terms-and-condition/terms-and-condition.module').then(m => m.TermsAndConditionModule)
    
       },
       {
         path: 'report/msmed-outstanding',
-        // loadChildren: '../report/msmed-outstanding/msmed-outstanding.module#MsmedOutstandingModule'
-        loadChildren: () =>  import('../report/msmed-outstanding/msmed-outstanding.module').then(m => m.MsmedOutstandingModule)
+        loadChildren: '../report/msmed-outstanding/msmed-outstanding.module#MsmedOutstandingModule'
+        // loadChildren: () =>  import('../report/msmed-outstanding/msmed-outstanding.module').then(m => m.MsmedOutstandingModule)
          
       },
       {
         path: 'report/msmed-outstanding/:id/details',
-        // loadChildren: '../report/msmed-outstanding-details/msmed-outstanding-details.module#MsmedOutstandingDetailsModule'
-        loadChildren:  () =>  import('../report/msmed-outstanding-details/msmed-outstanding-details.module').then(m => m.MsmedOutstandingDetailsModule)
+        loadChildren: '../report/msmed-outstanding-details/msmed-outstanding-details.module#MsmedOutstandingDetailsModule'
+        // loadChildren:  () =>  import('../report/msmed-outstanding-details/msmed-outstanding-details.module').then(m => m.MsmedOutstandingDetailsModule)
         
       },
       {
         path: 'report/msmed-outstanding/details',
-        // loadChildren: '../report/msmed-outstanding-details/msmed-outstanding-details.module#MsmedOutstandingDetailsModule'
-        loadChildren:  () =>  import('../report/msmed-outstanding-details/msmed-outstanding-details.module').then(m => m.MsmedOutstandingDetailsModule)
+        loadChildren: '../report/msmed-outstanding-details/msmed-outstanding-details.module#MsmedOutstandingDetailsModule'
+        // loadChildren:  () =>  import('../report/msmed-outstanding-details/msmed-outstanding-details.module').then(m => m.MsmedOutstandingDetailsModule)
    
       },
       {
         path: 'report/dues-overdues-outstanding',
-        // loadChildren: '../report/dues-overdues-outstanding/dues-overdues-outstanding.module#DuesOverduesOutstandingModule'
-        loadChildren:  () =>  import('../report/dues-overdues-outstanding/dues-overdues-outstanding.module').then(m => m.DuesOverduesOutstandingModule)
+        loadChildren: '../report/dues-overdues-outstanding/dues-overdues-outstanding.module#DuesOverduesOutstandingModule'
+        // loadChildren:  () =>  import('../report/dues-overdues-outstanding/dues-overdues-outstanding.module').then(m => m.DuesOverduesOutstandingModule)
          
       },
       {
         path: 'change-password',
-        // loadChildren: './change-password/change-password.module#ChangePasswordModule'
-        loadChildren:  () =>  import('./change-password/change-password.module').then(m => m.ChangePasswordModule)
+        loadChildren: './change-password/change-password.module#ChangePasswordModule'
+        // loadChildren:  () =>  import('./change-password/change-password.module').then(m => m.ChangePasswordModule)
   
       },
       {
         path: 'ims/discount-master',
-        // loadChildren: '../transactionMaster/discount-master/discount-master.module#DiscountMasterModule'
-        loadChildren:  () =>  import('../transactionMaster/discount-master/discount-master.module').then(m => m.DiscountMasterModule)
+        loadChildren: '../transactionMaster/discount-master/discount-master.module#DiscountMasterModule'
+        // loadChildren:  () =>  import('../transactionMaster/discount-master/discount-master.module').then(m => m.DiscountMasterModule)
         
       },
       {
         path: 'super-admin/client',
-        loadChildren:  () =>  import('../super-admin/client/client.module').then(m => m.ClientModule)
+        loadChildren: '../super-admin/client/client.module#ClientModule'
+        // loadChildren:  () =>  import('../super-admin/client/client.module').then(m => m.ClientModule)
       },
       {
         path: 'super-admin/menu',
-        loadChildren:  () =>  import('../super-admin/menu/menu.module').then(m => m.MenuModule)
+        loadChildren:'../super-admin/menu/menu.module#MenuModule'
+        // loadChildren:  () =>  import('../super-admin/menu/menu.module').then(m => m.MenuModule)
+      },
+      {
+        path: 'super-admin/master-setting',
+        loadChildren: "../super-admin/admin-master-setting/admin-master-setting.module#AdminMasterSettingModule"
       },
       {
         path: 'ims',
-        loadChildren:  () =>  import('../transactionMaster/customRate/custom-rate.module').then(m => m.CustomRateModule)
+        loadChildren:'../transactionMaster/customRate/custom-rate.module#CustomRateModule'
+        // loadChildren:  () =>  import('../transactionMaster/customRate/custom-rate.module').then(m => m.CustomRateModule)
       },
       {
         path: 'additional',
-        loadChildren:  () =>  import('../additional-settings/additional-settings.module').then(m => m.AdditionalSettingsModule)
+        loadChildren:'../additional-settings/additional-settings.module#AdditionalSettingsModule'
+        // loadChildren:  () =>  import('../additional-settings/additional-settings.module').then(m => m.AdditionalSettingsModule)
       },
       {
         path: 'manufacturing',
-        loadChildren:  () =>  import('../Manufacturer/manufacturing.module').then(m => m.ManufacturingModule)
+        loadChildren:'../Manufacturer/manufacturing.module#ManufacturingModule'
+        // loadChildren:  () =>  import('../Manufacturer/manufacturing.module').then(m => m.ManufacturingModule)
       },
       {
         path: 'ims/item-active-status',  
-        loadChildren:  () =>  import('../transactionMaster/active-inventory/activeInventory.module').then(m => m.ActiveInventoryModule)
-         
+        loadChildren:'../transactionMaster/active-inventory/activeInventory.module#ActiveInventoryModule'
+        // loadChildren:  () =>  import('../transactionMaster/active-inventory/activeInventory.module').then(m => m.ActiveInventoryModule)
       },
-      
+      {
+        path: 'report/packed-orders',
+        loadChildren:'../report/packed-orders-report/packed-orders-report.module#PackedOrderReportModule'
+        // loadChildren: () => import('../report/packed-orders-report/packed-orders-report.module').then(m => m.PackedOrderReportModule)
+      },
+      {
+        path: 'report/packed-packets',
+        loadChildren:'../report/packed-packets/packed-packets-report.module#PackedPacketsReportingModule'
+        // loadChildren: () => import ('../report/packed-packets/packed-packets-report.module').then(m => m.PackedPacketsReportingModule)
+      },
+      {
+        path: 'report/packed-items',
+        loadChildren:'../report/packed-items/packed-items-report.module#PackedItemsReportModule'
+        // loadChildren: () => import ('../report/packed-items/packed-items-report.module').then(m => m.PackedItemsReportModule)
+      },
+      {
+        path: 'ims/report/active-inventory-item',
+        loadChildren:'../report/active-inventory-item/active-inventory-item.module#ActiveInventoryItemModule'
+        // loadChildren:  () =>  import('../report/active-inventory-item/active-inventory-item.module').then(m => m.ActiveInventoryItemModule)  
+      },
     ]
   }
 ]

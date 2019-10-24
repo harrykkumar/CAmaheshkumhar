@@ -11,17 +11,22 @@
             </div>
             <div class="col-md-6">
               <div class="btn_header">
-                <a (click)="postData()" class="btn btn-default waves-effect">Save </a>
-                <!-- <a class="btn btn-info waves-effect">Save and New</a> -->
-                <button type="button" class="close" (click)="closeModal()" aria-label="Close"><span aria-hidden="true"
-                    class="white-text">×</span> </button>
+                <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+                  <span aria-hidden="true" class="white-text">×</span>
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
       <!--Body-->
-      <div class="modal-body">
+      <div *ngIf="loading" class="modal-content">
+        <div class="modal-body" style="height:inherit;">
+          <img src="assets/img/spinner-blue-circle.gif" alt="loading screen"
+            style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+        </div>
+      </div>
+      <div class="modal-body" *ngIf="!loading" >
         <div class="row">
           <div class="col-md-8">
             <form #packagingForm="ngForm" (ngSubmit)="validateItems() && tempAdd()" #packingModelForm>
@@ -45,6 +50,17 @@
                     <label>P.Code</label>
                     <input type="text" readonly [(ngModel)]="masterData.Code" name="pCode" class="form-control">
                   </div>
+                  <div class="form-group col-lg-2">
+                      <label class="fw-500">On Date</label>
+                      <datepicker-popup
+                        [toSetDate]="masterData?.CurrentDate" 
+                        (dateInFormat)="masterData.Date = $event;showDate(masterData.Date)"
+                        [applyFinYear]="true"
+                        [class]="{ errorSelecto:
+                          packagingForm?.submitted && !masterData.Date}"
+                      >
+                      </datepicker-popup>
+                    </div>
                   <div class="form-group mt-3">
                     <button type="submit" class="btn btn-primary waves-effect waves-light" >Done</button>
                   </div>
@@ -85,25 +101,32 @@
                           <td>
                             <input type="number" class="form-control" name="packedQty-{{ i }}"
                             [(ngModel)]="item.Quantity" limitqty
-                            [maxNum]="item.UnPackedQty" 
+                            [maxNum]="item.UnPackedQty"
                           />
                           </td>
                         </tr>
                       </ng-container>
                       <ng-container *ngIf="editItemMode" >
-                        <tr>
-                          <td></td>
-                          <td>{{ masterData?.itemToEdit?.Sno }}</td>
-                          <td>{{ masterData?.itemToEdit?.itemName }}</td>
-                          <td *ngIf="this.masterData?.isAttr" >{{ masterData?.itemToEdit?.defaultAttrName }}</td>
-                          <td *ngIf="this.masterData?.isAttr" >{{ masterData?.itemToEdit?.attributeValueName }}</td>
-                          <td>{{ masterData?.itemToEdit?.OrderQty }}</td>
-                          <td>{{ masterData?.itemToEdit?.UnPackedQty }}</td>
+                        <tr class="default_row attr-cont" *ngFor="let item of this.masterData?.itemToEdit; let i = index">
                           <td>
-                            <input type="number" class="form-control" name="packedQuantity"
-                              [(ngModel)]="masterData?.itemToEdit.Quantity" limitqty
-                              [maxNum]="masterData?.itemToEdit.UnPackedQty"
-                            />
+                            <div class="custom-control custom-checkbox">
+                              <input name="checkOrder-{{ i }}" [(ngModel)]="item.checked"
+                              (keydown.enter)="item.checked = !item.checked"
+                              type="checkbox" class="custom-control-input" id="orderAttribute-{{ i }}" />
+                              <label class="custom-control-label" for="orderAttribute-{{ i }}"></label>
+                            </div>
+                          </td>
+                          <td>{{ item?.Sno }}</td>
+                          <td>{{ item?.itemName }}</td>
+                          <td *ngIf="this.masterData?.isAttr" >{{ item?.defaultAttrName }}</td>
+                          <td *ngIf="this.masterData?.isAttr" >{{ item?.attributeValueName }}</td>
+                          <td>{{ item?.OrderQty }}</td>
+                          <td>{{ item?.UnPackedQty }}</td>
+                          <td>
+                            <input type="number" class="form-control" name="packedQty-{{ i }}"
+                            [(ngModel)]="item.Quantity" limitqty
+                            [maxNum]="item.UnPackedQty"
+                          />
                           </td>
                         </tr>
                       </ng-container>
@@ -115,61 +138,104 @@
           </div>
           <div class="col-md-4">
             <h6 style="text-align: center;" *ngIf="previousPacketItems && previousPacketItems.length > 0" >Previous Packets</h6>
-            <div class="card table-responsive table_height4" *ngIf="previousPacketItems && previousPacketItems.length > 0" >
-              <table class="table previous-packets table-hover">
-                <thead>
-                  <tr>
-                    <th>S.NO.</th>
-                    <th>P.Code</th>
-                    <th>Qty</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let item of previousPacketItems; let i = index" >
-                    <td>{{i + 1}}</td>
-                    <td>{{item.Code}}</td>
-                    <td>{{item.Quantity}}</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="bs-example">
+              <div class="accordion" id="accordionExample">
+                <div class="card" *ngFor="let packet of previousPacketItems; let i = index;" >
+                  <div class="card-header d-flex align-items-center" id="headingOne">
+                    <div class="col-md-2">{{i+1}}</div>
+                    <div class="col-md-4">
+                      <button type="button" class="btn_collaspe collapsed" attr.data-target="#collapse{{packet.code}}"
+                        data-toggle="collapse" >{{packet?.code}}</button>
+                    </div>
+                    <div class="col-md-3">{{packet?.count}}</div>
+                    <div class="col-md-1" ></div>
+                    <div class="col-md-2 accordion-head"> 
+                      <button type="button" class="btn_collaspe collapsed" attr.data-target="#collapse{{packet.code}}"
+                      data-toggle="collapse" ><i class="fa fa-angle-down" aria-hidden="true"></i></button></div>
+                  </div>
+                  <div id="collapse{{packet.code}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                    <div class="card-body p-2">
+                      <div class="table-responsive table-item-attribute">
+                        <table class="table new-packets table-hover">
+                          <thead>
+                            <tr>
+                              <th>S.NO.</th>
+                              <th>Item</th>
+                              <th>Qty</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let item of packet.packets; let i = index" >
+                              <td>{{i + 1}}</td>
+                              <td>{{item.Name}}</td>
+                              <td>{{item.Quantity}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <br>
-            <h6 style="text-align: center;" *ngIf="this.masterData?.itemToPack?.length > 0" >Order Packets</h6>
-            <div class="card table-responsive table_height4" *ngIf="this.masterData?.itemToPack?.length > 0" >
-              <table class="table new-packets table-hover">
-                <thead>
-                  <tr>
-                    <th>S.NO.</th>
-                    <th>P.Code</th>
-                    <th>Qty</th>
-                  <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let item of this.masterData?.itemToPack; let i = index" >
-                    <td>{{i + 1}}</td>
-                    <td>{{item.Code}}</td>
-                    <td>{{item.Quantity}}</td>
-                    <td>
-                      <a (click)="editItem(item)">
+            <h6 style="text-align: center;" *ngIf="this.masterData?.packets?.length > 0" >Order Packets</h6>
+            <div class="bs-example">
+              <div class="accordion" id="accordionExample">
+                <div class="card" *ngFor="let packet of masterData?.packets; let i = index;" >
+                  <div class="card-header d-flex align-items-center" id="headingOne">
+                    <div class="col-md-2">{{i+1}}</div>
+                    <div class="col-md-4">
+                      <button type="button" class="btn_collaspe collapsed" attr.data-target="#collapse{{packet.code}}"
+                        data-toggle="collapse" >{{packet?.code}}</button>
+                    </div>
+                    <div class="col-md-2">{{packet?.count}}</div>
+                    <div class="col-md-3" >
+                      <a (click)="editItem(packet.packets, i)">
                       <i class="fas fa-pen fa-1x"></i>
                       </a>
-                      <a (click)="deleteItem(item)">
-                          <i class="fas fa-trash fa-1x"></i>
-                          </a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                      <a (click)="deleteItem(packet.packets, i)">
+                      <i class="fas fa-trash fa-1x"></i>
+                      </a>
+                    </div>
+                    <div class="col-md-1 accordion-head"> 
+                      <button type="button" class="btn_collaspe collapsed" attr.data-target="#collapse{{packet.code}}"
+                      data-toggle="collapse" ><i class="fa fa-angle-down" aria-hidden="true"></i></button></div>
+                  </div>
+                  <div id="collapse{{packet.code}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                    <div class="card-body p-2">
+                      <div class="table-responsive table-item-attribute">
+                        <table class="table new-packets table-hover">
+                          <thead>
+                            <tr>
+                              <th>S.NO.</th>
+                              <th>Item</th>
+                              <th>Qty</th>
+                            <!-- <th></th> -->
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let item of packet.packets; let i = index" >
+                              <td>{{i + 1}}</td>
+                              <td>{{item.itemName}}({{ item?.defaultAttrName }}, {{ item?.attributeValueName }})</td>
+                              <td>{{item.Quantity}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer footer-fixed footer_modal_form">
-        <button type="submit" class="btn waves-effect btn-succ-ess" >
-          Save
+        <button type="submit" class="btn waves-effect btn-succ-ess" (click)="postData()" >
+          Save <i class="fa fa-spinner fa-spin" *ngIf="disableBtnSubmit"></i>
         </button>
-        <button type="button" class="btn waves-effect btn-default def-ault-btn" >
+        <button type="button" class="btn waves-effect btn-default def-ault-btn" (click)="closeModal()" >
           Close
         </button>
       </div>
@@ -177,13 +243,11 @@
   </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
+  <!-- <td>
+    <a (click)="editItem(item)">
+    <i class="fas fa-pen fa-1x"></i>
+    </a>
+    <a (click)="deleteItem(item)">
+    <i class="fas fa-trash fa-1x"></i>
+    </a>
+  </td> -->

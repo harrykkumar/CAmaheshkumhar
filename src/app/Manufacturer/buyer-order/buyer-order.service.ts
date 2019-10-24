@@ -42,7 +42,7 @@ export class BuyerOrderService {
   }
 
   postBuyerOrderData(Data){
-    return this.baseService.postRequest(ApiConstant.BUYER_ORDER, Data)
+    return this.gs.manipulateResponse(this.baseService.postRequest(ApiConstant.BUYER_ORDER, Data))
   }
 
   getBuyerOrderData(id){

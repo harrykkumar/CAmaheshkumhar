@@ -3,7 +3,9 @@ import { RouterModule, Routes } from '@angular/router'
 import { AdminComponent } from './admin/admin.component'
 
 const routes: Routes = [
-  { path: '', component: AdminComponent }
+  {
+    path: '', component: AdminComponent
+  }
 ]
 
 @NgModule({
@@ -12,4 +14,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule]
 })
-export class AdminRoutingModule {}
+export class AdminRoutingModule { }
