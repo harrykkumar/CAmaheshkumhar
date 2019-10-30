@@ -11,7 +11,7 @@
                             <form [formGroup]="searchForm">
                                 <div id="custom-search-input" class="btn_header1">
                                     <div class="input-group col-md-12">
-                                        <input type="text" 
+                                        <input type="text"
                                         class="form-control input-lg"
                                         placeholder="Search"
                                         formControlName="searckKey"
@@ -34,9 +34,13 @@
                           <img src="assets/img/pdf.png"></a>
                         <a>
                           <img (click)="importExcelFile(saleTravelDetails)"  src="assets/img/excel.png"></a>
-                            <button  [disabled]="generateBillFlagEnable" type="button" class="btn btn-primary waves-effect waves-light" (click)="onOpenChallanBilling()" >Generate bill
+                            <button
+                            *ngIf="menuData?.write || menuData?.delete"
+                              [disabled]="generateBillFlagEnable" type="button" class="btn btn-primary waves-effect waves-light" (click)="onOpenChallanBilling()" >Generate bill
                           Challan</button>
-                        <button type="button" class="btn btn-primary waves-effect waves-light" (click)="onOpenInvoice('')" >New
+                        <button
+                        *ngIf="menuData?.write || menuData?.delete"
+                        type="button" class="btn btn-primary waves-effect waves-light" (click)="onOpenInvoice('')" >New
                           Challan</button>
                           <a class="btn btn-info"
                           data-toggle="collapse"
@@ -61,12 +65,12 @@
                 <div class="form row">
                   <div class="form-group col-md-3 ">
                     <label>Ledger</label>
-                    <ng-select name="formTypeNmae" 
-                    [items]="ledgerItemList" 
-                    bindLabel="text" 
+                    <ng-select name="formTypeNmae"
+                    [items]="ledgerItemList"
+                    bindLabel="text"
                     bindValue="id"
-                    placeholder="Select Ledger" 
-                    (change)="onLedgerItemChange($event)" 
+                    placeholder="Select Ledger"
+                    (change)="onLedgerItemChange($event)"
                     [(ngModel)]="ledgerItemId">
                     </ng-select>
                   </div>
@@ -74,28 +78,28 @@
                       <label>Status</label>
                       <div class="input-group adw_select">
                           <div class="input-group adw_select">
-                              <select2 #date_status id="vendor" 
+                              <select2 #date_status id="vendor"
                                   [data]="dataStatus" class="control_select"
                                   autocomplete="true"
                                   (valueChanged)="StausType = +$event.value;"
-                                 
+
                                   [value]="StausValue">
                               </select2>
                           </div>
                       </div>
-                    
+
                     </div>
                   <div class="form-group col-md-2 ">
                     <label class="fw-500">From</label>
                     <div class="timepicker-input input-icon form-group">
-                      <datepicker-popup [toSetDate]="fromDatevalue" 
+                      <datepicker-popup [toSetDate]="fromDatevalue"
                       (dateInFormat)="fromDatevalue = $event;"></datepicker-popup>
                     </div>
                   </div>
                   <div class="form-group col-md-2">
                     <label class="fw-500">To</label>
                     <div class="timepicker-input input-icon form-group">
-                      <datepicker-popup [toSetDate]="toDateValue" 
+                      <datepicker-popup [toSetDate]="toDateValue"
                       (dateInFormat)="toDateValue = $event;"></datepicker-popup>
                     </div>
                   </div>
@@ -107,9 +111,9 @@
                       Search
                     </button>
                     <button type="button" (click)="searchResetButton()" class="btn btn_close waves-effect">Reset</button>
-      
+
                   </div>
-                 
+
                 </div>
               </form>
             </div>
@@ -140,7 +144,7 @@
                                  </td>
 
                                 <!-- <td>{{item.OrgId}}-{{item.LedgerId}} </td> -->
-                              <td>{{lastItemIndex + i + 1}}</td>                     
+                              <td>{{lastItemIndex + i + 1}}</td>
                                 <td>{{item.LedgerName}} </td>
                                 <td>{{item.ChallanNo}}</td>
                                 <td >{{item.OnDate | date: shortDate }}</td>
@@ -152,27 +156,33 @@
                                       class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
                                     <ul class="dropdown-menu fsz-sm table-hover">
                                       <li><a (click)="onPrintButtonSaleChallan(item.Id,'sales_Challan_print_id')" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
-                                      <li *ngIf="item.SaleId === 0"><a (click)="onOpenInvoice(item.Id)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
-                                      <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
-                                      <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
+                                      <li *ngIf="(item.SaleId === 0) && (menuData?.write || menuData?.delete)"><a (click)="onOpenInvoice(item.Id)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                                      <li *ngIf="menuData?.delete"><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                                      <li
+                                      *ngIf="(menuData?.write || menuData?.delete)"
+                                      ><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
 
-                                      <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-envelope mR-10 cH-blue"></i><span>Send
+                                      <li
+                                      *ngIf="(menuData?.write || menuData?.delete)"
+                                      ><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-envelope mR-10 cH-blue"></i><span>Send
                                         Mail</span></a></li>
-                                      <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-envelope mR-10 cH-blue"></i><span>Sale
+                                      <li
+                                      *ngIf="(menuData?.write || menuData?.delete)"
+                                      ><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-envelope mR-10 cH-blue"></i><span>Sale
                                       Bill Return</span></a></li>
                                     </ul>
                                   </div>
                                 </td>
                               </tr>
-          
+
                             </tbody>
-                             
+
                         </table>
                     </div>
                 </div>
             </div>
           </div>
-         
+
     </div>
 </main>
 
@@ -183,7 +193,7 @@
 
 <app-sales-challan-invoice></app-sales-challan-invoice>
 <app-sales-billing></app-sales-billing>
-<div class="modal" id="sales_Challan_print_id">   
+<div class="modal" id="sales_Challan_print_id">
 
     <div id="page-wrap">
       <div style="width:100%; border: 1px solid #000; overflow: auto;">
@@ -193,7 +203,7 @@
           <div style="width:59%;  float:left">
             <h1 class ="align:center" style="margin-bottom:3px;text-align:right;">
           </h1>
-          
+
           <div class="col-md-6 text-right">
               <div class="name name_size font-weight-bold" style="text-align:right;">
                   {{ClientInfos && ClientInfos[0]?.OfficeName}}</div>
@@ -206,10 +216,10 @@
                   <br>
                   <i class="fa fa-mobile"></i>&nbsp;
                   {{ContactOrgInfo && ContactOrgInfo[0]?.ContactNo }}, &nbsp;&nbsp; {{website && website[0]?.Name}} <br>
-               
+
                 </p>
           </div>
-          
+
           </div>
         </div>
         <div style="clear:both"></div>
@@ -222,13 +232,13 @@
                   <tr>
                     <td>Challan No</td>
                     <td >{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillNo }}</td>
-         
+
                   </tr>
                   <tr>
                     <td>Challan Date</td>
              <td>{{InventoryTransactionSales && InventoryTransactionSales[0]?.BillDate | date :'longDate'}}</td>
-                     
-      
+
+
                   </tr>
                 </tbody>
               </table>
@@ -291,7 +301,7 @@
                   <th *ngIf="industryId === '2' " > Item Details</th>
                   <th style="text-align:right">Quantity</th>
                   <th *ngIf="industryId === '3' " class="desc">Length x Height x Width </th>
-                      <ng-container *ngIf="industryId === '5' "> 
+                      <ng-container *ngIf="industryId === '5' ">
                           <th class="desc">Batch No</th>
                           <th class="desc">Expiry Date</th>
                           <th class="desc">MF Date</th>
@@ -308,7 +318,7 @@
                                </span>
                       </td>
                   </ng-container>
-                 
+
                   <td style="text-align:right;">{{ item.Quantity}}</td>
                   <td *ngIf="industryId === '3' ">
                       {{ item.Length}}x{{ item.Height}}x{{ item.Width}}</td>
@@ -325,11 +335,11 @@
         </div>
         <div style="clear:both"></div>
         <div class="invoice" style="margin:0px; position: relative;min-height: 135px;max-height: 135px; width:100%;">
-  
+
           <div class="logo" style="bottom: 0px; position: absolute; right: 0px;">
             <table width="100%" class="payment">
               <tbody>
-          
+
                 <tr style="background:#e9e9ea">
                   <td>Total Quantity : </td>
                   <td style="text-align:right">
@@ -364,7 +374,7 @@
             <div class="invoiveN" style="width: 40%;
                             float: right; text-align:right; font-size: 14px;
                             padding: 13px;">
-                   
+
               <!-- <h3>For,  {{ledgerinfos && ledgerinfos[0]?.OfficeName }} </h3> -->
               <h4 style="    margin-bottom: 0px;">
                   {{ClientInfos && ClientInfos[0]?.OfficeName}} :      Authorised Signatory

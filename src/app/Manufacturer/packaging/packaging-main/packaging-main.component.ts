@@ -46,10 +46,11 @@ export class PackagingMainComponent {
 
   getPacketsList () {
     this.isSearching = true
-    this._ps.getPacketsList('?' + this.queryStr).subscribe(
+    this._ps.getPacketsList('?Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(
       (data) => {
         this.isSearching = false
         this.packetLists = data
+        this.total = this.packetLists[0].TotalRows
         this.packetLists.forEach((element) => {
           element['checked'] = false
         })

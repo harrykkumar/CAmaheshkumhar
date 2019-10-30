@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { Subscription, fromEvent } from 'rxjs'
 import { UnitMasterServices } from '../../commonServices/TransactionMaster/unit-mater.services'
@@ -24,10 +25,13 @@ export class UnitComponent implements OnInit, OnDestroy {
   lastItemIndex: number = 0
   isSearching: boolean = false
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  menuData: any;
   constructor (private _unitmasterServices: UnitMasterServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private _loginService: LoginService) {
+    this.menuData = this._loginService.getMenuDetails(3, 1);
     this.newUnitSub = this.commonService.newUnitStatus().subscribe(
       (obj) => {
         this.getUnitDetail()

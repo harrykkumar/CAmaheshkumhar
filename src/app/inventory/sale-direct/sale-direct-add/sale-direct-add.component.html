@@ -1049,11 +1049,7 @@
           <div>
             <form novalidate>
               <div class="form-row">
-                <div class="form-group col-md-12">
-                  <label class="active">Customer Name</label>
-                  <input #custName type="text" name='customername' class="form-control" [(ngModel)]="caseCustomerName"
-                    placeholder="Enter Value">
-                </div>
+                
                 <div class="form-group col-md-12">
                   <label class="active">Mobile Number</label>
                   <div class="mobile_code   ">
@@ -1066,11 +1062,16 @@
                     (change)="onCountryCodeSelectionChange($event)"
                     [(ngModel)]="countryCodeFlag">
                   </ng-select>
-                    <input id='mobileId' name="custMobileno" (input)="checkOnInputMobile($event)"
+                    <input autofocus id='mobileId'    name="custMobileno" 
                       type="number" class="form-control width_70"
-                      [(ngModel)]="customerMobileNo" placeholder="Number">
+                      [(ngModel)]="customerMobileNo" placeholder="Number" (input)="checkOnInputMobile($event);searchCashPartyDetails($event)">
                   </div>
                 </div>
+                <div class="form-group col-md-12">
+                    <label class="active">Customer Name</label>
+                    <input  type="text" name='customername' class="form-control" [(ngModel)]="caseCustomerName"
+                      placeholder="Enter Value">
+                  </div>
                 <div class="form-group col-md-12">
                   <label class="active">Email</label>
                   <input type="text" name='emailCase' class="form-control" [(ngModel)]="CustomerEmail"

@@ -2,37 +2,52 @@ import { CommonService } from 'src/app/commonServices/commanmaster/common.servic
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 import { StyleService } from './../style.service';
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
-import { Component, OnInit, ViewChild, EventEmitter, Output } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import * as _ from 'lodash'
-declare var $: any
-declare var flatpickr: any
+import { ManufacturingService } from '../../manufacturing.service';
+import { AddCust } from '../../../model/sales-tracker.model';
+declare const $: any
 @Component({
   selector: 'app-add-style',
   templateUrl: './add-style.component.html',
   styleUrls: ['./add-style.component.css']
 })
-export class AddStyleComponent implements OnInit {
+export class AddStyleComponent {
   model: any = {}
-  @ViewChild('styleForm') styleFormModel
-  @Output() triggerCloseModal = new EventEmitter();
+  @ViewChild('styleForm') styleFormModel;
+  @ViewChild('first') first: ElementRef;
   constructor(
     public _commonService: CommonService,
     private _toastService: ToastrCustomService,
-    private _styleService: StyleService
-  ) { }
-
-  ngOnInit() {
+    private _styleService: StyleService,
+    private _ms: ManufacturingService
+  ) { 
+    this._ms.openStyle$.subscribe((data: AddCust) => {
+      if (data.open) {
+        if (!_.isEmpty(data.editData)) {
+          this.assignFormData(data.editData)
+        }
+        this.openModal()
+      } else {
+        this.closeModal()
+      }
+    })
   }
-  openModal(data?) {
-    if(!_.isEmpty(data) && data.Id){
-      this.assignFormData(data);
-    }
+
+  openModal() {
     $('#add_style_form').modal(UIConstant.MODEL_SHOW)
+    setTimeout(() => {
+      $('styleName').focus()
+    }, 100)
+  }
+
+  closeForm () {
+    this._ms.closeStyle()
   }
 
   closeModal(){
-    $('#add_style_form').modal(UIConstant.MODEL_HIDE)   
-    this.resetForm() 
+    $('#add_style_form').modal(UIConstant.MODEL_HIDE)
+    this.resetForm()
   }
 
   assignFormData(Data) {
@@ -46,7 +61,7 @@ export class AddStyleComponent implements OnInit {
 
   
   preparePayload = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const data = {
         Id: this.model.Id ? this.model.Id : 0,
         Name: this.model.styleName,
@@ -63,18 +78,21 @@ export class AddStyleComponent implements OnInit {
   async saveOrUpdateStyle(){
     const requestData = await this.preparePayload()
     this._styleService.postStyleFormData(requestData).subscribe((res) => {
-      if(res.Code === 1000) {
-        this._toastService.showSuccess('Success', 'Style Added Successfully')
-        this.closeModal();
-        this.triggerCloseModal.emit();
-      } else {
-        this._toastService.showError('Error', res.Message)
+      if (res) {
+        const dataToSend = {id: res, name: this.model.styleName}
+        this._ms.onStyleAdd()
+        this._toastService.showSuccess('', 'Style Added Successfully')
+        this._ms.closeStyle(dataToSend);
+        this.resetForm()
       }
+    }, (error) => {
+      this._toastService.showError(error, '')
     }) 
   }
 
   resetForm() {
-    this.styleFormModel.resetForm();
+    this.model = {}
+    if (this.styleFormModel) this.styleFormModel.resetForm();
   }
 
 }

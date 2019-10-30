@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Subscription, fromEvent, throwError } from 'rxjs';
@@ -35,6 +36,7 @@ export class SaleDirectMainComponent {
   industryId: number
   loading = true
   queryStr$: Subscription
+  menuData: any;
   constructor(public gs: GlobalService,
     public excelService: ExcelService,
     private route: ActivatedRoute,
@@ -42,7 +44,10 @@ export class SaleDirectMainComponent {
     private _saleDirectService: SaleDirectService,
     private settings: Settings,
     private toastrService: ToastrCustomService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(13, 9);
     this.getCurrentTime()
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.loading = true
@@ -110,7 +115,7 @@ export class SaleDirectMainComponent {
   getCurrentTime (){
   this.time = new Date();
   }
- 
+
   onLoadPrint() {
     ;
     if (this.PrintFormateType === 1) {
@@ -128,7 +133,7 @@ export class SaleDirectMainComponent {
 
   }
 
-  
+
   closeModal() {
     $('#confirmationPage1').modal(UIConstant.MODEL_HIDE)
   }
@@ -249,7 +254,7 @@ export class SaleDirectMainComponent {
           this.totalBillDiscountAmt = data.Data.SaleTransactionses.BillDiscount
           _self.InventoryTransactionSales = data.Data.SaleTransactionses
           _self.BillDateTime = data.Data.SaleTransactionses.BillDate
-         
+
 
           this.paidFlag = data.Data.SaleTransactionses[0].OutStanding === 0 ? 'PAID' : 'UNPAID'
           _self.barcode = data.Data.SaleTransactionses[0].BarcodeBill
@@ -499,7 +504,7 @@ _self.printTypeFormateValue1(htmlId, isViewForm)
       if (element.id === SetUpIds.categoryShowOnPrint) {
         this.categoryShowOnPrint = +element.val
       }
-      
+
     })
 
   }
@@ -512,7 +517,7 @@ _self.printTypeFormateValue1(htmlId, isViewForm)
   }
 
   applyedCSSForSale (){
-    
+
     let AppliyedCSSTypeA4_1 = `
 @media print {.hidden-print {display: none !important;}}.clearfix:after{content:"";display:table;clear:both}a{color:#0087c3;text-decoration:none}body{position:relative;width:21cm;height:29.7cm;margin:0 auto;color:#000;background:#fff;font-family:Calibri;font-size:12px}.row{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-direction:row}.col{-ms-flex-preferred-size:0;-ms-flex-positive:1;padding-left:10px;max-width:100%}.row1{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-direction:row;flex-wrap:wrap;margin-right:1px;margin-left:0}.col1{-ms-flex-preferred-size:0;flex-basis:0;-ms-flex-positive:1;flex-grow:1;max-width:100%}header{padding:10px 0}.header1{padding:1px 0;border-top:1px solid #333;border-bottom:1px solid #333}#logo{float:left;margin-top:8px}#logo img{height:70px}#company{float:right;text-align:right}#client{padding-left:6px;float:left}#client .to{color:#333}h2.name{font-size:1.6em;font-weight:600;margin:0;text-transform:uppercase}#invoice{float:right;text-align:right}#invoice h1{color:#0087c3;font-size:2.2em;line-height:1em;font-weight:400;margin:0 0 10px 0}#invoice .date{font-size:1.1em;color:#000}table{width:100%;border-collapse:collapse;border-spacing:0;margin-bottom:5px}table td,table th{padding:1px;vertical-align:top;text-align:center;font-size:12px;word-break:break-word}table th{white-space:nowrap;font-weight:700}table td{text-align:left}table td h3{color:#000;font-size:1.2em;font-weight:600;margin:0 0 .2em 0}table .no{color:#000}table .desc{text-align:left}table .total{color:#000;text-align:right}table td.qty,table td.total,table td.unit{font-size:1.2em}table tfoot td{background:#fff;border-bottom:none;font-weight:600;text-align:right;white-space:nowrap;margin-top:100px}table tfoot tr:first-child td{border-top:none}table tfoot tr:last-child td{border-top:1px solid #333}.table1 tbody tr td,.table1 thead tr th{border:1px solid #333;word-break:break-all}#thanks{font-size:2em;margin-bottom:50px}#notices{padding-left:6px;border-left:6px solid #0087c3}#notices .notice{font-size:1.2em}footer{color:#000;width:100%;height:30px;position:absolute;bottom:60px;border-top:1px solid #aaa;padding:8px 0;text-align:center}.name-footer{text-align:left;margin:0;font-size:12px;padding-left:10px}.tbl_footer tr td{text-align:right}.tbl_footer tr td.total{text-align:right;font-weight:700;width:120px}.total_word{padding:4px;border-top:1px solid #333}.terms_section { color: #000;width: 100%; position: absolute;bottom: 115px; border-top: 1px solid #aaa;padding:0;}.tbl_fix_height { min-height: 270px;border-bottom:1px solid #333;}
 
@@ -581,7 +586,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
       justify-content: center !important;
   }
 
- 
+
 
   .bdr_left {
       border-left: 1px solid #000;
@@ -691,7 +696,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
   }
 
 
-  
+
 
   table th,
   table td {
@@ -752,7 +757,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
     }, 100)
 
   }
- 
+
   HedShow: any = []
   mainData: any = []
   ValueOfTaxName(hsnData, hsnTransaction, TaxTitles, currency) {
@@ -761,7 +766,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
     this.HedShow = []
     let valueshow = []
     hsnTransaction.forEach(element => {
-    
+
       this.HedShow = hsnData.filter(d => d.HsnNo === element.HsnNo && d.TaxSlabId === element.TaxSlabId)
       if (this.HedShow.length > 0) {
         valueshow = []
@@ -783,7 +788,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
       })
       console.log(this.mainData ,'item-gst')
     });
-    
+
   }
 
 

@@ -27,7 +27,15 @@
               </div>
             </form>
           </div>
-          <div class="col-md-2"></div>
+          <div class="col-md-2">
+            <button
+              type="button"
+              (click)="postAdminMasterSetting()"
+              class="btn btn-primary waves-effect waves-light"
+            >
+              Save
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -285,7 +293,7 @@
       </div>
     </div>
     <!-- Settings Save Button in footer Section -->
-    <div class="footer" *ngIf="settings?.length > 0">
+    <!-- <div class="footer" *ngIf="settings?.length > 0">
       <button
         type="button"
         (click)="postAdminMasterSetting()"
@@ -293,6 +301,6 @@
       >
         Save
       </button>
-    </div>
+    </div> -->
   </div>
 </main>

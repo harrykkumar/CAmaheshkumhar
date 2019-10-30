@@ -11,7 +11,7 @@
                             <form [formGroup]="searchForm">
                                 <div id="custom-search-input" class="btn_header1">
                                     <div class="input-group col-md-12">
-                                        <input type="text" 
+                                        <input type="text"
                                         class="form-control input-lg"
                                         placeholder="Search"
                                         formControlName="searckKey"
@@ -30,7 +30,9 @@
                             <a><img src="assets/img/printer.png"> </a>
                             <a><img src="assets/img/pdf.png"></a>
                             <a><img src="assets/img/excel.png"></a>
-                            <button type="button" class="btn btn-primary waves-effect waves-light" (click)="addNewVendor()">Add
+                            <button
+                            *ngIf="menuData?.write || menuData?.delete"
+                            type="button" class="btn btn-primary waves-effect waves-light" (click)="addNewVendor()">Add
                                 New Vendor</button>
                             <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i class="fas fa-search"></i>Search</a>
                         </div>
@@ -69,20 +71,24 @@
                                     <td>{{item.GstinNo}}</td>
                                     <td>{{item.ContactNo}} <br /> {{item.EmailAddress}}   </td>
                                     <td class="text-center">
-                                        <a class="actionBtn" data-toggle="tooltip"  title=""
+                                        <a
+                                        *ngIf="menuData?.write || menuData?.delete"
+                                        class="actionBtn" data-toggle="tooltip"  title=""
                                             data-original-title="Edit" (click)="editVendor(item.Id)"><i class="fa fa-edit fa-1x"
                                                 aria-hidden="true"></i></a>
-                                        <a class="actionBtn" data-toggle="tooltip"  title=""
+                                        <a
+                                        *ngIf="menuData?.delete"
+                                        class="actionBtn" data-toggle="tooltip"  title=""
                                             data-original-title="Delete" (click)="showDeletePopup(item.Id)"><i
                                                 class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
                                     </td>
-                                   
+
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-               
+
             </div>
         </div>
     </div>

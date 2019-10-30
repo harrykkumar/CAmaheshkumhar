@@ -179,16 +179,27 @@
                                 </select2>
 
                               <td width="20%">
-                                <div class="mobile_code ">
+                                  <div class="mobile_code   ">
+                                      <ng-select  name="phonename" 
+                                      [items]="countryListWithCode" 
+                                      bindLabel="text"
+                                      class="control_select width_20"
+                                      bindValue="id" 
+                                      placeholder="Select Code" 
+                                      (change)="onCountryCodeSelectionChange($event)"
+                                      [(ngModel)]="countryCodeFlag">
+                                    </ng-select>
+                                    </div>
+                                <!-- <div class="mobile_code ">
                                   <select2 #phoneCode_select2 
                                   [data]="countryListWithCode"
                                     style="width:120px !important;"
                                      class="control_select " 
-                                    
-                                     (valueChanged)="onCountryCodeSelectionChange( $event )" autocomplete="true">
+                                     (valueChanged)="onCountryCodeSelectionChange( $event )" 
+                                     autocomplete="true">
                                   </select2>
 
-                                </div>
+                                </div> -->
                               </td>
                               <td width="50%">
                                 <input (keydown.enter)="pressEnterMobileAdd($event)" name='mobileNo'
@@ -462,3 +473,7 @@
     </div>
   </div>
 </div>
+<app-add-new-city
+  #addNewCityRef
+  (addCityClosed)="addCityClosed($event)"
+></app-add-new-city>

@@ -774,29 +774,10 @@ export class SaleDirectAddComponent {
       this.PartyGstinNo = data[0].PartyGstinNo
       this.countryValue1 = data[0].CountryId
       this.stateValuedata1 = data[0].StateId
-      // let phonecode = {
-      //   id: data[0].CountryCode, text: data[0].CountryName,
-      //   PhoneCode: data[0].CountryCode,
-      //   Length: data[0].Length
-      // }
       this.loadAddressDetails(data[0])
-      // this.onCountryCodeSelectionChange(phonecode)
-      // this.countryCodeFlag = data[0].CountryCode
-
-      // this.cityValue1 = data[0].CityId
-      // this.areNameId = data[0].AreaId
-      // let country = {
-      //   id: data[0].CountryId, text: data[0].CountryName
-      // // }
-      // this.selectCountryListId(country)
-      // let state = {
-      //   id: data[0].StateId, text: data[0].StateName
-      // }
-      // this.selectState(state)
-      // let city = {
-      //   id: data[0].CityId, text: data[0].CityName
-      // }
-      // this.selectedCityId(city)
+    }
+    else{
+      this.getOrgnizationAddress()
     }
   }
   createForm(data) {
@@ -1062,7 +1043,6 @@ export class SaleDirectAddComponent {
   }
 
   createTransaction(paymentDetails) {
-    debugger
     if (paymentDetails.length > 0) {
       paymentDetails.forEach(element => {
         this.Paymode = element.Paymode
@@ -1481,6 +1461,10 @@ export class SaleDirectAddComponent {
   editItemFlag: boolean
   getBillSummryListFlag: boolean
   onLoading() {
+    this.CustomerName = ''
+    this.CreditDays =''
+    this.ContactNo = ''
+    this.Email = ''
     this.editItemFlag = false
     this.getBillSummryListFlag = false
     this.BillDiscountType = 0
@@ -1491,6 +1475,7 @@ export class SaleDirectAddComponent {
     this.caseSaleCustomerDetails = []
     this.clearCaseCustomer()
     this.BillNo = ''
+    this.CustomerName =''
     this.showHideAddItemRow = true
     this.showHideItemCharge = true
     this.showHidePayment = true
@@ -2650,7 +2635,6 @@ export class SaleDirectAddComponent {
   }
 
   calculatePaymentAmount() {
-    debugger
     let paymentTotal = 0
     for (let i = 0; i <= this.PaymentDetail.length - 1; i++) {
       paymentTotal = paymentTotal + +this.PaymentDetail[i].Amount
@@ -3115,7 +3099,6 @@ export class SaleDirectAddComponent {
   }
 
   addTransactions() {
-    debugger
     if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
       if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
 
@@ -3998,16 +3981,7 @@ export class SaleDirectAddComponent {
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-      // if (+this.PayModeId === 3) {
-      //   if (this.ChequeNo) {
-      //     this.invalidObj['ChequeNo'] = false
-      //   } else {
-      //     isValid = 0
-      //     this.invalidObj['ChequeNo'] = true
-      //   }
-      // } else {
-      //   this.invalidObj['ChequeNo'] = false
-      // }
+     
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
@@ -4068,17 +4042,6 @@ export class SaleDirectAddComponent {
         this.invalidObj['GodownId'] = true
         isValid = 0
       }
-      // if (this.isCaseSaleFlag  && this.AddressId) {
-      //   this.invalidObj['AddressId'] = false
-      // } 
-      // else if (!this.isCaseSaleFlag && this.AddressId ===0) {
-      //   this.invalidObj['AddressId'] = false
-      // }
-      // else {
-      //   this.invalidObj['AddressId'] = true
-      //   isValid = 0
-      // }
-
       if (this.Items.length === 0 && this.submitSave) {
         isValid = 0
         if (+this.ItemId > 0) {
@@ -4151,14 +4114,6 @@ export class SaleDirectAddComponent {
             this.invalidObj['Width'] = true
           }
         }
-        // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-        //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-        //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-        //   } else {
-        //     isValid = 0
-        //     $('#' + $('.attr')[index].id).addClass('errorSelecto')
-        //   }
-        // })
       }
       return !!isValid
     }
@@ -4248,14 +4203,6 @@ export class SaleDirectAddComponent {
           this.invalidObj['Width'] = true
         }
       }
-      // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-      //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-      //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-      //   } else {
-      //     isValid = 0
-      //     $('#' + $('.attr')[index].id).addClass('errorSelecto')
-      //   }
-      // })
       this.validItem = !!isValid
     } else {
       this.validItem = true
@@ -4271,11 +4218,6 @@ export class SaleDirectAddComponent {
       this.invalidObj['UnitId'] = false
       this.invalidObj['ItemId'] = false
       this.invalidObj['Discount'] = false
-      // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-      //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-      //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-      //   }
-      // })
     }
   }
 
@@ -4283,7 +4225,6 @@ export class SaleDirectAddComponent {
     let isValid = true
     this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
       if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-        //
       } else {
         isValid = false
       }
@@ -4292,14 +4233,33 @@ export class SaleDirectAddComponent {
   }
   SaveName: string = 'Save'
   DisabledSaveBtn: any = false
-  //applyRevugainAPI
   getCustomerAddress() {
     if (this.allAddressData.length > 0) {
-
-      return this.allAddressData[0].AddressValue + ' ' + ' ' + this.allAddressData[0].CityName + ' ' + this.allAddressData[0].StateName + ' ' + this.allAddressData[0].CountryName
+      return this.allAddressData[0].AddressValue + ' '  + this.allAddressData[0].CityName + ' ' + this.allAddressData[0].StateName + ' ' + this.allAddressData[0].CountryName
+    }
+    else{
+    return this.CustomerAddress +' ' +  this.cityName +' '+ this.StateName +' '+ this.countryName
     }
   }
-
+  searchCashPartyDetails(mobile){
+    if(this.validmobileLength=== mobile.target.value.length ){
+      this._saleDirectService.getCashPartyDetailsByMobile(mobile.target.value,6).subscribe(res=>{
+        if(res.Code===UIConstant.THOUSAND && res.Data.length>0){
+          this.customerMobileNo = res.Data[0].MobileNo
+          this.CustomerAddress = res.Data[0].Address
+          this.validmobileLength =this.validmobileLength
+          this.CustomerEmail = res.Data[0].Email
+          this.caseCustomerName = res.Data[0].Name
+          this.PartyGstinNo = res.Data[0].PartyGstinNo
+          this.countryValue1 = res.Data[0].CountryId
+          this.stateValuedata1 = res.Data[0].StateId
+          this.checkIsValidMobileNo=true
+          this.loadAddressDetails(res.Data[0])
+        }
+      })
+    }
+    
+}
   RevugainDetails() {
     let postReq = {}
     postReq = {
@@ -4307,9 +4267,9 @@ export class SaleDirectAddComponent {
       CustomerList: [
         {
           "RecordId": 1,
-          "CustomerName": this.CustomerName,
-          "ContactNo": this.ContactNo === null ? '' : this.ContactNo,
-          "Email": this.Email === null ? '' : this.Email,
+          "CustomerName": this.CustomerName===''? this.caseCustomerName : this.CustomerName,
+          "ContactNo": this.ContactNo === '' ? this.customerMobileNo : this.ContactNo,
+          "Email": this.Email === '' ? this.CustomerEmail : this.Email,
           "DOA": this.DOA === null ? '' : this.DOA,
           "DOB": this.DOB === null ? '' : this.DOB,
           "Gender": "M",
@@ -4914,11 +4874,7 @@ export class SaleDirectAddComponent {
   @ViewChild('custName') custName
   openCustomerDetails() {
     this.disbledInputMobileFlag = true
-
     this.searchCountryCodeForMobile(' ')
-    // if (this.editMode) {
-    //   this.clearCaseCustomer()
-    // }
     this.customerClick = false
     this.getCountry(0)
     $('#cust_detail_m').modal(UIConstant.MODEL_SHOW)
@@ -4954,7 +4910,6 @@ export class SaleDirectAddComponent {
   countryCodeId: any
   countryListWithCode: any
   onCountryCodeSelectionChange = (event) => {
-    debugger
     if (this.countryCodeFlag !== null) {
       if (event.id > 0) {
         if (event.id !== '0') {
@@ -4966,18 +4921,21 @@ export class SaleDirectAddComponent {
   }
   loadAddressDetails(Address){
     this.countryValue = Address.CountryId
+    this.countryValue1 =Address.CountryId
+    this.countryCodeFlag = Address.CountryCode
+    this.validmobileLength =Address.Length
     let phonecode = {
       id: Address.CountryCode, text: Address.CountryName,
       PhoneCode: Address.CountryCode,
       Length: Address.Length
     }
+    
     this.onCountryCodeSelectionChange(phonecode)
-    this.countryCodeFlag = Address.CountryCode
     let country = {
       id: Address.CountryId,
       text: Address.CountryName
     }
-   this.selectCountryListId(country)
+    this.selectCountryListId(country)
     let state = {
       id: Address.StateId,
       text: Address.Statename
@@ -4986,44 +4944,30 @@ export class SaleDirectAddComponent {
       id: Address.CityId,
       text: Address.CityName
     }
+    let area ={
+      id: Address.AreaId,
+      text: Address.Areaname
+    }
+     this.areNameId =Address.AreaId
+     this.stateValuedata1 =Address.StateId
+     this.cityValue1 =Address.CityId
     setTimeout(() => {
       this.selectState(state)
     }, 100);
     setTimeout(() => {
       this.selectedCityId(city)
     }, 200);
+    setTimeout(() => {
+      this.selectedArea(area)
+    }, 300);
+    
+
   }
   getOrgnizationAddress() {
     let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS')); 
     if (Address !== null) {
       this.loadAddressDetails(Address)
      }
-
-    // this.countryValue1 = Address.CountryId
-    // this.stateValuedata1 = Address.StateId
-    // let phonecode = {
-    //   id: Address.CountryCode, text: Address.CountryName,
-    //   PhoneCode: Address.CountryCode,
-    //   Length: Address.Length
-    // }
-    // this.onCountryCodeSelectionChange(phonecode)
-    // this.countryCodeFlag = Address.CountryCode
-
-    // this.cityValue1 = Address.CityId
-    // this.areNameId = Address.AreaId
-    // let country = {
-    //   id: Address.CountryId, text: Address.CountryName
-    // }
-    // this.selectCountryListId(country)
-    // let state = {
-    //   id: Address.StateId, text: Address.StateName
-    // }
-    // this.selectState(state)
-    // let city = {
-    //   id: Address.CityId, text: Address.CityName
-    // }
-    // this.selectedCityId(city)
-
   }
   searchCountryCodeForMobile(name) {
     this.commonService.searchCountryByName(name).subscribe(Data => {
@@ -5046,7 +4990,7 @@ export class SaleDirectAddComponent {
     })
   }
   CaseCustId: any = 0
-  countryCodeFlag: any = null
+  countryCodeFlag: any
   validateEmail(email) {
     let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     return re.test(email)
@@ -5069,8 +5013,7 @@ export class SaleDirectAddComponent {
   customerMobileNo: any = ''
   checkValidMobile() {
     let mobile = JSON.stringify(this.customerMobileNo)
-
-    if (mobile !== '' && mobile !== null) {
+    if (mobile !== '' ) {
       if (this.validmobileLength === mobile.length) {
         this.checkIsValidMobileNo = true
       } else {
@@ -5090,7 +5033,8 @@ export class SaleDirectAddComponent {
     this.checkValidEmail()
     this.checkValidMobile()
     this.customerClick = true
-    if (this.caseCustomerName !== '' && this.caseCustomerName !== null && this.customerMobileNo !== null && this.customerMobileNo !== '' && !this.checkvalidEmail && this.checkIsValidMobileNo) {
+    
+    if (this.caseCustomerName !== '' && this.caseCustomerName !== null && this.customerMobileNo !== null && this.customerMobileNo !== '' && !this.checkvalidEmail ) {
       this.caseSaleCustomerDetails = [{
         Id: this.CaseCustId === 0 ? this.CaseCustId : this.CaseCustId,
         Name: this.caseCustomerName,
@@ -5108,7 +5052,6 @@ export class SaleDirectAddComponent {
         this.countryCodeFlag = null
         this.getCountry(0)
       }
-      // this.clearCaseCustomer()
       $('#cust_detail_m').modal(UIConstant.MODEL_HIDE)
     }
 
@@ -5137,7 +5080,7 @@ export class SaleDirectAddComponent {
           text: element.CommonDesc
         })
       })
-      this.countryValue = value
+     // this.countryValue = value
     })
   }
   phonename: any = ''
@@ -5153,7 +5096,7 @@ export class SaleDirectAddComponent {
           text: element.CommonDesc1
         })
       })
-      this.stateValuedata = value
+     // this.stateValuedata = value
     })
   }
 
@@ -5186,7 +5129,7 @@ export class SaleDirectAddComponent {
           text: element.CommonDesc2
         })
       })
-      this.cityValue = value
+     // this.cityValue = value
     })
   }
   cityError: boolean
@@ -5252,5 +5195,8 @@ export class SaleDirectAddComponent {
       }
     })
   }
+
+  
+
 
 }

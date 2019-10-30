@@ -133,8 +133,6 @@ export class ItemStockReportComponent implements OnInit {
             ItemsWestageStock = []
             ItemsWestageStock.push({ CurrentStock: 0 })
           }
-          // ItemsDeadStock: []
-          // ItemsWestageStock: []
 
           let ItemBarCodeTransactions = data.Data.ItemBarCodeTransactions.filter(s => (s.ItemId === mainItm.Id && s.GroupId === mainItm.GroupId))
           if (ItemBarCodeTransactions.length === 0) {
@@ -221,6 +219,7 @@ export class ItemStockReportComponent implements OnInit {
 
   search = (data) => {
     this.filterParameters = { ...data };
+    console.log(this.filterParameters)
     this.getItemStockReportList();
   }
 
@@ -236,7 +235,8 @@ export class ItemStockReportComponent implements OnInit {
       FromDate: this.fromDate  ? this.fromDate  : '' ,
       ToDate: this.toDate ? this.toDate : '',
       Page: this.filterParameters.pageNo ? this.filterParameters.pageNo : 1,
-      Size: this.filterParameters.pageSize ? this.filterParameters.pageSize : 20
+      Size: this.filterParameters.pageSize ? this.filterParameters.pageSize : 20,
+      Status:this.filterParameters.statusTypeName
     }
     this.getSaleChallanDetail(data);
   }

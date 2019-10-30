@@ -369,7 +369,12 @@ export class UserRightsComponent implements OnInit, OnDestroy {
       if (response.Code === UIConstant.THOUSAND) {
         this.toastrService.showSuccess('Success', 'Saved Successfully')
         this.postPermissionArray = []
-        await this._loginService.getUserDetails(this._loginService.selectedOrganization.Id)
+        const userData: any = await this._loginService.getUserDetails(this._loginService.selectedOrganization.Id)
+        const existModuleData = JSON.parse(localStorage.getItem('SELECTED_MODULE'))
+        if (!_.isEmpty(existModuleData)) {
+          const currentModuleData = _.find(userData.Modules, { Id: existModuleData.Id })
+          localStorage.setItem('SELECTED_MODULE', JSON.stringify(currentModuleData))
+        }
         this._loginService.permissionUpdated.next(true)
       }
     }, error => console.log(error))

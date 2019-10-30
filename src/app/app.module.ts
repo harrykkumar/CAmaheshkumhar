@@ -11,6 +11,7 @@ import { AppRoutingModule } from './app-routing.module'
 import { ToastrModule } from 'ngx-toastr'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './shared/shared.module';
+import { NoconnectionComponent } from './noconnection/noconnection.component';
 
 @NgModule({
   imports: [
@@ -32,7 +33,8 @@ import { SharedModule } from './shared/shared.module';
     StartModule
   ],
   declarations: [
-    AppComponent
+    AppComponent,
+    NoconnectionComponent
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AppInterceptorService, multi: true }

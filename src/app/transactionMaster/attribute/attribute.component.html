@@ -11,7 +11,7 @@
                             <form [formGroup]="searchForm">
                                 <div id="custom-search-input" class="btn_header1">
                                     <div class="input-group col-md-12">
-                                        <input type="text" 
+                                        <input type="text"
                                         class="form-control input-lg"
                                         placeholder="Search"
                                         formControlName="searckKey"
@@ -30,7 +30,9 @@
                             <a><img src="assets/img/printer.png"> </a>
                             <a><img src="assets/img/pdf.png"></a>
                             <a><img src="assets/img/excel.png"></a>
-                            <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                            <button
+                            *ngIf="menuData?.write || menuData?.delete"
+                            type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
                                 (click)="addAttribute()">Add Attribute</button>
                         </div>
                     </div>
@@ -60,12 +62,16 @@
                                     <td>{{item?.AttributeName}}</td>
                                     <td>{{item?.Name}}</td>
                                     <td>
-                                        <a class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit">
+                                        <a
+                                        *ngIf="menuData?.write || menuData?.delete"
+                                        class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit">
                                             <i class="fa fa-edit fa-1x"  aria-hidden="true"
                                             (click)="editAttribute(item.Id, item.Name, item.AttributeId, false)">
                                             </i>
                                         </a>
-                                        <a class="actionBtn" data-toggle="tooltip" data-placement="bottom" title="Delete" (click)="deleteAttribute(item.Id)"><i
+                                        <a
+                                        *ngIf="menuData?.delete"
+                                        class="actionBtn" data-toggle="tooltip" data-placement="bottom" title="Delete" (click)="deleteAttribute(item.Id)"><i
                                             class="fa fa-trash fa-1x"  aria-hidden="true"></i></a>
                                     </td>
                                 </tr>
@@ -94,12 +100,16 @@
                                     <td>{{i + 1}}</td>
                                     <td>{{item?.Name}}</td>
                                     <td>
-                                        <a class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit">
+                                        <a
+                                        *ngIf="menuData?.write || menuData?.delete"
+                                        class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit">
                                             <i class="fa fa-edit fa-1x"  aria-hidden="true"
                                             (click)="editAttribute(0, item.Name, item.Id, true)">
                                             </i>
                                         </a>
-                                        <a class="actionBtn" data-toggle="tooltip" data-placement="bottom"
+                                        <a
+                                        *ngIf="menuData?.delete"
+                                        class="actionBtn" data-toggle="tooltip" data-placement="bottom"
                                             title="Delete" (click)="deleteAttributeParent(item.Id)">
                                             <i class="fa fa-trash fa-1x"  aria-hidden="true"></i>
                                         </a>

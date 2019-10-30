@@ -38,6 +38,7 @@ import { ConfirmationPrintModule}  from '../shared/transactionMaster/confirmatio
 import {DiscountMasterAddModule} from '../shared/transactionMaster/discountMaster/discountMaster-add/discountMaster-add.module'
 import { CategoryImportModule } from '../shared/transactionMaster/category/category-import/category-import.module';
 import { ActiveInventoryTermAddModule}   from '../shared/transactionMaster/active-Inventory-term-add/active-inventoryTerm-add.module'
+import { AddCommonMenuComponent } from './common-menu/add-common-menu/add-common-menu.component';
 @NgModule({
   declarations: [
     SideMenuComponent,
@@ -47,7 +48,8 @@ import { ActiveInventoryTermAddModule}   from '../shared/transactionMaster/activ
     LoyalityComponent,
     OfferComponent,
     TaxProcessComponent,
-    BankSearchComponent
+    BankSearchComponent,
+    AddCommonMenuComponent
   ],
 
   imports: [

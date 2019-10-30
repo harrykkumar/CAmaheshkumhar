@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
 import { ItemModel } from '../../model/sales-tracker.model'
 import { Subscription } from 'rxjs/Subscription'
@@ -48,12 +49,16 @@ export class DiscountMasterComponent implements OnInit {
   queryStr$: Subscription
   queryStr: string = ''
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  menuData: any
   constructor (public _settings :Settings,
     public gs :GlobalService,
     private _itemmasterServices: ItemmasterServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(7, 1);
       this.dateFormate = this._settings.dateFormat
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
@@ -124,9 +129,9 @@ export class DiscountMasterComponent implements OnInit {
       if (element.id === SetUpIds.DiscountFor100) {
         this.DiscountFor100Perct = +element.val
       }
-    
+
     })
-  
+
   }
   ngOnInit () {
     this.itemDetail = []

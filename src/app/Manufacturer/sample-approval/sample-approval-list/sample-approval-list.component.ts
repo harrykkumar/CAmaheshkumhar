@@ -1,16 +1,12 @@
 import { SampleApprovalService } from './../sample-approval.service';
-import { AddSampleApprovalComponent } from './../add-sample-approval/add-sample-approval.component';
 import { ToastrCustomService } from './../../../commonServices/toastr.service';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { Settings } from './../../../shared/constants/settings.constant';
 import { GlobalService } from 'src/app/commonServices/global.service';
 import { PagingComponent } from './../../../shared/pagination/pagination.component';
-import { Component, OnInit, ViewChild, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
-import { takeUntil } from 'rxjs/operators';
+import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import * as _ from 'lodash'
-declare var $: any
-declare var flatpickr: any
 
 @Component({
   selector: 'app-sample-approval-list',
@@ -22,10 +18,11 @@ export class SampleApprovalListComponent implements OnInit {
   addSampleApprovalRef: any;
   model: any = {};
   listModel:any = {};
+  queryStr: string = ''
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
   lastItemIndex: number = 0
-  pageSize: number = 20
-  pageNo: number = 1
-  totalItemSize: number = 0
   sampleApprovalListDate: Array<any> = []
   @ViewChild('sample_approval_paging') SampleApprovalPagingModal: PagingComponent
   private unSubscribe$ = new Subject<void>()
@@ -34,76 +31,43 @@ export class SampleApprovalListComponent implements OnInit {
   constructor(
     public _globalService: GlobalService,
     public _settings: Settings,
-    public _commonService: CommonService,
-    private _toastService: ToastrCustomService,
-    private sampleApprovalService: SampleApprovalService,
-    private resolver: ComponentFactoryResolver,
+    public _cs: CommonService,
+    private _ts: ToastrCustomService,
+    private _ss: SampleApprovalService
   ) {
     this.clientDateFormat = this._settings.dateFormat
+    this._ss.sampleAdded$.subscribe(() => {
+      this.getSampleApprovalListData()
+    })
+    this._ss.queryStr$.subscribe(
+      (str) => {
+        console.log(str)
+        this.queryStr = str
+        this.p = 1
+        this.getSampleApprovalListData()
+      }
+    )
   }
 
   ngOnInit() {
     this.getSampleApprovalListData()
-  }
-
-  addSampleApproval(item?) {
-    this.addSampleApprovalContainerRef.clear();
-    const factory = this.resolver.resolveComponentFactory(AddSampleApprovalComponent);
-    this.addSampleApprovalRef = this.addSampleApprovalContainerRef.createComponent(factory);
-    this.addSampleApprovalRef.instance.openModal(item);
-    this.addSampleApprovalRef.instance.triggerCloseModal.subscribe(
-      (data) => {
-        this.addSampleApprovalRef.destroy();
-        this.getSampleApprovalListData()
-      });
-  }
-
-  onLedgerItemChange = (event) => {
-    this.model.selectedLedgerItem = event.data[0]
+    this.getStyleData()
+    this.getshipmentByList()
+    this.getStageData()
   }
 
   getSampleApprovalListData = () => {
-    const data = {
-      Page: this.pageNo,
-      Size: this.pageSize
-    }
-    this.sampleApprovalService.getSampleApprovalList(data).pipe(
-      takeUntil(this.unSubscribe$)
-    ).subscribe((response: any) => {
-      if (response.Code === 1000 && !_.isEmpty(response.Data) && response.Data.length > 0) {
-        _.map(response.Data, (item) => {
-          item.ExpectedReplyDate = this._globalService.utcToClientDateFormat(item.ExpectedReplyDate, 'd.M.Y')
-          item.SampleDate = this._globalService.utcToClientDateFormat(item.SampleDate, 'd.M.Y')
-          item.ApprovedOn = this._globalService.clientToSqlDateFormat(this.clientDateFormat, item.SampleDate)
-        })
-        this.sampleApprovalListDate = [...response.Data]
-        this.totalItemSize = response.Data[0].TotalRows
-      } else {
-        this._toastService.showError("Error in Data Fetching", 'error');
-        this.totalItemSize = 0;
-      }
+    this._ss.getSampleApprovalList('?Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
+    .subscribe((data: any) => {
+      _.map(data, (item) => {
+        item.ApprovedOn = this._globalService.utcToClientDateFormat(item.SampleDate, this.clientDateFormat)
+      })
+      this.sampleApprovalListDate = [...data]
+      this.total = data[0].TotalRows
     }, (error) => {
       console.log(error);
+      this._ts.showError(error, '');
     });
-  }
-
-  onPageNoChange = (event) => {
-    this.pageNo = event
-    // this.getSampleApprovalListData()
-  }
-
-  onPageSizeChange = (event) => {
-    this.pageSize = event
-    // this.getSampleApprovalListData()
-  }
-
-  onLastValueChange = (event) => {
-    this.lastItemIndex = event
-  }
-
-  ngOnDestroy(): void {
-    this.unSubscribe$.next()
-    this.unSubscribe$.complete()
   }
 
   onApprove(item){
@@ -113,16 +77,63 @@ export class SampleApprovalListComponent implements OnInit {
     const data = {
       Type: 'Approval',
       Id: item.Id,
-      ApprovedOn: this._globalService.utcToClientDateFormat(item.ApprovedOn, 'm/d/Y'),
+      ApprovedOn: this._globalService.clientToSqlDateFormat(item.ApprovedOn, this.clientDateFormat),
       Status: item.Status
     }
-    this.sampleApprovalService.postSampleApprovalFormData(data).subscribe((res) => {
-      if(res.Code === 1000) {
-        this._toastService.showSuccess('success', 'Approved')
-        item.disableApprove = true
-      } else {
-        this._toastService.showError('Error', res.Message)
-      }
-    }) 
+    this._globalService.manipulateResponse(this._ss.postSampleApprovalFormData(data)).subscribe((res) => {
+      this._ts.showSuccess('', 'Successfully done')
+      item.disableApprove = true
+    }, (error) => {
+      this._ts.showErrorLong(error, '')
+    })
   }
+
+  getStyleData () {
+    this._ss.getStyleList().subscribe((data) => {
+      console.log(data)
+      this._ss.getList(data, 'Name', 'Style')
+    },
+    (error) => {
+      this._ts.showError(error, '')
+    })
+  }
+
+  getshipmentByList() {
+    this._ss.getShipmentByList().subscribe((data) => {
+      console.log(data)
+      this._ss.getList(data, 'CommonDesc', 'ShipmentBy')
+    },
+    (error) => {
+      this._ts.showError(error, '')
+    })
+  }
+
+  getStageData() {
+    this._ss.getStageList().subscribe((data) => {
+      console.log(data)
+      this._ss.getList(data, 'CommonDesc', 'Stage')
+    },
+    (error) => {
+      this._ts.showError(error, '')
+    })
+  }
+
+  toShowSearch = false
+  toggleSearch() {
+    this.toShowSearch = !this.toShowSearch
+  }
+
+  ngAfterViewInit () {
+    this._cs.fixTableHF('sample-table')
+  }
+
+  addSampleApproval(id?) {
+    this._ss.openSample(id)
+  }
+
+  ngOnDestroy(): void {
+    this.unSubscribe$.next()
+    this.unSubscribe$.complete()
+  }
+
 }

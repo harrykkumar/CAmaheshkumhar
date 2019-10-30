@@ -535,5 +535,10 @@ export class SaleDirectService {
   CustomerDetailsForRevugain(post)  {
     return this.baseService.postRequest(ApiConstant.REVUGAIN_FOR_CUSTOMER_DETAILS, post)
   }
-
+    
+//   api/v1/common/CashParty
+// ?ContactNo=string&ParentTypeId=6 in sale and 7 in Purchase
+  getCashPartyDetailsByMobile(ContactNo,type): Observable<ResponseSale> {
+    return this.baseService.getRequest(ApiConstant.GET_CASH_PARTY_DETAILS_BY_MOBILE + '?ContactNo='+ContactNo +'&ParentTypeId='+type)
+  }
 }

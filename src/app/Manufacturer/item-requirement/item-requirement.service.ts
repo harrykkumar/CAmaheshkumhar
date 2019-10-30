@@ -26,6 +26,10 @@ export class ItemRequirementService {
     return this._gs.manipulateResponse(this.baseService.postRequest(ApiConstant.ITEM_REQUIRE_POST, data))
   }
 
+  getItemRequirementData(query){
+    return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.ITEM_REQUIRE_POST + query))
+  }
+
   getInstructionListData(){
     return this.baseService.getRequest(ApiConstant.ITEM_REQ_INSTRUCTION).pipe(
       map((data: any) => {

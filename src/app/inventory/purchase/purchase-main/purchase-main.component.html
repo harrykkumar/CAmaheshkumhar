@@ -28,9 +28,12 @@
               </a>
               <a>
                 <img src="assets/img/pdf.png"></a>
-              <a>
+              <a
+              *ngIf="menuData?.write || menuData?.delete">
                 <img (click)="exportExcel()" src="assets/img/excel.png"></a>
-              <button type="button" class="btn btn-primary waves-effect waves-light" [disabled]="loading"
+              <button
+              *ngIf="menuData?.write || menuData?.delete"
+              type="button" class="btn btn-primary waves-effect waves-light" [disabled]="loading"
                 (click)="openPurchase()">New {{title}}</button>
               <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i
                   class="fas fa-search"></i>Search</a>
@@ -260,7 +263,7 @@
                 </tr>
               </ng-container>
               <!-- *ngIf="BillDiscountOnPrint" -->
-          
+
               <tr *ngFor="let charge of printData.AdditionalChargeDetails;">
                 <th>Charge @ {{charge.LedgerName}}</th>
                 <th style="text-align:right" *ngIf="charge.AmountCharge">{{charge.AmountCharge}}</th>

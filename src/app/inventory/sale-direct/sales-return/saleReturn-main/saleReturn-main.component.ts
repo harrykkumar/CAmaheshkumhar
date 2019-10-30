@@ -1,3 +1,4 @@
+import { LoginService } from './../../../../commonServices/login/login.services';
 import { Component, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Subscription, fromEvent, throwError } from 'rxjs';
@@ -32,6 +33,7 @@ export class SaleReturnDirectMainComponent {
   loading = true
   queryStr:string =''
   decimalNoPoint: any = 0
+  menuData: any;
   constructor(
     public gs: GlobalService,
     public excelService: ExcelService,
@@ -40,7 +42,10 @@ export class SaleReturnDirectMainComponent {
     private _saleDirectReturnService: SaleDirectReturnService,
     private settings: Settings,
     private toastrService: ToastrCustomService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(42, 9);
     this.loading = true
     this.getSPUtilitySaleReturnData()
     this.data$ = this.commonService.getActionSaleReturnClickedStatus().subscribe(
@@ -58,12 +63,12 @@ export class SaleReturnDirectMainComponent {
       (str) => {
         this.queryStr = str
         //console.log( this.queryStr ,'jjjj')
-        this.toDate = 
-        this.fromDate = 
+        this.toDate =
+        this.fromDate =
        this.expoertExceldata()
       }
     )
-  
+
     this.formSearch()
     this.industryId = +this.settings.industryId
     this.clientDateFormat = this.settings.dateFormat
@@ -171,7 +176,7 @@ export class SaleReturnDirectMainComponent {
   }
 
   attributeKeys: any = []
- 
+
   BillName: any
   customerAddress: any = []
   orgImageData: any
@@ -494,7 +499,7 @@ export class SaleReturnDirectMainComponent {
     if (this.mainDataExcel.length > 0) {
       this.excelService.generateExcel(this.getOrgDetails.OrganizationDetails[0].OrgName, this.getOrgDetails.AddressDetails[0].CityName + ' ' + this.getOrgDetails.AddressDetails[0].StateName + ' ' + this.getOrgDetails.AddressDetails[0].CountryName, this.ExcelHeaders, this.mainDataExcel, 'Sale Return', "", "", this.ExcelSummary)
     }
-    
+
   }
   getOrgDetails: any = {}
   ExcelHeaders: any

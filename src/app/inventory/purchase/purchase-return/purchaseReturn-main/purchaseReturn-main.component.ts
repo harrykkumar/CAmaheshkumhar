@@ -1,3 +1,4 @@
+import { LoginService } from './../../../../commonServices/login/login.services';
 import { Component, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Subscription, fromEvent, throwError } from 'rxjs';
@@ -33,22 +34,26 @@ export class PurchaseReturnMainComponent {
   editId:any
   queryStr$: Subscription
   queryStr:string=''
+  menuData: any;
   constructor (public gs: GlobalService,
     public excelService: ExcelService, private route: ActivatedRoute,
      private commonService: CommonService,
       private _saleDirectReturnService: PurchaseService,
       private settings: Settings,
       private toastrService: ToastrCustomService,
-      private _formBuilder: FormBuilder) {
+      private _formBuilder: FormBuilder,
+      private _loginService: LoginService
+    ) {
+      this.menuData = this._loginService.getMenuDetails(43, 9);
         this.loading = true
         this.getSPUtilitySaleReturnData()
     this.data$ = this.commonService.getActionSaleReturnClickedStatus().subscribe(
       (action: any) => {
-        
+
      if (action.type === FormConstants.Print && action.formname === 3) {
          this.onPrintButton(action.id, action.printId,action.isViewPrint)
         }
-            
+
      if (action.type === FormConstants.ViewPrint && action.formname === 3) {
       this.onPrintButton(action.id, action.printId,action.isViewPrint)
      }
@@ -449,7 +454,7 @@ Heading:any =[]
     return newArr
   }
 
-  
+
   word: string = ''
 
   mainDataExcel:any =[]
@@ -459,7 +464,7 @@ Heading:any =[]
         this.excelService.generateExcel(this.getOrgDetailsData.OrganizationDetails[0].OrgName , this.getOrgDetailsData.AddressDetails[0].CityName+ ' ' +this.getOrgDetailsData.AddressDetails[0].StateName + ' ' + this.getOrgDetailsData.AddressDetails[0].CountryName,this.ExcelHeaders,this.mainDataExcel,'Purchase',"", "",this.ExcelSummary)
     }
   }
- 
+
   getOrgDetails (){
     this.getOrgDetailsData={}
     this.commonService.getOrgDetailsForPrintExcelPDF().subscribe(data=>{
@@ -478,7 +483,7 @@ Heading:any =[]
         data.Data.PurchaseTransactionsSummary[0].Discount.toFixed(this.decimalNoPoint),
         data.Data.PurchaseTransactionsSummary[0].TaxAmount.toFixed(this.decimalNoPoint),
         data.Data.PurchaseTransactionsSummary[0].BillAmount.toFixed(this.decimalNoPoint)]
-       
+
         this.ExcelHeaders =["SNo","Ledger Name","Bill No.","Bill Date","Party Bill No","Party Bill Date","Quantity","Discount","Tax Amount","Bill Amount"]
         data.Data.PurchaseTransactions.forEach((element,ind) => {
          let  date =this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
@@ -499,7 +504,7 @@ Heading:any =[]
       }
     })
 
-    
+
   }
 
 

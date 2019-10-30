@@ -3,7 +3,7 @@ import { ItemmasterServices } from './../../../commonServices/TransactionMaster/
 import { AttributeCombinationComponent } from './../attribute-combination/attribute-combination.component';
 import { GlobalService } from './../../../commonServices/global.service';
 import { Settings } from './../../../shared/constants/settings.constant';
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, Renderer2 } from '@angular/core';
 import * as _ from 'lodash'
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { BuyerOrderService } from '../buyer-order.service';
@@ -12,6 +12,7 @@ import { Select2Component } from 'ng2-select2';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { Subscription } from 'rxjs';
 import { AddCust } from '../../../model/sales-tracker.model';
+import { ManufacturingService } from '../../manufacturing.service';
 declare const $: any
 @Component({
   selector: 'app-add-buyer-order',
@@ -39,7 +40,9 @@ export class AddBuyerOrderComponent implements OnInit {
     private _gs: GlobalService,
     private itemMaster: ItemmasterServices,
     private _toaster: ToastrCustomService,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private renderer: Renderer2,
+    private _ms: ManufacturingService
   ) {
     
     let _self = this
@@ -64,6 +67,123 @@ export class AddBuyerOrderComponent implements OnInit {
           newData.push({ id: data.id, text: data.name })
           this.listItem['addressList'] = newData
           this.model['addressValue'] = data.id
+        }
+      }
+    )
+
+    this._buyerOrderService.select2List$.subscribe((data: any) => {
+      // console.log(data)
+      if (data.data && data.title) {
+        if (data.title === 'Buyer') {
+          this.listItem['buyerNameList'] = data.data
+        } else if (data.title === 'Style') {
+          this.listItem['styleNumberList'] = data.data
+        } else if (data.title === 'Season') {
+          this.listItem['seasonList'] = data.data
+        } else if (data.title === 'OrderType') {
+          this.listItem['orderTypeList'] = data.data
+        } else if (data.title === 'Shipping Mode') {
+          this.listItem['shipModeList'] = data.data
+        } else if (data.title === 'Item') {
+          this.listItem['itemList'] = data.data
+        } else if (data.title === 'Packing Type') {
+          let arr = data.data
+          arr.splice(1, 1)
+          this.listItem['packagingTypeList'] = arr
+        } else if (data.title === 'Currency') {
+          let arr = data.data
+          arr.splice(1, 1)
+          this.listItem['currencyList'] = arr
+        }
+      }
+    })
+
+    this.commonService.getCustStatus().subscribe((data: AddCust) => {
+      if (data.name && data.id) {
+        let newData = Object.assign([], this.listItem['buyerNameList'])
+        newData.push({ id: +data.id, text: data.name })
+        this.listItem['buyerNameList'] = newData
+        this.model.buyerNameValue = data.id
+        setTimeout(() => {
+          if (this.first) {
+            const element = this.renderer.selectRootElement(this.first.selector.nativeElement, true)
+            element.focus({ preventScroll: false })
+          }
+        }, 2000)
+      }
+    })
+
+    this._ms.openStyle$.subscribe((data: any) => {
+      if (data.name && data.id) {
+        let newData = Object.assign([], this.listItem['styleNumberList'])
+        newData.push({ id: +data.id, text: data.name })
+        this.listItem['styleNumberList'] = newData
+        this.model.styleNumberValue = data.id
+        setTimeout(() => {
+          if (this.styleSelect2) {
+            const element = this.renderer.selectRootElement(this.styleSelect2.selector.nativeElement, true)
+            element.focus({ preventScroll: false })
+          }
+        }, 2000)
+      }
+    })
+
+    this.commonService.getItemMasterStatus().subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          let newData = Object.assign([], this.listItem.itemList)
+          newData.push({ id: data.id, text: data.name })
+          this.listItem.itemList = Object.assign([], newData)
+          this.model.itemValue = +data.id
+          setTimeout(() => {
+            if (this.itemSelect2) {
+              const element = this.renderer.selectRootElement(this.itemSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
+        }
+      }
+    )
+
+    this.commonService.openCommonMenu$.subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name && data.code) {
+          if (data.code === 170) {
+            let newData = Object.assign([], this.listItem.shipModeList)
+            newData.push({ id: data.id, text: data.name })
+            this.listItem.shipModeList = Object.assign([], newData)
+            this.model.shipModeValue = +data.id
+            setTimeout(() => {
+              if (this.shipmodeSelect2) {
+                const element = this.renderer.selectRootElement(this.shipmodeSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
+          }
+          if (data.code === 184) {
+            let newData = Object.assign([], this.listItem.orderTypeList)
+            newData.push({ id: data.id, text: data.name })
+            this.listItem.orderTypeList = Object.assign([], newData)
+            this.model.orderTypeValue = +data.id
+            setTimeout(() => {
+              if (this.orderTypeSelect2) {
+                const element = this.renderer.selectRootElement(this.orderTypeSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
+          }
+          if (data.code === 185) {
+            let newData = Object.assign([], this.listItem.seasonList)
+            newData.push({ id: data.id, text: data.name })
+            this.listItem.seasonList = Object.assign([], newData)
+            this.model.seasonValue = +data.id
+            setTimeout(() => {
+              if (this.seasonSelect2) {
+                const element = this.renderer.selectRootElement(this.seasonSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
+          }
         }
       }
     )
@@ -291,17 +411,16 @@ export class AddBuyerOrderComponent implements OnInit {
     this._gs.manipulateResponse(this._buyerOrderService.getUtilityItemList()).subscribe((res) => {
       this.attributeFormModal.combineAttributeList = []
       this.attributeFormModal.getUtilityItemList(res)
-      this.listItem['buyerNameList'] = this._buyerOrderService.getList(res['Customers'], 'Name', 'Select Buyer Name')
-      this.listItem['styleNumberList'] = this._buyerOrderService.getList(res['Styles'], 'Name', 'Select Style Number')
-      this.listItem['seasonList'] = this._buyerOrderService.getList(res['Season'], 'Name', 'Select Season')
+      this._buyerOrderService.getList(res['Customers'], 'Name', 'Buyer')
+      this._buyerOrderService.getList(res['Styles'], 'Name', 'Style')
+      this._buyerOrderService.getList(res['Season'], 'Name', 'Season')
       this.listItem['genderList'] = this._buyerOrderService.getGenderList()
-      this.listItem['orderTypeList'] = this._buyerOrderService.getList(res['OrderType'], 'Name', 'Select OrderType')
-      this.listItem['payMentModeList'] = this._buyerOrderService.getList(res['PaymentModes'], 'PayModeName', 'Select Payment Mode')
-      this.listItem['shipModeList'] = this._buyerOrderService.getList(res['ShipmentTypes'], 'CommonDesc', 'Select Shipping Mode')
-      this.listItem['currencyList'] = this._buyerOrderService.getList(res['Currencies'], 'Name', 'Select Currency')
-      this.listItem['itemList'] = this._buyerOrderService.getList(res['Items'], 'Name', 'Select Items')
-      this.listItem['packagingTypeList'] = this._buyerOrderService.getList(res['PackingType'], 'CommonDesc', 'Select Packing Type')
-      // this.model['orderPoNumber'] = res['TransactionNoSetups'][0]['BillNo']
+      this._buyerOrderService.getList(res['OrderType'], 'Name', 'OrderType')
+      this._buyerOrderService.getList(res['PaymentModes'], 'PayModeName', 'Payment Mode')
+      this._buyerOrderService.getList(res['ShipmentTypes'], 'CommonDesc', 'Shipping Mode')
+      this._buyerOrderService.getList(res['Currencies'], 'Name', 'Currency')
+      this._buyerOrderService.getList(res['Items'], 'Name', 'Item')
+      this._buyerOrderService.getList(res['PackingType'], 'CommonDesc', 'Packing Type')
     },
     (error) => {
       console.log(error)
@@ -586,32 +705,78 @@ export class AddBuyerOrderComponent implements OnInit {
   }
   
   @ViewChild('address_select2') addressSelect2: Select2Component
+  @ViewChild('style_select2') styleSelect2: Select2Component
+  @ViewChild('item_select2') itemSelect2: Select2Component
+  @ViewChild('shipmode_select2') shipmodeSelect2: Select2Component
+  @ViewChild('season_select2') seasonSelect2: Select2Component
+  @ViewChild('order_type_select2') orderTypeSelect2: Select2Component
   onDropDownChange(event, key){
     this.model[key] = Number(event.value)
     if(key === 'itemId' && this.model[key]){
       console.log(event)
-      this.model.itemName = event.data[0].text
-      this._buyerOrderService.getUnitAndRateByItemId(this.model[key]).subscribe((res)=> {
-        this.model.unit = res.Data['ItemDetails'][0].UnitId
-        this.model.unitName = res.Data['ItemDetails'][0].UnitName
-        this.model.rate = res.Data['ItemDetails'][0].SaleRate
-      })
+      if (this.model[key] > 0) {
+        this.model.itemName = event.data[0].text
+        this._buyerOrderService.getUnitAndRateByItemId(this.model[key]).subscribe((res)=> {
+          this.model.unit = res.Data['ItemDetails'][0].UnitId
+          this.model.unitName = res.Data['ItemDetails'][0].UnitName
+          this.model.rate = res.Data['ItemDetails'][0].SaleRate
+        })
+      } else if (this.model[key] === 0) {
+        this.model.unit = 0
+        this.model.unitName = ''
+        this.model.rate = 0
+      } else if (this.model[key] === -1) {
+        this.itemSelect2.selector.nativeElement.value = ''
+        this.commonService.openItemMaster('', 0)
+      }
     }
-    if(key === 'buyerNameId' && this.model[key] > 0){
-      this._buyerOrderService.getAllAddresses(Number(event.value)).subscribe(data => {
-        console.log('addresses : ', data)
-        if (data.AddressDetails) {
-          this._buyerOrderService.createAddress(data['AddressDetails'])
-        }
-      })
+    if(key === 'buyerNameId'){
+      if (this.model[key] > 0) {
+        this._buyerOrderService.getAllAddresses(Number(event.value)).subscribe(data => {
+          console.log('addresses : ', data)
+          if (data.AddressDetails) {
+            this._buyerOrderService.createAddress(data['AddressDetails'])
+          }
+        })
+      } else if (this.model[key] === 0) {
+        this.listItem['addressList'] = []
+        this.model['AddressId'] = null
+      } else if (this.model[key] === -1) {
+        this.first.selector.nativeElement.value = ''
+        this.commonService.openCust('', false)
+      }
     }
-    if(key === 'buyerNameId' && this.model[key] === 0){
-      this.listItem['addressList'] = []
-      this.model['AddressId'] = null
-    }
+    if (key === 'styleNumberId') {
+      if (this.model[key] === -1) {
+        this.styleSelect2.selector.nativeElement.value = ''
+        this._ms.openStyle('', false)
+      }
+    } 
+    
     if (key === 'AddressId' && this.model[key] === -1) {
       this.addressSelect2.selector.nativeElement.value = ''
       this.commonService.openAddress(this.model['buyerNameId'])
+    }
+    if (key === 'orderTypeId' && this.model[key] === -1) {
+      this.orderTypeSelect2.selector.nativeElement.value = ''
+      this.commonService.getCommonMenu(184).then((menudata) => {
+        console.log(menudata)
+        this.commonService.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
+      });
+    }
+    if (key === 'seasonId' && this.model[key] === -1) {
+      this.seasonSelect2.selector.nativeElement.value = ''
+      this.commonService.getCommonMenu(185).then((menudata) => {
+        console.log(menudata)
+        this.commonService.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
+      });
+    }
+    if (key === 'shipModeId' && this.model[key] === -1) {
+      this.shipmodeSelect2.selector.nativeElement.value = ''
+      this.commonService.getCommonMenu(170).then((menudata) => {
+        console.log(menudata)
+        this.commonService.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
+      });
     }
   }
 

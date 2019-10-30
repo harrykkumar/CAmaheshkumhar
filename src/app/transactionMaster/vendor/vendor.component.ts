@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core'
 import { Subscription, fromEvent } from 'rxjs'
 import { Ledger } from '../../model/sales-tracker.model'
@@ -32,11 +33,15 @@ export class VendorComponent implements OnInit, OnDestroy {
   queryStr: string = ''
   noOfDecimal:any =0
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  menuData: any
   constructor (private _vendorServices: VendorServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
     private _formBuilder: FormBuilder,
-    private Settings :Settings) {
+    private Settings :Settings,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(38, 1);
       this.noOfDecimal= this.Settings.noOfDecimal
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
@@ -44,13 +49,13 @@ export class VendorComponent implements OnInit, OnDestroy {
           this.deleteItem(obj.id)
         }
       }
-    ) 
+    )
     this.refreshPage = this.commonService.newRefreshItemStatus().subscribe(
       (obj) => {
-        this.getVendorDetail() 
+        this.getVendorDetail()
       }
-    ) 
-    
+    )
+
     // this.getListvendoer = this.commonService.getVendStatus().subscribe(
     //   (obj) => {
     //     debugger
@@ -134,11 +139,11 @@ export class VendorComponent implements OnInit, OnDestroy {
       })
   }
   getVendorDetail () {
-    
+
       if (!this.searchForm.value.searckKey) {
         this.searchForm.value.searckKey = ''
       }
-    
+
     this.subscribe = this._vendorServices.getVendor(4, '&Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
         this.VendorDetailShow = Data.Data

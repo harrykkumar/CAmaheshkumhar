@@ -1,3 +1,4 @@
+import { LoginService } from './../../../commonServices/login/login.services';
 
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
 import { Subscription, fromEvent } from 'rxjs'
@@ -26,7 +27,7 @@ export class SalesChallanComponent implements OnInit {
   masterData: any
   subcribe: Subscription
   saleTravelDetails: SaleTravel[]
-  ledgerItemList: Array<any> = [];  
+  ledgerItemList: Array<any> = [];
   saletravelForm: FormGroup
   bankForm: FormGroup
   newBillSub: Subscription
@@ -93,7 +94,12 @@ export class SalesChallanComponent implements OnInit {
   dataStatus:any =[]
   industryId: any
   StausValue:any=0
-  constructor(public _settings: Settings, private _formBuilder: FormBuilder, private _coustomerServices: VendorServices, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
+  menuData: any;
+  constructor(public _settings: Settings, private _formBuilder: FormBuilder, private _coustomerServices: VendorServices,
+     public _commonService: CommonService,
+     public _toastrCustomService: ToastrCustomService,
+     private _loginService: LoginService) {
+    this.menuData = this._loginService.getMenuDetails(10, 9);
     this.formSearch()
     this.StausValue=0
 
@@ -174,7 +180,7 @@ export class SalesChallanComponent implements OnInit {
    }
    onLedgerItemChange = (event) => {
    // if (this.ledgerItemId !== null) {
-     
+
       if (event.id > 0) {
         this.selectedLedgerId = +event.id
         this.LedgerName = event.text
@@ -216,7 +222,7 @@ export class SalesChallanComponent implements OnInit {
     if (!this.searchForm.value.searckKey) {
       this.searchForm.value.searckKey = ''
     }
-  let ToDate =  this.toDateValue 
+  let ToDate =  this.toDateValue
   let FromDate =  this.fromDatevalue
 
 

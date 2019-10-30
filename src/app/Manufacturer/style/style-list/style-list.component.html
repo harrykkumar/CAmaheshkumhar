@@ -32,7 +32,6 @@
                 <img src="assets/img/printer.png" />
               </a>
               <a> <img src="assets/img/pdf.png"/></a>
-
               <a>
                 <img src="assets/img/excel.png" />
               </a>
@@ -40,7 +39,7 @@
                 type="button"
                 class="btn btn-primary waves-effect waves-light"
                 data-toggle="modal"
-                (click)="addSampleApproval()"
+                (click)="openStyle()"
               >
                 Add New
               </button>
@@ -88,7 +87,7 @@
                       <i
                         class="fa fa-edit fa-1x"
                         aria-hidden="true"
-                        (click)="addSampleApproval(item)"
+                        (click)="openStyle(item)"
                       >
                       </i
                     ></a>
@@ -117,8 +116,3 @@
     ></app-pagination>
   </div>
 </main>
-
-<app-add-style
-  #addStyleRef
-  (triggerCloseModal)="onModalClosed($event)"
-></app-add-style>

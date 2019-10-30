@@ -13,8 +13,8 @@
                       <form >
                           <div id="custom-search-input" class="btn_header1 search-align">
                               <div class="input-group col-md-12">
-                                  <input name="searchFilter" [(ngModel)]="searchString" 
-                                  type="text" class="form-control input-lg" 
+                                  <input name="searchFilter" [(ngModel)]="searchString"
+                                  type="text" class="form-control input-lg"
                                   placeholder="Search Attribute"/>
                                   <span class="input-group-btn">
                                     <a>
@@ -29,7 +29,9 @@
                           <a><img src="assets/img/printer.png"> </a>
                           <a><img src="assets/img/pdf.png"></a>
                           <a><img src="assets/img/excel.png"></a>
-                          <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                          <button
+                          *ngIf="menuData?.write || menuData?.delete"
+                          type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
                               (click)="addNewBranch()">Add New</button>
                       </div>
                   </div>

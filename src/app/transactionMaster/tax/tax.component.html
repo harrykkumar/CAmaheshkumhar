@@ -12,7 +12,7 @@
                             <form [formGroup]="searchForm">
                                 <div id="custom-search-input" class="btn_header1">
                                     <div class="input-group col-md-12">
-                                        <input type="text" 
+                                        <input type="text"
                                         class="form-control input-lg"
                                         placeholder="Search"
                                         formControlName="searckKey"
@@ -31,7 +31,8 @@
                             <a><img src="assets/img/printer.png"> </a>
                             <a><img src="assets/img/pdf.png"></a>
                             <a><img src="assets/img/excel.png"></a>
-                            <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                            <button *ngIf="menuData?.write || menuData?.delete"
+                            type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
                             (click)="addtax()">Add New</button>
                         </div>
                         </div>
@@ -56,16 +57,20 @@
                                 <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;" />
                             </tbody>
                             <tbody>
-                                <tr *ngFor="let item of taxDetail | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i = index; " 
+                                <tr *ngFor="let item of taxDetail | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total }; let i = index; "
                                 [attr.data-taxDetail]="i">
                                     <td>{{lastItemIndex + i + 1}}</td>
                                     <td>{{item.TypeName}}</td>
                                     <td>{{item.Slab}}</td>
                                     <td>
-                                        <a class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit" (click)="editTax(item.Id);">
+                                        <a
+                                        *ngIf="menuData?.write || menuData?.delete"
+                                        class="actionBtn" data-toggle="tooltip" data-placement="top" title="Edit" (click)="editTax(item.Id);">
                                         <i class="fa fa-edit fa-1x" aria-hidden="true">
                                         </i></a>
-                                        <a class="actionBtn" data-toggle="tooltip" data-placement="bottom" title="Delete" (click)="deletePopup(item.Id, 'tax')"><i
+                                        <a
+                                        *ngIf="menuData?.delete"
+                                        class="actionBtn" data-toggle="tooltip" data-placement="bottom" title="Delete" (click)="deletePopup(item.Id, 'tax')"><i
                                         class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
                                     </td>
                                 </tr>
@@ -73,7 +78,7 @@
                         </table>
                     </div>
                 </div>
-               
+
             </div>
         </div>
     </div>

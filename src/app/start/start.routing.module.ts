@@ -206,48 +206,27 @@ const routes: Routes = [
         path: 'account/trading',
         // loadChildren:  () =>  import('../account/trading/trading-report.module').then(m => m.TradingReportModule)
         loadChildren:'../account/trading/trading-report.module#TradingReportModule'
-          
       },
       {
         path: 'ims/voucher-entry',
         // loadChildren:  () =>  import('../inventory/voucher-entry/voucher-entry.module').then(m => m.VoucherEntryModule)
-        loadChildren:'../inventory/voucher-entry/voucher-entry.module#VoucherEntryModule'
-
-    ,
+        loadChildren:'../inventory/voucher-entry/voucher-entry.module#VoucherEntryModule',
         pathMatch: 'full'
       },
       {
         path: 'common-menu/:code',
         // loadChildren:  () => import('../start/common-menu/common-menu.module').then(m => m.CommonMenuModule)
         loadChildren:'../start/common-menu/common-menu.module#CommonMenuModule'
-
-         
       },
       {
         path: 'transaction-number',
         // loadChildren:  () =>  import('../shared/transaction-number/transaction-number.module').then(m => m.TransactionNumberModule)
         loadChildren:'../shared/transaction-number/transaction-number.module#TransactionNumberModule'
-
-        
-      },
-      {
-        path: 'sample-approval',
-        // loadChildren:  () => import('../Manufacturer/sample-approval/sample-approval.module').then(m => m.SampleApprovalModule)
-        loadChildren: '../Manufacturer/sample-approval/sample-approval.module#SampleApprovalModule'
-
-        
-      },
-      {
-        path: 'style',
-        // loadChildren:  () => import('../Manufacturer/style/style.module').then(m => m.StyleModule)
-        loadChildren:'../Manufacturer/style/style.module#StyleModule'
-      
       },
       {
         path: 'material-requirement',
         // loadChildren:  () =>  import('../Manufacturer/item-requirement/item-requirement.module').then(m => m.ItemRequirementModule)
         loadChildren:'../Manufacturer/item-requirement/item-requirement.module#ItemRequirementModule'
-         
       },
       {
         path: 'ims/report/item-inventory',

@@ -22,7 +22,7 @@ export class SideMenuComponent {
     public _loginService: LoginService,
     private spinnerService: NgxSpinnerService,
     private itemMaster: ItemmasterServices,
-    private toaster: ToastrCustomService 
+    private toaster: ToastrCustomService
     ) {
       this.profile_img = '../../../assets/img/man.png'
     this.initSideMenuData();

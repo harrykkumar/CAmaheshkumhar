@@ -90,6 +90,7 @@
                     <label>Order Type</label>
                     <div class="input-group adw_select">
                       <select2 [data]="listItem?.orderTypeList"
+                        #order_type_select2
                         class="control_select"
                         (valueChanged)="onDropDownChange($event, 'orderTypeId')"
                         autocomplete="true"
@@ -102,6 +103,7 @@
                     <label>Season</label>
                     <div class="input-group adw_select">
                       <select2
+                        #season_select2
                         [data]="listItem?.seasonList"
                         class="control_select"
                         (valueChanged)="onDropDownChange($event, 'seasonId')"
@@ -115,6 +117,7 @@
                     <label>Style No.</label>
                     <div class="input-group adw_select">
                       <select2
+                        #style_select2
                         [data]="listItem?.styleNumberList"
                         class="control_select"
                         (valueChanged)="
@@ -204,6 +207,7 @@
                     <label>Ship. Mode</label>
                     <div class="input-group adw_select" >
                       <select2
+                        #shipmode_select2
                         [data]="listItem?.shipModeList"
                         class="control_select"
                         (valueChanged)="onDropDownChange($event, 'shipModeId')"
@@ -274,6 +278,7 @@
                       <div class="input-group adw_select">
                         <div class="input-group adw_select">
                           <select2
+                            #item_select2
                             [data]="listItem?.itemList"
                             class="control_select"
                             (valueChanged)="onDropDownChange($event, 'itemId')"

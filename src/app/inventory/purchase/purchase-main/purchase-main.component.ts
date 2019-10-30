@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Subscription, fromEvent, throwError } from 'rxjs';
@@ -32,6 +33,7 @@ export class PurchaseMainComponent {
   queryStr:string =''
   queryStr$: Subscription
   loading = true
+  menuData: any;
   constructor (public excelService:ExcelService,
     public gs: GlobalService,
     private route: ActivatedRoute,
@@ -39,7 +41,10 @@ export class PurchaseMainComponent {
       private purchaseService: PurchaseService,
       private settings: Settings,
       private toastrService: ToastrCustomService,
-      private _formBuilder: FormBuilder) {
+      private _formBuilder: FormBuilder,
+      private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(15, 9);
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
 
         this.loading = true
@@ -51,7 +56,7 @@ export class PurchaseMainComponent {
         } if (action.type === FormConstants.ViewPrint && action.formname === FormConstants.Purchase) {
           this.onPrintButton(action.id, action.printId,action.isViewPrint)
         }
-        
+
         if (action.type === FormConstants.Print && action.formname === FormConstants.Purchase) {
           this.onPrintButton(action.id, action.printId,action.isViewPrint)
         }
@@ -188,7 +193,7 @@ export class PurchaseMainComponent {
         _self.getDistinctTaxName(data.Data.HsnItemTaxTransDetails, data.Data.HsnItemTransactions, data.Data.PurchaseTransactions[0].Currency)
         _self.attributeKeys = data.Data.ItemTransactions[0].itemAttributes
          this.word = this.commonService.convertNumber(data.Data.PurchaseTransactions[0].BillAmount)
-         this.GstTypeId  = data.Data.PurchaseTransactions[0].GstTypeId 
+         this.GstTypeId  = data.Data.PurchaseTransactions[0].GstTypeId
         let newItemTransaction = this.splitArray(data.Data.ItemTransactions, 18)
         newItemTransaction.forEach((element, index) => {
           data.Data.ItemTransactions = JSON.parse(JSON.stringify(element))
@@ -300,7 +305,7 @@ let valueshow=[]
       border: 1px solid #333;
     }
     @media print {.hidden-print {display: none !important;}}
-   
+
     #main-con{width: 100%}td.cat-con{max-width: 10%;}
     .invoiveN table td, .billT table td {
       font-size: 13px !important;
@@ -337,7 +342,7 @@ let valueshow=[]
     setTimeout(function () {
       if(!isViewPrint){
        printWindow.print()
-       printWindow.close() 
+       printWindow.close()
       }
 
     }, 100)
@@ -415,7 +420,7 @@ let valueshow=[]
     return this.word
   }
 
-  
+
   mainDataExcel:any =[]
   getOrgDetailsData:any ={}
   exportExcel () {
@@ -426,7 +431,7 @@ let valueshow=[]
 
 
   }
- 
+
   getOrgDetails (){
     this.getOrgDetailsData={}
     this.commonService.getOrgDetailsForPrintExcelPDF().subscribe(data=>{
@@ -446,7 +451,7 @@ let valueshow=[]
         data.Data.PurchaseTransactionsSummary[0].Discount.toFixed(this.noOfDecimal),
         data.Data.PurchaseTransactionsSummary[0].TaxAmount.toFixed(this.noOfDecimal),
         data.Data.PurchaseTransactionsSummary[0].BillAmount.toFixed(this.noOfDecimal)]
-       
+
         this.ExcelHeaders =["SNo","Ledger Name","Bill No.","Bill Date","Party Bill No","Party Bill Date","Quantity","Discount","Tax Amount","Bill Amount"]
         data.Data.PurchaseTransactions.forEach((element,ind) => {
          let  date =this.gs.utcToClientDateFormat(element.BillDate, this.clientDateFormat)
@@ -466,7 +471,7 @@ let valueshow=[]
         });
       }
     })
-   
-    
+
+
   }
 }

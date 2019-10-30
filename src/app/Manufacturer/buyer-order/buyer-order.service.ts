@@ -14,6 +14,8 @@ import { Subject } from 'rxjs';
 export class BuyerOrderService {
   addressData = new Subject<{data: Array<Select2OptionData>}>()
   addressData$ = this.addressData.asObservable()
+  private select2ArrSub = new Subject()
+  select2List$ = this.select2ArrSub.asObservable()
   constructor(
     private baseService: BaseServices,
     private gs: GlobalService
@@ -23,14 +25,14 @@ export class BuyerOrderService {
     return this.baseService.getRequest(ApiConstant.SPUTILITY + 'buyerOrder')
   }
 
-  getList(Data, key, title){
-    const list = _.map(Data, (item) => {
+  getList(data, key, title){
+    const list = _.map(data, (item) => {
       return {
         id: item.Id,
         text: item[key]
       }
     })
-    return [{ id: 0, text: title }, ...list]
+    this.select2ArrSub.next({data: [{ id: 0, text: 'Select ' + title }, {id: -1, text: UIConstant.ADD_NEW_OPTION}, ...list], title: title})
   }
 
   getGenderList() {

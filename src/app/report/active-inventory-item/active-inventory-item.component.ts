@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { PagingComponent } from './../../shared/pagination/pagination.component';
 import { GlobalService } from 'src/app/commonServices/global.service';
 import { Settings } from './../../shared/constants/settings.constant';
@@ -30,6 +31,7 @@ export class ActiveInventoryItemComponent implements OnInit, AfterViewInit {
   totalItemSize: number = 0
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
+  menuData: any;
 
   constructor(public _router :Router,
     public excelService: ExcelService,
@@ -37,8 +39,10 @@ export class ActiveInventoryItemComponent implements OnInit, AfterViewInit {
     public _settings: Settings,
     public _commonService: CommonService,
     private _toastService: ToastrCustomService,
-    private activeService: ActiveInventoryService
-  ) {
+    private activeService: ActiveInventoryService,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(91, 1);
     this.clientDateFormat = this._settings.dateFormat
     this.noOfDecimal = this._settings.noOfDecimal
     this.toDate()
@@ -88,7 +92,7 @@ this._commonService.getItem().subscribe(res=>{
       takeUntil(this.unSubscribe$),
       map((response) => {
         return _.map(response.Data, (value) => {
-          
+
           return {
             id: value.Id,
             text: value.Name,
@@ -104,7 +108,7 @@ this._commonService.getItem().subscribe(res=>{
     }, error => console.log(error))
   }
   ngAfterViewInit() {
-   
+
   }
   fromDate = () => {
     this.model.fromDatevalue = this._globalService.utcToClientDateFormat(this._settings.finFromDate, this.clientDateFormat)
@@ -168,7 +172,7 @@ this._commonService.getItem().subscribe(res=>{
             element.Quantity,
             element.SubTotalAmount
           ])
-      }); 
+      });
     }
   }
   ItemId:any =0
@@ -203,7 +207,7 @@ this._commonService.getItem().subscribe(res=>{
         this.activeInventory = response.Data;
         this.getValueFalg = false
         this.ExcelHeaders = ["SNo", "Category","Item","Attribute", "Quantity", "Amount"]
-       
+
       } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.ItemUsages.length === 0) {
         this.getValueFalg = true
         this.ShowingList =[]
@@ -315,7 +319,7 @@ this._commonService.getItem().subscribe(res=>{
     if (this.mainDataExcel.length > 0) {
       this.excelService.generateExcel(this.activeInventory.OrganizationDetails[0].OrgName,
         this.activeInventory.AddressDetails[0].CityName + ' ' +
-        this.activeInventory.AddressDetails[0].StateName + ' ' 
+        this.activeInventory.AddressDetails[0].StateName + ' '
         + this.activeInventory.AddressDetails[0].CountryName,
          this.ExcelHeaders,
         this.mainDataExcel, 'Active Inventory', this.model.fromDatevalue, this.model.toDateValue,[])

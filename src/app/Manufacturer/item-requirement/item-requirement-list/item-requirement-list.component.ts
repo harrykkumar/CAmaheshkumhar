@@ -16,10 +16,10 @@ import { GlobalService } from 'src/app/commonServices/global.service';
 export class ItemRequirementListComponent implements OnInit {
   @ViewChild('addItemRequirementRef') addItemRequirementRef: ItemRequirementComponent
   model: any ={}
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
   lastItemIndex: number = 0
-  pageSize: number = 20
-  pageNo: number = 1
-  totalItemSize: number = 0
   itemRequirementListData: Array<any> = []
   clientDateFormat: string = ''
   private unSubscribe$ = new Subject<void>()
@@ -36,29 +36,12 @@ export class ItemRequirementListComponent implements OnInit {
     this.getItemRequirementListData()
   }
 
-   getItemRequirementListData = async () => {
-    const data = {
-      Page: this.pageNo,
-      Size: this.pageSize
-    }
-     this.itemRequirementListData = await this._itemRequirementService.getItemRequirementListData(data)
-     if (!_.isEmpty(this.itemRequirementListData) && this.itemRequirementListData.length >= 1) {
-       this.totalItemSize = this.itemRequirementListData[0].TotalRows;
-     }
-   }
-
-  onPageNoChange = (event) => {
-    this.pageNo = event
-    this.getItemRequirementListData()
-  }
-
-  onPageSizeChange = (event) => {
-    this.pageSize = event
-    this.getItemRequirementListData()
-  }
-
-  onLastValueChange = (event) => {
-    this.lastItemIndex = event
+  getItemRequirementListData = () => {
+    this._itemRequirementService.getItemRequirementData(`?Page=${this.p}&Size=${this.itemsPerPage}`).subscribe((data) => {
+      console.log('list : ', data)
+      this.itemRequirementListData = data
+      this.total = this.itemRequirementListData[0].TotalRows
+    })
   }
 
   ngOnDestroy(): void {

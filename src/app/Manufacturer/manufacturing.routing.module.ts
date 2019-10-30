@@ -8,11 +8,19 @@ const routes: Routes = [
     children: [
       {
         path: 'packaging',
-        loadChildren: () => import('./packaging/packaging.module').then(m => m.PackagingModule)
+        loadChildren: './packaging/packaging.module#PackagingModule'
       },
       {
         path: 'buyer-order',
-        loadChildren: () => import ('./buyer-order/buyer-order.module').then(m => m.BuyerOrderModule)
+        loadChildren: './buyer-order/buyer-order.module#BuyerOrderModule'
+      },
+      {
+        path: 'style',
+        loadChildren: './style/style.module#StyleModule'
+      },
+      {
+        path: 'sample-approval',
+        loadChildren: './sample-approval/sample-approval.module#SampleApprovalModule'
       }
     ]
   }

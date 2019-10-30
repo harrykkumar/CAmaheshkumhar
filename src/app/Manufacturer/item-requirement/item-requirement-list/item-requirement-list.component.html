@@ -53,15 +53,14 @@
         <div class="col-md-12">
           <div class="bgc-white bdrs-3 mB-20">
             <div class="table-responsive table_height">
-              <table class="table cat-table cat-table table-hover">
+              <table class="table req-table table-hover">
                 <thead>
                   <tr>
                     <th width="7%">SNo.</th>
-                    <th width="25%">Name</th>
-                    <th width="15%">Type</th>
-                    
+                    <th width="15%">Requirement No.</th>
+                    <th width="25%">Item Name</th>
+                    <th width="15%">Attributes</th>
                     <th width="15%">On Date</th>
-                    <th width="15%">Cost</th>
                     <th width="15%">Total Items</th>
                     <th width="8%">Action</th>
                   </tr>
@@ -69,15 +68,19 @@
                 <tbody>
                   <tr
                     *ngFor="
-                      let item of itemRequirementListData| paginate: { itemsPerPage: pageSize, currentPage: pageNo, totalItems: totalItemSize
-                            };
-                      let i = index">
-                    <td>{{ i + 1 }}</td>
-                    <td>{{ item?.ParentName }}</td>
+                      let item of itemRequirementListData| paginate
+                      : {
+                          itemsPerPage: itemsPerPage,
+                          currentPage: p,
+                          totalItems: total
+                        };
+                      let i = index;">
+                    <td>{{ lastItemIndex + i + 1 }}</td>
+                    <td>{{ item?.ReqNo }}</td>
                     <td>{{ item?.ParentTypeName }}</td>
+                    <td>{{ item?.AttributeStr }}</td>
                     <td>{{ item?.OnDate | dateFormat: clientDateFormat }}</td>
-                    <td>{{ item?.Cost }}</td>
-                    <td>{{ item?.TotalItems }}</td>
+                    <td>{{ item?.Qty }}</td>
                     <td>
                       <a
                         data-toggle="tooltip"
@@ -85,13 +88,11 @@
                         title="Edit"
                         class="actionBtn"
                       >
-                        <i
-                          class="fa fa-edit fa-1x"
-                          aria-hidden="true"
-                          (click)="addItemRequirement(item)"
-                        >
-                        </i
-                      ></a>
+                      <i
+                        class="fa fa-edit fa-1x"
+                        aria-hidden="true"
+                        (click)="addItemRequirement(item)"
+                      ></i></a>
                       <a
                         data-toggle="tooltip"
                         class="actionBtn"
@@ -112,12 +113,12 @@
      
     </div>
   </main>
-  <app-pagination
-  #sample_approval_paging
-  (lastValueEmitter)="onLastValueChange($event)"
-  (pageNoEmitter)="onPageNoChange($event)"
-  (pageSizeEmitter)="onPageSizeChange($event)"
+<app-pagination
+  (lastValueEmitter)="lastItemIndex = $event"
+  (pageNoEmitter)="p = $event; getItemRequirementListData()"
+  (pageSizeEmitter)="itemsPerPage = $event; getItemRequirementListData()"
 ></app-pagination>
+
  
   <app-item-requirement #addItemRequirementRef
   (triggerCloseModal)="onModalClosed($event)" ></app-item-requirement>

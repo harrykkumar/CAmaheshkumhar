@@ -20,7 +20,7 @@ export class UserTypeListComponent implements OnInit {
     private _userService: UserFormService,
     private _loginService: LoginService
   ) {
-    this.menuData = this._loginService.getMenuPermission('Configuration', 'User Role');
+    this.menuData = this._loginService.getMenuDetails(45, 28);
   }
 
   ngOnInit() {

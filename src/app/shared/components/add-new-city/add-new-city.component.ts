@@ -45,6 +45,7 @@ export class AddNewCityComponent implements OnInit {
   }
 
   openModal(Data?){
+    debugger
     this.countryList = [...Data.countryList]
     this.model.countryValue = Data.countryId
     if (Number(Data.stateId) > 0) {

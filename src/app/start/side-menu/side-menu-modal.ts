@@ -25,24 +25,28 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 2,
+    ParentId: 1,
     Name: "Category",
     path: "ims/category",
     icon: ""
   },
   {
     Id: 3,
+    ParentId: 1,
     Name: "Unit",
     path: "ims/unit",
     icon: ""
   },
   {
     Id: 4,
+    ParentId: 1,
     Name: "Composite Unit",
     path: "ims/composite",
     icon: ""
   },
   {
     Id: 5,
+    ParentId: 1,
     Name: "TaxSlab",
     path: "ims/tax",
     icon: ""
@@ -55,18 +59,21 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 7,
+    ParentId: 1,
     Name: "Discount",
     path: "ims/discount-master",
     icon: ""
   },
   {
     Id: 8,
+    ParentId: 1,
     Name: "Item-Master",
     path: "ims/item",
     icon: ""
   },
   {
     Id: 10,
+    ParentId: 9,
     Name: "Sale-Challan",
     path: "ims/sale-challan/challan",
     icon: ""
@@ -85,6 +92,7 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 13,
+    ParentId: 9,
     Name: "Sale",
     path: "ims/sale",
     icon: ""
@@ -97,6 +105,7 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 15,
+    ParentId: 9,
     Name: "Purchase",
     path: "ims/purchase",
     icon: ""
@@ -217,12 +226,14 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 37,
+    ParentId: 1,
     Name: "Customer",
     path: "ims/customer",
     icon: ""
   },
   {
     Id: 38,
+    ParentId: 1,
     Name: "Vendor",
     path: "ims/vendor",
     icon: ""
@@ -235,6 +246,7 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 40,
+    ParentId: 1,
     Name: "Attribute",
     path: "ims/attribute",
     icon: ""
@@ -247,30 +259,35 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 42,
+    ParentId: 9,
     Name: "Sale Return",
     path: "ims/sale-return",
     icon: ""
   },
   {
     Id: 43,
+    ParentId: 9,
     Name: "Purchase Return",
     path: "ims/purchase-return",
     icon: ""
   },
   {
     Id: 44,
+    ParentId: 28,
     Name: "User",
     path: "users",
     icon: ""
   },
   {
     Id: 45,
+    ParentId: 28,
     Name: "User Role",
     path: "usertypes",
     icon: ""
   },
   {
     Id: 46,
+    ParentId: 28,
     Name: "User Right",
     path: "user-rights",
     icon: ""
@@ -289,18 +306,21 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 49,
+    ParentId: 28,
     Name: "Branches",
     path: "owner/branch",
     icon: ""
   },
   {
     Id: 50,
+    ParentId: 28,
     Name: "Offices",
     path: "owner/branch/office",
     icon: ""
   },
   {
     Id: 51,
+    ParentId: 28,
     Name: "Master Setting",
     path: "settings/setup",
     icon: ""
@@ -319,6 +339,7 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 54,
+    ParentId: 1,
     Name: "Bank",
     path: "ims/bank",
     icon: ""
@@ -341,12 +362,6 @@ export const SIDE_MENU_MODEL = [
     path: "account/trading",
     icon: ""
   },
-  // {
-  //   Id: 59,
-  //   Name: "Customer-Type",
-  //   path: "common-menu",
-  //   icon: ""
-  // },
   {
     Id: 60,
     Name: "TransactionNo",
@@ -356,13 +371,13 @@ export const SIDE_MENU_MODEL = [
   {
     Id: 61,
     Name: "Sample Approval",
-    path: "sample-approval",
+    path: "manufacturing/sample-approval",
     icon: ""
   },
   {
     Id: 62,
     Name: "Style",
-    path: "style",
+    path: "manufacturing/style",
     icon: ""
   },
   {
@@ -511,6 +526,7 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 90,
+    ParentId: 1,
     Name: "Item ActiveStatus",
     path: "ims/item-active-status",
     icon: "fas-fa-exchange-alt"
@@ -535,6 +551,7 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 91,
+    ParentId: 1,
     Name: "Item Growth",
     path: "ims/report/active-inventory-item",
     icon: "fas-fa-exchange-alt"

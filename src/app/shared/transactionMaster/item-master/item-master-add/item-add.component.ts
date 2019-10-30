@@ -969,7 +969,6 @@ export class ItemAddComponent {
         this.isBarCode = !!(+element.val)
         if(!this.editMode){
           this.getBarCodeSetting()
-
         }
       }
       if (element.id === SetUpIds.noOfDecimalPoint) {

@@ -82,11 +82,7 @@
                                                     autocomplete="true" [options]="{placeholder:'Select Type'}"
                                                     [value]="coustomerValue"></select2>
                                             </div>
-                                            <!-- <ng-select name="taxName" [items]="selectyCoustmoreRegistration" 
-                                            bindLabel="text"
-                                            bindValue="id" placeholder="Select Tax Slab"
-                                            (change)="TaxSlabId = $event.id" [(ngModel)]="coustomerValue">
-                                        </ng-select> -->
+                                          
                                         </div>
                                     </div>
                                     <div class="form-group col-md-4">
@@ -194,3 +190,7 @@
         </div>
     </div>
 </div>
+<app-add-new-city
+#addNewCityRef
+(addCityClosed)="addCityClosed($event)"
+></app-add-new-city>

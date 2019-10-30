@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { AttributeService } from './attribute.service'
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { UIConstant } from 'src/app/shared/constants/ui-constant'
@@ -30,20 +31,23 @@ export class AttributeComponent implements OnInit {
   refreshPage:Subscription
   parentAttrAdd$: Subscription
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  menuData: any;
   constructor (
     private attributeService: AttributeService,
     private toastrService: ToastrCustomService,
     public commonService: CommonService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(40, 1);
     this.initDeleteStatus()
     this.initCloseAttributeStatus()
     this.formSearch()
-
     this.refreshPage = this.commonService.newRefreshItemStatus().subscribe(
       (obj) => {
-        this.initAttributeList() 
+        this.initAttributeList()
       }
-    ) 
+    )
   }
 
   ngOnInit () {

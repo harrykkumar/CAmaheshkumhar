@@ -13,14 +13,14 @@
                                     <div class="row">
                                         <div *ngIf="catLevel > 1" class="col-md-6 pr-0" >
                                             <div class="input-group adw_select custom-search-input">
-                                                <select2 [data]="categoryLevels" 
+                                                <select2 [data]="categoryLevels"
                                                 #catlevel_select2 class="control_select"
                                                 (valueChanged)="selectCatLevel($event)"
                                                 autocomplete="true" [options]="categoryPlaceholder"
                                                 [value]="catLevelValue"></select2>
                                             </div>
                                         </div>
-                                        <div [ngClass]="{'col-md-12': catLevel === 1, 'col-md-6': catLevel > 1}" 
+                                        <div [ngClass]="{'col-md-12': catLevel === 1, 'col-md-6': catLevel > 1}"
                                             [ngStyle]="{'margin-right': catLevel === 1 ? '20px': '0px'}" >
                                             <div class="input-group custom-search-input">
                                                 <input type="text"
@@ -43,9 +43,14 @@
                                 <a><img src="assets/img/printer.png"> </a>
                                 <a><img src="assets/img/pdf.png"></a>
                                 <a><img src="assets/img/excel.png"></a>
-                                <button type="button" class="btn btn-primary waves-effect waves-light" (click)="openImport()"
+                                <button
+                                *ngIf="menuData?.write || menuData?.delete"
+                                type="button" class="btn btn-primary waves-effect waves-light"
+                                 (click)="openImport()"
                                     data-toggle="modal">Import Category</button>
-                                <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                                <button
+                                *ngIf="menuData?.write || menuData?.delete"
+                                type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
                                     (click)="addCatagory()">Add New</button>
                             </div>
                          </div>
@@ -76,11 +81,15 @@
                                     <td>{{item.Name}}</td>
                                     <td *ngIf="catLevel > 1" >{{item.UnderCategory}}</td>
                                     <td>
-                                        <a data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn" >
+                                        <a
+                                        *ngIf="menuData?.write || menuData?.delete"
+                                        data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn" >
                                         <i class="fa fa-edit fa-1x" aria-hidden="true"
                                         (click)="editCatagory(item.Id)">
                                         </i></a>
-                                        <a data-toggle="tooltip" class="actionBtn" data-placement="bottom" title="Delete" (click)="deleteCatagory(item.Id)"><i
+                                        <a
+                                        *ngIf="menuData?.delete"
+                                         data-toggle="tooltip" class="actionBtn" data-placement="bottom" title="Delete" (click)="deleteCatagory(item.Id)"><i
                                         class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
                                     </td>
                                 </tr>
@@ -88,7 +97,6 @@
                         </table>
                     </div>
                 </div>
-               
             </div>
         </div>
     </div>

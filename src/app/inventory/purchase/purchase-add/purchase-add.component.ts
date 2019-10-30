@@ -268,8 +268,6 @@ export class PurchaseAddComponent {
           this.BillDiscountApplied = data.data
           this.MultipleDiscountCalculate(data.data)
         }
-
-
       })
     this.commonService.getPurchaseStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       (status: AddCust) => {
@@ -3275,6 +3273,12 @@ onLoading(){
         this.invalidObj['GodownId'] = true
         isValid = 0
       }
+      // if (this.AddressId) {
+      //   this.invalidObj['AddressId'] = false
+      // } else {
+      //   this.invalidObj['AddressId'] = true
+      //   isValid = 0
+      // }
       if (this.Items.length === 0 && this.submitSave) {
         isValid = 0
         if (+this.ItemId > 0) {
@@ -3347,6 +3351,14 @@ onLoading(){
             this.invalidObj['Width'] = true
           }
         }
+        // this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
+        //   if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
+        //     $('#' + $('.attr')[index].id).removeClass('errorSelecto')
+        //   } else {
+        //     isValid = 0
+        //     $('#' + $('.attr')[index].id).addClass('errorSelecto')
+        //   }
+        // })
       }
       return !!isValid
     }

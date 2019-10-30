@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { Subscription, fromEvent } from 'rxjs'
 import { UIConstant } from '../../shared/constants/ui-constant'
@@ -28,10 +29,14 @@ export class ItemMasterComponent implements OnInit, OnDestroy {
   queryStr$: Subscription
   queryStr: string
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  menuData: any;
   constructor (private _itemmasterServices: ItemmasterServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(8, 1);
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
         if (obj.id && obj.type && obj.type === 'itemMaster') {

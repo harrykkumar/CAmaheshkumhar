@@ -4,13 +4,14 @@ import { BaseServices } from 'src/app/commonServices/base-services';
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash'
 import { map } from 'rxjs/operators';
+import { GlobalService } from '../../commonServices/global.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StyleService {
 
-  constructor(private baseService: BaseServices) { }
+  constructor(private baseService: BaseServices, private _gs: GlobalService) { }
 
    
   getStyleNumberListData(data?){
@@ -37,7 +38,7 @@ export class StyleService {
   }
 
   postStyleFormData(data){
-    return this.baseService.postRequest(ApiConstant.SAMPLE_STYLE, data)
+    return this._gs.manipulateResponse(this.baseService.postRequest(ApiConstant.SAMPLE_STYLE, data))
   }
 
   deleteStyle(id){

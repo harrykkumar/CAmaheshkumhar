@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
 declare var $: any
 import * as _ from 'lodash'
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
+import { CommonService } from '../../../commonServices/commanmaster/common.services';
 
 @Component({
   selector: 'app-attribute-combination',
@@ -22,7 +23,7 @@ export class AttributeCombinationComponent implements OnInit {
     multiple: true
   }
   constructor(
-    private _toaster: ToastrCustomService,
+    private _toaster: ToastrCustomService, private _cs: CommonService
   ) {
   }
 
@@ -116,6 +117,7 @@ export class AttributeCombinationComponent implements OnInit {
         }
       })
     })
+    this._cs.fixTableHF('cat-table')
   }
 
   postData(){

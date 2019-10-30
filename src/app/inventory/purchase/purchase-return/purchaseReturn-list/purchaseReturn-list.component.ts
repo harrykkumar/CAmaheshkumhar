@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
@@ -45,12 +46,15 @@ export class PurchaseReturnListComponent implements OnInit {
   searchKey: string = ''
   queryStr: string = ''
   queryStr$: Subscription
+  menuData: any;
   constructor (private _loaderService :NgxSpinnerService , private _saleDirectReturnService: PurchaseService,
     private commonService: CommonService,
     private settings: Settings,
     private gs: GlobalService,
-    private toastrService: ToastrCustomService
+    private toastrService: ToastrCustomService,
+    private _loginService: LoginService
     ) {
+    this.menuData = this._loginService.getMenuDetails(43, 9);
    this.getPurchaseReturnList()
     this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
       () => {
@@ -71,7 +75,7 @@ export class PurchaseReturnListComponent implements OnInit {
           this.deleteItem(obj.id)
         }
       }
-    ) 
+    )
     this.queryStr$ = this._saleDirectReturnService.queryStr$.subscribe(
       (str) => {
         console.log(str)
@@ -97,7 +101,7 @@ export class PurchaseReturnListComponent implements OnInit {
     this.searchGetCall(text).subscribe((data) => {
       setTimeout(() => {
         this._loaderService.hide()
-      
+
       }, 100)
       // this.createTableData(data.Data, '')
       this.createTableData(data.Data.PurchaseTransactions, data.Data.PurchaseTransactionsSummary)
@@ -105,7 +109,7 @@ export class PurchaseReturnListComponent implements OnInit {
     },(err) => {
       setTimeout(() => {
         this._loaderService.hide()
-     
+
       }, 100)
       console.log('error',err)
     },
@@ -116,7 +120,7 @@ export class PurchaseReturnListComponent implements OnInit {
     })
   }
 
-    
+
   searchGetCall (term: string) {
     if (!term) {
       term = ''
@@ -137,9 +141,9 @@ export class PurchaseReturnListComponent implements OnInit {
     this.commonService.onActionSaleReturnClicked(action)
     if(action.type ===4){
     this.commonService.openDelete(id, 'PurchaseReturn', 'PurchaseReturn')
-    
+
     }
-    
+
   }
   getPurchaseReturnList () {
     if (!this.searchKey || this.searchKey.length === 0) {
@@ -214,7 +218,7 @@ export class PurchaseReturnListComponent implements OnInit {
       { type: FormConstants.Cancel, id: 0, text: 'Cancel' },
 
     ]
-    this.customFooter = [{ 
+    this.customFooter = [{
       colspan: 4, data: [
         +summary[0].TotalQty.toFixed(2),
         +summary[0].Discount.toFixed(2),
@@ -229,7 +233,7 @@ export class PurchaseReturnListComponent implements OnInit {
     }, 100)
   }
 
-  
+
   deleteItem (id) {
     if (id) {
       this.commonService.cancelPurchase(id).pipe(

@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { Settings } from '../../../shared/constants/settings.constant'
@@ -38,17 +39,20 @@ export class SaleDirectListComponent implements OnInit {
   @ViewChild('custom_table', { read: ElementRef }) customTable: ElementRef
   @ViewChild('paging_comp') pagingComp: PagingComponent
   private unSubscribe$ = new Subject<void>()
-  noOfDecimalPoint:any= 0 
+  noOfDecimalPoint:any= 0
   onTextEnteredSub: Subscription
   searchKey: string = ''
   queryStr: string = ''
   queryStr$: Subscription
+  menuData: any;
   constructor (private _saleDirectService: SaleDirectService,
     private commonService: CommonService,
     private settings: Settings,
     private gs: GlobalService,
-    private toastrService: ToastrCustomService
+    private toastrService: ToastrCustomService,
+    private _loginService: LoginService
     ) {
+    this.menuData = this._loginService.getMenuDetails(13, 9);
       this.clientDateFormat = this.settings.dateFormat
       this.noOfDecimalPoint = this.settings.noOfDecimal
       this.getSaleDirectList()
@@ -71,17 +75,17 @@ export class SaleDirectListComponent implements OnInit {
           this.deleteItem(obj.id)
         }
       }
-    ) 
-    
+    )
+
   this.commonService.newRefreshItemStatus().subscribe(
       (obj) => {
         this.getSaleDirectList()
       }
-    ) 
-    
+    )
+
     this.queryStr$ = this._saleDirectService.queryStr$.subscribe(
       (str) => {
-        
+
         this.queryStr = str
         this.p = 1
         this.getSaleDirectList()
@@ -93,7 +97,7 @@ export class SaleDirectListComponent implements OnInit {
         this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
        // this.SaleRegisterViewflag = action.viewflag
         this.getSaleDirectList()
-        
+
       }
     )
   }
@@ -118,7 +122,7 @@ export class SaleDirectListComponent implements OnInit {
     })
   }
 
-    
+
   searchGetCall (term: string) {
     if (!term) {
       term = ''
@@ -138,9 +142,9 @@ export class SaleDirectListComponent implements OnInit {
     this.commonService.onsaleDirectActionClicked(action)
     if(action.type ===4){
     this.commonService.openDelete(id, 'Sale', 'Sale')
-    
+
     }
-    
+
   }
   getSaleDirectList () {
     if (!this.searchKey || this.searchKey.length === 0) {
@@ -175,7 +179,7 @@ export class SaleDirectListComponent implements OnInit {
       this.isSearching = false
       this.toastrService.showError(error, '')
     })
- 
+
   }
   notRecordFound:any =true
   createTableData (data, summary) {
@@ -196,7 +200,7 @@ export class SaleDirectListComponent implements OnInit {
         { type: FormConstants.Edit, id: 0, text: 'Edit' },
         { type: FormConstants.Cancel, id: 0, text: 'Cancel' },
         FlagReturn
-        
+
       ]
 
     })
@@ -220,8 +224,8 @@ export class SaleDirectListComponent implements OnInit {
       { text: 'Discount', isRightAligned: true },
       { text: 'TaxAmount', isRightAligned: true },
       { text: 'BillAmount', isRightAligned: true }]
- 
-    this.customFooter = [{ 
+
+    this.customFooter = [{
       colspan: 4, data: [
         +summary[0].TotalQty.toFixed(2),
         +summary[0].Discount.toFixed(2),
@@ -236,7 +240,7 @@ export class SaleDirectListComponent implements OnInit {
   //}
   }
 
-  
+
   deleteItem (id) {
     if (id) {
       this.commonService.cancelSale(id).pipe(

@@ -16,6 +16,9 @@ import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 declare const flatpickr: any
+import * as _ from 'lodash'
+import { AddNewCityComponent } from '../../../../shared/components/add-new-city/add-new-city.component';
+
 @Component({
   selector: 'app-vendor-add',
   templateUrl: './vendor-add.component.html',
@@ -169,6 +172,7 @@ export class VendorAddComponent implements OnDestroy {
   dobDate: any
   daoDate: any
   initModel() {
+  
     this.customerError = true
     this.persnalError = true
     this.contactPerson = ''
@@ -182,6 +186,9 @@ export class VendorAddComponent implements OnDestroy {
     this.daoDate = ''
     this.dobDate = ''
     this.EmailAddress = ''
+    this.countryValue= null
+    this.stateValue= null
+    this.cityValue= null
     this.areaName = ''
   }
   openModal() {
@@ -533,13 +540,11 @@ export class VendorAddComponent implements OnDestroy {
   mobileNo: any
   checkNumberByCountry(e) {
     this.mobileNo = e.target.value
-    // if (this.checkSelectCode) {
     if (this.validmobileLength === this.mobileNo.length) {
       this.validMobileFlag = false
     } else {
       this.validMobileFlag = true
     }
-    // }
 
   }
   checkSelectCode: boolean = false
@@ -579,14 +584,12 @@ export class VendorAddComponent implements OnDestroy {
         this.select_Mobile.setElementValue(this.mobileArray[i].ContactType)
         this.contactTypeName = this.mobileArray[i].ContactTypeName
         this.mobileNo = this.mobileArray[i].ContactNo
+        this.countryCodeFlag =this.mobileArray[i].CountryCode
         this.CountryCode = this.mobileArray[i].CountryCode
-        this.phoneCodeselect2.setElementValue(this.mobileArray[i].CodeId)
         this.CodeId = this.mobileArray[i].CodeId
         this.validMobileFlag = false
         this.deleteArrayMobileType(i, 'contact')
       }
-
-
       else {
         this._toastrcustomservice.showWarning('', 'Save Editable Contact')
 
@@ -771,7 +774,7 @@ export class VendorAddComponent implements OnDestroy {
   getCitylist(id, value) {
     this.subscribe = this._vendorServices.getCityList(id).subscribe(Data => {
       this.cityList = []
-      let newData = []
+      let newData = [{id:'-1',text:'+Add New'}]
       Data.Data.forEach(element => {
         newData.push({
           id: element.Id,
@@ -783,15 +786,7 @@ export class VendorAddComponent implements OnDestroy {
   }
 
   cityId: any
-  selectedCityId(event) {
-    if (this.cityValue !== null) {
-      this.cityId = event.id
-      this.cityError = false
-      if (this.cityId > 0) {
-        this.getAreaId(this.cityId)
-      }
-    }
-  }
+  
   private getAreaId(id) {
     this.subscribe = this._vendorServices.getAreaList(id).subscribe(Data => {
       this.areaListPlaceHolder = { placeholder: 'Select Area' }
@@ -1248,8 +1243,16 @@ export class VendorAddComponent implements OnDestroy {
     this.loadAddressDetails(address)
     this.adressType(address.AddressType)
   }
+  countryCodeFlag:any =null
   loadAddressDetails(Address) {
     this.cityId = Address.CityId
+    this.countryCodeFlag = Address.CountryCode
+    let phonecode = {
+      id: Address.CountryCode, text: Address.CountryName,
+      PhoneCode: Address.CountryCode,
+      Length: Address.Length
+    }
+    this.onCountryCodeSelectionChange(phonecode)
     this.countrId =Address.CountryId
     this.stateId=Address.StateId
     this.areaID = Address.AreaId
@@ -1316,6 +1319,7 @@ export class VendorAddComponent implements OnDestroy {
     this.select2VendorValue(UIConstant.ZERO)
     this.select2CrDrValue(1)
     this.crdrSelect2.setElementValue(1)
+   
 
   }
   bankIndex: any
@@ -1465,19 +1469,13 @@ export class VendorAddComponent implements OnDestroy {
     })
   }
   onCountryCodeSelectionChange = (event) => {
-
-    if (event.data.length > 0) {
-      if (event.data[0].id !== '0') {
-        this.checkSelectCode = true
-        this.enableContactFlag = false
-        this.CountryCode = '+' + event.data[0].PhoneCode
-        this.validmobileLength = event.data[0].Length
-        this.CountryCodeId = event.data[0].PhoneCode
+    if (this.countryCodeFlag !== null) {
+      if (event.id > 0) {
+        if (event.id !== '0') {
+          this.CountryCode = event.PhoneCode
+          this.validmobileLength = event.Length
+        }
       }
-      else {
-        this.enableContactFlag = true
-      }
-
     }
   }
   contactType: any
@@ -1536,7 +1534,7 @@ export class VendorAddComponent implements OnDestroy {
       // this.phoneCodeselect2.setElementValue(0)
       this.select_Mobile.setElementValue(1)
       this.contactType = '1'
-      this.CountryCode = 0
+      this.CountryCode = this.countryCodeFlag
       this.validMobileFlag = false
     }
   }
@@ -1547,7 +1545,7 @@ export class VendorAddComponent implements OnDestroy {
     this.addConctFlag = true
     this.editFlg = true
     this.validateContact()
-    if (this.contactType > 0 && this.CountryCode > 0 && !this.validMobileFlag && this.mobileNo !== '') {
+    if (this.contactType > 0  && !this.validMobileFlag && this.mobileNo !== '') {
 
       this.mobileRequirdForSetting = false
       this.mobileArray.push({
@@ -1617,10 +1615,52 @@ export class VendorAddComponent implements OnDestroy {
     let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
     if (Address !== null) {
       this.validmobileLength = Address.Length
+      this.countryCodeFlag = Address.CountryCode
       this.CountryCode = Address.CountryCode
-      this.phoneCodeselect2.setElementValue(Address.CountryCode)
     }
-
-
   }
+  
+  @ViewChild('addNewCityRef') addNewCityRefModel: AddNewCityComponent
+  selectedCityId(event) {
+    if (this.cityValue !== null) {
+      this.cityId = event.id
+      this.cityError = false
+      if (this.cityId > 0) {
+        this.getAreaId(this.cityId)
+      }
+       if(event.id === '-1'){
+        const data = {
+          countryList: !_.isEmpty(this.countryList) ? [...this.countryList] : [],
+          countryId: this.countryValue===null ? 0 : this.countryValue,
+          stateId: this.stateValue===null ? 0 :  this.stateValue
+        }
+        this.addNewCityRefModel.openModal(data);
+      }
+    }
+  }
+  
+  addCityClosed(selectedIds?) {
+    if (this.countryValue > 0) {
+      if (this.countryValue !==null && Number(this.countryValue) !== selectedIds.countryId) {
+        this.countryValue = selectedIds.countryId
+       // this.cityId =selectedIds.cityId
+     //   this.stateId = selectedIds.stateId
+        this.stateValue = selectedIds.stateId
+        this.cityValue = selectedIds.cityId;
+      } else if (this.stateValue !==null && Number(this.stateValue) !== selectedIds.stateId) {
+        this.stateValue = selectedIds.stateId
+        this.cityValue = selectedIds.cityId;
+     //   this.cityId =selectedIds.cityId
+        //this.stateId = selectedIds.stateId
+      } else {
+        this.cityValue = selectedIds.cityId;
+       this.cityId =selectedIds.cityId
+        this.getCitylist(selectedIds.stateId,0)
+      }
+    } else {
+      this.cityValue =null
+      //this.cityId =0
+    }
+  }
+
 }

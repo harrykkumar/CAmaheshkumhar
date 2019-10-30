@@ -29,8 +29,10 @@
                             </a>
                             <a>
                                 <img src="assets/img/pdf.png"></a>
-                                
-                            <a (click)="exportExcel()">
+
+                            <a
+                            *ngIf="menuData?.write || menuData?.delete"
+                            (click)="exportExcel()">
                                 <img src="assets/img/excel.png"></a>
                             <!-- <button type="button" class="btn btn-primary waves-effect waves-light" [disabled]="loading"
                 (click)="openPurchase()">New {{title}}</button> -->

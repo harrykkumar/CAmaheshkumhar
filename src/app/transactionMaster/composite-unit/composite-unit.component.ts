@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core'
 import { Subscription, fromEvent, throwError } from 'rxjs'
 import { UnitModel } from '../../model/sales-tracker.model'
@@ -27,10 +28,14 @@ export class CompositeUnitComponent implements OnInit, OnDestroy {
   searchForm: FormGroup
   isSearching: boolean = false
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  menuData: any;
   constructor (private _compositeUnitserivices: CompositeUnitService,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(4, 1);
     this.formSearch()
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {

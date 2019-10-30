@@ -1,3 +1,4 @@
+import { LoginService } from './../../commonServices/login/login.services';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { CatagoryDetailModel } from '../../model/sales-tracker.model'
@@ -43,12 +44,15 @@ export class CategoryComponent implements OnInit {
   @ViewChild('searchData') searchData: ElementRef
   isSearching: boolean = false
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  menuData: any;
   constructor (private _catagoryservices: CategoryServices,
     private _formBuilder: FormBuilder,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
-    private settings: Settings
+    private settings: Settings,
+    private _loginService: LoginService
     ) {
+    this.menuData = this._loginService.getMenuDetails(2, 1);
     this.getCatLevel()
     this.newCatSub = this.commonService.newCatStatus().subscribe(
       (obj) => {

@@ -127,6 +127,7 @@ export class AdminMasterSettingComponent implements OnInit {
   searchSubmit() {
     const query = {
       ClientId: this.utilityModal.selectedClientId,
+      Type: 'admin',
     }
     if(this.utilityModal.selectedOrganizationId){
       query['OrgId'] = this.utilityModal.selectedOrganizationId
@@ -279,6 +280,7 @@ export class AdminMasterSettingComponent implements OnInit {
     }
     if (isValid) {
       let obj = {
+        'Type': 'admin',
         'SetupClients': newSettings,
         'ClientId': this.utilityModal.selectedClientId
       }

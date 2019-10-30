@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { FormGroup, FormBuilder } from '@angular/forms'
@@ -29,8 +30,12 @@ export class TaxComponent implements OnInit {
   fillingTaxRate: Array<any> = []
   taxDetail: Array<any> = []
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  menuData: any
   constructor (public toastrCustomService: ToastrCustomService ,private _taxMasterServices: TaxMasterService,
-    private commonService: CommonService, private _formBuilder: FormBuilder) {
+    private commonService: CommonService, private _formBuilder: FormBuilder,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(5, 1);
     this.modalSub = this.commonService.getTaxAddStatus().subscribe(
       (obj) => {
         this.getTaxDetail()

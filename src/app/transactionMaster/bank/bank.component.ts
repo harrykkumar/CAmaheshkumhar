@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { Subscription, fromEvent } from 'rxjs'
 import { UIConstant } from '../../shared/constants/ui-constant'
@@ -15,7 +16,6 @@ import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 export class BankComponent implements OnInit {
   subscribe: Subscription
   deleteSub2: Subscription
-   
   bankDetailShow: any
   deleteSub: Subscription
   bankgetListSub: Subscription
@@ -26,10 +26,14 @@ export class BankComponent implements OnInit {
   lastItemIndex: number = 0
   isSearching: boolean = false
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  menuData: any
   constructor (
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
-    private _formBuilder: FormBuilder) {
+    private _formBuilder: FormBuilder,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(54, 1);
     this.formSearch()
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {

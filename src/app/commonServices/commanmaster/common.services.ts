@@ -1,12 +1,15 @@
+import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 import { Injectable } from '@angular/core'
 import { BehaviorSubject, Subject, Observable } from 'rxjs'
-import { AddCust } from '../../model/sales-tracker.model'
+import { AddCust } from '../../model/sales-tracker.model';
 import { BaseServices } from '../base-services'
 import { ApiConstant } from '../../shared/constants/api'
 import { Router, NavigationEnd } from '@angular/router'
 import { map } from 'rxjs/operators';
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
+import { ConnectionService } from 'ng-connection-service';
 declare const $: any
+import * as _ from 'lodash';
 
 @Injectable({
   providedIn: 'root'
@@ -53,13 +56,10 @@ export class CommonService {
   private sendDataForSearchSub = new BehaviorSubject<AddCust>({ 'open': false })
   private newRefreshSub = new Subject()
   private redirectSub = new Subject()
-
   private ledgerSummarySub = new BehaviorSubject<AddCust>({ 'open': false })
   private openSaleDirectReturnSubject = new BehaviorSubject<AddCust>({ 'open': false })
-
   private onsaleDirectActionClicked$ = new Subject()
   private AfterSaveShowPrint$ = new Subject()
-
   public previousUrl: String;
   public currentUrl: String;
   private openConfirmationeSubJect = new BehaviorSubject<AddCust>({ 'open': false })
@@ -75,19 +75,54 @@ export class CommonService {
   private openPurchaseReturnSub$ = new Subject()
   private subjectOftermAndCondition = new BehaviorSubject<AddCust>({ 'open': false })
   private discountMasterSubect = new BehaviorSubject<AddCust>({ 'open': false })
-
   private setpupsChange = new Subject()
   setupChange$ = this.setpupsChange.asObservable()
   private openAddActiveInventorySub = new BehaviorSubject<AddCust>({ 'open': false })
-
+  isInternet: boolean = true;
   //  validation reg ex
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
   panRegx = `[A-Z]{5}[0-9]{4}[A-Z]{1}$`
   gstInRegx = `^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$`
 
-  constructor(private router: Router, private baseService: BaseServices) {
+  constructor(private router: Router, private baseService: BaseServices,
+    private connectionService: ConnectionService,
+    private toaster: ToastrCustomService) {
+    this.catchInternetConnectionEvent();
     this.setPreviousUrl();
+    this.storeNoConnectionImageUrl();
+  }
+
+  storeNoConnectionImageUrl(){
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "../../../assets/img/no-internet-connection.png", true);
+    xhr.responseType = "blob";
+    xhr.onload = (event : any) => {
+        const file = event.target.response;
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e: any) => {
+          localStorage.setItem('NO_CONNECTION_IMG_URL', e.target.result);
+        };
+    };
+    xhr.send()
+  }
+
+  catchInternetConnectionEvent = () =>  {
+    this.connectionService.monitor().subscribe(
+      (isConnected) => {
+        if (isConnected) {
+          this.isInternet = true;
+          setTimeout(() => {
+            this.navigateToPreviousUrl()
+          }, 5000)
+        }
+        else {
+          this.isInternet = false;
+          this.toaster.showError('', 'Network Connection Failed Please Try Again');
+          this.router.navigate(['noconnection'])
+        }
+      })
   }
 
   onSetupChange () {
@@ -436,7 +471,7 @@ export class CommonService {
   getCountryList() {
     return this.baseService.getRequest(ApiConstant.COUNTRY_LIST)
   }
- 
+
   openAttribute(data, isSubAttr) {
     this.openAddAttributeSub.next({ 'open': true, 'isSubAttr': isSubAttr, 'data': data })
   }
@@ -716,7 +751,7 @@ export class CommonService {
   }
 
   getReportItemStock(data) {
-    const url = `${ApiConstant.REPORT_ITEM_STOCK}?CategoryId=${data.CategoryId}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&AttributeSearch=${data.AttributeSearch}&ItemId=${data.ItemId}&UnitId=${data.UnitId}&Page=${data.Page}&Size=${data.Size}`;
+    const url = `${ApiConstant.REPORT_ITEM_STOCK}?CategoryId=${data.CategoryId}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&AttributeSearch=${data.AttributeSearch}&ItemId=${data.ItemId}&UnitId=${data.UnitId}&Page=${data.Page}&Status=${data.Status}&Size=${data.Size}`;
     return this.baseService.getRequest(url)
   }
 
@@ -1086,7 +1121,7 @@ export class CommonService {
   searchToggleClose() {
     this.searchToggle.next({ 'open': false })
   }
-  // 
+  //
 
 
   private querySaleStrSub = new Subject<string>()
@@ -1356,7 +1391,7 @@ export class CommonService {
   openDiscountMasterStatus() {
     return this.discountMasterSubect.asObservable()
   }
-  
+
   closeDiscountMaster(discountData) {
     if (discountData) {
       this.discountMasterSubect.next({ 'open': false, 'data':discountData  })
@@ -1437,7 +1472,7 @@ export class CommonService {
     return this.redirectSub.asObservable()
   }
 
-  
+
   reDirectViewListOfSale(action) {
     this.redirectSub.next(action)
   }
@@ -1461,7 +1496,7 @@ export class CommonService {
   getDashBoardCashInCashOut (FromDate,ToDate) {
     return this.baseService.getRequest(ApiConstant.DASHBOARD_CASHIN_CASHOUT +"?FromDate="+FromDate+"&ToDate="+ToDate)
   }
- 
+
   getDashboardInventory (FromDate,ToDate,type) {
     return this.baseService.getRequest(ApiConstant.DASHBOARD_INVENTORY +"?FromDate="+FromDate+"&ToDate="+ToDate+"&Type=" + type)
   }
@@ -1473,15 +1508,34 @@ export class CommonService {
   }
   getDashboardCreditorDebitors (FromDate,ToDate,type) {
     return this.baseService.getRequest(ApiConstant.DASHBOARD_CreditorDebitor +"?FromDate="+FromDate+"&ToDate="+ToDate+"&Type=" + type)
-  } 
+  }
   getAllTax () {
     return this.baseService.getRequest(ApiConstant.GET_TAX_DETAIL_URL )
   }
   geActiveInventoryReport(data) {
-    const url = `${ApiConstant.REPORT_ACTIVE_INVENTORY}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&ItemId=${data.ItemId}&ActiveCategoryId=${data.ActiveCategoryId}&StrSearch=${data.StrSearch}`; 
+    const url = `${ApiConstant.REPORT_ACTIVE_INVENTORY}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&ItemId=${data.ItemId}&ActiveCategoryId=${data.ActiveCategoryId}&StrSearch=${data.StrSearch}`;
     return this.baseService.getRequest(url)
   }
   getItem () {
     return this.baseService.getRequest(ApiConstant.ITEM_MASTER_DETAIL_URL)
+  }
+
+
+  private openCommonMenuSub = new BehaviorSubject<AddCust>({'open': false})
+  openCommonMenu$ = this.openCommonMenuSub.asObservable()
+  private onCommonMenuAddSub = new Subject()
+  onCommonMenuAdd$ = this.onCommonMenuAddSub.asObservable()
+  openCommonMenu (data) {
+    this.openCommonMenuSub.next(data)
+  }
+  closeCommonMenu (data?) {
+    if (data) {
+      this.openCommonMenuSub.next({ 'open': false, 'name': data.name, 'id': data.id, 'code': data.code})
+    } else {
+      this.openCommonMenuSub.next({ 'open': false })
+    }
+  }
+  onCommonMenuAdd () {
+    this.onCommonMenuAddSub.next()
   }
 }

@@ -2,7 +2,7 @@ import { ToastrCustomService } from './../../commonServices/toastr.service';
 import { CommonService } from './../../commonServices/commanmaster/common.services';
 import { ActivatedRoute } from '@angular/router';
 import { UIConstant } from './../../shared/constants/ui-constant';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -12,7 +12,7 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './common-menu.component.html',
   styleUrls: ['./common-menu.component.css']
 })
-export class CommonMenuComponent implements OnInit {
+export class CommonMenuComponent {
   private unSubscribe$ = new Subject<void>()  
   searchForm: FormGroup
   openAddMenu: {};
@@ -29,28 +29,23 @@ export class CommonMenuComponent implements OnInit {
         this.menuCode = parameters.get('code');
         if (this.menuCode) {
           this.menuData = await this.commonService.getCommonMenu(this.menuCode);
+          console.log(this.menuData)
           if (this.menuData) {
             this.getCommonMenuListData();
           }
           this.initDeleteCommonMenu()
         }
       })
+
+      this.commonService.onCommonMenuAdd$.subscribe((data) => {
+        this.getCommonMenuListData()
+      })
     this.buildForm()
    }
 
-  async ngOnInit() {
-    // if (this.menuCode) {
-    //   this.menuData = await this.commonService.getCommonMenu(this.menuCode);
-    //   if (this.menuData) {
-    //     this.getCommonMenuListData();
-    //   }
-    //   this.initDeleteCommonMenu()
-    // }
-  }
-
   getCommonMenuListData(){
     this.commonService.getCommonMenuDataList(this.menuCode, '').subscribe((response) => {
-      if(response.Code === 1000) {
+      if(response.Code === UIConstant.THOUSAND) {
         this.listData = response.Data;
         }
     })
@@ -63,18 +58,16 @@ export class CommonMenuComponent implements OnInit {
   }
 
   openAddCommonMenu(){
-    this.openAddMenu={
-      open: true,
-      data: this.menuData
-    }
+    this.commonService.openCommonMenu({open: true,data: this.menuData, isAddNew: true})
   }
 
   editCommonMenu(id){
-    this.openAddMenu={
+    this.commonService.openCommonMenu({
       open: true,
       data: this.menuData,
-      Id: id
-    }
+      Id: id,
+      isAddNew: false
+    })
   }
 
   deleteCommonMenu(id){
@@ -96,7 +89,7 @@ export class CommonMenuComponent implements OnInit {
   deleteItem (id) {
     if (id) {
       this.commonService.deleteCommonMenu(this.menuData.CodeId, id).subscribe(Data => {
-        if (Data.Code === 1000) {
+        if (Data.Code === UIConstant.THOUSAND) {
           this.toastr.showSuccess('Sucess', 'Deleted Successfully')
           this.commonService.closeDelete('')
           this.getCommonMenuListData()
@@ -124,7 +117,7 @@ export class CommonMenuComponent implements OnInit {
     filter = input.value.toUpperCase();
     table = document.getElementById("common_menu_table");
     tr = table.getElementsByTagName("tr");
-    loop1: for (i = 1; i < tr.length; i++) {
+    for (i = 1; i < tr.length; i++) {
       tdArray = tr[i].getElementsByTagName("td");
       loop2: for (j = 0; j < 2; j++) {
        const innerTd = tdArray[j];
@@ -136,9 +129,8 @@ export class CommonMenuComponent implements OnInit {
           } else {
             tr[i].style.display = "none";
           }
-        }     
+        }
       }
     }
   }
-
 }

@@ -1,141 +1,129 @@
-<div class="modal fade right" id="sample_approval_form" data-backdrop="static" data-keyboard="false"  role="dialog"
-    aria-labelledby="attribute_master" aria-hidden="true">
-    <div class="modal-dialog modal-full-height modal-right" role="document">
-        <div class="modal-content">
-            <div class="modal-header close_popup">
-                <h4 class="modal-title w-100 c-grey-900">Sample Approval</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" (click)="closeModal()" >&times;</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <div>
-                        <form #sampleApprovalFormModal="ngForm" (ngSubmit)=" saveOrUpdateSampleApproval()" novalidate>
-                            <div class="form-row">
-                              <div class="form-group col-md-12 d-inline-flex">
-                              <div class="radio col-md-4">
-                                  <label><input type="radio" id="styleNo" [(ngModel)]="model.SampleTypeId" value="1" #styleNo name="optradio" >Style No</label>
-                                </div>
-                                <div class="radio col-md-8">
-                                  <label><input type="radio" id="sampleNo" [(ngModel)]="model.SampleTypeId" value="2" #sample  name="optradio"> Sample Reference No</label>
-                                </div>
-                                </div>
-                                <div class="form-group col-md-12 " *ngIf="styleNo?.checked">
-                                    <label>Style Number</label>
-                                    <div class="input-group adw_select">
-                                      <div class="input-group adw_select">
-                                        <select2
-                                          #styleNoSelect
-                                          [data]="styleNumberListData"
-                                          class="control_select"
-                                          autocomplete="true"
-                                          (valueChanged)="onStyleNumberChange($event)"
-                                          [value]="model.styleNoValue"
-                                        >
-                                        </select2>
-                                      </div>
-                                    </div>
-                                  </div>
-                                <div class="form-group col-md-12" *ngIf="sample?.checked">
-                                    <label for="attrName">Sample Reference No.</label>
-                                    <input 
-                                    name="sampleRefNo"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Enter Sample Reference No"
-                                    [(ngModel)]="model.SampleNo">
-                                </div>
-                                <div class="form-group col-md-12 ">
-                                    <label class="fw-500">Date</label>
-                                    <div class="timepicker-input input-icon form-group">
-                                      <datepicker-popup [toSetDate]="model.SampleDate"
-                                      (dateInFormat)="model.SampleDate = $event;"
-                                    ></datepicker-popup>
-                                    </div>
-                                  </div>
-                                  <div class="form-group col-md-12">
-                                    <label class="fw-500">Expected Reply Date</label>
-                                    <div class="timepicker-input input-icon form-group">
-                                      <datepicker-popup [toSetDate]="model.ExpectedReplyDate"
-                                      (dateInFormat)="model.ExpectedReplyDate = $event;"
-                                    ></datepicker-popup>
-                                    </div>
-                                  </div>
-                                <div class="form-group col-md-12">
-                                    <label for="attrName">Reference</label>
-                                    <input 
-                                    name="reference"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Enter Reference"
-                                    [(ngModel)]="model.Reference">
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <label for="attrName">Shipment No.</label>
-                                    <input 
-                                    name="shipmentNo"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Enter Shipment Number"
-                                    [(ngModel)]="model.ShipmentNo">
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <label for="attrName">Remark</label>
-                                    <input 
-                                    name="remark"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Enter Remark"
-                                    [(ngModel)]="model.Remark">
-                                </div>
-                                <div class="form-group col-md-12 ">
-                                    <label>Sample Shipment By</label>
-                                    <div class="input-group adw_select">
-                                      <div class="input-group adw_select">
-                                        <select2
-                                          #shipMentBySelect
-                                          [data]="sampleShipmentByList"
-                                          class="control_select"
-                                          autocomplete="true"
-                                          (valueChanged)="onSampleShipMentByChange($event)"
-                                          [value]="model.sampleShipmentByValue"
-                                        >
-                                        </select2>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <a class="custom-file-upload form-group col-md-12" 
-                                  (click)="openImageModal()">
-                                      <label for="file-upload" class="custom-file-upload attachment_file">
-                                          <i class="fas fa-paperclip"></i>&nbsp;
-                                          Attachment
-                                      </label>
-                                    </a>
-
-                                    <div class="col-md-12">
-                                        <div *ngIf="ImageFiles && ImageFiles.length > 0">
-                                          <div class="mB-5" *ngFor="let image of ImageFiles;let i = index;" >
-                                              <div class="toast-header">
-                                                  <strong class="mr-auto">{{image.Name}}</strong>
-                                                  <button type="button" class="image-cross-icon ml-2 mb-1 close"
-                                                  (click)="removeImage(i)" >&times;</button>
-                                              </div>
-                                          </div>
-                                      </div>
-                                      </div>
-                                      <div class="col-md-12">
-                                        <div *ngIf="ImageFiles && ImageFiles.length > 0">
-                                          <img id="center-img" [src]="ImageFiles[0].BaseString" (click)="openImageModal()" />
-                                          </div>
-                                      </div>
-                            </div>
-                            <div class="modal-footer" style="padding-right:0;" >
-                                <button type="submit" class="btn btn-primary waves-effect">Save </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+<div class="modal fade right" id="sample_approval_form" data-backdrop="static" data-keyboard="false" role="dialog"
+  aria-labelledby="attribute_master" aria-hidden="true">
+  <div class="modal-dialog modal-full-height modal-right" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Sample Approval</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"
+            (click)="closeModal()">&times;</span></button>
+      </div>
+      <div *ngIf="loading" class="modal-content">
+        <div class="modal-body" style="height:inherit;">
+          <img src="assets/img/spinner-blue-circle.gif" alt="loading screen"
+            style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
         </div>
+      </div>
+      <div class="modal-body" *ngIf="!loading" >
+        <div class="card-body">
+          <div>
+            <form #sampleApprovalFormModal="ngForm" (ngSubmit)=" saveOrUpdateSampleApproval()" novalidate>
+              <div class="form-row">
+                <div class="form-group col-md-12 d-inline-flex">
+                  <div class="radio col-md-4">
+                    <label><input type="radio" id="styleNo" [(ngModel)]="model.SampleTypeId" value="1" #styleNo
+                      name="optradio">Style No</label>
+                  </div>
+                  <div class="radio col-md-8">
+                    <label><input type="radio" id="sampleNo" [(ngModel)]="model.SampleTypeId" value="2" #sample
+                      name="optradio"> Sample Reference No</label>
+                  </div>
+                </div>
+                <div class="form-group col-md-12 " *ngIf="styleNo?.checked">
+                  <label>Style Number</label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2 #styleNoSelect [data]="styleNumberListData" class="control_select" autocomplete="true"
+                        (valueChanged)="onStyleSelect($event)" [value]="model.styleNoValue">
+                      </select2>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-12" *ngIf="sample?.checked">
+                  <label for="attrName">Sample Reference No.</label>
+                  <input name="sampleRefNo" type="text" class="form-control" placeholder="Enter Sample Reference No"
+                    [(ngModel)]="model.SampleNo">
+                </div>
+                <div class="form-group col-md-12 ">
+                  <label class="fw-500">Date</label>
+                  <div class="timepicker-input input-icon form-group">
+                    <datepicker-popup [toSetDate]="model.SampleDate" (dateInFormat)="model.SampleDate = $event;">
+                    </datepicker-popup>
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <label class="fw-500">Expected Reply Date</label>
+                  <div class="timepicker-input input-icon form-group">
+                    <datepicker-popup [toSetDate]="model.ExpectedReplyDate"
+                      (dateInFormat)="model.ExpectedReplyDate = $event;"></datepicker-popup>
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <label for="attrName">Reference</label>
+                  <input name="reference" type="text" class="form-control" placeholder="Enter Reference"
+                    [(ngModel)]="model.Reference">
+                </div>
+                <div class="form-group col-md-12">
+                  <label for="attrName">Shipment No.</label>
+                  <input name="shipmentNo" type="text" class="form-control" placeholder="Enter Shipment Number"
+                    [(ngModel)]="model.ShipmentNo">
+                </div>
+                <div class="form-group col-md-12">
+                  <label for="attrName">Remark</label>
+                  <input name="remark" type="text" class="form-control" placeholder="Enter Remark"
+                    [(ngModel)]="model.Remark">
+                </div>
+                <div class="form-group col-md-12 ">
+                  <label>Sample Shipment By</label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2 #shipMentBySelect [data]="sampleShipmentByList" class="control_select"
+                        autocomplete="true" (valueChanged)="onShipmentSelect($event)"
+                        [value]="model.sampleShipmentByValue">
+                      </select2>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <label>Sample Stage</label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2 #stageSelect2 [data]="stageListData" class="control_select" autocomplete="true"
+                        (valueChanged)="onStageSelect($event)" [value]="model.stageValue">
+                      </select2>
+                    </div>
+                  </div>
+                </div>
+                <a class="custom-file-upload form-group col-md-12" (click)="openImageModal()">
+                  <label for="file-upload" class="custom-file-upload attachment_file">
+                    <i class="fas fa-paperclip"></i>&nbsp;
+                    Attachment
+                  </label>
+                </a>
+
+                <div class="col-md-12">
+                  <div *ngIf="ImageFiles && ImageFiles.length > 0">
+                    <div class="mB-5" *ngFor="let image of ImageFiles;let i = index;">
+                      <div class="toast-header">
+                        <strong class="mr-auto">{{image.Name}}</strong>
+                        <button type="button" class="image-cross-icon close"
+                          (click)="removeImage(i)">&times;</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div *ngIf="ImageFiles && ImageFiles.length > 0">
+                    <img class="img-fluid" id="center-img" [src]="ImageFiles[0].BaseString" (click)="openImageModal()" />
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer" style="padding-right:0;">
+                <button type="submit" class="btn btn-primary waves-effect">Save </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>

@@ -55,10 +55,23 @@ export class ItemStockSearchComponent implements OnInit, AfterViewInit, OnChange
   }
 
   ngAfterViewInit(){
+    this.model.statusTypeName ='Itemwise'
+    this.getStatusType()
     this.toDate()
     this.fromDate()
   }
-
+StatusType:any=[]
+ getStatusType(){
+  this.StatusType =[{id:1,text:'ItemWise'},{id:2,text:'ExpiryWise'},{id:3,text:'CategoryWise'}]
+ }
+ statusTypeName:any ='ItemWise'
+ 
+ StatusTypeChange (evt){
+if(evt && evt.value>0){
+  this.model.statusTypeName =evt.data[0].text
+  this.statusTypeName = evt.text
+}
+ }
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.toShow) {
       this.resetValues()
@@ -236,6 +249,7 @@ export class ItemStockSearchComponent implements OnInit, AfterViewInit, OnChange
     this.model.unitValue = 0
     this.model.fromDatevalue = ""
     this.model.toDateValue = ""
+   // this.statusTypeName=
   }
 
 }

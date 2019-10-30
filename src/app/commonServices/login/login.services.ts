@@ -58,12 +58,10 @@ export class LoginService {
 
   /* Function to get user data, modules, menus and menu-permissions */
   getUserDetails = (OrgId) => {
-    
     return new Promise((resolve, reject) => {
       this._basesService.getRequest(`${ApiConstant.USER_PROFILE}?Id=${OrgId}`).subscribe(
         async (data) => {
           if (data.Code === UIConstant.THOUSAND) {
-          //  console.log('user data : ', data.Data)
             this.userData = data.Data
             await this.mapSideMenus()
             await this.mapSubMenus()
@@ -167,20 +165,21 @@ export class LoginService {
   }
 
   /* Function to get menu permissions */
-  getMenuPermission = (menuName, subMenuName) => {
-    let menuPermission;
-    const sideMenuArray = [...this.userData.Modules[this.selectedUserModule['index']]['sideMenu']]
-    const subMenuArray = _.find(sideMenuArray, (Menu) => {
-      if (Menu.Name === menuName) {
-        return true;
+  getMenuDetails = (menuId, parentMenuId) => {
+    const selectedModule = JSON.parse(localStorage.getItem('SELECTED_MODULE'))
+    if(!_.isEmpty(selectedModule)){
+    const menuArray = JSON.parse(JSON.stringify(selectedModule['sideMenu']));
+      if (!_.isEmpty(menuArray)) {
+        const parentMenu = _.find(menuArray, { Id: parentMenuId })
+        if (!_.isEmpty(parentMenu)) {
+          const subMenuArray = JSON.parse(JSON.stringify(parentMenu.subMenu));
+          if (!_.isEmpty(subMenuArray)) {
+            const selectedMenu = _.find(subMenuArray, { Id: menuId })
+            return selectedMenu;
+          }
+        }
       }
-    })
-    menuPermission = _.find(subMenuArray.subMenu, (subMenu) => {
-      if (subMenu.Name === subMenuName) {
-        return true;
-      }
-    })
-    return menuPermission;
+    }
   }
 
   getUserOrganization() {
@@ -190,7 +189,7 @@ export class LoginService {
         if (res.Code === UIConstant.THOUSAND) {
           this.organizationList = [...res.Data['OrganizationDetails']];
           this.loginUserDetails = { ...res.Data['LoginUserDetails'][0] }
-         
+
           localStorage.setItem('LOGIN_USER', JSON.stringify(this.loginUserDetails));
           resolve(this.organizationList);
         } else if (res.Code === 5018) {
@@ -198,7 +197,7 @@ export class LoginService {
         }
       },
         (error) => {
-         
+
         });
     })
   }

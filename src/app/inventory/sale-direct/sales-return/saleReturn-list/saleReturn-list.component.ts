@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
@@ -45,12 +46,15 @@ export class SaleReturnDirectListComponent implements OnInit {
   searchKey: string = ''
   queryStr: string = ''
   queryStr$: Subscription
+  menuData: any
   constructor (private _loaderService :NgxSpinnerService , private _saleDirectReturnService: SaleDirectReturnService,
     private commonService: CommonService,
     private settings: Settings,
     private gs: GlobalService,
-    private toastrService: ToastrCustomService
+    private toastrService: ToastrCustomService,
+    private _loginService: LoginService
     ) {
+    this.menuData = this._loginService.getMenuDetails(42, 9);
    this.getSaleReturnList()
     this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
       () => {
@@ -71,7 +75,7 @@ export class SaleReturnDirectListComponent implements OnInit {
           this.deleteItem(obj.id)
         }
       }
-    ) 
+    )
     this.queryStr$ = this._saleDirectReturnService.queryStr$.subscribe(
       (str) => {
         console.log(str)
@@ -97,13 +101,13 @@ export class SaleReturnDirectListComponent implements OnInit {
     this.searchGetCall(text).subscribe((data) => {
       setTimeout(() => {
         this._loaderService.hide()
-      
+
       }, 100)
       this.createTableData(data.Data.SaleDetails, data.Data.SaleSummary)
     },(err) => {
       setTimeout(() => {
         this._loaderService.hide()
-     
+
       }, 100)
       console.log('error',err)
     },
@@ -114,7 +118,7 @@ export class SaleReturnDirectListComponent implements OnInit {
     })
   }
 
-    
+
   searchGetCall (term: string) {
     if (!term) {
       term = ''
@@ -135,9 +139,9 @@ export class SaleReturnDirectListComponent implements OnInit {
     this.commonService.onActionSaleReturnClicked(action)
     if(action.type ===4){
     this.commonService.openDelete(id, 'saleDirectReturn', 'saleDirectReturn')
-    
+
     }
-    
+
   }
   getSaleReturnList () {
     if (!this.searchKey || this.searchKey.length === 0) {
@@ -211,7 +215,7 @@ export class SaleReturnDirectListComponent implements OnInit {
       { type: FormConstants.Edit, id: 0, text: 'Edit' },
       { type: FormConstants.Cancel, id: 0, text: 'Cancel' }
     ]
-    this.customFooter = [{ 
+    this.customFooter = [{
       colspan: 4, data: [
         +summary[0].TotalQty.toFixed(2),
         +summary[0].Discount.toFixed(2),
@@ -226,7 +230,7 @@ export class SaleReturnDirectListComponent implements OnInit {
     }, 100)
   }
 
-  
+
   deleteItem (id) {
     if (id) {
       this.commonService.cancelPurchase(id).pipe(

@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AddStyleComponent } from './add-style.component';
+import { NoconnectionComponent } from './noconnection.component';
 
-describe('AddStyleComponent', () => {
-  let component: AddStyleComponent;
-  let fixture: ComponentFixture<AddStyleComponent>;
+describe('NoconnectionComponent', () => {
+  let component: NoconnectionComponent;
+  let fixture: ComponentFixture<NoconnectionComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AddStyleComponent ]
+      declarations: [ NoconnectionComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AddStyleComponent);
+    fixture = TestBed.createComponent(NoconnectionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

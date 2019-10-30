@@ -4,19 +4,15 @@ import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { StyleService } from '../style.service';
 import { Subject } from 'rxjs/internal/Subject';
-import { takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash'
-declare var $: any
-declare var flatpickr: any
-
+import { ManufacturingService } from '../../manufacturing.service';
 @Component({
   selector: 'app-style-list',
   templateUrl: './style-list.component.html',
   styleUrls: ['./style-list.component.css']
 })
 export class StyleListComponent implements OnInit {
-  @ViewChild('addStyleRef') addStyleRefModal: AddStyleComponent
-  model: any ={}
+  model: any = {}
   lastItemIndex: number = 0
   pageSize: number = 20
   pageNo: number = 1
@@ -26,7 +22,12 @@ export class StyleListComponent implements OnInit {
 
   constructor(private _styleService: StyleService,
     public _commonService: CommonService,
-    private _toastService: ToastrCustomService) { }
+    private _toastService: ToastrCustomService,
+    private _ms: ManufacturingService) {
+    this._ms.styleAdd$.subscribe((data: any) => {
+      this.getStyleListData()
+    })
+  }
   ngOnInit() {
     this.getStyleListData()
   }
@@ -61,9 +62,10 @@ export class StyleListComponent implements OnInit {
     this.unSubscribe$.complete()
   }
 
-  addSampleApproval(item?){
-    this.addStyleRefModal.openModal(item);
+  openStyle(item?){
+    this._ms.openStyle(item, false);
   }
+
   onModalClosed(event){
     this.getStyleListData()
   }

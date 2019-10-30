@@ -454,4 +454,9 @@ export class ApiConstant {
   public static get REPORT_ACTIVE_INVENTORY(): string { return this.BASE_URL + '/api/v1/inventory/itemactivestatus' }
 
   public static get CLIENT_BRANCH(): string { return this.BASE_URL + '/api/v1/Owner/Branch' }
-}
+
+public static get SAMPLE_STAGE_URL(): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=186' }
+
+public static get GET_CASH_PARTY_DETAILS_BY_MOBILE(): string { return this.BASE_URL + '/api/v1/common/CashParty' }
+
+public static get EDIT_SAMPLE_DATA (): string { return this.BASE_URL + '/api/v1/manufacture/sampledetails?Id=' }}

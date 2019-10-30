@@ -19,7 +19,7 @@ export class OrgBranchOfficeListComponent implements OnInit {
     private _orgService: CompanyProfileService,
     private _loginService: LoginService
   ) {
-    this.menuData = this._loginService.getMenuPermission('Configuration', 'Offices');
+    this.menuData = this._loginService.getMenuDetails(50, 28);
    }
 
   ngOnInit () {

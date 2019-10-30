@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
 import { UIConstant } from '../../shared/constants/ui-constant'
 import { Subscription, fromEvent } from 'rxjs'
@@ -30,11 +31,15 @@ export class CustomerComponent implements OnInit {
   noOfDecimal:any =0
   queryStr: string = ''
   @ViewChild('paging_comp') pagingComp: PagingComponent
+  menuData: any;
   constructor (private _coustomerServices: VendorServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
     private _formBuilder: FormBuilder,
-    private Settings:Settings) {
+    private Settings:Settings,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(37, 1);
       this.noOfDecimal= this.Settings.noOfDecimal
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
@@ -53,11 +58,11 @@ export class CustomerComponent implements OnInit {
       }
     )
     this.deleteSub = this.commonService.newRefreshItemStatus().subscribe(
-      (obj) => {  
+      (obj) => {
           this.getCustomerDetail()
       }
     )
-    
+
 
     this.formSearch()
   }

@@ -307,6 +307,7 @@ export interface AddCust {
   gstType?:any
   discountParam?:any
   editData?:any
+  code?: any
 }
 
 export interface ResponseSale {

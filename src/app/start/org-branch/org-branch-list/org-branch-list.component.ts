@@ -1,3 +1,4 @@
+import { ActivatedRoute } from '@angular/router';
 import { LoginService } from './../../../commonServices/login/login.services';
 import { Component, OnInit } from '@angular/core'
 import { Observable, of, throwError } from 'rxjs'
@@ -18,9 +19,9 @@ export class OrgBranchListComponent implements OnInit {
   openModal: any = {}
   constructor (
     private _orgService: CompanyProfileService,
-    private _loginService: LoginService
-  ) { 
-    this.menuData = this._loginService.getMenuPermission('Configuration', 'Branches');
+    private _loginService: LoginService,
+  ) {
+    this.menuData = this._loginService.getMenuDetails(49, 28);
   }
 
   ngOnInit () {

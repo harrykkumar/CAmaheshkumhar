@@ -1,3 +1,4 @@
+import { LoginService } from 'src/app/commonServices/login/login.services';
 /* File created by Dolly Garg */
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
@@ -43,12 +44,15 @@ export class PurchaseListComponent implements OnInit {
   searchKey: string = ''
   queryStr: string = ''
   queryStr$: Subscription
+  menuData: any
   constructor(private purchaseService: PurchaseService,
     private commonService: CommonService,
     private settings: Settings,
     private gs: GlobalService,
-    private toastrService: ToastrCustomService
-  ) {
+    private toastrService: ToastrCustomService,
+    private _loginService: LoginService
+    ) {
+    this.menuData = this._loginService.getMenuDetails(15, 9);
     this.getPurchaseList()
     this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
       () => {
@@ -116,7 +120,7 @@ export class PurchaseListComponent implements OnInit {
       term = ''
     }
     this.pagingComp.setPage(1)
-    return this.purchaseService.getPurchaseList('?StrSearch=' + term + '&Page=' + this.p + 
+    return this.purchaseService.getPurchaseList('?StrSearch=' + term + '&Page=' + this.p +
     '&Size=' + this.itemsPerPage + this.queryStr)
   }
 

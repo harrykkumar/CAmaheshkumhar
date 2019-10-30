@@ -47,7 +47,8 @@
               <label class="fw-500">Date</label>
               <div class="timepicker-input input-icon form-group">
                 <datepicker-popup [toSetDate]="model.OnDate" [applyFinYear]="'true'"
-                  (dateInFormat)="model.OnDate = $event" [class]="itemRequirementForm.submitted && !model?.OnDate">
+                  (dateInFormat)="model.OnDate = $event;checkForValidation();" 
+                  [class]="itemRequirementForm.submitted && (!model?.OnDate || invalidObj.OnDate)">
                 </datepicker-popup>
               </div>
             </div>

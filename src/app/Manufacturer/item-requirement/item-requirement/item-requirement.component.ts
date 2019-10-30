@@ -467,7 +467,14 @@ export class ItemRequirementComponent implements OnInit {
         }
       })
       if (this.editItemId !== -1) {
-        this._irs.getSelect2Arr(newItemsList, 'Name', 'Item')
+        // this._irs.getSelect2Arr(newItemsList, 'Name', 'Item')
+        const list = _.map(newItemsList, (item) => {
+          return {
+            id: item.Id,
+            text: item['Name']
+          }
+        })
+        this.masterData.itemData = [{ id: 0, text: 'Select Item' }, ...list]
       } else {
         let newData = [{ id: '0', text: 'Select Items' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
         newItemsList.forEach(item => {
@@ -691,6 +698,13 @@ export class ItemRequirementComponent implements OnInit {
       }
       return !!isValid
     }
+    this.checkForFocus()
+  }
+
+  checkForFocus () {
+    setTimeout(() => {
+      $(".errorSelecto:first").focus({ preventScroll: false })
+    }, 2000)
   }
 
   validateItem() {
@@ -754,6 +768,9 @@ export class ItemRequirementComponent implements OnInit {
         ItemAttributeTransList = ItemAttributeTransList.concat(element.ItemAttributeTransLists)
       })
     }
+    ItemAttributeTransList.forEach(element => {
+      element.Qty = (element.Qty) ? element.Qty : 0
+    })
     const payload = {
       "ItemId" : this.model.selectedParentItemId,
       "AttributeStr" : this.model.AttributeGroupId,

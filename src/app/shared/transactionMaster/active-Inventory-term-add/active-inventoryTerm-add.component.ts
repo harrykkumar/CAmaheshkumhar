@@ -184,7 +184,7 @@ export class ActiveInventoryTermAddComponent implements OnInit, OnDestroy {
     this.attribute = {}
     this.ApplyTypeId = null
     this.attrEditId = null
-    this.formModel.submitted = false
+    //this.formModel.submitted = false
     this.attribute.fromDatevalue = ''
     this.attribute.toDateValue = ''
   }

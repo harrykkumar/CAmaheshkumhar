@@ -32,7 +32,9 @@
 
                             <a>
                                 <img (click)="exportExcel()" src="assets/img/excel.png"></a>
-                            <button type="button" class="btn btn-primary waves-effect waves-light"
+                            <button
+                            *ngIf="(menuData?.write || menuData?.delete)"
+                            type="button" class="btn btn-primary waves-effect waves-light"
                                 (click)="openPurchase()">New Invoice</button>
                             <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i
                                     class="fas fa-search"></i>Search</a>
@@ -965,13 +967,13 @@
 <!-- Print half on A4 -->
 
 <body *ngIf='PrintFormateType ===4 || PrintFormateType ===5' class="modal" id="saleDirect_PrintType4">
-    <div class="row" 
+    <div class="row"
     [style.padding-left.px]=" PrintFormateType === 4 ? '0' : '550'"
-    
+
     >
-        <div 
+        <div
         [ngClass]="{'col-md-6': PrintFormateType ===4, 'col-md-12':PrintFormateType ===5 }"
-        
+
         >
             <div class="left_side_print2"
         [ngClass]="{'': PrintFormateType ===4, 'col-md-12':PrintFormateType ===5 }"
@@ -980,7 +982,7 @@
                 <div *ngIf="setUpPaidUnPaid"
                     style="position:absolute;top:125px;bottom:0;left:0;right:0;text-align: center;">
                     <p style=" color:#97919126;
-            font-size:100px; 
+            font-size:100px;
             transform:rotate(325deg);
             -webkit-transform:rotate(325deg);">{{paidFlag}}</p>
                 </div>
