@@ -43,7 +43,7 @@ export class ApiConstant {
   public static get ADD_UNIT_URL(): string { return this.BASE_URL + '/api/v1/unit' }
 
   public static get GET_TAX_DETAIL_URL(): string { return this.BASE_URL + '/api/v1/tax' }
-
+  
   public static get VENDOR_URL(): string { return this.BASE_URL + '/api/v1/ledger' }
 
   public static get COUNTRY_LIST_URL(): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=' }
@@ -358,23 +358,23 @@ export class ApiConstant {
   public static get SERVICE_BILLING_API_BY_EDIT(): string { return this.BASE_URL + '/api/v1/ims/saledetails?id=' }
 
   public static get RETURN_SALE_DIRECT(): string { return this.BASE_URL + '/api/v1/ims/SaleReturn' }
-  
-  public static get  GSTR_AN_X () : string { return this.BASE_URL +'/api/v1/account/GstrAnx'}
+
+  public static get GSTR_AN_X(): string { return this.BASE_URL + '/api/v1/account/GstrAnx' }
 
   public static get RERTURN_PURCHASE_LIST(): string { return this.BASE_URL + '/api/v1/IMS/PurchaseReturn' }
 
-  public static get  GSTR_AN_X_DETAILS () : string { return this.BASE_URL +'/api/v1/account/Gstranxdetails'}
+  public static get GSTR_AN_X_DETAILS(): string { return this.BASE_URL + '/api/v1/account/Gstranxdetails' }
 
-  public static get  TERMS_CONDITION_FORM_TYPE () : string { return this.BASE_URL +'/api/v1/common/Interface?Type='}
+  public static get TERMS_CONDITION_FORM_TYPE(): string { return this.BASE_URL + '/api/v1/common/Interface?Type=' }
 
-  public static get  TERMS_CONDITION_POST () : string { return this.BASE_URL +'/api/v1/common/TermConditions'}
+  public static get TERMS_CONDITION_POST(): string { return this.BASE_URL + '/api/v1/common/TermConditions' }
 
   public static get RETURN_SALE(): string { return this.BASE_URL + '/api/v1/ims/' }
- 
+
   public static get PRINT_SALE_RETURN(): string { return this.BASE_URL + '/api/v1/ims/SaleReturn/print?Id=' }
-  
+
   public static get PRINT_PURCHASE_RETURN(): string { return this.BASE_URL + '/api/v1/ims/PurchaseReturn/print?Id=' }
- 
+
   public static get BRANCH_AUTH(): string { return this.BASE_URL + '/api/v1/authentication/userbranch' }
 
   public static get VOUCHER_ENTRY_DETAILS(): string { return this.BASE_URL + '/api/v1/account/voucherentrydetails' }
@@ -391,33 +391,33 @@ export class ApiConstant {
 
   public static get ORG_DETAILS_PRINT(): string { return this.BASE_URL + '/api/v1/common/printutility' }
 
-  public static get GET_DISCOUNT_FOR_APPLY ():string { return this.BASE_URL +'/api/v1/Ims/Discount'}
+  public static get GET_DISCOUNT_FOR_APPLY(): string { return this.BASE_URL + '/api/v1/Ims/Discount' }
 
-  public static get POST_CAT_IMPORT (): string { return this.BASE_URL + '/api/v1/CategoryImport' }
+  public static get POST_CAT_IMPORT(): string { return this.BASE_URL + '/api/v1/CategoryImport' }
 
-  public static get POST_LEDGER_IMPORT (): string { return this.BASE_URL + '/api/v1/ledgerimport' }
+  public static get POST_LEDGER_IMPORT(): string { return this.BASE_URL + '/api/v1/ledgerimport' }
 
-  public static get SUPER_ADMIN_MODULES_LIST (): string { return this.BASE_URL + '/api/v1/Modules' }
+  public static get SUPER_ADMIN_MODULES_LIST(): string { return this.BASE_URL + '/api/v1/Modules' }
 
-  public static get SUPER_ADMIN_INDUSTRY_LIST (): string { return this.BASE_URL + '/api/v1/common/industry' }
+  public static get SUPER_ADMIN_INDUSTRY_LIST(): string { return this.BASE_URL + '/api/v1/common/industry' }
 
-  public static get POST_CLIENT_SUPER_ADMIN (): string { return this.BASE_URL + '/api/v1/clientadmin' }
+  public static get POST_CLIENT_SUPER_ADMIN(): string { return this.BASE_URL + '/api/v1/clientadmin' }
 
-  public static get GET_SUB_MENU_LIST (): string { return this.BASE_URL + '/api/v1/menuwithindmodwise' }
+  public static get GET_SUB_MENU_LIST(): string { return this.BASE_URL + '/api/v1/menuwithindmodwise' }
 
-  public static get GET_BORCODES_OPENING_STOCK (): string { return this.BASE_URL + '/api/v1/ItemBarCode' }
+  public static get GET_BORCODES_OPENING_STOCK(): string { return this.BASE_URL + '/api/v1/ItemBarCode' }
 
-  public static get MENU_SUPERADMIN (): string { return this.BASE_URL + '/api/v1/menu' }
+  public static get MENU_SUPERADMIN(): string { return this.BASE_URL + '/api/v1/menu' }
 
-  public static get GET_SUBMODULES_LIST (): string { return this.BASE_URL + '/api/v1/SubModule?Id=0' }
+  public static get GET_SUBMODULES_LIST(): string { return this.BASE_URL + '/api/v1/SubModule?Id=0' }
 
-  public static get POST_MODULE_SUPERADMIN (): string { return this.BASE_URL + '/api/v1/moduledefination' }
+  public static get POST_MODULE_SUPERADMIN(): string { return this.BASE_URL + '/api/v1/moduledefination' }
 
-  public static get CUSTOM_RATE (): string { return this.BASE_URL + '/api/v1/Customerate' }
+  public static get CUSTOM_RATE(): string { return this.BASE_URL + '/api/v1/Customerate' }
 
-  public static get ADDITIONAL_SETTINGS (): string { return this.BASE_URL + '/api/v1/setting/user/individualpermission' }
+  public static get ADDITIONAL_SETTINGS(): string { return this.BASE_URL + '/api/v1/setting/user/individualpermission' }
 
-  public static get DASHBOARD_ASSET_LIBILITIES (): string { return this.BASE_URL + '/api/v1/dashboardassetlibilities' }
+  public static get DASHBOARD_ASSET_LIBILITIES(): string { return this.BASE_URL + '/api/v1/dashboardassetlibilities' }
 
   public static get DASHBOARD_CASHIN_CASHOUT(): string { return this.BASE_URL + '/api/v1/dashboardpnlcash' }
 
@@ -429,15 +429,15 @@ export class ApiConstant {
 
   public static get DASHBOARD_CreditorDebitor(): string { return this.BASE_URL + '/api/v1/DashboardCreditorDebitor' }
 
-  public static get REVUGAIN_FOR_CUSTOMER_DETAILS(): string { return   'https://api.revugain.com/api/v1/PostCustomersData' }
+  public static get REVUGAIN_FOR_CUSTOMER_DETAILS(): string { return 'https://api.revugain.com/api/v1/PostCustomersData' }
 
-  public static get EDIT_BUYER_ORDER (): string { return this.BASE_URL + '/api/v1/Manufacture/BuyerOrderEdit' }
-  
-  public static get GET_ITEMS_IN_ORDER (): string { return this.BASE_URL + '/api/v1/manufacture/buyerorderforpacket' }
+  public static get EDIT_BUYER_ORDER(): string { return this.BASE_URL + '/api/v1/Manufacture/BuyerOrderEdit' }
 
-  public static get GET_PACKET_CODE (): string { return this.BASE_URL + '/api/v1/randomnumber?Type=OrderPacket' }
+  public static get GET_ITEMS_IN_ORDER(): string { return this.BASE_URL + '/api/v1/manufacture/buyerorderforpacket' }
 
-  public static get POST_ORDER_PACKET (): string { return this.BASE_URL + '/api/v1/manufacture/orderpacket' }
+  public static get GET_PACKET_CODE(): string { return this.BASE_URL + '/api/v1/randomnumber?Type=OrderPacket' }
+
+  public static get POST_ORDER_PACKET(): string { return this.BASE_URL + '/api/v1/manufacture/orderpacket' }
 
   public static get ACTIVE_INVENTORY_ADD_NAME_URL(): string { return this.BASE_URL + '/api/v1/ims/activeinventorycategory' }
 
@@ -445,18 +445,25 @@ export class ApiConstant {
 
   public static get GET_TYPE_ACVTIVE_INVE_URL(): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=178' }
 
-  public static get GET_ADDRESS_TAX_TYPE (): string { return this.BASE_URL + '/api/v1/manufacture/buyerorderforchallan?Id=' }
+  public static get GET_ADDRESS_TAX_TYPE(): string { return this.BASE_URL + '/api/v1/manufacture/buyerorderforchallan?Id=' }
 
-  public static get POST_PACKAGING_CHALLAN (): string { return this.BASE_URL + '/api/v1/manufacture/orderpacketchallan' }
+  public static get POST_PACKAGING_CHALLAN(): string { return this.BASE_URL + '/api/v1/manufacture/orderpacketchallan' }
 
-  public static get GET_ORDER_DATA_BY_TYPE (): string { return this.BASE_URL + '/api/v1/manufacture/buyerorderpacket?Type=' }
+  public static get GET_ORDER_DATA_BY_TYPE(): string { return this.BASE_URL + '/api/v1/manufacture/buyerorderpacket?Type=' }
 
   public static get REPORT_ACTIVE_INVENTORY(): string { return this.BASE_URL + '/api/v1/inventory/itemactivestatus' }
 
   public static get CLIENT_BRANCH(): string { return this.BASE_URL + '/api/v1/Owner/Branch' }
 
-public static get SAMPLE_STAGE_URL(): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=186' }
+  public static get SAMPLE_STAGE_URL(): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=187' }
 
-public static get GET_CASH_PARTY_DETAILS_BY_MOBILE(): string { return this.BASE_URL + '/api/v1/common/CashParty' }
+  public static get GET_CASH_PARTY_DETAILS_BY_MOBILE(): string { return this.BASE_URL + '/api/v1/common/CashParty' }
 
-public static get EDIT_SAMPLE_DATA (): string { return this.BASE_URL + '/api/v1/manufacture/sampledetails?Id=' }}
+  public static get EDIT_SAMPLE_DATA (): string { return this.BASE_URL + '/api/v1/manufacture/sampledetails?Id=' }
+  
+  public static get TAXPROCESS_DETAIL_URL(): string { return this.BASE_URL + '/api/v1/setting/TaxProcess' }
+
+  public static get GSTR_REPORT(): string { return this.BASE_URL + '/api/v1/ims/gstrreport' }
+
+  public static get FINANCE_CREATE(): string { return this.BASE_URL + '/api/v1/common/clientFinancial' }
+}

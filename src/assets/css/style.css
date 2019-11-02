@@ -1327,6 +1327,20 @@ table#mytable {
     left: -280px;
     width: 250px;
   }
+  .small_view {
+    display: none;
+  }
+  .right_saerch_side {
+    display: inline-block;
+    justify-content: flex-end;
+    width: 100%;
+}
+.btn_header1 {
+  margin-bottom: 5px;;
+  }
+  p.heading_lead {
+    display: none !important;
+}
 }
 
 .sidebar-inner {
@@ -1337,6 +1351,7 @@ table#mytable {
 .sidebar-logo {
   border-bottom: 1px solid rgba(0, 0, 0, 0.0625);
   border-right: 1px solid rgba(0, 0, 0, 0.0625);
+  background: #fff;
   line-height: 0;
   padding: 0 20px;
   height: 51px;

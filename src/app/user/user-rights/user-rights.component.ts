@@ -124,7 +124,6 @@ export class UserRightsComponent implements OnInit, OnDestroy {
         await this.mapSideMenus(response)
         await this.mapPermissions(response)
         this.moduleList = [...response.Data.Modules]
-        console.log(this.moduleList)
         if (_.isEmpty(this.toggledModule)) {
           this.onToggleModule(this.moduleList[0], 0)
         }
@@ -271,8 +270,9 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   getUserPermissions = () => {
     const permissionData = {
       Id: 0,
-      UserTypeId: this.rights.selectedUserType ?  this.rights.selectedUserType.id : 0
-    }
+      UserTypeId: this.rights.selectedUserType ?  this.rights.selectedUserType.id : 0,
+      ModuleId : !_.isEmpty(this.toggledModule.module) ? this.toggledModule.module.Id : 0
+    };
     if (this.rights.selectedUser && this.rights.selectedUser.id > 0) {
       permissionData['UserId'] = this.rights.selectedUser.id
     }

@@ -1,3 +1,4 @@
+import { CommonService } from './../../commonServices/commanmaster/common.services';
 import { Injectable } from '@angular/core'
 import { BaseServices } from '../../commonServices/base-services'
 import { ApiConstant } from '../../shared/constants/api'
@@ -6,7 +7,8 @@ import { ApiConstant } from '../../shared/constants/api'
   providedIn: 'root'
 })
 export class UserFormService {
-  constructor (private _baseService: BaseServices) { }
+  constructor (private _baseService: BaseServices,
+    private commonService: CommonService) { }
 
   /* Function to get the client list */
   getClientList = () => {
@@ -81,12 +83,7 @@ export class UserFormService {
   }
 
   getUserPermissions = (data) => {
-    let url
-    if (data.UserId) {
-      url = `${ApiConstant.USER_PERMISSION}?Id=${data.Id}&UserId=${data.UserId}&UserTypeId=${data.UserTypeId}`
-    } else {
-      url = `${ApiConstant.USER_PERMISSION}?Id=${data.Id}&UserTypeId=${data.UserTypeId}`
-    }
-    return this._baseService.getRequest(url)
+    const queryParam = this.commonService.getQueryStringFromObject(data);
+    return this._baseService.getRequest(`${ApiConstant.USER_PERMISSION}?${queryParam}`);
   }
 }

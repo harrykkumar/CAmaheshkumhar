@@ -1,0 +1,314 @@
+<!--  Created by bharat  -->
+<div
+  class="modal fade"
+  id="financeModal"
+  role="dialog"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div
+    class="modal-dialog large_form modal-full-height modal-top"
+    role="document"
+  >
+    <div class="modal-content bgcH-grey-100">
+      <form
+        #financeFormControl="ngForm"
+        (ngSubmit)="financeFormControl.form.valid && validateForm() && submitForm()"
+        novalidate
+      >
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-9 left_side_head">
+                <p class="heading_lead">
+                  <i class="fas fa-cog"></i>Financial Year
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="card">
+            <div class="card-body">
+              <div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-row">
+                      <!-- <div class="form-group col-md-2">
+                        <label>Organisation</label>
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <select2
+                              [data]="dropDownList?.organizationList"
+                              class="control_select"
+                              (valueChanged)="onOrganisationChange($event)"
+                              autocomplete="true"
+                              [value]="modal.OrgValue"
+                              [ngClass]="{'errorSelecto': financeFormControl.submitted && !modal?.OrgId}"
+                            >
+                            </select2>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-2">
+                        <label>Financial Year</label>
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <select2
+                              [data]="dropDownList?.financialYearList"
+                              class="control_select"
+                              (valueChanged)="onFinancialYearChange($event)"
+                              autocomplete="true"
+                              [value]="modal.FinYearValue"
+                              [ngClass]="{'errorSelecto': financeFormControl.submitted && !modal?.FinYearId}"
+                            >
+                            </select2>
+                          </div>
+                        </div>
+                      </div> -->
+
+                      <div class="form-group col-md-4">
+                        <label class="fw-500">From Date</label>
+                        <div class="timepicker-input input-icon form-group">
+                          <datepicker-popup
+                            [toSetDate]="modal.fromDatevalue"
+                            [disableInput]="true"
+                            (dateInFormat)="modal.fromDatevalue = $event"
+                          >
+                          </datepicker-popup>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label class="fw-500">To Date</label>
+                        <div class="timepicker-input input-icon form-group">
+                          <datepicker-popup
+                            [toSetDate]="modal.toDateValue"
+                            [disableInput]="true"
+                            (dateInFormat)="modal.toDateValue = $event"
+                          ></datepicker-popup>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label>Session Type</label>
+                        <ng-select
+                          name="sessionTypeName"
+                          [items]="sessionTypeList"
+                          bindValue="id"
+                          bindLabel="text"
+                          [disabled]="true"
+                          placeholder="Select Session Type"
+                          [(ngModel)]="modal.selectedSessionType"
+                        >
+                        </ng-select>
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label>Session</label>
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <select2
+                              [data]="dropDownList?.transactionSessionList"
+                              class="control_select"
+                              (valueChanged)="onTransSessionChange($event)"
+                              autocomplete="true"
+                              [value]="modal?.sessionValue"
+                              [ngClass]="{'errorSelecto': financeFormControl.submitted && !modal?.selectedSession?.id}"
+                            >
+                            </select2>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label>Session Format</label>
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <select2 #session_format_select2
+                              [data]="dropDownList?.transactionFormatList"
+                              class="control_select"
+                              (valueChanged)="onTransFormatChange($event)"
+                              autocomplete="true"
+                              [value]="modal?.transFormatValue"
+                            >
+                            </select2>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label>No. of Zero with Number</label>
+                        <div class="input-group adw_select">
+                          <div class="input-group adw_select">
+                            <select2
+                              [data]="dropDownList?.numericZerosList"
+                              class="control_select"
+                              (valueChanged)="onNumericZeroChange($event)"
+                              autocomplete="true"
+                              [value]="modal?.noOfZeroesValue"
+                            >
+                            </select2>
+                          </div>
+                        </div>
+                      </div>
+                      <div hidden="true" class="form-group col-md-3">
+                          <label>Position of Session</label>
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2
+                                [data]="dropDownList?.transactionPositionList"
+                                class="control_select"
+                                (valueChanged)="onTransactionPositionChange($event)"
+                                autocomplete="true"
+                                [value]="modal?.positionValue"
+                              >
+                              </select2>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group col-md-3">
+                          <label>Splitter</label>
+                          <div class="input-group adw_select">
+                            <div class="input-group adw_select">
+                              <select2
+                                [data]="dropDownList?.splitterList"
+                                class="control_select"
+                                (valueChanged)="onSplitterChange($event)"
+                                autocomplete="true"
+                                [value]="modal?.splitterValue"
+                              >
+                              </select2>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="bgc-white bdrs-3 mB-20">
+                <div class="table-responsive table_height">
+                  <table
+                    class="table cat-table table-hover transaction-no-table"
+                  >
+                    <thead>
+                      <tr class="default_row">
+                        <th>
+                          <div class="custom-control custom-checkbox">
+                            <input
+                              id="transactionCheck"
+                              name="transactionCheck"
+                              [(ngModel)]="checkAll"
+                              (change)="selectAllTransation($event)"
+                              type="checkbox"
+                              class="custom-control-input"
+                            />
+                            <label
+                              class="custom-control-label"
+                              for="transactionCheck"
+                            ></label>
+                          </div>
+                        </th>
+                        <th width="10%">Sr No.</th>
+                        <th>Transaction Type</th>
+                        <th>Prefix</th>
+                        <th>Number</th>
+                        <th>Sufix</th>
+                        <th>Example String</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let item of transactionNumberList;
+                          let i = index
+                        "
+                      >
+                        <td>
+                          <div class="custom-control custom-checkbox">
+                            <input
+                              id="{{ i }}-{{ item.Name }}"
+                              name="{{ i }}-{{ item.Name }}"
+                              [(ngModel)]="item.Checked"
+                              type="checkbox"
+                              class="custom-control-input"
+                            />
+                            <label
+                              class="custom-control-label"
+                              for="{{ i }}-{{ item.Name }}"
+                            ></label>
+                          </div>
+                        </td>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ item?.TransactionType }}</td>
+                        <td>
+                          <input
+                            type="text"
+                            class="form-control"
+                            name="{{ i }}-StringValue"
+                            [(ngModel)]="item.StringValue"
+                            (input)="generateFormatString(item, i)"
+                            [disabled]="!item.Checked"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            class="form-control"
+                            #numericValue="ngModel"
+                            name="{{ i }}-NumericValue"
+                            [(ngModel)]="item.NumericValue"
+                            [disabled]="!item.Checked"
+                            maxlength="5"
+                            (keypress)="commonService.isNumber($event)"
+                            (input)="checkForDropDown(item, i);onNumericValueChange(item, i);validateNumericValue(item, i);"
+                            [ngClass]="{ 'is-invalid': item.inValid || numericValue.invalid }"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            class="form-control"
+                            name="{{ i }}-SuffixValue"
+                            (input)="generateFormatString(item, i)"
+                            [(ngModel)]="item.SuffixValue"
+                            [disabled]="!item.Checked"
+                          />
+                        </td>
+                        <td>
+                            <input
+                              type="text"
+                              class="form-control"
+                              name="{{ i }}-demoString"
+                              [(ngModel)]="item.generatedString"
+                              disabled="true"
+                            />
+                          </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer footer-fixed footer_modal_form">
+          <button
+            type="submit"
+            class="btn waves-effect btn-succ-ess"
+            >
+            Save
+          </button>
+          <button
+            type="button"
+            class="btn waves-effect btn-default def-ault-btn"
+            (click)="onCloseModal()"
+            data-dismiss="modal"
+          >
+            Close
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

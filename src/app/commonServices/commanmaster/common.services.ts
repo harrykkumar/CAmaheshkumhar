@@ -1,9 +1,9 @@
+import { ApiConstant } from './../../shared/constants/api';
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 import { Injectable } from '@angular/core'
 import { BehaviorSubject, Subject, Observable } from 'rxjs'
 import { AddCust } from '../../model/sales-tracker.model';
 import { BaseServices } from '../base-services'
-import { ApiConstant } from '../../shared/constants/api'
 import { Router, NavigationEnd } from '@angular/router'
 import { map } from 'rxjs/operators';
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
@@ -78,6 +78,8 @@ export class CommonService {
   private setpupsChange = new Subject()
   setupChange$ = this.setpupsChange.asObservable()
   private openAddActiveInventorySub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openAddTaxProcessSub= new BehaviorSubject<AddCust>({ 'open': false })
+
   isInternet: boolean = true;
   //  validation reg ex
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
@@ -498,7 +500,6 @@ export class CommonService {
   closeAttributeStatus() {
     return this.openAddAttributeSub.asObservable()
   }
-
 
   closeActiveInventoryPopup() {
     this.openAddActiveInventorySub.next({ 'open': false })
@@ -1092,6 +1093,10 @@ export class CommonService {
   postTransactionNumberList(data) {
     return this.baseService.postRequest(ApiConstant.TRANSACTIONNO_VOUCHER, data);
   }
+
+  postFinacialYearCreationData(data) {
+    return this.baseService.postRequest(ApiConstant.FINANCE_CREATE, data);
+  }
   name: any
   openConfirmation(type, title) {
     this.openConfirmationeSubJect.next({ 'open': true, 'title': title, 'name': type })
@@ -1364,6 +1369,11 @@ export class CommonService {
     return this.baseService.getRequest(`${ApiConstant.GSTR_AN_X}?${queryParam}`);
   }
 
+  getGstrSummaryList(query) {
+    const queryParam = this.getQueryStringFromObject(query);
+    return this.baseService.getRequest(`${ApiConstant.GSTR_REPORT}?${queryParam}`);
+  }
+
   getGstrAnxDetails(data) {
     const queryParam = this.getQueryStringFromObject(data);
     return this.baseService.getRequest(`${ApiConstant.GSTR_AN_X_DETAILS}?${queryParam}`);
@@ -1537,5 +1547,25 @@ export class CommonService {
   }
   onCommonMenuAdd () {
     this.onCommonMenuAddSub.next()
+  }
+
+  openTaxProcess(editId) {
+    this.openAddTaxProcessSub.next({ 'open': true, 'editId': editId })
+  }
+
+  closeTaxProcess(newTax) {
+    if (newTax) {
+      this.openAddTaxProcessSub.next({ 'open': false, 'name': newTax.name, 'id': newTax.id })
+    } else {
+      this.openAddTaxProcessSub.next({ 'open': false })
+    }
+  }
+
+  getTaxProcessStatus() {
+    return this.openAddTaxProcessSub.asObservable()
+  }
+
+  getFinanceParameters() {
+    return this.baseService.getRequest(ApiConstant.FINANCE_CREATE)
   }
 }

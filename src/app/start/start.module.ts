@@ -18,7 +18,6 @@ import { CouponComponent } from '../transactionMaster/coupon/coupon.component'
 import { DiscountComponent } from '../transactionMaster/discount/discount.component'
 import { LoyalityComponent } from '../transactionMaster/loyality/loyality.component'
 import { OfferComponent } from '../transactionMaster/offer/offer.component'
-import { TaxProcessComponent } from '../transactionMaster/tax-process/tax-process.component'
 import { DeleteModule } from '../shared/transactionMaster/delete-modal/delete-modal.module'
 import { CategoryAddModule } from '../shared/transactionMaster/category/category-add/category-add.module'
 import { UnitAddModule } from '../shared/transactionMaster/unit/unit-add/unit-add.module'
@@ -39,6 +38,8 @@ import {DiscountMasterAddModule} from '../shared/transactionMaster/discountMaste
 import { CategoryImportModule } from '../shared/transactionMaster/category/category-import/category-import.module';
 import { ActiveInventoryTermAddModule}   from '../shared/transactionMaster/active-Inventory-term-add/active-inventoryTerm-add.module'
 import { AddCommonMenuComponent } from './common-menu/add-common-menu/add-common-menu.component';
+import { TaxProcessAddModule } from '../shared/transactionMaster/tax-process-add/tax-process-add.module'
+
 @NgModule({
   declarations: [
     SideMenuComponent,
@@ -47,7 +48,6 @@ import { AddCommonMenuComponent } from './common-menu/add-common-menu/add-common
     DiscountComponent,
     LoyalityComponent,
     OfferComponent,
-    TaxProcessComponent,
     BankSearchComponent,
     AddCommonMenuComponent
   ],
@@ -66,7 +66,6 @@ import { AddCommonMenuComponent } from './common-menu/add-common-menu/add-common
     RoutingAddModule,
     VendorAddModule,
     ItemAddModule,
-    TaxAddModule,
     DeleteModule,
     CategoryAddModule,
     UnitAddModule,
@@ -85,7 +84,8 @@ import { AddCommonMenuComponent } from './common-menu/add-common-menu/add-common
     ConfirmationPrintModule,
     DiscountMasterAddModule,
     CategoryImportModule,
-    ActiveInventoryTermAddModule
+    ActiveInventoryTermAddModule,
+    TaxProcessAddModule
   ],
   bootstrap: []
 })

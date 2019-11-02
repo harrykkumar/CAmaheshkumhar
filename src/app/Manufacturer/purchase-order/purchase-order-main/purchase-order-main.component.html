@@ -1,0 +1,283 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div id="mainContent">
+      <div class="modal-header page-header p-0">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-5 left_side_head">
+              <p class="heading_lead c-grey-900"><i class="fas fa-chart-line" aria-hidden="true"></i>Purchase Order</p>
+            </div>
+            <div class="col-md-7">
+              <div class="btn_header">
+                <a>
+                  <img src="../assets/img/printer.png">
+                </a>
+                <a>
+                  <img src="../assets/img/pdf.png"></a>
+                <a>
+                  <img src="../assets/img/excel.png"></a>
+                <button type="button" class="btn btn-primary waves-effect waves-light" (click)="openPO()" >Add New</button>
+                <!-- <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                  data-target="#sale_form">Add New</button> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row ">
+        <div class="col-md-12">
+          <div class="bgc-white bdrs-3 mB-20">
+            <div class="table-responsive" id="parent" style="overflow: auto;">
+              <table class="table" id="fixTable">
+                <thead>
+                  <tr>
+                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">Sr.No.</th>
+                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">Party Deatil</th>
+                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">City</th>
+                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">Bill</th>
+                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">Bill Date</th>
+                    <th class="text-right" style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">
+                      Qty</th>
+                    <th class="text-right" style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">
+                      Discount</th>
+                    <th class="text-right" style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">
+                      Tax Amount</th>
+                    <th class="text-right" style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">
+                      Bill Amount</th>
+                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>101</td>
+                    <td>
+                      <div>Ravi</div>
+                      <div>9632587410</div>
+                    </td>
+                    <td>City</td>
+                    <td>56</td>
+                    <td>10-12-2016</td>
+                    <td class="text-right">100</td>
+                    <td class="text-right">2500.00</td>
+                    <td class="text-right">250.00</td>
+                    <td class="text-right">252560.00</td>
+                    <td>
+                      <div class="dropdown enquiry-tag">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+                        <ul class="dropdown-menu fsz-sm">
+                          <li><a href="print.html" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
+
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>101</td>
+                    <td>
+                      <div>Ravi</div>
+                      <div>9632587410</div>
+                    </td>
+                    <td>City</td>
+                    <td>56</td>
+                    <td>10-12-2016</td>
+                    <td class="text-right">100</td>
+                    <td class="text-right">2500.00</td>
+                    <td class="text-right">250.00</td>
+                    <td class="text-right">252560.00</td>
+                    <td>
+                      <div class="dropdown enquiry-tag">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+                        <ul class="dropdown-menu fsz-sm">
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
+
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>101</td>
+                    <td>
+                      <div>Ravi</div>
+                      <div>9632587410</div>
+                    </td>
+                    <td>City</td>
+                    <td>56</td>
+                    <td>10-12-2016</td>
+                    <td class="text-right">100</td>
+                    <td class="text-right">2500.00</td>
+                    <td class="text-right">250.00</td>
+                    <td class="text-right">252560.00</td>
+                    <td>
+                      <div class="dropdown enquiry-tag">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+
+                        <ul class="dropdown-menu fsz-sm">
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
+
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>101</td>
+                    <td>
+                      <div>Ravi</div>
+                      <div>9632587410</div>
+                    </td>
+                    <td>City</td>
+                    <td>56</td>
+                    <td>10-12-2016</td>
+                    <td class="text-right">100</td>
+                    <td class="text-right">2500.00</td>
+                    <td class="text-right">250.00</td>
+                    <td class="text-right">252560.00</td>
+                    <td>
+                      <div class="dropdown enquiry-tag">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+                        <ul class="dropdown-menu fsz-sm">
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
+
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>101</td>
+                    <td>
+                      <div>Ravi</div>
+                      <div>9632587410</div>
+                    </td>
+                    <td>City</td>
+                    <td>56</td>
+                    <td>10-12-2016</td>
+                    <td class="text-right">100</td>
+                    <td class="text-right">2500.00</td>
+                    <td class="text-right">250.00</td>
+                    <td class="text-right">252560.00</td>
+                    <td>
+                      <div class="dropdown enquiry-tag">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+                        <ul class="dropdown-menu fsz-sm">
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
+
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>101</td>
+                    <td>
+                      <div>Ravi</div>
+                      <div>9632587410</div>
+                    </td>
+                    <td>City</td>
+                    <td>56</td>
+                    <td>10-12-2016</td>
+                    <td class="text-right">100</td>
+                    <td class="text-right">2500.00</td>
+                    <td class="text-right">250.00</td>
+                    <td class="text-right">252560.00</td>
+                    <td>
+                      <div class="dropdown enquiry-tag">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+                        <ul class="dropdown-menu fsz-sm">
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
+                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
+                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="5" style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;"></th>
+                    <th class="text-right font-weight-bold"
+                      style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;">1000.00</th>
+                    <th class="text-right font-weight-bold"
+                      style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;">1200.00</th>
+                    <th class="text-right font-weight-bold"
+                      style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;">12100.00</th>
+                    <th class="text-right font-weight-bold"
+                      style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;">12122100.00</th>
+                    <th style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;"></th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

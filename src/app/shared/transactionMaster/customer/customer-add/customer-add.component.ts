@@ -382,7 +382,9 @@ export class CustomerAddComponent implements OnDestroy {
     this.cityValue= null
   }
   onloadingInit() {
+    this.EmailAddress=''
     this.contactId = 0
+    this.customerName=''
     this.satuariesId = 0
     this.disabledGSTfor_UnRegi = false
     this.disabledStateCountry = false
@@ -431,7 +433,7 @@ export class CustomerAddComponent implements OnDestroy {
       this.addressTabDiv = true
       this.id = UIConstant.ZERO
       this.satuariesId = UIConstant.ZERO
-      this.submitClick = false
+      this.submitClick = true
       this.addressid = UIConstant.ZERO
       this.select2CrDrValue(1)
       this.getCountry(0)
@@ -727,9 +729,7 @@ export class CustomerAddComponent implements OnDestroy {
     if (this.customerError) {
       this.ledgerName.nativeElement.focus()
     }
-    if (this.persnalError) {
-      this.conatctPerRef.nativeElement.focus()
-    }
+    
   }
   persnalError: any = true
   customerError: any = true
@@ -750,8 +750,8 @@ export class CustomerAddComponent implements OnDestroy {
       this.select2CrDrValue(1)
       this.crdrSelect2.setElementValue(1)
     } else {
-
-      if (this.customername !== '' && !this.validMobileFlag && this.getEmailvalid && this.coustmoreRegistraionId > 0 && !this.customerCustomRateFlag) {
+     
+      if (this.customerName !== '' && !this.validMobileFlag && this.getEmailvalid  && this.coustmoreRegistraionId > 0 && !this.customerCustomRateFlag) {
         if (!this.requiredGSTNumber) {
           if (!this.mobileRequirdForSetting) {
             if (!this.emailRequirdForSetting) {
@@ -1308,7 +1308,7 @@ export class CustomerAddComponent implements OnDestroy {
       this.ledgerName.nativeElement.focus()
     }, 1000)
     this.getCountry(0)
-    this.submitClick = false
+    this.submitClick = true
     $('#customer_form').modal(UIConstant.MODEL_SHOW)
     this.customerTabDiv = false
     this.addressTabDiv = true
@@ -1332,6 +1332,7 @@ export class CustomerAddComponent implements OnDestroy {
         if (Data.Data && Data.Data.ContactPersons && Data.Data.ContactPersons.length > 0) {
           this.contactId = Data.Data.ContactPersons[0].Id
           this.contactPerson = Data.Data.ContactPersons[0].Name
+          this.customerError= false
           if (Data.Data.ContactPersons[0].DOA !== null) {
             this.DateOfAnniry = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOA, this.clientDateFormat)
 
@@ -1423,31 +1424,37 @@ export class CustomerAddComponent implements OnDestroy {
   getModuleSettingData() {
     if (this.getModuleSettingValue.settings.length > 0) {
       this.getModuleSettingValue.settings.forEach(ele => {
-        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === '1') {
+        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === 1) {
           this.emailError = false
           this.mobileRequirdForSetting = true
+         
+
         }
         if (ele.id === SetUpIds.dateFormat) {
           this.clientDateFormat = ele.val[0].Val
           console.log(this.clientDateFormat)
+          
         }
-        if (SetUpIds.edgerEmailorMobileRequiredorNot === ele.id && ele.val === '2') {
+        if (SetUpIds.edgerEmailorMobileRequiredorNot === ele.id && ele.val === 2) {
           this.emailRequirdForSetting = true
           this.mobileRequirdForSetting = true
+         
           this.mobileError = true
           this.emailError = true
         }
-        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === '3') {
+        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === 3) {
           this.emailError = true
           this.mobileError = false
           this.emailRequirdForSetting = true
+       
+
         }
-        if (ele.id === SetUpIds.edgerAddressRequiredorNot && ele.val === '1') {
+        if (ele.id === SetUpIds.edgerAddressRequiredorNot && ele.val === 1) {
           this.setupCodeForAddresRequired = 54
           this.addressRequiredForLedger = true
 
         }
-        if (ele.id === SetUpIds.applyCustomRateOnItemForSale && ele.val === '1') {
+        if (ele.id === SetUpIds.applyCustomRateOnItemForSale && ele.val === 1) {
           this.customerCustomRateFlag = true
 
         }
@@ -1616,7 +1623,7 @@ export class CustomerAddComponent implements OnDestroy {
 
   getEmailvalid: any
   checkvalidationEmail() {
-    if (this.EmailAddress === "" || this.EmailAddress === null) {
+    if (this.EmailAddress === "" ) {
       this.getEmailvalid = true
     }
     else {
@@ -1679,18 +1686,14 @@ export class CustomerAddComponent implements OnDestroy {
   }
   
   addCityClosed(selectedIds?) {
-    if (this.countryValue > 0) {
+    if (selectedIds !==undefined) {
       if (this.countryValue !==null && Number(this.countryValue) !== selectedIds.countryId) {
         this.countryValue = selectedIds.countryId
-       // this.cityId =selectedIds.cityId
-      //  this.stateId = selectedIds.stateId
         this.stateValue = selectedIds.stateId
         this.cityValue = selectedIds.cityId;
       } else if (this.stateValue !==null && Number(this.stateValue) !== selectedIds.stateId) {
         this.stateValue = selectedIds.stateId
         this.cityValue = selectedIds.cityId;
-      //  this.cityId =selectedIds.cityId
-       // this.stateId = selectedIds.stateId
       } else {
         this.cityValue = selectedIds.cityId;
         this.cityId =selectedIds.cityId

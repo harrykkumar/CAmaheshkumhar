@@ -32,10 +32,9 @@
 
                             <a>
                                 <img (click)="exportExcel()" src="assets/img/excel.png"></a>
-                            <button
-                            *ngIf="(menuData?.write || menuData?.delete)"
-                            type="button" class="btn btn-primary waves-effect waves-light"
-                                (click)="openPurchase()">New Invoice</button>
+                            <button *ngIf="(menuData?.write || menuData?.delete)" type="button"
+                                class="btn btn-primary waves-effect waves-light" (click)="openPurchase()">New
+                                Invoice</button>
                             <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i
                                     class="fas fa-search"></i>Search</a>
                         </div>
@@ -66,12 +65,16 @@
             <h2 class="name"> {{ClientInfos && ClientInfos[0]?.OfficeName }}</h2>
             <div>
                 {{orgAddress && orgAddress[0]?.AddressValue}}
+            </div>
+            <div>
                 {{orgAddress && orgAddress[0]?.AreaName}}
                 {{orgAddress && orgAddress[0]?.CityName}}
                 {{orgAddress && orgAddress[0]?.StateName}}
-                {{orgAddress && orgAddress[0]?.CountryName }}</div>
+                {{orgAddress && orgAddress[0]?.CountryName }}
+            </div>
             <div>{{EmailsOrg && EmailsOrg[0]?.EmailAddress }} </div>
             <div>{{ContactOrgInfo && ContactOrgInfo[0]?.ContactNo }} </div>
+            <div><label>PAN NO. : </label>{{ClientInfos && ClientInfos[0]?.PanNo }}</div>
             <div><label>GSTIN : </label>{{ClientInfos && ClientInfos[0]?.GstinNo }}</div>
             <div><a> {{website && website[0]?.Name}}</a></div>
         </div>
@@ -279,7 +282,6 @@
 
                             <td style="text-align:right">{{(item.SubTotalAmount).toFixed(dicimalDigitFormat)}}</td>
 
-
                         </tr>
                     </tbody>
                 </table>
@@ -290,6 +292,10 @@
 
                     <div class="col1 bank_detail">
                         <table>
+                            <tr>
+                                <td style="width:40%;">Account Holder Name</td>
+                                <td><strong>: {{ClientInfos && ClientInfos[0]?.AccountHolderName}}</strong></td>
+                            </tr>
                             <tr>
                                 <td style="width:25%;">Bank Name</td>
                                 <td><strong>: {{ClientInfos && ClientInfos[0]?.BankName}}</strong></td>
@@ -967,17 +973,9 @@
 <!-- Print half on A4 -->
 
 <body *ngIf='PrintFormateType ===4 || PrintFormateType ===5' class="modal" id="saleDirect_PrintType4">
-    <div class="row"
-    [style.padding-left.px]=" PrintFormateType === 4 ? '0' : '550'"
-
-    >
-        <div
-        [ngClass]="{'col-md-6': PrintFormateType ===4, 'col-md-12':PrintFormateType ===5 }"
-
-        >
-            <div class="left_side_print2"
-        [ngClass]="{'': PrintFormateType ===4, 'col-md-12':PrintFormateType ===5 }"
->
+    <div class="row" [style.padding-left.px]=" PrintFormateType === 4 ? '0' : '550'">
+        <div [ngClass]="{'col-md-6': PrintFormateType ===4, 'col-md-12':PrintFormateType ===5 }">
+            <div class="left_side_print2" [ngClass]="{'': PrintFormateType ===4, 'col-md-12':PrintFormateType ===5 }">
 
                 <div *ngIf="setUpPaidUnPaid"
                     style="position:absolute;top:125px;bottom:0;left:0;right:0;text-align: center;">

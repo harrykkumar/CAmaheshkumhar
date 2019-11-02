@@ -725,7 +725,8 @@ export class SalesChallanBillingComponent {
           _self._saleDirectService.createTaxSlabs(data.TaxSlabs)
           _self._saleDirectService.createCurrencies(data.Currencies)
           _self._saleDirectService.createCharges(data.LedgerCharges)
-          //_self.saledirectAdd.clientStateId = data.ClientAddresses[0].StateId
+          this.getBankList(data.Banks)
+       
         },
         (error) => {
           console.log(error)
@@ -739,6 +740,24 @@ export class SalesChallanBillingComponent {
         }
       )
   }
+  selectedBankvalue: any
+  allbankList: any
+  getBankList(lsit) {
+    if (lsit.length > 0) {
+      let newdata = []
+      lsit.forEach(element => {
+        newdata.push({
+          id: element.LedgerId,
+          text: element.Name
+        })
+      });
+      this.allbankList = newdata
+      if(this.PaymentDetail.length===0){
+        this.selectedBankvalue = newdata[0].id
+      }
+    }
+  }
+
   getOrgnization(data) {
     if (data.length > 0) {
       this.OrgId = +data[0].Id
@@ -1036,6 +1055,9 @@ export class SalesChallanBillingComponent {
 
   createTransaction(paymentDetails) {
     if (paymentDetails.length > 0) {
+      if(paymentDetails[0].PayModeId===9){
+        this.selectedBankvalue = paymentDetails[0].LedgerId
+      }
       paymentDetails.forEach(element => {
         this.Paymode = element.Paymode
         this.PayModeId = element.PayModeId
@@ -2831,6 +2853,9 @@ export class SalesChallanBillingComponent {
       if (event.value > 0 && event.data[0] && event.data[0].text) {
         this.LedgerId = +event.value
         this.BankLedgerName = event.data[0].text
+        if (this.PayModeId === 9 && this.PaymentDetail.length === 0) {
+          this.selectedBankvalue = this.LedgerId
+        }
       }
     }
     this.validateTransaction()
@@ -3694,9 +3719,8 @@ export class SalesChallanBillingComponent {
         AdditionalCharges: this.AdditionalCharges,
         CustomerTypes: this.caseSaleCustomerDetails,
         DiscountTrans:  this.BillDiscount===0 ? [] : this.BillDiscountArray,
-        ChallanIds: this.ChallanIds
-
-
+        ChallanIds: this.ChallanIds,
+        TransBankId :this.selectedBankvalue
       } as SaleDirectAdd
     }
     return saleDirectParams.obj

@@ -19,7 +19,7 @@ import { CategoryServices } from '../../../commonServices/TransactionMaster/cate
 declare const $: any
 declare const _: any
 @Component({
-  selector: 'app-purchase',
+  selector: 'purchase-add',
   templateUrl: './purchase-add.component.html',
   styleUrls: ['./purchase-add.component.css']
 })

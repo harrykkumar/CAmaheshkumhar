@@ -1,6 +1,7 @@
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerService   } from 'ngx-spinner';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse } from '@angular/common/http';
 import { Observable, throwError, empty, of } from 'rxjs';
+import { ErrorHandler } from '@angular/core';
 import { tap, map } from 'rxjs/operators';
 import { LoginService } from './commonServices/login/login.services';
 import { Injectable } from '@angular/core';
@@ -9,7 +10,13 @@ import { ToastrCustomService } from './commonServices/toastr.service';
 
 @Injectable()
 
-export class AppInterceptorService implements HttpInterceptor {
+export class AppInterceptorService implements HttpInterceptor ,ErrorHandler  {
+  handleError(error: any): void {
+    const chunkFailedMessage = /Loading chunk [\d]+ failed/;
+     if (chunkFailedMessage.test(error.message)) {
+       window.location.reload();
+     }
+   }
   constructor(private loginService: LoginService,
     private spinner: NgxSpinnerService,
     private toaster: ToastrCustomService) { }

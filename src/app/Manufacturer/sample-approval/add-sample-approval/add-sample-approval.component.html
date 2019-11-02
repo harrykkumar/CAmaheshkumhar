@@ -4,8 +4,8 @@
     <div class="modal-content">
       <div class="modal-header close_popup">
         <h4 class="modal-title w-100 c-grey-900">Sample Approval</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"
-            (click)="closeModal()">&times;</span></button>
+        <button type="button" class="close"><span aria-hidden="true"
+          (click)="close()">&times;</span></button>
       </div>
       <div *ngIf="loading" class="modal-content">
         <div class="modal-body" style="height:inherit;">
@@ -46,15 +46,17 @@
                 <div class="form-group col-md-12 ">
                   <label class="fw-500">Date</label>
                   <div class="timepicker-input input-icon form-group">
-                    <datepicker-popup [toSetDate]="model.SampleDate" (dateInFormat)="model.SampleDate = $event;">
+                    <datepicker-popup [toSetDate]="model.SampleDate" [applyFinYear]="'true'"
+                      (dateInFormat)="model.SampleDate = $event;">
                     </datepicker-popup>
                   </div>
                 </div>
                 <div class="form-group col-md-12">
                   <label class="fw-500">Expected Reply Date</label>
                   <div class="timepicker-input input-icon form-group">
-                    <datepicker-popup [toSetDate]="model.ExpectedReplyDate"
-                      (dateInFormat)="model.ExpectedReplyDate = $event;"></datepicker-popup>
+                    <datepicker-popup [toSetDate]="model.ExpectedReplyDate" [applyFinYear]="'true'"
+                      (dateInFormat)="model.ExpectedReplyDate = $event;">
+                    </datepicker-popup>
                   </div>
                 </div>
                 <div class="form-group col-md-12">

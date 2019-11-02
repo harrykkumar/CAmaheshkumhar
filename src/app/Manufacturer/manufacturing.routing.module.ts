@@ -21,6 +21,10 @@ const routes: Routes = [
       {
         path: 'sample-approval',
         loadChildren: './sample-approval/sample-approval.module#SampleApprovalModule'
+      },
+      {
+        path: 'purchase-order',
+        loadChildren: './purchase-order/purchase-order.module#PurchaseOrderModule'
       }
     ]
   }

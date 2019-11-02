@@ -33,7 +33,10 @@ export class SideMenuComponent {
     this.getUploadedImages()
     this.itemMaster.openImageModal(this.imageList)
   }
-
+  public siderbarMenu () {
+    $('.app').toggleClass('is-collapsed')
+    $('.sidebar').toggleClass('page-container')
+  }
   getUploadedImages = () => {
     this.itemMaster.imageAdd$.subscribe((response)=> {
       this.imageList = response;

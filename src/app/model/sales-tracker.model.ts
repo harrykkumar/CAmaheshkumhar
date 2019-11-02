@@ -838,6 +838,7 @@ export class ServiceBillingAdd {
   ConvertedCurrencyId: number
   AdditionalCharges: Array<AdditionalCharges>
   ItemTaxTrans: Array<ItemTaxTrans>
+  TransBankId:any
 
 
 }
@@ -1029,6 +1030,7 @@ export class SaleDirectAdd {
   AdditionalCharges: Array<AdditionalCharges>
   ItemTaxTrans: Array<ItemTaxTrans>
   SupplyStateId:any
+  TransBankId:any
 
 }
 export class SaleBillingAdd {

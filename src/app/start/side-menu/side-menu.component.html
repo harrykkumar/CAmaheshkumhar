@@ -10,6 +10,7 @@
                   <img src="assets/static/images/logo.png" alt="" />
                 </div>
               </div>
+             
               <div class="peer peer-greed">
                 <h5 class="lh-1 mB-0 logo-text"></h5>
               </div>
@@ -18,7 +19,9 @@
         </div>
         <div class="peer">
           <div class="mobile-toggle sidebar-toggle">
-            <a class="td-n"><i class="ti-arrow-circle-left"></i></a>
+            <a id="sidebar-toggle" class="sidebar-toggle" href="javascript:void(0);" (click)="siderbarMenu()">
+              <i class="far fa-window-close"></i>
+            </a>
           </div>
         </div>
       </div>

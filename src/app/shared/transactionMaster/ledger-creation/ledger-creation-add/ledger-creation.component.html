@@ -1,21 +1,23 @@
-<div class="modal right fade" id="ledger_creation_id" role="dialog" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
-        <div class="modal-content">
-            <div class="modal-header close_popup">
-                <h4 class="modal-title w-100 c-grey-900">Ledger </h4>
-                <button type="button" (click)="clearValidation()" class="close" data-dismiss="modal"
-                    aria-label="Close"><span aria-hidden="true">×</span> </button>
-            </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <div>
-                        <form #heroForm="ngForm">
+<!-- <div class="modal right fade" id="ledger_creation_id" role="dialog" data-backdrop="static" data-keyboard="false"> -->
+        <div class="modal right fade" id="ledger_creation_id" role="dialog" data-backdrop="static" data-keyboard="false">
+    <form #heroForm="ngForm">
+        <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
+            <div class="modal-content">
+                <div class="modal-header close_popup">
+                    <h4 class="modal-title w-100 c-grey-900">Ledger </h4>
+                    <button type="button" (click)="clearValidation()" class="close" data-dismiss="modal"
+                        aria-label="Close"><span aria-hidden="true">×</span> </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body">
+                        <div>
+
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label>Under Group</label>
                                     <div class="input-group adw_select">
                                         <div class="input-group adw_select">
-                                            <select2  autofocus [data]="ledgerGroupData" #under_group_select2
+                                            <select2 autofocus [data]="ledgerGroupData" #under_group_select2
                                                 class="control_select" (valueChanged)="onChnageGroup($event)"
                                                 autocomplete="true" [options]="{placeholder: 'Select Under Group'}"
                                                 [value]="LedgerGroupValue"
@@ -26,11 +28,11 @@
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label class="active">Ledger Name</label>
-                                    <input #ledgerNameRef   type="text" name='ledgerName' [(ngModel)]="ledgerName" class="form-control"
-                                        placeholder="Ledger Name" (input)="checkValidationName()"
+                                    <input #ledgerNameRef type="text" name='ledgerName' [(ngModel)]="ledgerName"
+                                        class="form-control" placeholder="Ledger Name" (input)="checkValidationName()"
                                         [ngClass]="{'errorTextBoxBorder1': submitClick && ledgerNameEr }" required>
 
-                                         
+
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label class="active">Short Name</label>
@@ -82,7 +84,7 @@
                                                     autocomplete="true" [options]="{placeholder:'Select Type'}"
                                                     [value]="coustomerValue"></select2>
                                             </div>
-                                          
+
                                         </div>
                                     </div>
                                     <div class="form-group col-md-4">
@@ -95,16 +97,16 @@
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label class="active">PAN Number</label> <input style="text-transform:uppercase"
-                                            type="text" class="form-control"
-                                            id="org_code" placeholder=" PAN Number" name='panno' [(ngModel)]="panNo">
+                                            type="text" class="form-control" id="org_code" placeholder=" PAN Number"
+                                            name='panno' [(ngModel)]="panNo">
                                     </div>
                                     <ng-container *ngIf="isTaxedAplly===1">
                                         <div class="form-group col-md-4">
                                             <label>Tax Slab</label>
                                             <ng-select name="taxName" [items]="taxSlabsData" bindLabel="text"
-                                            bindValue="id" placeholder="Select Tax Slab"
-                                            (change)="TaxSlabId = $event.id" [(ngModel)]="taxSlabValue">
-                                        </ng-select>
+                                                bindValue="id" placeholder="Select Tax Slab"
+                                                (change)="TaxSlabId = $event.id" [(ngModel)]="taxSlabValue">
+                                            </ng-select>
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label>ITC Type</label>
@@ -117,9 +119,9 @@
                                         <div class="form-group col-md-4">
                                             <label>RCM Type</label>
                                             <ng-select name="RCMName" [items]="ListRCMType" bindLabel="text"
-                                            bindValue="id" placeholder="Select RCM Type"
-                                            (change)="RCMTypeId = $event.id" [(ngModel)]="RCMTypeValue">
-                                        </ng-select>
+                                                bindValue="id" placeholder="Select RCM Type"
+                                                (change)="RCMTypeId = $event.id" [(ngModel)]="RCMTypeValue">
+                                            </ng-select>
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label class="active">HSN</label> <input type="text" class="form-control"
@@ -150,11 +152,11 @@
                                     </div>
                                     <div class="col-md-12">
                                         <label class="">Address</label>
-                                        <textarea class="form-control"placeholder='Address' name='address' [(ngModel)]="address"></textarea>
+                                        <textarea class="form-control" placeholder='Address' name='address'
+                                            [(ngModel)]="address"></textarea>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label class="active">Assets</label>
@@ -173,24 +175,21 @@
                                 </div>
                             </div>
 
-
-
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <!-- <button type="button" (click)='clearValidation()' class="btn btn_close waves-effect" data-dismiss="modal">Close</button> -->
-                <button type="button" (click)="saveLedgerCreation('save')" class="btn btn-primary waves-effect">Save
-                </button>
-                <button type="button" (click)="saveLedgerCreation('new')" class="btn btn-primary waves-effect">Save &
-                    Add New </button>
+                <div class="modal-footer">
+                    <!-- <button type="button" (click)='clearValidation()' class="btn btn_close waves-effect" data-dismiss="modal">Close</button> -->
+                    <button type="button" (click)="saveLedgerCreation('save')" class="btn btn-primary waves-effect">Save
+                    </button>
+                    <button type="button" (click)="saveLedgerCreation('new')" class="btn btn-primary waves-effect">Save
+                        &
+                        Add New </button>
 
+                </div>
             </div>
         </div>
-    </div>
+    </form>
+<app-add-new-city #addNewCityRef (addCityClosed)="addCityClosed($event)"></app-add-new-city>
+
 </div>
-<app-add-new-city
-#addNewCityRef
-(addCityClosed)="addCityClosed($event)"
-></app-add-new-city>

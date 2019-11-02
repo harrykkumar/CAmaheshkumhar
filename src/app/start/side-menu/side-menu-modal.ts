@@ -54,7 +54,7 @@ export const SIDE_MENU_MODEL = [
   {
     Id: 6,
     Name: "TaxProcess",
-    path: "",
+    path: "ims/taxProcess",
     icon: ""
   },
   {
@@ -553,13 +553,31 @@ export const SIDE_MENU_MODEL = [
     Id: 91,
     ParentId: 1,
     Name: "Item Growth",
-    path: "ims/report/active-inventory-item",
+    path: "",
     icon: "fas-fa-exchange-alt"
   },
   {
     Id: 99,
     Name: "Admin Master Setting",
     path: "super-admin/master-setting",
+    icon: ""
+  },
+  {
+    Id: 102,
+    Name: "Purchase Order",
+    path: "manufacturing/purchase-order",
+    icon: ""
+  },
+  {
+    Id: 101,
+    Name: "GSTR",
+    path: "report/gstr-summary",
+    icon: ""
+  },
+  {
+    Id: 103,
+    Name: "Financial-Year",
+    path: "finance",
     icon: ""
   },
 ];

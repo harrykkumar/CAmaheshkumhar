@@ -822,6 +822,9 @@ getTypeOfGST () {
 
   createTransaction (paymentDetails) {
     if(paymentDetails.length>0){
+      if(paymentDetails[0].PayModeId===9){
+        this.selectedBankvalue = paymentDetails[0].LedgerId
+      }
     paymentDetails.forEach(element => {
       this.Paymode = element.Paymode
       this.PayModeId = element.PayModeId
@@ -984,9 +987,11 @@ getTypeOfGST () {
         if(caseId.length>0 && caseId[0].id > 0){
           this.isCaseSaleFlag = false
           this.isOtherState = false
+          this.outStandingBalance=0
           this.AddressId =0
           this.checkForGST()
         }
+        
         
       }
       this.checkForValidation()
@@ -1940,6 +1945,9 @@ onLoading(){
       if (event.value > 0 && event.data[0] && event.data[0].text) {
         this.LedgerId = +event.value
         this.BankLedgerName = event.data[0].text
+        if (this.PayModeId === 9 && this.PaymentDetail.length === 0) {
+          this.selectedBankvalue = event.value
+        }
       }
     }
     this.validateTransaction()
@@ -2542,23 +2550,39 @@ this.taxTypeValue=0
         _self.saleServiceBillingService.createCurrencies(data.Currencies)
         _self.saleServiceBillingService.createFreightBy(data.FreightModes)
         _self.saleServiceBillingService.createCharges(data.LedgerCharges)
-        //_self.saleServiceBillingService.clientStateId = data.ClientAddresses[0].StateId
+        this.getBankList(data.Banks)
+
       },
       (error) => {
-    //    console.log(error)
-      ///  this.loading = false
       this._loaderService.hide()
 
         this.toastrService.showError(error, '')
       },
       () => {
         setTimeout(() => {
-        //  this.loading = false
       this._loaderService.hide()
 
         }, 1)
       }
     )
+  }
+  allbankList: any
+  selectedBankvalue: any
+  getBankList(lsit) {
+    if (lsit.length > 0) {
+      let newdata = []
+      lsit.forEach(element => {
+        newdata.push({
+          id: element.LedgerId,
+          text: element.Name
+        })
+      });
+      this.allbankList = newdata
+      if(this.PaymentDetail.length===0){
+        this.selectedBankvalue = newdata[0].id
+      }
+
+    }
   }
   orgnizationName:any 
   getOrgnization(data){
@@ -2766,8 +2790,8 @@ this.taxTypeValue=0
         ItemTaxTrans: this.ItemTaxTrans,
         AdditionalCharges: this.AdditionalCharges,
         CustomerTypes: this.caseSaleCustomerDetails,
-        DiscountTrans:  this.BillDiscount===0 ? [] : this.BillDiscountArray
-
+        DiscountTrans:  this.BillDiscount===0 ? [] : this.BillDiscountArray,
+        TransBankId :this.selectedBankvalue
       } as ServiceBillingAdd
     }
     return ServiceBillingAddParams.obj

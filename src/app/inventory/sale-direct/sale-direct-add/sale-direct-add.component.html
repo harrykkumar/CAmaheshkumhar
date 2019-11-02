@@ -23,7 +23,7 @@
                 </button>
                 <!-- <a class="btn btn-info waves-effect" (click)="keepOpen=true;saveSaleDirect()">Save and New</a> -->
                 <button type="button" class="close">
-                  <span aria-hidden="true" class="white-text" (click)="closePurchase()">×</span>
+                  <span aria-hidden="true" class="white-text" (click)="closeSale()">×</span>
                 </button>
 
               </div>
@@ -792,22 +792,32 @@
                         </div>
 
                       </div>
-                      <div class="form-group col-md-4">
+                      <div class="form-group col-md-3">
                         <label>Driver Name</label>
                         <input type="text" class="form-control" id="Drivername" placeholder="Driver name"
                           class="form-control" name="Drivername" [(ngModel)]="Drivername">
                       </div>
-                      <div class="form-group col-md-4">
+                      <div class="form-group col-md-3">
                         <label>Transportation</label>
                         <input type="text" class="form-control" id="Transportation" placeholder="Transportation"
                           class="form-control" name="Transportation" [(ngModel)]="Transportation">
                       </div>
-                      <div class="form-group col-md-4">
+                      <div class="form-group col-md-3">
                         <label> Round Off</label>
                         <input type="number" class="form-control" id="RoundOffManual" placeholder="Round Off"
                           class="form-control" name="RoundOffManual" appIncludeDecimal (input)="calculate()"
                           [(ngModel)]="RoundOffManual">
                       </div>
+                      <div class="form-group col-md-3">
+                        <label> Bank</label>
+                        <ng-select  name="banknameid" [items]="allbankList" bindLabel="text"
+                        bindValue="id" 
+                        (change)="selectedBankvalue=$event.id"
+                        placeholder="Select Bank" 
+                        [(ngModel)]="selectedBankvalue">
+                      </ng-select>
+                      </div>
+                     
                     </div>
                   </div>
                 </div>
@@ -1026,7 +1036,7 @@
         <button
           type="button"
           class="btn waves-effect btn-default def-ault-btn"
-          (click)="closePurchase()"
+          (click)="closeSale()"
           data-dismiss="modal"
         >
           Close

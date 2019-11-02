@@ -1,0 +1,146 @@
+<div class="modal fade right" id="tax_process_tax" role="dialog" aria-labelledby="unit_master" aria-hidden="true">
+    <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
+        <div class="modal-content">
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900" id="myModalLabel"> Tax-Process</h4>
+                <button type="button" class="close" (click)="clearValidation()" data-dismiss="modal"
+                    aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <div>
+                        <form #taxForm="ngForm">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="tax_slab1">Tax Process Name</label>
+                                    <input  type="text"
+                                       
+                                        #first class="form-control" id="tax_slab1" name='slab1'
+                                        placeholder="Tax Process Name" [(ngModel)]="taxProcessName">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="desp">Description</label>
+                                    <textarea class="form-control" name='description' placeholder="Description"
+                                        [(ngModel)]="description" id="desp"
+                                        style="margin-top: 0px; margin-bottom: 0px; height: 60px;">
+                                        </textarea>
+
+                                </div>
+                            </div>
+                            <div class="form-row " id="tax_rate">
+                                <table class="table" style="width: 100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="5%">#</th>
+                                            <th width="10%">Tax Slab</th>
+                                            <th>Apply Type</th>
+                                            <th width="15%">Parent Tax Id</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                     <tr class="default_row" *ngFor="let item of taxTypeList; let i = index;"
+                                                (click)="editItem(i+1, item.Id, 'items', item.Sno)">
+                                                <td class="profile-pic1">
+                                                  <div class="edit1">
+                                                    <ng-container >
+                                                      <a *ngIf="taxTypeList.length > 0" (click)="deleteItem(i, 'items', item.Sno)"><i
+                                                          class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                                                    </ng-container>
+                                                    <ng-container *ngIf="item.isDisabled">
+                                                      <a *ngIf="taxTypeList.length > 0" (click)="editItem(i+1, item.Id, 'items', item.Sno)"><i
+                                                          class="fas fa-pen fa-1x"></i>
+                                                      </a>
+                                                    </ng-container>
+                                                    <ng-container *ngIf="!item.isDisabled">
+                                                      <a *ngIf="ItemtaxTypeLists.length > 0" (click)="addItems()"><i class="fas fa-plus fa-1x"></i>
+                                                      </a>
+                                                    </ng-container>
+                                                  </div>
+                                                 
+                                                </td>
+                                                <td  class="align-middle">{{item.TaxSalbName}}</td>
+                                                <td *ngIf="!item.isDisabled" class="highLightRow">
+                                                  <div class="discount">
+                                                    <select2 [disabled]='DisabledTaxSlab' #taxSlab_select2 [data]="taxSlabsData"
+                                                      class="control_select" (valueChanged)="onTaxSlabSelect($event)" autocomplete="true"
+                                                      [options]="{ placeholder: 'Select Tax Slab' }"
+                                                       [value]="taxSlabValue">
+                                                      </select2>
+                                                  </div>
+                                                </td>
+                                                <td class="align-middle">{{item.ApplyTypeName}}</td>
+                                                <td *ngIf="!item.isDisabled" class="highLightRow">
+                                                  <div class="discount">
+                                                        <ng-select name="applyTypeValue2" [items]="getApplyTypeList" bindLabel="text"
+                                                        bindValue="id" placeholder="Select Apply"
+                                                        (change)="onSelectApply($event)" [(ngModel)]="applyTypeValue">
+                                                    </ng-select>
+                                                  </div>
+                                                </td>
+                                                <td  class="align-middle">{{item.TaxProcessId}}</td>
+                                                <td *ngIf="!item.isDisabled" class="highLightRow">
+                                                  <div class="discount">
+                                                        <ng-select name="TaxParentIdValue2" [items]="taxprocessParentID" bindLabel="text"
+                                                        bindValue="id" placeholder="Select Parent ID"
+                                                        (change)="onTaxParentSelect($event)" [(ngModel)]="TaxParentIdValue">
+                                                    </ng-select>
+                                                  </div>
+                                                </td>
+                                         
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr  *ngIf='showHideAddItemRow' class="selected_row active">
+                                                <td>
+                                                        <div class="action_btn">
+                                                          <button type="submit" class="btn btn-primary redAlert btn_add_more"
+                                                            (click)="addItems()">+</button>
+                                                        </div>
+                                                      </td>
+                                            
+                                            <td>
+                                                <div class="discount">
+                                                    <select2  #taxSlab_select2
+                                                        [data]="taxSlabsData" class="control_select"
+                                                        (valueChanged)="onTaxSlabSelect($event)" autocomplete="true"
+                                                        [options]="{ placeholder: 'Select Tax Slab' }"
+                                                        [value]="taxSlabValue"></select2>
+                                                </div>
+                                            </td>
+                                            <td>
+                                        
+                                                <ng-select name="applyTypeValue1" [items]="getApplyTypeList" bindLabel="text"
+                                                bindValue="id" placeholder="Select Apply"
+                                                (change)="onSelectApply($event)" [(ngModel)]="applyTypeValue">
+                                            </ng-select>
+                                           
+                                            </td>
+                                            <td>
+                                                <ng-select name="processParnt1" [items]="taxprocessParentID" bindLabel="text"
+                                                bindValue="id" placeholder="Select Parent ID"
+                                                (change)="onTaxParentSelect($event)" [(ngModel)]="TaxParentIdValue">
+                                            </ng-select>
+                                            </td>
+                                        </tr>
+                                        </tfoot>
+
+                                </table>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn_close waves-effect" data-dismiss="modal"
+                    (click)="clearValidation()">Close</button>
+                <button type="button" class="btn btn-primary waves-effect"
+                    (click)="keepOpen=false;addTax()">Save</button>
+                <button type="button" class="btn btn-primary waves-effect" (click)="keepOpen=true;addTax()">Save With
+                    Add New</button>
+            </div>
+        </div>
+    </div>
+</div>

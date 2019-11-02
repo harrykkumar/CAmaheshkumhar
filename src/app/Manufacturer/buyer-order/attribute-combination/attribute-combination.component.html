@@ -64,6 +64,22 @@
                 </div>
               </div>
             </div>
+            <div class="form-group col-md-4">
+              <label>Measurement Attribute</label>
+              <div class="input-group adw_select">
+                <div class="input-group adw_select">
+                  <select2
+                    [data]="measurementAttrSelect2"
+                    class="control_select"
+                    [options]="{multiple: true}"
+                    (valueChanged)="onMeasurementSelect($event)"
+                    autocomplete="true"
+                    [value]="measurementAttrValue"
+                  >
+                  </select2>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="form-row" *ngIf="buyerFormData?.productionQty > 0" ><span class="font-weight-bold-light" >Production Quantity -&nbsp;</span> {{buyerFormData?.productionQty}}</div>
           <br/>
@@ -81,7 +97,7 @@
                           rowspan="2"
                           colspan="1"
                           class="dynamic_fix"
-                          *ngFor="let attributeValue of sizeAttributeValueList"
+                          *ngFor="let attributeValue of filteredAttrs"
                         >
                           {{ attributeValue?.Name }}
                         </th>

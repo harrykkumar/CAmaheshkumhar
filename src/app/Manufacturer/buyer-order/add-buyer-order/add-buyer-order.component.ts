@@ -94,6 +94,8 @@ export class AddBuyerOrderComponent implements OnInit {
           let arr = data.data
           arr.splice(1, 1)
           this.listItem['currencyList'] = arr
+        } else if (data.title === 'Set Type') {
+          this.listItem['setTypeData'] = data.data
         }
       }
     })
@@ -180,6 +182,18 @@ export class AddBuyerOrderComponent implements OnInit {
             setTimeout(() => {
               if (this.seasonSelect2) {
                 const element = this.renderer.selectRootElement(this.seasonSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
+          }
+          if (data.code === 186) {
+            let newData = Object.assign([], this.listItem.setTypeData)
+            newData.push({ id: data.id, text: data.name })
+            this.listItem.setTypeData = Object.assign([], newData)
+            this.model.setValue = +data.id
+            setTimeout(() => {
+              if (this.setTypeSelect2) {
+                const element = this.renderer.selectRootElement(this.setTypeSelect2.selector.nativeElement, true)
                 element.focus({ preventScroll: false })
               }
             }, 2000)
@@ -461,7 +475,9 @@ export class AddBuyerOrderComponent implements OnInit {
             rate: this.model.rate,
             amount: +(item.Qty*this.model.rate).toFixed(2),
             remark : this.model.remark,
-            itemName: this.model.itemName
+            itemName: this.model.itemName,
+            SetId: this.model.SetId,
+            StyleId: this.model.styleNumberId
           }
           this.model['totalOrderedQty'] = (this.model['totalOrderedQty'] || 0) + +obj['orderQuantity']
           this.model['totalProductionQty'] = (this.model['totalProductionQty'] || 0) + +obj['productionQty']
@@ -546,6 +562,7 @@ export class AddBuyerOrderComponent implements OnInit {
       valid = false
       this._toaster.showErrorLong('', 'Please add atleast 1 item to place order')
     }
+    this.checkForFocus()
     return valid
   }
 
@@ -611,6 +628,8 @@ export class AddBuyerOrderComponent implements OnInit {
         "ItemId": item.itemId,
         "UnitId": item.unit,
         "Rate": item.rate,
+        "StyleId": item.StyleId,
+        "SetId": item.SetId,
         "Length": 1,
         "Height": 1,
         "Width": 1,
@@ -633,7 +652,6 @@ export class AddBuyerOrderComponent implements OnInit {
       "LedgerId": this.model.buyerNameId,
       "StyleNo": "",
       "AddressId": this.model.AddressId,
-      "StyleId": this.model.styleNumberId,
       "OrderNo": this.model.orderPoNumber,
       "OrderDate": this._gs.clientToSqlDateFormat(this.model.orderDate, this.clientDateFormat),
       "ShipmentDate": this._gs.clientToSqlDateFormat(this.model.shipDate, this.clientDateFormat),
@@ -710,6 +728,7 @@ export class AddBuyerOrderComponent implements OnInit {
   @ViewChild('shipmode_select2') shipmodeSelect2: Select2Component
   @ViewChild('season_select2') seasonSelect2: Select2Component
   @ViewChild('order_type_select2') orderTypeSelect2: Select2Component
+  @ViewChild('setType_select2') setTypeSelect2: Select2Component
   onDropDownChange(event, key){
     this.model[key] = Number(event.value)
     if(key === 'itemId' && this.model[key]){
@@ -774,6 +793,22 @@ export class AddBuyerOrderComponent implements OnInit {
     if (key === 'shipModeId' && this.model[key] === -1) {
       this.shipmodeSelect2.selector.nativeElement.value = ''
       this.commonService.getCommonMenu(170).then((menudata) => {
+        console.log(menudata)
+        this.commonService.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
+      });
+    }
+    if (key === 'packingTypeId' && this.model[key] === 792) {
+      this._buyerOrderService.getSetTypeData().subscribe((data) => {
+        console.log(data)
+        this._buyerOrderService.getList(data, 'CommonDesc', 'Set Type')
+      },
+      (error) => {
+        this._toaster.showErrorLong(error, '')
+      })
+    }
+    if (key === 'SetId' && this.model[key] === -1) {
+      this.shipmodeSelect2.selector.nativeElement.value = ''
+      this.commonService.getCommonMenu(186).then((menudata) => {
         console.log(menudata)
         this.commonService.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
       });
@@ -855,5 +890,11 @@ export class AddBuyerOrderComponent implements OnInit {
 
   ngOnDestroy () {
     this.destroy$.unsubscribe()
+  }
+
+  checkForFocus () {
+    setTimeout(() => {
+      $(".errorSelecto:first").focus({ preventScroll: false })
+    }, 2000)
   }
 }

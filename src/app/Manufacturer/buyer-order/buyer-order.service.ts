@@ -94,4 +94,7 @@ export class BuyerOrderService {
     + ' ' + ((typeof (address.PostCode) === 'object' || address.PostCode === '' || typeof (address.PostCode) === 'undefined') ? '' : address.PostCode)
   }
 
+  getSetTypeData () {
+    return this.gs.manipulateResponse(this.baseService.getRequest(ApiConstant.COUNTRY_LIST_URL + 186))
+  }
 }

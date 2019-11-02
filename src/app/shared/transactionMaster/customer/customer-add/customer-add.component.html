@@ -44,11 +44,17 @@
                             <div class="form-group col-md-3">
                               <label>Ledger Name</label>
                               <input #ledgerName type="text" class="form-control"
-                               (input)="reapeatName($event.target.value);checkValidationName()" placeholder="Enter Ledger Name" name='customername' [(ngModel)]="customerName" [ngClass]="{ 'errorSelecto': submitClick && customerError }" />
+                               (input)="reapeatName($event.target.value);checkValidationName()" 
+                               placeholder="Enter Ledger Name" name='customername' 
+                               [(ngModel)]="customerName"
+                                [ngClass]="{ 'errorSelecto': submitClick && customerError }" />
                             </div>
                             <div class="form-group col-md-3">
                               <label>Contact Person</label>
-                              <input  #conatctPerRef  type="text" class="form-control" placeholder="Enter Contact Person" (input)='checkValidationPerson()' [(ngModel)]="contactPerson" name='contactname' [ngClass]="{ 'errorSelecto': submitClick && persnalError }" />
+                              <input    type="text" class="form-control" 
+                              placeholder="Enter Contact Person"  
+                              [(ngModel)]="contactPerson" name='contactname' 
+                            />
                             </div>
                             <div class="form-group col-md-3">
                               <label for="bill_no">Customer Registration Type</label>
@@ -249,7 +255,10 @@
                                       >
                                       </select2>
                                       <td>
-                                        <input (keydown.enter)='pressEnterEmailadd($event)' name='EmailAddress'  type="email" class="form-control" [(ngModel)]='EmailAddress' [ngClass]="{ 'errorSelecto': !getEmailvalid  }"  ></td>
+                                        <input (keydown.enter)='pressEnterEmailadd($event)' 
+                                        name='EmailAddress'  type="email" class="form-control"
+                                         [(ngModel)]='EmailAddress'
+                                          [ngClass]="{ 'errorSelecto': !getEmailvalid  }"  ></td>
                                      </tr>
                                   </tfoot>
                                 </table>
@@ -372,6 +381,12 @@
           </div>
         </form>
       </div>
+
+
+      <app-add-new-city
+      #addNewCityRef
+      (addCityClosed)="addCityClosed($event)"
+    ></app-add-new-city>
       <div class="modal fade" id="add_area_Popup" role="dialog" aria-labelledby="country_master" aria-hidden="true">
         <div class="modal-dialog modal-md" role="document">
           <div class="modal-content">
@@ -399,7 +414,4 @@
           </div>
         </div>
       </div>
-      <app-add-new-city
-      #addNewCityRef
-      (addCityClosed)="addCityClosed($event)"
-    ></app-add-new-city>
+      

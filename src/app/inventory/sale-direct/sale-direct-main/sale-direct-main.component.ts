@@ -14,6 +14,7 @@ import { SaleDirectAddComponent } from '../sale-direct-add/sale-direct-add.compo
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { ExcelService } from '../../../commonServices/excel.service';
 import { GlobalService } from 'src/app/commonServices/global.service';
+import { add } from 'ngx-bootstrap/chronos/public_api';
 
 declare const $: any
 declare const _: any
@@ -352,6 +353,7 @@ export class SaleDirectMainComponent {
         if (data.Data.AddressDetailsOrg.length > 0) {
           _self.orgAddress = []
           _self.orgAddress = data.Data.AddressDetailsOrg
+          this.splitAddressDetails(data.Data.AddressDetailsOrg[0].AddressValue)
         } else {
           _self.orgAddress = []
         }
@@ -875,7 +877,17 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
         });
       }
     })
-
+  }
+  splitAddressDetails (addressvalue){
+    if(addressvalue){
+      let address =[]
+      var words = addressvalue.split(' ');
+      if(words.length>0){
+        for(let i=0; i < 10; i++){
+          address.push(words[i]) 
+        }
+      }
+    }
 
   }
 }

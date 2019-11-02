@@ -84,7 +84,7 @@ export class DiscountMasterAddComponent {
   }
   DiscountList: any = []
   getApplyedDiscount(DiscountParam, editData) {
-    debugger
+    
     this.commonService.getListApplyedDiscount(DiscountParam).subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND && resp.Data.length > 0) {
         this.DiscountList = []
@@ -103,6 +103,7 @@ export class DiscountMasterAddComponent {
         this.checkedList = [...this.checkedListForEdit]
         var alradyCheckedList = resp.Data.filter(this.comparer(this.checkedListForEdit));
         this.DiscountList = alradyCheckedList.concat(this.checkedListForEdit);
+        
         resp.Data.forEach((main, index) => {
           editData.forEach(ele => {
             if (ele.DiscountId === main.DiscountId) {
@@ -172,7 +173,7 @@ export class DiscountMasterAddComponent {
   }
 
   editDiscount(id) {
-    debugger
+    
     this.commonService.getDiscountList('id=' + id).subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND && resp.Data.length > 0) {
         if (resp.Data[0].ToDate === null) {
@@ -464,7 +465,7 @@ export class DiscountMasterAddComponent {
     this.ToQty = 0
   }
   paramForDiscountInput() {
-    debugger
+    
     let todate = ''
     let fromdate = ''
     if (this.toDate !== null) {

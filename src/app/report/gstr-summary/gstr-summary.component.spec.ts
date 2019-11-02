@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TaxProcessComponent } from './tax-process.component';
+import { GstrSummaryComponent } from './gstr-summary.component';
 
-describe('TaxProcessComponent', () => {
-  let component: TaxProcessComponent;
-  let fixture: ComponentFixture<TaxProcessComponent>;
+describe('GstrSummaryComponent', () => {
+  let component: GstrSummaryComponent;
+  let fixture: ComponentFixture<GstrSummaryComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ TaxProcessComponent ]
+      declarations: [ GstrSummaryComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TaxProcessComponent);
+    fixture = TestBed.createComponent(GstrSummaryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

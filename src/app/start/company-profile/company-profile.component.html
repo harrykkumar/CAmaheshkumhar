@@ -1167,7 +1167,7 @@
                                 type="text"
                                 class="form-control"
                                 id="bankNameId"
-                                placeholder="Enter Bank Name"
+                                placeholder=" Bank Name"
                                 name="bankName"
                                 #bankNameModel="ngModel"
                                 [(ngModel)]="bankDetail.name"
@@ -1179,6 +1179,25 @@
                                 required
                               />
                             </div>
+                            <div class="form-group col-md-3">
+                                <label>Account Holder Name</label>
+                                <input
+                                
+                                  type="text"
+                                  class="form-control"
+                                  id="accountHolderNameId"
+                                  placeholder="Account Holder Name"
+                                  name="accountHolderName"
+                                  #accountHolderNameModel="ngModel"
+                                  [(ngModel)]="bankDetail.accountHolderName"
+                                  [ngClass]="{
+                                    'is-invalid':
+                                      bankFormModel?.submitted &&
+                                      accountHolderNameModel?.invalid
+                                  }"
+                                  required
+                                />
+                              </div>
                             <div class="form-group col-md-2">
                               <label>Account Number</label>
                               <input
@@ -1257,11 +1276,21 @@
                               <div class="card addredd_book p-3">
                                 <h5>{{ item.name }}</h5>
                                 <p>
-                                  <span>Account Number </span
-                                  ><span
+                                    <span>Account Holder Name :</span>
+                                    <span
+                                        ><strong>{{
+                                          item?.accountHolderName
+                                        }}</strong>
+                                        </span
+                                      >
+                                    </p>
+                                <p>
+                                <span>Account Number : </span>
+                                <span
                                     ><strong>{{
                                       item?.accountNumber
-                                    }}</strong></span
+                                    }}</strong>
+                                    </span
                                   >
                                 </p>
                                 <p>

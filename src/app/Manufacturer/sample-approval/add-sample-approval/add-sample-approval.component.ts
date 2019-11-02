@@ -10,6 +10,7 @@ import * as _ from 'lodash';
 import { AddCust } from '../../../model/sales-tracker.model';
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
 import { ManufacturingService } from '../../manufacturing.service';
+import { Subscription } from 'rxjs/Subscription';
 declare const $: any
 
 @Component({
@@ -29,6 +30,7 @@ export class AddSampleApprovalComponent implements OnInit {
   clientDateFormat: string = '';
   Id = 0
   loading = false
+  subscription$: Subscription
   constructor(
     public _gs: GlobalService,
     public _settings: Settings,
@@ -40,7 +42,7 @@ export class AddSampleApprovalComponent implements OnInit {
     private renderer: Renderer2
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this._ss.openSample$.subscribe((data: AddCust) => {
+    this.subscription$ = this._ss.openSample$.subscribe((data: AddCust) => {
       if (data.open) {
         this.openModal()
         if (+data.editId > 0) {
@@ -51,7 +53,7 @@ export class AddSampleApprovalComponent implements OnInit {
         this.closeModal()
       }
     })
-    this._ss.select2List$.subscribe((data: any) => {
+    this.subscription$ = this._ss.select2List$.subscribe((data: any) => {
       console.log(data)
       if (data.data && data.title) {
         if (data.title === 'Style') {
@@ -66,8 +68,7 @@ export class AddSampleApprovalComponent implements OnInit {
       }
     })
 
-    this._cs.openCommonMenu$.subscribe(
-      (data: AddCust) => {
+    this.subscription$ = this._cs.openCommonMenu$.subscribe((data: AddCust) => {
         if (data.id && data.name && data.code) {
           if (data.code === 141) {
             let newData = Object.assign([], this.sampleShipmentByList)
@@ -94,10 +95,9 @@ export class AddSampleApprovalComponent implements OnInit {
             }, 2000)
           }
         }
-      }
-    )
+    })
 
-    this._ms.openStyle$.subscribe((data: any) => {
+    this.subscription$ = this._ms.openStyle$.subscribe((data: any) => {
       if (data.name && data.id) {
         let newData = Object.assign([], this.styleNumberListData)
         newData.push({ id: +data.id, text: data.name })
@@ -136,6 +136,7 @@ export class AddSampleApprovalComponent implements OnInit {
   }
 
   closeModal(){
+    this.resetForm()
     $('#sample_approval_form').modal(UIConstant.MODEL_HIDE)
   }
 
@@ -228,8 +229,8 @@ export class AddSampleApprovalComponent implements OnInit {
     this.createImageFiles()
   }
 
- async saveOrUpdateSampleApproval(){
-    const requestData = await this.preparePayload()
+ saveOrUpdateSampleApproval(){
+    const requestData = this.preparePayload()
     this._gs.manipulateResponse(this._ss.postSampleApprovalFormData(requestData)).subscribe((res) => {
       this._ts.showSuccess('', 'Successfully Saved')
       this._ss.onSampleAdd()
@@ -240,13 +241,14 @@ export class AddSampleApprovalComponent implements OnInit {
   }
 
   resetForm() {
-    if (!_.isEmpty(this.styleNoSelect) && this.styleNoSelect.value && Number(this.styleNoSelect.value) > 0) {
-      this.styleNoSelect.setElementValue(0);
-    }
-    if (!_.isEmpty(this.shipMentBySelect) && this.shipMentBySelect.value && Number(this.shipMentBySelect.value) > 0) {
-      this.shipMentBySelect.setElementValue(0);
-    }
-    this.sampleApprovalFormModal.resetForm();
+    this.model = {
+      SampleTypeId : '1',
+      SampleDate: '',
+      ExpectedReplyDate: ''
+    };
+    this.imageList = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
+    this.ImageFiles = []
+    if (this.sampleApprovalFormModal) this.sampleApprovalFormModal.resetForm();
   }
 
   @ViewChild('shipMentBySelect') shipMentBySelect: Select2Component
@@ -280,5 +282,13 @@ export class AddSampleApprovalComponent implements OnInit {
       this.styleNoSelect.selector.nativeElement.value = ''
       this._ms.openStyle('', false)
     }
+  }
+
+  close () {
+    this._ss.closeSample()
+  }
+
+  ngOnDestroy () {
+    this.subscription$.unsubscribe()
   }
 }

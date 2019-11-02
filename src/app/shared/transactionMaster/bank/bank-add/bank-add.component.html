@@ -2,33 +2,39 @@
     <form #bankFormRef="ngForm">
         <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
             <div class="modal-content bgcH-grey-100">
-                <!--Header-->
                 <div class="modal-header close_popup">
                     <h4 class="modal-title w-100 c-grey-900">Bank</h4>
                     <button type="button" class="close" (click)='clearbank()' data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
-
                 </div>
-
-                <!--Body-->
                 <div class="modal-body">
                     <div class="form row">
                         <div class="form-group col-md-12">
-                            <label class="active">Bank Name</label> 
-                            <input #bankname1 type="text" (input)="checkValidationName()" class="form-control" placeholder=" Bank Name"
-                                [ngClass]="{ 'errorSelecto ': submitClick && bankNameErr }" name='bankname'
-                                [(ngModel)]="banName">
+                            <label class="active">Bank Name</label>
+                            <input #bankname1 type="text" (input)="checkValidationName()" class="form-control"
+                                placeholder=" Bank Name" [ngClass]="{ 'errorSelecto ': submitClick && bankNameErr }"
+                                name='bankname' [(ngModel)]="banName">
                         </div>
                         <div class="form-group col-md-12">
+                            <label class="active">AccountHolder Name</label>
+                            <input type="text" (input)="checkValidationHolderName()" class="form-control"
+                                placeholder="AccountHolder Name"
+                                [ngClass]="{ 'errorSelecto ': submitClick && AccountHolderNameErr }"
+                                name='AccountHolderName' [(ngModel)]="AccountHolderName">
+                        </div>
+
+                        <div class="form-group col-md-12">
                             <label class="active">Account Number</label>
-                            <input type="text" class="form-control" (input)='checkValidAccount()' [ngClass]="{ 'errorSelecto': submitClick && accountErr}"
-                                placeholder=" Account Number" name='accuntNo' [(ngModel)]="accountNo">
+                            <input type="text" class="form-control" (input)='checkValidAccount()'
+                                [ngClass]="{ 'errorSelecto': submitClick && accountErr}" placeholder=" Account Number"
+                                name='accuntNo' [(ngModel)]="accountNo">
                         </div>
                         <div class="form-group col-md-6">
                             <label class="active">IFSC Code</label>
-                            <input type="text" class="form-control"  (input)='checkValidIFSC()' [ngClass]="{ 'errorSelecto': submitClick && IFSCCodeErr  }"
-                                placeholder=" IFSC Code " name='ifscCode' [(ngModel)]="ifscCode">
+                            <input type="text" class="form-control" (input)='checkValidIFSC()'
+                                [ngClass]="{ 'errorSelecto': submitClick && IFSCCodeErr  }" placeholder=" IFSC Code "
+                                name='ifscCode' [(ngModel)]="ifscCode">
                         </div>
                         <div class="form-group col-md-6">
                             <label>Opening Balance</label>
@@ -46,8 +52,8 @@
                         <div class="form-group col-md-6">
                             <label>Branch</label>
                             <input type="text " class="form-control "
-                                [ngClass]="{ 'errorSelecto ': submitClick && BrancNameErr  }" (input)="checkValidBranch()" placeholder=" Branch " name='branch'
-                                [(ngModel)]="branch">
+                                [ngClass]="{ 'errorSelecto ': submitClick && BrancNameErr  }"
+                                (input)="checkValidBranch()" placeholder=" Branch " name='branch' [(ngModel)]="branch">
                         </div>
                         <div class="form-group col-md-6">
                             <label>MICR No</label>
@@ -56,14 +62,12 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label for="bill_no">Registration Type</label>
-                            <div class="input-group adw_select">
-                                <div class="input-group adw_select">
-                                    <select2 #select_regiType [data]="selectyCoustmoreRegistration"
-                                        class="control_select" (valueChanged)="selectCoustmoreId($event)"
-                                        autocomplete="true" [options]="selectCoustomerplaceHolder"
-                                        [value]="coustomerValue"></select2>
-                                </div>
-                            </div>
+                            <ng-select name="taxtype" [items]="selectyCoustmoreRegistration" bindLabel="text"
+                                bindValue="id" placeholder="Select Regular" (change)="selectCoustmoreId($event)"
+                                [(ngModel)]="coustomerValue">
+                            </ng-select>
+
+
                         </div>
                         <div class="form-group col-md-6">
                             <label class="active">GSTIN Number</label>
@@ -110,7 +114,4 @@
         </div>
     </form>
 </div>
-<app-add-new-city
-#addNewCityRef
-(addCityClosed)="addCityClosed($event)"
-></app-add-new-city>
+<app-add-new-city #addNewCityRef (addCityClosed)="addCityClosed($event)"></app-add-new-city>

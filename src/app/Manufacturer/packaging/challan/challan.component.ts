@@ -3,7 +3,7 @@ import { Settings } from '../../../shared/constants/settings.constant';
 import { GlobalService } from '../../../commonServices/global.service';
 import { Select2OptionData, Select2Component } from 'ng2-select2';
 import { Subject, forkJoin } from 'rxjs';
-import { ItemTaxTrans, AdditionalCharges } from '../../../model/sales-tracker.model';
+import { ItemTaxTrans, AdditionalCharges, AddCust } from '../../../model/sales-tracker.model';
 import { Subscription } from 'rxjs/Subscription';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { PurchaseService } from 'src/app/inventory/purchase/purchase.service';
@@ -215,6 +215,35 @@ export class PackagingChallanComponent {
         }
       }
     )
+
+    // this.commonService.getTaxStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
+    //   (data: AddCust) => {
+    //     if (data.id && data.name) {
+    //       let newData = Object.assign([], this.taxSlabsData)
+    //       newData.push({ id: data.id, text: data.name })
+    //       this.taxSlabsData = newData
+    //       if (this.TaxSlabId === -1) {
+    //         this.TaxSlabId = +data.id
+    //         this.taxSlabValue = data.id
+    //         setTimeout(() => {
+    //           if (this.taxSlabSelect2) {
+    //             const element = this.renderer.selectRootElement(this.taxSlabSelect2.selector.nativeElement, true)
+    //             element.focus({ preventScroll: false })
+    //           }
+    //         }, 2000)
+    //       } else if (this.TaxSlabChargeId === -1) {
+    //         this.TaxSlabChargeId = +data.id
+    //         this.taxSlabChargeValue = data.id
+    //         setTimeout(() => {
+    //           if (this.taxSlabChargeSelect2) {
+    //             const element = this.renderer.selectRootElement(this.taxSlabChargeSelect2.selector.nativeElement, true)
+    //             element.focus({ preventScroll: false })
+    //           }
+    //         }, 2000)
+    //       }
+    //     }
+    //   }
+    // )
   }
 
   getAddressTaxType (bOrderId) {

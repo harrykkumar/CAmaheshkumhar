@@ -819,6 +819,7 @@ export class CompanyProfileComponent implements OnInit {
         Name: item.name,
         Branch: item.branch,
         AcNo: item.accountNumber,
+        AccountHolderName:item.accountHolderName,
         ParentTypeId: 5,
         Ifsccode: item.ifscCode,
         MicrNo: item.micrNo
@@ -1001,6 +1002,7 @@ export class CompanyProfileComponent implements OnInit {
         id: item.Id,
         name: item.Name,
         accountNumber: item.AcNo,
+        accountHolderName:item.AccountHolderName,
         branch: item.Branch,
         ifscCode: item.IfscCode,
         micrNo: item.MicrNo

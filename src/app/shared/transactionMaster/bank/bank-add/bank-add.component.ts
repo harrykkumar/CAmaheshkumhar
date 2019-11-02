@@ -147,7 +147,7 @@ export class BankAddComponent {
     setTimeout(() => {
       this.banknameFocus.nativeElement.focus()
     }, 200);
-    this.select2CrDrValue(0)
+    this.select2CrDrValue(1)
     this.getCountry(0)
     this.select2VendorValue(0)
     if (!this.editData) {
@@ -170,6 +170,9 @@ export class BankAddComponent {
 
   loadAddressDetails(Address) {
     this.countryValue = Address.CountryId
+    this.cityValue = Address.CityId
+    this.stateValue = Address.StateId
+
     let country = {
       id: Address.CountryId,
       text: Address.CountryName
@@ -190,17 +193,13 @@ export class BankAddComponent {
       this.selectedCityId(city)
     }, 200);
   }
-  // his.bankNameErr= true
-  //   this.IFSCCodeErr=true
-  //   this.bankNameErr = true
-  //   this.accountErr=true
-  //   this.BrancNameErr=true
   edibankDetails(id) {
     if (id > 0) {
       this.subscribe = this.commonService.getEditbankDetails(id).subscribe(data => {
         if (data.Code === UIConstant.THOUSAND) {
           if (data.Data.BankDetails.length > 0) {
             this.banName = data.Data.BankDetails[0].Name
+            this.AccountHolderName = data.Data.BankDetails[0].AccountHolderName
             this.accountNo = data.Data.BankDetails[0].AcNo
             this.ifscCode = data.Data.BankDetails[0].IfscCode
             this.branch = data.Data.BankDetails[0].Branch
@@ -208,7 +207,7 @@ export class BankAddComponent {
             this.openingbalance = data.Data.BankDetails[0].OpeningBalance
             this.crDrSelect2.setElementValue(data.Data.BankDetails[0].Crdr)
             this.disabledGSTfor_UnRegi = data.Data.BankDetails[0].TaxTypeId === 4 ? true : false
-            this.registerTypeSelect2.setElementValue(data.Data.BankDetails[0].TaxTypeId)
+            this.coustomerValue =JSON.stringify(data.Data.BankDetails[0].TaxTypeId)
             this.coustmoreRegistraionId = JSON.stringify(data.Data.BankDetails[0].TaxTypeId)
             this.valueCRDR = data.Data.BankDetails[0].Crdr
             this.CrDrRateType = data.Data.BankDetails[0].Crdr
@@ -216,6 +215,8 @@ export class BankAddComponent {
             this.Ledgerid = data.Data.BankDetails[0].Ledgerid
             this.bankNameErr = false
             this.IFSCCodeErr = false
+            this.AccountHolderNameErr=false
+            
             this.bankNameErr = false
             this.accountErr = false
             this.BrancNameErr = false
@@ -242,6 +243,7 @@ export class BankAddComponent {
     this.onloading()
     this.countryValue = null
     this.stateValue = null
+    this.coustomerValue =2
     this.cityValue = null
     this.submitClick = false
     this.select2VendorValue(0)
@@ -269,16 +271,18 @@ export class BankAddComponent {
   openingbalance: any
   onloading() {
     this.banName = ''
+    this.GstinNoCode=''
+    this.AccountHolderName =''
     this.accountNo = ''
     this.openingbalance = 0
     this.ifscCode = ''
-    this.CrDrRateType = ''
+    this.CrDrRateType = 1
     this.branch = ''
     this.micr = ''
     this.address = ''
     this.gstin = ''
     this.requiredGST = true
-    this.bankNameErr = true
+    this.AccountHolderNameErr=true
     this.IFSCCodeErr = true
     this.bankNameErr = true
     this.accountErr = true
@@ -290,12 +294,21 @@ export class BankAddComponent {
   bankNameErr: any
   BrancNameErr: any
   IFSCCodeErr: any
+  AccountHolderName:any
+  AccountHolderNameErr:any
   accountErr: any
   checkValidationName() {
     if (this.banName !== "") {
       this.bankNameErr = false
     } else {
       this.bankNameErr = true
+    }
+  }
+  checkValidationHolderName() {
+    if (this.AccountHolderName !== "") {
+      this.AccountHolderNameErr = false
+    } else {
+      this.AccountHolderNameErr = true
     }
   }
   checkValidAccount() {
@@ -325,13 +338,16 @@ export class BankAddComponent {
     this.selectCrDr = []
     this.selectCrDr = [{ id: '1', text: 'CR' }, { id: '0', text: 'DR' }]
     this.valueCRDR = value
+    this.crDrSelect2.setElementValue(value)
+    
+
   }
 
   addbank(type) {
     let _self = this
     this.submitClick = true
     this.checkGSTNumberValid()
-    if (this.banName !== '' && this.ifscCode !== null && this.branch !== null && this.banName !== null && this.accountNo !== null && this.ifscCode !== '' && this.branch !== '' && this.banName !== '' && this.accountNo !== '') {
+    if (this.banName !== '' && this.AccountHolderName!==''  && this.ifscCode !== null && this.branch !== null && this.banName !== null && this.accountNo !== null && this.ifscCode !== '' && this.branch !== '' && this.banName !== '' && this.accountNo !== '') {
       if (this.matchStateCodeWithGSTNumber()) {
         this.subscribe = this._bankServices.saveBank(this.bankParams()).subscribe(data => {
           console.log(data)
@@ -380,6 +396,7 @@ export class BankAddComponent {
         LedgerId: this.Ledgerid !== 0 ? this.Ledgerid : 0,
         Name: this.banName,
         AcNo: this.accountNo,
+        AccountHolderName:this.AccountHolderName,
         Branch: this.branch,
         MicrNo: this.micr === null ? 0 : this.micr,
         IfscCode: this.ifscCode,
@@ -525,17 +542,17 @@ export class BankAddComponent {
   validError: boolean
   customerRegistraionError: any
   disabledGSTfor_UnRegi: boolean
+
   selectCoustmoreId(event) {
-    debugger
-    if (event.data.length > 0) {
-      if (+event.value > 0) {
-        this.coustmoreRegistraionId = event.value
+    if (this.coustomerValue!==null ) {
+      if (+event.id > 0) {
+        this.coustmoreRegistraionId = event.id
         this.validError = false
         if (this.coustmoreRegistraionId === '1') {
           this.requiredGST = true
           this.disabledGSTfor_UnRegi = false
         }
-        else if (event.value === '4') {
+        else if (event.id === '4') {
           this.disabledGSTfor_UnRegi = true
           this.gstin = ''
           this.requiredGST = false
@@ -573,18 +590,14 @@ export class BankAddComponent {
   }
   
   addCityClosed(selectedIds?) {
-    if (this.countryValue > 0) {
-      if (this.countryValue !==null && Number(this.countryValue) !== selectedIds.countryId) {
+    if (selectedIds !==undefined) {
+      if (this.countryValue !==null && Number(this.countryValue) !== (selectedIds && selectedIds.countryId)) {
         this.countryValue = selectedIds.countryId
-        // this.cityId =selectedIds.cityId
-        // this.stateId = selectedIds.stateId
         this.stateValue = selectedIds.stateId
         this.cityValue = selectedIds.cityId;
-      } else if (this.stateValue !==null && Number(this.stateValue) !== selectedIds.stateId) {
+      } else if (this.stateValue !==null && Number(this.stateValue) !== (selectedIds && selectedIds.stateId )) {
         this.stateValue = selectedIds.stateId
         this.cityValue = selectedIds.cityId;
-        // this.cityId =selectedIds.cityId
-        // this.stateId = selectedIds.stateId
       } else {
         this.cityValue = selectedIds.cityId;
         this.cityId =selectedIds.cityId

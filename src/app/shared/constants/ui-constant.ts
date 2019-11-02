@@ -235,4 +235,8 @@ export class UIConstant {
   public static get PACKAGINGCHALLAN (): string {
     return 'SALECHALLAN'
   }
+
+  public static get PO (): string {
+    return 'PurchaseOrder'
+  }
 }

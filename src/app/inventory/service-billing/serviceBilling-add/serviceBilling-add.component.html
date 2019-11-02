@@ -547,14 +547,10 @@
           <div class="form-row mt-2" >
             <div class="col-md-12 card p-2" >
               <div class="form-row mt-2" >
-                  <div class="col-md-6">
-                      <div class="">
+                  <div class="col-md-7">
                         <div class="form-row">
-                          <div class=" form-group  col-md-2 pt-2">
+                          <div class=" form-group  col-md-3">
                             <label>Bill Discount</label>
-                          </div>
-                          <div class=" form-group  col-md-4">
-                           
                             <div class="discount">
                               <input [disabled] ="MultipleBillDiscount || addItemDisbaled" type="number" class="form-control" placeholder="Bill Discount" appIncludeDecimal
                                 name="BillDiscount" [(ngModel)]="BillDiscount" min="0" max="100"
@@ -568,19 +564,23 @@
                                     <a  [class.disabled]="addItemDisbaled"  (click)="openDiscountMaster()"  class="Plus_tooltip"><i
                                       class="fas fa-plus-square "></i></a>
                               </div>
-                            
                             </div>
-    
                           </div>
-                         
+                          <div class="form-group col-md-4">
+                            <label> Bank</label>
+                            <ng-select  name="banknameid" [items]="allbankList" bindLabel="text"
+                            bindValue="id" 
+                            (change)="selectedBankvalue=$event.id"
+                            placeholder="Select Bank" 
+                            [(ngModel)]="selectedBankvalue">
+                          </ng-select>
+                          </div>
                         </div>
-                      </div>
                     </div>
                   <div class="col-md-8 card p-2">
                       <div class="form-row">
                           <h5 class="summery_text" >Payment Details</h5>
                         <div class="table-responsive parent" >
-                         
                           <table class="table editable_tbl trans-table" id="fixTable">
                             <thead>
                               <tr>

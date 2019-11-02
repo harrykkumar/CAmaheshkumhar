@@ -734,13 +734,29 @@
                         </div>
 
                       </div>
-
-
-                      <div class="form-group col-md-4">
+                      <div class="form-group col-md-3">
+                        <label> Bank</label>
+                        <ng-select  name="banknameid" [items]="allbankList" bindLabel="text"
+                        bindValue="id" 
+                        (change)="selectedBankvalue=$event.id"
+                        placeholder="Select Bank" 
+                        [(ngModel)]="selectedBankvalue">
+                      </ng-select>
+                      </div>
+                      <div class="form-group col-md-3">
                         <label> Round Off</label>
                         <input type="number" class="form-control" id="RoundOffManual" placeholder="Round Off"
                           class="form-control" name="RoundOffManual" appIncludeDecimal (input)="calculate()"
                           [(ngModel)]="RoundOffManual">
+                      </div>
+                      <div class="form-group col-md-5">
+                        <label> Bank</label>
+                        <ng-select  name="banknameid" [items]="allbankList" bindLabel="text"
+                        bindValue="id" 
+                        (change)="selectedBankvalue=$event.id"
+                        placeholder="Select Bank" 
+                        [(ngModel)]="selectedBankvalue">
+                      </ng-select>
                       </div>
                     </div>
                   </div>

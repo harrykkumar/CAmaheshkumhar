@@ -1,22 +1,8 @@
-<div
-  class="modal fade"
-  id="buyer_order_form"
-  role="dialog"
-  aria-labelledby="exampleModalLabel"
-  aria-hidden="true"
->
-  <div
-    class="modal-dialog large_form modal-full-height modal-top"
-    role="document"
-  >
+<div class="modal fade" id="buyer_order_form" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
     <div class="modal-content bgcH-grey-100">
       <!--Header-->
-      <form
-        #buyerOrderForm="ngForm"
-        novalidate
-        (ngSubmit)="validateBuyerOrderForm() && submitForm()
-        "
-      >
+      <form #buyerOrderForm="ngForm" novalidate (ngSubmit)="validateBuyerOrderForm() && submitForm()">
         <div class="modal-header primary-bg">
           <div class="container-fluid">
             <div class="row">
@@ -28,17 +14,12 @@
               </div>
               <div class="col-md-9">
                 <div class="btn_header">
-                  <button type="submit" class="btn btn-default waves-effect" >
+                  <button type="submit" class="btn btn-default waves-effect">
                     Save<i class="fa fa-spinner fa-spin" *ngIf="disableBtnSubmit"></i>
                   </button>
-                  <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                    (click)="resetBuyerOrderForm()"
-                  >
-                  <span aria-hidden="true" class="white-text">×</span>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                    (click)="resetBuyerOrderForm()">
+                    <span aria-hidden="true" class="white-text">×</span>
                   </button>
                 </div>
               </div>
@@ -54,82 +35,43 @@
                 <div class="form-row ">
                   <div class="form-group col-md-4 col-lg-3 ">
                     <label>Buyer Name</label>
-                    <div class="input-group adw_select" >
-                      <select2
-                        #first
-                        [data]="listItem?.buyerNameList"
-                        class="control_select"
-                        (valueChanged)="onDropDownChange($event, 'buyerNameId')"
-                        autocomplete="true"
-                        [value]="model?.buyerNameValue"
-                        [ngClass]="{
+                    <div class="input-group adw_select">
+                      <select2 #first [data]="listItem?.buyerNameList" class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'buyerNameId')" autocomplete="true"
+                        [value]="model?.buyerNameValue" [ngClass]="{
                           errorSelecto:
                           buyerOrderForm?.submitted && !model?.buyerNameId
-                        }"
-                      >
+                        }">
                       </select2>
                     </div>
                   </div>
                   <div class="form-group col-md-4 col-lg-3">
                     <label>Address</label>
                     <div class="input-group adw_select">
-                      <select2 #address_select2 name="address" [data]="listItem?.addressList"
-                        class="control_select"
+                      <select2 #address_select2 name="address" [data]="listItem?.addressList" class="control_select"
                         autocomplete="true" (valueChanged)="onDropDownChange($event, 'AddressId')"
-                        [options]="{placeholder: 'Select Address'}"
-                        [value]="model?.addressValue"
-                        [ngClass]="{
+                        [options]="{placeholder: 'Select Address'}" [value]="model?.addressValue" [ngClass]="{
                           errorSelecto:
                           buyerOrderForm?.submitted && (!model?.AddressId || model?.AddressId <= 0)
-                        }"
-                        >
+                        }">
                       </select2>
                     </div>
                   </div>
                   <div class="form-group col-md-4 col-lg-3 ">
                     <label>Order Type</label>
                     <div class="input-group adw_select">
-                      <select2 [data]="listItem?.orderTypeList"
-                        #order_type_select2
-                        class="control_select"
-                        (valueChanged)="onDropDownChange($event, 'orderTypeId')"
-                        autocomplete="true"
-                        [value]="model?.orderTypeValue"
-                      >
+                      <select2 [data]="listItem?.orderTypeList" #order_type_select2 class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'orderTypeId')" autocomplete="true"
+                        [value]="model?.orderTypeValue">
                       </select2>
                     </div>
                   </div>
                   <div class="form-group col-md-4 col-lg-3 ">
                     <label>Season</label>
                     <div class="input-group adw_select">
-                      <select2
-                        #season_select2
-                        [data]="listItem?.seasonList"
-                        class="control_select"
-                        (valueChanged)="onDropDownChange($event, 'seasonId')"
-                        autocomplete="true"
-                        [value]="model?.seasonValue"
-                      >
-                      </select2>
-                    </div>
-                  </div>
-                  <div class="form-group col-md-4 col-lg-3 ">
-                    <label>Style No.</label>
-                    <div class="input-group adw_select">
-                      <select2
-                        #style_select2
-                        [data]="listItem?.styleNumberList"
-                        class="control_select"
-                        (valueChanged)="
-                          onDropDownChange($event, 'styleNumberId')
-                        "
-                        autocomplete="true"
-                        [value]="model?.styleNumberValue"
-                        [ngClass]="{
-                          errorSelecto:
-                          buyerOrderForm?.submitted && !model?.styleNumberId
-                        }"
-                      >
+                      <select2 #season_select2 [data]="listItem?.seasonList" class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'seasonId')" autocomplete="true"
+                        [value]="model?.seasonValue">
                       </select2>
                     </div>
                   </div>
@@ -138,62 +80,40 @@
                     <a *ngIf="isBillManual" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
                       <span class="tooltiptext">Last Order No. used is - {{previousBillNo}}</span>
                     </a>
-                    <input
-                      name="order_Po_No"
-                      #orderPoRefModal="ngModel"
-                      type="text"
-                      [disabled]="!isBillManual"
-                      class="form-control"
-                      placeholder="Enter Order/PO No."
-                      [(ngModel)]="model.orderPoNumber"
-                      [ngClass]="{
+                    <input name="order_Po_No" #orderPoRefModal="ngModel" type="text" [disabled]="!isBillManual"
+                      class="form-control" placeholder="Enter Order/PO No." [(ngModel)]="model.orderPoNumber" [ngClass]="{
                         errorSelecto:
                         buyerOrderForm?.submitted && !model?.orderPoNumber
-                      }"
-                    />
+                      }" />
                   </div>
                   <div class="form-group col-md-2 col-lg-2 ">
                     <label>Order Date</label>
                     <div class="timepicker-input input-icon form-group">
-                      <datepicker-popup
-                        [toSetDate]="model?.orderDate"
-                        [applyFinYear]="'true'"
-                        (dateInFormat)="setFromDate($event)"
-                        [class]="buyerOrderForm?.submitted && !model?.orderDate"
-                      ></datepicker-popup>
+                      <datepicker-popup [toSetDate]="model?.orderDate" [applyFinYear]="'true'"
+                        (dateInFormat)="setFromDate($event)" [class]="buyerOrderForm?.submitted && !model?.orderDate">
+                      </datepicker-popup>
                     </div>
                   </div>
                   <div class="form-group col-md-2 col-lg-2  ">
                     <label>Ship Date</label>
                     <div class="timepicker-input input-icon form-group">
-                      <datepicker-popup
-                        [toSetDate]="model?.shipDate"
-                        [applyFinYear]="'true'"
-                        (dateInFormat)="setToDate($event)"
-                      ></datepicker-popup>
+                      <datepicker-popup [toSetDate]="model?.shipDate" [applyFinYear]="'true'"
+                        (dateInFormat)="setToDate($event)"></datepicker-popup>
                     </div>
                   </div>
                   <div class="form-group col-md-2 col-lg-2">
                     <label>Ex Fact Date</label>
                     <div class="timepicker-input input-icon form-group">
-                      <datepicker-popup
-                        [toSetDate]="model?.exFactDate"
-                        [setMinDate]="''"
-                        [setMaxDate]="''"
-                        (dateInFormat)="model.exFactDate = $event"
-                      ></datepicker-popup>
+                      <datepicker-popup [toSetDate]="model?.exFactDate" [setMinDate]="''" [setMaxDate]="''"
+                        (dateInFormat)="model.exFactDate = $event"></datepicker-popup>
                     </div>
                   </div>
                   <div class="form-group col-md-4 col-lg-3 ">
                     <label>Gender</label>
                     <div class="input-group adw_select">
-                      <select2
-                        [data]="listItem?.genderList"
-                        class="control_select"
-                        (valueChanged)="onDropDownChange($event, 'genderId')"
-                        autocomplete="true"
-                        [value]="model?.genderValue"
-                      >
+                      <select2 [data]="listItem?.genderList" class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'genderId')" autocomplete="true"
+                        [value]="model?.genderValue">
                       </select2>
                     </div>
                   </div>
@@ -205,182 +125,122 @@
                 <div class="form-row ">
                   <div class="form-group col-md-6">
                     <label>Ship. Mode</label>
-                    <div class="input-group adw_select" >
-                      <select2
-                        #shipmode_select2
-                        [data]="listItem?.shipModeList"
-                        class="control_select"
-                        (valueChanged)="onDropDownChange($event, 'shipModeId')"
-                        autocomplete="true"
-                        [value]="model?.shipModeValue"
-                      >
+                    <div class="input-group adw_select">
+                      <select2 #shipmode_select2 [data]="listItem?.shipModeList" class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'shipModeId')" autocomplete="true"
+                        [value]="model?.shipModeValue">
                       </select2>
                     </div>
                   </div>
                   <div class="form-group col-md-6">
                     <label>Currency</label>
-                    <div class="input-group adw_select" >
-                      <select2
-                        [data]="listItem?.currencyList"
-                        class="control_select"
-                        (valueChanged)="onDropDownChange($event, 'currencyId')"
-                        autocomplete="true"
-                        [value]="model?.currencyValue"
-                        [ngClass]="{
+                    <div class="input-group adw_select">
+                      <select2 [data]="listItem?.currencyList" class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'currencyId')" autocomplete="true"
+                        [value]="model?.currencyValue" [ngClass]="{
                           errorSelecto:
                           buyerOrderForm?.submitted && !model?.currencyId
-                        }"
-                      >
+                        }">
                       </select2>
                     </div>
                   </div>
-                  <!-- <div class="form-group col-md-6 pt-4">
-                    <div class="form-row">
-                      <div class="custom-control custom-checkbox my-1 mr-sm-2">
-                        <input
-                          type="checkbox"
-                          name="completedCheckBox"
-                          [(ngModel)]="model.completed"
-                          class="custom-control-input"
-                          id="completed"
-                        />
-                        <label class="custom-control-label" for="completed">Completed</label>
-                      </div>
-                      <div class="custom-control custom-checkbox my-1 mr-sm-2">
-                        <input
-                          type="checkbox"
-                          name="cancelCheckBox"
-                          [(ngModel)]="model.cancelled"
-                          class="custom-control-input"
-                          id="cancelled"
-                        />
-                        <label class="custom-control-label" for="cancelled"
-                          >Cancelled</label
-                        >
-                      </div>
-                    </div>
-                  </div> -->
                 </div>
               </div>
             </div>
           </div>
-          <form
-            #itemForm="ngForm"
-            novalidate
-            (ngSubmit)="addItem(itemForm.form.valid)">
+          <form #itemForm="ngForm" novalidate (ngSubmit)="addItem(itemForm.form.valid)">
             <div class="form-row mt-2">
               <div class="col-lg-10">
                 <div class="card p-2">
                   <div class="form-row ">
                     <div class="form-group col-md-2 col-lg-2">
-                      <label>Item Name
-                       </label>
+                      <label>Item Name</label>
                       <div class="input-group adw_select">
-                        <div class="input-group adw_select">
-                          <select2
-                            #item_select2
-                            [data]="listItem?.itemList"
-                            class="control_select"
-                            (valueChanged)="onDropDownChange($event, 'itemId')"
-                            autocomplete="true"
-                            [value]="model?.itemValue"
-                            [ngClass]="{
-                              errorSelecto:
-                                (itemForm?.submitted && !model?.itemId)
-                            }"
-                          >
-                          </select2>
-                        </div>
+                        <select2 #item_select2 [data]="listItem?.itemList" class="control_select"
+                          (valueChanged)="onDropDownChange($event, 'itemId')" autocomplete="true"
+                          [value]="model?.itemValue" [ngClass]="{
+                            errorSelecto:
+                              (itemForm?.submitted && !model?.itemId)
+                          }">
+                        </select2>
                       </div>
+                    </div>
+                    <div class="form-group col-md-2 col-lg-2">
+                      <label>Style No.</label>
+                      <div class="input-group adw_select">
+                        <select2 #style_select2 [data]="listItem?.styleNumberList" class="control_select"
+                          (valueChanged)="
+                            onDropDownChange($event, 'styleNumberId')
+                          " autocomplete="true" [value]="model?.styleNumberValue" [ngClass]="{
+                            errorSelecto:
+                            itemForm?.submitted && !model?.styleNumberId
+                          }">
+                        </select2>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-2 col-lg-2 ">
+                      <label>Rate</label>
+                      <input type="text" appIncludeDecimal #rate="ngModel" class="form-control" name="rate"
+                        (change)="generateProductionQty()" [(ngModel)]="model.rate" [ngClass]="{
+                          'is-invalid':
+                            (itemForm?.submitted && rate.invalid)
+                        }" required />
                     </div>
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Order Qty</label>
-                      <input
-                        type="text"
-                        appIncludeDecimal
-                        #orderQtyModal="ngModel"
-                        class="form-control"
-                        name="orderQuantity"
-                        (change)="generateProductionQty()"
-                        [(ngModel)]="model.orderQuantity"
+                      <input type="text" appIncludeDecimal #orderQtyModal="ngModel" class="form-control"
+                        name="orderQuantity" (change)="generateProductionQty()" [(ngModel)]="model.orderQuantity"
                         [ngClass]="{
                           'is-invalid':
                             (itemForm?.submitted && orderQtyModal.invalid)
-                        }"
-                        required
-                      />
+                        }" required />
                     </div>
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Add %</label>
-                      <input
-                        type="text"
-                        appIncludeDecimal
-                        #addPercentageModal="ngModel"
-                        class="form-control"
-                        name="add"
-                        (input)="generateProductionQty()"
-                        [(ngModel)]="model.addPercentage"
-                        [ngClass]="{
+                      <input type="text" appIncludeDecimal #addPercentageModal="ngModel" class="form-control" name="add"
+                        (input)="generateProductionQty()" [(ngModel)]="model.addPercentage" [ngClass]="{
                           'is-invalid':
                             (itemForm?.submitted && addPercentageModal.invalid)
-                        }"
-                        required
-                      />
+                        }" required />
                     </div>
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Production Qty</label>
-                      <input
-                        type="text"
-                        appIncludeDecimal
-                        #productionQtyModal="ngModel"
-                        class="form-control"
-                        name="productionQty"
-                        [(ngModel)]="model.productionQty"
-                        [ngClass]="{
+                      <input type="text" appIncludeDecimal #productionQtyModal="ngModel" class="form-control"
+                        name="productionQty" [(ngModel)]="model.productionQty" [ngClass]="{
                           'is-invalid':
                             (itemForm?.submitted && productionQtyModal.invalid)
-                        }"
-                        required
-                      />
+                        }" required />
                     </div>
                     <div class="form-group col-md-3 col-lg-3">
                       <label>Remark</label>
-                      <textarea
-                        class="form-control"
-                        name="remark"
-                        [(ngModel)]="model.remark"
-                      ></textarea>
+                      <textarea class="form-control" name="remark" [(ngModel)]="model.remark"></textarea>
                     </div>
                     <div class="form-group col-md-3 col-lg-3">
-                      <label
-                        >Packing Type
-                         </label
-                      >
+                      <label>Packing Type</label>
                       <div class="input-group adw_select">
-                        <div class="input-group adw_select">
-                          <select2
-                            [data]="listItem?.packagingTypeList"
-                            class="control_select"
-                            (valueChanged)="
-                              onDropDownChange($event, 'packingTypeId')
-                            "
-                            autocomplete="true"
-                            [value]="model?.packageTypeValue"
-                            [ngClass]="{
-                              errorSelecto:
-                                (itemForm?.submitted && !model?.packingTypeId) 
-                            }"
-                          >
-                          </select2>
-                        </div>
+                        <select2 [data]="listItem?.packagingTypeList" class="control_select" (valueChanged)="
+                            onDropDownChange($event, 'packingTypeId')
+                          " autocomplete="true" [value]="model?.packageTypeValue" [ngClass]="{
+                            errorSelecto:
+                              (itemForm?.submitted && !model?.packingTypeId) 
+                          }">
+                        </select2>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-3 col-lg-3" *ngIf="model?.packingTypeId == 792">
+                      <label>Set Type</label>
+                      <div class="input-group adw_select">
+                        <select2 #setType_select2 [data]="listItem?.setTypeData" class="control_select" (valueChanged)="
+                            onDropDownChange($event, 'SetId')
+                          " autocomplete="true" [value]="model?.setValue" [ngClass]="{
+                            errorSelecto:
+                              (itemForm?.submitted && ((model?.packingTypeId == 792) ? !model?.SetId : true)) 
+                          }">
+                        </select2>
                       </div>
                     </div>
                     <div class="form-group col-md-1 mt-3">
-                      <button
-                        type="submit"
-                        class="btn btn-primary waves-effect"
-                        aria-expanded="false"
-                      >
+                      <button type="submit" class="btn btn-primary waves-effect" aria-expanded="false">
                         Add
                       </button>
                     </div>
@@ -390,51 +250,29 @@
               <div class="col-lg-2">
                 <div class="card">
                   <div class="card-body">
-                    <!-- <div class="card mt-2"> -->
-                      <div class="p-3">
-                        <a
-                        (click)="openImageModal()"
-                        class="custom-file-upload"
-                        id="imageUploadId"
-                        ><i class="fas fa-upload"></i> Image Upload
+                    <div class="p-3">
+                      <a (click)="openImageModal()" class="custom-file-upload" id="imageUploadId"><i
+                          class="fas fa-upload"></i> Image Upload
                       </a> </div>
-                        <div>
-                          <div *ngIf="ImageFiles && ImageFiles.length > 0">
-                            <div
-                              class="mB-5"
-                              *ngFor="let image of ImageFiles; let i = index"
-                            >
-                              <div>
-                                <strong class="mr-auto">{{
+                    <div>
+                      <div *ngIf="ImageFiles && ImageFiles.length > 0">
+                        <div class="mB-5" *ngFor="let image of ImageFiles; let i = index">
+                          <div>
+                            <strong class="mr-auto">{{
                                   image.Name
                                 }}</strong>
-                                <button
-                                  type="button"
-                                  class="image-cross-icon ml-2 mb-1 close"
-                                  (click)="removeImage(i)"
-                                >
-                                  &times;
-                                </button>
-                              </div>
-                            </div>
+                            <button type="button" class="image-cross-icon ml-2 mb-1 close" (click)="removeImage(i)">
+                              &times;
+                            </button>
                           </div>
                         </div>
-                        <!-- <div >
-                          <div *ngIf="ImageFiles && ImageFiles.length > 0">
-                            <img width="40%"
-                              id="center-img"
-                              [src]="ImageFiles[0].BaseString"
-                              (click)="openImageModal()"
-                            />
-                          </div>
-                        </div> -->
-                    <!-- </div> -->
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </form>
-
           <div class="form-row">
             <div class="col-md-12 card  p-2">
               <div class="table-responsive table_height4">
@@ -443,8 +281,8 @@
                     <tr class="default_row">
                       <th style="width: 10px;">#</th>
                       <th>Item</th>
-                      <th *ngIf="toOpenAttr" >{{model.defaultAttrName}}</th>
-                      <th *ngIf="toOpenAttr" >Attribute Combination</th>
+                      <th *ngIf="toOpenAttr">{{model.defaultAttrName}}</th>
+                      <th *ngIf="toOpenAttr">Attribute Combination</th>
                       <th>Order Qty</th>
                       <th>Unit</th>
                       <th>Add %</th>
@@ -454,18 +292,18 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <ng-container *ngIf="editMode && previousOrders.length > 0" >
+                    <ng-container *ngIf="editMode && previousOrders.length > 0">
                       <tr *ngFor="let item of previousOrders; let i = index" class="selected_row active">
                         <td>
                           <div class="action_btn">
-                            <a (click)="deleteItem(i, item, 'old')" >
+                            <a (click)="deleteItem(i, item, 'old')">
                               <i aria-hidden="true" class="fa fa-trash fa-1x"></i>
                             </a>
                           </div>
                         </td>
                         <td>{{item?.itemName}}</td>
-                        <td *ngIf="toOpenAttr" >{{ item?.sizeName }}</td>
-                        <td *ngIf="toOpenAttr" >{{ item?.attributeValueName }}</td>
+                        <td *ngIf="toOpenAttr">{{ item?.sizeName }}</td>
+                        <td *ngIf="toOpenAttr">{{ item?.attributeValueName }}</td>
                         <td>{{ item?.orderQuantity?.toFixed(2) }}</td>
                         <td>{{item?.unitName}}</td>
                         <td>{{item?.addPercentage}}</td>
@@ -477,14 +315,14 @@
                     <tr *ngFor="let item of orderList; let i = index" class="selected_row active">
                       <td>
                         <div class="action_btn">
-                          <a (click)="deleteItem(i, item, 'new')" >
+                          <a (click)="deleteItem(i, item, 'new')">
                             <i aria-hidden="true" class="fa fa-trash fa-1x"></i>
                           </a>
                         </div>
                       </td>
                       <td>{{item?.itemName}}</td>
-                      <td *ngIf="toOpenAttr" >{{ item?.sizeName }}</td>
-                      <td *ngIf="toOpenAttr" >{{ item?.attributeValueName }}</td>
+                      <td *ngIf="toOpenAttr">{{ item?.sizeName }}</td>
+                      <td *ngIf="toOpenAttr">{{ item?.attributeValueName }}</td>
                       <td>{{ item?.orderQuantity?.toFixed(2) }}</td>
                       <td>{{item?.unitName}}</td>
                       <td>{{item?.addPercentage}}</td>
@@ -494,8 +332,8 @@
                     </tr>
                     <tr>
                       <td></td>
-                      <td *ngIf="toOpenAttr" ></td>
-                      <td *ngIf="toOpenAttr" ></td>
+                      <td *ngIf="toOpenAttr"></td>
+                      <td *ngIf="toOpenAttr"></td>
                       <td></td>
                       <td>{{model?.totalOrderedQty?.toFixed(2)}}</td>
                       <td></td>
@@ -515,7 +353,5 @@
   </div>
 </div>
 
-<app-attribute-combination
-  #attribute_combine_form
-  (triggerCloseModal)="onCombinationModalClose($event)"
-></app-attribute-combination>
+<app-attribute-combination #attribute_combine_form (triggerCloseModal)="onCombinationModalClose($event)">
+</app-attribute-combination>

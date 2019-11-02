@@ -955,6 +955,8 @@ export class LedgerCreationAddComponent implements OnDestroy {
   }
   loadAddressDetails(Address){
   this.countryValue = Address.CountryId
+  this.stateValue =Address.StateId
+  this.cityValue =Address.CityId
   let country = {
     id: Address.CountryId,
     text: Address.CountryName
@@ -995,18 +997,14 @@ export class LedgerCreationAddComponent implements OnDestroy {
   }
   
   addCityClosed(selectedIds?) {
-    if (this.countryValue > 0) {
+    if (selectedIds !==undefined) {
       if (this.countryValue !==null && Number(this.countryValue) !== selectedIds.countryId) {
         this.countryValue = selectedIds.countryId
-        // this.cityId =selectedIds.cityId
-        // this.stateId = selectedIds.stateId
         this.stateValue = selectedIds.stateId
         this.cityValue = selectedIds.cityId;
       } else if (this.stateValue !==null && Number(this.stateValue) !== selectedIds.stateId) {
         this.stateValue = selectedIds.stateId
         this.cityValue = selectedIds.cityId;
-        // this.cityId =selectedIds.cityId
-        // this.stateId = selectedIds.stateId
       } else {
         this.cityValue = selectedIds.cityId;
         this.cityId =selectedIds.cityId

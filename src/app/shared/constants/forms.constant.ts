@@ -51,4 +51,7 @@ export class FormConstants {
   public static get PurchaseReturn (): number {
     return 6
   }
+  public static get PURCHASEORDER (): number {
+    return 46
+  }
 }

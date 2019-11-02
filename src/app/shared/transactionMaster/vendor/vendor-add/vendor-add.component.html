@@ -51,9 +51,10 @@
                     </div>
                     <div class="form-group col-md-3">
                       <label>Contact Person</label>
-                      <input #conatctPerRef type="text" class="form-control" placeholder="Enter Contact Person" name='contactPerson'
-                      [(ngModel)]="contactPerson" (input)="checkValidationPerson()"
-                        [ngClass]="{ 'errorSelecto': submitClick  && persnalError}">
+                      <input  type="text" class="form-control" placeholder="Enter Contact Person" 
+                      name='contactPerson'
+                      [(ngModel)]="contactPerson" 
+                        >
                     </div>
                     <div class="form-group col-md-3">
                       <label for="bill_no">Registration Type</label>

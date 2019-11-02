@@ -1,11 +1,12 @@
 import { ToastrCustomService } from './../../../commonServices/toastr.service';
 import { ViewChild, EventEmitter, Output } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
-declare var $: any
 import * as _ from 'lodash'
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
-
+import { BuyerOrderService } from '../buyer-order.service';
+import { Select2OptionData } from 'ng2-select2';
+declare const $: any
 @Component({
   selector: 'app-attribute-combination',
   templateUrl: './attribute-combination.component.html',
@@ -19,18 +20,31 @@ export class AttributeCombinationComponent implements OnInit {
   combineAttributeList: Array<any> = []
   arrayToIterate: Array<any> = []
   buyerFormData:any = {}
+  measurementAttrSelect2: Array<Select2OptionData> = []
+  measurementAttrValue = []
+  filteredAttrs = []
   options = {
     multiple: true
   }
   constructor(
-    private _toaster: ToastrCustomService, private _cs: CommonService
+    private _toaster: ToastrCustomService, private _cs: CommonService, private _bs: BuyerOrderService
   ) {
+    this._bs.select2List$.subscribe((data: any) => {
+      if (data.data && data.title) {
+        if (data.title === 'Measurement Attribute') {
+          let arr = JSON.parse(JSON.stringify(data.data))
+          arr.splice(1, 1)
+          this.measurementAttrSelect2 = arr
+        }
+      }
+    })
   }
 
   ngOnInit() {
   }
 
   onAttributeValueChange(event, index){
+    console.log(event)
     this.attributeWithValuesList[index]['attributeId'] = [...event.value]
     this.arrayToIterate[index] = [...event.data]
     this.mapCombineArrayList()
@@ -54,6 +68,8 @@ export class AttributeCombinationComponent implements OnInit {
         { AttributeId: res.Attributes[sizeAttributeIndex].Id })
       res.Attributes.splice(sizeAttributeIndex, 1)
     }
+    console.log('sizeAttributeValueList : ', this.sizeAttributeValueList)
+    this._bs.getList(this.sizeAttributeValueList, 'Name', 'Measurement Attribute')
     this.attributeWithValuesList = _.map(res.Attributes, (element) => {
       const valueList = _.map(_.filter(res.AttributeValues, { AttributeId: element.Id }), (attributeValue) => {
         return {
@@ -107,7 +123,7 @@ export class AttributeCombinationComponent implements OnInit {
 
   mapValuesModal() {
     _.forEach(this.combineAttributeList, (element, i) => {
-      this.combineAttributeList[i]['values'] = _.map(this.sizeAttributeValueList, (sizeAttribute) => {
+      this.combineAttributeList[i]['values'] = _.map(this.filteredAttrs, (sizeAttribute) => {
         return {
           attributeCombinationId: element.id,
           attributeCombinationName: element.text,
@@ -158,6 +174,19 @@ export class AttributeCombinationComponent implements OnInit {
   openModal(Data?) {
     $('#attribute_combine_form').modal({ backdrop: 'static', keyboard: false })
     $('#attribute_combine_form').modal(UIConstant.MODEL_SHOW)
+    this.measurementAttrValue = this.measurementAttrSelect2.map(attr => attr.id.toString())
+    this.measurementAttrValue.splice(0, 1)
+    console.log(this.measurementAttrValue)
+    this.filteredAttrs = JSON.parse(JSON.stringify(this.sizeAttributeValueList))
     this.buyerFormData = {...Data}
+  }
+
+  onMeasurementSelect (evt) {
+    console.log(evt)
+    this.filteredAttrs = _.filter(this.sizeAttributeValueList, (attr) => {
+      return evt.value.indexOf('' + attr.Id) >= 0
+    })
+    console.log(this.filteredAttrs)
+    this.mapValuesModal()
   }
 }

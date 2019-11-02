@@ -172,7 +172,6 @@ export class VendorAddComponent implements OnDestroy {
   dobDate: any
   daoDate: any
   initModel() {
-  
     this.customerError = true
     this.persnalError = true
     this.contactPerson = ''
@@ -230,7 +229,7 @@ export class VendorAddComponent implements OnDestroy {
       this.collectionOfAddress = []
       this.adressArray = []
       this.emailAdressArray = []
-      this.submitClick = false
+      this.submitClick = true
       this.bankClick = false
       this.addressClick = false
       this.emailAdressArray = []
@@ -271,7 +270,7 @@ export class VendorAddComponent implements OnDestroy {
     setTimeout(() => {
       this.ledgerName.nativeElement.focus()
     }, 1000)
-    this.submitClick = false
+    this.submitClick = true
     $('#vendor_form').modal(UIConstant.MODEL_SHOW)
     this.editvenderSubscribe = this._vendorServices.editvendor(id).subscribe(
       (Data) => {
@@ -310,6 +309,7 @@ export class VendorAddComponent implements OnDestroy {
           }
           if (Data.Data && Data.Data.LedgerDetails.length > 0) {
             this.vendorName = Data.Data.LedgerDetails[0].Name
+            this.customerError=false
             this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
             this.select2VendorValue(Data.Data.LedgerDetails[0].TaxTypeId)
             this.requiredGSTNumber = Data.Data.LedgerDetails[0].TaxTypeId === 1 ? true : false
@@ -905,9 +905,7 @@ export class VendorAddComponent implements OnDestroy {
     if (this.customerError) {
       this.ledgerName.nativeElement.focus()
     }
-    if (this.persnalError) {
-      this.conatctPerRef.nativeElement.focus()
-    }
+   
   }
   @ViewChild('conatctPerRef') conatctPerRef: ElementRef
 
@@ -969,6 +967,7 @@ export class VendorAddComponent implements OnDestroy {
     this.addConatctDetails()
     this.emailAddingArray()
     this.addNewAdress()
+    this.dynamicFocus()
 
     if (value === 'reset') {
       this.resetForNewFoem()
@@ -976,7 +975,9 @@ export class VendorAddComponent implements OnDestroy {
       this.getCountry(0)
       this.select2CrDrValue(1)
       this.crdrSelect2.setElementValue(1)
-    } else if (this.vendorName !== '' && !this.validMobileFlag && this.getEmailvalid && this.vendorId > UIConstant.ZERO) {
+    // } else if (this.vendorName !== '' && !this.validMobileFlag && this.getEmailvalid && this.vendorId > UIConstant.ZERO) {
+
+    } else if (this.vendorName !== '' && !this.validMobileFlag && this.getEmailvalid  && this.vendorId > UIConstant.ZERO) {
       if (!this.requiredGSTNumber) {
         if (!this.mobileRequirdForSetting) {
           if (!this.emailRequirdForSetting) {
@@ -1384,25 +1385,23 @@ export class VendorAddComponent implements OnDestroy {
   getModuleSettingData() {
     if (this.getModuleSettingValue.settings.length > 0) {
       this.getModuleSettingValue.settings.forEach(ele => {
-        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === '1') {
+        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === 1) {
           this.emailError = false
           this.mobileRequirdForSetting = true
         }
         if (ele.id === SetUpIds.dateFormat) {
           this.clientDateFormat = ele.val[0].Val
-          console.log(this.clientDateFormat)
         }
-        if (SetUpIds.edgerEmailorMobileRequiredorNot === ele.id && ele.val === '2') {
+        if (SetUpIds.edgerEmailorMobileRequiredorNot === ele.id && ele.val === 2) {
           this.emailRequirdForSetting = true
           this.mobileRequirdForSetting = true
           this.emailError = true
         }
-        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === '3') {
+        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === 3) {
           this.emailError = true
-
           this.emailRequirdForSetting = true
         }
-        if (ele.id === SetUpIds.edgerAddressRequiredorNot && ele.val === '1') {
+        if (ele.id === SetUpIds.edgerAddressRequiredorNot && ele.val === 1) {
           this.setupCodeForAddresRequired = 54
           this.addressRequiredForLedger = true
 
@@ -1640,18 +1639,14 @@ export class VendorAddComponent implements OnDestroy {
   }
   
   addCityClosed(selectedIds?) {
-    if (this.countryValue > 0) {
+    if (selectedIds !==undefined) {
       if (this.countryValue !==null && Number(this.countryValue) !== selectedIds.countryId) {
         this.countryValue = selectedIds.countryId
-       // this.cityId =selectedIds.cityId
-     //   this.stateId = selectedIds.stateId
         this.stateValue = selectedIds.stateId
         this.cityValue = selectedIds.cityId;
       } else if (this.stateValue !==null && Number(this.stateValue) !== selectedIds.stateId) {
         this.stateValue = selectedIds.stateId
         this.cityValue = selectedIds.cityId;
-     //   this.cityId =selectedIds.cityId
-        //this.stateId = selectedIds.stateId
       } else {
         this.cityValue = selectedIds.cityId;
        this.cityId =selectedIds.cityId
