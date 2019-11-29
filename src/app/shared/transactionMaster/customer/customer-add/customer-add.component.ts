@@ -320,8 +320,8 @@ export class CustomerAddComponent implements OnDestroy {
   }
   @ViewChild('state_select2') cityselecto: Select2Component
 
-  /* clear validation */
-  clearValidation() {
+ 
+  onloading(){
     this.initModel()
     this.onloadingArea()
     this.getContactType()
@@ -338,6 +338,11 @@ export class CustomerAddComponent implements OnDestroy {
     this.select2CrDrValue(1)
     this.crdrSelect2.setElementValue(1)
     this.customerTypeSelect2.setElementValue(0)
+     this.closeModal()
+  }
+  clearValidation() {
+    this.closeConfirmation()
+
   }
 
 
@@ -362,7 +367,7 @@ export class CustomerAddComponent implements OnDestroy {
   validMobileFlag: boolean
   editFlg: boolean
   EmailId: number
-  requiredGSTNumber: boolean = false
+  requiredGSTNumber: boolean 
   initModel() {
     this.validmobileLength=0
     this.customerError = true
@@ -388,7 +393,7 @@ export class CustomerAddComponent implements OnDestroy {
     this.satuariesId = 0
     this.disabledGSTfor_UnRegi = false
     this.disabledStateCountry = false
-    this.requiredGSTNumber = false
+    this.requiredGSTNumber = true
     this.getEmailvalid = true
     this.mobileArray = []
     this.emailArray = []
@@ -407,9 +412,9 @@ export class CustomerAddComponent implements OnDestroy {
     this.initModel()
   }
   openModal() {
+    this.getListCountryLabelList(0)
     this.onloadingInit()
     this.onloadingAddress()
-    this.activaTab('customer1')
     this.getContactType()
     this.emailTypeDataType()
     this.setDOBDate()
@@ -533,6 +538,7 @@ export class CustomerAddComponent implements OnDestroy {
       this.countrId = event.id
       this.countryError = false
       if (this.countrId > 0) {
+        this.getListCountryLabelList(event.id)
         this.getStaeList(this.countrId, 0)
       }
     }
@@ -730,6 +736,7 @@ export class CustomerAddComponent implements OnDestroy {
       this.ledgerName.nativeElement.focus()
     }
     
+    
   }
   persnalError: any = true
   customerError: any = true
@@ -748,10 +755,12 @@ export class CustomerAddComponent implements OnDestroy {
       this.activaTab('customer1')
       this.getCountry(0)
       this.select2CrDrValue(1)
+      this.onloadingInit()
       this.crdrSelect2.setElementValue(1)
     } else {
      
       if (this.customerName !== '' && !this.validMobileFlag && this.getEmailvalid  && this.coustmoreRegistraionId > 0 && !this.customerCustomRateFlag) {
+      
         if (!this.requiredGSTNumber) {
           if (!this.mobileRequirdForSetting) {
             if (!this.emailRequirdForSetting) {
@@ -808,29 +817,44 @@ export class CustomerAddComponent implements OnDestroy {
                     this.activaTab('customer2')
                     this.adressTab()
                     this._toastrcustomservice.showError('', ' Enter Address ')
+                    
+
                   }
                 } else {
                   this._toastrcustomservice.showError('', 'invalid PAN No.')
+                this.panRef.nativeElement.focus()
+
                 }
               } else {
                 this._toastrcustomservice.showError('', 'invalid GST No.')
+                this.gstRef.nativeElement.focus()
+
               }
 
             } else {
               this.select_email.selector.nativeElement.focus()
               this._toastrcustomservice.showError('', ' Enter Email')
+                this.emailRef.nativeElement.focus()
+
             }
           } else {
             this.select_Mobile.selector.nativeElement.focus()
             this._toastrcustomservice.showError('', '  Enter Contact Details')
+            this.mobileRef.nativeElement.focus()
           }
         } else {
           this.validGSTNumber = true
           this._toastrcustomservice.showError('', 'Enter GSTIN No.')
+          this.gstRef.nativeElement.focus()
         }
       }
     }
   }
+@ViewChild('gstRef') gstRef :ElementRef
+@ViewChild('mobileRef') mobileRef :ElementRef
+@ViewChild('emailRef') emailRef :ElementRef
+@ViewChild('panRef') panRef :ElementRef
+
 
   resetForNew() {
 
@@ -1112,7 +1136,7 @@ export class CustomerAddComponent implements OnDestroy {
   stateName: string
   cityName: string
   addNewAdress() {
-    debugger
+    
     this.addressClick = true
     this.addressDetailsValidation()
     if (this.stateId > 0 && this.cityId > 0 && this.countrId > 0 && this.adresss !== '') {
@@ -1224,6 +1248,8 @@ export class CustomerAddComponent implements OnDestroy {
     this.onCountryCodeSelectionChange(phonecode)
    
     this.selectCountryListId(country)
+    this.getListCountryLabelList(Address.CountryId)
+
     this.countryValue = Address.CountryId
 
     let state = {
@@ -1633,7 +1659,23 @@ export class CustomerAddComponent implements OnDestroy {
 
 
   }
-
+  getListCountryLabelList(id){
+    this._CommonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
+      if(resp.Code===1000 && resp.Data.length>0){
+        this.TinNoValue=resp.Data[0].TinNo
+        this.PanNoValue=resp.Data[0].PanNo
+        this.GstinNoValue=resp.Data[0].GstinNo
+        this.CinNoValue=resp.Data[0].CinNo
+        this.FssiNoValue=resp.Data[0].FssiNo 
+      }
+      
+    })
+  }
+  TinNoValue:any
+  PanNoValue:any
+  GstinNoValue:any
+  CinNoValue:any
+  FssiNoValue:any
   pressEnterEmailadd(e: KeyboardEvent) {
     this.emailAddingArray()
 
@@ -1703,5 +1745,14 @@ export class CustomerAddComponent implements OnDestroy {
       this.cityValue =null
       this.cityId =0
     }
+  }
+  yesConfirmationClose() {
+    $('#close_confirm_customer').modal(UIConstant.MODEL_HIDE)
+     this.onloading()
+    
+    
+  }
+  closeConfirmation() {
+    $('#close_confirm_customer').modal(UIConstant.MODEL_SHOW)
   }
 }

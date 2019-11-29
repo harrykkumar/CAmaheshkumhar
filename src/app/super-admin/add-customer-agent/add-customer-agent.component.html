@@ -1,0 +1,140 @@
+<div
+  class="modal fade right"
+  id="add_customer_agent"
+  role="dialog"
+  aria-labelledby="add_customer_agent"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-full-height modal-right" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add Customer Agent</h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closePopUp()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form #addCustomerForm="ngForm" novalidate>
+        <div class="modal-body">
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label>Parent Customer Agent</label>
+                <ng-select
+                  name="parentName"
+                  [items]="parentList"
+                  bindLabel="Name"
+                  bindValue="Id"
+                  placeholder="Select Parent"
+                  [(ngModel)]="parentId"
+                >
+                </ng-select>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Name</label>
+                <input
+                  type="text"
+                  name="custName"
+                  [(ngModel)]="customerAgentName"
+                  class="form-control"
+                  placeholder="Enter Name"
+                  required
+                  [ngClass]="{
+                    'is-invalid':
+                      addCustomerForm?.submitted && !customerAgentName
+                  }"
+                />
+              </div>
+              <div class="form-group col-md-12">
+                <label>No Of Client</label>
+                <input
+                  type="text"
+                  name="noOfClientName"
+                  [(ngModel)]="noOfClient"
+                  class="form-control"
+                  placeholder="Enter No of Client"
+                />
+              </div>
+              <div class="form-group col-md-12">
+                <label>Work Domain</label>
+                <input
+                  type="text"
+                  name="workDomainName"
+                  [(ngModel)]="workDomain"
+                  class="form-control"
+                  placeholder="Enter Workdomain"
+                  required
+                  [ngClass]="{
+                    'is-invalid': addCustomerForm?.submitted && !workDomain
+                  }"
+                />
+              </div>
+              <div class="form-group col-md-12">
+                <label>Website</label>
+                <input
+                  type="text"
+                  name="WebsiteName"
+                  [(ngModel)]="website"
+                  class="form-control"
+                  placeholder="Enter Website"
+                  required
+                  [ngClass]="{
+                    'is-invalid': addCustomerForm?.submitted && !website
+                  }"
+                />
+              </div>
+              <div class="form-group col-md-12">
+                <label
+                  ><a href="javascript:void(0)" (click)="fileTypeInput.click()"
+                    ><i class="fas fa-upload"></i> Image Upload
+                  </a></label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  name="imageName"
+                  [value]="imageFiles.Name"
+                  disabled="true"
+                  required
+                  [ngClass]="{
+                    'is-invalid': addCustomerForm?.submitted && !imageFiles?.Name
+                  }"
+                />
+              </div>
+              <div hidden="true">
+                <input
+                  type="file"
+                  #fileTypeInput
+                  (change)="onFileChange($event)"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-primary waves-effect"
+            (click)="addCustomerForm.form.valid && submit()"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary waves-effect"
+            (click)="addCustomerForm.form.valid && submit('reset')"
+          >
+            Save With Add New
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<ng-container #imageCropperContainerRef></ng-container>

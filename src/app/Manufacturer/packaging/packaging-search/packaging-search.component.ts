@@ -8,6 +8,7 @@ import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { Select2OptionData, Select2Component } from 'ng2-select2';
 import { DatepickerComponent } from '../../../shared/datepicker/datepicker.component';
 import { Settings } from '../../../shared/constants/settings.constant';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'packaging-search',
@@ -20,6 +21,7 @@ export class PackagingSearchComponent {
   Type: number = 0
   statusList: Array<Select2OptionData> = []
   isValid: boolean = true
+  destroy$: Subscription[] = []
   @ViewChild('first') first: DatepickerComponent
   ngOnChanges (changes: SimpleChanges): void {
     if (changes.toShow && changes.toShow.currentValue) {
@@ -57,7 +59,7 @@ export class PackagingSearchComponent {
 
   getStatusList () {
     let newData = [{ id: '0', text: 'Select Status' }]
-    this._ps.getStatusList().subscribe(data => {
+    this.destroy$.push(this._ps.getStatusList().subscribe(data => {
       if (data.length > 0) {
         data.forEach(element => {
           newData.push({
@@ -71,12 +73,12 @@ export class PackagingSearchComponent {
     },
     (error) => {
       this._ts.showError(error, '')
-    })
+    }))
   }
 
   getLedgerList () {
     let newData = [{ id: '0', text: 'Select Buyer' }]
-    this.gs.manipulateResponse(this._ledgerServices.getVendor(5, '')).subscribe(data => {
+    this.destroy$.push(this.gs.manipulateResponse(this._ledgerServices.getVendor(5, '')).subscribe(data => {
       console.log('ledger data : ', data)
       if (data.length > 0) {
         data.forEach(element => {
@@ -90,7 +92,7 @@ export class PackagingSearchComponent {
     },
     (error) => {
       this._ts.showError(error, '')
-    })
+    }))
   }
 
   search () {
@@ -175,5 +177,11 @@ export class PackagingSearchComponent {
 
   setValue (value) {
     this.searchForm.controls.DateType.setValue(value)
+  }
+
+  ngOnDestroy () {
+    if (this.destroy$ && this.destroy$.length > 0) {
+      this.destroy$.forEach((element) => element.unsubscribe())
+    }
   }
 }

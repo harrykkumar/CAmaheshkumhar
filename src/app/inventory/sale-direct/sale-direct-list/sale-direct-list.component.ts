@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { LoginService } from 'src/app/commonServices/login/login.services';
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
@@ -50,7 +51,8 @@ export class SaleDirectListComponent implements OnInit {
     private settings: Settings,
     private gs: GlobalService,
     private toastrService: ToastrCustomService,
-    private _loginService: LoginService
+    private _loginService: LoginService,
+    private router: Router
     ) {
     this.menuData = this._loginService.getMenuDetails(13, 9);
       this.clientDateFormat = this.settings.dateFormat
@@ -136,15 +138,17 @@ export class SaleDirectListComponent implements OnInit {
       this.commonService.fixTableHF('cat-table')
     }, 1000)
   }
-  onClicked (action, id) {
+
+  onClicked(action, id) {
     action.id = id
     action['formname'] = this.formName
     this.commonService.onsaleDirectActionClicked(action)
-    if(action.type ===4){
-    this.commonService.openDelete(id, 'Sale', 'Sale')
-
+    if (action.type === 4) {
+      this.commonService.openDelete(id, 'Sale', 'Sale')
     }
-
+    if (action.type === 11) {
+      this.router.navigate([`ims/voucher-entry/sale/${id}`])
+    }
   }
   getSaleDirectList () {
     if (!this.searchKey || this.searchKey.length === 0) {
@@ -199,8 +203,8 @@ export class SaleDirectListComponent implements OnInit {
         { type: FormConstants.ViewPrint, id: 0, text: 'View Print', printId: 'saleDirect_Print' ,viewPrint: true },
         { type: FormConstants.Edit, id: 0, text: 'Edit' },
         { type: FormConstants.Cancel, id: 0, text: 'Cancel' },
+        { type: FormConstants.RECEIPT, id: 0, text: 'Receipt' },
         FlagReturn
-
       ]
 
     })

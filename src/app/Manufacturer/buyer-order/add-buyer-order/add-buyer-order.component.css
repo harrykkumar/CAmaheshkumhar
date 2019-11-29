@@ -1,0 +1,49 @@
+.thead {
+  font-weight: 600;
+  color: #000;
+  border: 1px solid #ccc;
+  font-size: .75rem;
+  background: #D9E3F7;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+  padding-left: 18px;
+  padding-right: 18px;
+}
+.tbody {
+  font-weight: 600;
+  color: #000;
+  border: 1px solid #ccc;
+  font-size: .75rem;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+}
+.profile-pic-grid {
+  position: relative;
+  display: inline-block;
+  margin: 5px 5px;
+  padding-top: 15px !important;
+}
+  .profile-pic-grid:hover .edit-grid {
+      display: block;
+      left: -15px;
+      top: 6px;
+      border: 1px solid #565454;
+      background: #B5B2B2;
+      color: #fff;
+  }
+.edit-grid {
+  padding-top: 0px;
+  padding-right: 7px;
+  position: absolute;
+  /* right: 0; */
+  top: 0;
+  display: none;
+}
+  .edit-grid a {
+      color: #fff;
+      font-size: 14px;
+      padding: 0 5px;
+  }
+  .edit-grid:hover a {
+      color: #33B5E5;
+  }

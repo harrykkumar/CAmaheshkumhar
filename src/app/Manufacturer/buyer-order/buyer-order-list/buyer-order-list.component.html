@@ -10,14 +10,11 @@
           </div>
           <div class="col-md-8 right_saerch_side p-0">
             <div class="mr-2">
-              <form>
+              <form [formGroup]="searchForm">
                 <div id="custom-search-input" class="btn_header1">
                   <div class="input-group col-md-12">
-                    <input
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="Search"
-                    />
+                    <input type="text" class="form-control input-lg" placeholder="Search" formControlName="searckKey"
+                      #searchData />
                     <span class="input-group-btn">
                       <a>
                         <i class="fas fa-search"></i>
@@ -28,26 +25,26 @@
               </form>
             </div>
             <div class="btn_header">
-              <a>
+              <!-- <a>
                 <img src="assets/img/printer.png" />
               </a>
               <a> <img src="assets/img/pdf.png"/></a>
 
               <a>
                 <img src="assets/img/excel.png" />
-              </a>
-              <button
-                type="button"
-                class="btn btn-primary waves-effect waves-light"
-                (click)="addBuyerOrder()"
-              >
+              </a> -->
+              <button type="button" class="btn btn-primary waves-effect waves-light" (click)="addBuyerOrder()">
                 Add New
+              </button>
+              <button type="button" (click)="toggleSearch()" class="btn btn-info waves-effect waves-light">
+                Search
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <buyer-order-search [toShow]="toShowSearch"></buyer-order-search>
     <div class="row animated-background">
       <div class="col-md-12">
         <div class="bgc-white bdrs-3 mB-20">
@@ -57,59 +54,63 @@
                 <tr>
                   <th width="7%">SNo.</th>
                   <th>Buyer Code</th>
-                  <th>Style Name</th>
                   <th>Buyer</th>
                   <th>Order No.</th>
                   <th>Order Date</th>
-                  <th>Order Qty</th>
-                  <th>Production Qty</th>
-                  <th>Amount</th>
-                  <th>Action</th>
+                  <th class="text-right">Order Qty</th>
+                  <th class="text-right">Production Qty</th>
+                  <th class="text-right">Amount</th>
+                  <th class="text-center">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody *ngIf="isSearching" style="height:100px;">
+                <img src="assets/img/spinner-blue-circle.gif" alt="loading screen"
+                  style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;" />
+              </tbody>
+              <tbody *ngIf="!isSearching">
                 <tr
                   *ngFor="
-                    let item of buyerOrderList| paginate: { itemsPerPage: pageSize, currentPage: pageNo, totalItems: totalItemSize
-                          };
-                    let i = index">
-                  <td>{{ i + 1 }}</td>
+                    let item of buyerOrderList| paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total } ; let i = index">
+                  <td>{{ lastItemIndex + i + 1 }}</td>
                   <td>{{item?.BuyerCode}}</td>
-                  <td>{{item?.StyleName}}</td>
                   <td>{{item?.BuyerName}}</td>
                   <td>{{item?.OrderNo}}</td>
                   <td>{{item?.OrderDate | dateFormat: clientDateFormat}}</td>
-                  <td>{{item?.TotalOrderQty}}</td>
-                  <td>{{item?.TotalProductionQty}}</td>
-                  <td>{{item?.NetAmount}}</td>
-                  <td>
+                  <td class="text-right">{{item?.TotalOrderQty}}</td>
+                  <td class="text-right">{{item?.TotalProductionQty}}</td>
+                  <td class="text-right">{{item?.NetAmount}}</td>
+                  <td class="text-center">
                     <div class="dropdown enquiry-tag">
-                      <a
-                        class="dropdown-toggle"
-                        data-toggle="dropdown"
-                        aria-expanded="false"
-                        ><i class="fa fa-cog mR-3 cH-blue fa-1x"></i
-                        ><b class="caret"></b
-                      ></a>
+                      <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                          class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
                       <ul class="dropdown-menu fsz-sm">
                         <li>
-                          <a
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            title="Edit"
-                            class="actionBtn"
+                          <a data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn"
                             (click)="addItemRequirement(item)">
                             <i class="fa fa-edit fa-1x" aria-hidden="true"></i>
-                          Edit</a>
+                            Edit
+                          </a>
                         </li>
                         <li>
-                          <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700">
+                          <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="delete(item.Id)">
                             <i class="fas fa-trash mR-10 cH-blue"></i><span>Delete</span>
                           </a>
                         </li>
                         <li>
                           <a (click)="packOrder(item)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700">
-                            <i class="fas fa-print mR-10 cH-blue"></i><span>Pack Order</span>
+                            <i class="fas fa-print mR-10 cH-blue"></i><span>Order-Packing</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a (click)="printFor='bo';print(item.Id, 'print_buyer_order')" class="d-b td-n p-1 bgcH-grey-100 
+                            c-grey-700">
+                            <i class="fas fa-print mR-10 cH-blue"></i><span>Print</span>
+                          </a>
+                        </li>
+                        <li *ngIf="item.OrderId > 0" >
+                          <a (click)="printFor='po';printPO(item.OrderId, 'print_packet_order_invoice')" class="d-b td-n p-1 bgcH-grey-100 
+                            c-grey-700">
+                            <i class="fas fa-print mR-10 cH-blue"></i><span>Print Order-Packing</span>
                           </a>
                         </li>
                       </ul>
@@ -117,6 +118,15 @@
                   </td>
                 </tr>
               </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="5" class="font-weight-bold"></th>
+                  <th class="font-weight-bold text-right">{{buyerOrderSummary.TotalOrderQty}}</th>
+                  <th class="font-weight-bold text-right">{{buyerOrderSummary.TotalProductionQty}}</th>
+                  <th class="font-weight-bold text-right">{{buyerOrderSummary.NetAmount}}</th>
+                  <th></th>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -124,15 +134,333 @@
     </div>
   </div>
 </main>
-<app-pagination
-  #sample_approval_paging
-  (lastValueEmitter)="onLastValueChange($event)"
-  (pageNoEmitter)="onPageNoChange($event)"
-  (pageSizeEmitter)="onPageSizeChange($event)"
-></app-pagination>
+<app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+  (pageNoEmitter)="p = $event;getBuyerOrderList();" (pageSizeEmitter)="itemsPerPage = $event;getBuyerOrderList();">
+</app-pagination>
 
-<app-add-buyer-order #addBuyerOrderFormRef
-  (triggerCloseModal)="onModalClosed($event)" ></app-add-buyer-order>
+<app-add-buyer-order #addBuyerOrderFormRef (triggerCloseModal)="onModalClosed($event)"></app-add-buyer-order>
 
-<template #packagingaddcontainer>
-</template>
+<!-- <template #packagingaddcontainer>
+</template> -->
+
+<ng-container *ngIf="printFor === 'bo'" >
+  <body class="modal" id="print_buyer_order">
+    <header class="clearfix">
+      <div id="logo">
+        <img src="{{orgImage}}">
+      </div>
+      <div id="company">
+        <h2 class="name">{{Clientinfos[0]?.OfficeName }}</h2>
+        <div>{{AddressDetailsOrg[0]?.AddressValue}}</div>
+        <div>
+          {{AddressDetailsOrg[0]?.AreaName}}
+          {{AddressDetailsOrg[0]?.CityName}}
+          {{AddressDetailsOrg[0]?.StateName}}
+          {{AddressDetailsOrg[0]?.CountryName }}
+        </div>
+        <div>{{EmailsOrg[0]?.EmailAddress }} </div>
+        <div>{{ContactInfosOrg[0]?.ContactNo }} </div>
+        <div><label>PAN NO. : </label>{{Clientinfos[0]?.PanNo }}</div>
+        <div><label>GSTIN : </label>{{Clientinfos[0]?.GstinNo }}</div>
+        <div><a>{{Websites[0]?.Name}}</a></div>
+      </div>
+    </header>
+  
+    <main>
+      <div class=" header1">
+        <h4 style="text-align:center; margin:0;padding:0;">Buyer Order</h4>
+      </div>
+      <div id="details" class="clearfix">
+        <div class="row1">
+          <div class="col1">
+            <table>
+              <tr>
+                <td style="width:25%;">Buyer/Consignee :</td>
+                <td><strong>{{BuyerOrderDetails[0]?.BuyerName}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Address : </td>
+                <td><strong>{{AddressDetails[0]?.AddressValue}} 
+                  {{AddressDetails[0]?.AreaName}} 
+                  {{AddressDetails[0]?.CityName}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">State : </td>
+                <td><strong>{{AddressDetails[0]?.StateName}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Country</td>
+                <td><strong>{{AddressDetails[0]?.CountryName}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Currency : </td>
+                <td><strong>{{BuyerOrderDetails[0]?.Symbol}}</strong></td>
+              </tr>
+            </table>
+          </div>
+          <div class="col1">
+            <table>
+              <tr>
+                <td style="width:25%;">Order No :</td>
+                <td><strong>{{BuyerOrderDetails[0]?.OrderNo}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Order Date :</td>
+                <td><strong>{{BuyerOrderDetails[0]?.OrderDate| dateFormat: clientDateFormat}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Pan Number : </td>
+                <td><strong>{{Clientinfos[0]?.PanNo}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Gst No. : </td>
+                <td><strong>{{Clientinfos[0]?.GstinNo}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Buyer Code : </td>
+                <td><strong>{{BuyerOrderDetails[0]?.BuyerCode}}</strong></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="table_summery">
+        <table border="0" class="table1" style="margin-bottom:0;" cellspacing="0" cellpadding="4">
+          <thead>
+            <tr>
+              <th>SNo</th>
+              <th class="unit" style="width:15%;">Item Name</th>
+              <th class="unit">Style</th>
+              <th class="unit">Unit</th>
+              <th class="unit">Attributes</th>
+              <th class="unit">Product Code</th>
+              <th class="unit" style="width:15%;">Product Description</th>
+              <th class="unit">Qty</th>
+              <th class="unit">Rate</th>
+              <th class="unit">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of ItemTransactionactions; let i = index;">
+              <td class="unit">{{i + 1}}</td>
+              <td class="unit">{{item?.itemName}}</td>
+              <td class="unit">{{item?.StyleNo}}</td>
+              <td class="unit">{{item?.unitName}}</td>
+              <td class="unit">{{item?.sizeName}}, {{item?.attributeValueName}}</td>
+              <td class="unit">{{item?.ProductCode}}</td>
+              <td class="unit">{{item?.ProductDescription}}</td>
+              <td class="unit">{{item?.Quantity}}</td>
+              <td class="unit">{{item?.Rate}}</td>
+              <td class="unit">{{item?.Amount}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="clearfix">
+  
+          <div class="row1 bdB">
+  
+            <div class="col1 tbl_footer">
+              <table>
+                <tr>
+                  <td>Total Qty</td>
+                  <td class="total">{{BuyerOrderDetails[0]?.TotalOrderQty}}</td>
+                </tr>
+              </table>
+            </div>
+            <div class="col1">
+              <table class="tbl_footer">
+                <tr>
+                  <td>Toatl Order Amount</td>
+                  <td class="total">{{BuyerOrderDetails[0]?.NetAmount}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+  
+        </div>
+  
+      </div>
+  
+  
+  
+    </main>
+    <div class="trm_cond">
+      <div class="row">
+        <p><strong>Terms & Condition</strong></p>
+      </div>
+      <ul style="margin:0;">
+        <li *ngFor="let term of TermsConditions; let i= index">{{term.Terms}}</li>
+      </ul>
+    </div>
+    <footer>
+  
+      <div class="row1">
+        <div class="col1">
+          <h3 class="name-footer">For : {{Clientinfos[0]?.OfficeName}}</h3>
+        </div>
+        <div class="col1">Authorised Signatory</div>
+  
+      </div>
+    </footer>
+  </body>
+</ng-container>
+
+<ng-container *ngIf="printFor === 'po'" >
+  <body class="modal" id="print_packet_order_invoice" >
+    <header class="clearfix">
+      <div id="logo">
+        <img src="{{orgImage}}">
+      </div>
+      <div id="company">
+        <h2 class="name">{{Clientinfos[0]?.OfficeName }}</h2>
+        <div>{{AddressDetailsOrg[0]?.AddressValue}}</div>
+        <div>
+          {{AddressDetailsOrg[0]?.AreaName}}
+          {{AddressDetailsOrg[0]?.CityName}}
+          {{AddressDetailsOrg[0]?.StateName}}
+          {{AddressDetailsOrg[0]?.CountryName }}
+        </div>
+        <div>{{EmailsOrg[0]?.EmailAddress }} </div>
+        <div>{{ContactInfosOrg[0]?.ContactNo }} </div>
+        <div><label>PAN NO. : </label>{{Clientinfos[0]?.PanNo }}</div>
+        <div><label>GSTIN : </label>{{Clientinfos[0]?.GstinNo }}</div>
+        <div><a>{{Websites[0]?.Name}}</a></div>
+      </div>
+    </header>
+    <main>
+      <div id="details" class="clearfix">
+        <div class=" header1">
+          <h4 style="text-align:center; margin:0;padding:0;">Packing List</h4>
+        </div>
+        <div class="row1">
+          <div class="col1">
+            <table>
+              <tr>
+                <td style="width:25%;">Buyer/Consignee :</td>
+                <td><strong>{{OrderPackets[0]?.BuyerName}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Address : </td>
+                <td><strong>{{AddressDetails[0]?.AddressValue}} 
+                  {{AddressDetails[0]?.AreaName}} 
+                  {{AddressDetails[0]?.CityName}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">State : </td>
+                <td><strong>{{AddressDetails[0]?.StateName}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Country</td>
+                <td><strong>{{AddressDetails[0]?.CountryName}}</strong></td>
+              </tr>
+            </table>
+          </div>
+          <div class="col1">
+            <table>
+              <tr>
+                <td style="width:25%;">Invoice No :</td>
+                <td><strong>{{OrderPackets[0]?.BillNo}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Packing Date :</td>
+                <td><strong>{{OrderPackets[0]?.PackingDate| dateFormat: clientDateFormat}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Pan Number : </td>
+                <td><strong>{{Clientinfos[0]?.PanNo}}</strong></td>
+              </tr>
+              <tr>
+                <td style="width:25%;">Gst No. : </td>
+                <td><strong>{{Clientinfos[0]?.GstinNo}}</strong></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="table_summery">
+        <table border="0" class="table1" style="margin-bottom:0;" cellspacing="0" cellpadding="4">
+          <thead>
+            <tr>
+              <th>Sno</th>
+              <th class="desc" style="width:10%;">PacketCode</th>
+              <th class="desc" style="width:30%;">ItemName</th>
+              <th class="desc" style="width:10%;">ItemCode</th>
+              <th class="desc">ProductCode</th>
+              <th class="unit">ProductDescription</th>
+              <th class="unit" *ngIf="!withoutAttr" >{{defaultAttrName}}</th>
+              <th class="unit" *ngIf="!withoutAttr" >{{comboFor}}</th>
+              <th class="qty">Quantity</th>
+              <th class="qty">New Wt.</th>
+              <th class="qty">GR. Wet</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of ItemTransactionactions;let i = index;" >
+              <td class="desc" >{{i+1}}</td>
+              <td class="desc" >{{item.Code}}</td>
+              <td class="desc" >{{item?.itemName}}</td>
+              <td class="desc" >{{item?.itemCode}}</td>
+              <td class="desc" >{{item?.ProductCode}}</td>
+              <td class="desc" >{{item?.ProductDescription}}</td>
+              <td class="desc" *ngIf="!withoutAttr" >{{item?.defaultAttrName}}</td>
+              <td class="desc" *ngIf="!withoutAttr" >{{item?.attributeValueName}}</td>
+              <td class="desc" >{{item?.Quantity}}</td>
+              <td class="desc">0</td>
+              <td class="desc">0</td>
+            </tr>
+          </tbody>
+          <tfoot>
+          </tfoot>
+        </table>
+        <div class="clearfix">
+  
+          <div class="row1 bdB">
+  
+            <div class="col1 tbl_footer">
+              <table>
+                <tr>
+                  <td>Total Qty</td>
+                  <td class="total">{{OrderPackets[0]?.TotalQty}}</td>
+                </tr>
+                <tr>
+                  <td>Total Boxes</td>
+                  <td class="total">{{OrderPackets[0]?.NoOfPackets}}</td>
+                </tr>
+                <tr>
+                  <td>Total Net Wt.</td>
+                  <td class="total"></td>
+                </tr>
+                <tr>
+                  <td>Total Gross Wt. KGS</td>
+                  <td class="total"></td>
+                </tr>
+                <tr>
+                  <td>Dimension of Boxes</td>
+                  <td class="total"></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <div class="trm_cond">
+      <div class="row">
+        <p><strong>Terms & Condition</strong></p>
+      </div>
+      <ul style="margin:0;">
+        <li *ngFor="let term of TermsConditions; let i= index">{{term.Terms}}</li>
+      </ul>
+    </div>
+    <footer>
+  
+      <div class="row1">
+        <div class="col1">
+          <h3 class="name-footer">For : {{Clientinfos[0]?.OfficeName}}</h3>
+        </div>
+        <div class="col1">Authorised Signatory</div>
+      </div>
+    </footer>
+  </body>
+</ng-container>
+

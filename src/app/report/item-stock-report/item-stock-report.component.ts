@@ -28,10 +28,11 @@ export class ItemStockReportComponent implements OnInit {
   pageSize: number = 20
   pageNo: number = 1
   totalItemSize: number = 0
+  clientDateFormat:any
   filterParameters: any = {};
   getFilterParameters: any = {};
   constructor( public gs :GlobalService,public _settings :Settings,public excelService: ExcelService, public _commonService: CommonService, public _toastrCustomService: ToastrCustomService) {
-
+    this.clientDateFormat = this._settings.dateFormat
   }
 
   ngOnInit() {
@@ -224,8 +225,11 @@ export class ItemStockReportComponent implements OnInit {
   }
 
   getItemStockReportList = () => {
-      this.fromDate =  this.filterParameters.formattedFromDatevalue ?  this.filterParameters.formattedFromDatevalue : this.fromDate
-      this.toDate =  this.filterParameters.formattedToDateValue ? this.filterParameters.formattedToDateValue : this.toDate
+    debugger
+    let fromdate = this.gs.clientToSqlDateFormat( this.fromDate, this.clientDateFormat)
+    let toDate = this.gs.clientToSqlDateFormat( this.toDate, this.clientDateFormat)
+      this.fromDate =  this.filterParameters.formattedFromDatevalue ?  this.filterParameters.formattedFromDatevalue : fromdate
+      this.toDate =  this.filterParameters.formattedToDateValue ? this.filterParameters.formattedToDateValue : toDate
 
     const data = {
       CategoryId: this.filterParameters.selectedCategory ? this.filterParameters.selectedCategory : "",
@@ -236,7 +240,7 @@ export class ItemStockReportComponent implements OnInit {
       ToDate: this.toDate ? this.toDate : '',
       Page: this.filterParameters.pageNo ? this.filterParameters.pageNo : 1,
       Size: this.filterParameters.pageSize ? this.filterParameters.pageSize : 20,
-      Status:this.filterParameters.statusTypeName
+      Status:this.filterParameters.statusTypeName ? this.filterParameters.statusTypeName : 'Itemwise'
     }
     this.getSaleChallanDetail(data);
   }

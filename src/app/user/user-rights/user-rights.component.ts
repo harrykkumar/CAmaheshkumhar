@@ -27,9 +27,9 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   orgnizationData: Array<any> = []
   branchData: Array<any> = []
   model: any = {}
-  disabledFlagOrgBranch:boolean
-  Multiorgnization:number=0
-  MultiBranch:number=0
+  disabledFlagOrgBranch: boolean
+  Multiorgnization: number = 0
+  MultiBranch: number = 0
   private unSubscribe$ = new Subject<void>()
   userTypeData: Array<any> = []
   userData: Array<any> = []
@@ -43,12 +43,12 @@ export class UserRightsComponent implements OnInit, OnDestroy {
     this.getBranchList('Branch')
     this.getOrgnizationList()
     this.checkLoginUserCodematch()
-   }
-   onOrgChange (evt){
-     if(evt && evt.data && evt.data.length>0){
+  }
+  onOrgChange(evt) {
+    if (evt && evt.data && evt.data.length > 0) {
       this.model.orgId = evt.data[0].id
-     }
-   }
+    }
+  }
   ngOnInit() {
     this.userTypeData = [{ id: UIConstant.ZERO, text: 'Select User Type' }]
     this.userData = [{ id: UIConstant.ZERO, text: 'Select User' }]
@@ -59,17 +59,18 @@ export class UserRightsComponent implements OnInit, OnDestroy {
     this.initSideMenuData()
     this.initUpdatePermission()
   }
-  checkLoginUserCodematch () {
-    if(this._loginService.loginUserDetails.Code === this._loginService.userData.LoginUserDetailsinfo[0].Code){
+
+  checkLoginUserCodematch() {
+    if (this._loginService.loginUserDetails.Code === this._loginService.userData.LoginUserDetailsinfo[0].Code) {
       this.disabledFlagOrgBranch = true
     }
-    else{
+    else {
       this.disabledFlagOrgBranch = false
     }
   }
   /* Function to get branch list data */
   getBranchList = (type) => {
-    this._userService.getBranchListByType('?RequestFrom='+type).
+    this._userService.getBranchListByType('?RequestFrom=' + type).
       pipe(takeUntil(this.unSubscribe$),
         map((data) => {
           const list = _.map(data.Data, (element) => {
@@ -79,7 +80,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
               data: { ...element }
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select'+ type }, ...list]
+          return [{ id: UIConstant.ZERO, text: 'Select' + type }, ...list]
         })
       ).subscribe((res) => {
         this.branchData = res
@@ -112,6 +113,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
         }
       }, error => console.log(error))
   }
+
   initSideMenuData = () => {
     const data = {
       Id: 0,
@@ -125,7 +127,10 @@ export class UserRightsComponent implements OnInit, OnDestroy {
         await this.mapPermissions(response)
         this.moduleList = [...response.Data.Modules]
         if (_.isEmpty(this.toggledModule)) {
-          this.onToggleModule(this.moduleList[0], 0)
+          this.toggledModule = {
+            'module': { ...this.moduleList[0] },
+            'index': 0
+          }
         }
       }
     })
@@ -200,12 +205,6 @@ export class UserRightsComponent implements OnInit, OnDestroy {
     })
   }
 
-  onToggleModule = (selectedModule, index) => {
-    this.toggledModule = {
-      'module': selectedModule,
-      'index': index
-    }
-  }
 
   /* Function to get user type list data */
   getUserTypeList = () => {
@@ -270,8 +269,8 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   getUserPermissions = () => {
     const permissionData = {
       Id: 0,
-      UserTypeId: this.rights.selectedUserType ?  this.rights.selectedUserType.id : 0,
-      ModuleId : !_.isEmpty(this.toggledModule.module) ? this.toggledModule.module.Id : 0
+      UserTypeId: this.rights.selectedUserType ? this.rights.selectedUserType.id : 0,
+      ModuleId: !_.isEmpty(this.toggledModule.module) ? this.toggledModule.module.Id : 0
     };
     if (this.rights.selectedUser && this.rights.selectedUser.id > 0) {
       permissionData['UserId'] = this.rights.selectedUser.id
@@ -317,6 +316,17 @@ export class UserRightsComponent implements OnInit, OnDestroy {
         })
       })
     })
+  }
+
+  onToggleModule = (selectedModule, index) => {
+    this.toggledModule = {
+      'module': selectedModule,
+      'index': index
+    }
+    if ((this.rights.selectedUserType && this.rights.selectedUserType.id > 0)
+      || (this.rights.selectedUser && this.rights.selectedUser.id > 0)) {
+      this.getUserPermissions();
+    }
   }
 
   /* Function to prepare post payload */
@@ -435,10 +445,6 @@ export class UserRightsComponent implements OnInit, OnDestroy {
       valid = false
     }
     return valid
-  }
-
-  resetData = () => {
-
   }
 
   initUpdatePermission = () => {

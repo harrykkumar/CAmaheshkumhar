@@ -4,20 +4,20 @@ import { SharedModule } from '../shared/shared.module';
 import { ManufacturingRoutingModule } from './manufacturing.routing.module';
 import { ManufacturingComponent } from './manufacturing.component';
 import { AddStyleComponent } from './style/add-style/add-style.component';
-import { PurchaseOrderAddComponent } from './purchase-order/purchase-order-add/purchase-order-add.component';
+import { PurchaseAddOrderModule } from './purchase-order/purchase-order-add/purchase-order-add.module';
+import { PackagingAddComponent } from './packaging/packaging-add/packaging-add.component';
 
 @NgModule({
   declarations: [
     ManufacturingComponent,
     AddStyleComponent,
-    PurchaseOrderAddComponent
+    PackagingAddComponent
   ],
   imports: [
     CommonModule,
     SharedModule,
+    PurchaseAddOrderModule,
     ManufacturingRoutingModule
-  ],
-  providers: [
   ]
 })
 export class ManufacturingModule {

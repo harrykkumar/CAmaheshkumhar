@@ -9,7 +9,7 @@
             </p>
           </div>
           <div class="col-md-8 right_saerch_side p-0">
-            <div class="mr-2">
+            <!-- <div class="mr-2">
               <form>
                 <div id="custom-search-input" class="btn_header1">
                   <div class="input-group col-md-12">
@@ -22,15 +22,15 @@
                   </div>
                 </div>
               </form>
-            </div>
+            </div> -->
             <div class="btn_header">
-              <a>
+              <!-- <a>
                 <img src="assets/img/printer.png" />
               </a>
               <a> <img src="assets/img/pdf.png" /></a>
               <a>
                 <img src="assets/img/excel.png" />
-              </a>
+              </a> -->
               <button type="button" class="btn btn-primary waves-effect waves-light" (click)="addSampleApproval()">Add
                 Sample Approval
               </button>
@@ -53,13 +53,14 @@
                   <th rowspan="2" colspan="1">SNo.</th>
                   <th rowspan="2" colspan="1">Style/Sample No.</th>
                   <th rowspan="2" colspan="1">Sample Date</th>
-                  <th rowspan="2" colspan="1">Reference</th>
-                  <th rowspan="2" colspan="1">Estimate Date</th>
-                  <th rowspan="2" colspan="1">Shipment No.</th>
-                  <th rowspan="2" colspan="1">Shipment By</th>
-                  <th rowspan="2" colspan="1">Remark</th>
+                  <!-- <th rowspan="2" colspan="1">Reference</th> -->
+                  <th rowspan="2" colspan="1">Estimated Reply</th>
+                  <!-- <th rowspan="2" colspan="1">Shipment No.</th>
+                  <th rowspan="2" colspan="1">Shipment By</th> -->
+                  
                   <th rowspan="2" colspan="1">Approved</th>
-                  <th rowspan="2" colspan="1">Approval Date</th>
+                  <th rowspan="2" colspan="1" width="200px">Approval Date</th>
+                  <th rowspan="2" colspan="1">Remark</th>
                   <th rowspan="2" colspan="1">Action</th>
                 </tr>
               </thead>
@@ -72,11 +73,11 @@
                   <td>{{ lastItemIndex + i + 1 }}</td>
                   <td>{{ item.SampleNo }}</td>
                   <td>{{ item.SampleDate | dateFormat: clientDateFormat }}</td>
-                  <td>{{ item.Reference }}</td>
+                  <!-- <td>{{ item.Reference }}</td> -->
                   <td>{{ item.ExpectedReplyDate | dateFormat: clientDateFormat }}</td>
-                  <td>{{ item.ShipmentNo }}</td>
-                  <td>{{ item.ShipmentBy }}</td>
-                  <td class="text-right">{{ item.Remark }}</td>
+                  <!-- <td>{{ item.ShipmentNo }}</td>
+                  <td>{{ item.ShipmentBy }}</td> -->
+               
                   <td class="text-right">
                     <div class="form-group">
                       <select class="form-control" id="approval" name="approveType" [(ngModel)]="item.Status"
@@ -86,9 +87,18 @@
                       </select>
                     </div>
                   </td>
-                  <td class="text-right">
+                  <td class="text-right" *ngIf="!item.disableApprove" >
                     <datepicker-popup [disableInput]="item?.disableApprove"
-                      (dateInFormat)="item.ApprovedOn = $event;"></datepicker-popup>
+                      (dateInFormat)="item.ApprovedOn = $event;" 
+                      [class]="item.click && !item.ApprovedOn" ></datepicker-popup>
+                  </td>
+                  <td *ngIf="item?.disableApprove" >
+                    {{item.ApprovedOn}}
+                  </td>
+                  <td class="text-right" *ngIf="item?.disableApprove" >{{ item.Remark }}</td>
+                  <td class="text-right" *ngIf="!item?.disableApprove" >
+                    <input type="text" class="form-control" 
+                      placeholder="Remark" name="remoark-{{ i }}" [(ngModel)]="item['Remark']" />
                   </td>
                   <td>
                     <a *ngIf="!item?.disableApprove" data-toggle="tooltip" data-placement="top" title="Approve"
@@ -99,8 +109,9 @@
                       class="actionBtn">
                       <i class="fa fa-edit fa-1x" aria-hidden="true" (click)="addSampleApproval(item.Id)">
                       </i></a>
-                    <a data-toggle="tooltip" class="actionBtn" data-placement="bottom" title="Delete"
-                      (click)="deleteSampleApproval(item)"><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                    <a *ngIf="!item.disableApprove" data-toggle="tooltip" class="actionBtn" data-placement="bottom"
+                      title="Delete"
+                      (click)="delete(item.Id)"><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
                   </td>
                 </tr>
               </tbody>

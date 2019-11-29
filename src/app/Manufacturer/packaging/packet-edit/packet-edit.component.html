@@ -1,0 +1,151 @@
+<div class="modal fade" id="packaging-edit" role="dialog" aria-labelledby="material_reqirment"
+  aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <!--Header-->
+      <form #packagingForm="ngForm" #packingModelForm>
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-6 left_side_head">
+                <p class="heading_lead"><i class="fas fa-chart-line" aria-hidden="true"></i>Order Packet</p>
+              </div>
+              <div class="col-md-6">
+                <div class="btn_header">
+                  <button type="button" class="close" (click)="close()" aria-label="Close">
+                    <span aria-hidden="true" class="white-text">×</span>
+                  </button> 
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Body-->
+        <div *ngIf="loading" class="modal-content">
+          <div class="modal-body" style="height:inherit;">
+            <img src="assets/img/spinner-blue-circle.gif" alt="loading screen"
+              style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+          </div>
+        </div>
+        <div class="modal-body" *ngIf="!loading">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card p-2">
+                <div class="form-row ">
+                  <div class="form-group col-lg-3">
+                    <label>Buyer Name</label>
+                    <input type="text" readonly [(ngModel)]="masterData.BuyerName" name="BuyerName"
+                      class="form-control">
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label>Buyer Code</label>
+                    <input type="text" readonly [(ngModel)]="masterData.BuyerCode" name="BuyerCode"
+                      class="form-control">
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label>OrderDate</label>
+                    <input type="text" readonly [(ngModel)]="masterData.OrderDate" name="OrderDate"
+                      class="form-control">
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label>P.Code</label>
+                    <input type="text" [(ngModel)]="masterData.Code" disabled="true"
+                    name="pCode" class="form-control" 
+                    [ngClass]="{errorSelecto: packagingForm.submitted && !masterData.Code}" >
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label>Length</label>
+                    <input type="text" appIncludeDecimal  [(ngModel)]="masterData.Length" 
+                    name="Length" class="form-control" >
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label>Width</label>
+                    <input type="text" appIncludeDecimal [(ngModel)]="masterData.Width" 
+                    name="Width" class="form-control" >
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label>Height</label>
+                    <input type="text" appIncludeDecimal [(ngModel)]="masterData.Height" 
+                    name="Height" class="form-control" >
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label>Net Weight</label>
+                    <input type="text" appIncludeDecimal [(ngModel)]="masterData.NetWeight" 
+                    name="NetWeight" class="form-control" >
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label class="fw-500">On Date</label>
+                    <datepicker-popup [toSetDate]="masterData?.CurrentDate"
+                      (dateInFormat)="masterData.Date = $event;showDate(masterData.Date)" [applyFinYear]="true" 
+                      [class]="{ errorSelecto:
+                      packagingForm?.submitted && !masterData.Date}">
+                    </datepicker-popup>
+                  </div>
+                </div>
+              </div>
+              <div class="card mt-2 p-2">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>
+                          <div class="custom-control custom-checkbox" *ngIf=" masterData?.itemData?.length > 1">
+                            <input type="checkbox" class="custom-control-input" id="selectall" name="selectorunselect"
+                              [(ngModel)]="masterData.selectAll" (change)="toggleSelect(masterData.selectAll)" />
+                            <label class="custom-control-label" for="selectall"></label>
+                          </div>
+                        </th>
+                        <th style="width: 5%;">Sno.</th>
+                        <th style="width: 20%;" >Item</th>
+                        <th style="width: 15%;" *ngIf="masterData?.isAttr">{{defaultAttrName}}</th>
+                        <th style="width: 25%;" *ngIf="masterData?.isAttr">{{comboFor}}</th>
+                        <th style="width: 5%;"  *ngIf="masterData?.isAttr" >Product Code</th>
+                        <th style="width: 10%;" >Order Qty</th>
+                        <th style="width: 10%;" >Remaining Qty</th>
+                        <th style="width: 10%;" >Qty To Pack</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <ng-container>
+                        <tr class="default_row attr-cont" *ngFor="let item of masterData?.itemData; let i = index">
+                          <td>
+                            <div class="custom-control custom-checkbox">
+                              <input name="checkOrder-{{ i }}" [(ngModel)]="item.checked"
+                                (keydown.enter)="item.checked = !item.checked;" type="checkbox"
+                                class="custom-control-input" id="orderAttribute-{{ i }}" />
+                              <label class="custom-control-label" for="orderAttribute-{{ i }}"></label>
+                            </div>
+                          </td>
+                          <td>{{ item?.Sno }}</td>
+                          <td>{{ item?.itemName }}</td>
+                          <td *ngIf="masterData?.isAttr">{{ item?.defaultAttrName }}</td>
+                          <td *ngIf="masterData?.isAttr">{{ item?.attributeValueName }}</td>
+                          <td *ngIf="masterData?.isAttr" >{{item?.ProductCode}}</td>
+                          <td>{{ item?.OrderQty }}</td>
+                          <td>{{ item?.UnPackedQty }}</td>
+                          <td>
+                            <input type="text" class="form-control" name="packedQty-{{ i }}" (input)="item.Quantity > 0 ? item.checked = true : item.checked = false"
+                              [(ngModel)]="item.Quantity" limitqty [maxNum]="item.UnPackedQty"
+                              [ngClass]="{errorSelecto: item.checked && !item.Quantity}" />
+                          </td>
+                        </tr>
+                      </ng-container>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer footer-fixed footer_modal_form">
+          <button type="submit" class="btn waves-effect btn-succ-ess" (click)="postData()">
+            Save <i class="fa fa-spinner fa-spin" *ngIf="disableBtnSubmit"></i>
+          </button>
+          <button type="button" class="btn waves-effect btn-default close-btn" (click)="closeModal(packagingForm)">
+            Close
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

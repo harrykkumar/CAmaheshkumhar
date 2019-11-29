@@ -11,6 +11,7 @@ import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
 import { ExcelService } from '../../commonServices/excel.service';
+import { Router } from '@angular/router'
 
 @Component({
   selector: 'app-outstanding-payables-report',
@@ -34,6 +35,7 @@ export class OutStandingPayablesReportComponent implements OnInit, AfterViewInit
     public _settings: Settings,
     public _commonService: CommonService,
     private _toastService: ToastrCustomService,
+    private _router :Router
   ) {
     this.clientDateFormat = this._settings.dateFormat
     this.noOfDecimal =this._settings.noOfDecimal
@@ -231,5 +233,13 @@ export class OutStandingPayablesReportComponent implements OnInit, AfterViewInit
   
   
     }
+}
+openLedgerSummary(item) {
+   console.log(item)
+  if (item.Id>0) {
+    this._commonService.ledgerSummary(item.Id, item.PartyName)
+    this._router.navigate(['/account/ledger-summary'])
+  }
+  
 }
 }

@@ -1,3 +1,4 @@
+import { LeadReportComponent } from './../crm/lead-report/lead-report.component';
 import { ImageModalModule } from './transactionMaster/images-modal/image-modal.module';
 import { FooterComponent } from './../start/footer/footer.component';
 import { HeaderComponent } from './../start/header/header.component';
@@ -33,6 +34,16 @@ import { SkipWhiteSpacesDirective } from './directives/no-white-spaces.directive
 import { ItemSearchPipe } from '../pipes/item-search.pipe';
 import { LimitQty } from '../Manufacturer/buyer-order/limitQty.directive';
 import { NameSearchPipe } from '../additional-settings/search.pipe';
+import { CropImageComponent } from './image-cropper/image-cropper.component';
+import { ImageCropperModule } from 'ngx-image-cropper';
+import { AddCustomerAgentComponent } from '../super-admin/add-customer-agent/add-customer-agent.component';
+import { AddCommonMasterPopUpComponent } from '../add-common-master-pop-up/add-common-master-pop-up.component';
+import { AddMobileNoComponent } from '../add-mobile-no/add-mobile-no.component';
+import { AddEmailComponent } from '../add-email/add-email.component';
+import { AddItemDetailsComponent } from '../crm/add-item-details/add-item-details.component';
+import { AddAddressComponent } from '../add-address/add-address.component';
+import { AddLeadComponent } from '../crm/add-lead/add-lead.component';
+import { AddLeadDetailComponent } from '../crm/add-lead-detail/add-lead-detail.component';
 @NgModule({
   imports: [
     FormsModule,
@@ -53,7 +64,8 @@ import { NameSearchPipe } from '../additional-settings/search.pipe';
     TabsModule.forRoot(),
     NgxSpinnerModule,
     NgSelectModule,
-    ChartsModule
+    ChartsModule,
+    ImageCropperModule
   ],
   exports: [
     CommonModule,
@@ -89,7 +101,18 @@ import { NameSearchPipe } from '../additional-settings/search.pipe';
     DatePicker2AppModule,
     ItemSearchPipe,
     LimitQty,
-    NameSearchPipe
+    NameSearchPipe,
+    ImageCropperModule,
+    CropImageComponent,
+    AddCustomerAgentComponent,
+    AddCommonMasterPopUpComponent,
+    AddMobileNoComponent,
+    AddEmailComponent,
+    AddItemDetailsComponent,
+    AddAddressComponent,
+    AddLeadComponent,
+    AddLeadDetailComponent,
+    LeadReportComponent
   ],
   declarations: [
     ControlMessageComponent,
@@ -107,10 +130,28 @@ import { NameSearchPipe } from '../additional-settings/search.pipe';
     CompanyProfileComponent,
     ItemSearchPipe,
     LimitQty,
-    NameSearchPipe
+    NameSearchPipe,
+    CropImageComponent,
+    AddCustomerAgentComponent,
+    AddCommonMasterPopUpComponent,
+    AddMobileNoComponent,
+    AddEmailComponent,
+    AddItemDetailsComponent,
+    AddAddressComponent,
+    AddLeadComponent,
+    AddLeadDetailComponent,
+    LeadReportComponent
   ],
   entryComponents: [
     CompanyProfileComponent,
+    CropImageComponent,
+    AddCustomerAgentComponent,
+    AddCommonMasterPopUpComponent,
+    AddMobileNoComponent,
+    AddEmailComponent,
+    AddItemDetailsComponent,
+    AddAddressComponent,
+    LeadReportComponent
   ]
 })
 export class SharedModule {

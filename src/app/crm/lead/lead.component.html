@@ -1,0 +1,366 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0">
+              <i class="fas fa-balance-scale"></i>Leads
+            </p>
+          </div>
+          <div class="col-md-8 p-0">
+            <div class="right_saerch_side">
+              <div class="mr-2">
+                <div id="custom-search-input" class="btn_header1">
+                  <div class="input-group col-md-12">
+                    <input
+                      type="text"
+                      class="form-control input-lg"
+                      placeholder="Search"
+                      (input)="getLeadList('search')"
+                      name="searchText"
+                      [(ngModel)]="searchText"
+                    />
+                    <span class="input-group-btn">
+                      <a>
+                        <i class="fas fa-search"></i>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="btn_header">
+                <!-- <a><img src="assets/img/printer.png" /> </a>
+                <a><img src="assets/img/pdf.png"/></a>
+                <a><img src="assets/img/excel.png"/></a> -->
+                <button
+                  type="button"
+                  class="btn btn-primary waves-effect waves-light"
+                  data-toggle="modal"
+                  (click)="addLead()"
+                >
+                  Add New
+                </button>
+                <a
+                  href="#lead_search_form"
+                  class="btn btn-info waves-effect waves-light"
+                  data-toggle="collapse"
+                  ><i class="fas fa-search"></i>Search</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="lead_search_form" class="card collapse mb-2">
+      <div class="px-3 pt-2">
+        <form
+          #leadSearchFormControl="ngForm"
+          (ngSubmit)="leadSearchFormControl.form.valid && getLeadList()"
+          novalidate
+        >
+          <div class="form row">
+            <div class="form-group col-md-3 ">
+              <label>Lead Status</label>
+              <ng-select
+              name="statusName"
+              [items]="crmService.leadUtilityData.EnquiryStatus"
+              bindLabel="commondesc"
+              bindValue="id"
+              placeholder="Select Status"
+              (change)="onStatusChange($event)"
+              [(ngModel)]="leadStatusId">
+              </ng-select>
+            </div>
+            <div class="form-group col-md-3 ">
+              <label class="fw-500">From</label>
+              <div class="timepicker-input input-icon form-group">
+                <datepicker-popup [toSetDate]="fromDateValue"
+                (dateInFormat)="fromDateValue = $event;"></datepicker-popup>
+              </div>
+            </div>
+            <div class="form-group col-md-3">
+              <label class="fw-500">To</label>
+              <div class="timepicker-input input-icon form-group">
+                <datepicker-popup [toSetDate]="toDateValue"
+                (dateInFormat)="toDateValue = $event;"></datepicker-popup>
+              </div>
+            </div>
+            <div class="form-group col-md-3 pt-3">
+              <button (click)="searchButton()"
+                type="submit"
+                class="btn btn-primary waves-effect waves-light"
+              >
+                Search
+              </button>
+              <button type="button" (click)="leadSearchFormControl.resetForm()" class="btn btn_close waves-effect">Reset</button>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="bgc-white bdrs-3 pb-3 mB-20">
+          <!-- <div class="sidebar-offcanvas top_action_saniiro">
+            <ul class="filter-cat">
+              <li>Bulk Mail</li>
+              <li>Bulk SMS</li>
+              <li>
+                <a class="" data-toggle="modal" data-target="#assign_to"
+                  >Assign to</a
+                >
+              </li>
+              <li>Merge</li>
+              <li>Update Field</li>
+              <li>
+                <a class="" data-toggle="modal" data-target="#confm_delete"
+                  >Delete</a
+                >
+              </li>
+            </ul>
+          </div> -->
+          <div class="table-responsive table_height">
+              <table class="table cat-table table-hover">
+              <thead class="saniiro_tbl_header">
+                <tr class="default_row">
+                  <th>Name</th>
+                  <th>Lead Score</th>
+                  <th>Lead Status</th>
+                  <th>Lead Source</th>
+                  <th>Last Connected Time</th>
+                  <th>Contact Detail</th>
+                  <th>Business Type</th>
+                  <th>Follow Up</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of leadData">
+                  <td class="align-middle">
+                    <div
+                      class="dropdown arrow_down d-inline-block mr-1 profile_pict"
+                    >
+                      <a class="dropdown-toggle" data-toggle="dropdown">
+                        <img
+                          src="../assets/static/images/img.jpg"
+                          alt="..."
+                          class="img-circle profile_image"
+                        />
+                      </a>
+                      <div class="dropdown-menu dropdown_detail p-2">
+                        <div class="card-header">
+                          <div class="row user_top_info">
+                            <div class="col-8">
+                              <a
+                                class="strong text-ellipsis ember-view"
+                                >{{item?.Customer}}
+                              </a>
+                              <address>{{item.AddressValue}}</address>
+                            </div>
+                            <div class="col-4 left_media">
+                              <a href="#"><i class="fas fa-phone"></i></a>
+                              <a href="#"><i class="far fa-envelope"></i></a>
+                              <a href="#"
+                                ><i class="far fa-envelope-open"></i
+                              ></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="section-edit detail_width_dropdown">
+                      <a
+                        (click)="openLeadReport(item)"
+                        class="strong text-ellipsis ember-view"
+                        >{{item?.Customer}}
+                      </a>
+                      <address>{{item.AddressValue}}</address>
+                      <div class="edit-hover dropdown enquiry-tag arrow_down">
+                        <a class="dropdown-toggle" data-toggle="dropdown"
+                          ><i class="fas fa-pencil-alt"></i
+                        ></a>
+                        <div class="dropdown-menu name_leads">
+                          <div class="header_dropdown">
+                            <i class="far fa-check-circle fa-1x mr-2"></i
+                            ><i class="far fa-times-circle fa-1x"></i>
+                          </div>
+                          <!-- <div class="form-row">
+                            <div class="form-group col-md-12 col-12">
+                              <label>First Name</label>
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Enter Value"
+                              />
+                            </div>
+                            <div class="form-group col-md-12 col-12">
+                              <label>Last Name</label>
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Enter Value"
+                              />
+                            </div>
+                            <div class="form-group col-md-12 col-12">
+                              <label>Job Title</label>
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Enter Value"
+                              />
+                            </div>
+                            <div class="form-group col-md-12 col-12">
+                              <label>Company Name</label>
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Enter Value"
+                              />
+                            </div>
+                          </div> -->
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="align-middle">NIL</td>
+                  <td class="align-middle">{{item?.Status}}</td>
+                  <td class="align-middle">
+                    <div class="section-edit">
+                      <div><strong>{{item?.Source}}</strong></div>
+                      <!-- <p>New</p> -->
+
+                      <!-- <div class="edit-hover dropdown enquiry-tag arrow_down">
+                        <a class="dropdown-toggle" data-toggle="dropdown"
+                          ><i class="fas fa-pencil-alt"></i
+                        ></a>
+                        <div class="dropdown-menu name_leads">
+                          <div class="header_dropdown">
+                            <i class="far fa-check-circle fa-1x mr-2"></i
+                            ><i class="far fa-times-circle fa-1x"></i>
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group col-md-12 col-12">
+                              <label>Source</label>
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Enter Value"
+                              />
+                            </div>
+                            <div class="form-group col-md-12 col-12">
+                              <label>Lead Stage</label>
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Enter Value"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div> -->
+                    </div>
+                  </td>
+                  <td class="align-middle">
+                    <div>
+                     {{item?.CreatedOn | date :'short'}}
+                    </div>
+                  </td>
+                  <td class="align-middle">
+                    <div class="section-edit">
+                      <div class="font-weight-600">{{item?.ContactPerson}}</div>
+                      <div>{{item?.ContactNo}}</div>
+                      <div>{{item?.Email}}</div>
+                      <!-- <div class="edit-hover dropdown enquiry-tag arrow_down">
+                        <a class="dropdown-toggle" data-toggle="dropdown"
+                          ><i class="fas fa-pencil-alt"></i
+                        ></a>
+                        <div class="dropdown-menu name_leads">
+                          <div class="header_dropdown">
+                            <i class="far fa-check-circle fa-1x mr-2"></i
+                            ><i class="far fa-times-circle fa-1x"></i>
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group col-md-12 col-12">
+                              <label>Owner Name</label>
+                              <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Enter Value"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div> -->
+                    </div>
+                  </td>
+                  <td class="align-middle">{{item?.BusinessType}}</td>
+                  <td class="text-center">
+                    <a href="javascript:void(0)" (click)="addLead(item, 'follow-up')">
+                    <i class="fas fa-clipboard-check follow_icon"></i></a></td>
+                  <td class="align-middle">
+                    <div class="dropdown enquiry-tag">
+                      <a class="dropdown-toggle" data-toggle="dropdown"
+                        ><i class="fa fa-cog mR-3 cH-blue fa-1x"></i
+                        ><b class="caret"></b
+                      ></a>
+
+                      <ul class="dropdown-menu fsz-sm">
+                        <li>
+                          <a
+                            data-target="#leads_detail"
+                            data-toggle="modal"
+                            class="d-b td-n p-1"
+                            ><i class="far fa-check-square mR-10 cH-blue"></i
+                            ><span>Detail</span></a
+                          >
+                        </li>
+                        <li>
+                          <a
+                          (click)="addLead(item)"
+                            class="d-b td-n p-1"
+                            ><i class="far fa-edit mR-10 cH-blue"></i
+                            ><span>Edit</span></a
+                          >
+                        </li>
+                        <li>
+                          <a class="d-b td-n p-1"
+                            ><i class="fas fa-calendar-alt mR-10 cH-blue"></i
+                            ><span>Add Appointment</span></a
+                          >
+                        </li>
+                        <li>
+                          <a class="d-b td-n p-1"
+                            ><i class="fa fa-headphones mR-10 cH-blue"></i
+                            ><span>Add Quatation</span></a
+                          >
+                        </li>
+                        <li>
+                          <a class="d-b td-n p-1"
+                            ><i class="far fa-check-square mR-10 cH-blue"></i
+                            ><span>Add Task</span></a
+                          >
+                        </li>
+                        <li>
+                          <a class="d-b td-n p-1"
+                            ><i class="far fa-check-square mR-10 cH-blue"></i
+                            ><span>Follow Up</span></a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<ng-container #addLeadContainerRef></ng-container>
+<ng-container #leadReportContainerRef></ng-container>

@@ -65,7 +65,7 @@
                   </div>
                   <div class="form-group col-md-3">
                     <label for="p_code">HSN/SAC Code</label>
-                    <input type="text" class="form-control" id="p_code" placeholder="Enter HSN/SAC Code" name="HsnNo"
+                    <input #hsnNoRef type="text" class="form-control" id="p_code" placeholder="Enter HSN/SAC Code" name="HsnNo"
                       [(ngModel)]="HsnNo" [ngClass]="{'errorSelecto': submitClick && invalidObj.HsnNo }"
                       (input)="checkForValidation()">
                   </div>
@@ -73,7 +73,7 @@
                   <div class="form-group col-md-3">
                     <label for="barcode">Bar Code</label>
                     <div class="input-group">
-                      <input type="text" class="form-control" #barcode id="barcode" placeholder="Enter Bar Code"
+                      <input #barCodeRef type="text" class="form-control" #barcode id="barcode" placeholder="Enter Bar Code"
                         name="BarCode" [(ngModel)]="BarCode"
                         [ngClass]="{'errorSelecto': (submitClick && invalidObj.BarCode) || existsCodes.barcode, 'loading': pendingCheck}"
                         (ngModelChange)="getBarStatus()" (input)="checkForValidation()">
@@ -85,7 +85,7 @@
                   </div>
                   <div class="form-group col-md-3">
                     <label for="p_code">Item Code</label>
-                    <input type="text" [disabled]="isItemCode" class="form-control" id="p_code"
+                    <input #itemCodeRef type="text" [disabled]="isItemCode" class="form-control" id="p_code"
                       placeholder="Enter Item Code" name="ItemCode" [(ngModel)]="ItemCode"
                       [ngClass]="{'errorSelecto': submitClick && invalidObj.ItemCode }" (input)="checkForValidation()">
                   </div>
@@ -277,3 +277,24 @@
 <app-item-attribute-opening-stock (closeModel)="itemAttributeOpeningStockOpenClosed($event)"
   [toggleValue]="itemAttributeOpeningStockOpen">
 </app-item-attribute-opening-stock>
+
+
+<div class="modal fade" id="close_confirm4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      Are you sure want to close this page?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" (click)="yesConfirmationClose()">yes</button>
+      </div>
+    </div>
+  </div>
+</div>

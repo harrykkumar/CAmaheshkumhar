@@ -16,6 +16,8 @@ export class BuyerOrderService {
   addressData$ = this.addressData.asObservable()
   private select2ArrSub = new Subject()
   select2List$ = this.select2ArrSub.asObservable()
+  private queryStrSub = new Subject<string>()
+  public queryStr$ = this.queryStrSub.asObservable()
   constructor(
     private baseService: BaseServices,
     private gs: GlobalService
@@ -25,10 +27,14 @@ export class BuyerOrderService {
     return this.baseService.getRequest(ApiConstant.SPUTILITY + 'buyerOrder')
   }
 
-  getList(data, key, title){
+  getList(data, key, title, id?){
+    let id1 = 'Id'
+    if (id) {
+      id1 = id
+    }
     const list = _.map(data, (item) => {
       return {
-        id: item.Id,
+        id: item[id1],
         text: item[key]
       }
     })
@@ -96,5 +102,29 @@ export class BuyerOrderService {
 
   getSetTypeData () {
     return this.gs.manipulateResponse(this.baseService.getRequest(ApiConstant.COUNTRY_LIST_URL + 186))
+  }
+
+  setSearchQueryParamsStr (str) {
+    this.queryStrSub.next(str)
+  }
+
+  getBuyerListOnSearch (queryParams) {
+    return this.gs.manipulateResponse(this.baseService.getRequest(ApiConstant.BUYER_ORDER + queryParams))
+  }
+
+  getStatusList () {
+    return this.gs.manipulateResponse(this.baseService.getRequest(ApiConstant.COUNTRY_LIST_URL + 195))
+  }
+
+  deleteBO (id) {
+    return this.gs.manipulateResponse(this.baseService.deleteRequest(ApiConstant.BUYER_ORDER + '?Id=' + id))
+  }
+
+  printInvoice (id) {
+    return this.gs.manipulateResponse(this.baseService.getRequest(ApiConstant.PRINT_BUYER_ORDER + id))
+  }
+
+  printPOInvoice(orderId) {
+    return this.gs.manipulateResponse(this.baseService.getRequest(ApiConstant.PRINT_ALL_PACKAGING_ORDER + orderId))
   }
 }

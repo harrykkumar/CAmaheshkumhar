@@ -5,12 +5,14 @@ import { SharedModule } from '../../shared/shared.module';
 import { PackagingRoutingModule } from './packaging.routing.module';
 import { PackagingChallanComponent } from './challan/challan.component';
 import { PackagingSearchComponent } from './packaging-search/packaging-search.component';
+import { PackagingEditComponent } from './packet-edit/packet-edit.component';
 
 @NgModule({
   declarations: [
     PackagingMainComponent,
     PackagingChallanComponent,
-    PackagingSearchComponent
+    PackagingSearchComponent,
+    PackagingEditComponent
   ],
   imports: [
     CommonModule,

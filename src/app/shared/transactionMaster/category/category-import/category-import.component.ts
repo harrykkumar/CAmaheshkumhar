@@ -199,8 +199,8 @@ export class CategoryImportComponent {
       }
     }
   }
-
-  closeImportModal() {
+  yesConfirmationClose() {
+    $('#close_confirmCate').modal(UIConstant.MODEL_HIDE)
     this.reset()
     this.masterData = []
     this.sheetname = []
@@ -208,5 +208,12 @@ export class CategoryImportComponent {
     this.file = []
     this.masterKeys = []
     this.commonService.closeCatImport()
+  }
+  closeConfirmation() {
+    $('#close_confirmCate').modal(UIConstant.MODEL_SHOW)
+  }
+  closeImportModal() {
+    this.closeConfirmation()
+   
   }
 }

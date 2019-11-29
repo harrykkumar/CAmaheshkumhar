@@ -12,6 +12,7 @@ import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { ItemmasterServices } from '../../../commonServices/TransactionMaster/item-master.services';
 import { VendorServices } from '../../../commonServices/TransactionMaster/vendoer-master.services';
 import { catchError } from 'rxjs/internal/operators/catchError';
+import { GlobalService } from '../../../commonServices/global.service';
 declare const $: any
 @Component({
   selector: 'app-travel-invoice',
@@ -62,7 +63,8 @@ export class SalesComponent implements OnInit, OnDestroy {
     private _formBuilder: FormBuilder,
     private toastrService: ToastrCustomService,
     private itemService: ItemmasterServices,
-    private _ledgerServices: VendorServices) {
+    private _ledgerServices: VendorServices,
+    private gs: GlobalService) {
     this.formSearch()
     this.getSaleTraveDetail()
     this.newBillSub = this.commonService.newSaleStatus().subscribe(
@@ -199,29 +201,16 @@ export class SalesComponent implements OnInit, OnDestroy {
   totalBillAmount: number
   getSaleTraveDetail () {
     this.isSearching = true
-    this.commonService.getSaleDetail('?StrSearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
-    .pipe(
-      filter(data => {
-        if (data.Code === UIConstant.THOUSAND) {
-          return true
-        } else {
-          throw new Error(data.Description)
-        }
-      }),
-      catchError(error => {
-        return throwError(error)
-      }),
-      map(data => data.Data)
-    ).subscribe(data => {
+    this.gs.manipulateResponse(this.commonService.getSaleDetail('?StrSearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)).subscribe(data => {
       console.log('sales data: ', data)
-        this.saleTravelDetails = data.TravelDetails
-        this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
-        if (data.TravelSummary.length > 0) {
-          this.totalDiscount = +(+data.TravelSummary[0].Discount).toFixed(2)
-          this.totaltax = +(+data.TravelSummary[0].TaxAmount).toFixed(2)
-          this.totalBillAmount = +(+data.TravelSummary[0].BillAmount).toFixed(2)
-          this.isSearching = false
-        }
+      this.saleTravelDetails = data.TravelDetails
+      this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
+      if (data.TravelSummary.length > 0) {
+        this.totalDiscount = +(+data.TravelSummary[0].Discount).toFixed(2)
+        this.totaltax = +(+data.TravelSummary[0].TaxAmount).toFixed(2)
+        this.totalBillAmount = +(+data.TravelSummary[0].BillAmount).toFixed(2)
+        this.isSearching = false
+      }
     },
     (error) => {
       this.toastrService.showError(error, '')
@@ -383,8 +372,7 @@ export class SalesComponent implements OnInit, OnDestroy {
           _self.printComponent(htmlID)
         }, 0)
       }
-    }
-    )
+    })
     // $('#sales_print_id').modal(UIConstant.MODEL_SHOW)
   }
 

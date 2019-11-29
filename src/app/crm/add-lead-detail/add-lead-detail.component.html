@@ -1,0 +1,657 @@
+<div class="modal fade right" id="add_lead_detail" tabindex="-1" role="dialog" aria-labelledby="sample_approval">
+  <div class="modal-dialog modal-full-height modal-right half-right" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add {{formtype ? 'Follow Up ' : 'Lead'}} Details</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <form #addLeadDetailForm="ngForm" novalidate (ngSubmit)="addLeadDetailForm.form.valid && submit()">
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-4 bdR">
+            <div class="tab_vertical">
+              <ul class="nav tabs-cyan flex-column" role="tablist">
+                <li class="nav-item" *ngIf="!formtype">
+                  <a class="nav-link waves-light active" data-toggle="tab" href="#panel539" role="tab">Company
+                    Information</a>
+                </li>
+                <li class="nav-item" *ngIf="!formtype">
+                  <a class="nav-link waves-light " data-toggle="tab" href="#panel519" role="tab">Personal Detail</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link waves-light" data-toggle="tab" href="#keyperson_org" role="tab">Contact
+                    Information</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link waves-light" data-toggle="tab" href="#address_org" role="tab">Address</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link waves-light" data-toggle="tab" href="#panel529" role="tab">Social Profile</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="tab-content">
+              <div class="tab-pane fade" id="panel519" *ngIf="!formtype" role="tabpanel">
+                <div class="form-row">
+                  <div class="card-header">
+                    Personal Information
+                  </div>
+                  <div class="card-body">
+                    <div class="form-row">
+                      <div class="form-group col-md-6 col-12">
+                        <label>First Name</label>
+                        <input type="text" class="form-control" placeholder="Enter First Name" name="firstName"
+                          [(ngModel)]="model.firstName" />
+                      </div>
+                      <div class="form-group col-md-6 col-12">
+                        <label>Last Name</label>
+                        <input type="text" class="form-control" placeholder="Enter Last Name" name="lastName"
+                          [(ngModel)]="model.lastName" />
+                      </div>
+                      <div class="form-group col-md-6 col-12">
+                        <label>Designation</label>
+                        <ng-select name="designationName" [items]="designationList" bindLabel="CommonDesc" bindValue="Id"
+                          placeholder="Select Designation" [(ngModel)]="model.selectedDesignationId">
+                        </ng-select>
+                      </div>
+                      <!-- <div class="form-group col-md-6 col-12">
+                        <label>Lead Stage</label>
+                        <ng-select name="leadStage" [items]="leadStageList" bindLabel="commondesc" bindValue="id"
+                          placeholder="Select Lead Stage" [(ngModel)]="model.selectedLeadStageId">
+                        </ng-select>
+                      </div> -->
+                      <div class="form-group col-md-6 col-12">
+                        <label>Job Title</label>
+                        <input type="text" class="form-control" placeholder="Enter Job Title" name="jobTitle"
+                          [(ngModel)]="model.jobTitle" />
+                      </div>
+
+                      <div class="form-group col-md-6 col-12">
+                        <label>Departments</label>
+                        <input type="text" class="form-control" placeholder="Enter Department" name="department"
+                          [(ngModel)]="model.department" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="keyperson_org" role="tabpanel">
+                <div class="form-row">
+                  <div class="card-header">
+                    Contact Number
+                  </div>
+                  <div class="form-group col-md-12 pl-0 pr-0">
+                    <div class="card p-2" style="width: 100%;">
+                      <h5 class="summery_text">
+                        Mobile No -
+                        <span>
+                          <a href="javascript:void(0)" (click)="addMobileNo('personalMobileNoList')">Add Mobile No</a>
+                        </span>
+                      </h5>
+                      <table class="table editable_tbl" style="width: 100%">
+                        <tbody>
+                          <tr class="default_row" *ngFor="
+                              let item of model?.personalMobileNoList;
+                              let i = index
+                            ">
+                            <td>{{ item?.displayLabel }}</td>
+                            <td class="profile-pic1">
+                              <div>
+                                <a href="javascript:void(0)" (click)="
+                                    addMobileNo('personalMobileNoList', item, i)
+                                  "><i class="fas fa-pen fa-1x cH-blue"></i>
+                                </a>
+                                <a href="javascript:void(0)" (click)="
+                                    deleteMobileNo('personalMobileNoList', i)
+                                  ">
+                                  <i aria-hidden="true" class="fa fa-trash fa-1x cH-blue"></i>
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="card-header">
+                    Email Id
+                  </div>
+                  <div class="form-group col-md-12 pl-0 pr-0">
+                    <div class="card p-2" style="width: 100%;">
+                      <h5 class="summery_text">
+                        Email -
+                        <span>
+                          <a href="javascript:void(0)" (click)="addEmail('personalEmailList')">Add Email</a>
+                        </span>
+                      </h5>
+                      <table *ngIf="model?.personalEmailList?.length > 0" class="table editable_tbl"
+                        style="width: 100%">
+                        <thead>
+                          <th>Email Type</th>
+                          <th>Email Id</th>
+                          <th>#</th>
+                        </thead>
+                        <tbody>
+                          <tr class="default_row" *ngFor="
+                              let item of model?.personalEmailList;
+                              let i = index
+                            ">
+                            <td>{{ item?.emailTypeName }}</td>
+                            <td>{{ item?.email }}</td>
+                            <td class="profile-pic1">
+                              <div>
+                                <a href="javascript:void(0)" (click)="
+                                    addEmail('personalEmailList', item, i)
+                                  "><i class="fas fa-pen fa-1x cH-blue"></i>
+                                </a>
+                                <a href="javascript:void(0)" (click)="deleteEmail('personalEmailList', i)">
+                                  <i aria-hidden="true" class="fa fa-trash fa-1x cH-blue"></i>
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="address_org" role="tabpanel">
+                <div class="form-row">
+                  <div class="card-header">
+                    Address Information
+                  </div>
+                  <div class="card-body ">
+                    <div class="form row">
+                      <div class="form-group col-md-12 pl-0 pr-0">
+                        <div class="card p-2" style="width: 100%;">
+                          <h5 class="summery_text">
+                            Address -
+                            <span>
+                              <a href="javascript:void(0)" (click)="addAddress('personalAddressList')">Add Address</a>
+                            </span>
+                          </h5>
+                          <table class="table editable_tbl" style="width: 100%">
+                            <tbody>
+                              <tr class="default_row" *ngFor="
+                                  let item of model?.personalAddressList;
+                                  let i = index
+                                ">
+                                <td>{{ item?.displayLabel }}</td>
+                                <td class="profile-pic1">
+                                  <div>
+                                    <a href="javascript:void(0)" (click)="
+                                        addAddress(
+                                          'personalAddressList',
+                                          item,
+                                          i
+                                        )
+                                      "><i class="fas fa-pen fa-1x cH-blue"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" (click)="
+                                        deleteAddress('personalAddressList', i)
+                                      ">
+                                      <i aria-hidden="true" class="fa fa-trash fa-1x cH-blue"></i>
+                                    </a>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="panel529" role="tabpanel">
+                <div class="form-row">
+                  <div class="card-header">
+                    Social Profile
+                  </div>
+                  <div class="card-body">
+                    <table class="table editable_tbl" style="width: 100%">
+                      <thead>
+                        <tr>
+                          <th>Social Media</th>
+                          <th>Url</th>
+                          <th>#</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          <ng-container
+                              *ngFor="let item of model?.socialProfileList; let i = index;">
+                        <tr class="default_row">
+                          <td>{{item?.name}}</td>
+                          <td>{{item?.url}}</td>
+                          <td class="profile-pic1">
+                            <div>
+                              <a class="p-2" href="javascript:void(0)" (click)="editSocialProfile(item, i)"><i class="fas fa-pen fa-1x cH-blue"></i> </a>
+                              <a href="javascript:void(0)" (click)="deleteSocialProfile(i)">
+                                <i aria-hidden="true" class="fa fa-trash fa-1x cH-blue"></i>
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      </ng-container>
+                        <tr class="selected_row">
+                          <td>
+                            <ng-select
+                            name="socialMediaName"
+                            [items]="socialMediaList"
+                            bindLabel="CommonDesc"
+                            bindValue="UId"
+                            placeholder="Select Social Media"
+                            [(ngModel)]="selectedSocialMediaId"
+                          >
+                          </ng-select>
+                          </td>
+                          <td>
+                            <input type="text" class="form-control"
+                            name="url" [(ngModel)]="socialMediaUrl" />
+                          </td>
+                          <td>
+                            <button type="button"
+                               id="btn_add"
+                               (click)="addSocialProfile()"
+                              class="btn btn-primary btn_add_more waves-effect waves-light">
+                              +
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="!formtype" class="tab-pane fade in show active" id="panel539" role="tabpanel">
+                <div class="form-row">
+                  <div class="card-header">
+                    Company Information
+                  </div>
+                  <div class="card-body ">
+                    <div class="form-row">
+                      <div class="form-group col-md-6">
+                        <label>Comapany Name</label>
+                        <input type="text" class="form-control" placeholder="Enter Value" name="companyName"
+                        [(ngModel)]="model.companyName" />
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label>Number of Employees</label>
+                        <ng-select name="noOfEmployeeName" [items]="noOfEmployeeList" bindLabel="Name"
+                          bindValue="Id" placeholder="Select No Of Employees" [(ngModel)]="model.selectedNoOfEmployeeId">
+                        </ng-select>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label>Company Annual Revenue</label>
+                        <input type="text" class="form-control" placeholder="Enter Value" name="revenue"
+                        [(ngModel)]="model.companyRevenue" />
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label>Company Website</label>
+                        <input type="text" class="form-control" placeholder="Enter Value" name="companyWebsite"
+                        [(ngModel)]="model.companyWebsite" />
+                      </div>
+                      <div class="form-group col-md-6 col-12">
+                        <label>Business Type</label>
+                        <ng-select name="businessTypeName" [items]="crmService.leadUtilityData.BusinessType"
+                          bindLabel="commondesc" bindValue="id" placeholder="Select Business Type"
+                          [(ngModel)]="model.selectedBusinessTypeId" (change)="
+                            onChangeSelection(
+                              'Business Type',
+                              'selectedBusinessTypeId',
+                              193
+                            )
+                          ">
+                        </ng-select>
+                      </div>
+                      <div class="form-group col-md-6 col-12">
+                        <label>Industory Type</label>
+                        <ng-select name="industryTypeName" [items]="crmService.leadUtilityData.IndustryType"
+                          bindLabel="commondesc" bindValue="id" placeholder="Select Industry Type"
+                          [(ngModel)]="model.selectedIndustryTypeId" (change)="
+                            onChangeSelection(
+                              'Industry Type',
+                              'selectedIndustryTypeId',
+                              125
+                            )
+                          ">
+                        </ng-select>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-12 pl-0 pr-0">
+                      <div class="card p-2" style="width: 100%;">
+                        <h5 class="summery_text">
+                          Email -
+                          <span>
+                            <a href="javascript:void(0)" (click)="addEmail('companyEmailList')">Add Email</a>
+                          </span>
+                        </h5>
+                        <table class="table editable_tbl"
+                          style="width: 100%">
+                          <thead>
+                            <th>Email Type</th>
+                            <th>Email Id</th>
+                            <th>#</th>
+                          </thead>
+                          <tbody>
+                            <tr class="default_row" *ngFor="
+                                let item of model?.companyEmailList;
+                                let i = index
+                              ">
+                              <td>{{ item?.emailTypeName }}</td>
+                              <td>{{ item?.email }}</td>
+                              <td class="profile-pic1">
+                                <div>
+                                  <a href="javascript:void(0)" class="p-2" (click)="
+                                      addEmail('companyEmailList', item, i)
+                                    "><i class="fas fa-pen fa-1x cH-blue"></i>
+                                  </a>
+                                  <a href="javascript:void(0)" (click)="deleteEmail('companyEmailList', i)">
+                                    <i aria-hidden="true" class="fa fa-trash fa-1x cH-blue"></i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-12 pl-0 pr-0">
+                      <div class="card p-2" style="width: 100%;">
+                        <h5 class="summery_text">
+                          Mobile No -
+                          <span>
+                            <a href="javascript:void(0)" (click)="addMobileNo('companyMobileNoList')">Add Mobile No</a>
+                          </span>
+                        </h5>
+                        <table class="table editable_tbl" style="width: 100%">
+                          <tbody>
+                            <tr class="default_row" *ngFor="
+                                let item of model?.companyMobileNoList;
+                                let i = index
+                              ">
+                              <td>{{ item?.displayLabel }}</td>
+                              <td class="profile-pic1">
+                                <div>
+                                  <a href="javascript:void(0)" class="p-2" (click)="
+                                      addMobileNo(
+                                        'companyMobileNoList',
+                                        item,
+                                        i
+                                      )
+                                    "><i class="fas fa-pen fa-1x cH-blue"></i>
+                                  </a>
+                                  <a href="javascript:void(0)" (click)="
+                                      deleteMobileNo('companyMobileNoList', i)
+                                    ">
+                                    <i aria-hidden="true" class="fa fa-trash fa-1x cH-blue"></i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-12 pl-0 pr-0">
+                      <div class="card p-2" style="width: 100%;">
+                        <h5 class="summery_text">
+                          Address -
+                          <span>
+                            <a href="javascript:void(0)" (click)="addAddress('companyAddressList')">Add Address</a>
+                          </span>
+                        </h5>
+                        <table class="table editable_tbl" style="width: 100%">
+                          <tbody>
+                            <tr class="default_row" *ngFor="
+                                let item of model?.companyAddressList;
+                                let i = index;
+                              ">
+                              <td>{{ item?.displayLabel }}</td>
+                              <td class="profile-pic1">
+                                <div>
+                                  <a href="javascript:void(0)" class="p-2" (click)="
+                                      addAddress('companyAddressList', item, i)
+                                    "><i class="fas fa-pen fa-1x cH-blue"></i>
+                                  </a>
+                                  <a href="javascript:void(0)" (click)="
+                                      deleteAddress('companyAddressList', i)
+                                    ">
+                                    <i aria-hidden="true" class="fa fa-trash fa-1x cH-blue"></i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="panel540" role="tabpanel">
+                <div class="form-row">
+                  <div class="card-header">
+                    Opportunity Information
+                  </div>
+                  <div class="card-body">
+                    <div class="form-row">
+                      <div class="form-group col-md-12 col-12">
+                        <label>Opportunity Name</label>
+                        <input type="text" class="form-control" placeholder="Enter Value" />
+                      </div>
+
+                      <div class="form-group col-md-12 col-12">
+                        <label>Currency</label>
+                        <div class="input-group adw_select">
+                          <input type="text" class="form-control" />
+                          <div class="input-group-btn">
+                            <div class="btn-group" role="group">
+                              <div class="dropdown dropdown-lg">
+                                <button type="button" class="btn dropdown-toggle" data-toggle="dropdown"
+                                  aria-expanded="false">
+                                  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu select_dropdown">
+                                  <li class="pX-20 pY-5 ta-c bdT bgc-grey">
+                                    <a data-toggle="modal" data-target="#area_master">
+                                      <i class="fa fa-plus pR-10"></i><span class="fsz-sm fw-600 c-grey-900">Add
+                                        New</span>
+                                    </a>
+                                  </li>
+                                  <li class="pX-20 pY-5 ta-c bdT">
+                                    <span>Retail</span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12">
+                        <label class="fw-500">Expected Close Date</label>
+                        <div class="timepicker-input input-icon">
+                          <div class="input-group">
+                            <div class="input-group-addon bgc-white bd bdwR-0">
+                              <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <input type="text" class="form-control " data-provide="datepicker" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="card p-2">
+                        <h5 class="summery_text">Item Detail</h5>
+                        <table class="table editable_tbl" style="width: 100%">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Item</th>
+                              <th>Qty</th>
+                              <th>Value</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr class="default_row">
+                              <td class="profile-pic1">
+                                <div class="edit1">
+                                  <a href="#"><i class="fas fa-pen fa-1x cH-blue"></i>
+                                  </a>
+                                  <a href="#">
+                                    <i aria-hidden="true" class="fa fa-trash fa-1x cH-blue"></i>
+                                  </a>
+                                </div>
+                              </td>
+                              <td>Software</td>
+
+                              <td>10</td>
+                              <td>10000.00</td>
+                            </tr>
+                            <tr class="selected_row">
+                              <td>
+                                <button type="submit" id="btn_add"
+                                  class="btn btn-primary btn_add_more waves-effect waves-light">
+                                  +
+                                </button>
+                              </td>
+
+                              <td>
+                                <div class="input-group adw_select">
+                                  <input type="text" class="form-control" />
+                                  <div class="input-group-btn">
+                                    <div class="btn-group" role="group">
+                                      <div class="dropdown dropdown-lg">
+                                        <button type="button" class="btn dropdown-toggle waves-effect waves-light"
+                                          data-toggle="dropdown" aria-expanded="false">
+                                          <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu select_dropdown">
+                                          <li class="pX-20 pY-5 ta-c bdT bgc-grey">
+                                            <a data-toggle="modal" data-target="#item_master"><i
+                                                class="fa fa-plus pR-10"></i><span class="fsz-sm fw-600 c-grey-900">Add
+                                                New</span></a>
+                                          </li>
+                                          <li class="pX-20 pY-5 ta-c bdT">
+                                            <span>Active</span>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+
+                              <td>
+                                <input type="text" class="form-control" />
+                              </td>
+
+                              <td>
+                                <input type="text" class="form-control" />
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="panel541" role="tabpanel">
+                <div class="form-row">
+                  <div class="card-header">
+                    Source Information
+                  </div>
+                  <div class="card-body">
+                    <div class="form-row">
+                      <div class="form-group col-md-12 col-12">
+                        <label>Source</label>
+                        <div class="input-group adw_select">
+                          <input type="text" class="form-control" />
+                          <div class="input-group-btn">
+                            <div class="btn-group" role="group">
+                              <div class="dropdown dropdown-lg">
+                                <button type="button" class="btn dropdown-toggle" data-toggle="dropdown"
+                                  aria-expanded="false">
+                                  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu select_dropdown">
+                                  <li class="pX-20 pY-5 ta-c bdT bgc-grey">
+                                    <a data-toggle="modal" data-target="#area_master">
+                                      <i class="fa fa-plus pR-10"></i><span class="fsz-sm fw-600 c-grey-900">Add
+                                        New</span>
+                                    </a>
+                                  </li>
+                                  <li class="pX-20 pY-5 ta-c bdT">
+                                    <span>Retail</span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-12 col-12">
+                        <label>Campaign</label>
+                        <div class="input-group adw_select">
+                          <input type="text" class="form-control" />
+                          <div class="input-group-btn">
+                            <div class="btn-group" role="group">
+                              <div class="dropdown dropdown-lg">
+                                <button type="button" class="btn dropdown-toggle" data-toggle="dropdown"
+                                  aria-expanded="false">
+                                  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu select_dropdown">
+                                  <li class="pX-20 pY-5 ta-c bdT bgc-grey">
+                                    <a data-toggle="modal" data-target="#area_master">
+                                      <i class="fa fa-plus pR-10"></i><span class="fsz-sm fw-600 c-grey-900">Add
+                                        New</span>
+                                    </a>
+                                  </li>
+                                  <li class="pX-20 pY-5 ta-c bdT">
+                                    <span>Retail</span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group col-md-12 col-12">
+                        <label>Medium</label>
+                        <input type="text" class="form-control" placeholder="Enter Value" />
+                      </div>
+                      <div class="form-group col-md-12 col-12">
+                        <label>Keyword</label>
+                        <input type="text" class="form-control" placeholder="Enter Value" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary waves-effect">Save</button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+<ng-container #addCommonMasterContainerRef></ng-container>
+<ng-container #addMobileNoContainerRef></ng-container>
+<ng-container #addEmailContainerRef></ng-container>
+<ng-container #addAddressContainerRef></ng-container>

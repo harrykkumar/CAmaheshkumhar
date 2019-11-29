@@ -72,7 +72,7 @@ export class SampleSearchComponent {
 
   getStatusList () {
     let newData = [{ id: '0', text: 'Select Status' }]
-    this._ps.getStatusList().subscribe(data => {
+    this._ss.getStatusList().subscribe(data => {
       if (data.length > 0) {
         data.forEach(element => {
           newData.push({

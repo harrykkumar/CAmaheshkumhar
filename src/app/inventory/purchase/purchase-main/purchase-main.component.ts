@@ -135,6 +135,9 @@ export class PurchaseMainComponent {
         // console.log('allItems : ', this.allItems)
         _self.purchaseService.createItems(data.Items)
         _self.purchaseService.createVendors(data.Vendors)
+        _self.purchaseService.IMEINumber(data.ItemProperties)
+
+        
         _self.purchaseService.createTaxProcess(data.TaxProcesses)
         _self.purchaseService.createPaymentModes(data.PaymentModes)
         _self.purchaseService.createOrganisations(data.Organizations)
@@ -178,17 +181,24 @@ export class PurchaseMainComponent {
   GstTypeId:any =0
   attributeKeys: any = []
   onPrintButton (id, htmlID,isViewPrint) {
-    // this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
     this.word = ''
     let _self = this
     _self.printData1 = []
     _self.purchaseService.getPrintData(id).subscribe(data => {
       console.log('print data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
-        data.Data.AddressDetailsOrg = this.purchaseService.getAddressForPrint(data.Data.AddressDetailsOrg[0])
-        data.Data.AddressDetails = this.purchaseService.getAddressForPrint(data.Data.AddressDetails[0])
+        if( data.Data.AddressDetailsOrg.length>0){
+          data.Data.AddressDetailsOrg = this.purchaseService.getAddressForPrint(data.Data.AddressDetailsOrg[0])
+        }
+        if(data.Data.AddressDetails.length>0){
+          data.Data.AddressDetails = this.purchaseService.getAddressForPrint(data.Data.AddressDetails[0])
+        }
         data.Data.ItemTransactions.map(element => {
           element['itemAttributes'] = data.Data.ItemAttributesTrans.filter(attr => attr.ItemTransId === element.Id)
+          element['mobileSeries'] = data.Data.ItemPropertyTrans.filter(attr => attr.ItemTransId === element.Id)
+
+          // let IMEInumberValue = data.Data.ItemPropertyTrans.filter(d => (d.ItemTransId === element.Id))    
+
         })
         _self.getDistinctTaxName(data.Data.HsnItemTaxTransDetails, data.Data.HsnItemTransactions, data.Data.PurchaseTransactions[0].Currency)
         _self.attributeKeys = data.Data.ItemTransactions[0].itemAttributes

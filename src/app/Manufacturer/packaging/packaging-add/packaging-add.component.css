@@ -1,0 +1,53 @@
+.loading {
+  background-color: #ffffff;
+  background-image: url("../../../../../assets/img/spinner-blue-circle.gif");
+  background-size: 25px 25px;
+  background-position:right center;
+  background-repeat: no-repeat;
+}
+.fa-check {
+  color: green
+}
+
+.fa-times {
+  color: darkred
+}
+
+.hideMe {
+  -moz-animation: cssAnimation 0s ease-in-out 5s forwards;
+  /* Firefox */
+  -webkit-animation: cssAnimation 0s ease-in-out 5s forwards;
+  /* Safari and Chrome */
+  -o-animation: cssAnimation 0s ease-in-out 5s forwards;
+  /* Opera */
+  animation: cssAnimation 0s ease-in-out 5s forwards;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in-out;
+  /* -webkit-transition: background 5s; */
+}
+@keyframes cssAnimation {
+  to {
+      width:0;
+      height:0;
+      overflow:hidden;
+  }
+}
+@-webkit-keyframes cssAnimation {
+  to {
+      width:0;
+      height:0;
+      visibility:hidden;
+  }
+}
+.spinner_tick {
+  position: absolute;
+  top: 5px;
+  right: 12px;
+}
+
+#center-img {
+  width: 45%;
+  height: auto;
+  margin: 10px 22.5%;
+}

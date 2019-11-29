@@ -3,7 +3,7 @@ import { ItemmasterServices } from './../../../commonServices/TransactionMaster/
 import { AttributeCombinationComponent } from './../attribute-combination/attribute-combination.component';
 import { GlobalService } from './../../../commonServices/global.service';
 import { Settings } from './../../../shared/constants/settings.constant';
-import { Component, OnInit, ViewChild, Output, EventEmitter, Renderer2 } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, Renderer2, QueryList, ViewChildren } from '@angular/core';
 import * as _ from 'lodash'
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { BuyerOrderService } from '../buyer-order.service';
@@ -13,6 +13,7 @@ import { CommonService } from 'src/app/commonServices/commanmaster/common.servic
 import { Subscription } from 'rxjs';
 import { AddCust } from '../../../model/sales-tracker.model';
 import { ManufacturingService } from '../../manufacturing.service';
+import { Subject } from 'rxjs/internal/Subject';
 declare const $: any
 @Component({
   selector: 'app-add-buyer-order',
@@ -32,8 +33,10 @@ export class AddBuyerOrderComponent implements OnInit {
   orderList:Array<any> = []
   editMode: boolean
   previousOrders: Array<any> = []
-  destroy$: Subscription
+  destroy$: Subscription[] = []
   disableBtnSubmit = false
+  formReadySub = new Subject<any>()
+  formReady$ = this.formReadySub.asObservable()
   constructor(
     private _buyerOrderService: BuyerOrderService,
     private setting: Settings,
@@ -44,9 +47,16 @@ export class AddBuyerOrderComponent implements OnInit {
     private renderer: Renderer2,
     private _ms: ManufacturingService
   ) {
-    
     let _self = this
-    this.destroy$ = this._buyerOrderService.addressData$.subscribe(
+    this.destroy$.push(this.formReady$.subscribe(() => {
+      setTimeout(() => {
+        if (this.editMode) {
+          // this.model.addressValue = this.model.editData.BuyerOrders[0].AddressId
+          _self.addressSelect2.setElementValue(this.model.editData.BuyerOrders[0].AddressId)
+        }
+      }, 3000)
+    }))
+    this.destroy$.push(this._buyerOrderService.addressData$.subscribe(
       data => {
         if (data.data) {
           _self.listItem.addressList = Object.assign([], data.data)
@@ -58,9 +68,9 @@ export class AddBuyerOrderComponent implements OnInit {
           // _self.addressSelect2.setElementValue(id)
         }
       }
-    )
+    ))
 
-    this.destroy$ = this.commonService.getAddressStatus().subscribe(
+    this.destroy$.push(this.commonService.getAddressStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.listItem['addressList'])
@@ -69,38 +79,41 @@ export class AddBuyerOrderComponent implements OnInit {
           this.model['addressValue'] = data.id
         }
       }
-    )
+    ))
 
     this._buyerOrderService.select2List$.subscribe((data: any) => {
       // console.log(data)
       if (data.data && data.title) {
         if (data.title === 'Buyer') {
-          this.listItem['buyerNameList'] = data.data
+          this.listItem['buyerNameList'] = JSON.parse(JSON.stringify(data.data))
         } else if (data.title === 'Style') {
-          this.listItem['styleNumberList'] = data.data
+          this.listItem['styleNumberList'] = JSON.parse(JSON.stringify(data.data))
         } else if (data.title === 'Season') {
-          this.listItem['seasonList'] = data.data
+          this.listItem['seasonList'] = JSON.parse(JSON.stringify(data.data))
         } else if (data.title === 'OrderType') {
-          this.listItem['orderTypeList'] = data.data
+          this.listItem['orderTypeList'] = JSON.parse(JSON.stringify(data.data))
         } else if (data.title === 'Shipping Mode') {
-          this.listItem['shipModeList'] = data.data
+          this.listItem['shipModeList'] = JSON.parse(JSON.stringify(data.data))
         } else if (data.title === 'Item') {
-          this.listItem['itemList'] = data.data
+          this.listItem['itemList'] = JSON.parse(JSON.stringify(data.data))
         } else if (data.title === 'Packing Type') {
-          let arr = data.data
+          let arr = JSON.parse(JSON.stringify(data.data))
           arr.splice(1, 1)
           this.listItem['packagingTypeList'] = arr
+          this.model['packageTypeValue'] = 1
         } else if (data.title === 'Currency') {
-          let arr = data.data
+          let arr = JSON.parse(JSON.stringify(data.data))
           arr.splice(1, 1)
           this.listItem['currencyList'] = arr
         } else if (data.title === 'Set Type') {
-          this.listItem['setTypeData'] = data.data
+          this.listItem['setTypeData'] = JSON.parse(JSON.stringify(data.data))
+        } else if (data.title === 'Department') {
+          this.listItem['departmentList'] = JSON.parse(JSON.stringify(data.data))
         }
       }
     })
 
-    this.commonService.getCustStatus().subscribe((data: AddCust) => {
+   this.destroy$.push(this.commonService.getCustStatus().subscribe((data: AddCust) => {
       if (data.name && data.id) {
         let newData = Object.assign([], this.listItem['buyerNameList'])
         newData.push({ id: +data.id, text: data.name })
@@ -113,9 +126,9 @@ export class AddBuyerOrderComponent implements OnInit {
           }
         }, 2000)
       }
-    })
+    }))
 
-    this._ms.openStyle$.subscribe((data: any) => {
+    this.destroy$.push(this._ms.openStyle$.subscribe((data: any) => {
       if (data.name && data.id) {
         let newData = Object.assign([], this.listItem['styleNumberList'])
         newData.push({ id: +data.id, text: data.name })
@@ -128,9 +141,9 @@ export class AddBuyerOrderComponent implements OnInit {
           }
         }, 2000)
       }
-    })
+    }))
 
-    this.commonService.getItemMasterStatus().subscribe(
+    this.destroy$.push(this.commonService.getItemMasterStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.listItem.itemList)
@@ -145,9 +158,9 @@ export class AddBuyerOrderComponent implements OnInit {
           }, 2000)
         }
       }
-    )
+    ))
 
-    this.commonService.openCommonMenu$.subscribe(
+    this.destroy$.push(this.commonService.openCommonMenu$.subscribe(
       (data: AddCust) => {
         if (data.id && data.name && data.code) {
           if (data.code === 170) {
@@ -198,11 +211,24 @@ export class AddBuyerOrderComponent implements OnInit {
               }
             }, 2000)
           }
+          if (data.code === 114) {
+            let newData = Object.assign([], this.listItem.departmentList)
+            newData.push({ id: data.id, text: data.name })
+            this.listItem.departmentList = Object.assign([], newData)
+            this.model.departmentValue = +data.id
+            setTimeout(() => {
+              if (this.departmentSelect2) {
+                const element = this.renderer.selectRootElement(this.departmentSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
+          }
         }
       }
-    )
+    ))
   }
 
+  @ViewChild('department_select2') departmentSelect2: Select2Component
   ngOnInit() {
     this.getUtilityItemList()
     this.getUploadedImages()
@@ -215,7 +241,7 @@ export class AddBuyerOrderComponent implements OnInit {
       this.editMode = false
     }
     this.getSetUpModules((JSON.parse(this.setting.moduleSettings).settings))
-    if (this.toOpenAttr && this.buyerOrderAttr.length > 0) {
+    if (this.toOpenAttr) {
       let defaultAttrIndex = _.findIndex(this.buyerOrderAttr, {Id: this.defaultMeasuring})
       if (defaultAttrIndex > -1) {
         this.model['defaultAttrName'] = this.buyerOrderAttr[defaultAttrIndex]['Val']
@@ -244,7 +270,7 @@ export class AddBuyerOrderComponent implements OnInit {
   }
 
   setDefaultParameters () {
-    this.model['packageTypeValue'] = 275
+    this.model['packageTypeValue'] = 1
     if (!this.editMode) {
       this.model['orderDate'] = this._gs.getDefaultDate(this.clientDateFormat)
       this.getNewBillNo()
@@ -275,6 +301,9 @@ export class AddBuyerOrderComponent implements OnInit {
         this.orderList = []
         this.createOrderList(this.model.editData.BuyerOrderTrans, this.model.editData.ItemAttributesTransSno)
       }
+      if (this.model.editData.AddressDetails && this.model.editData.AddressDetails.length > 0) {
+        this._buyerOrderService.createAddress(this.model.editData.AddressDetails)
+      }
     } else {
       this.createOrderList(this.model.editData.BuyerOrderTrans)
     }
@@ -295,6 +324,7 @@ export class AddBuyerOrderComponent implements OnInit {
       this.model.orderDate = this._gs.utcToClientDateFormat(buyerOrders.OrderDate, this.clientDateFormat)
       this.model.shipDate = (buyerOrders.ShipmentDate) ? this._gs.utcToClientDateFormat(buyerOrders.ShipmentDate, this.clientDateFormat) : ''
       this.model.exFactDate = (buyerOrders.ExpectedFactoryDate) ? this._gs.utcToClientDateFormat(buyerOrders.ExpectedFactoryDate, this.clientDateFormat) : ''
+      this.formReadySub.next()
     }
   }
 
@@ -326,6 +356,7 @@ export class AddBuyerOrderComponent implements OnInit {
             }
           }
         })
+        console.log(obj)
         this.previousOrders.push({...obj})
       })
     } else {
@@ -399,12 +430,16 @@ export class AddBuyerOrderComponent implements OnInit {
     }
   }
 
+  editItemAttribute(index) {
+    this.attributeFormModal.openModal(this.model, this.itemsInOrder[index].original)
+  }
+
   addToList () {
     const obj = {
       itemId: this.model.itemId,
       itemName: this.model.itemName,
       orderQuantity: +this.itemFormModal.value.orderQuantity,
-      addPercentage: +this.model.addPercentage,
+      addPercentage: (+this.model.addPercentage > 0) ? +this.model.addPercentage : 0,
       productionQty: +this.itemFormModal.value.productionQty,
       unit: this.model.unit,
       unitName : this.model.unitName,
@@ -422,7 +457,7 @@ export class AddBuyerOrderComponent implements OnInit {
   }
 
   getUtilityItemList(){
-    this._gs.manipulateResponse(this._buyerOrderService.getUtilityItemList()).subscribe((res) => {
+    this.destroy$.push(this._gs.manipulateResponse(this._buyerOrderService.getUtilityItemList()).subscribe((res) => {
       this.attributeFormModal.combineAttributeList = []
       this.attributeFormModal.getUtilityItemList(res)
       this._buyerOrderService.getList(res['Customers'], 'Name', 'Buyer')
@@ -434,22 +469,27 @@ export class AddBuyerOrderComponent implements OnInit {
       this._buyerOrderService.getList(res['ShipmentTypes'], 'CommonDesc', 'Shipping Mode')
       this._buyerOrderService.getList(res['Currencies'], 'Name', 'Currency')
       this._buyerOrderService.getList(res['Items'], 'Name', 'Item')
-      this._buyerOrderService.getList(res['PackingType'], 'CommonDesc', 'Packing Type')
+      this._buyerOrderService.getList(res['PackingType'], 'CommonDesc', 'Packing Type', 'UId')
+      this._buyerOrderService.getList(res['Departments'], 'CommonDesc', 'Department')
     },
     (error) => {
       console.log(error)
       this._toaster.showError(error, '')
-    })
+    }))
   }
 
   generateProductionQty() {
     if (this.model.addPercentage && this.model.orderQuantity) {
       this.model.productionQty = (+this.model.orderQuantity + (+this.model.orderQuantity*+this.model.addPercentage)/100).toFixed(2)
+    } else if (this.model.orderQuantity && !this.model.addPercentage) {
+      this.model.productionQty = this.model.orderQuantity
     }
   }
 
+  itemsInOrder: any = []
   onCombinationModalClose(Data) {
-    console.log('combineAttributeList : ', Data)
+    this.itemsInOrder.push({'original': Data, 'transformed': []})
+    console.log('combineAttributeList : ', this.itemsInOrder)
     if (!this.editMode) {
       _.forEach(['totalOrderedQty', 'totalProductionQty', 'totalAmount'], (element) => {
         if (!this.model[element]) {
@@ -467,8 +507,8 @@ export class AddBuyerOrderComponent implements OnInit {
             sizeName: item.sizeAttributeName,
             attributeValueId: item.attributeCombinationId,
             attributeValueName: item.attributeCombinationName,
-            orderQuantity: this.getOrderQuantiy(+item.Qty, +this.model.addPercentage),
-            addPercentage: this.model.addPercentage,
+            orderQuantity: this.getOrderQuantity(+item.Qty, +this.model.addPercentage),
+            addPercentage: (+this.model.addPercentage > 0) ? +this.model.addPercentage : 0,
             productionQty: +item.Qty,
             unit: this.model.unit,
             unitName : this.model.unitName,
@@ -477,12 +517,15 @@ export class AddBuyerOrderComponent implements OnInit {
             remark : this.model.remark,
             itemName: this.model.itemName,
             SetId: this.model.SetId,
-            StyleId: this.model.styleNumberId
+            StyleId: this.model.styleNumberId,
+            ProductCode: item.ProductCode,
+            ProductDescription: item.ProductDescription
           }
           this.model['totalOrderedQty'] = (this.model['totalOrderedQty'] || 0) + +obj['orderQuantity']
           this.model['totalProductionQty'] = (this.model['totalProductionQty'] || 0) + +obj['productionQty']
           this.model['totalAmount'] = (this.model['totalAmount'] || 0) + +obj['amount']
           this.orderList.push({ ...obj })
+          this.itemsInOrder[this.itemsInOrder.length - 1]['transformed'].push({ ...obj })
         }
       })
     })
@@ -490,8 +533,12 @@ export class AddBuyerOrderComponent implements OnInit {
     this.commonService.fixTableHF('order-list-table')
   }
 
-  getOrderQuantiy (qty, addPer) {
-    return Math.round((qty * 100) / (100 + addPer))
+  getOrderQuantity (qty, addPer) {
+    if (addPer) {
+      return Math.round((qty * 100) / (100 + addPer))
+    } else {
+      return Math.round((qty * 100) / (100))
+    }
   }
 
   deleteItem (index, item, type) {
@@ -517,17 +564,22 @@ export class AddBuyerOrderComponent implements OnInit {
 
   resetItemAddForm() {
     this.model.itemValue = 0
-    this.model.packageTypeValue = 0
-    this.model.unit = ''
+    this.model.packageTypeValue = 1
+    this.model.styleNumberValue = 0
+    this.model.unit = 0
     this.model.unitName = ''
-    this.model.rate = null
+    this.model.itemName = ''
+    this.model.orderQuantity = 0
+    this.model.rate = 0
+    this.model.addPercentage = 0
+    this.model.remark = ''
     this.itemFormModal.resetForm()
   }
 
   resetBuyerOrderForm() {
     _.forEach(
       ['buyerNameValue', 'orderTypeValue', 'seasonValue', 'genderValue', 'styleNumberValue', 
-      'shipModeValue', 'currencyValue'],
+      'shipModeValue', 'currencyValue', 'departmentValue'],
       (element) => {
         this.model[element] = 0
     })
@@ -551,7 +603,7 @@ export class AddBuyerOrderComponent implements OnInit {
 
   validateBuyerOrderForm() {
     let valid = true
-    const iterateList = ['buyerNameId', 'orderDate', 'styleNumberId', 'orderPoNumber', 'currencyId']
+    const iterateList = ['buyerNameId', 'orderDate', 'orderPoNumber', 'currencyId']
     for (var i = 0; i < iterateList.length; i++) {
       if (!this.model[iterateList[i]]) {
         valid = false
@@ -642,7 +694,9 @@ export class AddBuyerOrderComponent implements OnInit {
         "DiscountAmt": "0",
         "Remark": item.remark,
         "ClientBarCode": "",
-        "Id": item.Id ? item.Id : 0
+        "Id": item.Id ? item.Id : 0,
+        "ProductCode": item.ProductCode,
+        "ProductDescription": item.ProductDescription
       }
     })
   }
@@ -676,12 +730,14 @@ export class AddBuyerOrderComponent implements OnInit {
       "ItemAttributesTransDetails": (this.toOpenAttr) ? this.prepareItemAttributeTransDetails() : [],
       "BuyerOrderInCharge": [],
       "Orderpackings": [],
-      "ImageFiles": this.ImageFiles
+      "ImageFiles": this.ImageFiles,
+      "DepartmentId": this.model.DepartmentId
     }
   }
 
   submitForm() {
     this.disableBtnSubmit = true
+    this.checkForFocus()
     const requestData = this.preparePayload()
     requestData['Id'] = (this.editMode) ? this.model.editId : 0
     console.log('obj : ', JSON.stringify(requestData))
@@ -797,7 +853,7 @@ export class AddBuyerOrderComponent implements OnInit {
         this.commonService.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
       });
     }
-    if (key === 'packingTypeId' && this.model[key] === 792) {
+    if (key === 'packingTypeId' && this.model[key] === 4) {
       this._buyerOrderService.getSetTypeData().subscribe((data) => {
         console.log(data)
         this._buyerOrderService.getList(data, 'CommonDesc', 'Set Type')
@@ -809,6 +865,13 @@ export class AddBuyerOrderComponent implements OnInit {
     if (key === 'SetId' && this.model[key] === -1) {
       this.shipmodeSelect2.selector.nativeElement.value = ''
       this.commonService.getCommonMenu(186).then((menudata) => {
+        console.log(menudata)
+        this.commonService.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
+      });
+    }
+    if (key === 'DepartmentId' && this.model[key] === -1) {
+      this.departmentSelect2.selector.nativeElement.value = ''
+      this.commonService.getCommonMenu(114).then((menudata) => {
         console.log(menudata)
         this.commonService.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
       });
@@ -889,12 +952,62 @@ export class AddBuyerOrderComponent implements OnInit {
   }
 
   ngOnDestroy () {
-    this.destroy$.unsubscribe()
+    if(this.destroy$ && this.destroy$.length > 0) {
+      this.destroy$.forEach((element) => element.unsubscribe())
+    }
   }
 
+  @ViewChildren('error') errorSelect2: QueryList<Select2Component>
   checkForFocus () {
+    let stack = []
     setTimeout(() => {
-      $(".errorSelecto:first").focus({ preventScroll: false })
-    }, 2000)
+      if ($(".errorSelecto:first")[0].nodeName === 'SELECT2') {
+        this.errorSelect2.forEach((item: Select2Component, index: number) => {
+          if (item.selector.nativeElement.parentElement.classList.contains('errorSelecto')) {
+            stack.push(index)
+          }
+        })
+        this.errorSelect2.forEach((item: Select2Component, index: number) => {
+          if (stack[0] === index) {
+            const element = this.renderer.selectRootElement(item.selector.nativeElement, true)
+            element.focus({ preventScroll: false })
+          }
+        })
+      } else {
+        $(".errorSelecto:first").focus()
+      }
+    }, 10)
+  }
+
+  editItem (orders) {
+    const groupBy = _.groupBy(this.model.editData.ItemAttributesTransSno, element => element.AttributeValueId)
+    console.log(groupBy)
+    let groupby_copy = JSON.parse(JSON.stringify(groupBy))
+    let filteredValues = []
+    for (const key in groupBy) {
+      if (key === this.defaultMeasuring) {
+        groupBy[key].forEach(element => {
+          filteredValues.push(element.AttributeId)
+        });
+      } else {
+        groupBy[key] = _.map((groupBy[key]), (element) => element.AttributeId)
+      }
+      console.log(groupBy[key])
+    }
+    console.log(groupBy)
+    console.log(groupby_copy)
+    // defaultmeasuring.forEach(element => {
+    //   filteredValues.push(element.AttributeId)
+    // });
+    // delete groupBy[this.defaultMeasuring]
+    // console.log()
+
+    // attributeCombinationId: element.id,
+    // attributeCombinationName: element.text,
+    // sizeAttributeId: sizeAttribute.Id,
+    // sizeAttributeName: sizeAttribute.Name,
+    // Qty: null,
+    // ProductDescription: '',
+    // ProductCode: ''
   }
 }

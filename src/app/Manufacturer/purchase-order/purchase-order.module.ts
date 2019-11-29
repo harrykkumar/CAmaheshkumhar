@@ -3,9 +3,13 @@ import { PurchaseOrderMainComponent } from './purchase-order-main/purchase-order
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../../shared/shared.module';
 import { PurchaseOrderRoutingModule } from './purchase-order.routing,module';
+import { PurchaseOrderSearchSearchComponent } from './purchase-order-search/purchase-order-search.component';
 
 @NgModule({
-  declarations: [PurchaseOrderMainComponent],
+  declarations: [
+    PurchaseOrderMainComponent,
+    PurchaseOrderSearchSearchComponent
+  ],
   imports: [
     CommonModule,
     SharedModule,

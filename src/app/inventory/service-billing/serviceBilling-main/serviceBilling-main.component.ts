@@ -13,6 +13,7 @@ import { serviceBillingAddComponent } from '../serviceBilling-add/serviceBilling
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 declare const $: any
 declare const _: any
+
 @Component({
   selector: 'app-serviceBilling-main',
   templateUrl: './serviceBilling-main.component.html'

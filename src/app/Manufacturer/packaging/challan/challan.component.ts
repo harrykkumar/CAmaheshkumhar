@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, Renderer2 } from '@angular/core';
 import { Settings } from '../../../shared/constants/settings.constant';
 import { GlobalService } from '../../../commonServices/global.service';
 import { Select2OptionData, Select2Component } from 'ng2-select2';
@@ -160,6 +160,7 @@ export class PackagingChallanComponent {
     private purchaseService: PurchaseService,
     private toastrService: ToastrCustomService,
     private settings: Settings,
+    private renderer: Renderer2,
     private gs: GlobalService) {
     this.clientDateFormat = this.settings.dateFormat;
     this._ps.openChallan$.subscribe(
@@ -216,34 +217,41 @@ export class PackagingChallanComponent {
       }
     )
 
-    // this.commonService.getTaxStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
-    //   (data: AddCust) => {
-    //     if (data.id && data.name) {
-    //       let newData = Object.assign([], this.taxSlabsData)
-    //       newData.push({ id: data.id, text: data.name })
-    //       this.taxSlabsData = newData
-    //       if (this.TaxSlabId === -1) {
-    //         this.TaxSlabId = +data.id
-    //         this.taxSlabValue = data.id
-    //         setTimeout(() => {
-    //           if (this.taxSlabSelect2) {
-    //             const element = this.renderer.selectRootElement(this.taxSlabSelect2.selector.nativeElement, true)
-    //             element.focus({ preventScroll: false })
-    //           }
-    //         }, 2000)
-    //       } else if (this.TaxSlabChargeId === -1) {
-    //         this.TaxSlabChargeId = +data.id
-    //         this.taxSlabChargeValue = data.id
-    //         setTimeout(() => {
-    //           if (this.taxSlabChargeSelect2) {
-    //             const element = this.renderer.selectRootElement(this.taxSlabChargeSelect2.selector.nativeElement, true)
-    //             element.focus({ preventScroll: false })
-    //           }
-    //         }, 2000)
-    //       }
-    //     }
-    //   }
-    // )
+    this.commonService.getTaxStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name) {
+          let newData = Object.assign([], this.taxSlabsData)
+          newData.push({ id: data.id, text: data.name })
+          this.taxSlabsData = newData
+          this.TaxSlabChargeId = +data.id
+          this.taxSlabChargeValue = data.id
+          setTimeout(() => {
+            if (this.taxSlabChargeSelect2) {
+              const element = this.renderer.selectRootElement(this.taxSlabChargeSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
+        }
+      }
+    )
+
+    this.commonService.getledgerCretionStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
+      data => {
+        if (data.id && data.name) {
+          let newData = Object.assign([], this.chargesData)
+          newData.push({ id: +data.id, text: data.name })
+          this.chargesData = newData
+          this.LedgerChargeId = +data.id
+          this.ledgerChargeValue = data.id
+          setTimeout(() => {
+            if (this.chargeSelect2) {
+              const element = this.renderer.selectRootElement(this.chargeSelect2.selector.nativeElement, true)
+              element.focus({ preventScroll: false })
+            }
+          }, 2000)
+        }
+      }
+    )
   }
 
   getAddressTaxType (bOrderId) {
@@ -526,8 +534,8 @@ export class PackagingChallanComponent {
         BillAmount: 0,
         BillDate: BillDate,
         BillNo: this.ChallanNo,
-        ReferralId: this.ReferralId,
-        ReferralTypeId: this.ReferralTypeId,
+        ReferralId: 0,
+        ReferralTypeId: 0,
         ReferralComission: 0,
         ReferralComissionTypeId: 0,
         ReverseCharge: 0,
@@ -877,4 +885,7 @@ export class PackagingChallanComponent {
     this.onDestroy$.complete()
   }
 
+  close () {
+    this._ps.closeChallan()
+  }
 }

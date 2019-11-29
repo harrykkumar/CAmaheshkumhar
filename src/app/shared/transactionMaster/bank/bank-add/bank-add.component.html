@@ -12,28 +12,28 @@
                     <div class="form row">
                         <div class="form-group col-md-12">
                             <label class="active">Bank Name</label>
-                            <input #bankname1 type="text" (input)="checkValidationName()" class="form-control"
-                                placeholder=" Bank Name" [ngClass]="{ 'errorSelecto ': submitClick && bankNameErr }"
-                                name='bankname' [(ngModel)]="banName">
+                            <input #bankname1 type="text" (input)="checkForValidation()" class="form-control"
+                                placeholder=" Bank Name" [ngClass]="{ 'errorSelecto ': submitClick && invalidObj?.bankName }"
+                                name='bankname' [(ngModel)]="bankName">
                         </div>
                         <div class="form-group col-md-12">
                             <label class="active">AccountHolder Name</label>
-                            <input type="text" (input)="checkValidationHolderName()" class="form-control"
+                            <input #accoundHolderNameRef type="text" (input)="checkForValidation()" class="form-control"
                                 placeholder="AccountHolder Name"
-                                [ngClass]="{ 'errorSelecto ': submitClick && AccountHolderNameErr }"
+                                [ngClass]="{ 'errorSelecto ': submitClick && invalidObj?.AccountHolderName }"
                                 name='AccountHolderName' [(ngModel)]="AccountHolderName">
                         </div>
 
                         <div class="form-group col-md-12">
                             <label class="active">Account Number</label>
-                            <input type="text" class="form-control" (input)='checkValidAccount()'
-                                [ngClass]="{ 'errorSelecto': submitClick && accountErr}" placeholder=" Account Number"
+                            <input #accountNoRef type="text" class="form-control" (input)='checkForValidation()'
+                                [ngClass]="{ 'errorSelecto': submitClick && invalidObj?.accountNo}" placeholder=" Account Number"
                                 name='accuntNo' [(ngModel)]="accountNo">
                         </div>
                         <div class="form-group col-md-6">
                             <label class="active">IFSC Code</label>
-                            <input type="text" class="form-control" (input)='checkValidIFSC()'
-                                [ngClass]="{ 'errorSelecto': submitClick && IFSCCodeErr  }" placeholder=" IFSC Code "
+                            <input #ifscCodeRef type="text" class="form-control" (input)='checkForValidation()'
+                                [ngClass]="{ 'errorSelecto': submitClick && invalidObj?.ifscCode  }" placeholder=" IFSC Code "
                                 name='ifscCode' [(ngModel)]="ifscCode">
                         </div>
                         <div class="form-group col-md-6">
@@ -51,32 +51,17 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label>Branch</label>
-                            <input type="text " class="form-control "
-                                [ngClass]="{ 'errorSelecto ': submitClick && BrancNameErr  }"
-                                (input)="checkValidBranch()" placeholder=" Branch " name='branch' [(ngModel)]="branch">
+                            <input #branchRef type="text " class="form-control "
+                                [ngClass]="{ 'errorSelecto ': submitClick && invalidObj?.branch  }"
+                                (input)="checkForValidation()" placeholder=" Branch " name='branch' [(ngModel)]="branch">
                         </div>
                         <div class="form-group col-md-6">
                             <label>MICR No</label>
                             <input type="text " class="form-control " placeholder=" MICR Number " name='micr'
                                 [(ngModel)]="micr">
                         </div>
-                        <div class="form-group col-md-6">
-                            <label for="bill_no">Registration Type</label>
-                            <ng-select name="taxtype" [items]="selectyCoustmoreRegistration" bindLabel="text"
-                                bindValue="id" placeholder="Select Regular" (change)="selectCoustmoreId($event)"
-                                [(ngModel)]="coustomerValue">
-                            </ng-select>
-
-
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label class="active">GSTIN Number</label>
-                            <input [attr.disabled]="disabledGSTfor_UnRegi?'':null" style="text-transform:uppercase"
-                                type="text" class="form-control" id="org_code" placeholder=" GSTIN No" name='gstin'
-                                [(ngModel)]="gstin" (input)="checkGSTNumber($event)"
-                                [ngClass]="{ 'errorSelecto': (submitClick && validGSTNumber)}">
-                        </div>
-                        <div class="form-group col-md-6">
+                     
+                        <div class="form-group col-md-4">
                             <label for="bill_no">Country</label>
                             <ng-select name="CountryName" [items]="countryList" bindLabel="text" bindValue="id"
                                 placeholder="Select Country" (change)="selectCountryListId($event)"
@@ -85,23 +70,39 @@
 
 
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-4">
                             <label for="bill_no">State</label>
                             <ng-select name="StateName" [items]="stateList" bindLabel="text" bindValue="id"
                                 placeholder="Select State" (change)="selectStatelist($event)" [(ngModel)]="stateValue">
                             </ng-select>
 
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-groupgst col-md-4">
                             <label for="bill_no">City</label>
                             <ng-select name="CityName" [items]="cityList" bindLabel="text" bindValue="id"
                                 placeholder="Select City" (change)="selectedCityId($event)" [(ngModel)]="cityValue">
                             </ng-select>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label class="">Address</label>
                             <textarea class="form-control" name='address' [(ngModel)]="address"></textarea>
                         </div>
+                        <div class="form-group col-md-6">
+                                <label for="bill_no">Registration Type</label>
+                                <ng-select name="taxtype" [items]="selectyCoustmoreRegistration" bindLabel="text"
+                                    bindValue="id" placeholder="Select Regular" (change)="selectCoustmoreId($event)"
+                                    [(ngModel)]="coustomerValue">
+                                </ng-select>
+    
+    
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="active">{{GstinNoValue}}</label>
+                                <input #GStRequireRef [attr.disabled]="disabledGSTfor_UnRegi?'':null" style="text-transform:uppercase"
+                                    type="text" class="form-control" id="org_code" placeholder="Number" name='gstin'
+                                    [(ngModel)]="gstin" (input)="checkGSTNumber($event)"
+                                    [ngClass]="{ 'errorSelecto': (submitClick && validGSTNumber) || invalidObj?.requiredGST }">
+                            </div>
                     </div>
                 </div>
                 <div class="modal-footer">

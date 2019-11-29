@@ -1,4 +1,4 @@
-<div class="modal fade" id="purchase_modal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
+<div class="modal fade" id="saleDirect_modal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
   data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog large_form modal-full-height modal-top" role="document">
     <div class="modal-content bgcH-grey-100">
@@ -84,7 +84,7 @@
               <a *ngIf="isBillNoManuall  && !editMode" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
                 <span class="tooltiptext">Last Bill No. used is - {{previousBillNo}}</span>
               </a>
-              <input type="text" placeholder="Bill Number" class="form-control" name="BillNo"
+              <input #billNumbeRef type="text" placeholder="Bill Number" class="form-control" name="BillNo"
                 [readonly]="!isBillNoManuall" [disabled]="editMode" (input)="checkForValidation()"
                 [ngClass]="{'errorSelecto': submitSave && invalidObj?.BillNo }" [(ngModel)]="BillNo">
               <!-- <p *ngIf="isBillNoManuall && previousBillNo && !editMode" id="previous-bill-container" >Previous BillNo. used is - {{previousBillNo}}</p> -->
@@ -107,7 +107,7 @@
                 <select2 #godown_select2 id="godown" [data]="godownsData" class="control_select"
                   (valueChanged)="onGodownSelect($event)" autocomplete="true"
                   [options]="{ placeholder: 'Select Godown' }"
-                  [ngClass]="{'errorSelecto': submitSave && invalidObj?.GodownId }" [value]="godownValue"></select2>
+                 [value]="godownValue"></select2>
               </div>
             </div>
             <div *ngIf="isCaseSaleFlag" class="form-group col-md-3">
@@ -159,9 +159,6 @@
               <input type="text" class="form-control" id="currency-rate" placeholder="Currency Rate"
                 class="form-control" appIncludeDeciaml name="currencyRate" [(ngModel)]="CurrencyRate">
             </div>
-
-
-
           </div>
           <div class="card p-2">
             <div class="form-row">
@@ -203,7 +200,7 @@
                 <thead>
                   <tr class="default_row table">
                     <th class="cust_width_80">#</th>
-                    <!-- <th>S.No.</th> -->
+                    <th class="cust_width_80" >S.No.</th>
                     <th [colSpan]="categories.length">Category <a (click)="opeCatImport()" class="info_tooltip"><i
                           class="fas fa-plus"></i></a></th>
                     <th>Item</th>
@@ -240,7 +237,7 @@
                     <td class="profile-pic1">
                       <div class="edit1">
                         <ng-container >
-                          <a *ngIf="Items.length > 0" (click)="deleteItem(i, 'items', item.Sno)"><i
+                          <a *ngIf="Items.length > 0" (click)="deleteItem(item,i, 'items', item.Sno)"><i
                               class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
                         </ng-container>
                         <ng-container *ngIf="item.isDisabled">
@@ -252,12 +249,11 @@
                           <a *ngIf="Items.length > 0" (click)="addItems()"><i class="fas fa-plus fa-1x"></i>
                           </a>
                         </ng-container>
+                       
                       </div>
-                      <div>
-                        {{item.SrNo}}
-                     </div>
+                     
                     </td>
-
+<td> {{item.SrNo}}</td>
                     <ng-container *ngIf="item.isDisabled">
                       <td [colSpan]="categories.length" class="align-middle">{{item.categoryName}}</td>
 
@@ -302,11 +298,16 @@
                          {{'/' +item.RemainQuantity }}
                       </span>
                     </td>
-                    <td *ngIf="!item.isDisabled" class="highLightRow">
-                      <input type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
-                        (input)="validateItem();calculate();"
+                    <td *ngIf="!item.isDisabled" class="highLightRow align-items-center d-flex">
+                      <input #quantityRef type="number" class="form-control" appIncludeDecimal placeholder="Quantity"
+                      (blur)='editCreateMobilepopup(item);'  (input)="validateItem();calculate();"
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Quantity }"
                         name="quantity" [(ngModel)]="Quantity">
+                        <span *ngIf='industryId===12'><a
+                           (click)="editCreateMobilepopup(item)" 
+                           class="info_tooltip"><i
+                          class="fas fa-plus"></i></a></span>
+                        
                     </td>
                     <td *ngIf="item.isDisabled" class="align-middle">{{item.unitName}}</td>
 
@@ -321,7 +322,7 @@
                     <ng-container *ngIf="industryId === 3">
                       <td *ngIf="item.isDisabled" class="alig-middle">{{(item.Length).toFixed(noOfDecimalPoint)}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
-                        <input type="text" class="form-control" placeholder="Length" appIncludeDecimal name="length"
+                        <input #lengthRef type="text" class="form-control" placeholder="Length" appIncludeDecimal name="length"
                           (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Length }"
                           [(ngModel)]="Length">
@@ -329,7 +330,7 @@
 
                       <td *ngIf="item.isDisabled" class="align-middle">{{(item.Width).toFixed(noOfDecimalPoint)}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
-                        <input type="text" class="form-control" placeholder="Width"
+                        <input #widthRef type="text" class="form-control" placeholder="Width"
                           (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Width }"
                           appIncludeDecimal name="Width" [(ngModel)]="Width">
@@ -337,7 +338,7 @@
 
                       <td *ngIf="item.isDisabled" class="align-middle">{{(item.Height).toFixed(noOfDecimalPoint)}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
-                        <input type="text" class="form-control" placeholder="Height"
+                        <input #heightRef type="text" class="form-control" placeholder="Height"
                           (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Height }"
                           appIncludeDecimal name="Height" [(ngModel)]="Height">
@@ -346,7 +347,7 @@
                     <ng-container *ngIf="industryId === 5">
                       <td *ngIf="item.isDisabled" class="align-middle">{{item.BatchNo}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
-                        <input type="text" class="form-control" placeholder="Batch No" (input)="validateItem();"
+                        <input #BatchNoRef type="text" class="form-control" placeholder="Batch No" (input)="validateItem();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.BatchNo }"
                           name="BatchNo" [(ngModel)]="BatchNo">
                       </td>
@@ -366,7 +367,7 @@
                     </ng-container>
                     <td *ngIf="item.isDisabled" class="align-middle">{{(item.SaleRate).toFixed(noOfDecimalPoint)}}</td>
                     <td *ngIf="!item.isDisabled" class="highLightRow">
-                      <input type="text" class="form-control" placeholder="Sale Rate" name="SaleRate"
+                      <input #SaleRateRef type="text" class="form-control" placeholder="Sale Rate" name="SaleRate"
                         (input)="validateItem();calculate()" appIncludeDecimal
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.SaleRate }"
                         [(ngModel)]="SaleRate">
@@ -438,6 +439,7 @@
                 </tbody>
                 <tfoot>
                   <tr *ngIf='showHideAddItemRow' class="selected_row active">
+                    <td></td>
                     <td>
                       <div class="action_btn">
                         <button type="submit" class="btn btn-primary redAlert btn_add_more"
@@ -471,11 +473,16 @@
                           [options]="{ placeholder: 'Select Attribute' }" [value]="attributeValue"></select2>
                       </div>
                     </td>
-                    <td>
-                      <input type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
-                        (input)="validateItem();calculate();"
+                    <td class="align-items-center d-flex">
+                      <input #quantityRef type="number" class="form-control" appIncludeDecimal placeholder="Quantity"
+                      (blur)='createMobilepopup(item);'  (input)="validateItem();calculate();"
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Quantity }"
                         name="quantity" [(ngModel)]="Quantity">
+                        <span *ngIf='industryId===12'>
+                            <a (click)="createMobilepopup()" class="info_tooltip"><i
+                              class="fas fa-plus"></i></a>
+                        </span>
+                        
                     </td>
                     <td>
                       <div class="input-group adw_select">
@@ -487,19 +494,19 @@
                     </td>
                     <ng-container *ngIf="industryId === 3">
                       <td>
-                        <input type="text" class="form-control" placeholder="Length" appIncludeDecimal name="length"
+                        <input #lengthRef type="text" class="form-control" placeholder="Length" appIncludeDecimal name="length"
                           (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Length }"
                           [(ngModel)]="Length">
                       </td>
                       <td>
-                        <input type="text" class="form-control" placeholder="Width"
+                        <input #widthRef type="text" class="form-control" placeholder="Width"
                           (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Width }"
                           appIncludeDecimal name="Width" [(ngModel)]="Width">
                       </td>
                       <td>
-                        <input type="text" class="form-control" placeholder="Height"
+                        <input #heightRef type="text" class="form-control" placeholder="Height"
                           (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Height }"
                           appIncludeDecimal name="Height" [(ngModel)]="Height">
@@ -507,7 +514,7 @@
                     </ng-container>
                     <ng-container *ngIf="industryId === 5">
                       <td>
-                        <input type="text" class="form-control" placeholder="Batch No" (input)="validateItem();"
+                        <input #BatchNoRef type="text" class="form-control" placeholder="Batch No" (input)="validateItem();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.BatchNo }"
                           name="BatchNo" [(ngModel)]="BatchNo">
                       </td>
@@ -522,7 +529,7 @@
                       </td>
                     </ng-container>
                     <td>
-                      <input type="text" class="form-control" placeholder="Sale Rate" name="SaleRate"
+                      <input #SaleRateRef type="text" class="form-control" placeholder="Sale Rate" name="SaleRate"
                         (input)="validateItem();calculate()" appIncludeDecimal
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.SaleRate }"
                         [(ngModel)]="SaleRate">
@@ -576,6 +583,7 @@
                     </td>
                   </tr>
                   <tr>
+                      <td></td>
                     <td *ngFor="let item of categories"></td>
                     <td *ngFor="let item of attributeKeys"></td>
                     <td colspan="3" *ngIf="industryId === 3"></td>
@@ -621,7 +629,7 @@
                         <td class="profile-pic1">
                           <div class="edit1">
                             <ng-container *ngIf="charge.isEditable">
-                                <a (click)="deleteItem(i, 'charge',true)" *ngIf="AdditionalCharges.length > 0">
+                                <a (click)="deleteItem(charge,i, 'charge',true)" *ngIf="AdditionalCharges.length > 0">
                                     <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
                                   </a>
                             </ng-container>
@@ -894,7 +902,7 @@
                           <td class="profile-pic1">
                             <div class="edit1">
                                 <ng-container *ngIf="transaction.isEditable">
-                                    <a (click)="deleteItem(i, 'trans', transaction.Sno)" *ngIf="PaymentDetail.length > 0">
+                                    <a (click)="deleteItem(transaction,i, 'trans', transaction.Sno)" *ngIf="PaymentDetail.length > 0">
                                         <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
                                       </a>
                                 </ng-container>
@@ -1037,7 +1045,7 @@
           type="button"
           class="btn waves-effect btn-default def-ault-btn"
           (click)="closeSale()"
-          data-dismiss="modal"
+         
         >
           Close
         </button>
@@ -1154,3 +1162,77 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="close_confirm1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      Are you sure want to close this page?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" (click)="yesConfirmationClose()">yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal right fade" id="sale_popupforMobile" role="dialog" data-backdrop="static" data-keyboard="false">
+    <form #formRef="ngForm">
+        <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
+            <div class="modal-content bgcH-grey-100">
+                <div class="modal-header close_popup">
+                    <h4 class="modal-title w-100 c-grey-900">{{SputilityIMEIData[0]?.Name}}</h4>
+                    <button type="button" class="close"  (click)='closeIMEI()' aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                  <span *ngIf='getListMobile.length===0'>
+                      {{messageTextIMEI}}
+                  </span>
+
+                    <div class="form-row" *ngFor="let item of getListMobile; let i=index">
+                        <div  class="form-group col-1 align-self-center">
+                          <div class="custom-control custom-checkbox">
+                            <input  [checked]="item.isChecked" (change)="checkedMobileId(item,$event);"  type="checkbox" class="custom-control-input" id="selectChallanForBill{{i}}" name="example1">
+                            <label class="custom-control-label" for="selectChallanForBill{{i}}"></label>
+                         </div>
+                        </div>
+                        <div  class="form-group col px-1">
+                             <input disabled='true' #propertRef (input)="getIMEIName($event);" type="text" class="form-control"
+                            name="FieldValue1{{i}}"  [(ngModel)]="item.FieldValue1">
+                        </div>
+                        <div class="form-group col px-1">
+                            <input disabled='true' #propertRef (input)="getIMEIName($event);" type="text" class="form-control"
+                            name="FieldValue2{{i}}" 
+                            [(ngModel)]="item.FieldValue2">
+                        </div>
+                        <div class="form-group col px-1">
+                            <input disabled='true' #propertRef (input)="getIMEIName($event);" type="text" class="form-control"
+                            name="FieldValue3{{i}}" 
+                            [(ngModel)]="item.FieldValue3">
+                        </div>
+                        <div class="form-group col px-1">
+                            <input disabled='true' #propertRef (input)="getIMEIName($event);" type="text" class="form-control"
+                            name="FieldValue4{{i}}"
+                             [(ngModel)]="item.FieldValue4">
+                        </div>
+                        <hr>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary waves-effect" (click)="closeIMEI()" type="button">
+                        Ok</button>
+
+                </div>
+            </div>
+        </div>
+    </form>
+</div> 

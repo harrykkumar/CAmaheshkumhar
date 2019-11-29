@@ -7,10 +7,10 @@
             <div class="peers ai-c fxw-nw">
               <div class="peer">
                 <div (click)="Homepage()" class="logo">
-                  <img src="assets/static/images/logo.png" alt="" />
+                  <img [src]="commonService.domainLogo" alt="" style="max-height: 50px !important;"/>
                 </div>
               </div>
-             
+
               <div class="peer peer-greed">
                 <h5 class="lh-1 mB-0 logo-text"></h5>
               </div>
@@ -41,10 +41,10 @@
               <img
               *ngIf="_loginService?.userData?.ImageContents && _loginService?.userData?.ImageContents[0]?.FilePath;else defaultImage"
               class="img-circle profile_img"
-             [src]="_loginService?.userData?.ImageContents[0] &&_loginService?.userData?.ImageContents[0]?.FilePath" 
+             [src]="_loginService?.userData?.ImageContents[0] &&_loginService?.userData?.ImageContents[0]?.FilePath"
 
             />
-  
+
             <ng-template #defaultImage>
                 <img  class="img-circle profile_img"
                 src="../../../assets/img/man.png"
@@ -66,7 +66,7 @@
           </div>
         </li>
         <li class="nav-item sidebar-dropdown" *ngFor="let menu of sideMenu">
-          <a href="javascript:void(0);" *ngIf="menu?.subMenu?.length > 0">
+          <a *ngIf="menu?.subMenu?.length > 0">
             <span class="icon-holder">
               <i class="{{ menu.icon }}"></i>
             </span>

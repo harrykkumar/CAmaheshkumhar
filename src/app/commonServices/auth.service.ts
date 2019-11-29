@@ -8,13 +8,12 @@ import { LoginService } from './login/login.services'
 import * as _ from 'lodash'
 import { Observable } from 'rxjs';
 import { NgxSpinnerService } from 'ngx-spinner';
-
-
 @Injectable({
   providedIn: 'root'
 })
 
 export class AuthService implements CanActivateChild, CanActivate {
+  // private changesSub = new Subject()
   constructor(
     private _validUser: TokenService,
     private _router: Router,
@@ -32,7 +31,7 @@ export class AuthService implements CanActivateChild, CanActivate {
 
 async  authenticate() {
     const token = this._validUser.getToken();
-    if (_.isEmpty(token)) {
+    if (!token) {
       this._loginService.logOut()
       return false;
     } else if (token) {
@@ -41,18 +40,19 @@ async  authenticate() {
         this._router.navigate(['organizations'])
         return false
       }
-      if (_.isEmpty(this._loginService.userData) || (!_.isEmpty(this._loginService.userData) && _.isEmpty(this._loginService.userData.Modules))) {
+      if (_.isEmpty(this._loginService.userData) || (!_.isEmpty(this._loginService.userData) &&
+        _.isEmpty(this._loginService.userData.Modules))) {
         this.spinnerService.show()
+        await this._loginService.getAllSettings(this._loginService.selectedUserModule.Id)
         await this._loginService.getUserDetails(organization.Id)
         this._loginService.selectedUserModule = JSON.parse(localStorage.getItem('SELECTED_MODULE'))
-        await this._loginService.getAllSettings(this._loginService.selectedUserModule.Id)
         this._loginService.loginUserDetails = JSON.parse(localStorage.getItem('LOGIN_USER'));
         this.spinnerService.hide()
       }
       const module = JSON.parse(localStorage.getItem('SELECTED_MODULE'))
       if (_.isEmpty(module)) {
         this._router.navigate(['modules']);
-        return false
+        return false;
       } else if (!_.isEmpty(module)) {
         return true;
       }

@@ -44,7 +44,7 @@ import { TaxProcessAddModule } from '../shared/transactionMaster/tax-process-add
   declarations: [
     SideMenuComponent,
     StartComponent,
-    CouponComponent, 
+    CouponComponent,
     DiscountComponent,
     LoyalityComponent,
     OfferComponent,
@@ -85,7 +85,7 @@ import { TaxProcessAddModule } from '../shared/transactionMaster/tax-process-add
     DiscountMasterAddModule,
     CategoryImportModule,
     ActiveInventoryTermAddModule,
-    TaxProcessAddModule
+    TaxProcessAddModule,
   ],
   bootstrap: []
 })

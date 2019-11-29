@@ -1,235 +1,269 @@
-import { Component, Input } from '@angular/core';
-import { UIConstant } from '../../../shared/constants/ui-constant';
-import * as _ from 'lodash';
-import { PackagingService } from '../packaging.service';
-import { ToastrCustomService } from '../../../commonServices/toastr.service';
-import { GlobalService } from '../../../commonServices/global.service';
-import { CommonService } from '../../../commonServices/commanmaster/common.services';
-import { Settings } from '../../../shared/constants/settings.constant';
-declare const $: any
-@Component({
-  selector: 'packaging-add',
-  templateUrl: './packaging-add.component.html'
-})
-export class PackagingAddComponent {
-  orderData: any
-  previousPacketItems: any = []
-  tempPacketItems: any = []
-  masterData: any = {}
-  editItemMode = false
-  clientDateFormat = ''
-  @Input() orderId: number
-  loading: boolean = true
-  constructor (private _ps: PackagingService,
-    private _ts: ToastrCustomService,
-    private _gs: GlobalService, private settings: Settings,
-    private _cs: CommonService) {
-      this.clientDateFormat = this.settings.dateFormat;
-    this._ps.combos$.subscribe((data: any) => {
-      if (data.data && data.data.length > 0) {
-        this.masterData['itemData'] = data.data
-        console.log('item data : ', this.masterData['itemData'])
-      }
-    })
-  }
+<div class="modal fade" id="packaging" tabindex="-1" role="dialog" aria-labelledby="material_reqirment"
+  aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <!--Header-->
+      <form #packagingForm="ngForm" (ngSubmit)="validateItems() && tempAdd()" #packingModelForm>
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-6 left_side_head">
+                <p class="heading_lead"><i class="fas fa-chart-line" aria-hidden="true"></i>Order Packing</p>
+              </div>
+              <div class="col-md-6">
+                <div class="btn_header">
+                  <button type="button" class="close" (click)="closeModal(packagingForm)" aria-label="Close">
+                    <span aria-hidden="true" class="white-text">×</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Body-->
+        <div *ngIf="loading" class="modal-content">
+          <div class="modal-body" style="height:inherit;">
+            <img src="assets/img/spinner-blue-circle.gif" alt="loading screen"
+              style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+          </div>
+        </div>
+        <div class="modal-body" *ngIf="!loading">
+          <div class="row">
+            <div class="col-md-8">
+              <div class="card p-2">
+                <div class="form-row ">
+                  <div class="form-group col-lg-3">
+                    <label>Buyer Name</label>
+                    <input type="text" readonly [(ngModel)]="masterData.BuyerName" name="BuyerName"
+                      class="form-control">
+                  </div>
+                  <div class="form-group col-lg-3">
+                    <label>Buyer Code</label>
+                    <input type="text" readonly [(ngModel)]="masterData.BuyerName" name="BuyerCode"
+                      class="form-control">
+                  </div>
+                  <div class="form-group col-lg-3">
+                    <label>StyleName</label>
+                    <input type="text" readonly [(ngModel)]="masterData.StyleName" name="StyleName"
+                      class="form-control">
+                  </div>
+                  <div class="form-group col-lg-3">
+                    <label>OrderDate</label>
+                    <input type="text" readonly [(ngModel)]="masterData.OrderDate" name="OrderDate"
+                      class="form-control">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-lg-2">
+                    <label>Packet</label>
+                    <input type="text" readonly [(ngModel)]="masterData.Code" name="packetCode" class="form-control">
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label>P.Code</label>
+                    <input type="text" readonly [(ngModel)]="masterData.Code" name="pCode" class="form-control">
+                  </div>
+                  <div class="form-group col-lg-2">
+                    <label class="fw-500">On Date</label>
+                    <datepicker-popup [toSetDate]="masterData?.CurrentDate"
+                      (dateInFormat)="masterData.Date = $event;showDate(masterData.Date)" [applyFinYear]="true" 
+                      [class]="{ errorSelecto:
+                      packagingForm?.submitted && !masterData.Date}">
+                    </datepicker-popup>
+                  </div>
+                  <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-primary waves-effect waves-light">Done</button>
+                  </div>
+                </div>
+              </div>
+              <div class="card mt-2 p-2">
+                <form></form>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>
+                          <div class="custom-control custom-checkbox" *ngIf=" masterData?.itemData?.length > 1">
+                            <input type="checkbox" class="custom-control-input" id="selectall" name="selectorunselect"
+                              [(ngModel)]="masterData.selectAll" (change)="toggleSelect(masterData.selectAll)" />
+                            <label class="custom-control-label" for="selectall"></label>
+                          </div>
+                        </th>
+                        <th style="width: 5%;">Sno.</th>
+                        <th>Item</th>
+                        <th *ngIf="masterData?.isAttr">Measurement Attribute</th>
+                        <th *ngIf="masterData?.isAttr">Attribute Combination</th>
+                        <th>Order Quantity</th>
+                        <th>Unpacked Quantity</th>
+                        <th>Qty To Pack</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <ng-container *ngIf="!editItemMode">
+                        <tr class="default_row attr-cont" *ngFor="let item of masterData?.itemData; let i = index">
+                          <td>
+                            <div class="custom-control custom-checkbox">
+                              <input name="checkOrder-{{ i }}" [(ngModel)]="item.checked"
+                                (keydown.enter)="item.checked = !item.checked" type="checkbox"
+                                class="custom-control-input" id="orderAttribute-{{ i }}" />
+                              <label class="custom-control-label" for="orderAttribute-{{ i }}"></label>
+                            </div>
+                          </td>
+                          <td>{{ item?.Sno }}</td>
+                          <td>{{ item?.itemName }}</td>
+                          <td *ngIf="masterData?.isAttr">{{ item?.defaultAttrName }}</td>
+                          <td *ngIf="masterData?.isAttr">{{ item?.attributeValueName }}</td>
+                          <td>{{ item?.OrderQty }}</td>
+                          <td>{{ item?.UnPackedQty }}</td>
+                          <td>
+                            <input type="number" class="form-control" name="packedQty-{{ i }}"
+                              [(ngModel)]="item.Quantity" limitqty [ngClass]="{errorSelecto:
+                                packagingForm?.submitted && tem.checked && !item.Quantity}"
+                              [maxNum]="item.UnPackedQty" />
+                          </td>
+                        </tr>
+                      </ng-container>
+                      <ng-container *ngIf="editItemMode">
+                        <tr class="default_row attr-cont" *ngFor="let item of masterData?.itemToEdit; let i = index">
+                          <td>
+                            <div class="custom-control custom-checkbox">
+                              <input name="checkOrder-{{ i }}" [(ngModel)]="item.checked"
+                                (keydown.enter)="item.checked = !item.checked" type="checkbox"
+                                class="custom-control-input" id="orderAttribute-{{ i }}" />
+                              <label class="custom-control-label" for="orderAttribute-{{ i }}"></label>
+                            </div>
+                          </td>
+                          <td>{{ item?.Sno }}</td>
+                          <td>{{ item?.itemName }}</td>
+                          <td *ngIf="masterData?.isAttr">{{ item?.defaultAttrName }}</td>
+                          <td *ngIf="masterData?.isAttr">{{ item?.attributeValueName }}</td>
+                          <td>{{ item?.OrderQty }}</td>
+                          <td>{{ item?.UnPackedQty }}</td>
+                          <td>
+                            <input type="number" class="form-control" name="packedQty-{{ i }}"
+                              [(ngModel)]="item.Quantity" limitqty [maxNum]="item.UnPackedQty" />
+                          </td>
+                        </tr>
+                      </ng-container>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <h6 style="text-align: center;" *ngIf="previousPacketItems && previousPacketItems.length > 0">Previous
+                Packets</h6>
+              <div class="bs-example">
+                <div class="accordion" id="accordionExample">
+                  <div class="card" *ngFor="let packet of previousPacketItems; let i = index;">
+                    <div class="card-header d-flex align-items-center" id="headingOne">
+                      <div class="col-md-2">{{i+1}}</div>
+                      <div class="col-md-4">
+                        <button type="button" class="btn_collaspe collapsed" attr.data-target="#collapse{{packet.code}}"
+                          data-toggle="collapse">{{packet?.code}}</button>
+                      </div>
+                      <div class="col-md-3">{{packet?.count}}</div>
+                      <div class="col-md-1"></div>
+                      <div class="col-md-2 accordion-head">
+                        <button type="button" class="btn_collaspe collapsed" attr.data-target="#collapse{{packet.code}}"
+                          data-toggle="collapse"><i class="fa fa-angle-down" aria-hidden="true"></i></button></div>
+                    </div>
+                    <div id="collapse{{packet.code}}" class="collapse" aria-labelledby="headingOne"
+                      data-parent="#accordionExample">
+                      <div class="card-body p-2">
+                        <div class="table-responsive table-item-attribute">
+                          <table class="table new-packets table-hover">
+                            <thead>
+                              <tr>
+                                <th>S.NO.</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let item of packet.packets; let i = index">
+                                <td>{{i + 1}}</td>
+                                <td>{{item.Name}}</td>
+                                <td>{{item.Quantity}}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <br>
+              <h6 style="text-align: center;" *ngIf="masterData?.packets?.length > 0">Order Packets</h6>
+              <div class="bs-example">
+                <div class="accordion" id="accordionExample">
+                  <div class="card" *ngFor="let packet of masterData?.packets; let i = index;">
+                    <div class="card-header d-flex align-items-center" id="headingOne">
+                      <div class="col-md-2">{{i+1}}</div>
+                      <div class="col-md-4">
+                        <button type="button" class="btn_collaspe collapsed" attr.data-target="#collapse{{packet.code}}"
+                          data-toggle="collapse">{{packet?.code}}</button>
+                      </div>
+                      <div class="col-md-2">{{packet?.count}}</div>
+                      <div class="col-md-3">
+                        <a (click)="editItem(packet.packets, i)">
+                          <i class="fas fa-pen fa-1x"></i>
+                        </a>
+                        <a (click)="deleteItem(packet.packets, i)">
+                          <i class="fas fa-trash fa-1x"></i>
+                        </a>
+                      </div>
+                      <div class="col-md-1 accordion-head">
+                        <button type="button" class="btn_collaspe collapsed" attr.data-target="#collapse{{packet.code}}"
+                          data-toggle="collapse"><i class="fa fa-angle-down" aria-hidden="true"></i></button></div>
+                    </div>
+                    <div id="collapse{{packet.code}}" class="collapse" aria-labelledby="headingOne"
+                      data-parent="#accordionExample">
+                      <div class="card-body p-2">
+                        <div class="table-responsive table-item-attribute">
+                          <table class="table new-packets table-hover">
+                            <thead>
+                              <tr>
+                                <th>S.NO.</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let item of packet.packets; let i = index">
+                                <td>{{i + 1}}</td>
+                                <td>{{item.itemName}}({{ item?.defaultAttrName }}, {{ item?.attributeValueName }})</td>
+                                <td>{{item.Quantity}}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer footer-fixed footer_modal_form">
+          <button type="submit" class="btn waves-effect btn-succ-ess" (click)="postData()">
+            Save <i class="fa fa-spinner fa-spin" *ngIf="disableBtnSubmit"></i>
+          </button>
+          <button type="button" class="btn waves-effect btn-default close-btn" (click)="closeModal(packagingForm)">
+            Close
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
-  getOrderData () {
-    this._ps.getItemList(this.orderId).subscribe(
-      (data) => {
-        if (!_.isEmpty(data)) {
-          this.orderData = data
-          this.loading = false
-          console.log('packing order : ', this.orderData)
-          this.setData(this.orderData)
-        }
-      },
-      (error) => {
-        console.log(error)
-        this.loading = false
-        this._ts.showErrorLong(error, '')
-      }
-    )
-  }
-
-  openModal() {
-    $('#packaging').modal(UIConstant.MODEL_SHOW)
-  }
-
-  setData (data) {
-    if (!_.isEmpty(data)) {
-      this.masterData['isAttr'] = (data.ItemAttributesTransSnos.length > 0) ? true : false
-      if (data.BuyerOrderDetails.length > 0) {
-        this.masterData['OrderDate'] = data.BuyerOrderDetails[0].OrderDate
-        this.masterData['BuyerName'] = data.BuyerOrderDetails[0].BuyerName
-        this.masterData['StyleName'] = data.BuyerOrderDetails[0].StyleName
-        this.masterData['BuyerCode'] = data.BuyerOrderDetails[0].BuyerCode
-      }
-      if (data.BuyerOrderTransInfos.length > 0) {
-        this.masterData['Code'] = data.BuyerOrderTransInfos[0].Code
-      }
-      if (data.OrderPacketDetails.length > 0) {
-        this.previousPacketItems = data.OrderPacketDetails
-        this._cs.fixTableHF('previous-packets')
-      }
-      if (data.BuyerOrderPacketDetails.length > 0 && data.ItemAttributesTransSnos && data.BuyerOrderDetails.length > 0) {
-        this._ps.getItemCombos(data.ItemAttributesTransSnos, data.BuyerOrderPacketDetails, data.BuyerOrderDetails[0].Id)
-      }
-    }
-  }
-
-  validateItems () {
-    if (!this.editItemMode) {
-      let isValid = 1
-      _.forEach(this.masterData['itemData'], (element) => {
-        if (element.checked && +element.Quantity === 0) {
-          isValid = 0
-        }
-      })
-      return !!isValid
-    } else {
-      return (this.masterData['itemToEdit']['Quantity'] > 0) ? true : false
-    }
-  }
-
-  tempAdd () {
-    if (this.validateItems()) {
-      if (!this.editItemMode) {
-        let sno = 0
-        let index = 0
-        this.masterData['itemToPack'] = this.masterData['itemToPack'] || []
-        if (this.masterData['itemToPack'].length === 0) {
-          sno = 1
-          index = 1
-        } else {
-          sno = this.masterData['itemToPack'][this.masterData['itemToPack'].length - 1].ItemTransId + 1
-          index = this.masterData['itemToPack'][this.masterData['itemToPack'].length - 1].Sno + 1
-        }
-        _.forEach(this.masterData['itemData'], (element) => {
-          if (element.checked) {
-            element.Code = this.masterData['Code'],
-            element.ItemTransId = sno
-            element.UnPackedQty = +element.UnPackedQty - +element.Quantity
-            element.checked = false
-            element.Sno = index
-            element['Date'] = this._gs.clientToSqlDateFormat(this._gs.getDefaultDate(this.clientDateFormat), this.clientDateFormat)
-            this.masterData['itemToPack'].push(JSON.parse(JSON.stringify(element)))
-            element.Quantity = 0
-            index++
-          }
-        })
-        this.masterData['packets'] = this._ps.createPackets(this.masterData['itemToPack'])
-        this._cs.fixTableHF('new-packets')
-        console.log('itemtopack: ', this.masterData['itemToPack'])
-        this.refreshSnos()
-        this.getPCode()
-      } else {
-        //  && element.Code === this.masterData['itemToEdit']['Code']
-        _.forEach(this.masterData['itemData'], (element) => {
-          console.log(element.BOTransId, this.masterData['itemToEdit']['BOTransId'])
-          if (element.BOTransId === this.masterData['itemToEdit']['BOTransId']) {
-            element.UnPackedQty = +this.masterData['itemToEdit'].UnPackedQty - +this.masterData['itemToEdit'].Quantity
-            console.log(element.UnPackedQty)
-          }
-        })
-        this.editItemMode = false
-        this.masterData['itemToEdit'] = null
-      }
-      this.updateUnpackedQty()
-    }
-  }
-
-  createPackets () {
-    
-  }
-
-  refreshSnos () {
-    _.forEach(this.masterData['itemData'], (element, index) => {
-      element.Sno = index + 1
-    })
-  }
-
-  updateUnpackedQty () {
-    _.forEach(this.masterData['itemToPack'], (element) => {
-      _.forEach(this.masterData['itemData'], (item) => {
-        if (element.BOTransId === item.BOTransId) {
-          element.UnPackedQty = item.UnPackedQty
-        }
-      })
-    })
-  }
-
-  deleteItem (item) {
-    for (let i = 0; i < this.masterData['itemData'].length; i++) {
-      const element = this.masterData['itemData'][i];
-      if (element.BOTransId === item['BOTransId']) {
-        element.UnPackedQty = +element.UnPackedQty + +item.Quantity
-        break;
-      }
-    }
-    for (let i = 0; i < this.masterData['itemToPack'].length; i++) {
-      const element = this.masterData['itemToPack'][i];
-      if (element.BOTransId === item['BOTransId'] && element.Code === item['Code']) {
-        // element.UnPackedQty =+ element.UnPackedQty + +element.Quantity
-        this.masterData['itemToPack'].splice(i, 1)
-        break;
-      }
-    }
-    this.updateUnpackedQty()
-  }
-
-  getPCode () {
-    this._ps.getPCode().subscribe(
-      (data) => {
-        console.log(data)
-        if (data) {
-          this.masterData['Code'] = data
-        }
-      },
-      (error) => {
-        this._ts.showError(error, '')
-      }
-    )
-  }
-
-  editItem (item) {
-    this.editItemMode = true
-    this.masterData['itemToEdit'] = item
-    this.masterData['itemToEdit']['UnPackedQty'] = +this.masterData['itemToEdit']['UnPackedQty'] + +this.masterData['itemToEdit']['Quantity']
-    console.log(this.masterData['itemToEdit'])
-  }
-
-  preparePayload () {
-    let obj = {
-      OrderPacketDetails: this.masterData['itemToPack']
-    }
-    console.log(JSON.stringify(obj))
-    return obj
-  }
-
-  postData () {
-    this._ps.postData(this.preparePayload()).subscribe(
-      (data) => {
-        console.log('post : ', data)
-        this._ts.showSuccess('Successfully added package', '')
-        this.closeModal()
-      },
-      (error) => {
-        console.log(error)
-        this._ts.showError(error, '')
-      }
-    )
-  }
-
-  closeModal() {
-    this.resetForm()
-    $('#packaging').modal(UIConstant.MODEL_HIDE)
-  }
-
-  resetForm () {
-    this.orderData = []
-    this.previousPacketItems = []
-    this.masterData = {}
-    this.editItemMode = false
-    this.loading = true
-  }
-}
+<!-- <td>
+    <a (click)="editItem(item)">
+    <i class="fas fa-pen fa-1x"></i>
+    </a>
+    <a (click)="deleteItem(item)">
+    <i class="fas fa-trash fa-1x"></i>
+    </a>
+  </td> -->

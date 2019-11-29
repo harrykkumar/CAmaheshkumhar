@@ -16,8 +16,8 @@
                 </a>
                 <a *ngIf="!isAddNew" class="btn btn-info waves-effect" (click)="addVendor('new')">Save
                   with add New</a>
-                <button type="button" (click)="crossButton()" class="close" data-dismiss="modal"
-                  aria-label="Close"><span aria-hidden="true" class="white-text">×</span> </button>
+                <button type="button" (click)="crossButton()" class="close" 
+                  ><span aria-hidden="true" class="white-text">×</span> </button>
               </div>
             </div>
           </div>
@@ -29,9 +29,7 @@
             <li class="nav-item" (click)="vendorTab()">
               <a class="nav-link waves-light active" data-toggle="tab" href="#vendor1" role="tab">Vendor Detail</a>
             </li>
-            <li class="nav-item" (click)="adressTab()">
-              <a class="nav-link waves-light " data-toggle="tab" href="#vendor2" role="tab">Address</a>
-            </li>
+           
             <li class="nav-item" (click)="bankeDetailTab()">
               <a class="nav-link waves-light " data-toggle="tab" href="#vendor3" role="tab">Bank Detail</a>
             </li>
@@ -42,21 +40,21 @@
               <div class="card">
                 <div class="card-body">
                   <div class="form-row">
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-2">
                       <label>Vendor Name</label>
                       <input #ledgerName autofocus (input)="reapeatName($event.target.value);checkValidationName()" type="text"
                         id="vendorName" name='vendorName' class="form-control " placeholder="Enter Vendor Name"
                         [(ngModel)]="vendorName" 
                         [ngClass]="{ 'errorSelecto': submitClick && customerError }">
                     </div>
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-2">
                       <label>Contact Person</label>
                       <input  type="text" class="form-control" placeholder="Enter Contact Person" 
                       name='contactPerson'
                       [(ngModel)]="contactPerson" 
                         >
                     </div>
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-2">
                       <label for="bill_no">Registration Type</label>
                       <div class="input-group adw_select">
                         <div id="vendrRegType" class="input-group adw_select">
@@ -67,7 +65,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-2">
                       <label class="fw-500">DOA</label>
                       <datepicker-popup 
                       
@@ -78,7 +76,7 @@
 
 
                     </div>
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-2">
                       <label class="fw-500">DOB</label>
 
                       <datepicker-popup 
@@ -89,17 +87,17 @@
 
                     </div>
 
-                    <div class="form-group col-md-3">
-                      <label>GSTIN No</label>
-                      <input [attr.disabled]="disabledGSTfor_UnRegi?'':null" (input)="checkGSTNumber($event)"
+                    <div class="form-group col-md-2">
+                      <label>{{GstinNoValue}}</label>
+                      <input #gstRef [attr.disabled]="disabledGSTfor_UnRegi?'':null" (input)="checkGSTNumber($event)"
                         style="text-transform:uppercase" type="text"
-                         class="form-control" placeholder="Enter GSTIN No"  name='gstNo' [(ngModel)]="gstNo"
+                         class="form-control" placeholder="value"  name='gstNo' [(ngModel)]="gstNo"
                         [ngClass]="{ 'errorSelecto': validGSTNumber }">
                     </div>
                     <div class="form-group col-md-3">
-                      <label>PAN No</label>
-                      <input (input)="onInputCheckPANNumber($event)" style="text-transform:uppercase" id="panno"
-                        type="text" class="form-control" placeholder=" PAN No."  name='PAN' [(ngModel)]="panNo"
+                      <label>{{PanNoValue}}</label>
+                      <input #panRef (input)="onInputCheckPANNumber($event)" style="text-transform:uppercase" id="panno"
+                        type="text" class="form-control" placeholder="value"  name='PAN' [(ngModel)]="panNo"
                         [ngClass]="{ 'errorSelecto': validPANFlag }">
                     </div>
                     <div class="form-group col-md-3">
@@ -191,19 +189,10 @@
                                       [(ngModel)]="countryCodeFlag">
                                     </ng-select>
                                     </div>
-                                <!-- <div class="mobile_code ">
-                                  <select2 #phoneCode_select2 
-                                  [data]="countryListWithCode"
-                                    style="width:120px !important;"
-                                     class="control_select " 
-                                     (valueChanged)="onCountryCodeSelectionChange( $event )" 
-                                     autocomplete="true">
-                                  </select2>
-
-                                </div> -->
+                               
                               </td>
                               <td width="50%">
-                                <input (keydown.enter)="pressEnterMobileAdd($event)" name='mobileNo'
+                                <input #mobileRef (keydown.enter)="pressEnterMobileAdd($event)" name='mobileNo'
                                 [(ngModel)]="mobileNo"
                                   (keyup)="checkNumberByCountry($event)"
                                   [ngClass]="{ 'errorSelecto': validMobileFlag  }" type="number"
@@ -256,7 +245,7 @@
                                   autocomplete="true">
                                 </select2>
                               <td>
-                                <input (keydown.enter)="pressEnterEmailadd($event)" type="email" class="form-control"
+                                <input #emailRef (keydown.enter)="pressEnterEmailadd($event)" type="email" class="form-control"
                                 [(ngModel)]='EmailAddress' name='EmailAddress'
                                   [ngClass]="{ 'errorSelecto': !getEmailvalid  }"></td>
                               </tr>
@@ -265,6 +254,100 @@
                       </div>
                     </div>
                   </div>
+                  <div>
+                      <ul class="nav tabs-cyan" role="tablist">
+                          <li class="nav-item" >
+                            <a class="nav-link waves-light active " role="tab">Address</a>
+                          </li>
+                        </ul>
+                      <form #adressForm2="ngForm">
+                        <div>
+                          <div class="card">
+                            <div class="card-body">
+                              <div class="form row">
+                                <div class="form-group col-md-3">
+                                  <label for="bill_no">Country</label>
+                                  <ng-select   #country_selecto  [disabled]='disabledStateCountry' 
+                                   name="CountryName" [items]="countryList"
+                                  bindLabel="text" bindValue="id" placeholder="Select Country"
+                                  (change)="selectCountryListId($event)" [(ngModel)]="countryValue"
+                                  [ngClass]="{ 'errorSelecto': addressClick && countryError  }">
+                                  </ng-select>
+                                </div>
+                                <div class="form-group col-md-3">
+                                  <label for="bill_no">State</label>
+                                  <ng-select  name="StateName" [items]="stateList" bindLabel="text"
+                                  bindValue="id" placeholder="Select State" (change)="selectStatelist($event)"
+                                  [(ngModel)]="stateValue">
+                              </ng-select>
+                                </div>
+                                <div class="form-group col-md-3">
+                                  <label for="bill_no">City</label>
+                                  <ng-select #city_select2 name="CityName" [items]="cityList" bindLabel="text"
+                                  bindValue="id" placeholder="Select City" (change)="selectedCityId($event)"
+                                  [(ngModel)]="cityValue">
+                              </ng-select>
+                                </div>
+                                <div class="form-group col-md-3">
+                                  <label for="bill_no">Area</label>
+                                  <ng-select #city_select2 name="AreaName" [items]="areaList" bindLabel="text"
+                                  bindValue="id" placeholder="Select Area" (change)="selectedArea($event)"
+                                  [(ngModel)]="areNameId">
+                              </ng-select>
+                                </div>
+                                <div class="form-group col-md-3">
+                                  <label>Address Type</label>
+                                  <div class="input-group ">
+                                    <select2 [data]="addressType" class="control_select" autocomplete="true"
+                                      (valueChanged)="selectedAddressTypeId($event)" [value]="addrssValueType"
+                                      [options]="addressTypePlaceHolder"
+                                      [ngClass]="{ 'errorSelecto':  addressError  }"></select2>
+                                  </div>
+                                </div>
+                                <div class="form-group col-md-3">
+                                  <label>Post Code</label>
+                                  <input class="form-control" placeholder="Post Code" name='postcode' [(ngModel)]="postcode">
+                                </div>
+                                <div class="form-group col-md-6">
+                                  <label>Address</label>
+                                  <textarea style="width: 100%" class="form-control" placeholder="Enter Address"
+                                  [(ngModel)]="adressvalue" name='adressvalue' 
+                                    [ngClass]="{ 'errorSelecto': addressClick }"></textarea>
+                                </div>
+                              </div>
+                              <div class="row align-items-center mt-3">
+                                <div class="profile-pic col-md-3" *ngFor="let item of collectionOfAddress let i = index">
+                                  <div class="card addredd_book p-3">
+                                    <h5>{{item.AddressTypeName}}</h5>
+                                    <p><span>Post Code : </span><span> {{item.PostCode}}</span></p>
+                                    <p><span>Address : </span><span> {{item.AddressValue}}</span></p>
+                                    <p><span>Area : </span><span> {{item.AreaName}}</span></p>
+                                    <p><span>City : </span><span>{{item.CityName}}</span></p>
+                                    <p><span>State: </span><span>{{item.Statename}} </span></p>
+                                    <p><span>Country : </span><span>{{item.CountryName}}</span></p>
+                                    <div class="edit">
+                                      <a><i (click)="getEditAddress(item ,i)" class="far fa-edit"></i>
+                                      </a>
+                                      <a>
+                                        <i (click)="removeAdressIndexArray(i)" class="fas fa-times"></i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>
+                                <button class="col-md-3 addAddress_btn" (click)="addNewAdress()">
+                                  <div class=" addredd_book p-3">
+                                    <a class="add_btn pt-4">
+                                      <i class="fas fa-plus-circle"></i></a>
+                                    <h6>ADD ADDRESS </h6>
+                                  </div>
+                                </button>
+                                <div class="col-md-3"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
                 </div>
               </div>
             </div>
@@ -333,95 +416,7 @@
                 </div>
               </form>
             </div>
-            <div class="tab-pane fade" id="vendor2" role="tabpanel">
-              <form #adressForm2="ngForm">
-                <div>
-                  <div class="card">
-                    <div class="card-body">
-                      <div class="form row">
-                        <div class="form-group col-md-3">
-                          <label for="bill_no">Country</label>
-                          <ng-select   #country_selecto  [disabled]='disabledStateCountry' 
-                           name="CountryName" [items]="countryList"
-                          bindLabel="text" bindValue="id" placeholder="Select Country"
-                          (change)="selectCountryListId($event)" [(ngModel)]="countryValue"
-                          [ngClass]="{ 'errorSelecto': addressClick && countryError  }">
-                          </ng-select>
-                        </div>
-                        <div class="form-group col-md-3">
-                          <label for="bill_no">State</label>
-                          <ng-select  name="StateName" [items]="stateList" bindLabel="text"
-                          bindValue="id" placeholder="Select State" (change)="selectStatelist($event)"
-                          [(ngModel)]="stateValue">
-                      </ng-select>
-                        </div>
-                        <div class="form-group col-md-3">
-                          <label for="bill_no">City</label>
-                          <ng-select #city_select2 name="CityName" [items]="cityList" bindLabel="text"
-                          bindValue="id" placeholder="Select City" (change)="selectedCityId($event)"
-                          [(ngModel)]="cityValue">
-                      </ng-select>
-                        </div>
-                        <div class="form-group col-md-3">
-                          <label for="bill_no">Area</label>
-                          <ng-select #city_select2 name="AreaName" [items]="areaList" bindLabel="text"
-                          bindValue="id" placeholder="Select Area" (change)="selectedArea($event)"
-                          [(ngModel)]="areNameId">
-                      </ng-select>
-                        </div>
-                        <div class="form-group col-md-3">
-                          <label>Address Type</label>
-                          <div class="input-group ">
-                            <select2 [data]="addressType" class="control_select" autocomplete="true"
-                              (valueChanged)="selectedAddressTypeId($event)" [value]="addrssValueType"
-                              [options]="addressTypePlaceHolder"
-                              [ngClass]="{ 'errorSelecto':  addressError  }"></select2>
-                          </div>
-                        </div>
-                        <div class="form-group col-md-3">
-                          <label>Post Code</label>
-                          <input class="form-control" placeholder="Post Code" name='postcode' [(ngModel)]="postcode">
-                        </div>
-                        <div class="form-group col-md-6">
-                          <label>Address</label>
-                          <textarea style="width: 100%" class="form-control" placeholder="Enter Address"
-                          [(ngModel)]="adressvalue" name='adressvalue' 
-                            [ngClass]="{ 'errorSelecto': addressClick }"></textarea>
-                        </div>
-                      </div>
-                      <div class="row align-items-center mt-3">
-                        <div class="profile-pic col-md-3" *ngFor="let item of collectionOfAddress let i = index">
-                          <div class="card addredd_book p-3">
-                            <h5>{{item.AddressTypeName}}</h5>
-                            <p><span>Post Code : </span><span> {{item.PostCode}}</span></p>
-                            <p><span>Address : </span><span> {{item.AddressValue}}</span></p>
-                            <p><span>Area : </span><span> {{item.AreaName}}</span></p>
-                            <p><span>City : </span><span>{{item.CityName}}</span></p>
-                            <p><span>State: </span><span>{{item.Statename}} </span></p>
-                            <p><span>Country : </span><span>{{item.CountryName}}</span></p>
-                            <div class="edit">
-                              <a><i (click)="getEditAddress(item ,i)" class="far fa-edit"></i>
-                              </a>
-                              <a>
-                                <i (click)="removeAdressIndexArray(i)" class="fas fa-times"></i>
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                        <button class="col-md-3 addAddress_btn" (click)="addNewAdress()">
-                          <div class=" addredd_book p-3">
-                            <a class="add_btn pt-4">
-                              <i class="fas fa-plus-circle"></i></a>
-                            <h6>ADD ADDRESS </h6>
-                          </div>
-                        </button>
-                        <div class="col-md-3"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
+         
           </div>
 
         </div>
@@ -478,3 +473,25 @@
   #addNewCityRef
   (addCityClosed)="addCityClosed($event)"
 ></app-add-new-city>
+
+<div class="modal fade" id="close_confirm_vendor" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <h6> Are you sure want to close this page?</h6>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" (click)="yesConfirmationClose()">yes</button>
+      </div>
+    </div>
+  </div>
+</div>

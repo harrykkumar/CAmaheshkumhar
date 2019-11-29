@@ -13,7 +13,6 @@
               <form>
                 <div class="form-row">
                   <div class="col-md-6">
-                    <!-- <label>Ledger</label> -->
                     <div class="input-group ">
                       <select2 #setWise [data]="ledgerItemList" class="control_select" autocomplete="true"
                         (valueChanged)="onLedgerItemChange($event)" [value]="model.ledgerItemId">
@@ -93,14 +92,12 @@
                   <th>{{selectedType}}</th>
                   <th *ngFor='let heder of HeadingLedger; let i=index' class="text-right position_relative">{{heder.name}} </th>
                   <th class="text-right" width="15%">Total</th>
-
                 </tr>
-               
               </thead>
               <tbody>
                 <tr class="select_wise" *ngFor="let item of MonthlyData; let j=index" (click)="getNextData(item);" >
 
-                  <td class="select_wise">   {{ item.month}}   </td>
+                  <td class="select_wise">   {{ item.month}}</td>
                   <ng-container *ngFor="let val of HeadingLedger; let k=index">
                     <td class="text-right">
                       <ng-container>
@@ -115,7 +112,6 @@
                     </ng-container>
                 </tr>
                 <tr *ngIf='getValueFalg' class="text-center">
-                    <!-- <td class="recordNotFound" colspan="12"> No record Found</td> -->
                     </tr>
               </tbody>
               <tfoot>

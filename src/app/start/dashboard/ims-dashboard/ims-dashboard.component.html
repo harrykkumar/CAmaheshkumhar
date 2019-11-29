@@ -54,9 +54,10 @@
                         <table class="table-borderless table ">
                           <tbody>
                             
-                            <tr *ngFor ="let Debtors of Debitors"> 
+                            <tr *ngFor ="let Debtors of Debitors" (click)="onLedgerStatement(Debtors)"> 
                               <td>{{Debtors.Name}}</td>
-                              <td class="text-right">{{Debtors.Amount.toFixed(noOfDecimal)}}</td>
+                              
+                              <td (click)="ledgerStatement(Debtors.LedgerId)" class="text-right">{{Debtors.Amount.toFixed(noOfDecimal)}}</td>
                             </tr> 
                           </tbody>
                         </table>
@@ -76,9 +77,9 @@
                         Top 5 Creditors
                       </div>
                       <div class="card-body p-0 height_fix_card">
-                        <table class="table-borderless table ">
+                        <table class="table-borderless table">
                           <tbody>
-                            <tr *ngFor ="let Creators of Creditor"> 
+                            <tr *ngFor ="let Creators of Creditor" (click)="onLedgerStatement(Creators)">  
                               <td>{{Creators.Name}}</td>
                               <td class="text-right">{{(Creators.Amount).toFixed(noOfDecimal)}}</td>
                             </tr> 
@@ -113,7 +114,8 @@
                       </div>
                       <div class="card-footer">
                         <a
-                          href="JavaScript:void(0)"
+                         
+                          [routerLink]="[ '/ims/report/item-inventory']"
                           class="text-right more_detail"
                           >More</a
                         >
@@ -196,7 +198,7 @@
                       <div class="card-body p-0">
                         <table class="table-borderless table">
                           <tbody>
-                            <tr>
+                            <tr (click)="gstrReport()"  >
                               <td>GST</td>
                               <td class="text-right">{{CashStatutory && (CashStatutory[0]?.GSTAmount).toFixed(noOfDecimal)}}</td>
                             </tr>
@@ -237,7 +239,9 @@
                         </table>
                       </div>
                       <div class="card-footer">
-                        <a href="JavaScript:void(0)" class="text-right more_detail"
+                        <a 
+                        [routerLink]="[ '/ims/report/cashbook']"
+                         class="text-right more_detail"
                           >More</a
                         >
                       </div>
@@ -256,20 +260,6 @@
                       </span>
                       <canvas #FincialPNL></canvas>
                   </div>
-                  <!-- <div class="">
-                    
-                  <canvas *ngIf='fincialdata.length > 0' id="canvas" baseChart  height="200"
-                  [datasets]="finacialchartData"
-                  [labels]="finacialLabels"
-                  [options]="finacialchartData"
-                  [colors]="lineChartColors"
-                  [legend]="lineChartLegend"
-                  [chartType]="lineChartType"
-                  [plugins]="lineChartPlugins"
-                  (chartHover)="chartHovered($event)"
-                  (chartClick)="chartClicked($event)"></canvas>
-                  </div> -->
-      
               </div>
               <div class="widget-flat card bdr-card-4">
                 <div class="card-header">
@@ -280,13 +270,6 @@
                         <img src="assets/img/loader.gif" alt="loading screen" style="width: 70px;height: 70px;position: absolute;left: 40%;top:46%;" />
                     </span>
                     <canvas #cashFlowId></canvas>
-                          <!-- <canvas   baseChart
-                  [datasets]="cashflowchartData"
-                  [labels]="ChartflowLabelData"
-                  [options]="barChartOptions"
-                  [legend]="barChartLegend"
-                  [chartType]="barChartType">
-                </canvas> -->
                 </div>
             </div>
               </div>

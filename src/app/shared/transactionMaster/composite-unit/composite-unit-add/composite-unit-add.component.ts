@@ -17,7 +17,6 @@ declare const $: any
   styleUrls: ['./composite-unit-add.component.css']
 })
 export class CompositeUnitAddComponent implements OnDestroy {
-
   modalSub: Subscription
   unitModalSub: Subscription
   id: any
@@ -65,8 +64,6 @@ export class CompositeUnitAddComponent implements OnDestroy {
     this.unitModalSub = this.commonService.getUnitStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
-          console.log('primary unit : ', this.primaryUnitId)
-          console.log('secondary unit : ', this.secondaryUnitId)
           if (+this.primaryUnitId === -1) {
             let newData1 = Object.assign([], this.selectMainUnit)
             newData1.push({ id: +data.id, text: data.name })
@@ -116,6 +113,7 @@ export class CompositeUnitAddComponent implements OnDestroy {
 
   openModal () {
     this.submitClick = false
+    this.checkForValidation()
     if (this.packedInSelect2) {
       this.packedInSelect2.setElementValue('')
     }
@@ -164,8 +162,8 @@ export class CompositeUnitAddComponent implements OnDestroy {
   }
   onSaveComposite () {
     this.submitClick = true
-    this.select2Validation()
-    if (this.compositeForm.valid && this.secondaryUnitId > 0 && this.primaryUnitId > 0) {
+    this.dynamicFocus()
+    if (this.checkForValidation() && this.compositeForm.valid && this.secondaryUnitId > 0 && this.primaryUnitId > 0) {
       if ((+this.secondaryUnitId !== +this.primaryUnitId)) {
         this._compositeUnitserivices.addSubUnitId(this.subUnitParams()).subscribe(data => {
           if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -205,21 +203,76 @@ export class CompositeUnitAddComponent implements OnDestroy {
     return subUnitElement.subUnitObj
   }
 
-  select2Validation () {
+  validObj: any = {}
+  @ViewChild('UnitQtyRef') UnitQtyRef :ElementRef
+  dynamicFocus() {
     if (+this.primaryUnitId > 0) {
-      this.primearyIdError = false
+      this.validObj['primaryUnitId'] = false
     } else {
-      this.primearyIdError = true
-      this.errorMassage = ErrorConstant.REQUIRED
+      this.validObj['primaryUnitId'] = true
+    this.packedInSelect2.selector.nativeElement.focus({ preventScroll: false })    
     }
     if (+this.secondaryUnitId > 0) {
-      this.secondaryUnitIdError = false
-    } else {
-      this.secondaryUnitIdError = true
-      this.errorMassage = ErrorConstant.REQUIRED
+      this.validObj['secondaryUnitId'] = false
+    } else if(!this.validObj.primaryUnitId) {
+      this.validObj['secondaryUnitId'] = true
+    this.mainUnitSelect2.selector.nativeElement.focus({ preventScroll: false })    
     }
+    if (this.compositeForm.value.UnitQty!=='') {
+      this.validObj['UnitQty'] = false
+    } else if(!this.validObj.secondaryUnitId && !this.validObj.primaryUnitId) {
+      this.validObj['UnitQty'] = true
+    this.UnitQtyRef.nativeElement.focus()    
+    }
+    if (this.compositeForm.value.UnitName!=='') {
+      this.validObj['UnitName'] = false
+    } else if(!this.validObj.UnitQty  && !this.validObj.secondaryUnitId && !this.validObj.primaryUnitId) {
+      this.validObj['UnitName'] = true
+    this.unitnameRef.nativeElement.focus()    
+    }
+    
+}
+checkForValidation () {
+  
+  let isValid = 1
+   {
+    if (+this.primaryUnitId > 0) {
+      this.validObj['primaryUnitId'] = false
+    } else {
+      this.validObj['primaryUnitId'] = true
+      isValid = 0
+    }
+    if (+this.secondaryUnitId > 0) {
+      this.validObj['secondaryUnitId'] = false
+    } else {
+      this.validObj['secondaryUnitId'] = true
+      isValid = 0
+    }
+    if (+this.secondaryUnitId > 0) {
+      this.validObj['secondaryUnitId'] = false
+    } else {
+      this.validObj['secondaryUnitId'] = true
+      isValid = 0
+    }
+    if (this.compositeForm.value.UnitQty!=='') {
+      this.validObj['UnitQty'] = false
+    } else {
+      this.validObj['UnitQty'] = true
+      isValid = 0
+    }
+    if (this.compositeForm.value.UnitName!=='') {
+      this.validObj['UnitName'] = false
+    } else {
+      this.validObj['UnitName'] = true
+      isValid = 0
+    }
+    return !!isValid
   }
+}
 
+  
+@ViewChild('unitnameRef') unitnameRef: ElementRef
+  
   getPackedIn () {
     this.packedInPlaceHolder = { placeholder: 'Select Packing-Unit' }
     let newData = [{ id: '0', text: 'Select Packing-Unit' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
@@ -248,15 +301,16 @@ export class CompositeUnitAddComponent implements OnDestroy {
   selectedMainUnit (event) {
     if (event.value && event.data.length > 0) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
-        this.primaryUnitId = +event.value
+        this.secondaryUnitId  = +event.value
         this.mainUnitSelect2.selector.nativeElement.value = ''
         this.commonService.openUnit('')
       } else {
         if (event.data[0] && event.data[0].text) {
-          this.primaryUnitId = +event.value
+        this.secondaryUnitId  = +event.value
+
         }
       }
-      this.select2Validation()
+      this.checkForValidation()
     }
   }
 
@@ -264,15 +318,17 @@ export class CompositeUnitAddComponent implements OnDestroy {
   selectdPackedIn (event) {
     if (event.value && event.data.length > 0) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
-        this.secondaryUnitId = +event.value
+        this.primaryUnitId = +event.value
+
         this.packedInSelect2.selector.nativeElement.value = ''
         this.commonService.openUnit('')
       } else {
         if (event.data[0] && event.data[0].text) {
-          this.secondaryUnitId = +event.value
+        this.primaryUnitId = +event.value
+
         }
       }
-      this.select2Validation()
+      this.checkForValidation()
     }
   }
 

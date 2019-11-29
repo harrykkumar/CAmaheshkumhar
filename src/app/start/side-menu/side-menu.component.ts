@@ -1,3 +1,5 @@
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
+import { UIConstant } from './../../shared/constants/ui-constant';
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 import { SIDE_MENU_MODEL } from './side-menu-modal'
 import { LoginService } from '../../commonServices/login/login.services'
@@ -22,7 +24,8 @@ export class SideMenuComponent {
     public _loginService: LoginService,
     private spinnerService: NgxSpinnerService,
     private itemMaster: ItemmasterServices,
-    private toaster: ToastrCustomService
+    private toaster: ToastrCustomService,
+    public commonService: CommonService
     ) {
       this.profile_img = '../../../assets/img/man.png'
     this.initSideMenuData();
@@ -104,6 +107,7 @@ export class SideMenuComponent {
         })
       }
     })
+    console.log('side menu to check', this.sideMenu)
   }
 
 

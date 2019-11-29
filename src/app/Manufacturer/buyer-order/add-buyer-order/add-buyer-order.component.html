@@ -30,30 +30,31 @@
         <!--Body-->
         <div class="modal-body">
           <div class="form-row ">
-            <div class="col-lg-8">
-              <div class="card p-2">
+            <div class="col-lg-9">
+              <div class="card p-1">
                 <div class="form-row ">
                   <div class="form-group col-md-4 col-lg-3 ">
                     <label>Buyer Name</label>
                     <div class="input-group adw_select">
-                      <select2 #first [data]="listItem?.buyerNameList" class="control_select"
+                      <select2 #first #error [data]="listItem?.buyerNameList" class="control_select"
                         (valueChanged)="onDropDownChange($event, 'buyerNameId')" autocomplete="true"
                         [value]="model?.buyerNameValue" [ngClass]="{
-                          errorSelecto:
-                          buyerOrderForm?.submitted && !model?.buyerNameId
-                        }">
+                            errorSelecto:
+                            buyerOrderForm?.submitted && !model?.buyerNameId
+                          }">
                       </select2>
                     </div>
                   </div>
                   <div class="form-group col-md-4 col-lg-3">
                     <label>Address</label>
                     <div class="input-group adw_select">
-                      <select2 #address_select2 name="address" [data]="listItem?.addressList" class="control_select"
-                        autocomplete="true" (valueChanged)="onDropDownChange($event, 'AddressId')"
+                      <select2 #address_select2 #error name="address" [data]="listItem?.addressList"
+                        class="control_select" autocomplete="true"
+                        (valueChanged)="onDropDownChange($event, 'AddressId')"
                         [options]="{placeholder: 'Select Address'}" [value]="model?.addressValue" [ngClass]="{
-                          errorSelecto:
-                          buyerOrderForm?.submitted && (!model?.AddressId || model?.AddressId <= 0)
-                        }">
+                            errorSelecto:
+                            buyerOrderForm?.submitted && (!model?.AddressId || model?.AddressId <= 0)
+                          }">
                       </select2>
                     </div>
                   </div>
@@ -82,9 +83,9 @@
                     </a>
                     <input name="order_Po_No" #orderPoRefModal="ngModel" type="text" [disabled]="!isBillManual"
                       class="form-control" placeholder="Enter Order/PO No." [(ngModel)]="model.orderPoNumber" [ngClass]="{
-                        errorSelecto:
-                        buyerOrderForm?.submitted && !model?.orderPoNumber
-                      }" />
+                          errorSelecto:
+                          buyerOrderForm?.submitted && !model?.orderPoNumber
+                        }" />
                   </div>
                   <div class="form-group col-md-2 col-lg-2 ">
                     <label>Order Date</label>
@@ -108,7 +109,7 @@
                         (dateInFormat)="model.exFactDate = $event"></datepicker-popup>
                     </div>
                   </div>
-                  <div class="form-group col-md-4 col-lg-3 ">
+                  <div class="form-group col-md-2 col-lg-2">
                     <label>Gender</label>
                     <div class="input-group adw_select">
                       <select2 [data]="listItem?.genderList" class="control_select"
@@ -117,10 +118,19 @@
                       </select2>
                     </div>
                   </div>
+                  <div class="form-group col-md-4 col-lg-2 ">
+                    <label>Department</label>
+                    <div class="input-group adw_select">
+                      <select2 #department_select2 [data]="listItem?.departmentList" class="control_select"
+                        (valueChanged)="onDropDownChange($event, 'DepartmentId')" autocomplete="true"
+                        [value]="model?.departmentValue">
+                      </select2>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
               <div class="card p-2">
                 <div class="form-row ">
                   <div class="form-group col-md-6">
@@ -135,12 +145,12 @@
                   <div class="form-group col-md-6">
                     <label>Currency</label>
                     <div class="input-group adw_select">
-                      <select2 [data]="listItem?.currencyList" class="control_select"
+                      <select2 [data]="listItem?.currencyList" #error class="control_select"
                         (valueChanged)="onDropDownChange($event, 'currencyId')" autocomplete="true"
                         [value]="model?.currencyValue" [ngClass]="{
-                          errorSelecto:
-                          buyerOrderForm?.submitted && !model?.currencyId
-                        }">
+                            errorSelecto:
+                            buyerOrderForm?.submitted && !model?.currencyId
+                          }">
                       </select2>
                     </div>
                   </div>
@@ -156,25 +166,25 @@
                     <div class="form-group col-md-2 col-lg-2">
                       <label>Item Name</label>
                       <div class="input-group adw_select">
-                        <select2 #item_select2 [data]="listItem?.itemList" class="control_select"
+                        <select2 #item_select2 #error [data]="listItem?.itemList" class="control_select"
                           (valueChanged)="onDropDownChange($event, 'itemId')" autocomplete="true"
                           [value]="model?.itemValue" [ngClass]="{
-                            errorSelecto:
-                              (itemForm?.submitted && !model?.itemId)
-                          }">
+                              errorSelecto:
+                                (itemForm?.submitted && !model?.itemId)
+                            }">
                         </select2>
                       </div>
                     </div>
                     <div class="form-group col-md-2 col-lg-2">
                       <label>Style No.</label>
                       <div class="input-group adw_select">
-                        <select2 #style_select2 [data]="listItem?.styleNumberList" class="control_select"
+                        <select2 #style_select2 #error [data]="listItem?.styleNumberList" class="control_select"
                           (valueChanged)="
-                            onDropDownChange($event, 'styleNumberId')
-                          " autocomplete="true" [value]="model?.styleNumberValue" [ngClass]="{
-                            errorSelecto:
-                            itemForm?.submitted && !model?.styleNumberId
-                          }">
+                              onDropDownChange($event, 'styleNumberId')
+                            " autocomplete="true" [value]="model?.styleNumberValue" [ngClass]="{
+                              errorSelecto:
+                              itemForm?.submitted && !model?.styleNumberId
+                            }">
                         </select2>
                       </div>
                     </div>
@@ -182,34 +192,35 @@
                       <label>Rate</label>
                       <input type="text" appIncludeDecimal #rate="ngModel" class="form-control" name="rate"
                         (change)="generateProductionQty()" [(ngModel)]="model.rate" [ngClass]="{
-                          'is-invalid':
-                            (itemForm?.submitted && rate.invalid)
-                        }" required />
+                            'errorSelecto':
+                              (itemForm?.submitted && rate.invalid)
+                          }" required />
                     </div>
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Order Qty</label>
                       <input type="text" appIncludeDecimal #orderQtyModal="ngModel" class="form-control"
                         name="orderQuantity" (change)="generateProductionQty()" [(ngModel)]="model.orderQuantity"
                         [ngClass]="{
-                          'is-invalid':
-                            (itemForm?.submitted && orderQtyModal.invalid)
-                        }" required />
+                            'errorSelecto':
+                              (itemForm?.submitted && orderQtyModal.invalid)
+                          }" required />
                     </div>
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Add %</label>
+                      <!--[ngClass]="{
+                            'errorSelecto':
+                              (itemForm?.submitted && addPercentageModal.invalid)
+                          }" required-->
                       <input type="text" appIncludeDecimal #addPercentageModal="ngModel" class="form-control" name="add"
-                        (input)="generateProductionQty()" [(ngModel)]="model.addPercentage" [ngClass]="{
-                          'is-invalid':
-                            (itemForm?.submitted && addPercentageModal.invalid)
-                        }" required />
+                        (input)="generateProductionQty()" [(ngModel)]="model.addPercentage" />
                     </div>
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Production Qty</label>
                       <input type="text" appIncludeDecimal #productionQtyModal="ngModel" class="form-control"
                         name="productionQty" [(ngModel)]="model.productionQty" [ngClass]="{
-                          'is-invalid':
-                            (itemForm?.submitted && productionQtyModal.invalid)
-                        }" required />
+                            'errorSelecto':
+                              (itemForm?.submitted && productionQtyModal.invalid)
+                          }" required />
                     </div>
                     <div class="form-group col-md-3 col-lg-3">
                       <label>Remark</label>
@@ -218,24 +229,26 @@
                     <div class="form-group col-md-3 col-lg-3">
                       <label>Packing Type</label>
                       <div class="input-group adw_select">
-                        <select2 [data]="listItem?.packagingTypeList" class="control_select" (valueChanged)="
-                            onDropDownChange($event, 'packingTypeId')
-                          " autocomplete="true" [value]="model?.packageTypeValue" [ngClass]="{
-                            errorSelecto:
-                              (itemForm?.submitted && !model?.packingTypeId) 
-                          }">
+                        <select2 [data]="listItem?.packagingTypeList" #error class="control_select" (valueChanged)="
+                              onDropDownChange($event, 'packingTypeId')
+                            " autocomplete="true" [value]="model?.packageTypeValue" [ngClass]="{
+                              errorSelecto:
+                                (itemForm?.submitted && !model?.packingTypeId) 
+                            }">
                         </select2>
                       </div>
                     </div>
-                    <div class="form-group col-md-3 col-lg-3" *ngIf="model?.packingTypeId == 792">
+                   
+                    <div class="form-group col-md-3 col-lg-3" *ngIf="model?.packingTypeId == 4">
                       <label>Set Type</label>
                       <div class="input-group adw_select">
-                        <select2 #setType_select2 [data]="listItem?.setTypeData" class="control_select" (valueChanged)="
-                            onDropDownChange($event, 'SetId')
-                          " autocomplete="true" [value]="model?.setValue" [ngClass]="{
-                            errorSelecto:
-                              (itemForm?.submitted && ((model?.packingTypeId == 792) ? !model?.SetId : true)) 
-                          }">
+                        <select2 #setType_select2 #error [data]="listItem?.setTypeData" class="control_select"
+                          (valueChanged)="
+                              onDropDownChange($event, 'SetId')
+                            " autocomplete="true" [value]="model?.setValue" [ngClass]="{
+                              errorSelecto:
+                                (itemForm?.submitted && ((model?.packingTypeId == 4) ? !model?.SetId : true)) 
+                            }">
                         </select2>
                       </div>
                     </div>
@@ -259,8 +272,8 @@
                         <div class="mB-5" *ngFor="let image of ImageFiles; let i = index">
                           <div>
                             <strong class="mr-auto">{{
-                                  image.Name
-                                }}</strong>
+                                    image.Name
+                                  }}</strong>
                             <button type="button" class="image-cross-icon ml-2 mb-1 close" (click)="removeImage(i)">
                               &times;
                             </button>
@@ -283,11 +296,13 @@
                       <th>Item</th>
                       <th *ngIf="toOpenAttr">{{model.defaultAttrName}}</th>
                       <th *ngIf="toOpenAttr">Attribute Combination</th>
+                      <th>Code</th>
                       <th>Order Qty</th>
                       <th>Unit</th>
                       <th>Add %</th>
                       <th>Prod. Qty</th>
                       <th>Rate</th>
+                      <th>Description</th>
                       <th>Amount</th>
                     </tr>
                   </thead>
@@ -304,15 +319,17 @@
                         <td>{{item?.itemName}}</td>
                         <td *ngIf="toOpenAttr">{{ item?.sizeName }}</td>
                         <td *ngIf="toOpenAttr">{{ item?.attributeValueName }}</td>
+                        <td>{{item?.ProductCode}}</td>
                         <td>{{ item?.orderQuantity?.toFixed(2) }}</td>
                         <td>{{item?.unitName}}</td>
                         <td>{{item?.addPercentage}}</td>
                         <td>{{item?.productionQty?.toFixed(2)}}</td>
                         <td>{{item?.rate}}</td>
+                        <td>{{item?.ProductDescription}}</td>
                         <td>{{item?.amount}}</td>
                       </tr>
                     </ng-container>
-                    <tr *ngFor="let item of orderList; let i = index" class="selected_row active">
+                     <tr *ngFor="let item of orderList; let i = index" class="selected_row active">
                       <td>
                         <div class="action_btn">
                           <a (click)="deleteItem(i, item, 'new')">
@@ -323,11 +340,13 @@
                       <td>{{item?.itemName}}</td>
                       <td *ngIf="toOpenAttr">{{ item?.sizeName }}</td>
                       <td *ngIf="toOpenAttr">{{ item?.attributeValueName }}</td>
-                      <td>{{ item?.orderQuantity?.toFixed(2) }}</td>
+                      <td>{{item?.ProductCode}}</td>
+                      <td>{{item?.orderQuantity?.toFixed(2)}}</td>
                       <td>{{item?.unitName}}</td>
                       <td>{{item?.addPercentage}}</td>
                       <td>{{item?.productionQty?.toFixed(2)}}</td>
                       <td>{{item?.rate}}</td>
+                      <td>{{item?.ProductDescription}}</td>
                       <td>{{item?.amount}}</td>
                     </tr>
                     <tr>
@@ -335,10 +354,12 @@
                       <td *ngIf="toOpenAttr"></td>
                       <td *ngIf="toOpenAttr"></td>
                       <td></td>
+                      <td></td>
                       <td>{{model?.totalOrderedQty?.toFixed(2)}}</td>
                       <td></td>
                       <td></td>
                       <td>{{model?.totalProductionQty?.toFixed(2)}}</td>
+                      <td></td>
                       <td></td>
                       <td>{{model?.totalAmount?.toFixed(2)}}</td>
                     </tr>
@@ -347,6 +368,54 @@
               </div>
             </div>
           </div>
+          <!-- <div class="form-row">
+            <div class="col-md-12 profile-pic-grid" *ngFor="let items of itemsInOrder;let j = index;" >
+              <div class="table-responsive" style="border: 2px solid #ccc;">
+                <table class="table table editable_tbl">
+                  <thead>
+                    <tr class="default_row">
+                      <th style="width: 10px;">#</th>
+                      <th>Item</th>
+                      <th *ngIf="toOpenAttr">{{model.defaultAttrName}}</th>
+                      <th *ngIf="toOpenAttr">Attribute Combination</th>
+                      <th>Code</th>
+                      <th>Order Qty</th>
+                      <th>Unit</th>
+                      <th>Add %</th>
+                      <th>Prod. Qty</th>
+                      <th>Rate</th>
+                      <th>Description</th>
+                      <th>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of items.transformed; let i = index" class="selected_row active">
+                      <td>
+                        <div class="action_btn">
+                          <a (click)="deleteItem(i, item, 'new')">
+                            <i aria-hidden="true" class="fa fa-trash fa-1x"></i>
+                          </a>
+                        </div>
+                      </td>
+                      <td>{{item?.itemName}}</td>
+                      <td *ngIf="toOpenAttr">{{ item?.sizeName }}</td>
+                      <td *ngIf="toOpenAttr">{{ item?.attributeValueName }}</td>
+                      <td>{{item?.ProductCode}}</td>
+                      <td>{{item?.orderQuantity?.toFixed(2)}}</td>
+                      <td>{{item?.unitName}}</td>
+                      <td>{{item?.addPercentage}}</td>
+                      <td>{{item?.productionQty?.toFixed(2)}}</td>
+                      <td>{{item?.rate}}</td>
+                      <td>{{item?.ProductDescription}}</td>
+                      <td>{{item?.amount}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="edit-grid"><a (click)="editItemAttribute(j)" ><i class="far fa-edit"></i></a>
+                <a><i class="fas fa-times"></i></a></div>
+            </div>
+          </div> -->
         </div>
       </form>
     </div>

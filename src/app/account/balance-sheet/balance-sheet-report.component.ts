@@ -250,18 +250,7 @@ export class BalanceSheetReportComponent implements OnInit {
 
   toggleLevel(event, item, index) {
     if (item.HeadId === 2 && item.LevelNo === 2) {
-
     }
-    //   $(document).ready(function(){
-    //     $(".collapse.show").each(function(){
-    //       $(this).prev(".new-clas").find(".fa").addClass("fa-minus").removeClass("fa-plus");
-    //     });
-    //     $(".collapse").on('show.bs.collapse', function(){
-    //       $(this).prev(".new-clas").find(".fa").removeClass("fa-plus").addClass("fa-minus");
-    //     }).on('hide.bs.collapse', function(){
-    //       $(this).prev(".new-clas").find(".fa").removeClass("fa-minus").addClass("fa-plus");
-    //     });
-    // });
   }
   toggleItemdd(event, itemId, AttributeId, index) {
     $(document).ready(function () {

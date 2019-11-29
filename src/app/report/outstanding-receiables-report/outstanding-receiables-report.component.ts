@@ -5,9 +5,10 @@ import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { ToastrCustomService } from './../../commonServices/toastr.service';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { map, takeUntil} from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash'
 import { ExcelService } from '../../commonServices/excel.service';
+import { Router } from '@angular/router'
 
 import { Subject } from 'rxjs';
 declare var $: any
@@ -28,25 +29,26 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
-  constructor(public excelService:ExcelService,
+  constructor(public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
     public _commonService: CommonService,
     private _toastService: ToastrCustomService,
+    private _router: Router
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this.noOfDecimal =this._settings.noOfDecimal
+    this.noOfDecimal = this._settings.noOfDecimal
     this.getLedgerItemList();
   }
-  noOfDecimal:any
+  noOfDecimal: any
   ngOnInit() {
-    this.viewFlag=true
-    this.isViewPrint= false
+    this.viewFlag = true
+    this.isViewPrint = false
     this._commonService.fixTableHF('cat-table')
     this.outstandingReceiablesData();
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     this.toDate()
     this.fromDate()
   }
@@ -55,7 +57,7 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
   }
 
   toDate = () => {
-        this.model.toDateValue =  ''
+    this.model.toDateValue = ''
   }
 
   onLedgerItemChange = (event) => {
@@ -80,11 +82,11 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
       })
   }
   getValueFalg: boolean = true
-  fromamount:number =0
-  toamount :number =0
+  fromamount: number = 0
+  toamount: number = 0
   outstandingReceiablesData = () => {
-    let fromDate, toDate 
-    if(this.model.fromDatevalue) {
+    let fromDate, toDate
+    if (this.model.fromDatevalue) {
       fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
     }
     if (this.model.toDateValue) {
@@ -94,8 +96,8 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
       LedgerId: this.model.selectedLedgerItem ? this.model.selectedLedgerItem.id : 0,
       FromDate: fromDate ? fromDate : '',
       ToDate: toDate ? toDate : '',
-      FromAmount: this.model.fromamount >0 ? this.model.fromamount : 0,
-      ToAmount: this.model.toamount >0 ? this.model.toamount : 0,
+      FromAmount: this.model.fromamount > 0 ? this.model.fromamount : 0,
+      ToAmount: this.model.toamount > 0 ? this.model.toamount : 0,
       Page: this.pageNo,
       Size: this.pageSize,
       Type: 'sale',
@@ -106,32 +108,32 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.OutstandingDetails.length > 0) {
         this.outStandingPayable = response.Data;
-        this.ExcelSummary =[]
-        this.ExcelHeaders =["SNo","Party Name","Balance"]
-        this.ExcelSummary =["Total","",response.Data.OutstandingDetailsSummary[0].Balance.toFixed(this.noOfDecimal)]
+        this.ExcelSummary = []
+        this.ExcelHeaders = ["SNo", "Party Name", "Balance"]
+        this.ExcelSummary = ["Total", "", response.Data.OutstandingDetailsSummary[0].Balance.toFixed(this.noOfDecimal)]
 
-        response.Data.OutstandingDetails.forEach((element,int) => {
+        response.Data.OutstandingDetails.forEach((element, int) => {
           this.mainDataExcel.push([
-            int +1 ,
+            int + 1,
             element.PartyName,
             (element.Balance).toFixed(this.noOfDecimal)
           ])
         });
-       this.getValueFalg = false
+        this.getValueFalg = false
         this.totalItemSize = response.Data.OutstandingDetails[0].TotalRows;
-        if(this.isViewPrint ){
-          this.printLoad(this.htmlLoadid,this.isViewPrint)
+        if (this.isViewPrint) {
+          this.printLoad(this.htmlLoadid, this.isViewPrint)
         }
       } else if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.OutstandingDetails.length === 0) {
         this.getValueFalg = true
         this.outStandingPayable = {
           OutstandingDetails: [],
           OutstandingDetailsSummary: [],
-          AddressDetails:[],
-          ContactInfoDetails:[],
-          EmailDetails:[],
-          OrganizationDetails:[],
-          ImageContents:[]
+          AddressDetails: [],
+          ContactInfoDetails: [],
+          EmailDetails: [],
+          OrganizationDetails: [],
+          ImageContents: []
         }
         this.totalItemSize = 0;
       } else {
@@ -143,13 +145,13 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
   }
 
   onPageNoChange = (event) => {
-    this.isViewPrint= false
+    this.isViewPrint = false
     this.pageNo = event
     this.outstandingReceiablesData()
   }
 
   onPageSizeChange = (event) => {
-    this.isViewPrint= false
+    this.isViewPrint = false
     this.pageSize = event
     this.outstandingReceiablesData()
   }
@@ -162,36 +164,36 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
-  searchResetButton (){
-    this.viewFlag=true
-    this.isViewPrint= false
-    this.model.fromDatevalue =''
-    this.model.toDateValue =''
-    this.model.toamount =''
-    this.model.fromamount=''
-    this.model.selectedLedgerItem={id:0}
-    this.model.ledgerItemId =0
+  searchResetButton() {
+    this.viewFlag = true
+    this.isViewPrint = false
+    this.model.fromDatevalue = ''
+    this.model.toDateValue = ''
+    this.model.toamount = ''
+    this.model.fromamount = ''
+    this.model.selectedLedgerItem = { id: 0 }
+    this.model.ledgerItemId = 0
     this.outstandingReceiablesData()
   }
-  isViewPrint:boolean = false
-  htmlLoadid:any =0
-  viewPrint:any
-  viewFlag:any= false
-  openPrint (HtmlId ,isViewPrint) {
-    this.viewFlag=false
-    this.isViewPrint =isViewPrint
-    this.htmlLoadid= HtmlId
-   this.outstandingReceiablesData()
-  }
-  searchBtn(){
-    this.viewFlag=true
-    this.isViewPrint= false
+  isViewPrint: boolean = false
+  htmlLoadid: any = 0
+  viewPrint: any
+  viewFlag: any = false
+  openPrint(HtmlId, isViewPrint) {
+    this.viewFlag = false
+    this.isViewPrint = isViewPrint
+    this.htmlLoadid = HtmlId
     this.outstandingReceiablesData()
   }
-  closeBtn (){
-    this.viewFlag=true
+  searchBtn() {
+    this.viewFlag = true
+    this.isViewPrint = false
+    this.outstandingReceiablesData()
   }
-  printLoad (cmpName,isViewForm) {
+  closeBtn() {
+    this.viewFlag = true
+  }
+  printLoad(cmpName, isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML
     let printWindow = window.open()
@@ -202,31 +204,35 @@ export class OutStandingReceiablesReportComponent implements OnInit, AfterViewIn
     printWindow.document.close()
     printWindow.focus()
     // $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
-    this.viewFlag=true
+    this.viewFlag = true
     setTimeout(function () {
- //   if(this.isViewForm){
-        document.getElementsByTagName('body')[0] .classList.add('hidden-print');
-     printWindow.print()
-     printWindow.close()
-    //}
-    
+      //   if(this.isViewForm){
+      document.getElementsByTagName('body')[0].classList.add('hidden-print');
+      printWindow.print()
+      printWindow.close()
+      //}
+
     }, 100)
-   
+
   }
-  mainDataExcel: any =[]
-  ExcelHeaders:any
-  ExcelSummary:any
-  exportExcel (){
-    if(this.mainDataExcel.length > 0){
+  mainDataExcel: any = []
+  ExcelHeaders: any
+  ExcelSummary: any
+  exportExcel() {
+    if (this.mainDataExcel.length > 0) {
       // this.excelService.exportAsExcelFile(this.mainDataExcel, 'Outstanding Receiables Report')
       this.excelService.generateExcel(this.outStandingPayable.OrganizationDetails[0].OrgName,
         this.outStandingPayable.AddressDetails[0].CityName + ' ' +
         this.outStandingPayable.AddressDetails[0].StateName + ' ' + this.outStandingPayable.AddressDetails[0].CountryName, this.ExcelHeaders,
-        this.mainDataExcel, 'Outstanding Receiables Report', this.model.fromDatevalue, this.model.toDateValue,this.ExcelSummary)
-  
-  
-  
+        this.mainDataExcel, 'Outstanding Receiables Report', this.model.fromDatevalue, this.model.toDateValue, this.ExcelSummary)
 
     }
-}
+  }
+  openLedgerSummary(item) {
+    if (item.Id > 0) {
+      this._commonService.ledgerSummary(item.Id, item.PartyName)
+      this._router.navigate(['/account/ledger-summary'])
+    }
+
+  }
 }

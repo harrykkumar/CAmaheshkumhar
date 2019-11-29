@@ -1,0 +1,126 @@
+<div
+  class="modal fade right"
+  id="add_address"
+  role="dialog"
+  aria-labelledby="add_address"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-full-height modal-right" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add Address</h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closePopUp()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form #addAddressForm="ngForm" novalidate>
+        <div class="modal-body">
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label>Country</label>
+                <ng-select
+                  name="countryName"
+                  [items]="countryList"
+                  bindLabel="CommonDesc"
+                  bindValue="Id"
+                  placeholder="Select Country"
+                  [(ngModel)]="countryId"
+                  (change)="getStateList(countryId)"
+                  required
+                  [ngClass]="{
+                    'ng-select-invalid': addAddressForm?.submitted && !countryId
+                  }"
+                >
+                </ng-select>
+              </div>
+              <div class="form-group col-md-12">
+                <label>State</label>
+                <ng-select
+                  name="stateName"
+                  [items]="stateList"
+                  bindLabel="CommonDesc1"
+                  bindValue="Id"
+                  placeholder="Select State"
+                  [(ngModel)]="stateId"
+                  (change)="getCityList(stateId)"
+                  required
+                  [ngClass]="{
+                    'ng-select-invalid': addAddressForm?.submitted && !stateId
+                  }"
+                >
+                </ng-select>
+              </div>
+              <div class="form-group col-md-12">
+                <label>City</label>
+                <ng-select
+                  name="cityName"
+                  [items]="cityList"
+                  bindLabel="CommonDesc2"
+                  bindValue="Id"
+                  placeholder="Select City"
+                  [(ngModel)]="cityId"
+                  (change)="getAreaList(cityId)"
+                >
+                </ng-select>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Area</label>
+                <ng-select
+                  name="areaName"
+                  [items]="areaList"
+                  bindLabel="CommonDesc3"
+                  bindValue="Id"
+                  placeholder="Select Area"
+                  [(ngModel)]="areaId"
+                >
+                </ng-select>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Address Type</label>
+                <ng-select
+                  name="addressTypeName"
+                  [items]="addressTypeList"
+                  bindLabel="CommonDesc"
+                  bindValue="UId"
+                  placeholder="Select Address Type"
+                  [(ngModel)]="addressTypeId"
+                >
+                </ng-select>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Address</label>
+                <textarea
+                  name="addressName"
+                  cols="30"
+                  rows="2"
+                  [(ngModel)]="address"
+                  class="form-control"
+                  placeholder="Enter Address"
+                >
+                </textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-primary waves-effect"
+            (click)="addAddressForm.form.valid && submit()"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<app-add-new-city #addNewCityRef (addCityClosed) = "addCityClosed($event)"></app-add-new-city>

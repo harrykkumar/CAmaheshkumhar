@@ -114,13 +114,39 @@ export class BankAddComponent {
       })
     })
   }
-
+  //submitClick && validGSTNumber) || invalidObj?.requiredGST
+  getListCountryLabelList(id){
+    this.commonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
+      if(resp.Code===1000 && resp.Data.length>0){
+        this.TinNoValue=resp.Data[0].TinNo
+        this.PanNoValue=resp.Data[0].PanNo
+        this.countrId =id
+        this.GstinNoValue=resp.Data[0].GstinNo
+        this.CinNoValue=resp.Data[0].CinNo
+        this.FssiNoValue=resp.Data[0].FssiNo 
+        if(id!==123){
+          this.validGSTNumber= true
+          this.requiredGST=false
+        }
+        else{
+          this.validGSTNumber= false
+          this.requiredGST=false
+        }
+      }
+    })
+  }
+  TinNoValue:any
+  PanNoValue:any
+  GstinNoValue:any
+  CinNoValue:any
+  FssiNoValue:any
   selectCountryListId(event) {
     if (this.countryValue !== null) {
       if (+event.id > 0) {
         this.countrId = +event.id
         this.countryError = false
         if (this.countrId > 0) {
+          this.getListCountryLabelList(event.id)
           this.getStaeList(this.countrId, 0)
         }
       }
@@ -136,12 +162,10 @@ export class BankAddComponent {
   CRDRType: any
   @ViewChild('bankname1') banknameFocus: ElementRef;
   openModal() {
+    this.getListCountryLabelList(0)
     this.submitClick = true
     this.onloading()
     this.disabledGSTfor_UnRegi = false
-    this.Ledgerid = 0
-    this.addressId = 0
-    this.satuariesId = 0
 
     $('#bankPopup').modal(UIConstant.MODEL_SHOW)
     setTimeout(() => {
@@ -178,6 +202,8 @@ export class BankAddComponent {
       text: Address.CountryName
     }
     this.selectCountryListId(country)
+    this.getListCountryLabelList(Address.CountryId)
+
     let state = {
       id: Address.StateId,
       text: Address.Statename
@@ -198,7 +224,7 @@ export class BankAddComponent {
       this.subscribe = this.commonService.getEditbankDetails(id).subscribe(data => {
         if (data.Code === UIConstant.THOUSAND) {
           if (data.Data.BankDetails.length > 0) {
-            this.banName = data.Data.BankDetails[0].Name
+            this.bankName = data.Data.BankDetails[0].Name
             this.AccountHolderName = data.Data.BankDetails[0].AccountHolderName
             this.accountNo = data.Data.BankDetails[0].AcNo
             this.ifscCode = data.Data.BankDetails[0].IfscCode
@@ -261,7 +287,7 @@ export class BankAddComponent {
     $('#bankPopup').modal(UIConstant.MODEL_HIDE)
   }
   get f() { return this.bankForm.controls }
-  banName: any
+  bankName: any
   accountNo: any
   branch: any
   ifscCode: any
@@ -270,7 +296,10 @@ export class BankAddComponent {
   gstin: any
   openingbalance: any
   onloading() {
-    this.banName = ''
+    this.Ledgerid = 0
+    this.addressId = 0
+    this.satuariesId = 0
+    this.bankName = ''
     this.GstinNoCode=''
     this.AccountHolderName =''
     this.accountNo = ''
@@ -297,41 +326,102 @@ export class BankAddComponent {
   AccountHolderName:any
   AccountHolderNameErr:any
   accountErr: any
-  checkValidationName() {
-    if (this.banName !== "") {
-      this.bankNameErr = false
-    } else {
-      this.bankNameErr = true
+
+  invalidObj: any ={}
+  
+  
+  @ViewChild('accountNoRef')  accountNoRef :ElementRef
+  @ViewChild('accoundHolderNameRef')  accoundHolderNameRef :ElementRef
+  @ViewChild('ifscCodeRef')  ifscCodeRef :ElementRef
+  @ViewChild('branchRef')  branchRef :ElementRef
+  @ViewChild('GStRequireRef')  GStRequireRef :ElementRef
+  
+  
+  dynamicFocus() {
+    if (this.bankName && this.bankName.trim()) {
+      this.invalidObj['bankName'] = false
+    } else  {
+      this.invalidObj['bankName'] = true
+      this.banknameFocus.nativeElement.focus()
+
+    }
+    if (this.AccountHolderName && this.AccountHolderName.trim()) {
+      this.invalidObj['AccountHolderName'] = false
+    } else if (!this.invalidObj.bankName ) {
+      this.invalidObj['AccountHolderName'] = true
+      this.accoundHolderNameRef.nativeElement.focus()
+    }
+    if (this.accountNo && this.accountNo.trim()) {
+      this.invalidObj['accountNo'] = false
+    } else if (!this.invalidObj.bankName && !this.invalidObj.AccountHolderName) {
+      this.invalidObj['accountNo'] = true
+      this.accountNoRef.nativeElement.focus()
+    }
+    if (this.ifscCode && this.ifscCode.trim()) {
+      this.invalidObj['ifscCode'] = false
+    } else if (!this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
+      this.invalidObj['ifscCode'] = true
+      this.ifscCodeRef.nativeElement.focus()
+    }
+    if (this.branch && this.branch.trim()) {
+      this.invalidObj['branch'] = false
+    } else if (!this.invalidObj.ifscCode && !this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
+      this.invalidObj['branch'] = true
+      this.branchRef.nativeElement.focus()
+    }
+    if (this.coustmoreRegistraionId === '1' && this.countrId===123 && !this.invalidObj.branch &&!this.invalidObj.ifscCode && !this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
+      this.invalidObj['requiredGST'] = true
+      this.GStRequireRef.nativeElement.focus()
+    } else if (!this.invalidObj.parentId && !this.invalidObj.ledgerName) {
+      this.invalidObj['requiredGST'] = false
+     
+
     }
   }
-  checkValidationHolderName() {
-    if (this.AccountHolderName !== "") {
-      this.AccountHolderNameErr = false
-    } else {
-      this.AccountHolderNameErr = true
+  checkForValidation(): boolean {
+    let isValid = 1
+    if (this.bankName && this.bankName.trim()) {
+      this.invalidObj['bankName'] = false
+    } else  {
+      this.invalidObj['bankName'] = true
+      isValid = 0
     }
-  }
-  checkValidAccount() {
-    if (this.accountNo !== "") {
-      this.accountErr = false
-    } else {
-      this.accountErr = true
+    if (this.AccountHolderName && this.AccountHolderName.trim()) {
+      this.invalidObj['AccountHolderName'] = false
+    } else  {
+      this.invalidObj['AccountHolderName'] = true
+      isValid = 0
     }
-  }
-  checkValidBranch() {
-    if (this.branch !== "") {
-      this.BrancNameErr = false
-    } else {
-      this.BrancNameErr = true
+    if (this.accountNo && this.accountNo.trim()) {
+      this.invalidObj['accountNo'] = false
+    } else  {
+      this.invalidObj['accountNo'] = true
+      isValid = 0
     }
-  }
-  checkValidIFSC() {
-    if (this.ifscCode !== "") {
-      this.IFSCCodeErr = false
-    } else {
-      this.IFSCCodeErr = true
+    if (this.ifscCode && this.ifscCode.trim()) {
+      this.invalidObj['ifscCode'] = false
+    } else  {
+      this.invalidObj['ifscCode'] = true
+      isValid = 0
     }
+    if (this.branch && this.branch.trim()) {
+      this.invalidObj['branch'] = false
+    } else {
+      this.invalidObj['branch'] = true
+      isValid = 0
+    }
+    if (this.coustmoreRegistraionId === '1' && this.countrId===123) {
+      this.invalidObj['requiredGST'] = true
+      isValid = 0
+    } else {
+      this.invalidObj['requiredGST'] = false
+     
+    }
+    return !!isValid
   }
+
+
+
 
   valueCRDR: any
   select2CrDrValue(value) {
@@ -347,12 +437,13 @@ export class BankAddComponent {
     let _self = this
     this.submitClick = true
     this.checkGSTNumberValid()
-    if (this.banName !== '' && this.AccountHolderName!==''  && this.ifscCode !== null && this.branch !== null && this.banName !== null && this.accountNo !== null && this.ifscCode !== '' && this.branch !== '' && this.banName !== '' && this.accountNo !== '') {
+    this.dynamicFocus()
+    if (this.checkForValidation() && !this.requiredGST  && this.bankName !== '' && this.AccountHolderName!==''  && this.ifscCode !== null && this.branch !== null && this.bankName !== null && this.accountNo !== null && this.ifscCode !== '' && this.branch !== '' && this.bankName !== '' && this.accountNo !== '') {
       if (this.matchStateCodeWithGSTNumber()) {
         this.subscribe = this._bankServices.saveBank(this.bankParams()).subscribe(data => {
           console.log(data)
           if (data.Code === UIConstant.THOUSAND) {
-            let toSend = { name: _self.banName, id: data.Data }
+            let toSend = { name: _self.bankName, id: data.Data }
             let saveNameFlag = this.editID === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
             _self.toastrService.showSuccess('', saveNameFlag)
             if (type === 'save') {
@@ -394,7 +485,7 @@ export class BankAddComponent {
         // tslint:disable-next-line: no-multi-spaces
         Id: this.Id !== 0 ? this.Id : 0,
         LedgerId: this.Ledgerid !== 0 ? this.Ledgerid : 0,
-        Name: this.banName,
+        Name: this.bankName,
         AcNo: this.accountNo,
         AccountHolderName:this.AccountHolderName,
         Branch: this.branch,

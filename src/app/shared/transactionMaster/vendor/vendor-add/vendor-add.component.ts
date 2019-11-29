@@ -125,7 +125,7 @@ export class VendorAddComponent implements OnDestroy {
           }
           else if (data.type === this.NO && data.name === this.EMAIL) {
             this.activaTab('vendor2')
-            this.adressTab()
+          //  this.adressTab()
             setTimeout(() => {
               this.select_Mobile.selector.nativeElement.focus()
             }, 10)
@@ -191,12 +191,14 @@ export class VendorAddComponent implements OnDestroy {
     this.areaName = ''
   }
   openModal() {
+    this.getListCountryLabelList(0)
     this.initModel()
+    this.requiredGSTNumber = true
     this.statutoriesId = 0
     this.contactPersonId = 0
     this.disabledGSTfor_UnRegi = false
     this.disabledStateCountry = false
-    this.requiredGSTNumber = false
+    
     this.activaTab('vendor1')
     this.editFlg = true
     this.editEmailFlg = true
@@ -740,6 +742,7 @@ export class VendorAddComponent implements OnDestroy {
       this.countrId = event.id
       this.countryError = false
       if (this.countrId > 0) {
+        this.getListCountryLabelList(event.id)
         this.getStaeList(this.countrId, 0)
 
       }
@@ -978,6 +981,7 @@ export class VendorAddComponent implements OnDestroy {
     // } else if (this.vendorName !== '' && !this.validMobileFlag && this.getEmailvalid && this.vendorId > UIConstant.ZERO) {
 
     } else if (this.vendorName !== '' && !this.validMobileFlag && this.getEmailvalid  && this.vendorId > UIConstant.ZERO) {
+      
       if (!this.requiredGSTNumber) {
         if (!this.mobileRequirdForSetting) {
           if (!this.emailRequirdForSetting) {
@@ -1026,33 +1030,47 @@ export class VendorAddComponent implements OnDestroy {
                   })
                 } else {
                   this.activaTab('vendor2')
-                  this.adressTab()
+               //   this.adressTab()
                   this._toastrcustomservice.showError('', 'Enter Address Details ')
                 }
               } else {
                 this._toastrcustomservice.showError('', 'invalid PAN No. ')
+                this.panRef.nativeElement.focus()
+
               }
             } else {
               this._toastrcustomservice.showError('', 'invalid GST No. ')
+              this.gstRef.nativeElement.focus()
+
             }
           } else {
             this.select_email.selector.nativeElement.focus()
             this._toastrcustomservice.showError('', ' Enter Email Details ')
+             this.emailRef.nativeElement.focus()
+
 
           }
         } else {
           this.select_Mobile.selector.nativeElement.focus()
           this._toastrcustomservice.showError('', ' Enter Contact Details ')
+          this.mobileRef.nativeElement.focus()
+
 
         }
       } else {
         this.validGSTNumber = true
         this._toastrcustomservice.showError('', ' Enter GSTIN No ')
+        this.gstRef.nativeElement.focus()
 
       }
     }
 
   }
+
+  @ViewChild('gstRef') gstRef :ElementRef
+@ViewChild('mobileRef') mobileRef :ElementRef
+@ViewChild('emailRef') emailRef :ElementRef
+@ViewChild('panRef') panRef :ElementRef
   activaTab(tab) {
     $('.tabs-cyan a[href="#' + tab + '"]').tab('show');
   };
@@ -1264,6 +1282,7 @@ export class VendorAddComponent implements OnDestroy {
     }
     this.selectCountryListId(country)
     this.countryValue = Address.CountryId
+    this.getListCountryLabelList(Address.CountryId)
 
     let state = {
       id: Address.StateId,
@@ -1305,7 +1324,7 @@ export class VendorAddComponent implements OnDestroy {
         this.addressRequiredForLedger = false
       }
   }
-  crossButton() {
+  onloading(){
     this.getCountry(0)
     this.initModel()
     this.emailAdressArray = []
@@ -1316,10 +1335,13 @@ export class VendorAddComponent implements OnDestroy {
     this.stateList = []
     this.cityList = []
     this.areaList = []
-    this.closeModal()
     this.select2VendorValue(UIConstant.ZERO)
     this.select2CrDrValue(1)
     this.crdrSelect2.setElementValue(1)
+    this.closeModal()
+  }
+  crossButton() {
+    this.closeConfirmation()
    
 
   }
@@ -1594,12 +1616,28 @@ export class VendorAddComponent implements OnDestroy {
   pressEnterEmailadd(e: KeyboardEvent) {
     this.emailAddingArray()
     this.activaTab('vendor2')
-    this.adressTab()
+    //this.adressTab()
     // this._CommonService.openConfirmation('email', 'Email Details')
 
 
   }
-
+  getListCountryLabelList(id){
+    this._CommonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
+      if(resp.Code===1000 && resp.Data.length>0){
+        this.TinNoValue=resp.Data[0].TinNo
+        this.PanNoValue=resp.Data[0].PanNo
+        this.GstinNoValue=resp.Data[0].GstinNo
+        this.CinNoValue=resp.Data[0].CinNo
+        this.FssiNoValue=resp.Data[0].FssiNo 
+      }
+      
+    })
+  }
+  TinNoValue:any
+  PanNoValue:any
+  GstinNoValue:any
+  CinNoValue:any
+  FssiNoValue:any
   pressEnterMobileAdd(e: KeyboardEvent) {
     this.addConatctDetails()
     setTimeout(() => {
@@ -1654,8 +1692,16 @@ export class VendorAddComponent implements OnDestroy {
       }
     } else {
       this.cityValue =null
-      //this.cityId =0
     }
+  }
+  yesConfirmationClose() {
+    this.onloading()
+    $('#close_confirm_vendor').modal(UIConstant.MODEL_HIDE)
+    
+    
+  }
+  closeConfirmation() {
+    $('#close_confirm_vendor').modal(UIConstant.MODEL_SHOW)
   }
 
 }

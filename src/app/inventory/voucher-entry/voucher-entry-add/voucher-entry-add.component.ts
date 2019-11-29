@@ -25,6 +25,8 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   @Output() voucherAddClosed = new EventEmitter();
   editId: number
   editType: string
+  addType: string = '';
+  addTypeId: number = 0;
   editData: any
   isPaymentAmount = false
   onDestroy$ = new Subject()
@@ -73,7 +75,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   allLedgerList: Array<Select2OptionData>
   ledgerCreationModel: Subscription
   getListledger: any = []
-  advanceBillNo: number;
+  advanceBillNo: string;
   sumCr: number = 0
   sumDr: number = 0
   @HostListener('window:keydown',['$event'])
@@ -455,10 +457,43 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }, 1)
   }
 
-  closeModal() {
+  getVoucherEntryListForParty() {
+    const selectedOrg = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'));
+    const query = {
+      ReportFor: this.addType,
+      Type: 'Billwise',
+      OrgId: +selectedOrg.Id,
+      Id: +this.addTypeId
+    }
+    this.voucherService.getVoucherEntryListForParty(query).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
+      if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
+    }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data),
+      map((data: any) => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
+        (data) => {
+          if (!_.isEmpty(data)) {
+            data = this.updatePartyId(data)
+            this.voucherList = data
+          } else {
+            this.voucherList = []
+            this.Amount = 0
+            this.advancePayment = 0
+            this.advanceBillNo = ''
+          }
+          this.updateAmount()
+          this.checkForValidation()
+          this.partySelect2.setElementValue(Number(data[0].LedgerId));
+          this.PartyId = Number(data[0].LedgerId)
+        },
+        (error) => {
+          this.toastrService.showError(error, '')
+        }
+      )
+  }
+
+  closeModal(type?) {
     if ($('#voucher_modal').length > 0) {
       $('#voucher_modal').modal(UIConstant.MODEL_HIDE)
-      this.voucherAddClosed.emit()
+      this.voucherAddClosed.emit(type)
     }
   }
 
@@ -546,6 +581,9 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           } else if (_self.tabId === 5 || _self.tabId === 6) {
             _self.voucherService.createVendors(data.Vendors, _self.voucherService.tabs[_self.tabId - 1].type)
           }
+          if (this.addType && this.addTypeId) {
+            this.getVoucherEntryListForParty()
+          }
           resolve('success');
         },
         (error) => {
@@ -604,7 +642,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
                   this.voucherList = []
                   this.Amount = 0
                   this.advancePayment = 0
-                  this.advanceBillNo = 0
+                  this.advanceBillNo = ''
                 }
                 this.updateAmount()
                 this.checkForValidation()
@@ -642,7 +680,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
                 this.voucherList = []
                 this.Amount = 0
                 this.advancePayment = 0
-                this.advanceBillNo = 0
+                this.advanceBillNo = ''
               }
               this.updateAmount()
               this.checkForValidation()
@@ -685,6 +723,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       } else if (+event.value === 1) {
         this.setLedgerSelectForCash();
       }
+      this.invalidObj['PayModeId'] = false;
     }
     this.checkForValidation()
   }
@@ -755,12 +794,19 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     if (event.value > 0 && event.data[0] && event.data[0].text) {
       this.LedgerId = +event.value
       this.BankLedgerName = event.data[0].text
+      this.invalidObj['LedgerId'] = false
     }
     if (+event.value === -1) {
       this.ledgerSelect2.selector.nativeElement.value = ''
       this.commonService.openLedger('')
     }
     this.checkForValidation()
+  }
+
+  onChangeAmount() {
+    if (this.Amount) {
+      this.invalidObj['Amount'] = false;
+    }
   }
 
   initPayment(Data?) {
@@ -977,20 +1023,10 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }
   }
 
-  // resetForm() {
-    
-  //   this.voucherDatas = [{
-  //     LedgerId: 0,
-  //     Amount: 0,
-  //     Type: 0,
-  //     data: this.paymentLedgerselect2,
-  //   }]
-  // }
-
   manipulateData(mode: string) {
     let _self = this
     this.submitSave = true
-    if (this.checkForValidation()) {
+    if (this.checkForValidation(true)) {
       if (this.tabId === 2 || this.tabId === 1 || this.tabId === 6 || this.tabId === 5) {
         this.voucherService.postVoucher(this.voucherAddParams()).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
           if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
@@ -1000,7 +1036,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
               if (mode === 'new') {
                 _self.commonService.newVoucherAdd()
-                this.closeModal()
+                this.closeModal(true)
               } else if (mode === 'reset') {
                 this.initParams()
                 this.onAddNew()
@@ -1132,10 +1168,10 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     const request = this.tabId === 1 ? 'ADVANCEPAYMENT' : 'ADVANCERECEIPT';
     this.voucherService.getBillNoForAdvancePayment(request).subscribe((res) => {
       if (res.Code === UIConstant.THOUSAND && !_.isEmpty(res.Data)) {
-        this.advanceBillNo = Number(res.Data[0].BillNo);
+        this.advanceBillNo = res.Data[0].BillNo;
         this.advancePayment = amount;
       } else {
-        this.advanceBillNo = null
+        this.advanceBillNo = ''
       }
     })
   }
@@ -1229,27 +1265,47 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }
   }
 
-  checkForValidation() {
+  checkForValidation(fromSave?) {
     let isValid = 1
     if (this.tabId === 1 || this.tabId === 2 || this.tabId === 5 || this.tabId === 6) {
-      if (+this.Amount > 0 && this.voucherList.length > 0) {
+      if ((+this.Amount > 0 && this.voucherList.length > 0) || fromSave) {
+        if (+this.PartyId > 0) {
+          this.invalidObj['PartyId'] = false
+        } else if(isValid) {
+          isValid = 0
+          this.invalidObj['PartyId'] = true
+          if (fromSave) {
+            this.toastrService.showError('', 'Please Select Party');
+            this.partySelect2.selector.nativeElement.focus({ preventScroll: false })
+          }
+        }
         if (+this.PayModeId > 0) {
           this.invalidObj['PayModeId'] = false
-        } else {
+        } else if(isValid) {
           isValid = 0
           this.invalidObj['PayModeId'] = true
+          if (fromSave) {
+            this.toastrService.showError('', 'Please Select Payment Mode');
+            this.paymentSelect2.selector.nativeElement.focus({ preventScroll: false })
+          }
         }
         if (+this.LedgerId > 0) {
           this.invalidObj['LedgerId'] = false
-        } else {
+        } else if(isValid) {
           isValid = 0
           this.invalidObj['LedgerId'] = true
+          if (fromSave) {
+            this.toastrService.showError('', 'Please Select Ledger');
+            this.ledgerSelect2.selector.nativeElement.focus({ preventScroll: false })
+          }
         }
         if (+this.Amount > 0) {
           this.invalidObj['Amount'] = false
-        } else {
+        } else if(isValid) {
           isValid = 0
           this.invalidObj['Amount'] = true
+          $('#Amount').focus();
+          this.toastrService.showError('', 'Amount Should be greater than 0');
         }
       } else {
         isValid = 1
@@ -1261,6 +1317,24 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           && +this.voucherDatas[0].Amount > 0
           && +this.voucherDatas[0].LedgerId > 0 && +this.voucherDatas[1].LedgerId > 0) {
           isValid = 1
+        } else if (fromSave) {
+          if (this.voucherDatas[0].Type === this.voucherDatas[1].Type) {
+            $('#contraType-1').focus();
+            this.toastrService.showError('', 'Type should be different')
+            isValid = 0
+          } else if ((+this.voucherDatas[0].LedgerId === 0) || (+this.voucherDatas[1].LedgerId === 0)) {
+            if(+this.voucherDatas[0].LedgerId === 0){
+              $('#LedgerId-0 input').focus();
+            } else if(+this.voucherDatas[1].LedgerId === 0){
+              $('#LedgerId-1 input').focus();
+            }
+            this.toastrService.showError('', 'Please Select Ledger')
+            isValid = 0
+          }  else if ((+this.voucherDatas[0].Amount <= 0) || (+this.voucherDatas[1].Amount <= 0)) {
+            $('#Amount').focus();
+            this.toastrService.showError('', 'Amount Should be greater than zero');
+            isValid = 0
+          }
         }
       } else {
         isValid = 0
@@ -1268,19 +1342,49 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       return !!isValid
     } else if (this.tabId === 4) {
       if (this.voucherDataJ.length > 1) {
-        // this.voucherDataJ.forEach(element => {
-        //   if (element.Type === 1) {
-        //     this.sumCr += +element.Amount
-        //   } else if (element.Type === 0) {
-        //     this.sumDr += +element.Amount
-        //   }
-        // });
+        this.voucherDataJ.forEach((element, index) => {
+           if(index < (this.voucherDataJ.length - 1)) {
+            if(!Number(element.LedgerId)) {
+              isValid = 0
+              this.toastrService.showError('', 'Please Select Ledger')
+              $(`#LedgerId-${index} input`).focus()
+            } else if(!element.Amount) {
+              isValid = 0
+              this.toastrService.showError('', 'Amount should be greater than 0')
+              $(`#Amount-${index}`).focus()
+            }
+           }
+        });
         if (this.sumCr !== this.sumDr && this.submitSave) {
           isValid = 0
           this.toastrService.showError('Cr is not equal to Dr', '')
         }
       } else {
-        isValid = 0
+        this.voucherDataJ.forEach((element, index) => {
+          if (!Number(element.LedgerId)) {
+            isValid = 0
+            this.toastrService.showError('', 'Please Select Ledger')
+            $(`#LedgerId-${index} input`).focus()
+          } else if (!element.Amount) {
+            isValid = 0
+            this.toastrService.showError('', 'Amount should be greater than 0')
+            $(`#Amount-${index}`).focus()
+          }
+        });
+        if (this.voucherDataJ.length > 0 && isValid) {
+          if(Number(this.voucherDataJ[0].Type) === 0) {
+            this.toastrService.showError('Please Add atleast one Cr', '')
+            isValid = 0
+            $('#addButton-0').focus()
+          } else if(Number(this.voucherDataJ[0].Type) === 1) {
+            this.toastrService.showError('Please Add atleast one Dr', '')
+            isValid = 0
+            $('#addButton-0').focus()
+          }
+        } else if(isValid) {
+          // this.toastrService.showError('Please Add atleast one Dr', '')
+          isValid = 0
+        }
       }
       return !!isValid
     } else {
@@ -1288,7 +1392,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       return true
     }
   }
-  
+
 
   deleteItem(index: number): void {
     this.enableDisableLedger(+this.voucherDataJ[index].LedgerId, false)
@@ -1297,7 +1401,21 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
 
   @ViewChildren('first') first: QueryList<Select2Component>
 
-  addItems() {
+  evaluateCrDrSum(){
+    if (this.voucherDataJ.length > 1) {
+      this.sumCr = 0
+      this.sumDr = 0
+      this.voucherDataJ.forEach(element => {
+        if (element.Type === 1) {
+          this.sumCr += +element.Amount
+        } else if (element.Type === 0) {
+          this.sumDr += +element.Amount
+        }
+      });
+    }
+  }
+
+  addItems(index) {
     this.enableDisableLedger(+this.voucherDataJ[this.voucherDataJ.length - 1].LedgerId, true)
     if (+this.voucherDataJ[this.voucherDataJ.length - 1]['Amount'] > 0 &&
       +this.voucherDataJ[this.voucherDataJ.length - 1]['LedgerId'] > 0) {
@@ -1314,24 +1432,22 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
             item.selector.nativeElement.focus({ preventScroll: false })
           }
         })
+        $(`#LedgerId-${index + 1} input`).focus()
       }, 100)
-
-      if (this.voucherDataJ.length > 1) {
-        this.sumCr = 0
-        this.sumDr = 0
-        this.voucherDataJ.forEach(element => {
-          if (element.Type === 1) {
-            this.sumCr += +element.Amount
-          } else if (element.Type === 0) {
-            this.sumDr += +element.Amount
-          }
-        });
-      }
+      this.evaluateCrDrSum()
+    }  else if (+this.voucherDataJ[this.voucherDataJ.length - 1]['LedgerId'] <= 0) {
+      this.toastrService.showError('', 'Please Select Ledger')
+      $(`#LedgerId-${index} input`).focus()
+    } else if (+this.voucherDataJ[this.voucherDataJ.length - 1]['Amount'] <= 0) {
+      this.toastrService.showError('', 'Amount should be greater than 0')
+      $(`#Amount-${index}`).focus()
     }
   }
+
   CRDRId: number
   onchangesCRDRType(id) {
     this.CRDRId = +id
+    this.evaluateCrDrSum()
   }
 
   enableDisableLedger(ledgerId, toDisable) {

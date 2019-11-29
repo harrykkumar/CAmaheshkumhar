@@ -24,6 +24,12 @@ export const SIDE_MENU_MODEL = [
     icon: "fas fa-cog"
   },
   {
+    Id: 107,
+    Name: "Crm",
+    path: "",
+    icon: "fas fa-cog"
+  },
+  {
     Id: 2,
     ParentId: 1,
     Name: "Category",
@@ -125,12 +131,6 @@ export const SIDE_MENU_MODEL = [
   {
     Id: 18,
     Name: "Item Custome Rate",
-    path: "",
-    icon: ""
-  },
-  {
-    Id: 19,
-    Name: "Item Vendor Rate",
     path: "",
     icon: ""
   },
@@ -383,7 +383,7 @@ export const SIDE_MENU_MODEL = [
   {
     Id: 63,
     Name: "Material Requirement",
-    path: "material-requirement",
+    path: "manufacturing/material-requirement",
     icon: ""
   },
   {
@@ -553,7 +553,7 @@ export const SIDE_MENU_MODEL = [
     Id: 91,
     ParentId: 1,
     Name: "Item Growth",
-    path: "",
+    path: "ims/report/active-inventory-item",
     icon: "fas-fa-exchange-alt"
   },
   {
@@ -580,4 +580,43 @@ export const SIDE_MENU_MODEL = [
     path: "finance",
     icon: ""
   },
+  {
+    Id: 104,
+    Name: "Godown/Location",
+    path: "godown",
+    icon: ""
+  },
+  {
+    Id: 105,
+    Name: "Customer Agent",
+    path: "customerAgent",
+    icon: ""
+  },
+  {
+    Id: 19,
+    Name: "Item Vendor Rate",
+    path: "reports/vendor-rates",
+    icon: ""
+  },
+  {
+    Id: 108,
+    ParentId: 107,
+    Name: "Lead",
+    path: "crm/lead",
+    icon: ""
+  },
+  {
+    Id: 109,
+    ParentId: 107,
+    Name: "Follow-Up",
+    path: "crm/follow-up",
+    icon: ""
+  },
+  {
+    Id: 112,
+    ParentId: 20,
+    Name: "GSTR-3B",
+    path: "report/gstr-3b",
+    icon: ""
+  }
 ];

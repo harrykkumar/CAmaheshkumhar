@@ -232,6 +232,8 @@
                             <th>S.No.</th>
                             <th *ngIf="categoryShowOnPrint" class="desc" style="width:15%;">Category</th>
                             <th class="desc" style="width:15%;">Item Name</th>
+                            <th *ngIf="industryId === 12" class="desc">IMEI No.</th>
+
                             <th *ngIf="industryId === 2 && attributelength>0" class="desc">Item Description</th>
                             <th class="desc" style="width:12%;">HSN/SAC</th>
                             <th *ngIf="industryId === 3 " class="desc">Length x Height x Width</th>
@@ -255,7 +257,16 @@
                         <tr *ngFor="let item of ItemTransactionactions; let i=index">
                             <td>{{1+i}}</td>
                             <td *ngIf="categoryShowOnPrint">{{ item.CategoryName}}</td>
-                            <td>{{ item.ItemName}}<br> {{item.Remark}}</td>
+                            <td>{{ item.ItemName}}<br> {{item.Remark}}
+                            </td>
+                            <td  style="width:25%;"  *ngIf="industryId === 12">
+                                    <ng-container *ngFor="let number of  item.IMEi; let isLast=last">
+                                        {{number.FieldValue1}}{{isLast ? '' : ', '}}
+                                        {{number.FieldValue2}}{{isLast ? '' : ', '}}
+                                      {{number.FieldValue3}}{{isLast ? '' : ', '}}
+                                       {{number.FieldValue4}}{{isLast ? '' : ', '}}
+                                </ng-container>
+                                </td>
                             <ng-container *ngIf="industryId === 2 && attributelength>0 ">
                                 <td>
                                     <span *ngFor="let attr of  item.Attribute; let isLast=last">

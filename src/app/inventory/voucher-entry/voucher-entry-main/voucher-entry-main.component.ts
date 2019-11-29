@@ -2,7 +2,7 @@ import { Settings } from './../../../shared/constants/settings.constant';
 import { Component, ViewChild, ElementRef, OnInit, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { UIConstant } from "src/app/shared/constants/ui-constant";
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, throwError } from 'rxjs';
 import { takeUntil, filter, catchError, map } from 'rxjs/operators';
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
@@ -25,13 +25,15 @@ export class VoucherEntryMainComponent implements OnInit {
   totalAmountInWords: string = ''
   printDataList: Array<any> = []
   printOrgnizationDataList: Array<any> = []
-  
+
   printHeaderData: any = {}
   toShowSearch = false
   title: string = ''
   printData = []
   onDestroy$ = new Subject()
   voucherAddComponentRef: any;
+  voucherEntryType: string;
+  voucherEntryTypeId: string;
   constructor(private _formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private commonService: CommonService,
@@ -39,10 +41,10 @@ export class VoucherEntryMainComponent implements OnInit {
     private purchaseService: PurchaseService,
     private toastrService: ToastrCustomService,
     private resolver: ComponentFactoryResolver,
-    public settings: Settings) {
+    public settings: Settings,
+    private router: Router) {
     this.formSearch()
     this.getVoucherSetting()
-
     this.commonService.getActionClickedStatus().subscribe(
       (action: any) => {
         if (action.type === FormConstants.Print && action.formname === FormConstants.VoucherForm) {
@@ -61,19 +63,35 @@ export class VoucherEntryMainComponent implements OnInit {
     this.voucherAddContainerRef.clear();
     const factory = this.resolver.resolveComponentFactory(VoucherEntryAddComponent);
     this.voucherAddComponentRef = this.voucherAddContainerRef.createComponent(factory);
-    if (!_.isEmpty(voucherData) &&  voucherData.VoucherId) {
+    if (this.voucherEntryType && this.voucherEntryTypeId) {
+      this.voucherAddComponentRef.instance.addType = this.voucherEntryType
+      this.voucherAddComponentRef.instance.addTypeId = Number(this.voucherEntryTypeId)
+    }
+    if (!_.isEmpty(voucherData) && voucherData.VoucherId) {
       this.voucherAddComponentRef.instance.editId = voucherData.VoucherId
       this.voucherAddComponentRef.instance.editType = voucherData.VoucherType
     }
     this.voucherAddComponentRef.instance.voucherAddClosed.subscribe(
-      () => {
+      (res) => {
         this.voucherAddComponentRef.destroy();
+        if (this.voucherEntryType && this.voucherEntryTypeId && !res) {
+          this.commonService.navigateToPreviousUrl();
+        } else if (this.voucherEntryType && this.voucherEntryTypeId && res) {
+          this.router.navigate(['ims/voucher-entry'])
+        }
       });
   }
 
   ngOnInit() {
     this.route.data.pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       this.title = data.title
+    })
+    this.route.paramMap.subscribe((params) => {
+      this.voucherEntryType = params.get('type');
+      this.voucherEntryTypeId = params.get('id');
+      if (this.voucherEntryType && this.voucherEntryTypeId) {
+        this.createComponent()
+      }
     })
   }
 

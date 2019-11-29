@@ -22,7 +22,7 @@ export class TokenService {
 
   destroyToken() {
     window.localStorage.removeItem('token')
-    window.localStorage.clear();
+    // window.localStorage.clear();
     this.router.navigate(['login']);
   }
 }

@@ -110,6 +110,7 @@ export class CompanyProfileComponent implements OnInit {
     private _loginService: LoginService,
     private tokenService: TokenService
   ) {
+    this.spinnerService.show()
     if (this._settings.dateFormat) {
       this.clientDateFormat = this._settings.dateFormat
     }
@@ -134,11 +135,13 @@ export class CompanyProfileComponent implements OnInit {
 
   // tslint:disable-next-line:no-empty
   ngOnInit() {
+    this.spinnerService.show()
     $('#companyOrganisationModal').modal({ backdrop: 'static', keyboard: false })
     $('#companyOrganisationModal').modal(UIConstant.MODEL_SHOW)
     this.selectTab(0);
     this.setFocus('companyNameReference');
-    this.spinnerService.show()
+    this.getListCountryLabelList(0)
+
 
     this.initDropDownData()
     this.getUploadedImages()
@@ -276,19 +279,41 @@ export class CompanyProfileComponent implements OnInit {
       this.getKeyPersonTypeList(Number(event.value))
     }
   }
-
+  changeMasterStatutoraryList:any
   /* Function invoke on country dropdown selection change */
   onCountrySelectionChange = (event) => {
     if (event.data.length > 0) {
       this.addressDetail.selectedCountry = event.data[0]
     }
     if (this.addressDetail.selectedCountry && this.addressDetail.selectedCountry.id > UIConstant.ZERO) {
+      this.getListCountryLabelList(this.addressDetail.selectedCountry.id)
       this.getStateList(this.addressDetail.selectedCountry.id)
     } else {
       this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }];
     }
   }
+  countryId:any
+getListCountryLabelList(id){
+  this._orgService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
+    if(resp.Code===1000 && resp.Data.length>0){
+      this.TinNoValue=resp.Data[0].TinNo
+      this.PanNoValue=resp.Data[0].PanNo
+      this.countryId = id
+      this.GstinNoValue=resp.Data[0].GstinNo
+      this.CinNoValue=resp.Data[0].CinNo
+      this.FssiNoValue=resp.Data[0].FssiNo 
+    }
+    else{
 
+      this.spinnerService.show()
+    }
+  })
+}
+TinNoValue:any
+PanNoValue:any
+GstinNoValue:any
+CinNoValue:any
+FssiNoValue:any
   getOneState(rsp) {
     let newdata = []
     newdata.push({
@@ -450,6 +475,10 @@ export class CompanyProfileComponent implements OnInit {
 
   /* Function invoke on click of close profile icon
       will close the dialog box and reset data */
+      PopUpemitCloseProfile (){
+        this.closeConfirmation()
+
+      }
   emitCloseProfile(data?) {
     $('#companyOrganisationModal').modal(UIConstant.MODEL_HIDE)
     this.RemoveAddressButtonFlag = true
@@ -585,7 +614,7 @@ export class CompanyProfileComponent implements OnInit {
     this.model.cityCodeId = 0
     this.model.areaId = 0
     this.addressFormModel.submitted = false
-    this.selectTab(4);
+    this.selectTab(3);
   }
 
   /* Function to edit existing address details */
@@ -912,7 +941,7 @@ export class CompanyProfileComponent implements OnInit {
       }
     )
    }
-  
+
   }
 
   navigateToSetting(data) {
@@ -1140,7 +1169,10 @@ export class CompanyProfileComponent implements OnInit {
     let ImageFiles = []
     if (!_.isEmpty(this.imageList)) {
       for (let i = 0; i < this.imageList['images'].length; i++) {
-        let obj = { Name: this.imageList['queue'][i], BaseString: this.imageList['images'][i], IsBaseImage: this.imageList['baseImages'][i], Id: this.imageList['id'][i] ? this.imageList['id'][i] : 0 }
+        let obj = { Name: this.imageList['queue'][i],
+         BaseString: this.imageList['images'][i],
+         IsBaseImage: this.imageList['baseImages'][i],
+          Id: this.imageList['id'][i] ? this.imageList['id'][i] : 0 }
         ImageFiles.push(obj)
       }
       this.ImageFiles = ImageFiles
@@ -1218,11 +1250,11 @@ export class CompanyProfileComponent implements OnInit {
   dynamicFocusValidation() {
    // this.validateForm()
     if (  this.addressDetailArray.length===0) {
-        this.selectTab(3);
+        this.selectTab(2);
         this.setFocus('countrySelect');
     }
     if (this.personalDetail.selectedRegistrationType.id ==='1' && ( this.statutoryDetail.gstNo ===undefined || this.statutoryDetail.gstNo ==="")) {
-        this.selectTab(2);
+        this.selectTab(3);
         this.setFocus('countrySelect');
     }
     if ( this.keyPersonDetailArray.length===0) {
@@ -1237,5 +1269,13 @@ export class CompanyProfileComponent implements OnInit {
       this.selectTab(0);
      this.setFocus('companyNameReference');
     }
+  }
+  yesConfirmationClose(data) {
+    $('#close_confirm_orgnization').modal(UIConstant.MODEL_HIDE)
+   this.emitCloseProfile(data)
+    
+  }
+  closeConfirmation() {
+    $('#close_confirm_orgnization').modal(UIConstant.MODEL_SHOW)
   }
 }

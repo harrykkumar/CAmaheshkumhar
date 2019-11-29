@@ -1,0 +1,76 @@
+<div
+  class="modal fade right"
+  id="add_new_mobileNo"
+  data-backdrop="static"
+  data-keyboard="false"
+  role="dialog"
+  aria-labelledby="add_new_mobileNo"
+  aria-hidden="true"
+>
+  <div class="modal-dialog " role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add New Mobile No</h4>
+        <button
+          type="button"
+          class="close"
+          (click)="closePopUp()"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form #addMobileNoForm="ngForm" novalidate>
+        <div class="modal-body">
+          <div class="card-body">
+            <div>
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label>Country Code</label>
+                  <ng-select
+                    name="countryCodeName"
+                    [items]="mobileCountryCodeList"
+                    bindLabel="text"
+                    bindValue="id"
+                    placeholder="Select Country Code"
+                    [(ngModel)]="selectedCountryCodeId"
+                    (change)="setCurrentMobileNoLength()"
+                  >
+                  </ng-select>
+                </div>
+                <div class="form-group col-md-12">
+                  <label>Mobile No</label>
+                  <input
+                    name="mobileNoName"
+                    type="text"
+                    [(ngModel)]="mobileNo"
+                    (keypress)="_commonService.isNumber($event)"
+                    class="form-control"
+                    placeholder="Enter Mobile No"
+                    [disabled]="!selectedCountryCodeId"
+                    required
+                    [ngClass]="{'is-invalid': addMobileNoForm?.submitted && !mobileNo}"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-primary waves-effect"
+            (keydown.enter)="
+            addMobileNoForm?.form?.valid && submit()
+            "
+            (click)="addMobileNoForm?.form?.valid && submit()"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

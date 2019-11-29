@@ -1,0 +1,71 @@
+<div
+  class="modal fade right"
+  id="godown_master"
+  role="dialog"
+  aria-labelledby="godown_master"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-full-height modal-right" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add Godown</h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closePopUp()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form
+        #addGodownForm="ngForm"
+        novalidate
+      >
+        <div class="modal-body">
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label>Parent Godown</label>
+                <ng-select
+                  name="godownParent"
+                  [items]="parentList"
+                  bindLabel="Name"
+                  bindValue="Id"
+                  placeholder="Select Parent"
+                  [(ngModel)]="parentId"
+                >
+                </ng-select>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Name</label>
+                <input
+                  type="text"
+                  name="godownName"
+                  [(ngModel)]="godownName"
+                  class="form-control"
+                  placeholder="Enter Name"
+                  required
+                  [ngClass]="{
+                    'is-invalid': addGodownForm?.submitted && !godownName
+                  }"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary waves-effect"
+          (click)="addGodownForm.form.valid && submit()">
+            Save
+          </button>
+          <button type="button" class="btn btn-primary waves-effect"
+          (click)="addGodownForm.form.valid && submit('reset')">
+            Save With Add New
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

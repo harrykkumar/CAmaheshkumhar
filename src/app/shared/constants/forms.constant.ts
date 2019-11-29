@@ -28,11 +28,13 @@ export class FormConstants {
   public static get Return (): number {
     return 5
   }
-
+  public static get saleDirectReturn (): number {
+    return 8
+  }
   public static get ProfitReport (): number {
     return 6
   }
-  
+
   public static get PurchaseForm (): number {
     return 7
   }
@@ -41,11 +43,11 @@ export class FormConstants {
     return 6
   }
 
-  public static get ChargeForm (): number { 
+  public static get ChargeForm (): number {
     return 22
   }
 
-  public static get VoucherForm (): number { 
+  public static get VoucherForm (): number {
     return 9
   }
   public static get PurchaseReturn (): number {
@@ -53,5 +55,13 @@ export class FormConstants {
   }
   public static get PURCHASEORDER (): number {
     return 46
+  }
+
+  public static get PAYMENT (): number {
+    return 10
+  }
+
+  public static get RECEIPT (): number {
+    return 11
   }
 }

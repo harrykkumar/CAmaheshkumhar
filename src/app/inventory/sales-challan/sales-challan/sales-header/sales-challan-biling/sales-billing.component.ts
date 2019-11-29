@@ -144,7 +144,7 @@ export class SalesChallanBillingComponent {
   TaxAmount: number
   DiscountType: number
   Discount: number
-  taxTypeChargeValue:any
+  taxTypeChargeValue: any
   DiscountAmt: number
   BillDiscount: number
   BillDiscountType: number
@@ -408,7 +408,7 @@ export class SalesChallanBillingComponent {
       data => {
         if (data.data) {
           this.godownsData = data.data
-          if (this.godownsData.length === 1) {
+          if (this.godownsData.length > 0) {
             this.GodownId = +this.godownsData[0].id
             this.godownValue = +this.godownsData[0].id
           }
@@ -663,9 +663,6 @@ export class SalesChallanBillingComponent {
     this.commonService.getChallanDataByIdForBilling(this.ChallanIds).pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-          // this.allAddressData = data.Data.AddressDetails
-          // this._saleDirectService.createAddress(data.Data.AddressDetails)
-
           this.createForm(data.Data)
         } else {
           this.toastrService.showError(data.Message, '')
@@ -726,7 +723,7 @@ export class SalesChallanBillingComponent {
           _self._saleDirectService.createCurrencies(data.Currencies)
           _self._saleDirectService.createCharges(data.LedgerCharges)
           this.getBankList(data.Banks)
-       
+
         },
         (error) => {
           console.log(error)
@@ -752,7 +749,7 @@ export class SalesChallanBillingComponent {
         })
       });
       this.allbankList = newdata
-      if(this.PaymentDetail.length===0){
+      if (this.PaymentDetail.length === 0) {
         this.selectedBankvalue = newdata[0].id
       }
     }
@@ -765,7 +762,7 @@ export class SalesChallanBillingComponent {
       this.organisationValue = +data[0].Id
       this.OrgGStType = +data[0].GstTypeId
       // if (this.isBillNoManuall) {
-      this.CurrentDate = this.gs.getDefaultDate(this.clientDateFormat)
+      // this.CurrentDate = this.gs.getDefaultDate(this.clientDateFormat)
 
       // }
       this.getNewBillNo()
@@ -794,19 +791,23 @@ export class SalesChallanBillingComponent {
   createForm(data) {
     this.dataForEdit = data
     this.other = {}
+    this.allUnits=[]
     this.Items = []
     this.ItemAttributeTrans = []
     this.ItemTaxTrans = []
     this.AdditionalCharges = []
     this.PaymentDetail = []
     this.taxRatesForEdit = data.TaxRates
+
     this.createOther(data.InventoryTransactionSales[0])
     this.createAttributes(data.ItemAttributesTransactions)
     console.log(data.ItemAttributesTransactions)
     this.createItemTaxTrans(data.ItemTaxTransDetails)
     this.createItems(data.ItemTransactionactions)
     this.createAdditionalCharges(data.AdditionalChargeDetails)
-  //  this.createTransaction(data.PaymentDetails)
+    this.allUnits = data.SubUnitWithItems
+
+    //  this.createTransaction(data.PaymentDetails)
     this.loading = false
     setTimeout(() => {
       if (this.vendorSelect2) {
@@ -816,8 +817,8 @@ export class SalesChallanBillingComponent {
     }, 1000)
     this.getBillSummary()
     this.creatingForm = false
-    if(data.DiscountTrans.length>0){
-      if(this.MultipleBillDiscount){
+    if (data.DiscountTrans.length > 0) {
+      if (this.MultipleBillDiscount) {
         this.BillDiscountApplied = []
         data.DiscountTrans.forEach((ele, indx) => {
           data.DiscountTrans[indx]['isChecked'] = true
@@ -825,7 +826,7 @@ export class SalesChallanBillingComponent {
         this.BillDiscountApplied = data.DiscountTrans
         this.MultipleDiscountCalculate(data.DiscountTrans)
       }
-      else{
+      else {
         this.editSimpleBillDiscount(data.DiscountTrans)
       }
 
@@ -878,8 +879,8 @@ export class SalesChallanBillingComponent {
         this.TaxSlabChargeId = element.TaxSlabChargeId
         this.TaxChargeName = element.TaxChargeName
         this.TaxAmountCharge = element.TaxAmountCharge
-        this.EditabledChargeRow =true,
-        this.TotalAmountCharge = element.TotalAmountCharge
+        this.EditabledChargeRow = true,
+          this.TotalAmountCharge = element.TotalAmountCharge
         this.TaxTypeCharge = element.TaxTypeCharge
         this.taxTypeChargeName = this.taxTypeChargeName
         this.taxChargeSlabType = element.TaxSlabType
@@ -899,18 +900,21 @@ export class SalesChallanBillingComponent {
 
   itemAttributesOthers: any = []
   createAttributes(attributes) {
-    attributes.forEach((element, index) => {
-      this.itemAttributesOthers[index] = {
-        ItemId: element.ItemId,
-        ItemTransId: element.ItemTransId,
-        AttributeId: element.AttributeId,
-        ParentTypeId: FormConstants.SaleForm,
-        name: element.AttributeName,
-        Id: element.Id,
-        Sno: index + 1
-      }
-    })
-
+    if(attributes.length>0){
+      attributes.forEach((element, index) => {
+        this.itemAttributesOthers[index] = {
+          ItemId: element.ItemId,
+          ItemTransId: element.ItemTransId,
+          AttributeId: element.AttributeId,
+          ParentTypeId: FormConstants.SaleForm,
+          name: element.AttributeName,
+          Id: element.Id,
+          Sno: index + 1
+        }
+      })
+    }
+   
+   // this.withoutAttributeData()
   }
   DiscountValidation(e) {
     if ('' + this.DiscountType === '0') {
@@ -955,7 +959,7 @@ export class SalesChallanBillingComponent {
   }
   createItems(ItemTransactions) {
     ItemTransactions.forEach(element => {
-      //let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.SaleForm && taxRate.SlabId === element.TaxSlabId)
+      let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.SaleForm && taxRate.SlabId === element.TaxSlabId)
       let total = +(isNaN(+element.SaleRate) ? 0 : +element.SaleRate)
         * (isNaN(+element.Quantity) || +element.Quantity === 0 ? 1 : +element.Quantity)
         * (isNaN(+element.Length) || +element.Length === 0 ? 1 : +element.Length)
@@ -1014,7 +1018,7 @@ export class SalesChallanBillingComponent {
       this.SubTotal = +element.SubTotalAmount
       this.itemAttributeTrans = itemAttributeTrans
       this.taxSlabType = element.TaxSlabType
-      this.taxRates = []
+      this.taxRates = taxRates.length === 0 ? [] : taxRates
       this.editItemId = element.Id
 
       this.AmountItem = (+element.TaxType === 0) ? this.calcTotal() : +this.SubTotal - this.TaxAmount
@@ -1055,7 +1059,7 @@ export class SalesChallanBillingComponent {
 
   createTransaction(paymentDetails) {
     if (paymentDetails.length > 0) {
-      if(paymentDetails[0].PayModeId===9){
+      if (paymentDetails[0].PayModeId === 9) {
         this.selectedBankvalue = paymentDetails[0].LedgerId
       }
       paymentDetails.forEach(element => {
@@ -1064,7 +1068,7 @@ export class SalesChallanBillingComponent {
         this.LedgerId = element.LedgerId
         this.BankLedgerName = element.BankLedgerName
         this.Amount = element.Amount
-        this.EditabledPay=true
+        this.EditabledPay = true
         this.PayDate = this.gs.utcToClientDateFormat(element.PayDate, this.clientDateFormat)
         this.ChequeNo = element.ChequeNo
         this.totalAmount(paymentDetails)
@@ -1313,9 +1317,10 @@ export class SalesChallanBillingComponent {
       if (data.Data.LedgerDetails && data.Data.LedgerDetails.length > 0) {
         const LedgerDetails = data.Data.LedgerDetails[0]
         this.CreditLimit = LedgerDetails.CreditLimit
-        this.CreditDays = LedgerDetails.CreditDays
         this.outStandingBalance = (data.Data.LedgerDetails[0].OpeningAmount).toFixed(this.noOfDecimalPoint)
         this.setCRDR = data.Data.LedgerDetails[0].Crdr === 0 ? 'Dr' : 'Cr';
+        //this.CreditDays = LedgerDetails.CreditDays
+
       }
     })
   }
@@ -1353,7 +1358,6 @@ export class SalesChallanBillingComponent {
   }
 
   getNewBillNo() {
-
     if (+this.OrgId > 0 && this.CurrentDate) {
       let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
       let type = (this.isBillNoManuall) ? 2 : 1
@@ -1381,17 +1385,17 @@ export class SalesChallanBillingComponent {
   isCaseSaleFlag: boolean
   addAddressforNewItem: boolean = false
   NoAddressNeed: boolean = true
-  editItemFlag:boolean
-  onLoading(){
-    this.editItemIndex=-1
-    this.editItemFlag  =false
-    this.BillDiscountType =0
+  editItemFlag: boolean
+  onLoading() {
+    this.editItemIndex = -1
+    this.editItemFlag = false
+    this.BillDiscountType = 0
     this.BillDiscountArray = []
     this.showHideAddItemRow = true
     this.showHideItemCharge = true
     this.showHidePayment = true
     this.addAddressforNewItem = false
-    this.editChargeIndex =-1
+    this.editChargeIndex = -1
 
   }
   @ViewChild('currency_select2') currencySelect2: Select2Component
@@ -1424,12 +1428,11 @@ export class SalesChallanBillingComponent {
       if (!this.isBillNoManuall) {
         this.setBillNo(this.TransactionNoSetups)
       }
-
       this.setCurrentDate(this.TransactionNoSetups)
       this.setDueDate(this.TransactionNoSetups)
       setTimeout(() => {
-        if (this.chargeSelect2) {
-          const element = this.renderer.selectRootElement(this.chargeSelect2.selector.nativeElement, true)
+        if (this.itemselect2) {
+          const element = this.renderer.selectRootElement(this.itemselect2.selector.nativeElement, true)
           element.focus({ preventScroll: false })
         }
       }, 1000)
@@ -1485,6 +1488,7 @@ export class SalesChallanBillingComponent {
     if (setups && setups.length > 0) {
       this.CurrentDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
 
+
     }
   }
 
@@ -1507,10 +1511,11 @@ export class SalesChallanBillingComponent {
   setDueDate(setups) {
     if (setups && setups.length > 0) {
       this.DueDate = this.gs.utcToClientDateFormat(setups[0].CurrentDate, this.clientDateFormat)
+
     }
   }
-  setBillDate() {
-  }
+
+
 
   createModels(levels) {
     this.categories = []
@@ -1555,7 +1560,6 @@ export class SalesChallanBillingComponent {
       }
     }
     console.log(this.categories)
-    // this.loading = false
   }
 
   catStr: string = ''
@@ -1614,7 +1618,7 @@ export class SalesChallanBillingComponent {
   }
 
   checkForItems(categoryId) {
-    
+
     let newItemsList = []
     if (categoryId > 0) {
       this.allItems.forEach(item => {
@@ -1680,32 +1684,26 @@ export class SalesChallanBillingComponent {
     }
     this.subUnitsData = newdataUnit
   }
-  getEditUnitByItem(ItemId, CustomerId) {
-    let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
-
-    this.commonService.barcodeAPI(newBillDate, '', ItemId, CustomerId).subscribe(Data => {
-      if (Data.Code === UIConstant.THOUSAND) {
-        if (Data.Data && Data.Data.SubUnitDetails && Data.Data.SubUnitDetails.length > 0) {
-          this.filterUnitForItem(Data.Data.SubUnitDetails)
-
-          this.unitSelect2.setElementValue(this.UnitId)
-          this.subUnitsValue = this.UnitId
-
-        }
-      }
-    })
+  allUnits:any =[]
+  getEditUnitByItem(ItemId) {
+    let newunit = [{ id: UIConstant.BLANK, text: 'Select  Unit' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+   this.allUnits.forEach((element,ind) => {
+     if(ItemId ===element.ItemId){
+          newunit.push({
+            id: element.UnitId,
+            text: element.SubUnitName
+          })
+     }
+   });
+   this.subUnitsData = newunit
+   this.unitSelect2.setElementValue(this.UnitId)
+   this.subUnitsValue =this.UnitId
   }
   Barcode: any = ''
   notItemAddedOutOfStock: boolean = true
-  // barCodeReader (){
-  //   if(this.Barcode.length>0){
-  //     let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
-  //     this.getItemRateByLedgerData(newBillDate,this.Barcode,0,this.PartyId)
 
-
-  //   }
-  // }
   withoutAttributeData() {
+    debugger
     this.attributesData.forEach((element, index) => {
       let Sno = 0
       if (this.Items.length === 0) {
@@ -1774,8 +1772,8 @@ export class SalesChallanBillingComponent {
         }
         if (Data.Data && Data.Data.SubUnitDetails && Data.Data.SubUnitDetails.length > 0) {
           this.filterUnitForItem(Data.Data.SubUnitDetails)
-          this.unitSelect2.setElementValue(Data.Data.ItemDetails[0].UnitId)
-          this.subUnitsValue = Data.Data.ItemDetails[0].UnitId
+          this.unitSelect2.setElementValue( this.UnitId )
+          this.subUnitsValue =  this.UnitId 
         }
         if (+this.TaxSlabId > 0) {
           this.getTaxDetail(this.TaxSlabId)
@@ -1837,14 +1835,14 @@ export class SalesChallanBillingComponent {
         this.itemAttributeTrans[index]['ItemId'] = this.ItemId
         this.itemAttributeTrans[index]['AttributeId'] = +evt.value
         this.itemAttributeTrans[index]['ParentTypeId'] = FormConstants.SaleForm
-        this.itemAttributeTrans[index]['name'] = evt.value==='0' ? '' : evt.data[0].text
+        this.itemAttributeTrans[index]['name'] = evt.value === '0' ? '' : evt.data[0].text
       } else {
         this.itemAttributeTrans[index] = {
           ItemId: this.ItemId,
           ItemTransId: Sno,
           AttributeId: +evt.value,
           ParentTypeId: FormConstants.SaleForm,
-          name: evt.value==='0' ? '' : evt.data[0].text,
+          name: evt.value === '0' ? '' : evt.data[0].text,
           id: 0,
           Sno: Sno
         }
@@ -1955,7 +1953,7 @@ export class SalesChallanBillingComponent {
         })
       }, 100)
     }
-    else{
+    else {
       let pattern = [childmostId]
       this.catSelect2.forEach(() => {
         let parent = this.getParentCat(childmostId)
@@ -2072,7 +2070,7 @@ export class SalesChallanBillingComponent {
     }
     return discountAmt
   }
-  editSimpleBillDiscount (multipleDiscount) {
+  editSimpleBillDiscount(multipleDiscount) {
     this.BillDiscountType = multipleDiscount[0].ValueType
     this.BillDiscount = multipleDiscount[0].Value
     this.BillDiscountCalculate()
@@ -2131,8 +2129,8 @@ export class SalesChallanBillingComponent {
   }
   AmountItemBillDiscount: number = 0
   updateAfterBillDiscount() {
-    
-   // this.TaxAmount=0
+
+    // this.TaxAmount=0
     if (this.Items.length > 0) {
       const observables = [];
       for (const item of this.Items) {
@@ -2142,64 +2140,64 @@ export class SalesChallanBillingComponent {
       }
       forkJoin(...observables).subscribe(
         data => {
-         
-            this.totalBillDiscount = 0
-            data.forEach((element, index) => {
-              let appliedTaxRatesItem = []
-              let AmountItem = 0
-              element.Data.TaxRates = this.OrgGStType === 1 ? element.Data.TaxRates : []
-              let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
-              if (+this.PerItemDiscountPerCentage > 0) {
-                this.BillDiscountAmt = +((this.PerItemDiscountPerCentage / 100) * (this.Items[index].AmountItem)).toFixed(this.noOfDecimalPoint)
-              }
-              else {
-                this.totalBillDiscount = 0
-                this.BillDiscountAmt = 0
-              }
-              this.totalBillDiscount = this.totalBillDiscount + +this.BillDiscountAmt
-              if (this.Items.length > 0) {
-                AmountItem = this.Items[index].AmountItem - this.BillDiscountAmt
-                this.AmountItemBillDiscount = AmountItem
-                this.Items[index]['AmountItemBillDiscount'] = AmountItem
-                if (element.Data.TaxRates.length > 0 && +AmountItem > 0) {
-                  if (this.Items[index].TaxType === 1) {
-                    let returnTax = this._saleDirectService.taxCalCulationForInclusive(element.Data.TaxRates,
-                      taxSlabType,
-                      +AmountItem,
-                      this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
-                    this.Items[index]['TaxAmount'] = returnTax.taxAmount
-                   // this.TaxAmount =returnTax.taxAmount
-                    appliedTaxRatesItem = returnTax.appliedTaxRates
-                  this.appliedTaxRatesItem =[]
-                    
-                  } else if (this.Items[index].TaxType === 0) {
-                    let returnTax = this._saleDirectService.taxCalculation(element.Data.TaxRates,
-                      taxSlabType,
-                      +AmountItem,
-                      this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
-                    this.Items[index]['TaxAmount'] = returnTax.taxAmount
-                    //this.TaxAmount =returnTax.taxAmount
-                    appliedTaxRatesItem = returnTax.appliedTaxRates
-                    this.appliedTaxRatesItem = []
-                
-                  }
-                  if (appliedTaxRatesItem.length > 0) {
-                    appliedTaxRatesItem.forEach((taxRate) => {
-                      if (this.Items[index].Id !== 0) {
-                        taxRate['ItemTransTaxId'] = this.Items[index].Id
-                      } else {
-                        taxRate['ItemTransTaxId'] = this.Items[index].Sno
-                      }
-                    })
-                  }
-                  this.Items[index].itemTaxTrans = appliedTaxRatesItem
+
+          this.totalBillDiscount = 0
+          data.forEach((element, index) => {
+            let appliedTaxRatesItem = []
+            let AmountItem = 0
+            element.Data.TaxRates = this.OrgGStType === 1 ? element.Data.TaxRates : []
+            let taxSlabType = (element.Data.TaxSlabs[0]) ? element.Data.TaxSlabs[0].Type : 0
+            if (+this.PerItemDiscountPerCentage > 0) {
+              this.BillDiscountAmt = +((this.PerItemDiscountPerCentage / 100) * (this.Items[index].AmountItem)).toFixed(this.noOfDecimalPoint)
+            }
+            else {
+              this.totalBillDiscount = 0
+              this.BillDiscountAmt = 0
+            }
+            this.totalBillDiscount = this.totalBillDiscount + +this.BillDiscountAmt
+            if (this.Items.length > 0) {
+              AmountItem = this.Items[index].AmountItem - this.BillDiscountAmt
+              this.AmountItemBillDiscount = AmountItem
+              this.Items[index]['AmountItemBillDiscount'] = AmountItem
+              if (element.Data.TaxRates.length > 0 && +AmountItem > 0) {
+                if (this.Items[index].TaxType === 1) {
+                  let returnTax = this._saleDirectService.taxCalCulationForInclusive(element.Data.TaxRates,
+                    taxSlabType,
+                    +AmountItem,
+                    this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
+                  this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                  // this.TaxAmount =returnTax.taxAmount
+                  appliedTaxRatesItem = returnTax.appliedTaxRates
+                  this.appliedTaxRatesItem = []
+
+                } else if (this.Items[index].TaxType === 0) {
+                  let returnTax = this._saleDirectService.taxCalculation(element.Data.TaxRates,
+                    taxSlabType,
+                    +AmountItem,
+                    this.isOtherState, FormConstants.SaleForm, element.Data.TaxSlabs[0].Slab)
+                  this.Items[index]['TaxAmount'] = returnTax.taxAmount
+                  //this.TaxAmount =returnTax.taxAmount
+                  appliedTaxRatesItem = returnTax.appliedTaxRates
+                  this.appliedTaxRatesItem = []
+
                 }
-                this.Items[index]['SubTotal'] = +AmountItem + +this.Items[index]['TaxAmount']
+                if (appliedTaxRatesItem.length > 0) {
+                  appliedTaxRatesItem.forEach((taxRate) => {
+                    if (this.Items[index].Id !== 0) {
+                      taxRate['ItemTransTaxId'] = this.Items[index].Id
+                    } else {
+                      taxRate['ItemTransTaxId'] = this.Items[index].Sno
+                    }
+                  })
+                }
+                this.Items[index].itemTaxTrans = appliedTaxRatesItem
               }
-            });
-          
+              this.Items[index]['SubTotal'] = +AmountItem + +this.Items[index]['TaxAmount']
+            }
+          });
+
           if (!this.MultipleBillDiscount) {
-            if(this.PerItemDiscountPerCentage>0){
+            if (this.PerItemDiscountPerCentage > 0) {
               this.BillDiscountArray = [{
                 "Id": 0,
                 "DiscountId": 0,
@@ -2209,7 +2207,7 @@ export class SalesChallanBillingComponent {
                 "Amount": this.totalBillDiscount
               }]
             }
-         
+
           }
           this.UpdateBillDiscountHistory()
           this.calculateAllTotal()
@@ -2240,10 +2238,10 @@ export class SalesChallanBillingComponent {
       if (total > 0) {
         if (this.editItemIndex > -1) {
           this.Items[this.editItemIndex].SaleRate = this.SaleRate
-          this.Items[this.editItemIndex].Quantity =  this.Quantity
-          this.Items[this.editItemIndex].Width =  this.Width
+          this.Items[this.editItemIndex].Quantity = this.Quantity
+          this.Items[this.editItemIndex].Width = this.Width
           this.Items[this.editItemIndex].Length = this.Length
-          this.Items[this.editItemIndex].Height =  this.Height
+          this.Items[this.editItemIndex].Height = this.Height
         }
         let discountedAmount = 0
         if (this.DiscountAmt === total) {
@@ -2341,7 +2339,7 @@ export class SalesChallanBillingComponent {
               this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
 
             }
-            
+
           }
         }
       } else {
@@ -2359,7 +2357,7 @@ export class SalesChallanBillingComponent {
           this.appliedTaxRatesItem = []
         }
         if (this.editItemId !== -1 && this.editItemIndex > -1) {
-             this.resetCalculate(this.editItemIndex)
+          this.resetCalculate(this.editItemIndex)
         }
       }
     } else {
@@ -2406,8 +2404,8 @@ export class SalesChallanBillingComponent {
       }
     } else if (this.editChargeId === -1) {
       this.TaxAmountCharge = 0
-      this.TotalAmountCharge=0
-      this.TaxableAmountCharge=0
+      this.TotalAmountCharge = 0
+      // this.TaxableAmountCharge = 0
       this.appliedTaxRatesCharge = []
 
     }
@@ -2419,14 +2417,14 @@ export class SalesChallanBillingComponent {
     } else {
       if (this.editChargeIndex > -1) {
         this.TaxAmountCharge = 0
-        this.TotalAmountCharge=0
-        this.TaxableAmountCharge=0
+        this.TotalAmountCharge = 0
+        this.TaxableAmountCharge = 0
         this.AdditionalCharges[this.editChargeIndex].TaxAmountCharge = 0
         this.AdditionalCharges[this.editChargeIndex].itemTaxTrans = []
         this.AdditionalCharges[this.editChargeIndex].taxChargeRates = []
         this.AdditionalCharges[this.editChargeIndex].TotalAmountCharge = 0
         this.AdditionalCharges[this.editChargeIndex].AmountCharge = 0
-        this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = 0  
+        this.AdditionalCharges[this.editChargeIndex].TaxableAmountCharge = 0
       }
     }
     this.TotalAmountCharge = +this.TotalAmountCharge.toFixed(4)
@@ -2443,7 +2441,7 @@ export class SalesChallanBillingComponent {
     }
     this.getBillSummary()
   }
-  resetCalculate(editItemIndex){
+  resetCalculate(editItemIndex) {
     this.Items[editItemIndex].TaxAmount = 0
     this.Items[editItemIndex].AmountItem = 0
     this.Items[editItemIndex].PurchaseRate = 0
@@ -2452,13 +2450,13 @@ export class SalesChallanBillingComponent {
     this.Items[editItemIndex].DiscountAmt = 0
     this.Items[editItemIndex].taxRates = []
     this.Items[editItemIndex].TotalRate = 0
-    this.Items[editItemIndex].Quantity =1
-    this.Items[editItemIndex].Length =1
-    this.Items[editItemIndex].Width =1
-    this.Items[editItemIndex].Height =1
+    this.Items[editItemIndex].Quantity = 1
+    this.Items[editItemIndex].Length = 1
+    this.Items[editItemIndex].Width = 1
+    this.Items[editItemIndex].Height = 1
     this.TaxAmount = 0
     this.AmountItem = 0
-   }
+  }
   calculateTotalOfRow() {
     let totalAmount = this.AmountItem + (isNaN(+this.TaxAmount) ? 0 : +this.TaxAmount)
     return isNaN(totalAmount) ? 0 : totalAmount
@@ -2526,8 +2524,8 @@ export class SalesChallanBillingComponent {
           this.AddressId = +evt.id
           this.checkForGST()
         }
-    if (+evt.value === 0 && evt.data && evt.data[0] && evt.data[0].selected) {
-        
+        if (+evt.id === 0) {
+
           this.AddressId = 0
           this.isOtherState = false
           this.updateItemTax()
@@ -2546,10 +2544,10 @@ export class SalesChallanBillingComponent {
           this.toastrService.showError('First Select Customer', '')
         }
       } else {
-        if (evt.id > 0 ) {
+        if (evt.id > 0) {
           this.SupplyStateId = +evt.id
           this.SupplyState = +evt.id
-          this.checkForGST()
+          // this.checkForGST()
         }
       }
       // this.checkForValidation()
@@ -2918,7 +2916,7 @@ export class SalesChallanBillingComponent {
     this.PayModeId = 0
     this.LedgerId = 0
     this.Amount = 0
-    this.editTransId =-1
+    this.editTransId = -1
     this.PayDate = this.CurrentDate
     this.ChequeNo = ''
     this.Paymode = ''
@@ -2936,12 +2934,12 @@ export class SalesChallanBillingComponent {
       if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
         if (this.checkValidationForAmount()) {
           this.addTransaction()
-          if(this.editTransId > 0 ){
-            this.showHidePayment =true
+          if (this.editTransId > 0) {
+            this.showHidePayment = true
           }
-          this.PaymentDetail.forEach((element,i) => {
-            if(element.Id === 0){
-              this.showHidePayment =true
+          this.PaymentDetail.forEach((element, i) => {
+            if (element.Id === 0) {
+              this.showHidePayment = true
             }
           })
           this.clickTrans = true
@@ -2950,7 +2948,7 @@ export class SalesChallanBillingComponent {
         }
       } else {
         this.clickTrans = false
-      
+
       }
     }
   }
@@ -2961,15 +2959,15 @@ export class SalesChallanBillingComponent {
       index = 1
     } else {
       index = +this.PaymentDetail[this.PaymentDetail.length - 1].Sno + 1
-      this.PaymentDetail.forEach((element,i) => {
-        if(this.editTransId>0){
-          if(element.Id === this.editTransId){
-            this.PaymentDetail.splice(i,1)
+      this.PaymentDetail.forEach((element, i) => {
+        if (this.editTransId > 0) {
+          if (element.Id === this.editTransId) {
+            this.PaymentDetail.splice(i, 1)
           }
         }
-        if(element.Id===0){
-          if(element.Sno === this.editTransSno){
-            this.PaymentDetail.splice(i,1)
+        if (element.Id === 0) {
+          if (element.Sno === this.editTransSno) {
+            this.PaymentDetail.splice(i, 1)
           }
         }
       })
@@ -2984,7 +2982,7 @@ export class SalesChallanBillingComponent {
       Amount: this.Amount,
       PayDate: this.PayDate,
       ChequeNo: this.ChequeNo,
-      isEditable:this.EditabledPay
+      isEditable: this.EditabledPay
     })
     setTimeout(() => {
       this.commonService.fixTableHFL('trans-table')
@@ -2992,25 +2990,25 @@ export class SalesChallanBillingComponent {
     if (this.editTransId !== -1) {
       this.PaymentDetail[this.PaymentDetail.length - 1].Id = this.editTransId
     }
-   console.log(this.PaymentDetail,'paye')
+    console.log(this.PaymentDetail, 'paye')
   }
 
   addItems() {
-    if (this.validDiscount && this.Quantity>0 && +this.UnitId > 0 && this.SaleRate > 0) {
+    if (this.validDiscount && this.Quantity > 0 && +this.UnitId > 0) {
       if (this.notItemAddedOutOfStock) {
         this.addItem()
         this.clickItem = true
-        if(this.editItemFlag){
+        if (this.editItemFlag) {
           this.BillDiscount = 0
           this.BillDiscountArray = []
           this.BillDiscountCalculate()
         }
-        else{
+        else {
           this.calculateAllTotal()
           this.getBillSummary()
         }
         this.initItem()
-          
+
       }
       else {
         this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
@@ -3026,19 +3024,19 @@ export class SalesChallanBillingComponent {
     if (this.appliedTaxRatesItem.length > 0) {
       this.ItemTaxTrans = this.ItemTaxTrans.concat(this.appliedTaxRatesItem)
     }
-    
-    if(this.editItemId > 0 ){
-      this.showHideAddItemRow =true
+
+    if (this.editItemId > 0) {
+      this.showHideAddItemRow = true
     }
-   
-    this.Items.forEach((element,i) => {
-      if(element.Id === 0){
-        this.showHideAddItemRow =true
+
+    this.Items.forEach((element, i) => {
+      if (element.Id === 0) {
+        this.showHideAddItemRow = true
         this.addAddressforNewItem = true
       }
     })
-    
-   
+
+
   }
 
   createAddedItem() {
@@ -3051,41 +3049,41 @@ export class SalesChallanBillingComponent {
 
     } else if (this.Items.length > 0) {
       Sno = +this.Items[this.Items.length - 1].Sno + 1
-      this.Items.forEach((element,i) => {
-        if( this.editItemId>0){
-          if(element.Id === this.editItemId){
-            this.Items.splice(i,1)
+      this.Items.forEach((element, i) => {
+        if (this.editItemId > 0) {
+          if (element.Id === this.editItemId) {
+            this.Items.splice(i, 1)
             this.ItemAttributeTrans = []
             this.Items.forEach(item => {
               this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
             })
           }
         }
-       if(element.Id===0){
-        if(element.Sno === this.editItemSno){
-          this.Items.splice(i,1)
-          this.ItemAttributeTrans = []
-          this.Items.forEach(item => {
-            this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
-          })
+        if (element.Id === 0) {
+          if (element.Sno === this.editItemSno) {
+            this.Items.splice(i, 1)
+            this.ItemAttributeTrans = []
+            this.Items.forEach(item => {
+              this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
+            })
+          }
         }
-       }
-        
+
       })
-      if(this.editItemFlag){
-        SrNo= this.SrNo
+      if (this.editItemFlag) {
+        SrNo = this.SrNo
       }
-      else{
+      else if (this.Items.length > 0) {
         SrNo = this.Items[this.Items.length - 1].SrNo + 1
-      for(let i=0; i < this.Items.length; i++){
-        if(SrNo ===this.Items[i].SrNo){
-          SrNo =  SrNo+1
-          continue;
-         }
-      }
+        for (let i = 0; i < this.Items.length; i++) {
+          if (SrNo === this.Items[i].SrNo) {
+            SrNo = SrNo + 1
+            continue;
+          }
+        }
       }
     }
- 
+
     this.appliedTaxRatesItem.forEach(element => {
       element['Sno'] = Sno
       element['ItemTransTaxId'] = Sno
@@ -3097,7 +3095,7 @@ export class SalesChallanBillingComponent {
     this.Items.push({
       Id: 0,
       Sno: Sno,
-      SrNo:SrNo,
+      SrNo: SrNo,
       TransType: this.TransType,
       TransId: this.TransId,
       ChallanId: this.ChallanId,
@@ -3146,33 +3144,33 @@ export class SalesChallanBillingComponent {
     if (this.editItemId !== -1) {
       this.Items[this.Items.length - 1].Id = this.editItemId
     }
-    console.log(this.Items ,'added-edit-item')
-  
+    console.log(this.Items, 'added-edit-item')
+
 
   }
   ItemIndex: any
 
-  DisabledRow:boolean
-  EditabledChargeRow:boolean= true
-  EditabledPay:boolean= true
+  DisabledRow: boolean
+  EditabledChargeRow: boolean = true
+  EditabledPay: boolean = true
   showHideAddItemRow: any = true
   showHideItemCharge: any = true
   showHidePayment: any = true
-  editTransSno:number=0
-  SrNo:any=0
+  editTransSno: number = 0
+  SrNo: any = 0
   editchargeFlag: boolean = true
-  editItemIndex:any =-1
-  editChargeIndex:number=-1
+  editItemIndex: any = -1
+  editChargeIndex: number = -1
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
     if (type === 'charge' && this.editChargeId === -1) {
       this.editChargeId = editId
       this.editChargeSno = sno
       i = i - 1
-      this.showHideItemCharge =false
-      this.editChargeIndex =i
+      this.showHideItemCharge = false
+      this.editChargeIndex = i
       this.AdditionalCharges[i].isEditable = false
-      this.EditabledChargeRow =true
+      this.EditabledChargeRow = true
       this.LedgerName = this.AdditionalCharges[i].LedgerName
       this.LedgerChargeId = this.AdditionalCharges[i].LedgerChargeId
       this.alreadySelectCharge(this.LedgerChargeId, this.LedgerName, false)
@@ -3192,22 +3190,22 @@ export class SalesChallanBillingComponent {
         this.LedgerChargeId = LedgerChargeId
         this.taxSlabChargeSelect2.setElementValue(this.TaxSlabChargeId)
         this.taxTypeChargeSelect2.setElementValue(this.TaxTypeCharge)
-     // this.deleteItem(i, type, false)
+        // this.deleteItem(i, type, false)
         this.validateCharge()
         this.ledgerChargeValue = this.LedgerChargeId
         this.chargeSelect2.setElementValue(this.LedgerChargeId)
 
 
       }, 100)
-    } 
+    }
     if (type === 'trans' && this.editTransId === -1) {
       this.editTransId = editId
-      
+
       i = i - 1
       this.editTransSno = sno
-      this.showHidePayment =false
+      this.showHidePayment = false
       this.PaymentDetail[i].isEditable = false
-      this.EditabledPay =true
+      this.EditabledPay = true
       if (+this.PaymentDetail[i].PayModeId !== 1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
@@ -3225,22 +3223,22 @@ export class SalesChallanBillingComponent {
         this.ledgerSelect2.setElementValue(this.LedgerId)
         //this.deleteItem(i, type, false)
       }
-    } 
+    }
     if (type === 'items' && this.editItemId === -1) {
       this.editItemId = editId
       this.editItemSno = sno
       i = i - 1
       this.showHideAddItemRow = false
-      this.editItemFlag  =true
+      this.editItemFlag = true
 
       this.Items[i].isDisabled = false
       this.SrNo = this.Items[i].SrNo
-      
-      this.DisabledRow =true
+
+      this.DisabledRow = true
       this.TransType = 0
       this.TransId = 0
       this.ChallanId = 0
-      this.editItemIndex =i
+      this.editItemIndex = i
       this.categoryName = this.Items[i].categoryName
       this.itemName = this.Items[i].itemName
       this.unitName = this.Items[i].unitName
@@ -3251,7 +3249,7 @@ export class SalesChallanBillingComponent {
       this.Length = this.Items[i].Length
       this.Height = this.Items[i].Height
       this.Width = this.Items[i].Width
-      this.TotalRate =this.Items[i].TotalRate
+      this.TotalRate = this.Items[i].TotalRate
       this.Quantity = this.Items[i].Quantity
       this.SaleRate = this.Items[i].SaleRate
       this.MrpRate = this.Items[i].MrpRate
@@ -3274,7 +3272,7 @@ export class SalesChallanBillingComponent {
       this.taxRates = this.Items[i].taxRates
       // this.unitSelect2.setElementValue(this.UnitId)
       this.UnitId = this.Items[i].UnitId
-      this.getEditUnitByItem(this.Items[i].ItemId, this.PartyId)
+      this.getEditUnitByItem(this.Items[i].ItemId)
       this.unitSelect2.setElementValue(this.UnitId)
       setTimeout(() => {
         if (this.attrSelect2.length > 0) {
@@ -3282,15 +3280,15 @@ export class SalesChallanBillingComponent {
             item.setElementValue(this.itemAttributeTrans[index].AttributeId)
           })
         }
-      },500)
+      }, 500)
       let ItemId = this.Items[i].ItemId
       this.updateCategories(this.categoryId)
       this.checkForItems(this.categoryId)
-      
-        this.BillDiscount = 0
-          this.BillDiscountArray = []
-          this.BillDiscountCalculate()
-      
+
+      this.BillDiscount = 0
+      this.BillDiscountArray = []
+      this.BillDiscountCalculate()
+
       let TaxSlabId = this.Items[i].TaxSlabId
       let TaxType = this.Items[i].TaxType
       let _self = this
@@ -3302,8 +3300,16 @@ export class SalesChallanBillingComponent {
         _self.taxTypeSelect2.setElementValue(TaxType)
         _self.TaxType = TaxType
       }, 1)
+     
+      setTimeout(() => {
+        if (this.attrSelect2.length > 0) {
+          this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
+            item.setElementValue(this.itemAttributeTrans[index].AttributeId)
+          })
+        }
+      }, 800)
     }
-    
+
   }
 
   deleteItem(i, forArr, flag) {
@@ -3312,16 +3318,17 @@ export class SalesChallanBillingComponent {
       this.checkValidationForAmount()
     }
     if (forArr === 'items') {
+      this.showHideAddItemRow = true
       this.Items.splice(i, 1)
       this.ItemAttributeTrans = []
       this.Items.forEach(item => {
         this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
       })
-   
-        this.BillDiscount = 0
-          this.BillDiscountArray = []
-          this.BillDiscountCalculate()
-        
+
+      this.BillDiscount = 0
+      this.BillDiscountArray = []
+      this.BillDiscountCalculate()
+
       if (this.Items.length > 0) {
         this.addItemDisbaled = false
       }
@@ -3335,25 +3342,34 @@ export class SalesChallanBillingComponent {
         this.alreadySelectCharge(this.AdditionalCharges[i].LedgerChargeId, this.AdditionalCharges[i].LedgerName, false)
       }
       this.AdditionalCharges.splice(i, 1)
-      
+
     }
     this.calculate()
   }
 
-  closePurchase() {
+  closeSaleBilling() {
     this.BillDiscountApplied = []
     this.showHideAddItemRow = true
     this.showHideItemCharge = true
-    this.showHidePayment =true
+    this.showHidePayment = true
     this.addressBillingValue = null
     this.addressShippingValue = null
+    this.closeConfirmation()
+    //  this.closeModal()
+    //this.commonService.closePurchase()
+
+  }
+  yesConfirmationClose() {
+    $('#close_confirm2').modal(UIConstant.MODEL_HIDE)
     this.closeModal()
     this.commonService.closePurchase()
-
+  }
+  closeConfirmation() {
+    $('#close_confirm2').modal(UIConstant.MODEL_SHOW)
   }
 
   initItem() {
-    this.editItemIndex=-1
+    this.editItemIndex = -1
     this.editItemFlag = false
     this.TransType = 0
     this.TransId = 0
@@ -3387,7 +3403,7 @@ export class SalesChallanBillingComponent {
     this.SubTotal = 0
     this.AmountItem = 0
     this.editItemId = -1
-    
+
     this.clickItem = false
 
     if (this.allCategories && this.allCategories.length > 0) {
@@ -3457,7 +3473,7 @@ export class SalesChallanBillingComponent {
     this.taxChargeRates = []
     this.appliedTaxRatesCharge = []
     this.editChargeId = -1
-    this.editChargeIndex =-1
+    this.editChargeIndex = -1
     if (this.taxSlabChargeSelect2) {
       this.taxSlabChargeSelect2.setElementValue('')
     }
@@ -3475,7 +3491,7 @@ export class SalesChallanBillingComponent {
     this.Paymode = ''
     this.PayModeId = 0
     this.LedgerId = 0
-    this.editTransSno =0
+    this.editTransSno = 0
     this.Amount = 0
     this.BankLedgerName = ''
     this.ChequeNo = ''
@@ -3494,7 +3510,7 @@ export class SalesChallanBillingComponent {
 
   initComp() {
     // this.CurrentDate = ''
-    this.DueDate = ''
+    // this.DueDate = ''
     this.GodownId = 0
     this.CurrencyId = 0
     this.ConvertToCurrencyId = 0
@@ -3552,7 +3568,7 @@ export class SalesChallanBillingComponent {
     this.InterestRate = 0
     this.InterestAmount = 0
     this.InterestType = 0
-    this.DueDate = ''
+    // this.DueDate = ''
     this.OrderId = 0
     this.Advanceamount = 0
     this.NetAmount = 0
@@ -3577,7 +3593,7 @@ export class SalesChallanBillingComponent {
     this.AdditionalChargesToShow = []
     this.TaxableValue = 0
 
-    if (this.godownsData && this.godownsData.length === 1) {
+    if (this.godownsData && this.godownsData.length > 0) {
       this.GodownId = +this.godownsData[0].id
       this.godownValue = +this.godownsData[0].id
       if (this.godownSelect2) {
@@ -3615,7 +3631,6 @@ export class SalesChallanBillingComponent {
     this.RoundOffManual = 0
     this.billSummary = []
     this.AddressData = []
-    this.setBillDate()
     this.setPayDate()
     // this.getNewBillNo()
     // this.getNewCurrentDate()
@@ -3639,7 +3654,7 @@ export class SalesChallanBillingComponent {
     )
   }
   getNewCurrentDate() {
-
+    debugger
     this._saleDirectService.getCurrentDate().subscribe(
       data => {
         if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
@@ -3718,9 +3733,10 @@ export class SalesChallanBillingComponent {
         ItemTaxTrans: this.ItemTaxTrans,
         AdditionalCharges: this.AdditionalCharges,
         CustomerTypes: this.caseSaleCustomerDetails,
-        DiscountTrans:  this.BillDiscount===0 ? [] : this.BillDiscountArray,
+        DiscountTrans: this.BillDiscount === 0 ? [] : this.BillDiscountArray,
         ChallanIds: this.ChallanIds,
-        TransBankId :this.selectedBankvalue
+        TransBankId: this.selectedBankvalue,
+        ItemPropertyTrans:[]
       } as SaleDirectAdd
     }
     return saleDirectParams.obj
@@ -3759,16 +3775,7 @@ export class SalesChallanBillingComponent {
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-      // if (+this.PayModeId === 3) {
-      //   if (this.ChequeNo) {
-      //     this.invalidObj['ChequeNo'] = false
-      //   } else {
-      //     isValid = 0
-      //     this.invalidObj['ChequeNo'] = true
-      //   }
-      // } else {
-      //   this.invalidObj['ChequeNo'] = false
-      // }
+
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
@@ -3782,10 +3789,110 @@ export class SalesChallanBillingComponent {
     this.clickTrans = false
   }
 
+
+  @ViewChild('paydateRef') paydateRef: ElementRef;
+  @ViewChild('billNumbeRef') billNumbeRef: ElementRef;
+  @ViewChild('quantityRef') quantityRef: ElementRef;
+  @ViewChild('SaleRateRef') SaleRateRef: ElementRef;
+  @ViewChild('lengthRef') lengthRef: ElementRef;
+  @ViewChild('widthRef') widthRef: ElementRef;
+  @ViewChild('heightRef') heightRef: ElementRef;
+  @ViewChild('BatchNoRef') BatchNoRef: ElementRef;
+  dynamicFocus() {
+
+    if (this.CurrentDate) {
+      this.invalidObj['CurrentDate'] = false
+    } else if (!this.invalidObj.PartyId) {
+      this.invalidObj['CurrentDate'] = true
+      this.paydateRef.nativeElement.focus()
+    }
+    if (this.BillNo) {
+      this.invalidObj['BillNo'] = false
+    } else if (!this.invalidObj.CurrentDate) {
+      this.invalidObj['BillNo'] = true
+      this.billNumbeRef.nativeElement.focus()
+    }
+    if (this.Items.length === 0 && this.submitSave) {
+
+      if (+this.ItemId > 0) {
+        this.invalidObj['ItemId'] = false
+      } else if (!this.invalidObj.BillNo && !this.invalidObj.PartyId && !this.invalidObj.CurrentDate) {
+        this.invalidObj['ItemId'] = true
+        this.itemselect2.selector.nativeElement.focus({ preventScroll: false })
+
+      }
+      if (+this.UnitId > 0) {
+        this.invalidObj['UnitId'] = false
+      } else if (!this.invalidObj.ItemId && !this.invalidObj.BillNo && !this.invalidObj.PartyId && !this.invalidObj.CurrentDate) {
+        this.invalidObj['UnitId'] = true
+        this.unitSelect2.selector.nativeElement.focus({ preventScroll: false })
+
+      }
+      if (+this.Quantity > 0) {
+        this.invalidObj['Quantity'] = false
+      } else if (!this.invalidObj.UnitId && !this.invalidObj.ItemId && !this.invalidObj.BillNo && !this.invalidObj.PartyId && !this.invalidObj.CurrentDate) {
+        this.invalidObj['Quantity'] = true
+        this.quantityRef.nativeElement.focus()
+      }
+
+
+      if (this.industryId === 5) {
+        if (this.BatchNo) {
+          this.invalidObj['BatchNo'] = false
+        } else if (!this.invalidObj.Quantity && !this.invalidObj.UnitId && !this.invalidObj.ItemId && !this.invalidObj.BillNo && !this.invalidObj.PartyId && !this.invalidObj.CurrentDate) {
+          this.invalidObj['BatchNo'] = true
+          this.BatchNoRef.nativeElement.focus()
+
+        }
+        if (this.MfdDate) {
+          this.invalidObj['MfdDate'] = false
+        } else {
+
+          this.invalidObj['MfdDate'] = true
+        }
+        if (this.ExpiryDate) {
+          this.invalidObj['ExpiryDate'] = false
+        } else {
+
+          this.invalidObj['ExpiryDate'] = true
+        }
+      }
+      if (this.industryId === 3) {
+        if (+this.Length > 0) {
+          this.invalidObj['Length'] = false
+        } else if (!this.invalidObj.Quantity && !this.invalidObj.UnitId && !this.invalidObj.ItemId && !this.invalidObj.BillNo && !this.invalidObj.PartyId && !this.invalidObj.CurrentDate) {
+          this.invalidObj['Length'] = true
+          this.lengthRef.nativeElement.focus()
+        }
+        if (+this.Width > 0) {
+          this.invalidObj['Width'] = false
+        } else if (!this.invalidObj.Length && !this.invalidObj.Quantity && !this.invalidObj.UnitId && !this.invalidObj.ItemId && !this.invalidObj.BillNo && !this.invalidObj.PartyId && !this.invalidObj.CurrentDate) {
+          this.invalidObj['Width'] = true
+          this.widthRef.nativeElement.focus()
+        }
+        if (+this.Height > 0) {
+          this.invalidObj['Height'] = false
+        } else if (!this.invalidObj.Width && !this.invalidObj.Quantity && !this.invalidObj.UnitId && !this.invalidObj.ItemId && !this.invalidObj.BillNo && !this.invalidObj.PartyId && !this.invalidObj.CurrentDate) {
+          this.invalidObj['Height'] = true
+          this.heightRef.nativeElement.focus()
+        }
+
+      }
+      if (+this.SaleRate > 0) {
+        this.invalidObj['SaleRate'] = false
+      } else if ((!this.invalidObj.BatchNo) && (!this.invalidObj.Width && !this.invalidObj.Length && !this.invalidObj.Height) && (!this.invalidObj.Quantity && !this.invalidObj.UnitId && !this.invalidObj.ItemId && !this.invalidObj.BillNo && !this.invalidObj.PartyId && !this.invalidObj.CurrentDate)) {
+        this.invalidObj['SaleRate'] = true
+        this.SaleRateRef.nativeElement.focus()
+      }
+
+
+
+    }
+  }
   checkForValidation() {
     if (this.PartyId || this.OrgId || this.BillNo
       || this.CurrencyId
-      || this.GodownId || this.AddressId
+      || this.AddressId
       || this.ItemId || this.UnitId || this.TaxSlabId
       || this.SaleRate
       || this.BatchNo || this.ExpiryDate || this.MfdDate
@@ -3823,20 +3930,10 @@ export class SalesChallanBillingComponent {
         this.invalidObj['CurrencyId'] = true
         isValid = 0
       }
-      if (this.GodownId) {
-        this.invalidObj['GodownId'] = false
-      } else {
-        this.invalidObj['GodownId'] = true
-        isValid = 0
-      }
-      // if (this.isCaseSaleFlag  && this.AddressId) {
-      //   this.invalidObj['AddressId'] = false
-      // } 
-      // else if (!this.isCaseSaleFlag && this.AddressId ===0) {
-      //   this.invalidObj['AddressId'] = false
-      // }
-      // else {
-      //   this.invalidObj['AddressId'] = true
+      // if (this.GodownId) {
+      //   this.invalidObj['GodownId'] = false
+      // } else {
+      //   this.invalidObj['GodownId'] = true
       //   isValid = 0
       // }
 
@@ -4086,6 +4183,7 @@ export class SalesChallanBillingComponent {
           this.validateItem()
           this.validateTransaction()
           this.checkValidationForAmount()
+          this.dynamicFocus()
           if (valid) {
             if (this.checkForValidation() && this.isValidAmount && this.validItem && this.validTransaction) {
               this.DisabledSaveBtn = true
@@ -4153,6 +4251,8 @@ export class SalesChallanBillingComponent {
       this.validateItem()
       this.validateTransaction()
       this.checkValidationForAmount()
+      this.dynamicFocus()
+
       if (valid) {
         if (this.checkForValidation() && this.isValidAmount && this.validItem && this.validTransaction) {
           this.DisabledSaveBtn = true
@@ -4237,15 +4337,15 @@ export class SalesChallanBillingComponent {
     if (this.LedgerName && +this.LedgerChargeId > 0 && +this.AmountCharge > 0) {
       this.alreadySelectCharge(this.LedgerChargeId, this.LedgerName, true)
       this.addCustomCharge()
-      if(this.editChargeId > 0 ){
-        this.showHideItemCharge =true
+      if (this.editChargeId > 0) {
+        this.showHideItemCharge = true
       }
-      this.AdditionalCharges.forEach((element,i) => {
-        if(element.Id === 0){
-          this.showHideItemCharge =true
+      this.AdditionalCharges.forEach((element, i) => {
+        if (element.Id === 0) {
+          this.showHideItemCharge = true
         }
       })
-      
+
       this.clickCharge = true
       this.initCharge()
     }
@@ -4276,15 +4376,15 @@ export class SalesChallanBillingComponent {
       index = 1
     } else {
       index = +this.AdditionalCharges[this.AdditionalCharges.length - 1].Sno + 1
-      this.AdditionalCharges.forEach((element,i) => {
-        if(this.editChargeId>0){
-          if(element.Id === this.editChargeId){
-            this.AdditionalCharges.splice(i,1)
+      this.AdditionalCharges.forEach((element, i) => {
+        if (this.editChargeId > 0) {
+          if (element.Id === this.editChargeId) {
+            this.AdditionalCharges.splice(i, 1)
           }
         }
-        if(element.Id===0){
-          if(element.Sno === this.editChargeSno){
-            this.AdditionalCharges.splice(i,1)
+        if (element.Id === 0) {
+          if (element.Sno === this.editChargeSno) {
+            this.AdditionalCharges.splice(i, 1)
           }
         }
       })
@@ -4492,7 +4592,7 @@ export class SalesChallanBillingComponent {
       taxableValue += +element.AmountItem
 
     });
-    if (!this.clickItem && +this.ItemId > 0 &&  this.editItemIndex === -1 && +this.AmountItem > 0) {
+    if (!this.clickItem && +this.ItemId > 0 && this.editItemIndex === -1 && +this.AmountItem > 0) {
       taxableValue += +this.AmountItem
       if (this.appliedTaxRatesItem.length > 0) {
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
@@ -4502,7 +4602,7 @@ export class SalesChallanBillingComponent {
     this.AdditionalCharges.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
     });
-    if (!this.clickCharge && this.editChargeIndex === -1  && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
+    if (!this.clickCharge && this.editChargeIndex === -1 && +this.AmountCharge > 0 && +this.LedgerChargeId > 0) {
       if (this.appliedTaxRatesCharge.length > 0) {
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesCharge)
       }
@@ -4596,7 +4696,7 @@ export class SalesChallanBillingComponent {
   }
 
   getSaleBillingRate() {
-    
+
     if (+this.Quantity > 0 && +this.TotalRate > 0) {
       let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
         * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)

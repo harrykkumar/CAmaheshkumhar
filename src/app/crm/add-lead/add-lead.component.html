@@ -1,0 +1,468 @@
+<div
+  class="modal fade right"
+  id="lead_New_sm"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="sample_approval"
+>
+  <div
+    class="modal-dialog modal-full-height modal-right half-right-1"
+    role="document"
+  >
+    <div class="modal-content">
+      <a
+        *ngIf="editLeadId"
+        data-toggle="modal"
+        (click)="addLeadDetail()"
+        class="modal-drawer modal-more"
+        title="Add Additional Details"
+        data-ember-action="3377"
+        data-original-title="View all"
+      >
+        <i class="fas fa-plus"></i>
+      </a>
+      <form
+        #addLeadForm="ngForm"
+        novalidate
+        (ngSubmit)="focusOnMandatoryField() && addLeadForm.form.valid && validate() && submit()"
+      >
+      <div class="modal-header close_popup align-items-center">
+        <h4 class="modal-title w-100 c-grey-900 col-9">{{formType ? 'Add Follow Up' : 'Add Leads'}} </h4>
+        <button type="submit" class="btn btn-primary waves-effect m-0">
+              Save
+            </button>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closePopUp()"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="card-body">
+              <div class="form-row">
+                <div
+                  class="form-group col-md-12 col-12"
+                  *ngIf="model?.selectedCustomerId && lastLeadDetails"
+                >
+                  <div class="card">
+                    <div class="card-body">
+                      <h6 class="card-title" style="font-size: small;
+                      font-weight: bold;">Last Lead Status</h6>
+                      <p class="card-text" style="font-size: 0.7rem;">
+                        <label>Created By - </label>
+                        {{ lastLeadDetails?.CreatedBy }}
+                        <label>Created On - </label>
+                        {{ lastLeadDetails?.CreatedOn }}
+                        <label>, Status -</label> {{ lastLeadDetails?.Status }},
+                        <span *ngIf="lastLeadDetails?.Status === 'closed'"
+                          ><label>, ClosedBy -</label>
+                          {{ lastLeadDetails?.ClosedBy }}</span
+                        >
+                        <span *ngIf="lastLeadDetails?.Status === 'closed'"
+                          ><label>, ClosedDate -</label>
+                          {{ lastLeadDetails?.ClosedDate }}</span
+                        >
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-12 col-12">
+                  <label>Search By</label>
+                  <ng-select
+                    name="customerName"
+                    #customerSelect
+                    [items]="crmService.leadUtilityData.LeadCustomer"
+                    bindLabel="textToDisplay"
+                    bindValue="Id"
+                    [disabled]="editLeadId"
+                    (change)="onChangeCustomer()"
+                    (keyup.enter)="focusOnComapny()"
+                    placeholder="Search By Customer/Mobile No/ Email"
+                    [(ngModel)]="model.selectedCustomerId"
+                  >
+                  </ng-select>
+                </div>
+                <div class="form-group col-md-6 col-12">
+                  <label>Company/Organisation</label>
+                  <input
+                    id="companyId"
+                    type="text"
+                    class="form-control"
+                    name="companyName"
+                    [(ngModel)]="model.company"
+                    required
+                    [ngClass]="{
+                      errorSelecto: addLeadForm?.submitted && !model?.company
+                    }"
+                  />
+                </div>
+                <div *ngIf="!formType" class="form-group col-md-6 col-12">
+                  <label>Designation</label>
+                  <ng-select
+                    id="designationId"
+                    name="meetingWithName"
+                    [items]="crmService.leadUtilityData.MeetingWith"
+                    bindLabel="commondesc"
+                    bindValue="id"
+                    (change)="
+                      onChangeSelection(
+                        'MeetingWith',
+                        'selectedDesignationId',
+                        189
+                      )
+                    "
+                    placeholder="Select Meeting With"
+                    [(ngModel)]="model.selectedDesignationId"
+                    required
+                    [ngClass]="{
+                      'ng-select-invalid':
+                        addLeadForm?.submitted && !model?.selectedDesignationId
+                    }"
+                  >
+                  </ng-select>
+                </div>
+                <div class="form-group col-md-6 col-12">
+                  <label>Key Person Name
+                    <i *ngIf="formType === 'follow-up'||formType === 'follow-up-from-follow-up'"
+                     title="Change KeyPerson"
+                     (click)="isKeyPersonDisable = false"
+                     class="fas fa-pencil-alt cH-blue"></i>
+                  </label>
+                  <input
+                    id="keyPersonId"
+                    type="text"
+                    class="form-control"
+                    #keyPersonModel="ngModel"
+                    placeholder="Enter Key Person"
+                    name="keyPersonName"
+                    [disabled]="isKeyPersonDisable"
+                    [(ngModel)]="model.keyPerson"
+                    required
+                    (change)="onChangeKeyPerson()"
+                    [ngClass]="{
+                      errorSelecto:
+                        addLeadForm?.submitted && !model?.keyPerson
+                    }"
+                  />
+                </div>
+
+                <div class="form-group col-md-6 col-12">
+                  <label>Business Type</label>
+                  <ng-select
+                    id="businessTypeId"
+                    name="businessTypeName"
+                    [items]="crmService.leadUtilityData.BusinessType"
+                    bindLabel="commondesc"
+                    bindValue="id"
+                    placeholder="Select Business Type"
+                    [(ngModel)]="model.selectedBusinessTypeId"
+                    (change)="
+                      onChangeSelection(
+                        'Business Type',
+                        'selectedBusinessTypeId',
+                        193
+                      )
+                    "
+                    required
+                    [ngClass]="{
+                      errorSelecto:
+                        addLeadForm?.submitted && !model?.selectedBusinessTypeId
+                    }"
+                  >
+                  </ng-select>
+                </div>
+                <div class="form-group col-md-3">
+                  <label>Country Code</label>
+                  <ng-select
+                    name="countryCodeName"
+                    [items]="mobileCountryCodeList"
+                    bindLabel="text"
+                    bindValue="id"
+                    placeholder="Select Country Code"
+                    [(ngModel)]="model.countryCodeId"
+                    (change)="setCurrentMobileNoLength()"
+                  >
+                  </ng-select>
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Mobile No</label>
+                  <input
+                    type="text"
+                    id="mobileId"
+                    class="form-control"
+                    #mobileNoModel="ngModel"
+                    placeholder="Enter Mobile No"
+                    (keypress)="commonService.isNumber($event, model.mobileNo)"
+                    [disabled]="!model.countryCodeId"
+                    maxlength="{{currentContactLength}}"
+                    minlength="{{currentContactLength}}"
+                    name="mobileNoName"
+                    [(ngModel)]="model.mobileNo"
+                    [required]="
+                      setUpToCheckRequiredField === 1 ||
+                      setUpToCheckRequiredField === 2
+                    "
+                    [ngClass]="{
+                      errorSelecto:
+                        (mobileNoModel?.dirty &&
+                          mobileNoModel?.errors?.maxlength) || (mobileNoModel?.dirty &&
+                          mobileNoModel?.errors?.minlength) ||
+                        (addLeadForm?.submitted && mobileNoModel?.invalid)
+                    }"
+                  />
+                </div>
+                <div class="form-group col-md-5">
+                    <label>Email</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      #emailModel="ngModel"
+                      placeholder="Enter Email"
+                      name="emailName"
+                      [(ngModel)]="model.email"
+                      pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+                      [required]="
+                        setUpToCheckRequiredField === 3 ||
+                        setUpToCheckRequiredField === 2
+                      "
+                      [ngClass]="{
+                        errorSelecto:
+                          (emailModel.dirty && emailModel?.errors?.pattern) ||
+                          (addLeadForm?.submitted && emailModel?.invalid)
+                      }"
+                    />
+                  </div>
+                <div class="lead_stage lead_stage_sm pb-2">
+                  <div class="form-row">
+                    <div class="col-lg-6">
+                      <label>Lead Status</label>
+                    </div>
+                  </div>
+                  <div class="arrow-steps clearfix">
+                    <a
+                      *ngFor="
+                        let item of crmService.leadUtilityData?.EnquiryStatus
+                      "
+                      (click)="model.selectedEnquiryStatusId = item.id"
+                    >
+                      <div
+                        class="step"
+                        [ngClass]="{
+                          current: item.id === model.selectedEnquiryStatusId
+                        }"
+                      >
+                        <span>{{ item?.commondesc }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="form-row"
+                [hidden]="formType"
+                *ngIf="crmService.leadUtilityData?.EnquiryType?.length > 0"
+              >
+                <label>Enquiry Type</label>
+              </div>
+              <div
+              [hidden]="formType"
+                class="form-row"
+              >
+                <div
+                  class="custom-control custom-radio mr-2"
+                  *ngFor="
+                    let item of crmService.leadUtilityData?.EnquiryType;
+                    let i = index;
+                  "
+                >
+                <ng-container
+                *ngIf="!(item.id === 2 && !formType && editLeadId)">
+                  <input
+                  type="radio"
+                  class="custom-control-input "
+                  id="enquiryTypeId-{{ i }}"
+                  name="enquiryTypeName"
+                  [value]="item.id"
+                  [(ngModel)]="model.selectedEnquiryTypeId"
+                />
+                <label
+                    class="custom-control-label"
+                    for="enquiryTypeId-{{ i }}"
+                    >{{ item?.commondesc }}</label
+                  >
+                </ng-container>
+                </div>
+              </div>
+              <!-- <ng-container *ngIf="!formType"> -->
+                <div
+                class="form-row mt-2"
+                *ngIf="crmService.leadUtilityData?.MeetingWithType?.length > 0"
+              >
+                <label>Meeting with your team/person</label>
+              </div>
+              <div
+                class="form-row"
+              >
+                <div
+                  class="custom-control custom-radio mr-2"
+                  *ngFor="
+                    let item of crmService.leadUtilityData?.MeetingWithType;
+                    let i = index;
+                  "
+                >
+                  <input
+                    type="radio"
+                    class="custom-control-input "
+                    id="meeting-{{ i }}"
+                    name="meeting"
+                    [value]="item?.id"
+                    [(ngModel)]="model.selectedMeetingWithSaleId"
+                  />
+                  <label class="custom-control-label" for="meeting-{{ i }}">{{
+                    item?.commondesc
+                  }}</label>
+                </div>
+              </div>
+              <!-- </ng-container> -->
+              <div class="form-row">
+                <div class="form-group col-md-6 col-12">
+                  <label>Source</label>
+                  <ng-select
+                    id="sourceId"
+                    name="sourceName"
+                    [items]="crmService.leadUtilityData.EnquirySource"
+                    bindLabel="commondesc"
+                    bindValue="id"
+                    placeholder="Select Source"
+                    [(ngModel)]="model.selectedSourceId"
+                    (change)="
+                      onChangeSelection('Source', 'selectedSourceId', 105)
+                    "
+                    required
+                    [ngClass]="{
+                      errorSelecto:
+                        addLeadForm?.submitted && !model?.selectedSourceId
+                    }"
+                  >
+                  </ng-select>
+                </div>
+                <div class="form-group col-md-6 col-12">
+                  <label class="fw-500">Follow Up Date/Time</label>
+                  <div class="timepicker-input input-icon form-group">
+                    <datepicker-popup
+                    id="followUpdateId"
+                    [toSetDate]="model.followUpDate"
+                      (dateInFormat)="model.followUpDate = $event"
+                      [class]="formType && addLeadForm?.submitted &&
+                      (model.selectedEnquiryStatusId !== 5 && model.selectedEnquiryStatusId !== 6)
+                       && !model?.followUpDate"
+                    >
+                    </datepicker-popup>
+                  </div>
+                </div>
+
+                <div class="form-group col-md-12 col-12">
+                    <label>Remark</label>
+                    <textarea
+                      type="text"
+                      class="form-control"
+                      placeholder="Enter Remark"
+                      name="remark"
+                      [(ngModel)]="model.remark"
+                    ></textarea>
+                  </div>
+
+                <div class="form-row col-md-12">
+                  <div class="card p-2" style="width: 100%;">
+                    <h5 class="summery_text">
+                      Item Detail -
+                      <span>
+                        <a
+                          class="text-dec-none"
+                          href="javascript:void(0)"
+                          (click)="addItemDetails()"
+                          >Add Item Details
+                          <!-- <span
+                            *ngIf="
+                              addLeadForm?.submitted &&
+                              model?.itemDetailList?.length === 0
+                            "
+                            class="text-danger"
+                            >Add at least 1 item</span
+                          > -->
+                        </a>
+                      </span>
+                    </h5>
+                    <table
+                      *ngIf="model?.itemDetailList?.length > 0"
+                      class="table editable_tbl"
+                      style="width: 100%"
+                    >
+                      <thead>
+                        <tr>
+                          <th>Item</th>
+                          <th>Qty</th>
+                          <th>Value</th>
+                          <th>#</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          class="default_row"
+                          *ngFor="
+                            let item of model?.itemDetailList;
+                            let i = index
+                          "
+                        >
+                          <td>{{ item?.itemName }}</td>
+                          <td>{{ item?.quantity }}</td>
+                          <td>{{ item?.itemValue }}</td>
+                          <td class="profile-pic1">
+                            <div>
+                              <a
+                                href="javascript:void(0)"
+                                class="p-2"
+                                (click)="addItemDetails(item, i)"
+                                ><i class="fas fa-pen fa-1x cH-blue"></i>
+                              </a>
+                              <a
+                                href="javascript:void(0)"
+                                (click)="deleteItemDetail(i)"
+                              >
+                                <i
+                                  aria-hidden="true"
+                                  class="fa fa-trash fa-1x cH-blue"
+                                ></i>
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary waves-effect">
+              Save
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<ng-container #addLeadDetailContainerRef></ng-container>
+<ng-container #addCommonMasterContainerRef></ng-container>
+<ng-container #addMobileNoContainerRef></ng-container>
+<ng-container #addEmailContainerRef></ng-container>
+<ng-container #addItemDetailsContainerRef></ng-container>

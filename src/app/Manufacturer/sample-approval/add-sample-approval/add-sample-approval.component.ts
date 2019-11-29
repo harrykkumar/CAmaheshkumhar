@@ -5,7 +5,7 @@ import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
 import { Settings } from 'src/app/shared/constants/settings.constant';
 import { GlobalService } from 'src/app/commonServices/global.service';
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
-import { Component, OnInit, ViewChild, Renderer2 } from '@angular/core';
+import { Component, OnInit, ViewChild, Renderer2, ViewChildren, QueryList } from '@angular/core';
 import * as _ from 'lodash';
 import { AddCust } from '../../../model/sales-tracker.model';
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
@@ -30,7 +30,7 @@ export class AddSampleApprovalComponent implements OnInit {
   clientDateFormat: string = '';
   Id = 0
   loading = false
-  subscription$: Subscription
+  subscription$: Subscription[] = []
   constructor(
     public _gs: GlobalService,
     public _settings: Settings,
@@ -42,7 +42,7 @@ export class AddSampleApprovalComponent implements OnInit {
     private renderer: Renderer2
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    this.subscription$ = this._ss.openSample$.subscribe((data: AddCust) => {
+    this.subscription$.push(this._ss.openSample$.subscribe((data: AddCust) => {
       if (data.open) {
         this.openModal()
         if (+data.editId > 0) {
@@ -52,8 +52,8 @@ export class AddSampleApprovalComponent implements OnInit {
       } else {
         this.closeModal()
       }
-    })
-    this.subscription$ = this._ss.select2List$.subscribe((data: any) => {
+    }))
+    this.subscription$.push(this._ss.select2List$.subscribe((data: any) => {
       console.log(data)
       if (data.data && data.title) {
         if (data.title === 'Style') {
@@ -66,9 +66,9 @@ export class AddSampleApprovalComponent implements OnInit {
           this.stageListData = JSON.parse(JSON.stringify(data.data))
         }
       }
-    })
+    }))
 
-    this.subscription$ = this._cs.openCommonMenu$.subscribe((data: AddCust) => {
+    this.subscription$.push(this._cs.openCommonMenu$.subscribe((data: AddCust) => {
         if (data.id && data.name && data.code) {
           if (data.code === 141) {
             let newData = Object.assign([], this.sampleShipmentByList)
@@ -95,9 +95,9 @@ export class AddSampleApprovalComponent implements OnInit {
             }, 2000)
           }
         }
-    })
+    }))
 
-    this.subscription$ = this._ms.openStyle$.subscribe((data: any) => {
+    this.subscription$.push(this._ms.openStyle$.subscribe((data: any) => {
       if (data.name && data.id) {
         let newData = Object.assign([], this.styleNumberListData)
         newData.push({ id: +data.id, text: data.name })
@@ -110,11 +110,11 @@ export class AddSampleApprovalComponent implements OnInit {
           }
         }, 2000)
       }
-    })
+    }))
   }
 
   getEditData (id) {
-    this._ss.getSampleEditData(id).subscribe(
+    this.subscription$.push(this._ss.getSampleEditData(id).subscribe(
       (data) => {
         console.log(data)
         this.loading = false
@@ -124,7 +124,7 @@ export class AddSampleApprovalComponent implements OnInit {
         this._ts.showErrorLong(error, '')
         this.loading = false
       }
-    )
+    ))
   }
 
   ngOnInit() {
@@ -132,6 +132,8 @@ export class AddSampleApprovalComponent implements OnInit {
   }
 
   openModal() {
+    this.model.SampleDate = this._gs.getDefaultDate(this.clientDateFormat)
+    this.model.ExpectedReplyDate = this._gs.getDefaultDate(this.clientDateFormat)
     $('#sample_approval_form').modal(UIConstant.MODEL_SHOW)
   }
 
@@ -141,27 +143,28 @@ export class AddSampleApprovalComponent implements OnInit {
   }
 
   preparePayload = () => {
-    return new Promise((resolve, reject) => {
-      const data = {
-        Id: this.model.Id ? this.model.Id : 0,
-        ExpectedReplyDate: this.model.ExpectedReplyDate ? this._gs.clientToSqlDateFormat(this.model.ExpectedReplyDate, this.clientDateFormat) : '',
-        Reference: this.model.Reference ? this.model.Reference : '',
-        Remark: this.model.Remark ? this.model.Remark : '',
-        SampleDate: this.model.SampleDate ? this._gs.clientToSqlDateFormat(this.model.SampleDate, this.clientDateFormat) : 0,
-        SampleTypeId: this.model.SampleTypeId,
-        ShipmentById: this.model.ShipmentById ? this.model.ShipmentById : 0,
-        ShipmentNo: this.model.ShipmentNo ? this.model.ShipmentNo : 0,
-        Status: this.model.Status ? this.model.Status : true,
-        ImageFiles: this.ImageFiles,
-        StageId: this.model.StageId
-      }
-      if (this.model.SampleTypeId === '1') {
-        data['StyleId'] = this.model.StyleId ? this.model.StyleId : 0
-      } else {
-        data['SampleNo'] = this.model.SampleNo ? this.model.SampleNo : 0
-      }
-      resolve(data)
-    })
+    const data = {
+      Id: this.model.Id ? this.model.Id : 0,
+      ExpectedReplyDate: this.model.ExpectedReplyDate ? this._gs.clientToSqlDateFormat(this.model.ExpectedReplyDate, this.clientDateFormat) : '',
+      Reference: this.model.Reference ? this.model.Reference : '',
+      Remark: this.model.Remark ? this.model.Remark : '',
+      SampleDate: this.model.SampleDate ? this._gs.clientToSqlDateFormat(this.model.SampleDate, this.clientDateFormat) : 0,
+      SampleTypeId: this.model.SampleTypeId,
+      ShipmentById: this.model.ShipmentById ? this.model.ShipmentById : 0,
+      ShipmentNo: this.model.ShipmentNo ? this.model.ShipmentNo : 0,
+      Status: this.model.Status ? this.model.Status : true,
+      ImageFiles: this.ImageFiles,
+      StageId: this.model.StageId
+    }
+    if (+this.model.SampleTypeId === 1) {
+      data['StyleId'] = this.model.StyleId ? this.model.StyleId : 0
+      data['SampleNo'] = ''
+    } else {
+      data['SampleNo'] = this.model.SampleNo ? this.model.SampleNo : 0
+      data['StyleId'] = 0
+    }
+    console.log(JSON.stringify(data))
+    return data
   }
 
   assignFormData(data) {
@@ -189,7 +192,10 @@ export class AddSampleApprovalComponent implements OnInit {
         ShipmentNo: data.SampleApprovals[0].ShipmentNo ? data.SampleApprovals[0].ShipmentNo : 0,
         Status: data.SampleApprovals[0].Status ? data.SampleApprovals[0].Status : '',
         styleNoValue: data.SampleApprovals[0].StyleId ? data.SampleApprovals[0].StyleId : 0,
-        stageValue: data.SampleApprovals[0].StageId ? data.SampleApprovals[0].StageId : 0
+        stageValue: data.SampleApprovals[0].StageId ? data.SampleApprovals[0].StageId : 0,
+        StyleId: data.SampleApprovals[0].StyleId ? data.SampleApprovals[0].StyleId : 0,
+        ShipmentById: data.SampleApprovals[0].ShipmentById ? data.SampleApprovals[0].ShipmentById : 0,
+        StageId: data.SampleApprovals[0].StageId ? data.SampleApprovals[0].StageId : 0
       }
     } else {
       this._ts.showErrorLong('Not getting enough data', '')
@@ -231,24 +237,34 @@ export class AddSampleApprovalComponent implements OnInit {
 
  saveOrUpdateSampleApproval(){
     const requestData = this.preparePayload()
-    this._gs.manipulateResponse(this._ss.postSampleApprovalFormData(requestData)).subscribe((res) => {
+    this.subscription$.push(this._gs.manipulateResponse(this._ss.postSampleApprovalFormData(requestData)).subscribe((res) => {
       this._ts.showSuccess('', 'Successfully Saved')
       this._ss.onSampleAdd()
       this._ss.closeSample()
     }, (error) => {
       this._ts.showErrorLong(error, '')
-    })
+    }))
   }
 
   resetForm() {
-    this.model = {
-      SampleTypeId : '1',
-      SampleDate: '',
-      ExpectedReplyDate: ''
-    };
+    if (this.stageSelect2) this.stageSelect2.setElementValue('0')
+    if (this.shipMentBySelect) this.shipMentBySelect.setElementValue('0')
+    if (this.styleNoSelect) this.styleNoSelect.setElementValue('0')
     this.imageList = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
     this.ImageFiles = []
-    if (this.sampleApprovalFormModal) this.sampleApprovalFormModal.resetForm();
+    // if (this.sampleApprovalFormModal) this.sampleApprovalFormModal.resetForm();
+    this.model = {
+      SampleTypeId: '1',
+      SampleDate: '',
+      ExpectedReplyDate: '',
+      sampleShipmentByValue: '0',
+      stageValue: '0',
+      Reference: '',
+      ShipmentNo: '',
+      Remark: '',
+      SampleNo: '',
+      styleNoValue: '0'
+    };
   }
 
   @ViewChild('shipMentBySelect') shipMentBySelect: Select2Component
@@ -289,6 +305,66 @@ export class AddSampleApprovalComponent implements OnInit {
   }
 
   ngOnDestroy () {
-    this.subscription$.unsubscribe()
+    this.subscription$.forEach((element) => element.unsubscribe())
+  }
+
+  @ViewChildren('error') errorSelect2: QueryList<Select2Component>
+  checkForFocus () {
+    let stack = []
+    setTimeout(() => {
+      if ($(".errorSelecto:first")[0].nodeName === 'SELECT2') {
+        this.errorSelect2.forEach((item: Select2Component, index: number) => {
+          if (item.selector.nativeElement.parentElement.classList.contains('errorSelecto')) {
+            stack.push(index)
+          }
+        })
+        this.errorSelect2.forEach((item: Select2Component, index: number) => {
+          if (stack[0] === index) {
+            const element = this.renderer.selectRootElement(item.selector.nativeElement, true)
+            element.focus({ preventScroll: false })
+          }
+        })
+      } else {
+        $(".errorSelecto:first").focus()
+      }
+    }, 10)
+  }
+
+  
+  setToDate (evt) {
+    this.model.ExpectedReplyDate = evt
+    if (this.model.ExpectedReplyDate && this.model.SampleDate) {
+      if (!this._gs.compareDate(this.model.ExpectedReplyDate, this.model.SampleDate)) {
+        this.model.ExpectedReplyDate = ''
+      }
+    }
+  }
+
+  setFromDate (evt) {
+    this.model.SampleDate = evt
+    if (this.model.SampleDate && this.model.ExpectedReplyDate) {
+      if (!this._gs.compareDate(this.model.ExpectedReplyDate, this.model.SampleDate)) {
+        this.model.ExpectedReplyDate = evt
+      }
+    } else {
+      this.model.ExpectedReplyDate = evt
+    }
+  }
+
+  checkForValidation () {
+    this.checkForFocus()
+    let isValid = 1
+    let str = ''
+    if (+this.model.SampleTypeId === 1) {
+      str = 'StyleId'
+    }
+    if (+this.model.SampleTypeId === 2) {
+      str = 'SampleNo'
+    }
+    const checkFor = [str, 'SampleDate', 'ExpectedReplyDate']
+    checkFor.forEach(element => {
+      if (!this.model[element]) isValid = 0
+    });
+    return !!isValid
   }
 }

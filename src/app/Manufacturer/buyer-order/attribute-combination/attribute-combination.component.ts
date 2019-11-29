@@ -6,6 +6,7 @@ import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
 import { BuyerOrderService } from '../buyer-order.service';
 import { Select2OptionData } from 'ng2-select2';
+import { take } from 'rxjs/operators';
 declare const $: any
 @Component({
   selector: 'app-attribute-combination',
@@ -26,10 +27,11 @@ export class AttributeCombinationComponent implements OnInit {
   options = {
     multiple: true
   }
+  formChanged: boolean = false
   constructor(
     private _toaster: ToastrCustomService, private _cs: CommonService, private _bs: BuyerOrderService
   ) {
-    this._bs.select2List$.subscribe((data: any) => {
+    this._bs.select2List$.pipe(take(1)).subscribe((data: any) => {
       if (data.data && data.title) {
         if (data.title === 'Measurement Attribute') {
           let arr = JSON.parse(JSON.stringify(data.data))
@@ -44,10 +46,24 @@ export class AttributeCombinationComponent implements OnInit {
   }
 
   onAttributeValueChange(event, index){
+    this.checkForValidation()
     console.log(event)
-    this.attributeWithValuesList[index]['attributeId'] = [...event.value]
-    this.arrayToIterate[index] = [...event.data]
-    this.mapCombineArrayList()
+    if (event.value && this.formChanged) {
+      if(confirm(
+        'It looks like you have been editing something. '
+        + 'If you change before saving, your changes will be lost.')){
+        this.attributeWithValuesList[index]['attributeId'] = [...event.value]
+        this.arrayToIterate[index] = [...event.data]
+        this.mapCombineArrayList()
+        return true
+      } else {
+        return false
+      }
+    } else {
+      this.attributeWithValuesList[index]['attributeId'] = [...event.value]
+      this.arrayToIterate[index] = [...event.data]
+      this.mapCombineArrayList()
+    }
   }
 
   mapCombineArrayList() {
@@ -88,6 +104,7 @@ export class AttributeCombinationComponent implements OnInit {
     if (this.attributeWithValuesList.length === 1) {
       this.combineAttributeList = [...this.attributeWithValuesList[0].attributeValueList]
       this.mapValuesModal()
+      // this._cs.fixTableHFL('cat-table')
     }
   }
 
@@ -129,7 +146,9 @@ export class AttributeCombinationComponent implements OnInit {
           attributeCombinationName: element.text,
           sizeAttributeId: sizeAttribute.Id,
           sizeAttributeName: sizeAttribute.Name,
-          Qty: null
+          Qty: null,
+          ProductDescription: '',
+          ProductCode: ''
         }
       })
     })
@@ -171,7 +190,7 @@ export class AttributeCombinationComponent implements OnInit {
     this.attributeCombineFormModal.resetForm()
   }
 
-  openModal(Data?) {
+  openModal(Data?, editData?) {
     $('#attribute_combine_form').modal({ backdrop: 'static', keyboard: false })
     $('#attribute_combine_form').modal(UIConstant.MODEL_SHOW)
     this.measurementAttrValue = this.measurementAttrSelect2.map(attr => attr.id.toString())
@@ -179,14 +198,65 @@ export class AttributeCombinationComponent implements OnInit {
     console.log(this.measurementAttrValue)
     this.filteredAttrs = JSON.parse(JSON.stringify(this.sizeAttributeValueList))
     this.buyerFormData = {...Data}
+    // if (!_.isEmpty(editData)) {
+    //   this.buyerFormData = {}
+    //   this.combineAttributeList = editData
+    //   console.log(this.combineAttributeList)
+    // }
+    // setTimeout(() => {
+
+    // }, 3000)
   }
 
   onMeasurementSelect (evt) {
+    this.checkForValidation()
     console.log(evt)
-    this.filteredAttrs = _.filter(this.sizeAttributeValueList, (attr) => {
-      return evt.value.indexOf('' + attr.Id) >= 0
+    if (event && this.formChanged) {
+      if(confirm(
+        'It looks like you have been editing something. '
+        + 'If you change before saving, your changes will be lost.')){
+          this.filteredAttrs = _.filter(this.sizeAttributeValueList, (attr) => {
+            return evt.value.indexOf('' + attr.Id) >= 0
+          })
+          console.log(this.filteredAttrs)
+          this.mapValuesModal()
+        return true
+      } else {
+        return false
+      }
+    } else {
+      this.filteredAttrs = _.filter(this.sizeAttributeValueList, (attr) => {
+        return evt.value.indexOf('' + attr.Id) >= 0
+      })
+      console.log(this.filteredAttrs)
+      this.mapValuesModal()
+    }
+  }
+
+  checkForValidation () {
+    this.formChanged = false
+    _.forEach(this.combineAttributeList, (element) => {
+      _.forEach(element['values'], (item) => {
+        if (item.Qty || item.ProductCode || item.ProductDescription) {
+          this.formChanged = true
+        }
+      })
     })
-    console.log(this.filteredAttrs)
-    this.mapValuesModal()
+  }
+
+  onClose() {
+    this.checkForValidation()
+    if (this.formChanged) {
+      if(confirm(
+        'It looks like you have been editing something. '
+        + 'If you leave before saving, your changes will be lost.')){
+        $('#attribute_combine_form').modal(UIConstant.MODEL_HIDE)
+        return true
+      } else {
+        return false
+      }
+    } else {
+      $('#attribute_combine_form').modal(UIConstant.MODEL_HIDE)
+    }
   }
 }

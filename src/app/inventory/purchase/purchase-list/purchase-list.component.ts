@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { LoginService } from 'src/app/commonServices/login/login.services';
 /* File created by Dolly Garg */
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
@@ -50,7 +51,8 @@ export class PurchaseListComponent implements OnInit {
     private settings: Settings,
     private gs: GlobalService,
     private toastrService: ToastrCustomService,
-    private _loginService: LoginService
+    private _loginService: LoginService,
+    private router: Router
     ) {
     this.menuData = this._loginService.getMenuDetails(15, 9);
     this.getPurchaseList()
@@ -135,7 +137,9 @@ export class PurchaseListComponent implements OnInit {
     this.commonService.onActionClicked(action)
     if (action.type === 4) {
       this.commonService.openDelete(id, 'purchase', 'purchase')
-
+    }
+    if (action.type === 10) {
+      this.router.navigate([`ims/voucher-entry/purchase/${id}`])
     }
   }
   getPurchaseList() {
@@ -210,7 +214,8 @@ export class PurchaseListComponent implements OnInit {
       { type: FormConstants.ViewPrint, id: 0, text: 'View Print', printId: 'purchase_print_id' ,isViewPrint :true},
       { type: FormConstants.Edit, id: 0, text: 'Edit' },
       { type: FormConstants.Cancel, id: 0, text: 'Cancel' },
-      { type: FormConstants.Return, id: 0, text: 'Return' }
+      { type: FormConstants.Return, id: 0, text: 'Return' },
+      { type: FormConstants.PAYMENT, id: 0, text: 'Payment' }
 
     ]
     this.customFooter = [{

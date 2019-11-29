@@ -2296,7 +2296,15 @@ export class SaleDirectReturnComponent {
     }
   }
   closePurchase() {
+    this.closeConfirmation()
+  }
+  yesConfirmationClose() {
+    $('#close_confirm3').modal(UIConstant.MODEL_HIDE)
+    this.closeModal()
     this.commonService.closeSaleDirectReturn()
+  }
+  closeConfirmation() {
+    $('#close_confirm3').modal(UIConstant.MODEL_SHOW)
   }
 
   initItem() {

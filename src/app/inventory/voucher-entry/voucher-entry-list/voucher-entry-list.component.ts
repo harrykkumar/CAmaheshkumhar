@@ -1,3 +1,4 @@
+import { ActivatedRoute } from '@angular/router';
 import { Component, ViewChild, ElementRef, OnInit, Output, EventEmitter } from '@angular/core';
 import { Subscription, throwError } from "rxjs";
 import { PagingComponent } from "src/app/shared/pagination/pagination.component";
@@ -50,7 +51,7 @@ export class VoucherEntryListComponent implements OnInit {
     private commonService: CommonService,
     private settings: Settings,
     private gs: GlobalService,
-    private toastrService: ToastrCustomService
+    private toastrService: ToastrCustomService,
   ) {
     this.formName = FormConstants.VoucherForm
     this.newVoucherSub = this.commonService.getNewVoucherAddedStatus().subscribe(

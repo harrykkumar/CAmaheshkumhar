@@ -12,7 +12,7 @@ export class UIConstant {
     public static get CUSTOMER_GLID (): number {
     return 5
   }
-  
+
   public static get TWO (): number {
     return 2
   }
@@ -238,5 +238,21 @@ export class UIConstant {
 
   public static get PO (): string {
     return 'PurchaseOrder'
+  }
+
+  public static get WORK_DOMAIN_ID(): string {
+    return 'Work_Domain_Id'
+  }
+
+  public static get FORMTYPE_FOLLOWUP(): string {
+    return 'follow-up'
+  }
+
+  public static get FORMTYPE_FOLLOWUP_EDIT(): string {
+    return 'follow-up-edit'
+  }
+
+  public static get FORMTYPE_FOLLOWUP_FROM_FOLLOWUP(): string {
+    return 'follow-up-from-follow-up'
   }
 }

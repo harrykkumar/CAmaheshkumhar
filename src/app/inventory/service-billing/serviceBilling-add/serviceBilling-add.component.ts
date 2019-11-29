@@ -372,7 +372,7 @@ export class serviceBillingAddComponent {
       data => {
         if (data.data) {
           this.godownsData = data.data
-          if (this.godownsData.length === 1) {
+          if (this.godownsData.length >0) {
             this.GodownId = +this.godownsData[0].id
             this.godownValue = +this.godownsData[0].id
           }
@@ -974,6 +974,7 @@ getTypeOfGST () {
         this.commonService.openCust('', true)
       } else if (+event.value === 0) {
         this.allAddressData = []
+        this.PartyId = 0        
         this.AddressData = Object.assign([], this.allAddressData)
       } else {
         let caseId =[]
@@ -1530,7 +1531,7 @@ onLoading(){
     } else if (this.editChargeId === -1) {
       this.TaxAmountCharge = 0
       this.TotalAmountCharge=0
-      this.TaxableAmountCharge=0
+      // this.TaxableAmountCharge=0
       this.appliedTaxRatesCharge = []
     }
     if (+this.AmountCharge > 0) {
@@ -1874,6 +1875,13 @@ onLoading(){
         this.paymentSelect2.setElementValue(this.LedgerId)
       }
     }
+    if(event.value===0){
+      this.PayModeId  =0
+      this.LedgerId = 0
+      this.Paymode  =''
+      this.BankLedgerName = ''
+
+    }
     this.validateTransaction()
   }
   @ViewChildren('item_select2') itmchekSelected: QueryList<Select2Component>
@@ -2132,7 +2140,7 @@ onLoading(){
       if(this.editItemFlag){
         SrNo= this.SrNo
       }
-      else{
+      else if(this.Items.length>0) {
         SrNo = this.Items[this.Items.length - 1].SrNo + 1
       for(let i=0; i < this.Items.length; i++){
         if(SrNo ===this.Items[i].SrNo){
@@ -2325,6 +2333,7 @@ onLoading(){
       this.checkValidationForAmount()
     }
     if (forArr === 'items') {
+      this.showHideAddItemRow= true
       this.Items.splice(i,1)
       this.ItemAttributeTrans = []
     
@@ -2355,7 +2364,16 @@ onLoading(){
     this.showHideAddItemRow = true
     this.showHideItemCharge = true
     this.showHidePayment = true
+    this.closeConfirmation()
+  }
+  
+  yesConfirmationClose() {
+    $('#close_confirm').modal(UIConstant.MODEL_HIDE)
+    this.closeModal()
     this.commonService.closePurchase()
+  }
+  closeConfirmation() {
+    $('#close_confirm').modal(UIConstant.MODEL_SHOW)
   }
   taxTypeChargeValue:any=0
   taxTypeValue:any =0
@@ -2663,7 +2681,7 @@ this.taxTypeValue=0
         this.organisationSelect2.setElementValue(this.OrgId)
       }
     }
-    if (this.godownsData && this.godownsData.length === 1) {
+    if (this.godownsData && this.godownsData.length >0) {
       this.GodownId = +this.godownsData[0].id
       this.godownValue = +this.godownsData[0].id
       if (this.godownSelect2) {
@@ -2798,7 +2816,7 @@ this.taxTypeValue=0
   }
 
   validateTransaction () {
-    if (this.Paymode || +this.PayModeId > 0 || +this.LedgerId > 0 || this.BankLedgerName || this.ChequeNo) {
+    if (this.Paymode && +this.PayModeId > 0 && +this.LedgerId > 0 && this.BankLedgerName ) {
       let isValid = 1
       if (+this.PayModeId > 0) {
         this.invalidObj['PayModeId'] = false
@@ -2830,16 +2848,7 @@ this.taxTypeValue=0
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-      // if (+this.PayModeId === 3) {
-      //   if (this.ChequeNo) {
-      //     this.invalidObj['ChequeNo'] = false
-      //   } else {
-      //     isValid = 0
-      //     this.invalidObj['ChequeNo'] = true
-      //   }
-      // } else {
-      //   this.invalidObj['ChequeNo'] = false
-      // }
+   
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
@@ -2853,6 +2862,54 @@ this.taxTypeValue=0
     this.clickTrans = false
   }
 
+  @ViewChild('paydateRef') paydateRef: ElementRef;
+  @ViewChild('billNumbeRef') billNumbeRef: ElementRef;
+  @ViewChild('SaleRateRef') SaleRateRef: ElementRef;
+
+
+
+  
+  dynamicFocus() {
+    if (+this.PartyId > 0) {
+      this.invalidObj['PartyId'] = false
+    } else {
+      this.invalidObj['PartyId'] = true
+    this.vendorSelect2.selector.nativeElement.focus({ preventScroll: false })    
+    }
+
+    if (this.CurrentDate) {
+      this.invalidObj['CurrentDate'] = false
+    } else if(!this.invalidObj.PartyId) {
+      this.invalidObj['CurrentDate'] = true
+    this.paydateRef.nativeElement.focus() 
+    }
+    if (this.BillNo) {
+      this.invalidObj['BillNo'] = false
+    } else if(!this.invalidObj.CurrentDate && !this.invalidObj.PartyId) {
+      this.invalidObj['BillNo'] = true
+      this.billNumbeRef.nativeElement.focus() 
+    }
+    if (this.Items.length === 0 && this.submitSave) {
+    
+      if (+this.ItemId > 0) {
+        this.invalidObj['ItemId'] = false
+      } else if( !this.invalidObj.BillNo && !this.invalidObj.PartyId && !this.invalidObj.CurrentDate) {
+        this.invalidObj['ItemId'] = true
+       this.itemselect2.selector.nativeElement.focus({ preventScroll: false })
+
+      }
+   
+      if (+this.SaleRate > 0) {
+        this.invalidObj['SaleRate'] = false
+      } else if( ( !this.invalidObj.BatchNo) && (!this.invalidObj.Width && !this.invalidObj.Length &&  !this.invalidObj.Height) && ( !this.invalidObj.Quantity && !this.invalidObj.UnitId && !this.invalidObj.ItemId  &&  !this.invalidObj.BillNo && !this.invalidObj.PartyId && !this.invalidObj.CurrentDate) ) {
+        this.invalidObj['SaleRate'] = true
+        this.SaleRateRef.nativeElement.focus()
+      }
+     
+     
+  
+    } 
+}
   checkForValidation () {
     if (this.PartyId || this.OrgId || this.BillDate || this.BillNo
       || this.PartyBillDate  || this.CurrencyId
@@ -2893,22 +2950,7 @@ this.taxTypeValue=0
         this.invalidObj['CurrencyId'] = true
         isValid = 0
       }
-      // if (this.isCaseSaleFlag  && this.AddressId) {
-      //   this.invalidObj['AddressId'] = false
-      // } 
-      // else if (!this.isCaseSaleFlag && this.AddressId ===0) {
-      //   this.invalidObj['AddressId'] = false
-      // }
-      // else {
-      //   this.invalidObj['AddressId'] = true
-      //   isValid = 0
-      // }
-      // if (this.AddressId) {
-      //   this.invalidObj['AddressId'] = false
-      // } else {
-      //   this.invalidObj['AddressId'] = true
-      //   isValid = 0
-      // }
+      
       if (this.Items.length === 0 && this.submitSave) {
         isValid = 0
         if (+this.ItemId > 0) {
@@ -2963,17 +3005,17 @@ this.taxTypeValue=0
         isValid = 0
         this.invalidObj['TaxSlabId'] = true
       }
-      // if (+this.SaleRate > 0) {
-      //   this.invalidObj['SaleRate'] = false
-      // } else {
-      //   isValid = 0
-      //   this.invalidObj['SaleRate'] = true
-      // }
+      if (+this.SaleRate > 0) {
+        this.invalidObj['SaleRate'] = false
+      } else {
+        isValid = 0
+        this.invalidObj['SaleRate'] = true
+      }
 
       this.validItem = !!isValid
     } else {
       this.validItem = true
-     // this.invalidObj['SaleRate'] = false
+     this.invalidObj['SaleRate'] = false
       this.invalidObj['TaxSlabId'] = false
       this.invalidObj['ItemId'] = false
       this.invalidObj['Discount'] = false
@@ -3017,6 +3059,7 @@ this.taxTypeValue=0
           this.validateItem()
           this.validateTransaction()
           this.checkValidationForAmount()
+          this.dynamicFocus()
           if (valid) {
             if (this.checkForValidation() && this.isValidAmount && this.validItem && this.validTransaction) {
             this.DisabledSaveBtn = true

@@ -1,17 +1,17 @@
 <main class="main-content bgc-grey">
-    <div id="mainContent">
-      <div class="page-header p-0">
-        <div class="container-fluid">
-          <div class="row">
-            <div class="col-md-4 left_side_head">
-              <p class="heading_lead c-grey-900 mb-0">
-                <i class="fa fa-chart-line"></i>Material Requirement
-              </p>
-            </div>
-            <div class="col-md-8 right_saerch_side p-0">
-              <div class="mr-2">
-                <form>
-                  <div id="custom-search-input" class="btn_header1">
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-6 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0">
+              <i class="fa fa-chart-line"></i>Material Requirement / Item-Costing
+            </p>
+          </div>
+          <div class="col-md-6 right_saerch_side p-0">
+            <div class="mr-2">
+              <form>
+                <!-- <div id="custom-search-input" class="btn_header1">
                     <div class="input-group col-md-12">
                       <input
                         type="text"
@@ -24,50 +24,50 @@
                         </a>
                       </span>
                     </div>
-                  </div>
-                </form>
-              </div>
-              <div class="btn_header">
-                <a>
+                  </div> -->
+              </form>
+            </div>
+            <div class="btn_header">
+              <!-- <a>
                   <img src="assets/img/printer.png" />
                 </a>
                 <a> <img src="assets/img/pdf.png"/></a>
   
                 <a>
                   <img src="assets/img/excel.png" />
-                </a>
-                <button
-                  type="button"
-                  class="btn btn-primary waves-effect waves-light"
-                  data-toggle="modal"
-                  (click)="addItemRequirement()"
-                >
-                  Add New
-                </button>
-              </div>
+                </a> -->
+              <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                (click)="addItemRequirement()">
+                Add New<i class="fa fa-spinner fa-spin" *ngIf="disableBtnSubmit"></i>
+              </button>
+              <button type="button" (click)="toggleSearch()" class="btn btn-info waves-effect waves-light">
+                Search
+              </button>
             </div>
           </div>
         </div>
       </div>
-      <div class="row animated-background">
-        <div class="col-md-12">
-          <div class="bgc-white bdrs-3 mB-20">
-            <div class="table-responsive table_height">
-              <table class="table req-table table-hover">
-                <thead>
-                  <tr>
-                    <th width="7%">SNo.</th>
-                    <th width="15%">Requirement No.</th>
-                    <th width="25%">Item Name</th>
-                    <th width="15%">Attributes</th>
-                    <th width="15%">On Date</th>
-                    <th width="15%">Total Items</th>
-                    <th width="8%">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    *ngFor="
+    </div>
+    <item-requirement-search [toShow]="toShowSearch"></item-requirement-search>
+    <div class="row animated-background">
+      <div class="col-md-12">
+        <div class="bgc-white bdrs-3 mB-20">
+          <div class="table-responsive table_height">
+            <table class="table req-table table-hover">
+              <thead>
+                <tr>
+                  <th width="7%">SNo.</th>
+                  <th width="10%">Requirement No.</th>
+                  <th width="20%">Item Name</th>
+                  <th width="20%">Attributes</th>
+                  <th width="10%">On Date</th>
+                  <th width="15%">Cost</th>
+                  <th width="10%">Total Items</th>
+                  <th width="8%">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="
                       let item of itemRequirementListData| paginate
                       : {
                           itemsPerPage: itemsPerPage,
@@ -75,50 +75,149 @@
                           totalItems: total
                         };
                       let i = index;">
-                    <td>{{ lastItemIndex + i + 1 }}</td>
-                    <td>{{ item?.ReqNo }}</td>
-                    <td>{{ item?.ParentTypeName }}</td>
-                    <td>{{ item?.AttributeStr }}</td>
-                    <td>{{ item?.OnDate | dateFormat: clientDateFormat }}</td>
-                    <td>{{ item?.Qty }}</td>
-                    <td>
-                      <a
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        title="Edit"
-                        class="actionBtn"
-                      >
-                      <i
-                        class="fa fa-edit fa-1x"
-                        aria-hidden="true"
-                        (click)="addItemRequirement(item)"
-                      ></i></a>
-                      <a
-                        data-toggle="tooltip"
-                        class="actionBtn"
-                        data-placement="bottom"
-                        title="Delete"
-                        (click)="deleteItemRequirement(item)"
-                        ><i class="fa fa-trash fa-1x" aria-hidden="true"></i
-                      ></a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                  <td>{{ lastItemIndex + i + 1 }}</td>
+                  <td>{{ item?.ReqNo }}</td>
+                  <td>{{ item?.ParentTypeName }}</td>
+                  <td>{{ item?.AttributeStr }}</td>
+                  <td>{{ item?.OnDate | dateFormat: clientDateFormat }}</td>
+                  <td>{{ item?.Cost?.toFixed(noOfDecimal) }}</td>
+                  <td>{{ item?.Qty }}</td>
+                  <td>
+                    <a data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn">
+                      <i class="fa fa-edit fa-1x" aria-hidden="true" (click)="editItemReq(item.ReqNo)"></i></a>
+                    <a data-toggle="tooltip" class="actionBtn" data-placement="bottom" title="Delete"
+                      (click)="delete(item.ReqNo)"><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                    <a data-toggle="tooltip" data-placement="top" title="Print" class="actionBtn">
+                      <i class="fa fa-print fa-1x" aria-hidden="true" (click)="print(item.ReqNo, 'print_material_req')"></i></a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-  
-     
+    </div>
+  </div>
+</main>
+<app-pagination (lastValueEmitter)="lastItemIndex = $event" (pageNoEmitter)="p = $event; getItemRequirementListData()"
+  (pageSizeEmitter)="itemsPerPage = $event; getItemRequirementListData()"></app-pagination>
+<app-item-requirement #addItemRequirementRef (triggerCloseModal)="onModalClosed($event)">
+</app-item-requirement>
+
+<body class="modal" id="print_material_req" >
+  <header class="clearfix">
+    <div id="logo">
+      <img src="{{orgImage}}">
+    </div>
+    <div id="company">
+      <h2 class="name">{{Clientinfos[0]?.OfficeName }}</h2>
+      <div>{{AddressDetails[0]?.AddressValue}}</div>
+      <div>
+        {{AddressDetails[0]?.AreaName}}
+        {{AddressDetails[0]?.CityName}}
+        {{AddressDetails[0]?.StateName}}
+        {{AddressDetails[0]?.CountryName}}
+      </div>
+      <div>{{EmailsOrg[0]?.EmailAddress }} </div>
+      <div>{{ContactInfosOrg[0]?.ContactNo }} </div>
+      <div><label>PAN NO. : </label>{{Clientinfos[0]?.PanNo }}</div>
+      <div><label>GSTIN : </label>{{Clientinfos[0]?.GstinNo }}</div>
+      <div><a>{{Websites[0]?.Name}}</a></div>
+    </div>
+  </header>
+  <main>
+    <div class=" header1">
+      <h4 style="text-align:center; margin:0;padding:0;">Manufactured Item Detail</h4>
+    </div>
+    <div id="details" class="clearfix">
+      <div class="row1">
+        <div class="col1">
+          <table>
+            <tr>
+              <td style="width:40%;">Manufactured Item:</td>
+              <td><strong>{{ItemRequirement[0]?.ParentName}}</strong></td>
+            </tr>
+          </table>
+        </div>
+        <div class="col1">
+          <table>
+            <tr>
+              <td style="width:25%;">On Date :</td>
+              <td><strong>{{ItemRequirement[0]?.OnDate | dateFormat: clientDateFormat}}</strong></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="table_summery">
+      <table border="0" class="table1" style="margin-bottom:0;" cellspacing="0" cellpadding="4">
+        <thead>
+          <tr>
+            <th>SNo</th>
+            <th class="unit" style="width:15%;">Required Item</th>
+            <th class="unit" style="width:10%;">Instruction</th>
+            <th class="unit" *ngIf="!withoutAttr" >{{defaultAttrName}}</th>
+            <th class="unit">Qty</th>
+            <th class="unit">Rate</th>
+            <th class="unit">Shrinkage</th>
+            <th class="unit">Add</th>
+            <th class="unit">Fold</th>
+            <th class="unit">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of ItemTransactionactions;let i = index;" >
+            <td class="unit">{{i + 1}}</td>
+            <td class="unit">{{item?.itemName}}</td>
+            <td class="unit">{{item?.instructionName}}</td>
+            <td class="unit">{{item?.defaultAttrName}}</td>
+            <td class="unit">{{item?.Quantity}}</td>
+            <td class="unit">{{item?.rate}}</td>
+            <td class="unit">{{item?.Shrinkage}}</td>
+            <td class="unit">{{item?.Addition}}</td>
+            <td class="unit">{{item?.Fold}}</td>
+            <td class="unit">{{item?.Amount}}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+        </tfoot>
+      </table>
+      <div class="clearfix">
+        <div class="row1 bdB">
+          <div class="col1 tbl_footer">
+            <!-- <table>
+              <tr>
+                <td>Total Item</td>
+                <td class="total">{{ItemRequirement[0]?.TotalItems}}</td>
+              </tr>
+            </table> -->
+          </div>
+          <div class="col1">
+            <table class="tbl_footer">
+              <tr>
+                <td>Toatl Costing</td>
+                <td class="total">{{totalCost}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
-<app-pagination
-  (lastValueEmitter)="lastItemIndex = $event"
-  (pageNoEmitter)="p = $event; getItemRequirementListData()"
-  (pageSizeEmitter)="itemsPerPage = $event; getItemRequirementListData()"
-></app-pagination>
-
- 
-  <app-item-requirement #addItemRequirementRef
-  (triggerCloseModal)="onModalClosed($event)" ></app-item-requirement>
+  <div class="trm_cond">
+    <div class="row">
+      <p><strong>Terms & Condition</strong></p>
+    </div>
+    <ul style="margin:0;">
+        <li *ngFor="let term of TermsConditions; let i= index">{{term.Terms}}</li>
+    </ul>
+  </div>
+  <footer>
+    <div class="row1">
+      <div class="col1">
+        <h3 class="name-footer">For : {{Clientinfos[0]?.OfficeName}}</h3>
+      </div>
+      <div class="col1">Authorised Signatory</div>
+    </div>
+  </footer>
+</body>

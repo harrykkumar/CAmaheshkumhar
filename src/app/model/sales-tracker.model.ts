@@ -595,6 +595,7 @@ export interface PurchaseItem {
   isDisabled:boolean
   SpItemUtilities:any
   SrNo:any
+  ItemPropertyTrans :any
 
 }
 
@@ -1031,6 +1032,7 @@ export class SaleDirectAdd {
   ItemTaxTrans: Array<ItemTaxTrans>
   SupplyStateId:any
   TransBankId:any
+  ItemPropertyTrans:any
 
 }
 export class SaleBillingAdd {
@@ -1130,7 +1132,8 @@ export interface SaleDirectItem {
   perItemDiscount?:number
   customRate?:number
   SpItemUtilities:any
-  SrNo:any
+  SrNo:any,
+  ItemPropertyTrans:any
 
 }
 

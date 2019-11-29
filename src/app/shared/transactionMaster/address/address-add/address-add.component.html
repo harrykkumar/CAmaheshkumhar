@@ -1,117 +1,179 @@
-<div class="modal right fade" id="addressPopup"  role="dialog" data-backdrop="static" data-keyboard="false">
-  <form  [formGroup]="addressForm" (ngSubmit)="onSaveAddress()">
-   <div class="modal-dialog modal-full-height modal-right" role="document">
-       <div class="modal-content bgcH-grey-100">
-           <!--Header-->
-           <div class="modal-header primary-bg">
-               <div class="container-fluid">
-                   <div class="row">
-                       <div class="col-md-9 left_side_head">
-                           <p class="heading_lead">Address</p>
-                       </div>
-                       <div class="col-md-3">
-                          <button (click)="close()" type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span  aria-hidden="true" class="white-text">×</span>
-                          </button>
-                       </div>
-                   </div>
-               </div>
-           </div>
-           <!--Body-->
-           <div class="modal-body">
-               <div class="form row">
-                   <div class="form-group col-md-12">
-                       <label class="active">Country</label>
-                        <div class="input-group adw_select">
-                                                    <div class="input-group adw_select">
-                                                        <select2 [data]="countryList" class="control_select"
-                                                            (valueChanged)="selectCountryListId($event)" autocomplete="true"
-                                                            [options]="countryListPlaceHolder" [value]="countryValue" [ngClass]="{ 'errorSelecto is-invalid':  countryError  }"></select2>
-                                                    </div>
-                                                </div>
-                   </div>
-                   <div class="form-group col-md-12">
-                       <label class="active">State</label>
-                        <div class="input-group adw_select">
-                                                    <div class="input-group adw_select">
-                                                        <select2 [data]="stateList" class="control_select"
-                                                            (valueChanged)="selectStatelist($event)" autocomplete="true"
-                                                            [options]="stateListplaceHolder" [value]="stateValue" [ngClass]="{ 'errorSelecto is-invalid':  stateError  }"></select2>
-                                                    </div>
-                                                </div>
-                   </div>
-                   <div class="form-group col-md-12">
-                       <label class="active">City</label>
-                      <div class="input-group adw_select">
-                                                    <select2 [data]="cityList" class="control_select" autocomplete="true"
-                                                        (valueChanged)="selectedCityId($event)" [value]="cityValue" [ngClass]="{ 'errorSelecto is-invalid':  cityError  }"></select2>
-                                                  
-                                                </div>
-                   </div>
-                   <div class="form-group col-md-12">
-                       <label>Area</label>
-                      <div class="input-group adw_select">
-                                                    <select2 #areaSelecto2 [data]="areaList" class="control_select" autocomplete="true"
-                                                        (valueChanged)="selectedArea($event)" [value]="areNameId" [options]="areaListPlaceHolder" ></select2>
-                                                </div>
-                   </div>
-                   <div class="form-group col-md-6">
-                    <label>Address Type</label>
-                  <div class="input-group adw_select">
-                                                    <select2 [data]="addressType" class="control_select" autocomplete="true"
-                                                        (valueChanged)="selectedAddressTypeId($event)" [options]="addressTypePlaceHolder"
-                                                        [value]="addresTypeId" [ngClass]="{ 'errorSelecto is-invalid':  addressError  }"></select2>
-                                                </div>
-                   </div>
-                    <div class="form-group col-md-6">
-                    <label>Postal Code</label>
-                    <input   type="number"  class="form-control" placeholder="Post Code"
-                                                    formControlName="postcode" >
-                   </div>
-                    <div class="form-group col-md-12">
-                    <label>Address</label>
-                   <textarea style="width: 100%" class="form-control" placeholder="Enter Address"
-                                                    formControlName="address" [ngClass]="{ 'errorTextBoxBorder is-invalid': addressClick && add.address.errors }"></textarea>
-                   </div>
+<div class="modal right fade" id="addressPopup" role="dialog" data-backdrop="static" data-keyboard="false">
+  <form [formGroup]="addressForm" (ngSubmit)="onSaveAddress()">
+    <div class="modal-dialog modal-full-height modal-right" role="document">
+      <div class="modal-content bgcH-grey-100">
+        <!--Header-->
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-9 left_side_head">
+                <p class="heading_lead">Address</p>
+              </div>
+              <div class="col-md-3">
+                <button (click)="close()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true" class="white-text">×</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Body-->
+        <div class="modal-body">
+          <div class="form row">
+            <div class="form-group col-md-12">
+              <label class="active">Country</label>
+              <div class="input-group adw_select">
+                <div class="input-group adw_select">
+                  <select2 [data]="countryList" class="control_select" (valueChanged)="selectCountryListId($event)"
+                    autocomplete="true" [options]="countryListPlaceHolder" [value]="countryValue"
+                    [ngClass]="{ 'errorSelecto is-invalid':  countryError  }"></select2>
                 </div>
-           </div>
-           <div class="modal-footer"><button (click)="close()" class="btn btn_close waves-effect" data-dismiss="modal" type="button">Close</button>
-               <button class="btn btn-primary waves-effect" type="submit"  >Save changes</button>
-           </div>
-       </div>
-   </div>
-</form>
+              </div>
+            </div>
+            <div class="form-group col-md-12">
+              <label class="active">State</label>
+              <div class="input-group adw_select">
+                <div class="input-group adw_select">
+                  <select2 [data]="stateList" class="control_select" (valueChanged)="selectStatelist($event)"
+                    autocomplete="true" [options]="stateListplaceHolder" [value]="stateValue"
+                    [ngClass]="{ 'errorSelecto is-invalid':  stateError  }"></select2>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-12">
+              <label class="active">City</label>
+              <div class="input-group adw_select">
+                <select2 [data]="cityList" class="control_select" autocomplete="true"
+                  (valueChanged)="selectedCityId($event)" [value]="cityValue"
+                  [ngClass]="{ 'errorSelecto is-invalid':  cityError  }"></select2>
+              </div>
+            </div>
+            <div class="form-group col-md-12">
+              <label>Area</label>
+              <div class="input-group adw_select">
+                <select2 #areaSelecto2 [data]="areaList" class="control_select" autocomplete="true"
+                  (valueChanged)="selectedArea($event)" [value]="areNameId" [options]="areaListPlaceHolder"></select2>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Address Type</label>
+              <div class="input-group adw_select">
+                <select2 [data]="addressType" class="control_select" autocomplete="true"
+                  (valueChanged)="selectedAddressTypeId($event)" [options]="addressTypePlaceHolder"
+                  [value]="addresTypeId" [ngClass]="{ 'errorSelecto is-invalid':  addressError  }"></select2>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label>Postal Code</label>
+              <input type="number" class="form-control" placeholder="Post Code" formControlName="postcode">
+            </div>
+            <div class="form-group col-md-12">
+              <label>Address</label>
+              <textarea style="width: 100%" class="form-control" placeholder="Enter Address" formControlName="address"
+                [ngClass]="{ 'errorTextBoxBorder is-invalid': addressClick && add.address.errors }"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer"><button (click)="close()" class="btn btn_close waves-effect" data-dismiss="modal"
+            type="button">Close</button>
+          <button class="btn btn-primary waves-effect" type="submit">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </form>
 </div>
 
-<div class="modal fade" id="add_area_Popup_main"  role="dialog" aria-labelledby="country_master" aria-hidden="true">
+<!-- <app-add-new-city #addNewCityRef (addCityClosed)="addCityClosed($event)"></app-add-new-city> -->
+<div class="modal fade" id="add_area_Popup_main" role="dialog" aria-labelledby="country_master" aria-hidden="true">
   <div class="modal-dialog modal-md" role="document">
-      <div class="modal-content">
-          <div class="modal-header close_popup">
-              <h4 class="modal-title w-100 c-grey-900" id="myModalLabel">Area</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" (click)="close()">&times;</span> </button>
-          </div>
-            <form  [formGroup]="areaForm" >
-          <div class="modal-body">
-              <div class="card-body">
-                  <div>
-                    
-                          <div class="form-row">
-                            
-                              <div class="form-group col-md-12">
-                                  <label>Area Name</label>
-                                  <input  #areaName  class="form-control" placeholder="Area Name"
-                                                    formControlName="areaName" [ngClass]="{ 'errorTextBoxBorder is-invalid': addAreaClick && adAre.areaName.errors }">
-                                 
-                              </div>
-                          </div>
-                     
-                  </div>
-              </div>
-          </div>
-          <div class="modal-footer">
-              <button type="button" (click)="areaAdd()" class="btn btn-primary waves-effect" >Save </button>
-          </div>
-           </form>
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900" id="myModalLabel">Area</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"
+            (click)="close()">&times;</span> </button>
       </div>
+      <form [formGroup]="areaForm">
+        <div class="modal-body">
+          <div class="card-body">
+            <div>
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label>Area Name</label>
+                  <input #areaName class="form-control" placeholder="Area Name" formControlName="areaName"
+                    [ngClass]="{ 'errorTextBoxBorder is-invalid': addAreaClick && adAre.areaName.errors }">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" (click)="areaAdd()" class="btn btn-primary waves-effect">Save </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade right" id="city_modal" data-backdrop="static" data-keyboard="false" role="dialog"
+  aria-labelledby="category_master" aria-hidden="true">
+  <div class="modal-dialog " role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add New City</h4> <!--(click)="closeForm()"-->
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form #addCityForm="ngForm" novalidate>
+        <div class="modal-body">
+          <div class="card-body">
+            <div>
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label for="commonMenuName">Country</label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2 #addCityCountrySelect [data]="countryList1" class="control_select"
+                        (valueChanged)="onCountrySelectionChange($event)" autocomplete="true"
+                        [value]="model.countryValue">
+                      </select2>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <label>State</label>
+                  <div class="input-group adw_select">
+                    <div class="input-group adw_select">
+                      <select2 #addCityStateSelect [data]="stateList1" class="control_select"
+                        (valueChanged)="onStateSelectionChange($event)" autocomplete="true" [value]="model.stateValue">
+                      </select2>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <label>City</label>
+                  <input name="cityShortName" type="text" [(ngModel)]="model.cityName" class="form-control"
+                    placeholder="Enter City" [disabled]="!model?.selectedStateId || !model?.selectedCountryId"
+                    required />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary waves-effect" (click)="addCityForm?.form?.valid && saveCity()"
+            [disabled]="addCityForm?.form?.invalid" (keydown.enter)="addCityForm?.form?.valid && saveCity()">
+            Save
+          </button>
+          <button type="button" class="btn btn-primary waves-effect"
+            (click)="addCityForm?.form?.valid && saveCity('AddNew')" (keydown.enter)="
+            addCityForm?.form?.valid && saveCity('AddNew')
+            " [disabled]="addCityForm?.form?.invalid">
+            Save and Add New
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

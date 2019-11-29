@@ -109,6 +109,7 @@ export class GlobalService {
   }
 
   validReturnDateForImport (d1, d2): boolean {
+    // console.log(d1, d2)
     // check if date 2 is greater then date 1
     if (!d2) {
       return true

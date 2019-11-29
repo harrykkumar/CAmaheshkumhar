@@ -1,4 +1,5 @@
-import { Component, OnDestroy, Inject, ViewChild } from '@angular/core';
+import { BaseServices } from 'src/app/commonServices/base-services';
+import { Component, OnDestroy, Inject, ViewChild, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { AddCust } from '../../../model/sales-tracker.model';
 import { UIConstant } from '../../../shared/constants/ui-constant';
 import { ClientService } from '../client.service';
@@ -11,12 +12,22 @@ import { Select2Component } from 'ng2-select2';
 import * as _ from 'lodash';
 import { Settings } from 'src/app/shared/constants/settings.constant';
 import { NgForm } from '@angular/forms';
+import { AddCustomerAgentComponent } from '../../add-customer-agent/add-customer-agent.component';
+import { ApiConstant } from 'src/app/shared/constants/api';
 declare const $: any
 @Component({
   selector: 'app-client-add',
   templateUrl: './client-add.component.html'
 })
 export class ClientAddComponent implements OnDestroy {
+  @ViewChild('addCustomerAgentContainerRef', { read: ViewContainerRef }) addCustomerAgentContainerRef: ViewContainerRef;
+  addCustomerAgentRef: any;
+  customerAgentList: Array<any> = [
+    {
+      Id: 0,
+      Name: UIConstant.ADD_NEW_OPTION
+    }
+  ]
   onDestroy$: Subscription
   clientAdd: any = {}
   moduleData: Array<any> = []
@@ -31,9 +42,13 @@ export class ClientAddComponent implements OnDestroy {
   @ViewChild('subs_select2') subsSelect2: Select2Component
   @ViewChild('module_select2') moduleSelect2: Select2Component
   @ViewChild('industry_select2') industrySelect2: Select2Component
-  constructor(private clientService: ClientService, 
+  dummyCustomerAgentId: any;
+  customerAgentId: any;
+  constructor(private clientService: ClientService,
     private toastrService: ToastrCustomService,
-    private gs: GlobalService, private settings: Settings) {
+    private gs: GlobalService, private settings: Settings,
+    private resolver: ComponentFactoryResolver,
+    private baseService: BaseServices) {
     this.onDestroy$ = this.clientService.clientModalOpenStatus$.subscribe(
       (status: AddCust) => {
         if (status.open) {
@@ -53,9 +68,10 @@ export class ClientAddComponent implements OnDestroy {
         }
       }
     })
+    this.getCustomerAgentList()
   }
 
-  onChange (evt: {value: string[]}, type) {
+  onChange(evt: { value: string[] }, type) {
     if (evt.value) {
       if (type === 'mod') {
         this.clientAdd.ClientModulestr = evt.value.join(',')
@@ -82,7 +98,7 @@ export class ClientAddComponent implements OnDestroy {
     })
   }
 
-  toggleInd (evt, id) {
+  toggleInd(evt, id) {
     let count = 0
     this.subMenus.forEach(element => {
       if (+element.ParentId === +id && element.selected) {
@@ -99,10 +115,10 @@ export class ClientAddComponent implements OnDestroy {
     }
   }
 
-  getSubMenus () {
+  getSubMenus() {
     let _self = this
     if (this.clientAdd.ClientModulestr && this.clientAdd.IndustryIdstr) {
-      this.clientService.getSubMenuList('?StrIndustryId=' + this.clientAdd.IndustryIdstr + '&StrModuleId='+ this.clientAdd.ClientModulestr).pipe(
+      this.clientService.getSubMenuList('?StrIndustryId=' + this.clientAdd.IndustryIdstr + '&StrModuleId=' + this.clientAdd.ClientModulestr).pipe(
         map(data => {
           if (data.length > 0) {
             let parents = data.filter(row => row.ParentId === 0)
@@ -126,45 +142,48 @@ export class ClientAddComponent implements OnDestroy {
           }
         })
       )
-      .subscribe(
-        (data) => {
-          console.log(data)
-          _self.subMenus = data
-        },
-        (error) => {
-          _self.toastrService.showError(error, '')
-        }
-      )
+        .subscribe(
+          (data) => {
+            console.log(data)
+            _self.subMenus = data
+          },
+          (error) => {
+            _self.toastrService.showError(error, '')
+          }
+        )
     }
   }
 
   private clientAddParams(): ClientAddInterface {
     let subMenus = []
-    this.subMenus.forEach((element, index) => {
-      if (element.selected) {
-        subMenus.push({
-          Id: element.Id,
-          Sno: index + 1,
-          Name: element.Name
-        })
-      }
-    })
+    if (!_.isEmpty(this.subMenus)) {
+      this.subMenus.forEach((element, index) => {
+        if (element.selected) {
+          subMenus.push({
+            Id: element.Id,
+            Sno: index + 1,
+            Name: element.Name
+          })
+        }
+      })
+    }
     let clientAdd = JSON.parse(JSON.stringify(this.clientAdd))
     clientAdd.registrationDate = this.gs.convertToSqlFormat(clientAdd.RegistrationDate)
     clientAdd.IsMultiOrganization = +clientAdd.IsMultiOrganization
     clientAdd.IsMultiBranch = +(!clientAdd.IsMultiOrganization)
-    let obj = {...clientAdd, userMenus: [...subMenus], Id: 0}
+    clientAdd.CustomerAgentId = +(this.customerAgentId)
+    let obj = { ...clientAdd, userMenus: [...subMenus], Id: 0 }
     console.log(JSON.stringify(obj))
     return obj
   }
 
   form: any
-  onFocus (form: NgForm) {
+  onFocus(form: NgForm) {
     console.log(form)
     this.form = form
   }
 
-  manipulateData () {
+  manipulateData() {
     let _self = this
     this.clientService.postClient(this.clientAddParams()).subscribe(
       (data) => {
@@ -181,8 +200,8 @@ export class ClientAddComponent implements OnDestroy {
     )
   }
 
-  
-  checkForValidation () {
+
+  checkForValidation() {
     this.toShow = true;
     this.tabId = 2
     console.log(this.clientAdd)
@@ -190,22 +209,22 @@ export class ClientAddComponent implements OnDestroy {
     this.getSubMenus()
   }
 
-  
-  checkfor (form) {
+
+  checkfor(form) {
     console.log(form)
     console.log(this.clientAdd)
   }
 
-  initComp () {
+  initComp() {
     this.clientAdd = {}
     this.invalidObj = {}
     this.subsData = [
-      {id: 1, text:'Yearly'},
-      {id: 2, text:'Half-Yearly'},
-      {id: 3, text:'Quarterly'},
-      {id: 4, text:'Monthly'},
-      {id: 5, text:'Daily'},
-      {id: 6, text:'Never'}
+      { id: 1, text: 'Yearly' },
+      { id: 2, text: 'Half-Yearly' },
+      { id: 3, text: 'Quarterly' },
+      { id: 4, text: 'Monthly' },
+      { id: 5, text: 'Daily' },
+      { id: 6, text: 'Never' }
     ]
     this.tabId = 1
     this.today = this.gs.getDefaultDate(this.settings.dateFormat)
@@ -218,17 +237,17 @@ export class ClientAddComponent implements OnDestroy {
     this.clientAdd.NoOfUser = 1
     if (this.subsSelect2)
       this.subsSelect2.setElementValue(this.subsData[0].id)
-    
+
   }
 
-  openModal () {
+  openModal() {
     $('#client_admin').modal(UIConstant.MODEL_SHOW)
     this.initComp()
   }
 
-  closeModal () {
+  closeModal() {
     if ($('#client_admin').length > 0) {
-      this.form.reset()
+      this.form.resetForm()
       let controls = this.form.controls
       for (const key in controls) {
         if (controls.hasOwnProperty(key)) {
@@ -240,11 +259,55 @@ export class ClientAddComponent implements OnDestroy {
     }
   }
 
-  closePopUp () {
+  closePopUp() {
     this.clientService.onCloseClientModal()
   }
 
-  ngOnDestroy () {
+  ngOnDestroy() {
     this.onDestroy$.unsubscribe()
+  }
+
+  getCustomerAgentList() {
+    this.baseService.getRequest(ApiConstant.CUSTOMER_AGENT).subscribe((res) => {
+      if (res.Code === 1000 && !_.isEmpty(res.Data)) {
+        this.customerAgentList = [{
+          Id: 0,
+          Name: UIConstant.ADD_NEW_OPTION
+        }, ...res.Data];
+        if (this.dummyCustomerAgentId) {
+          this.customerAgentId = this.dummyCustomerAgentId
+          this.dummyCustomerAgentId = null;
+        }
+      } else {
+        this.customerAgentList = [
+          {
+            Id: 0,
+            Name: UIConstant.ADD_NEW_OPTION
+          }
+        ]
+      }
+    })
+  }
+
+  onChangeCustomerAgent(e) {
+    if (this.customerAgentId === 0) {
+      this.addCustomerAgent();
+    }
+  }
+
+  addCustomerAgent() {
+    this.addCustomerAgentContainerRef.clear();
+    const factory = this.resolver.resolveComponentFactory(AddCustomerAgentComponent);
+    this.addCustomerAgentRef = this.addCustomerAgentContainerRef.createComponent(factory);
+    this.addCustomerAgentRef.instance.openModal();
+    this.addCustomerAgentRef.instance.closeModal.subscribe(
+      (data) => {
+        this.addCustomerAgentRef.destroy();
+        if (data) {
+          this.dummyCustomerAgentId = Number(data);
+          this.getCustomerAgentList();
+        }
+        this.customerAgentId = null;
+      });
   }
 }

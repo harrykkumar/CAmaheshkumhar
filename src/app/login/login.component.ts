@@ -1,3 +1,4 @@
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { Component } from '@angular/core'
 import { FormBuilder, Validators, FormGroup } from '@angular/forms'
 import { Router } from '@angular/router'
@@ -28,7 +29,8 @@ export class LoginComponent {
         private _formBuilder: FormBuilder,
         private router: Router,
         private _toastrCustomService: ToastrCustomService,
-        private spinnerService: NgxSpinnerService        
+        private spinnerService: NgxSpinnerService,
+        public commonService: CommonService
     ) {
     this.loginForm = this._formBuilder.group({
       'username': [UIConstant.BLANK, Validators.required],

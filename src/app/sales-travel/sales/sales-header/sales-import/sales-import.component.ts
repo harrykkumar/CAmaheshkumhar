@@ -38,7 +38,6 @@ export class SalesImportComponent implements OnInit, OnDestroy {
   constructor (private _saleTravelServices: SaleTravelServices,
      private gs: GlobalService,
       private toastrService: ToastrCustomService,
-      private excelService: ExcelService,
       private commonService: CommonService,
       private settings: Settings) {
     this.clientDateFormat = this.settings.dateFormat
@@ -100,24 +99,63 @@ export class SalesImportComponent implements OnInit, OnDestroy {
 
   saveSaleTravel (value) {
     if (this.masterData.length > 0) {
-      this.subcribe = this._saleTravelServices.importExportSale(this.saleTravelParmas()).subscribe(data => {
+      this.gs.manipulateResponse(this._saleTravelServices.importExportSale(this.saleTravelParmas())).subscribe(data => {
         console.log('sales import : ', data)
-        if (data.Code === UIConstant.THOUSAND) {
-          this.commonService.newSaleAdded()
-          this.toastrService.showSuccess('Success', 'File Saved')
+        this.commonService.newSaleAdded()
+        this.toastrService.showSuccess('Success', 'File Saved')
+        this.commonService.closeImport()
+        if (value === 'save') {
           this.commonService.closeImport()
-          if (value === 'save') {
-            this.commonService.closeImport()
-          }
-          if (value === 'save1') {
-            this.reset()
-          }
         }
+        if (value === 'save1') {
+          this.reset()
+        }
+      },
+      (error) => {
+        this.toastrService.showErrorLong(error, '')
       })
     }
   }
 
+  createTax () {
+    const mandatoryKeys = ['SNO', 'DATE', 'RETURNDATE', 'DATEOFTRAVEL', 'CURRENCY',
+    'BOOKINGNO', 'SUPPLIER', 'AIRLINETICKETCODE',
+    'TICKETNO', 'CLIENTNAME', 'ROUTING',
+    'FARE', 'REISSUECHARGES', 'REFUNDPANELTY',
+    'MISCELLANEOUSE', 'LANGITAX', 'FORMOFPAYMENT',
+    'DISCOUNT', 'DISCOUNTTYPE', 'DISCOUNTAMOUNT',
+    'SVCFEE', 'COMMISSION', 'COMMISSIONTYPE', 'COMMISSIONAMOUNT',
+    'COMMISSIONAUTHORIZER', 'REMARK']
+    let taxArrKeys = []
+    this.masterKeys.forEach(key => {
+      if (mandatoryKeys.indexOf(key) === -1) {
+        taxArrKeys.push(key)
+      }
+    });
+    let index = this.masterData.length - 1
+    this.masterTableArray.forEach(element => {
+      for (let i = 0; i <= taxArrKeys.length - 1; i++) {
+        this.masterData[index][taxArrKeys[i]] = element[taxArrKeys[i]]
+      }
+      let taxRowIndex = 0
+      taxArrKeys.forEach(tax => {
+        taxRowIndex += taxRowIndex
+        let taxRow = {
+          'SNO': taxRowIndex,
+          'TAXRATENAME': tax,
+          'TAXRATE': element[tax].toFixed(4),
+          'TAXTYPE': 1,
+          'TAXAMOUNT': element[tax].toFixed(4),
+          'ROWID': element['SNO']
+        }
+        this.array.push(taxRow)
+      })
+    });
+    console.log('tax data: ', this.array)
+  }
+
   private saleTravelParmas (): ImportExportSale {
+    this.createTax()
     const salesElement = {
       saleObj: {
         Id: 0,
@@ -144,6 +182,7 @@ export class SalesImportComponent implements OnInit, OnDestroy {
       }
     }
   }
+  mandatoryKeys: any[]
   masterKeys: any[]
   masterValues: any[]
   readingData () {
@@ -178,8 +217,8 @@ export class SalesImportComponent implements OnInit, OnDestroy {
         let keysArr = Object.values(XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0])
         keysArr = this.gs.removeSpecialCharacters(keysArr)
         const indexOfRemark = keysArr.indexOf('REMARK')
-        const beforeArr = keysArr.slice(0, indexOfRemark + 1)
         if (indexOfRemark > -1) {
+          const beforeArr = keysArr.slice(0, indexOfRemark + 1)
           console.log('keysArr : ', keysArr)
           const mandatoryKeys = ['SNO', 'DATE', 'RETURNDATE', 'DATEOFTRAVEL', 'CURRENCY',
             'BOOKINGNO', 'SUPPLIER', 'AIRLINETICKETCODE',
@@ -189,19 +228,26 @@ export class SalesImportComponent implements OnInit, OnDestroy {
             'DISCOUNT', 'DISCOUNTTYPE', 'DISCOUNTAMOUNT',
             'SVCFEE', 'COMMISSION', 'COMMISSIONTYPE', 'COMMISSIONAMOUNT',
             'COMMISSIONAUTHORIZER', 'REMARK']
-          if (this.gs.checkForEqualityInArray(mandatoryKeys, beforeArr) !== '') {
-            this.toastrService.showError(this.gs.checkForEqualityInArray(mandatoryKeys, beforeArr), 'Missing Field')
+          
+          _self.mandatoryKeys = [...mandatoryKeys]
+          const resp = this.gs.checkForEqualityInArray(_self.mandatoryKeys, beforeArr)
+          if (resp !== '') {
+            this.toastrService.showErrorLong(resp, '')
             this.reset()
           } else {
-            this.masterTableArray.forEach(element => {
+            this.masterTableArray.forEach((element, index) => {
+              console.log(element)
               let keysArr = Object.keys(element)
               let newRow = {}
               for (let j = 0; j < keysArr.length; j++) {
                 let key = keysArr[j].trim().toUpperCase()
-                newRow[key] = element[keysArr[j]]
+                newRow[key] = ('' + element[keysArr[j]]).trim()
               }
+              // console.log('row : ', newRow)
+              newRow = this.gs.removeSpecialCharacters(newRow)
               console.log('row : ', newRow)
               newRow = this.gs.removeSpecialCharacters(newRow)
+              newRow['SNO'] = index + 1
               newRow['DISCOUNT'] = +newRow['DISCOUNT']
               newRow['REISSUECHARGES'] = +newRow['REISSUECHARGES']
               newRow['REFUNDPANELTY'] = +newRow['REFUNDPANELTY']
@@ -221,137 +267,82 @@ export class SalesImportComponent implements OnInit, OnDestroy {
               this.masterKeys = Object.keys(newRow)
               console.log(newRow)
               if (!newRow['CLIENTNAME']) {
-                this.toastrService.showError('Client Name is Required at SNO. ' + newRow['SNO'], newRow['CLIENTNAME'])
+                this.toastrService.showErrorLong('Client Name is Required at SNO. ' + newRow['SNO'], newRow['CLIENTNAME'])
                 this.reset()
-              }
-              if (!newRow['SUPPLIER']) {
-                this.toastrService.showError('Supplier is Required at SNO. ' + newRow['SNO'], newRow['SUPPLIER'])
+              } else if (!newRow['SUPPLIER']) {
+                this.toastrService.showErrorLong('Supplier is Required at SNO. ' + newRow['SNO'], newRow['SUPPLIER'])
                 this.reset()
               }
               if (!this.gs.isValidDate(newRow['DATE'])) {
-                this.toastrService.showError('Invalid DATE Format' + newRow['DATE'] + 'at SNO. ' + newRow['SNO'], 'Expected mm/dd/yyyy')
+                this.toastrService.showErrorLong('Invalid DATE Format' + newRow['DATE'] + 'at SNO. ' + newRow['SNO'], 'Expected mm/dd/yyyy')
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['DISCOUNT'])) {
-                this.toastrService.showError('Invalid Discount Value ' + 'at SNO. ' + newRow['SNO'], newRow['DISCOUNT'])
+                this.toastrService.showErrorLong('Invalid Discount Value ' + 'at SNO. ' + newRow['SNO'], newRow['DISCOUNT'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(newRow['AIRLINETICKETCODE'])) {
-                this.toastrService.showError('Invalid Airline Sticker Code Value ' + 'at SNO. ' + newRow['SNO'], newRow['AIRLINETICKETCODE'])
+                this.toastrService.showErrorLong('Invalid Airline Sticker Code Value ' + 'at SNO. ' + newRow['SNO'], newRow['AIRLINETICKETCODE'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['CURRENCY']) && !(+newRow['CURRENCY'])) {
-                this.toastrService.showError('Invalid Currency Value ' + 'at SNO. ' + newRow['SNO'], newRow['CURRENCY'])
+                this.toastrService.showErrorLong('Invalid Currency Value ' + 'at SNO. ' + newRow['SNO'], newRow['CURRENCY'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['FARE']) && !(+newRow['FARE'])) {
-                this.toastrService.showError('Invalid Fare Value ' + 'at SNO. ' + newRow['SNO'], +newRow['FARE'])
+                this.toastrService.showErrorLong('Invalid Fare Value ' + 'at SNO. ' + newRow['SNO'], +newRow['FARE'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['REISSUECHARGES'])) {
-                this.toastrService.showError('Invalid Reissue Charges Value ' + 'at SNO. ' + newRow['SNO'], newRow['REISSUECHARGES'])
+                this.toastrService.showErrorLong('Invalid Reissue Charges Value ' + 'at SNO. ' + newRow['SNO'], newRow['REISSUECHARGES'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['REFUNDPANELTY'])) {
-                this.toastrService.showError('Invalid Refund Panelty Value ' + 'at SNO. ' + newRow['SNO'], newRow['REFUNDPANELTY'])
+                this.toastrService.showErrorLong('Invalid Refund Panelty Value ' + 'at SNO. ' + newRow['SNO'], newRow['REFUNDPANELTY'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['MISCELLANEOUSE'])) {
-                this.toastrService.showError('Invalid Miscellaneouse Value ' + 'at SNO. ' + newRow['SNO'], newRow['MISCELLANEOUSE'])
+                this.toastrService.showErrorLong('Invalid Miscellaneouse Value ' + 'at SNO. ' + newRow['SNO'], newRow['MISCELLANEOUSE'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['LANGITAX'])) {
-                this.toastrService.showError('Invalid Langi Tax Value ' + 'at SNO. ' + newRow['SNO'], newRow['LANGITAX'])
+                this.toastrService.showErrorLong('Invalid Langi Tax Value ' + 'at SNO. ' + newRow['SNO'], newRow['LANGITAX'])
                 this.reset()
-                return false
-              } else if (!this.gs.checkForValidNumbers(+newRow['DISCOUNTTYPE'])) {
-                this.toastrService.showError('Invalid Discount Type Value ' + 'at SNO. ' + newRow['SNO'], newRow['DISCOUNTTYPE'])
+              } else if (!(+newRow['DISCOUNTTYPE'] === 0 || +newRow['DISCOUNTTYPE'] === 1)) {
+                this.toastrService.showErrorLong('Invalid Discount Type Value ' + 'at SNO. ' + 
+                newRow['SNO'], newRow['DISCOUNTTYPE'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['DISCOUNTAMOUNT'])) {
-                this.toastrService.showError('Invalid Discount Amount Value ' + 'at SNO. ' + newRow['SNO'], newRow['DISCOUNTAMOUNT'])
+                this.toastrService.showErrorLong('Invalid Discount Amount Value ' + 'at SNO. ' + newRow['SNO'], newRow['DISCOUNTAMOUNT'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['SVCFEE'])) {
-                this.toastrService.showError('Invalid SVC FEE Value ' + 'at SNO. ' + newRow['SNO'], newRow['SVCFEE'])
+                this.toastrService.showErrorLong('Invalid SVC FEE Value ' + 'at SNO. ' + newRow['SNO'], newRow['SVCFEE'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['COMMISSION'])) {
-                this.toastrService.showError('Invalid Commission Value ' + 'at SNO. ' + newRow['SNO'], newRow['COMMISSION'])
+                this.toastrService.showErrorLong('Invalid Commission Value ' + 'at SNO. ' + newRow['SNO'], newRow['COMMISSION'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['COMMISSIONAMOUNT'])) {
-                this.toastrService.showError('Invalid Commission Amount Value ' + 'at SNO. ' + newRow['SNO'], newRow['COMMISSIONAMOUNT'])
+                this.toastrService.showErrorLong('Invalid Commission Amount Value ' + 'at SNO. ' + newRow['SNO'], newRow['COMMISSIONAMOUNT'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['COMMISSIONAUTHORIZER'])) {
-                this.toastrService.showError('Invalid Commission Authorizer Value ' + 'at SNO. ' + newRow['SNO'], newRow['COMMISSIONAUTHORIZER'])
+                this.toastrService.showErrorLong('Invalid Commission Authorizer Value ' + 'at SNO. ' + newRow['SNO'], newRow['COMMISSIONAUTHORIZER'])
                 this.reset()
-                return false
               } else if (!this.gs.checkForValidNumbers(+newRow['COMMISSIONTYPE'])) {
-                this.toastrService.showError('Invalid Commssion Type Value ' + 'at SNO. ' + newRow['SNO'], newRow['COMMISSIONTYPE'])
+                this.toastrService.showErrorLong('Invalid Commssion Type Value ' + 'at SNO. ' + newRow['SNO'], newRow['COMMISSIONTYPE'])
                 this.reset()
-                return false
               } else if (!this.gs.validReturnDateForImport(newRow['DATEOFTRAVEL'], newRow['RETURNDATE'])) {
-                this.toastrService.showError('Invalid Return Date ' + 'at SNO. ' + newRow['SNO'], newRow['RETURNDATE'])
+                this.toastrService.showErrorLong('Invalid Return Date ' + 'at SNO. ' + newRow['SNO'], newRow['RETURNDATE'])
                 this.reset()
-                return false
               } else {
-                let obj = { ...newRow }
-                let taxArrKeys = []
-                for (const key in obj) {
-                  if (obj.hasOwnProperty(key) && mandatoryKeys.indexOf(key) === -1) {
-                    taxArrKeys.push(key)
-                  }
-                }
-                // console.log('objrrtrtr : ', obj)
-                // const taxArrKeys = Object.keys(obj).splice(indexOfRemark + 1)
                 this.masterData.push(newRow)
-                let index = this.masterData.length - 1
-                for (let i = 0; i <= taxArrKeys.length - 1; i++) {
-                  this.masterData[index][taxArrKeys[i]] = element[taxArrKeys[i]]
-                }
-                // for tax
-                let taxRowIndex = 0
-                taxArrKeys.forEach(tax => {
-                  taxRowIndex += taxRowIndex
-                  let taxRow = {
-                    'SNO': taxRowIndex,
-                    'TAXRATENAME': tax,
-                    'TAXRATE': element[tax].toFixed(4),
-                    'TAXTYPE': 1,
-                    'TAXAMOUNT': element[tax].toFixed(4),
-                    'ROWID': element['SNO']
-                  }
-                  this.array.push(taxRow)
-                })
-                console.log('tax data: ', this.array)
-                // for tax
-                // const indexOfRemark = Object.keys(obj).indexOf('REMARK')
-                // if (indexOfRemark > -1) {
-                //   const taxArrKeys = Object.keys(obj).splice(indexOfRemark + 1)
-                //   this.masterData.push(newRow)
-                //   let index = this.masterData.length - 1
-                //   for (let i = 0; i <= taxArrKeys.length - 1; i++) {
-                //     this.masterData[index][taxArrKeys[i]] = element[taxArrKeys[i]]
-                //   }
-                  
-                // }
+                // console.log(this.masterTableArray)
               }
             })
-            this.masterKeys = Object.keys(_self.masterData[0])
-            console.log('masterdata: ', _self.masterData)
+            // this.masterKeys = Object.keys(_self.masterData[0])
+            // console.log('masterdata: ', _self.masterData)
           }
         } else {
-          this.toastrService.showError('Oops', 'Remark is not found')
+          this.toastrService.showErrorLong('Oops', 'Remark is not found')
           this.reset()
         }
       } else {
-        this.toastrService.showError('Oops', 'No Data Found')
+        this.toastrService.showErrorLong('Oops', 'No Data Found')
         this.reset()
       }
       // check validation
     }
-        // return this.array
+      // return this.array
   }
 }

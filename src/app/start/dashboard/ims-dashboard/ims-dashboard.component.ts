@@ -394,5 +394,15 @@ chartLoaderFinacial:boolean
         }
       });
   }
-
+  onLedgerStatement (item){
+    if (item.LedgerId>0) {
+      this._commonService.ledgerSummary(item.LedgerId, item.Name)
+      this.router.navigate(['/account/ledger-summary'])
+    }
+  }
+  gstrReport (){
+      this.router.navigate(['/report/gstr-summary'])
+    
+  }
+  
 }

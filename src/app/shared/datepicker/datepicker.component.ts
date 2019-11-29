@@ -12,6 +12,7 @@ import { ToastrCustomService } from '../../commonServices/toastr.service';
 })
 export class DatepickerComponent implements OnInit, OnDestroy {
   model;
+  selectedMoment: any
   @ViewChild('dt2') dt2: OwlDateTimeComponent<''>
   @ViewChild('inputElem') inputElem: ElementRef
   @Output() dateInFormat = new EventEmitter()
@@ -25,7 +26,9 @@ export class DatepickerComponent implements OnInit, OnDestroy {
   @Input() setMinDate;
   @Input() setMaxDate;
   @Input() placeholder: string = '';
-  @Input() applyFinYear: boolean = false
+  @Input() applyFinYear: boolean = false;
+  type: string = 'calendar';
+  @Input() includeTime: boolean;
   today;
   minDate;
   maxDate;
@@ -47,6 +50,9 @@ export class DatepickerComponent implements OnInit, OnDestroy {
     // console.log('changes : ', changes)
     if (changes.applyFinYear && changes.applyFinYear.currentValue) {
       this.getSettings()
+    }
+    if (changes.includeTime && changes.includeTime.currentValue) {
+      this.type = 'both'
     }
     if (changes.toSetDate && changes.toSetDate.currentValue && 
       changes.toSetDate.currentValue !== changes.toSetDate.previousValue) {
@@ -99,6 +105,7 @@ export class DatepickerComponent implements OnInit, OnDestroy {
 
   onSelect (evt) {
     // console.log(moment(evt.value._d))
+    // console.log((new Date(evt.value)).getHours(), (new Date(evt.value)).getMinutes())
     if (evt.value && evt.value._d) {
       this.model = this.gs.utcToClientDateFormat((new Date(evt.value._d)).toISOString(), this.clientDateFormat)
       this.dateInFormat.emit(this.model)
@@ -112,6 +119,7 @@ export class DatepickerComponent implements OnInit, OnDestroy {
       this.class = false
       this.isError.emit(this.class)
     }
+    // console.log(this.model)
   }
 
   toggleView () {
@@ -259,7 +267,6 @@ export class DatepickerComponent implements OnInit, OnDestroy {
       if (val.includes(splitter)) {
         arrOfInput = val.split(splitter)
         if (arrOfInput.length === 1) {
-  
         } else if (arrOfInput.length === 2) {
           if (arrOfInput[1].length === 1) {
             val = val.substring(0, val.length-1)

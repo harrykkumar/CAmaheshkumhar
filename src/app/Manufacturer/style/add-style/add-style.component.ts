@@ -76,18 +76,21 @@ export class AddStyleComponent {
   }
 
   async saveOrUpdateStyle(){
-    const requestData = await this.preparePayload()
-    this._styleService.postStyleFormData(requestData).subscribe((res) => {
-      if (res) {
-        const dataToSend = {id: res, name: this.model.styleName}
-        this._ms.onStyleAdd()
-        this._toastService.showSuccess('', 'Style Added Successfully')
-        this._ms.closeStyle(dataToSend);
-        this.resetForm()
-      }
-    }, (error) => {
-      this._toastService.showError(error, '')
-    }) 
+    this.checkForFocus()
+    if (this.styleFormModel.valid) {
+      const requestData = await this.preparePayload()
+      this._styleService.postStyleFormData(requestData).subscribe((res) => {
+        if (res) {
+          const dataToSend = {id: res, name: this.model.styleName}
+          this._ms.onStyleAdd()
+          this._toastService.showSuccess('', 'Style Added Successfully')
+          this._ms.closeStyle(dataToSend);
+          this.resetForm()
+        }
+      }, (error) => {
+        this._toastService.showError(error, '')
+      })
+    }
   }
 
   resetForm() {
@@ -95,4 +98,9 @@ export class AddStyleComponent {
     if (this.styleFormModel) this.styleFormModel.resetForm();
   }
 
+  checkForFocus () {
+    setTimeout(() => {
+      $(".errorSelecto:first").focus()
+    }, 100)
+  }
 }

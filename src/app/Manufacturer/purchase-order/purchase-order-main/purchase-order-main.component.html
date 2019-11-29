@@ -9,21 +9,24 @@
             </div>
             <div class="col-md-7">
               <div class="btn_header">
-                <a>
+                <!-- <a>
                   <img src="../assets/img/printer.png">
                 </a>
                 <a>
                   <img src="../assets/img/pdf.png"></a>
                 <a>
-                  <img src="../assets/img/excel.png"></a>
-                <button type="button" class="btn btn-primary waves-effect waves-light" (click)="openPO()" >Add New</button>
-                <!-- <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
-                  data-target="#sale_form">Add New</button> -->
+                  <img src="../assets/img/excel.png"></a> -->
+                <button type="button" class="btn btn-primary waves-effect waves-light" (click)="openPO()">Add
+                  New</button>
+                <button type="button" (click)="toggleSearch()" class="btn btn-primary waves-effect waves-light">
+                  Search
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <purchase-order-search [toShow]="toShowSearch"></purchase-order-search>
       <div class="row ">
         <div class="col-md-12">
           <div class="bgc-white bdrs-3 mB-20">
@@ -31,246 +34,51 @@
               <table class="table" id="fixTable">
                 <thead>
                   <tr>
-                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">Sr.No.</th>
-                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">Party Deatil</th>
-                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">City</th>
-                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">Bill</th>
-                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">Bill Date</th>
-                    <th class="text-right" style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">
-                      Qty</th>
-                    <th class="text-right" style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">
-                      Discount</th>
-                    <th class="text-right" style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">
-                      Tax Amount</th>
-                    <th class="text-right" style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">
-                      Bill Amount</th>
-                    <th style="background-color: rgb(217, 227, 247); position: relative; top: 0px;">Action</th>
+                    <th>Sr.No.</th>
+                    <th>Ledger Name</th>
+                    <th>PO No.</th>
+                    <th>PoDate</th>
+                    <th colspan="2">Expected Delivery Date</th>
+                    <th>Remark</th>
+                    <th class="text-right" >Amount</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>101</td>
-                    <td>
-                      <div>Ravi</div>
-                      <div>9632587410</div>
+                  <tr *ngFor="let item of poData | paginate : {
+                    itemsPerPage: itemsPerPage,
+                    currentPage: p,
+                    totalItems: total
+                  }; let i = index;">
+                    <td>{{lastItemIndex + i + 1}}</td>
+                    <td>{{item.LedgerName}}</td>
+                    <td>{{item.PoNo}}</td>
+                    <td>{{item.PoDate | dateFormat: clientDateFormat}}</td>
+                    <td colspan="2">
+                      {{item.ExDeliveryFromDate | dateFormat: clientDateFormat}}&nbsp;&nbsp;{{item.ExDeliveryToDate | dateFormat: clientDateFormat}}
                     </td>
-                    <td>City</td>
-                    <td>56</td>
-                    <td>10-12-2016</td>
-                    <td class="text-right">100</td>
-                    <td class="text-right">2500.00</td>
-                    <td class="text-right">250.00</td>
-                    <td class="text-right">252560.00</td>
+                    <td>{{item.Remark}}</td>
+                    <td class="text-right" >{{item.TotalAmount}}</td>
                     <td>
-                      <div class="dropdown enquiry-tag">
-                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
-                        <ul class="dropdown-menu fsz-sm">
-                          <li><a href="print.html" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
-
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>101</td>
-                    <td>
-                      <div>Ravi</div>
-                      <div>9632587410</div>
-                    </td>
-                    <td>City</td>
-                    <td>56</td>
-                    <td>10-12-2016</td>
-                    <td class="text-right">100</td>
-                    <td class="text-right">2500.00</td>
-                    <td class="text-right">250.00</td>
-                    <td class="text-right">252560.00</td>
-                    <td>
-                      <div class="dropdown enquiry-tag">
-                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
-                        <ul class="dropdown-menu fsz-sm">
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
-
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>101</td>
-                    <td>
-                      <div>Ravi</div>
-                      <div>9632587410</div>
-                    </td>
-                    <td>City</td>
-                    <td>56</td>
-                    <td>10-12-2016</td>
-                    <td class="text-right">100</td>
-                    <td class="text-right">2500.00</td>
-                    <td class="text-right">250.00</td>
-                    <td class="text-right">252560.00</td>
-                    <td>
-                      <div class="dropdown enquiry-tag">
-                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
-
-                        <ul class="dropdown-menu fsz-sm">
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
-
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>101</td>
-                    <td>
-                      <div>Ravi</div>
-                      <div>9632587410</div>
-                    </td>
-                    <td>City</td>
-                    <td>56</td>
-                    <td>10-12-2016</td>
-                    <td class="text-right">100</td>
-                    <td class="text-right">2500.00</td>
-                    <td class="text-right">250.00</td>
-                    <td class="text-right">252560.00</td>
-                    <td>
-                      <div class="dropdown enquiry-tag">
-                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
-                        <ul class="dropdown-menu fsz-sm">
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
-
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>101</td>
-                    <td>
-                      <div>Ravi</div>
-                      <div>9632587410</div>
-                    </td>
-                    <td>City</td>
-                    <td>56</td>
-                    <td>10-12-2016</td>
-                    <td class="text-right">100</td>
-                    <td class="text-right">2500.00</td>
-                    <td class="text-right">250.00</td>
-                    <td class="text-right">252560.00</td>
-                    <td>
-                      <div class="dropdown enquiry-tag">
-                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
-                        <ul class="dropdown-menu fsz-sm">
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
-
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>101</td>
-                    <td>
-                      <div>Ravi</div>
-                      <div>9632587410</div>
-                    </td>
-                    <td>City</td>
-                    <td>56</td>
-                    <td>10-12-2016</td>
-                    <td class="text-right">100</td>
-                    <td class="text-right">2500.00</td>
-                    <td class="text-right">250.00</td>
-                    <td class="text-right">252560.00</td>
-                    <td>
-                      <div class="dropdown enquiry-tag">
-                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                            class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
-                        <ul class="dropdown-menu fsz-sm">
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Send Mail</span></a></li>
-                          <li><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i
-                                class="fa fa-envelope mR-10 cH-blue"></i><span>Sale Bill Return</span></a></li>
-                        </ul>
-                      </div>
+                      <a title="Edit" class="actionBtn" data-toggle="tooltip" data-placement="top" >
+                        <i class="fa fa-edit fa-1x" aria-hidden="true" (click)="openPO(item.Id)" ></i>
+                      </a>
+                      <a title="delete" class="actionBtn" data-toggle="tooltip" data-placement="top" >
+                        <i class="fa fa-trash fa-1x" aria-hidden="true" (click)="delete(item.Id)" ></i>
+                      </a>
+                      <!-- <a  title="print" data-toggle="tooltip" data-placement="top" class="actionBtn" >
+                        <i class="fa fa-print fa-1x" aria-hidden="true" (click)="printInvoice(item.Id)" ></i>
+                      </a> -->
                     </td>
                   </tr>
                 </tbody>
                 <tfoot>
                   <tr>
-                    <th colspan="5" style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;"></th>
-                    <th class="text-right font-weight-bold"
-                      style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;">1000.00</th>
-                    <th class="text-right font-weight-bold"
-                      style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;">1200.00</th>
-                    <th class="text-right font-weight-bold"
-                      style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;">12100.00</th>
-                    <th class="text-right font-weight-bold"
-                      style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;">12122100.00</th>
-                    <th style="background-color: rgb(217, 227, 247); position: relative; bottom: 0px;"></th>
+                    <th colspan="7"></th>
+                    <th class="text-right font-weight-bold">
+                      {{(summary?.TotalAmount).toFixed(2) }}
+                    </th>
+                    <th></th>
                   </tr>
                 </tfoot>
               </table>
@@ -281,3 +89,5 @@
     </div>
   </div>
 </main>
+<app-pagination (lastValueEmitter)="lastItemIndex = $event" (pageNoEmitter)="p = $event; getPOList()"
+  (pageSizeEmitter)="itemsPerPage = $event; getPOList()"></app-pagination>

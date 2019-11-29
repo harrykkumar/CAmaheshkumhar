@@ -1,0 +1,691 @@
+<div class="modal fade" id="leads_report" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+      <div class="modal-content bgcH-grey-100">
+          <!--Header-->
+          <div class="modal-header primary-bg">
+              <div class="container-fluid">
+                  <div class="row">
+                      <div class="col-md-3 left_side_head">
+                          <p class="heading_lead"><i class="far fa-building"></i>Lead Report</p>
+                      </div>
+                      <div class="col-md-9">
+                          <div class="btn_header">
+                              <!-- <a class="btn btn-default waves-effect">Save </a>
+                              <a href="" class="btn btn-info waves-effect" data-dismiss="modal">Save and New</a> -->
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">×</span> </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!--Body-->
+          <div class="modal-body">
+              <div class="row">
+                  <div class="col-lg-8">
+                      <div class="card-header">
+                          <div class="row justify-content-center">
+                              <div class="col-lg-7">
+                                  <div class="align-middle">
+                                      <div class="dropdown arrow_down d-inline-block mr-1 profile_pict">
+                                          <a class="dropdown-toggle" data-toggle="dropdown">
+                                              <img src="../assets/static/images/img.jpg" alt="..." class="img-circle profile_image">
+                                          </a>
+                                          <div class="dropdown-menu dropdown_detail p-2">
+                                              <div class="card-header">
+                                                  <div class="row user_top_info">
+                                                      <div class="col-8">
+                                                          <a data-target="#leads_detail" data-toggle="modal" class="strong text-ellipsis ember-view">
+                                                            {{ formType ? leadDetails?.FollowUpCustomer[0]?.OrgName : leadDetails?.LeadCustomer[0]?.OrgName}}
+                                                          </a>
+                                                          <!-- <p class="m-0">{{leadDetails?.LeadCustomer[0]?.JobTitle}} </p> -->
+                                                          <p class="m-0"><i class="fas fa-map-marker-alt"></i>
+                                                            {{ formType ? leadDetails?.FollowUpAddress[0].AddressValue : leadDetails?.LeadAddress[0].AddressValue}} </p>
+
+                                                      </div>
+                                                      <div class="col-4 left_media">
+                                                          <a href="#"><i class="fas fa-phone"></i></a>
+                                                          <a href="#"><i class="far fa-envelope"></i></a>
+                                                          <a href="#"><i class="far fa-envelope-open"></i></a>
+
+                                                      </div>
+                                                  </div>
+                                              </div>
+
+                                          </div>
+
+                                      </div>
+                                      <div class="section-edit detail_width_dropdown">
+                                          <a data-target="#leads_detail" data-toggle="modal" class="strong text-ellipsis ember-view">
+                                            {{formType ? leadDetails?.FollowUpCustomer[0]?.OrgName : leadDetails?.LeadCustomer[0]?.OrgName}}
+                                          </a>
+                                          <a href="#" class="mr-1"><i class="fab facebook-color fa-facebook-square fa-1x"></i></a>
+                                          <a href="#" class="mr-1"><i class="fab fa-twitter-square fa-1x twitter-color"></i></a>
+                                          <a href="#" class="mr-1"><i class="fab fa-linkedin fa-1x linkedin-color"></i></a>
+
+                                          <!-- <p class="m-0">{{leadDetails?.LeadCustomer[0]?.JobTitle}} </p> -->
+                                          <!-- <p class="m-0">Hotel Parklane Country Club Inn</p> -->
+                                          <p class="m-0"><i class="fas fa-map-marker-alt"></i>
+                                            {{formType ? leadDetails?.FollowUpAddress[0].AddressValue : leadDetails?.LeadAddress[0].AddressValue}}  </p>
+                                          <div class="edit-hover dropdown enquiry-tag arrow_down">
+                                              <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fas fa-pencil-alt"></i></a>
+                                              <div class="dropdown-menu name_leads" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 168px, 0px);" x-out-of-boundaries="">
+                                                  <div class="header_dropdown">
+                                                      <i class="far fa-check-circle fa-1x mr-2"></i><i class="far fa-times-circle fa-1x"></i>
+                                                  </div>
+                                                  <div class="form-row">
+                                                      <div class="form-group col-md-12 col-12">
+                                                          <label class="active">First Name</label>
+                                                          <input type="text" class="form-control" placeholder="Enter Value">
+                                                      </div>
+                                                      <div class="form-group col-md-12 col-12">
+                                                          <label class="active">Last Name</label>
+                                                          <input type="text" class="form-control" placeholder="Enter Value">
+                                                      </div>
+                                                      <div class="form-group col-md-12 col-12">
+                                                          <label class="active">Job Title</label>
+                                                          <input type="text" class="form-control" placeholder="Enter Value">
+                                                      </div>
+                                                      <div class="form-group col-md-12 col-12">
+                                                          <label class="active">Company Name</label>
+                                                          <input type="text" class="form-control" placeholder="Enter Value">
+                                                      </div>
+                                                  </div>
+                                              </div>
+
+
+                                          </div>
+                                      </div>
+
+                                  </div>
+                              </div>
+                              <div class="col-3 left_media">
+                                  <a href="#" data-toggle="tooltip" title="Make a Call"><i class="fas fa-phone"></i></a>
+                                  <a href="#" data-toggle="tooltip" title="Send Message"><i class="far fa-envelope"></i></a>
+                                  <a href="#" data-toggle="tooltip" title="Send Mail"><i class="far fa-envelope-open"></i></a>
+                                  <a href="#" data-toggle="modal" data-target="#lead_New" title="Edit Details"><i class="fas fa-pencil-alt"></i></a>
+
+                                  <div class="dropdown enquiry-tag arrow_down ">
+                                      <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><i class="fa fa-cog"></i></a>
+
+                                      <ul class="dropdown-menu fsz-sm" x-placement="top-start">
+                                          <li><a class="d-b td-n p-1"><i class="fa fa-headphones mR-10 cH-blue"></i><span>Add Quatation</span></a></li>
+                                          <li><a class="d-b td-n p-1"><i class="fas fa-calendar-alt mR-10 cH-blue"></i><span>Add Appointment</span></a></li>
+                                          <li><a class="d-b td-n p-1"><i class="far fa-check-square mR-10 cH-blue"></i><span>Add Task</span></a></li>
+                                          <li><a class="d-b td-n p-1"><i class="far fa-check-square mR-10 cH-blue"></i><span>Follow Up</span></a></li>
+
+
+
+
+                                      </ul>
+
+
+                                  </div>
+                              </div>
+                              <div class="col-lg-2">
+                                  <div class="insights-lead">
+                                      <div class="strong text-uppercase">Lead score</div>
+                                      <div id="ember4341" class="radial-progress-lg ember-view radial-progress bg-leadscore--hot-inverse">
+                                          76
+                                      </div>
+                                  </div>
+                              </div>
+
+                          </div>
+
+
+                      </div>
+                      <div class="card-body">
+                          <div class="row">
+                              <div class="col-lg-12 bdR">
+                                  <div class="classic-tabs">
+                                      <ul class="nav tabs-cyan" role="tablist">
+                                          <li class="nav-item"><a class="nav-link waves-light active waves-effect waves-light" data-toggle="tab" href="#Det11" role="tab">Personal & Contact Detail</a> </li>
+                                          <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab" href="#Det13" role="tab">Company Detail</a> </li>
+                                          <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab" href="#Det14" role="tab">Quotation Detail</a> </li>
+                                          <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab" href="#Det17" role="tab">Sales Detail</a> </li>
+                                          <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab" href="#Det15" role="tab">Source Detail</a> </li>
+                                          <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab" href="#Det16" role="tab">Payment Detail</a> </li>
+
+                                      </ul>
+                                  </div>
+                              </div>
+                              <div class="col-lg-12">
+                                  <div class="tab-content">
+                                      <!--Panel 1-->
+                                      <div class="tab-pane fade in show active" id="Det11" role="tabpanel">
+                                          <div class="section-edit">
+                                              <div class="row crm_lead_detail p-3">
+
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Key Person Name</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">
+                                                            {{ formType ? leadDetails?.FollowUpContactPerson[0]?.Name : leadDetails?.LeadContactPerson[0]?.Name}}</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Department</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">
+                                                            {{ formType ? leadDetails?.FollowUpCustomer[0]?.Department : leadDetails?.LeadCustomer[0]?.Department}}</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Job Title</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">
+                                                            {{
+                                                              formType ? leadDetails?.FollowUpCustomer[0]?.JobTitle : leadDetails?.LeadCustomer[0]?.JobTitle
+                                                            }}</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <!-- <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Lead Stage</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">Under Review</span></div>
+
+                                                      </div>
+                                                  </div> -->
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Personal Mobile</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">
+                                                            {{
+                                                              leadDetails?.CPContactInfo[0]?.CountryCode}}-{{leadDetails?.CPContactInfo[0]?.ContactNo}}</span></div>
+                                                      </div>
+                                                  </div>
+                                                  <!-- <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Home Mobile</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">+91-9952102325</span></div>
+
+                                                      </div>
+                                                  </div> -->
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Email Personal</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">{{leadDetails?.CPEmail[0]?.EmailAddress}}</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <!-- <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Email Business</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">ravindra@truelogics.com</span></div>
+
+                                                      </div>
+                                                  </div> -->
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Parament Address</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">{{leadDetails?.CPAddress[0]?.AddressValue}}</span></div>
+                                                      </div>
+                                                  </div>
+                                                  <!-- <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Current Address</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">78 lane Number-5 Muktanand nagar opposite pooja Tower Gopalpura Jaipur Rajasthan</span></div>
+
+                                                      </div>
+                                                  </div> -->
+                                              </div>
+
+                                              <!-- <div class="edit-hover">
+                                                  <a data-toggle="modal" data-target="#lead_New"><i class="fas fa-pencil-alt"></i></a>
+                                              </div> -->
+                                          </div>
+                                      </div>
+
+                                      <div class="tab-pane fade" id="Det13" role="tabpanel">
+                                          <div class="section-edit">
+                                              <div class="row crm_lead_detail p-3">
+
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Company Name</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">{{
+                                                            formType ? leadDetails?.FollowUpCustomer[0]?.OrgName : leadDetails?.LeadCustomer[0]?.OrgName}}</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Number of Employees</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">50</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Company Annual Revenue</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">{{
+                                                           formType ? leadDetails?.FollowUpCustomer[0]?.Revenue : leadDetails?.LeadCustomer[0]?.Revenue}}</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Company Website</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">{{
+                                                              formType ? leadDetails?.FollowUpCustomer[0]?.WebSite : leadDetails?.LeadCustomer[0]?.WebSite}}</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Business Type</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">Branding</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Industory Type </span></div>
+                                                          <div class="col-lg-6"><span class="value_user">Marketing Reputation Managment</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Company Phone</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">
+                                                            {{formType ? leadDetails?.FollowUpContactInfo[0].CountryCode : leadDetails?.LeadContactInfo[0].CountryCode}}-
+                                                            {{formType ? leadDetails?.FollowUpContactInfo[0].ContactNo : leadDetails?.LeadContactInfo[0].ContactNo}}</span></div>
+                                                      </div>
+                                                  </div>
+
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Email Business</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">
+                                                            {{formType ? leadDetails?.FollowUpEmail[0].EmailAddress : leadDetails?.LeadEmail[0].EmailAddress}}</span></div>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Company Address</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">
+                                                            {{formType ? leadDetails?.FollowUpAddress[0].AddressValue : leadDetails?.LeadAddress[0].AddressValue}}</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <!-- <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Company Address 2</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">78 lane Number-5 Muktanand nagar opposite pooja Tower Gopalpura Jaipur Rajasthan</span></div>
+
+                                                      </div>
+                                                  </div> -->
+                                              </div>
+
+                                              <!-- <div class="edit-hover">
+                                                  <a data-toggle="modal" data-target="#lead_New"><i class="fas fa-pencil-alt"></i></a>
+                                              </div> -->
+                                          </div>
+                                      </div>
+                                      <div class="tab-pane fade" id="Det14" role="tabpanel">
+                                          <div class="section-edit">
+                                              <div class="row crm_lead_detail p-3">
+
+                                                  <div class="col-lg-4">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Total Order Amount</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">1 Cr</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-4">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">No of Orders</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">5000</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-4">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Last Order Date</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">12/10/2018</span></div>
+
+                                                      </div>
+                                                  </div>
+
+                                              </div>
+
+                                              <div class="edit-hover">
+                                                  <a data-toggle="modal" data-target="#lead_New"><i class="fas fa-pencil-alt"></i></a>
+                                              </div>
+                                              <div class="responsive-table">
+                                                  <table class="table">
+                                                      <thead>
+                                                          <tr>
+                                                              <th>Name</th>
+                                                              <th>Expected Close Date</th>
+                                                              <th>Currency</th>
+                                                              <th>Category</th>
+                                                              <th>Item</th>
+                                                              <th>Qty</th>
+                                                              <th>Rate</th>
+                                                              <th>Value</th>
+
+                                                          </tr>
+                                                      </thead>
+                                                      <tbody>
+                                                          <tr>
+                                                              <td>lee Grand Social Media</td>
+                                                              <td>10/05/2019</td>
+                                                              <td>INR</td>
+                                                              <td>Promotion</td>
+                                                              <td>Social Media Managment </td>
+                                                              <td>12</td>
+                                                              <td>12.00</td>
+                                                              <td>120.00</td>
+
+
+                                                          </tr>
+                                                      </tbody>
+                                                  </table>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="tab-pane fade" id="Det15" role="tabpanel">
+                                          <div class="section-edit">
+                                              <div class="row crm_lead_detail p-3">
+
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Source</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">Email</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Campaign</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">-</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Medium</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">Telephonic</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Keyword</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">Branding</span></div>
+
+                                                      </div>
+                                                  </div>
+
+                                              </div>
+
+                                              <div class="edit-hover">
+                                                  <a data-toggle="modal" data-target="#lead_New"><i class="fas fa-pencil-alt"></i></a>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="tab-pane fade" id="Det16" role="tabpanel">
+                                          <div class="section-edit">
+                                              <div class="row crm_lead_detail p-3">
+
+                                                  <div class="col-lg-4">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Total Amount</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">1 Cr</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-4">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Total Received Amount</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">5000.00</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-4">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Balance Amount</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">95 lac</span></div>
+
+                                                      </div>
+                                                  </div>
+
+                                              </div>
+
+                                              <div class="edit-hover">
+                                                  <a data-toggle="modal" data-target="#lead_New"><i class="fas fa-pencil-alt"></i></a>
+                                              </div>
+                                              <div class="responsive-table">
+                                                  <table class="table">
+                                                      <thead>
+                                                          <tr>
+                                                              <th>SRN</th>
+                                                              <th>Date & Time</th>
+                                                              <th>Receipt No</th>
+                                                              <th>Order No / Bill No.</th>
+                                                              <th>Mode</th>
+                                                              <th>Deal Currency</th>
+                                                          </tr>
+                                                      </thead>
+                                                      <tbody>
+                                                          <tr>
+                                                              <td>1</td>
+                                                              <td>12/10/2018 | 10.00 Am</td>
+                                                              <td>RC-101</td>
+                                                              <td>OR-101</td>
+                                                              <td>Online</td>
+                                                              <td>INR</td>
+
+                                                          </tr>
+                                                      </tbody>
+                                                  </table>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="tab-pane fade" id="Det17" role="tabpanel">
+                                          <div class="section-edit">
+                                              <div class="row crm_lead_detail p-3">
+
+                                                  <div class="col-lg-4">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Total Amount</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">1 Cr</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-4">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Total Received Amount</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">5000.00</span></div>
+
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-lg-4">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Balance Amount</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">95 lac</span></div>
+
+                                                      </div>
+                                                  </div>
+
+                                              </div>
+
+                                              <div class="edit-hover">
+                                                  <a data-toggle="modal" data-target="#lead_New"><i class="fas fa-pencil-alt"></i></a>
+                                              </div>
+                                              <div class="responsive-table">
+                                                  <table class="table">
+                                                      <thead>
+                                                          <tr>
+                                                              <th>Name</th>
+                                                              <th>Expected Close Date</th>
+                                                              <th>Currency</th>
+                                                              <th>Category</th>
+                                                              <th>Item</th>
+                                                              <th>Qty</th>
+                                                              <th>Rate</th>
+                                                              <th>Value</th>
+
+                                                          </tr>
+                                                      </thead>
+                                                      <tbody>
+                                                          <tr>
+                                                              <td>lee Grand Social Media</td>
+                                                              <td>10/05/2019</td>
+                                                              <td>INR</td>
+                                                              <td>Promotion</td>
+                                                              <td>Social Media Managment </td>
+                                                              <td>12</td>
+                                                              <td>12.00</td>
+                                                              <td>120.00</td>
+
+
+                                                          </tr>
+                                                      </tbody>
+                                                  </table>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div class="card-body lead_stage">
+                          <div class="row">
+                              <div class="col-lg-6">
+                                  <p><i class="fas fa-calendar-alt"></i><span>Lead Stage Changed:</span><strong>A Day Ago</strong></p>
+                              </div>
+                              <div class="col-lg-6 text-right">
+                                  <p><i class="fas fa-calendar-alt"></i><span>Last Connected:</span><strong>A Day Ago</strong></p>
+                              </div>
+                          </div>
+                          <div class="arrow-steps clearfix">
+                              <div *ngFor="
+                              let item of crmService.leadUtilityData?.EnquiryStatus
+                            " class="step"
+                            [ngClass]="{
+                              current: item.id === leadDetails?.LeadList[0]?.Status
+                            }"><span>{{ item?.commondesc }}</span> </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-lg-4">
+                      <div class="right_lead_detail bdL">
+                          <div class="card-body">
+                              <div class="row">
+                                  <div class="col-lg-12 bdR">
+                                      <div class="tab_hr">
+                                          <ul class="nav tabs-cyan" role="tablist">
+                                              <li class="nav-item"><a class="nav-link waves-light active waves-effect waves-light" data-toggle="tab" href="#NT11" role="tab">Notes
+
+                                              </a></li>
+                                              <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab" href="#NT12" role="tab">Task</a> </li>
+                                              <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab" href="#NT13" role="tab">Appointment</a> </li>
+                                              <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab" href="#NT14" role="tab">Quatation</a> </li>
+                                              <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab" href="#NT15" role="tab">Sale</a> </li>
+
+                                          </ul>
+                                      </div>
+                                  </div>
+                                  <div class="col-lg-12">
+                                      <div class="tab-content">
+                                          <!--Panel 1-->
+                                          <div class="tab-pane fade in show active" id="NT11" role="tabpanel">
+                                              <div class="card-body">
+                                                  <div class="quick-actions-add-panel notes-add-panel">
+                                                      <div class="panel-body pd-t-20 pd-b-0" data-test-add-description="">
+                                                          <textarea id="ember18135" placeholder="Start typing..." rows="5" class="form-control inline-edit js-inline-add mg-b-15 ember-view ember-text-area"></textarea>
+                                                      </div>
+                                                      <div class="panel-footer">
+                                                          <button class="btn-notes-add btn primary-bg" data-test-note-add="">
+
+                                                              <i class="flex far fa-check-circle"></i>Add
+                                                          </button>
+                                                      </div>
+                                                  </div>
+                                              </div>
+
+                                              <div class="card-body bdT">
+                                                  <div class="section-edit">
+                                                      <div class="row">
+                                                          <div class="col-1">
+                                                              <i class="far fa-sticky-note"></i>
+                                                          </div>
+                                                          <div class="col-10">
+                                                              <div class="font-weight-normal">
+                                                                  Had a call with James. Requested the proposal document and pricing quote asap.
+                                                              </div>
+                                                              <div class="text-dark-muted" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="">
+                                                                  badal mittal
+                                                              </div>
+                                                              <div class="text-dark-muted" data-toggle="tooltip" title="" data-placement="right" data-original-title="04:10 AM April 19, 2018">
+                                                                  4 days ago
+                                                              </div>
+                                                          </div>
+                                                      </div>
+                                                      <div class="icon_hover">
+                                                          <a data-toggle="tooltip" title="" data-original-title="Edit Notes"><i class="fas fa-pencil-alt"></i></a>
+                                                          <a data-toggle="modal" data-target="#confm_delete" title=""><i class="far fa-trash-alt"></i></a>
+
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                              <div class="card-body bdT">
+                                                  <div class="section-edit">
+                                                      <div class="row">
+                                                          <div class="col-1">
+                                                              <i class="far fa-sticky-note"></i>
+                                                          </div>
+                                                          <div class="col-10">
+                                                              <div class="font-weight-normal">
+                                                                  Had a call with James. Requested the proposal document and pricing quote asap.
+                                                              </div>
+                                                              <div class="text-dark-muted" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="">
+                                                                  badal mittal
+                                                              </div>
+                                                              <div class="text-dark-muted" data-toggle="tooltip" data-placement="right" title="" data-original-title="04:10 AM April 19, 2018">
+                                                                  4 days ago
+                                                              </div>
+                                                          </div>
+                                                      </div>
+
+
+
+                                                      <div class="edit-hover dropdown enquiry-tag arrow_down pl-4">
+                                                          <a><i class="fas fa-pencil-alt"></i></a>
+                                                          <a><i class="far fa-trash-alt"></i></a>
+
+
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+
+                                          <div class="tab-pane fade" id="NT12" role="tabpanel">
+                                          </div>
+                                          <div class="tab-pane fade" id="NT13" role="tabpanel">
+                                          </div>
+                                          <div class="tab-pane fade" id="NT14" role="tabpanel">
+                                          </div>
+                                          <div class="tab-pane fade" id="NT15" role="tabpanel">
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+          </div>
+      </div>
+  </div>
+</div>

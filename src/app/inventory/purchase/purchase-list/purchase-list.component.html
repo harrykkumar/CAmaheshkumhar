@@ -54,7 +54,7 @@
                     <ng-container *ngFor="let action of actionList">
                       <li
                         *ngIf="
-                          (action.type !== 1 && action.type !== 4) ||
+                          (action.type !== 1 && action.type !== 4 && ((action.type === 10 && !item.IsSettled) || (action.type !== 10))) ||
                           (action.type === 1 &&
                             (menuData?.write || menuData?.delete)) ||
                           (action.type === 4 && menuData?.delete)
@@ -71,7 +71,8 @@
                               'far fa-file-alt': action.type === 6,
                               'fa-edit': action.type === 1,
                               'fa-trash': action.type === 4,
-                              'fa-arrow-left': action.type === 5
+                              'fa-arrow-left': action.type === 5,
+                              'fa-file-invoice': action.type === 10
                             }"
                           ></i>
                           <span>{{ action.text }}</span>

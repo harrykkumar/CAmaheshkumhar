@@ -11,6 +11,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { map, filter, debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators';
 import { ToastrCustomService } from '../../../../commonServices/toastr.service';
 import { SaleDirectReturnComponent } from '../../saleReturn-add/saleReturn-add.component';
+import { SaleReturnDirectAddComponent } from '../../directSaleReturn-add/sale-direct-return-add.component';
 import { ExcelService } from '../../../../commonServices/excel.service';
 import { GlobalService } from 'src/app/commonServices/global.service';
 declare const $: any
@@ -107,6 +108,8 @@ export class SaleReturnDirectMainComponent {
     this.expoertExceldata()
   }
   @ViewChild('saleReturn_add') purchaseAdd: SaleDirectReturnComponent
+  @ViewChild('saleDirectReturn_add') saleDirectReturnAdd: SaleReturnDirectAddComponent
+
   getSPUtilitySaleReturnData() {
     this.loading = true
     let _self = this
@@ -172,11 +175,7 @@ export class SaleReturnDirectMainComponent {
     this.toShowSearch = !this.toShowSearch
   }
 
-  openPurchase() {
-  }
-
   attributeKeys: any = []
-
   BillName: any
   customerAddress: any = []
   orgImageData: any
@@ -283,23 +282,17 @@ export class SaleReturnDirectMainComponent {
 
           data.Data.ItemTransactions.forEach((element,index) => {
             let attributeValue = data.Data.ItemAttributesTrans.filter(d => (d.ItemTransId === element.Id))
+            let IMEInumberValue = data.Data.ItemPropertyTrans.filter(d => (d.ItemTransId === element.Id))
+
             if (attributeValue.length > 0) {
               data.Data.ItemTransactions[index]['Attribute']=attributeValue
             }
+            if (IMEInumberValue.length > 0) {
+              data.Data.ItemTransactions[index]['IMEi']=IMEInumberValue
+            }
           });
           _self.ItemTransactionactions = data.Data.ItemTransactions
-          // for (let i = 0; i < data.Data.ItemTransactions.length; i++) {
-          //   for (let j = 0; j < data.Data.ItemAttributesTrans.length; j++) {
-          //     if (data.Data.ItemTransactions[i].Id === data.Data.ItemAttributesTrans[j].ItemTransId) {
-          //       this.itemAttbute.push({
-          //         attr: data.Data.ItemAttributesTrans[j].AttributeName,
-          //         ItemId: data.Data.ItemAttributesTrans[j].ItemId,
-          //         rowId: data.Data.ItemAttributesTrans[j].ItemTransId,
-          //         Id: data.Data.ItemAttributesTrans[j].Id
-          //       })
-          //     }
-          //   }
-          // }
+        
         } else {
           _self.ItemTransactionactions = []
 
@@ -451,7 +444,9 @@ export class SaleReturnDirectMainComponent {
   headerKeys: any = []
   hsnToSHow: any = []
   // HedShow:any =[]
-
+  openAddNewSaleReturn (){
+    this.commonService.openSaleReturnDirect('')
+  }
 
   splitArray(arr, len) {
     let newArr = []

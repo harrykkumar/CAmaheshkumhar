@@ -1,3 +1,5 @@
+import { query } from '@angular/animations';
+import { CommonService } from './../../commonServices/commanmaster/common.services';
 import { Injectable, Inject } from "@angular/core";
 import { BaseServices } from '../../commonServices/base-services';
 import { ApiConstant } from '../../shared/constants/api';
@@ -27,7 +29,8 @@ export class VoucherEntryServie {
     {type: UIConstant.EXPENSE_TYPE, voucherNoManual: false, ReportFor: 'purchase', voucherType: 103},
     {type: UIConstant.INCOME_TYPE, voucherNoManual: false, ReportFor: 'sale', voucherType: 102},
   ]
-  constructor(@Inject(BaseServices) private baseService) {
+  constructor(@Inject(BaseServices) private baseService,
+  private commonService: CommonService) {
   }
   getLedgerSummaryData (queryStr): Observable<ResponseSale> {
     return this.baseService.getRequest(`${ApiConstant.LEDGER_SUMMARY}` + queryStr)
@@ -85,6 +88,11 @@ export class VoucherEntryServie {
 
   getVoucherList (ReportFor, type, LedgerId, OrgId) {
     return this.baseService.getRequest(`${ApiConstant.GET_VOUCHER_LIST}?ReportFor=${ReportFor}&Type=${type}&LedgerId=${LedgerId}&OrgId=${OrgId}`)
+  }
+
+  getVoucherEntryListForParty(query) {
+    const queryString = this.commonService.getQueryStringFromObject(query);
+    return this.baseService.getRequest(`${ApiConstant.GET_VOUCHER_LIST}?${queryString}`)
   }
 
   postVoucher (data) {

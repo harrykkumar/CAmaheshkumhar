@@ -44,7 +44,7 @@ export class CompanyProfileService {
     return this._baseService.getRequest(ApiConstant.OWNER_ORGANISATION_LIST)
   }
 
-  
+
   /* Funtion to get  getCompanyProfile data  */
   getCompanyProfileDetails = (id?) => {
     if (id) {
@@ -98,7 +98,8 @@ export class CompanyProfileService {
             return {
               id: element.Phonecode,
               text: `+${element.Phonecode} ${element.Name}`,
-              contactLength: element.Length
+              contactLength: element.Length,
+              phoneCode: element.Phonecode
             }
           })
           return [{ id: UIConstant.ZERO, text: 'Country Code' }, ...countryCodeList]
@@ -429,5 +430,8 @@ export class CompanyProfileService {
         console.log(error)
       });
     })
+  }
+  COUNTRY_LABEL_CHANGE = (id) => {
+    return this._baseService.getRequest(ApiConstant.COUNTRY_CHANGE_LABEL_VALUE+id)
   }
 }

@@ -187,6 +187,9 @@
               <th style="width:5%;">S.N.</th>
               <th style="width:20%;">Category</th>
               <th style="width:10%;">Item</th>
+              <ng-container *ngIf="industryId === 12">
+                <th>IMEI</th>
+              </ng-container>
               <th>HSN</th>
               <th *ngFor="let key of attributeKeys;">{{key.AttributeValueName}}</th>
               <th style="text-align:right;">Qty</th>
@@ -207,7 +210,17 @@
             <tr *ngFor="let item of printData.ItemTransactions.data; let j=index; let jLast = last;">
               <td>{{(j+1) + (printData.ItemTransactions.page * i)}}</td>
               <td class="cat-con">{{ item.CategoryName}}</td>
-              <td class="cat-con">{{item.ItemName}}</td>
+              <td class="cat-con">{{item.ItemName}}
+              </td>
+              <td  style="width:30%;"  *ngIf="industryId === 12">
+                  <ng-container *ngFor="let number of  item.mobileSeries; let isLast=last">
+                      {{number.FieldValue1}}{{isLast ? '' : ', '}}
+                      {{number.FieldValue2}}{{isLast ? '' : ', '}}
+                    {{number.FieldValue3}}{{isLast ? '' : ', '}}
+                     {{number.FieldValue4}}{{isLast ? '' : ', '}}
+              </ng-container>
+              </td>
+           
               <td>{{item.HsnNo}}</td>
               <td *ngFor="let attr of item.itemAttributes">{{attr.AttributeName}}</td>
               <td style="text-align:right;">{{item.Quantity}}</td>

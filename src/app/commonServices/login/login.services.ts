@@ -334,7 +334,7 @@ export class LoginService {
 
   destroyParametersOnLogin() {
     window.localStorage.removeItem('token')
-    window.localStorage.clear();
+    // window.localStorage.clear();
     this.selectedUserModule = {}
     this.selectedOrganization = {}
     this.userData = {}

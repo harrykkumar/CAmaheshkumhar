@@ -759,8 +759,8 @@ export class ItemImportComponent implements OnDestroy {
   opeCatImport () {
     this.commonService.openCatImport()
   }
-
-  closeImportModal () {
+  yesConfirmationClose() {
+    $('#close_confirm5').modal(UIConstant.MODEL_HIDE)
     this.reset()
     this.masterData = []
     this.insideArray = []
@@ -776,5 +776,11 @@ export class ItemImportComponent implements OnDestroy {
     this.isLoading = false
     this.commonService.closeItemImport()
   }
+  closeConfirmation() {
+    $('#close_confirm5').modal(UIConstant.MODEL_SHOW)
+  }
+
+  closeImportModal () {
+    this.closeConfirmation()
+  }
 }
-// this.masterData = _.differenceWith(this.masterData, this.duplicateTuples, _.isEqual)

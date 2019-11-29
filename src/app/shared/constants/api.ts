@@ -26,7 +26,7 @@ export class ApiConstant {
 
   public static get GET_PACKING_DETAIL(): string { return this.BASE_URL + '/api/v1/Setting/CommonMaster?CommonCode=150' }
 
-  public static get LOGIN_URL(): string { return this.BASE_URL + '/api/v1/authentication/login' }
+  public static get LOGIN_URL(): string { return this.BASE_URL + '/api/v1/authentication/login?Type=Web' }
 
   public static get GET__SUB_UNIT_DETAIL(): string { return this.BASE_URL + '/api/v1/Subunit' }
 
@@ -43,7 +43,7 @@ export class ApiConstant {
   public static get ADD_UNIT_URL(): string { return this.BASE_URL + '/api/v1/unit' }
 
   public static get GET_TAX_DETAIL_URL(): string { return this.BASE_URL + '/api/v1/tax' }
-  
+
   public static get VENDOR_URL(): string { return this.BASE_URL + '/api/v1/ledger' }
 
   public static get COUNTRY_LIST_URL(): string { return this.BASE_URL + '/api/v1/setting/CommonMaster?CommonCode=' }
@@ -460,10 +460,59 @@ export class ApiConstant {
   public static get GET_CASH_PARTY_DETAILS_BY_MOBILE(): string { return this.BASE_URL + '/api/v1/common/CashParty' }
 
   public static get EDIT_SAMPLE_DATA (): string { return this.BASE_URL + '/api/v1/manufacture/sampledetails?Id=' }
-  
+
   public static get TAXPROCESS_DETAIL_URL(): string { return this.BASE_URL + '/api/v1/setting/TaxProcess' }
 
   public static get GSTR_REPORT(): string { return this.BASE_URL + '/api/v1/ims/gstrreport' }
 
   public static get FINANCE_CREATE(): string { return this.BASE_URL + '/api/v1/common/clientFinancial' }
+
+  public static get POST_PO(): string { return this.BASE_URL + '/api/v1/Manufacturer/purchaseorder' }
+
+  public static get GET_PO_BY_ID(): string { return this.BASE_URL + '/api/v1/Manufacturer/purchaseorderdetails' }
+
+  public static get GODOWN_MASTER(): string { return this.BASE_URL + '/api/v1/common/Godown' }
+
+  public static get CUSTOMER_AGENT(): string { return this.BASE_URL + '/api/v1/common/customeragent' }
+
+  public static get BUYER_ORDER_ITEMS(): string { return this.BASE_URL + '/api/v1/ItemRequirementBuyerOrder?BuyerOrderId=' }
+
+  public static get GET_VENDOR_RATES_FOR_ORDER(): string { return this.BASE_URL + '/api/v1/Manufacturer/report/VendorItemRateStatus' }
+
+  public static get CUSTOMER_AGENT_DETAIL(): string { return this.BASE_URL + '/api/v1/common/customeragentdetail' }
+
+  public static get BUYER_ORER_LIST_FOR_SEARCH(): string { return this.BASE_URL + '/api/v1/Manufacturer/BuyerOrderTransList' }
+
+  public static get PRINT_PACKAGING_ORDER(): string { return this.BASE_URL + '/api/v1/Manufacturer/report/OrderPacketPrint?Id=' }
+
+  public static get CRM_LEAD(): string { return this.BASE_URL + '/api/v1/CRM/lead' }
+
+  public static get CRM_UTILITY(): string { return this.BASE_URL + '/api/v1/CRM/leadutility' }
+
+  public static get CRM_LEAD_GET(): string { return this.BASE_URL + '/api/v1/CRM/GetLeadMasterList' }
+
+  public static get CRM_LEAD_UPDATE(): string { return this.BASE_URL + '/api/v1/CRM/leadpersonaldetailsedit' }
+
+  public static get EDIT_ORDER_PACKTET(): string { return this.BASE_URL + '/api/v1/Manufacturer/orderpacketedit?Id=' }
+
+  public static get PRINT_BUYER_ORDER() : string { return this.BASE_URL + '/api/v1/Manufacturer/report/BuyerOrderPrint?Id=' }
+
+  public static get EDIT_MATERIAL_REQUIREMENT(): string { return this.BASE_URL + '/api/v1/ItemRequirementeditdetails?Id=' }
+
+  public static get PRINT_ALL_PACKAGING_ORDER(): string { return this.BASE_URL + '/api/v1/Manufacturer/report/OrderPacketPrint?OrderId=' }
+
+  public static get MATERIAL_REQ_PRINT(): string { return this.BASE_URL + '/api/v1/Manufacturer/report/ItemrequirementPrint?Id=' }
+
+  public static get CUSTOMER_LEAD_DETAILS(): string { return this.BASE_URL + '/api/v1/CRM/GetLeadCustomerStatus' }
+
+  public static get LEAD_FOLLOW_UP(): string { return this.BASE_URL + '/api/v1/CRM/followUp' }
+
+  public static get LEAD_FOLLOW_UP_LIST(): string { return this.BASE_URL + '/api/v1/CRM/GetLeadFollowUpMasterList' }
+
+  public static get DELETE_SAMPLE(): string { return this.BASE_URL + '/api/v1/manufacture/sampling?Id=' }
+
+  public static get GSTR_3B(): string { return this.BASE_URL + '/api/v1/account/Gstr3breports' }
+
+  public static get  COUNTRY_CHANGE_LABEL_VALUE(): string { return this.BASE_URL + '/api/v1/common/materstatutory?CountryId=' }
+
 }

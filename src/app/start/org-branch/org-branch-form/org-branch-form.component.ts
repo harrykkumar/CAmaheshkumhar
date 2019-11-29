@@ -92,6 +92,7 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
 
   // tslint:disable-next-line:no-empty
   ngOnInit() {
+    this.getListCountryLabelList(0)
     this.getUploadedImages();
     this.initDateFormat()
     this.initDropDownData()
@@ -240,12 +241,29 @@ export class OrganisationBranchComponent implements OnInit, OnChanges, AfterView
       this.addressDetail.selectedCountry = event.data[0]
     }
     if (this.addressDetail.selectedCountry && this.addressDetail.selectedCountry.id > UIConstant.ZERO) {
+      
       this.getStateList(this.addressDetail.selectedCountry.id)
+      this.getListCountryLabelList(this.addressDetail.selectedCountry.id)
     } else {
       this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }];
     }
   }
-
+  getListCountryLabelList(id){
+    this._commonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
+      if(resp.Code===1000 && resp.Data.length>0){
+        this.TinNoValue=resp.Data[0].TinNo
+        this.PanNoValue=resp.Data[0].PanNo
+        this.GstinNoValue=resp.Data[0].GstinNo
+        this.CinNoValue=resp.Data[0].CinNo
+        this.FssiNoValue=resp.Data[0].FssiNo 
+      }
+    })
+  }
+  TinNoValue:any
+  PanNoValue:any
+  GstinNoValue:any
+  CinNoValue:any
+  FssiNoValue:any
   /* Function invoke on state dropdown selection change */
   onStateSelectionChange = (event) => {
     if (event.data.length > 0) {

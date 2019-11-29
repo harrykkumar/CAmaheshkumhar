@@ -198,7 +198,7 @@ main.main-content.bgc-grey {
 .large_form .modal-header .close {
   /*padding: 16px;
     padding: 1rem;
-   
+
     margin: -16px -16px -16px auto;
     margin: -1.7rem -1rem -1rem auto !important;*/
   font-size: 40px !important;
@@ -4555,6 +4555,7 @@ input[type="number"]::-webkit-outer-spin-button {
   align-items: center;
   text-align: center;
   min-width: 72px;
+  z-index: 99999;
 }
 
 .edit1 {
@@ -4709,6 +4710,11 @@ input[type="number"]::-webkit-outer-spin-button {
 .modal .half-right {
   width: 60% !important;
   max-width: 70% !important;
+}
+
+.modal .half-right-1 {
+  width: 50% !important;
+  max-width: 60% !important;
 }
 
 .modal .half-right-2 {
@@ -5037,6 +5043,10 @@ input[type="number"]::-webkit-outer-spin-button {
 .cust_width_80 {
   max-width: 70px !important;
   min-width: 70px !important;
+}
+.cust_width_120 {
+  max-width: 120px !important;
+  min-width: 120px !important;
 }
 .cust_width_150 {
   max-width: 150px !important;
@@ -5414,7 +5424,7 @@ table.table1 th {
  padding-left: 12px !important;
  margin: auto !important;
 }
-  
+
 
 .nav-pills .nav-link {
   background: #ecf0f1 !important;
@@ -5453,14 +5463,14 @@ table.table1 th {
 
 #fin_year_select .highlight_box {
   height: 40px;
-} 
+}
 /* table.table a {
   color: #007bff !important;
 } */
 .ng-select .ng-select-container {
- 
-   border-radius: 0px !important; 
-  
+
+   border-radius: 0px !important;
+
 }
 .height_fix_card {
   height: 120px;
@@ -5468,7 +5478,7 @@ table.table1 th {
  }
  .table-anchor a {
   color: #007bff !important;
- 
+
  }
  .ng-select.ng-select-single .ng-select-container {
    min-height: calc(2rem + 2px) !important;
@@ -5496,19 +5506,19 @@ table.table1 th {
   padding-left: 10px !important;
   min-width: 125px;
  }
- 
+
  /* dropdown-menu  bgc-white img_drop */
 
  .modal-backdrop {
-  /* bug fix - no overlay */    
-  display: none;    
+  /* bug fix - no overlay */
+  display: none;
 }
 .Plus_tooltip i {
-  
+
   border-radius: 0;
   font-size: 35px;
   color: #8a8383;
- 
+
 }
 .highLightRow {
   box-shadow: 0px 1px 2px 2px #ccc;
@@ -5550,5 +5560,32 @@ table.table1 th {
 }
 
 .ng-select-invalid .ng-select-container {
-  border-color: red !important;
+  border-left: 2px solid red !important;
+  outline: 0 !important;
+}
+
+.modal-drawer {
+  -webkit-box-shadow: 0 1px 0 0 #333;
+  box-shadow: 0 1px 0 0 #333;
+  width: 40px;
+  height: 50px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px 0 0 6px;
+  border-right: 0;
+  color: #23468c !important;
+  font-size: 16px;
+  left: -40px;
+  line-height: 50px;
+  position: absolute;
+  text-align: center;
+  top: 160px;
+  z-index: 1050;
+}
+.text-dec-none:hover {
+  text-decoration: none;
+}
+
+#add_new_city.modal {
+  z-index: 99999 !important;
 }

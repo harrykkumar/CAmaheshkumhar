@@ -12,7 +12,7 @@
   [max]="maxDate"
   [owlDateTimeTrigger]="dt2" [owlDateTime]="dt2" #inputElem >
   <div class="input-group-addon bgc-white bd bdwR-0" (click)="toggleView()" ><i class="fas fa-calendar-alt"></i></div>
-  <owl-date-time [pickerType]="'calendar'"
+  <owl-date-time [pickerType]="type"
   [startAt]="today"
   [disabled]="disableInput"
   (afterPickerClosed)="onClose()"

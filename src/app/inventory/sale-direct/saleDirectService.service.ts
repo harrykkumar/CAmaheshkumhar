@@ -25,6 +25,8 @@ export class SaleDirectService {
   organisationsData$ = this.organisationsData.asObservable()
   godownsData = new Subject<{ data: Array<Select2OptionData> }>()
   godownsData$ = this.godownsData.asObservable()
+  //IMEInumberSub = new Subject<{data: Array<Select2OptionData>}>()
+  //IMEInumber$ = this.IMEInumberSub.asObservable()
   referralTypesData = new Subject<{ data: Array<Select2OptionData> }>()
   referralTypesData$ = this.referralTypesData.asObservable()
   subUnitsData = new Subject<{ data: Array<Select2OptionData> }>()
@@ -154,7 +156,16 @@ export class SaleDirectService {
     })
     this.godownsData.next({ 'data': newData })
   }
-
+  // IMEINumber (array) {
+  //   let newData = []
+  //   array.forEach(data => {
+  //     newData.push({
+  //       id: data.Id,
+  //       text: data.Name
+  //     })
+  //   })
+  //   this.IMEInumberSub.next({ 'data': newData })
+  // }
 
   createSubUnits(array) {
     let newData = [{ id: '0', text: 'Select Unit' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
@@ -501,10 +512,10 @@ export class SaleDirectService {
   getNewBillNoSale(orgId, date, type, FormType) {
     let queryString = ''
     if (type === 1) {
-      queryString = 'TransactionType=' + FormType + '&&OrgId=' + orgId + '&&TransDate=' + date
+      queryString = 'TransactionType=' + FormType + '&OrgId=' + orgId + '&TransDate=' + date
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_AUTO + queryString)
     } else if (type === 2) {
-      queryString = 'Type=' + FormType + '&&BillDate=' + date + '&OrgId=' + orgId
+      queryString = 'Type=' + FormType + '&BillDate=' + date + '&OrgId=' + orgId
       return this.baseService.getRequest(ApiConstant.GET_NEW_BILL_NO_MANUAL + queryString)
     }
   }

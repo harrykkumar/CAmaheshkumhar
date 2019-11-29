@@ -13,6 +13,7 @@ import { ToastrCustomService } from '../../../../commonServices/toastr.service';
 //import { PurchaseAddComponent } from '../../sales-direct/sales-header/saleReturn-add/saleReturn-add.component';
 import { ExcelService } from '../../../../commonServices/excel.service';
 import { GlobalService } from 'src/app/commonServices/global.service';
+import {PurchaseDirectReturnAddComponent} from '../../purchase-direct-return-add/purchase-direct-return-add.component'
 declare const $: any
 declare const _: any
 @Component({
@@ -76,6 +77,8 @@ export class PurchaseReturnMainComponent {
   decimalNoPoint:any =0
   ngAfterContentInit() {
   }
+  @ViewChild('purchaseDirectReturn_add') purchaseDirectReturnAdd: PurchaseDirectReturnAddComponent
+
   @ViewChild('searchData') searchData: ElementRef
   searchForm: FormGroup
   private formSearch () {
@@ -163,8 +166,8 @@ export class PurchaseReturnMainComponent {
     this.toShowSearch = !this.toShowSearch
   }
 
-  openPurchase () {
-    this.commonService.openSaleDirectReturn(this.editId,'edit')
+  openPurchaseDirectReturn () {
+    this.commonService.openPurchaseDirectReturn('')
   }
 
   attributeKeys: any = []
@@ -265,10 +268,16 @@ export class PurchaseReturnMainComponent {
       //    _self.ItemTransactionactions = data.Data.ItemTransactions
           data.Data.ItemTransactions.forEach((element,index) => {
             let attributeValue = data.Data.ItemAttributesTrans.filter(d => (d.ItemTransId === element.Id))
+            let IMEInumberValue = data.Data.ItemPropertyTrans.filter(d => (d.ItemTransId === element.Id))    
+
             if (attributeValue.length > 0) {
               data.Data.ItemTransactions[index]['Attribute']=attributeValue
             }
+            if (IMEInumberValue.length > 0) {
+              data.Data.ItemTransactions[index]['IMEi']=IMEInumberValue
+            }
           });
+        
           _self.ItemTransactionactions = data.Data.ItemTransactions
         } else {
           _self.ItemTransactionactions = []

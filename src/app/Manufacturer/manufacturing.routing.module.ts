@@ -25,6 +25,10 @@ const routes: Routes = [
       {
         path: 'purchase-order',
         loadChildren: './purchase-order/purchase-order.module#PurchaseOrderModule'
+      },
+      {
+        path: 'material-requirement',
+        loadChildren:'./item-requirement/item-requirement.module#ItemRequirementModule'
       }
     ]
   }

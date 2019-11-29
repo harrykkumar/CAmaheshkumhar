@@ -132,7 +132,7 @@
                 <tr 
                 *ngFor="let item of outStandingPayable?.OutstandingDetails
                  | paginate: { itemsPerPage: pageSize, currentPage: pageNo, totalItems: totalItemSize } ;
-                 let i = index;">
+                 let i = index;" (click)="openLedgerSummary(item);">
                   <td>{{ i + 1 }}</td>
                   <td>{{ item.PartyName }}</td>
                   <!-- <td class="text-right">{{ item.BalanceType }}</td> -->

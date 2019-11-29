@@ -10,13 +10,14 @@ import { PagingUtilityModule } from 'src/app/shared/pagination/pagination.module
 import { NgxPaginationModule } from 'ngx-pagination'
 import {PurchaseService} from '../purchase.service'
 import {PurchaseReturnComponent} from '../../purchase/purchaseReturn-add/purchaseReturn-add.component'
-
+import { PurchaseDirectReturnAddComponent} from '../purchase-direct-return-add/purchase-direct-return-add.component'
 @NgModule({
   declarations: [
     PurchaseReturnListComponent,
     PurchaseReturnSearchComponent,
     PurchaseReturnMainComponent,
-    PurchaseReturnComponent
+    PurchaseReturnComponent,
+    PurchaseDirectReturnAddComponent
   ],
   imports: [
     CommonModule,
@@ -27,7 +28,8 @@ import {PurchaseReturnComponent} from '../../purchase/purchaseReturn-add/purchas
     NgxPaginationModule
   ],
   exports:[
-    PurchaseReturnComponent
+    PurchaseReturnComponent,
+    PurchaseDirectReturnAddComponent
   ],
   providers: [PurchaseService]
 })

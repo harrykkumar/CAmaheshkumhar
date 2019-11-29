@@ -4,5 +4,7 @@ import { Component } from '@angular/core';
   templateUrl: './manufacturing.component.html'
 })
 export class ManufacturingComponent {
-
+  constructor (
+  ) {
+  }
 }

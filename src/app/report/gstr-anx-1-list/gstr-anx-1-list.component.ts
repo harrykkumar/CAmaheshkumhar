@@ -33,8 +33,6 @@ export class GstrAnx1ListComponent implements OnInit {
     private spinner: NgxSpinnerService
   ) {
     this.clientDateFormat = this._settings.dateFormat
-    // this.model.fromDatevalue = this.gs.utcToClientDateFormat(new Date(2019, 3, 1), this.clientDateFormat);
-    // this.model.toDateValue = this.gs.utcToClientDateFormat(new Date(), this.clientDateFormat);
     this.model.fromDatevalue = this.gs.utcToClientDateFormat(this._settings.finFromDate, this._settings.dateFormat)
     this.model.toDateValue = this.gs.utcToClientDateFormat(this._settings.finToDate, this._settings.dateFormat)
   }
@@ -58,8 +56,9 @@ export class GstrAnx1ListComponent implements OnInit {
   }
 
   getGstrAnxOneList() {
-    const fromDate = this.gs.convertToSqlFormat(this.model.fromDatevalue)
-    const toDate = this.gs.convertToSqlFormat(this.model.toDateValue)
+    let fromDate = this.gs.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
+    let toDate = this.gs.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
+
     const data = {
       Type: 'Sale',
       FromDate: fromDate,
@@ -99,24 +98,30 @@ export class GstrAnx1ListComponent implements OnInit {
   }
 
   navigateTo(item) {
+
     if (item.ShortName === 'B2C') {
+      let fromDate = this.gs.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
+      let toDate = this.gs.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
       this.router.navigate(['report/gstr-anx-1-b2c-details'],
         {
+
           queryParams: {
             Type: item.Type,
             ReportFor: item.ShortName,
-            FromDate: this.model.fromDatevalue,
-            ToDate: this.model.toDateValue
+            FromDate: fromDate,
+            ToDate: toDate
           }
         });
     } else if (item.ShortName === 'B2B') {
+      let fromDate = this.gs.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
+      let toDate = this.gs.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
       this.router.navigate(['report/gstr-anx-1-b2b-details'],
         {
           queryParams: {
             Type: item.Type,
             ReportFor: item.ShortName,
-            FromDate: this.model.fromDatevalue,
-            ToDate: this.model.toDateValue
+            FromDate:fromDate,
+            ToDate: toDate
           }
         });
     }

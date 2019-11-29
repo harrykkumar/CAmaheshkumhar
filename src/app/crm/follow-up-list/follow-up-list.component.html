@@ -1,0 +1,466 @@
+<main class="main-content bgc-grey">
+<div id="mainContent">
+    <div class="page-header p-0">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-4 left_side_head">
+              <p class="heading_lead c-grey-900 mb-0">
+                <i class="fas fa-balance-scale"></i>Follow Up
+              </p>
+            </div>
+            <div class="col-md-8 p-0">
+              <div class="right_saerch_side">
+                <div class="mr-2">
+                  <div id="custom-search-input" class="btn_header1">
+                    <div class="input-group col-md-12">
+                      <input
+                        type="text"
+                        class="form-control input-lg"
+                        placeholder="Search"
+                        (input)="getLeadList('search')"
+                        name="searchText"
+                        [(ngModel)]="searchText"
+                      />
+                      <span class="input-group-btn">
+                        <a>
+                          <i class="fas fa-search"></i>
+                        </a>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="btn_header">
+                  <!-- <a><img src="assets/img/printer.png" /> </a>
+                  <a><img src="assets/img/pdf.png"/></a>
+                  <a><img src="assets/img/excel.png"/></a> -->
+                  <a
+                    href="#followup_search_form"
+                    class="btn btn-info waves-effect waves-light"
+                    data-toggle="collapse"
+                    ><i class="fas fa-search"></i>Search</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="followup_search_form" class="card collapse mb-2">
+        <div class="px-3 pt-2">
+          <form
+            #followUpSearchFormControl="ngForm"
+            (ngSubmit)="followUpSearchFormControl.form.valid && getFollowUpList()"
+            novalidate
+          >
+            <div class="form row">
+              <div class="form-group col-md-3 ">
+                <label>Lead Status</label>
+                <ng-select
+                name="statusName"
+                [items]="crmService.leadUtilityData.EnquiryStatus"
+                bindLabel="commondesc"
+                bindValue="id"
+                placeholder="Select Status"
+                (change)="onStatusChange($event)"
+                [(ngModel)]="leadStatusId">
+                </ng-select>
+              </div>
+              <div class="form-group col-md-3 ">
+                <label class="fw-500">From</label>
+                <div class="timepicker-input input-icon form-group">
+                  <datepicker-popup [toSetDate]="fromDateValue"
+                  (dateInFormat)="fromDateValue = $event;"></datepicker-popup>
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                <label class="fw-500">To</label>
+                <div class="timepicker-input input-icon form-group">
+                  <datepicker-popup [toSetDate]="toDateValue"
+                  (dateInFormat)="toDateValue = $event;"></datepicker-popup>
+                </div>
+              </div>
+              <div class="form-group col-md-3 pt-3">
+                <button (click)="searchButton()"
+                  type="submit"
+                  class="btn btn-primary waves-effect waves-light"
+                >
+                  Search
+                </button>
+                <button type="button" (click)="followUpSearchFormControl.resetForm()" class="btn btn_close waves-effect">Reset</button>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="bgc-white bdrs-3 p-20">
+        <div class="sidebar-offcanvas top_action_saniiro">
+          <ul class="filter-cat">
+            <!-- <li>Bulk Mail</li>
+            <li>Bulk SMS</li>
+
+            <li>
+              <a class="" data-toggle="modal" data-target="#assign_to">Assign to</a>
+            </li>
+
+            <li>Merge</li>
+            <li>Update Field</li>
+            <li>
+              <a class="" data-toggle="modal" data-target="#confm_delete">Delete</a>
+            </li> -->
+            <li>
+              <div class="divyellow"></div>
+              <span class="colorspan">Overdue</span>
+            </li>
+            <li>
+              <div class="divblue"></div>
+              <span class="colorspan">Todays</span>
+            </li>
+            <li>
+              <div class="divgray"></div>
+              <span class="colorspan">Assigned</span>
+            </li>
+            <li>
+              <div class="divgreen"></div>
+              <span class="colorspan">Complete</span>
+            </li>
+            <li>
+              <div class="divedd"></div>
+              <span class="colorspan">EDD</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="table-responsive ">
+          <table class="table table-hover table_challan">
+            <thead class="saniiro_tbl_header">
+              <tr class="default_row">
+                <!-- <th>
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="customControlInline1" />
+                    <label class="custom-control-label" for="customControlInline1"></label>
+                  </div>
+                </th> -->
+                <th></th>
+                <th>Name</th>
+                <th>Lead Score/Status</th>
+                <th>Lead Source</th>
+                <th>Follow Up Date</th>
+                <th>Owner</th>
+                <th>Business Type</th>
+                <th>Follow Up</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of followUpList; let i = index;">
+                <!-- <td class="align-middle">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input saniiro_chk_action" id="customCheck12"
+                      name="example1" />
+                    <label class="custom-control-label" for="customCheck12"></label>
+                  </div>
+                </td> -->
+                <td class="align-middle">
+                  <a data-toggle="modal" data-target="#follow_counts">10</a>
+                </td>
+                <td class="align-middle">
+                    <div
+                    class="dropdown arrow_down d-inline-block mr-1 profile_pict"
+                  >
+                    <a class="dropdown-toggle" data-toggle="dropdown">
+                      <img
+                        src="../assets/static/images/img.jpg"
+                        alt="..."
+                        class="img-circle profile_image"
+                      />
+                    </a>
+                    <div class="dropdown-menu dropdown_detail p-2">
+                      <div class="card-header">
+                        <div class="row user_top_info">
+                          <div class="col-8">
+                            <a
+                              class="strong text-ellipsis ember-view"
+                              >{{item?.Customer}}
+                            </a>
+                            <address>{{item.AddressValue}}</address>
+                          </div>
+                          <div class="col-4 left_media">
+                            <a href="#"><i class="fas fa-phone"></i></a>
+                            <a href="#"><i class="far fa-envelope"></i></a>
+                            <a href="#"
+                              ><i class="far fa-envelope-open"></i
+                            ></a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="section-edit detail_width_dropdown">
+                    <a
+                      (click)="openLeadReport(item)"
+                      class="strong text-ellipsis ember-view"
+                      >{{item?.Customer}}
+                    </a>
+                    <address>{{item.AddressValue}}</address>
+                    <!-- <div class="edit-hover dropdown enquiry-tag arrow_down">
+                      <a class="dropdown-toggle" data-toggle="dropdown"
+                        ><i class="fas fa-pencil-alt"></i
+                      ></a> -->
+                      <!-- <div class="dropdown-menu name_leads">
+                        <div class="header_dropdown">
+                          <i class="far fa-check-circle fa-1x mr-2"></i
+                          ><i class="far fa-times-circle fa-1x"></i>
+                        </div> -->
+                        <!-- <div class="form-row">
+                          <div class="form-group col-md-12 col-12">
+                            <label>First Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter Value"
+                            />
+                          </div>
+                          <div class="form-group col-md-12 col-12">
+                            <label>Last Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter Value"
+                            />
+                          </div>
+                          <div class="form-group col-md-12 col-12">
+                            <label>Job Title</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter Value"
+                            />
+                          </div>
+                          <div class="form-group col-md-12 col-12">
+                            <label>Company Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              placeholder="Enter Value"
+                            />
+                          </div>
+                        </div> -->
+                      <!-- </div> -->
+                    <!-- </div> -->
+                  </div>
+                </td>
+                <td class="align-middle text-center">
+                  <span>NIL</span>
+                  <div class="assign">
+                    {{item?.Status}}
+                  </div>
+                </td>
+                <td class="align-middle">
+                  <div class="section-edit">
+                    <div><strong>{{item.Source}}</strong></div>
+                    <!-- <div>New</div> -->
+<!--
+                    <div class="edit-hover dropdown enquiry-tag arrow_down">
+                      <a class="dropdown-toggle" data-toggle="dropdown"><i class="fas fa-pencil-alt"></i></a>
+                      <div class="dropdown-menu name_leads">
+                        <div class="header_dropdown">
+                          <i class="far fa-check-circle fa-1x mr-2"></i><i class="far fa-times-circle fa-1x"></i>
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group col-md-12 col-12">
+                            <label>Source</label>
+                            <input type="text" class="form-control" placeholder="Enter Value" />
+                          </div>
+                          <div class="form-group col-md-12 col-12">
+                            <label>Lead Stage</label>
+                            <input type="text" class="form-control" placeholder="Enter Value" />
+                          </div>
+                        </div>
+                      </div>
+                    </div> -->
+                  </div>
+                </td>
+                <td class="align-middle">
+                  <div>
+                    {{item.CreatedOn | date :'short'}}
+                  </div>
+                  <!-- <div>2 day Dealy</div> -->
+                </td>
+
+                <td class="align-middle">
+                  <div class="section-edit">
+                    Badal Mittal
+                    <!-- <div class="edit-hover dropdown enquiry-tag arrow_down">
+                      <a class="dropdown-toggle" data-toggle="dropdown"><i class="fas fa-pencil-alt"></i></a>
+                      <div class="dropdown-menu name_leads">
+                        <div class="header_dropdown">
+                          <i class="far fa-check-circle fa-1x mr-2"></i><i class="far fa-times-circle fa-1x"></i>
+                        </div>
+                        <div class="form-row">
+                          <div class="form-group col-md-12 col-12">
+                            <label>Owner Name</label>
+                            <input type="text" class="form-control" placeholder="Enter Value" />
+                          </div>
+                        </div>
+                      </div>
+                    </div> -->
+                  </div>
+                </td>
+                <td class="align-middle">{{item?.BusinessType}}</td>
+                <td class="text-center">
+                  <a href="javascript:void(0)" (click)="addLead(item, 'follow-up-from-follow-up')">
+                  <i class="fas fa-clipboard-check follow_icon"></i></a></td>
+                <td class="align-middle">
+                  <div class="dropdown enquiry-tag">
+                    <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog mR-3 cH-blue fa-1x"></i><b
+                        class="caret"></b></a>
+
+                    <ul class="dropdown-menu fsz-sm">
+                      <li>
+                        <a class="d-b td-n p-1"><i class="far fa-check-square mR-10 cH-blue"></i><span>Detail</span></a>
+                      </li>
+                      <li>
+                        <a (click)="addLead(item, 'follow-up-edit')"
+                         class="d-b td-n p-1"><i class="far fa-edit mR-10 cH-blue"
+                          ></i><span>Edit</span></a>
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1 "><i class="far fa-paper-plane mR-10 cH-blue"></i><span>Send
+                            Email</span></a>
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1"><i class="fa fa-headphones mR-10 cH-blue"></i><span>Add
+                            Quatation</span></a>
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1"><i class="far fa-check-square mR-10 cH-blue"></i><span>Add
+                            Task</span></a>
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1"><i class="far fa-check-square mR-10 cH-blue"></i><span>Follow
+                            Up</span></a>
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1"><i class="fas fa-times mR-10 cH-blue"></i><span>Cancel</span></a>
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1"><i
+                            class="fas fa-file-invoice mR-10 cH-blue"></i><span>Performa-Invoice</span></a>
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1"><i
+                            class="fas fa-file-invoice mR-10 cH-blue"></i><span>Vat-Invoice</span></a>
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1"><i
+                            class="fas fa-file-invoice mR-10 cH-blue"></i><span>Service-Invoice</span></a>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+<ng-container #addLeadContainerRef></ng-container>
+<ng-container #leadReportContainerRef></ng-container>
+
+<div class="modal fade right" id="follow_counts" tabindex="-1" role="dialog" aria-labelledby="sample_approval">
+
+    <div class="modal-dialog modal-full-height modal-right half-right" role="document">
+        <div class="modal-content">
+            <div class="modal-header close_popup">
+                <h4 class="modal-title w-100 c-grey-900">Follow Up</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span> </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+<ul class="filter-cat">
+                        <li><span id="spncustomer"><b>Customer : </b>RAJ KUMAR HIRANI  , <b>MobileNo. : </b>9898787845 , <b>EmailID : </b><i>praveenusthar1992@gmail.com</i>, <b>     City : </b>jaipur</span></li>
+
+                    </ul>
+                    </div>
+<div class="card-body">
+                            <div class="table-responsive ">
+                                <table class="table table-hover table_challan">
+                                    <thead>
+                                        <tr>
+
+                                            <th>Follow Up Date</th>
+                                            <th>Lead Score/Status</th>
+                                            <th>LeadSource/Stage</th>
+                                            <th>Remark</th>
+                                            <th></th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+
+                                            <td class="align-middle text-center">
+                                                03/12/2016 | 1:00AM
+                                                <div class="text-dark-muted" data-toggle="tooltip" title="" data-placement="right" data-original-title="04:10 AM April 19, 2018">
+                                                                    4 days Dealy
+                                                                </div>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span>10</span>
+                                                <div class="assign">
+                                                    Assign
+                                                </div>
+                                            </td>
+
+                                            <td class="align-middle text-center">
+                                                <div><strong>Indiamart</strong></div>
+                                                <div>New</div>
+                                            </td>
+                                            <td>
+                                                Hello Jane, We’re thrilled to have you on board and we look forward to delivering an awesome
+                                            </td>
+
+                                                 <td class="align-middle">
+                                    <div class="dropdown enquiry-tag">
+                                        <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+
+                                        <ul class="dropdown-menu fsz-sm">
+                                            <li><a class="d-b td-n p-1"><i class="far fa-check-square mR-10 cH-blue"></i><span>Detail</span></a></li>
+                                            <li><a class="d-b td-n p-1"><i class="far fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
+                                            <li><a class="d-b td-n p-1 "><i class="far fa-paper-plane mR-10 cH-blue"></i><span>Send Email</span></a></li>
+                                            <li><a class="d-b td-n p-1"><i class="fa fa-headphones mR-10 cH-blue"></i><span>Add Quatation</span></a></li>
+                                            <li><a class="d-b td-n p-1"><i class="far fa-check-square mR-10 cH-blue"></i><span>Add Task</span></a></li>
+                                            <li><a class="d-b td-n p-1"><i class="far fa-check-square mR-10 cH-blue"></i><span>Follow Up</span></a></li>
+                                            <li><a class="d-b td-n p-1"><i class="fas fa-times mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                                            <li><a class="d-b td-n p-1"><i class="fas fa-file-invoice mR-10 cH-blue"></i><span>Performa-Invoice</span></a></li>
+                                            <li><a class="d-b td-n p-1"><i class="fas fa-file-invoice mR-10 cH-blue"></i><span>Vat-Invoice</span></a></li>
+                                            <li><a class="d-b td-n p-1"><i class="fas fa-file-invoice mR-10 cH-blue"></i><span>Service-Invoice</span></a></li>
+
+
+
+                                        </ul>
+
+
+                                    </div>
+                                </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn_close waves-effect" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary waves-effect">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

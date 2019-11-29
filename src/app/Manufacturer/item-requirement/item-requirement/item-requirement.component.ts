@@ -1,7 +1,7 @@
 import { Settings } from './../../../shared/constants/settings.constant';
 import { UIConstant } from './../../../shared/constants/ui-constant';
 import { ToastrCustomService } from './../../../commonServices/toastr.service';
-import { Component, OnInit, EventEmitter, Output, ViewChild, Renderer2 } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, Renderer2, ViewChildren, QueryList, OnDestroy } from '@angular/core';
 declare var $: any
 import * as _ from 'lodash'
 import { ItemRequirementService } from '../item-requirement.service';
@@ -11,12 +11,12 @@ import { Subscription } from 'rxjs';
 import { Select2Component } from 'ng2-select2';
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
 import { AddCust } from '../../../model/sales-tracker.model';
+import { ManufacturingService } from '../../manufacturing.service';
 @Component({
   selector: 'app-item-requirement',
-  templateUrl: './item-requirement.component.html',
-  styleUrls: ['./item-requirement.component.css']
+  templateUrl: './item-requirement.component.html'
 })
-export class ItemRequirementComponent implements OnInit {
+export class ItemRequirementComponent implements OnInit, OnDestroy {
   @Output() triggerCloseModal = new EventEmitter();
   @ViewChild('itemRequirementForm') itemRequirementFormModal
   model: any = {}
@@ -33,7 +33,7 @@ export class ItemRequirementComponent implements OnInit {
   storedAttributeValues: Array<any> = [];
   editMode: boolean;
   
-  destroy$: Subscription
+  destroy$: Subscription[] = []
   masterData: any = {}
   rowData: any = []
 
@@ -49,19 +49,50 @@ export class ItemRequirementComponent implements OnInit {
   submitSave = false
   addNewFor = ''
   isAddNew = false
+  withoutAttr = false
+  loading = false
+  PARENT_TYPE_ID = 32
   constructor(
     private _irs: ItemRequirementService,
     private _ts: ToastrCustomService,
     private _gs: GlobalService,
     private setting: Settings,
     private _cs: CommonService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private _ms: ManufacturingService
   ) {
-    this.destroy$ = this._irs.select2List$.subscribe((data: any) => {
+    this.destroy$.push(this._ms.openStyle$.subscribe((data: any) => {
+      if (data.name && data.id) {
+        let newData = Object.assign([], this.masterData.styleData)
+        newData.push({ id: +data.id, text: data.name })
+        this.masterData.styleData = newData
+        this.model.styleValue = data.id
+        setTimeout(() => {
+          if (this.styleSelect2) {
+            const element = this.renderer.selectRootElement(this.styleSelect2.selector.nativeElement, true)
+            element.focus({ preventScroll: false })
+          }
+        }, 2000)
+      }
+    }))
+    this.destroy$.push(this._irs.select2List$.subscribe((data: any) => {
       // console.log(data)
       if (data.data && data.title) {
+        if (data.title === 'Style') {
+          let arr = JSON.parse(JSON.stringify(data.data))
+          arr.splice(0, 1)
+          arr.unshift({
+            id: -1,
+            text: UIConstant.ADD_NEW_OPTION
+          })
+          arr.unshift({
+            id: 0,
+            text: 'Select Style'
+          })
+          this.masterData['styleData'] = arr
+        }
         if (data.title === 'Unit') {
-          let arr = data.data
+          let arr = JSON.parse(JSON.stringify(data.data))
           arr.splice(0, 1)
           arr.unshift({
             id: -1,
@@ -73,11 +104,9 @@ export class ItemRequirementComponent implements OnInit {
           })
           this.masterData['unitData'] = arr
         } else if (data.title === 'Category') {
-          this.masterData['categoryData'] = data.data
+          this.masterData['categoryData'] = JSON.parse(JSON.stringify(data.data))
         } else if (data.title === 'Instruction') {
-          this.masterData['instructionData'] = data.data
-        } else if (data.title === 'Item') {
-          let arr = data.data
+          let arr = JSON.parse(JSON.stringify(data.data))
           arr.splice(0, 1)
           arr.unshift({
             id: -1,
@@ -85,23 +114,63 @@ export class ItemRequirementComponent implements OnInit {
           })
           arr.unshift({
             id: 0,
-            text: 'Select item'
+            text: 'Select Instruction'
+          })
+          this.masterData['instructionData'] = arr
+        } else if (data.title === 'Item') {
+          let arr = JSON.parse(JSON.stringify(data.data))
+          arr.splice(0, 1)
+          arr.unshift({
+            id: -1,
+            text: UIConstant.ADD_NEW_OPTION
+          })
+          arr.unshift({
+            id: 0,
+            text: 'Select Item'
           })
           this.masterData['itemData'] = arr
           this.masterData['parentItemData'] = arr
+        } else if (data.title === 'Item Process') {
+          let arr = JSON.parse(JSON.stringify(data.data))
+          this.masterData['itemProcessData'] = arr
         }
       }
-    })
+    }))
 
-    this.destroy$ = this._irs.attr$.subscribe((data: any) => {
+    this.destroy$.push(this._irs.attr$.subscribe((data: any) => {
       // console.log(data)
       if (data.default && data.combos) {
         this.masterData['defaultAttr'] = data.default
         this.masterData['comboFor'] = data.combos
       }
-    })
-    this._cs.getCompositeUnitStatus().subscribe(
-      (data: AddCust) => {
+      if (this.editMode) {
+        this.setEditData(this.editData)
+      } else {
+        this.initAttrs()
+        this.loading = false
+      }
+    }))
+    this.destroy$.push(this._cs.getCompositeUnitStatus().subscribe((data: AddCust) => {
+        if (data.id && data.name) {
+          let newData = Object.assign([], this.masterData.unitData)
+          newData.push({ id: +data.id, text: data.name })
+          this.masterData.unitData = newData
+          if ((this.isAddNew && this.addNewFor === 'child') || !this.isAddNew) {
+            this.masterData.unitValue = data.id
+            this.itemReq.unitName = data.name
+            if (!this.isAddNew) {
+              setTimeout(() => {
+                if (this.unitSelect2) {
+                  const element = this.renderer.selectRootElement(this.unitSelect2.selector.nativeElement, true)
+                  element.focus({ preventScroll: false })
+                }
+              }, 2000)
+            }
+          }
+        }
+    }))
+
+    this.destroy$.push(this._cs.getUnitStatus().subscribe((data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.masterData.unitData)
           newData.push({ id: +data.id, text: data.name })
@@ -120,32 +189,9 @@ export class ItemRequirementComponent implements OnInit {
           }
         }
       }
-    )
+    ))
 
-    this._cs.getUnitStatus().subscribe(
-      (data: AddCust) => {
-        if (data.id && data.name) {
-          let newData = Object.assign([], this.masterData.unitData)
-          newData.push({ id: +data.id, text: data.name })
-          this.masterData.unitData = newData
-          if ((this.isAddNew && this.addNewFor === 'child') || !this.isAddNew) {
-            this.masterData.unitValue = data.id
-            this.itemReq.unitName = data.name
-            if (!this.isAddNew) {
-              setTimeout(() => {
-                if (this.unitSelect2) {
-                  const element = this.renderer.selectRootElement(this.unitSelect2.selector.nativeElement, true)
-                  element.focus({ preventScroll: false })
-                }
-              }, 2000)
-            }
-          }
-        }
-      }
-    )
-
-    this._cs.getItemMasterStatus().subscribe(
-      (data: AddCust) => {
+    this.destroy$.push(this._cs.getItemMasterStatus().subscribe((data: AddCust) => {
         if (data.id && data.name && data.categoryId) {
           let newData = Object.assign([], this.masterData.itemData)
           newData.push({ id: data.id, text: data.name })
@@ -172,9 +218,9 @@ export class ItemRequirementComponent implements OnInit {
           }, 2000)
         }
       }
-    )
+    ))
 
-    this.destroy$ = this._cs.getCategoryStatus().subscribe((data) => {
+    this.destroy$.push(this._cs.getCategoryStatus().subscribe((data) => {
       console.log(data)
       if (data.id && data.name) {
         let newData = Object.assign([], this.masterData.categoryData)
@@ -187,17 +233,64 @@ export class ItemRequirementComponent implements OnInit {
           this.itemReq.categoryName = data.name
         }
       }
-    })
+    }))
+
+    this.destroy$.push(this._cs.openCommonMenu$.subscribe(
+      (data: AddCust) => {
+        // console.log(data)
+        if (data.id && data.name && data.code) {
+          if (data.code === 188) {
+            let newData = Object.assign([], this.masterData.itemProcessData)
+            newData.push({ id: data.id, text: data.name })
+            this.masterData.itemProcessData = Object.assign([], newData)
+            this.masterData.itemProcessValue = +data.id
+            setTimeout(() => {
+              if (this.itemParentSelect2) {
+                const element = this.renderer.selectRootElement(this.itemParentSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
+          }
+        }
+      }
+    ))
+
+    this.destroy$.push(this._cs.openCommonMenu$.subscribe(
+      (data: AddCust) => {
+        if (data.id && data.name && data.code) {
+          if (data.code === 169) {
+            let newData = Object.assign([], this.masterData.instructionData)
+            newData.push({ id: data.id, text: data.name })
+            this.masterData.instructionData = Object.assign([], newData)
+            this.masterData.instructionValue = +data.id
+            setTimeout(() => {
+              if (this.instructionSelect2) {
+                const element = this.renderer.selectRootElement(this.instructionSelect2.selector.nativeElement, true)
+                element.focus({ preventScroll: false })
+              }
+            }, 2000)
+          }
+        }
+      }
+    ))
+
     this.model.type = 'item'
     this.getSetUpModules((JSON.parse(this.setting.moduleSettings).settings))
-    this.getItemRequirements()
   }
 
+  allTotal: number = 0
   resetForm() {
+    this.allTotal = 0
+    this.loading = false
     this.isAddNew = false
     this.addNewFor = ''
-    this.model.parentItemValue = 0
     this.model.OnDate = ''
+    if (this.attrSelect) this.attrSelect.setElementValue(0)
+    if (this.itemParentSelect2) this.itemParentSelect2.setElementValue(0)
+    if (this.styleSelect2) this.styleSelect2.setElementValue(0)
+    this.model.parentItemValue = 0
+    this.model.styleValue = 0
+    this.model.attributeGroupValue = 0
     this.initItem()
     this.values = []
     this.editMode = false
@@ -209,19 +302,97 @@ export class ItemRequirementComponent implements OnInit {
     this.itemRequirementFormModal.resetForm()
   }
 
-  async ngOnInit() {
-    this.instructionList = await this._irs.getInstructionListData()
+  ngOnInit() {
   }
 
+  itemReqAttrs = []
+  editData: any = {}
   openModal(data?) {
+    this.loading = true
     this.showHideItem = true
-    if (!_.isEmpty(data) && data.ParentId) {
+    this.resetForm()
+    this.getItemRequirements()
+    if (!_.isEmpty(data)) {
+      // console.log('edit data : ', data)
       this.editMode = true
-      this.getItemRequirementsById(data)
+      this.editData = data
     }
+  }
+
+  setEditData (data) {
+    if (data.itemAttributesTrans.length > 0) {
+      this.withoutAttr = false
+    } else {
+      this.withoutAttr = true
+    }
+    if (data.ItemRequirementDetails.length > 0) {
+      this.getItems(data.itemAttributesTrans, data.ItemRequirementDetails)
+    }
+    if (data.ItemRequirement.length > 0) {
+      this.model.OnDate = this._gs.utcToClientDateFormat(data.ItemRequirement[0].OnDate, this.clientDateFormat)
+      this.model.attributeGroupValue = data.ItemRequirement[0].AttributeStr
+      this.model.AttributeGroupId = data.ItemRequirement[0].AttributeStr
+      setTimeout(() => {
+        this.model.parentItemValue = data.ItemRequirement[0].ItemId
+        this.model.styleValue = data.ItemRequirement[0].StyleId
+      }, 1000)
+    }
+  }
+
+  getItems(AttributeList, items) {
+    // items = _.filter(items, (item) => item.Status === 1)
+    AttributeList = _.filter(AttributeList, (attr) => attr.IsMeasurment === 1)
+    console.log(items, AttributeList)
+    let index = 1
+    this.ItemRequirements = []
+    _.forEach(items, (element) => {
+      const ItemAttributeTransList = _.filter(AttributeList, (attr) => attr.ItemTransId === element.Id)
+      this.initAttrs()
+      this.ItemAttributeTransList.forEach((attr) => {
+        const itemAttr = _.find(ItemAttributeTransList, { 'AttributeId': attr.AttributeId})
+        if (!_.isEmpty(itemAttr)) {
+          attr.Id =  itemAttr.Id
+          attr.Qty = itemAttr.Qty
+          attr.GroupId = itemAttr.GroupId
+          attr.ItemTransId = itemAttr.ItemTransId
+        }
+        attr.ItemId = element.ItemId
+      })
+      this.ItemRequirements.push({
+        Id : element.Id,
+        Sno : index,
+        Qty : element.Qty,
+        ParentId :0,
+        ParentTypeId: this.PARENT_TYPE_ID ,
+        ProdAvg : 0,
+        ItemProcessId: element.ItemProcessId,
+        itemProcessName: element.ItemProcessName,
+        itemName: element.ItemName,
+        UnitId : element.UnitId,
+        unitName: element.UnitName,
+        Rate: element.Rate,
+        Shrinkage : element.Shrinkage,
+        Fold : element.Fold,
+        Addition : element.Addition,
+        Total: this.calculate1(element.Qty, element.Rate),
+        InstructionId : element.InstructionId,
+        instructionName : element.InstructionName,
+        CategoryId: element.CategoryId,
+        categoryName: element.CategoryName,
+        OldItemIdRef: 0,
+        isEditable: this.EditabledItemRow,
+        ItemAttributeTransLists: this.ItemAttributeTransList,
+        ItemId: element.ItemId
+      })
+      index++
+    })
+    this.calculateAllTotal()
+    console.log('items : ', this.ItemRequirements)
+    setTimeout(() => {
+      this._cs.fixTableHFL('charge-table')
+    }, 1)
     this.initItem()
-    $('#item_requirement_form').modal({ backdrop: 'static', keyboard: false })
-    $('#item_requirement_form').modal(UIConstant.MODEL_SHOW)
+    this.loading = false
   }
 
   defaultMeasuring: any
@@ -229,6 +400,7 @@ export class ItemRequirementComponent implements OnInit {
   toShowAttrs: boolean
   clientDateFormat: string = ''
   unitSettingType = 1
+  noOfDecimal: number = 2
   getSetUpModules(settings) {
     settings.forEach(element => {
       if (element.id === SetUpIds.defaultMesurementUnit) {
@@ -244,31 +416,11 @@ export class ItemRequirementComponent implements OnInit {
       if (element.id === SetUpIds.unitType) {
         this.unitSettingType = +element.val
       }
-    })
-    console.log('defaultMeasuring : ', this.defaultMeasuring)
-    console.log('requirementAttributes : ', this.requirementAttrs)
-  }
-
-  getItemRequirementsById(item){
-    const requestData = {
-      ParentId: item.ParentId,
-      ParentTypeId: item.ParentTypeId
-    }
-    this._irs.getItemDetailsById(requestData).subscribe((res) => {
-      if(res.Code === UIConstant.THOUSAND) {
-       const itemIdArray =  _.uniq(_.map(res.Data.itemAttributesTrans, 'ItemId'))
-        if (!_.isEmpty(itemIdArray) && itemIdArray.length > 0) {
-          this.values = []
-          this.model.type = res.Data.ItemRequirements[0].ParentTypeId === 15 ?  'item' : 'style'
-          this.model.parentItemValue = res.Data.ItemRequirements[0].ParentId
-          this.model.OnDate = this._gs.utcToClientDateFormat(res.Data.ItemRequirements[0].OnDate, this.setting.dateFormat) 
-          _.forEach(itemIdArray, (id) => {
-            const columnArray = _.filter(res.Data.itemAttributesTrans, { ItemId: id })
-            this.mapDummyModal(columnArray)
-          })
-        }
+      if (element.id === SetUpIds.noOfDecimalPoint) {
+        this.noOfDecimal = +element.val
       }
     })
+    console.log('noOfDecimal : ', this.noOfDecimal)
   }
 
   closeModal() {
@@ -277,9 +429,11 @@ export class ItemRequirementComponent implements OnInit {
   }
 
   getItemRequirements() {
-    this._irs.getItemRequirement().subscribe((res) => {
-      console.log(res)
+    this.destroy$.push(this._irs.getItemRequirement().subscribe((res) => {
+      // console.log(res)
       this.masterData.allItems = res.Items
+      this.itemReqAttrs = res.Attributes
+      this.model.OnDate = this._gs.getDefaultDate(this.clientDateFormat)
       this._irs.checkForAttrsCombos(this._irs.generateAttrs(res.AttributeValues), this.defaultMeasuring)
       if (res.Items && res.Items.length > 0) {
         this._irs.getSelect2Arr(res.Items, 'Name', 'Item')
@@ -293,159 +447,63 @@ export class ItemRequirementComponent implements OnInit {
       if (res.SubUnits && res.SubUnits.length > 0) {
         this._irs.getSelect2Arr(res.SubUnits, 'Name', 'Unit')
       }
+      if (res.ItemProcesses && res.ItemProcesses.length > 0) {
+        this._irs.getSelect2Arr(res.ItemProcesses, 'CommonDesc', 'Item Process', 'UId')
+      }
+      if (res.Styles && res.Styles.length > 0) {
+        this._irs.getSelect2Arr(res.Styles, 'Name', 'Style')
+      }
     },
     (error) => {
+      this.loading = false
       this._ts.showErrorLong(error, '')
-    })
-  }
-
-  addRow(index) {
-    this.mapDummyModal()
-  }
-
- async mapDummyModal(columnItemArray?) {
-    const objArray = []
-    _.forEach(this.AttributeValue_1, (columnItem, i) => {
-      if (!_.isEmpty(columnItemArray)) {
-       const obj = {
-          categoryValue: columnItemArray[0].CategoryId,
-          instructionValue: columnItemArray[0].InstructionId,
-          itemValue: columnItemArray[0].ItemId,
-          unitValue: columnItemArray[0].UnitId,
-          Sno: 0,
-          Id: 0,
-          quantity: null,
-          columnAttributeId: columnItem.Id,
-          rowAttributeId: 0,
-          ItemTransId: 0
+    },
+    () => {
+      if (this.toShowAttrs) {
+        let defaultAttrIndex = _.findIndex(this.itemReqAttrs, {Id: this.defaultMeasuring})
+        if (defaultAttrIndex > -1) {
+          this.model['defaultAttrName'] = this.itemReqAttrs[defaultAttrIndex]['Val']
+          this.itemReqAttrs.splice(defaultAttrIndex, 1)
+          if (defaultAttrIndex > -1 && this.itemReqAttrs.length > 0) {
+            this.open()
+          } else {
+            this._ts.showErrorLong('Please complete the master settings', '')
+          }
+        } else {
+          this._ts.showErrorLong('Please complete the master settings', '')
         }
-        const matchedColumnAttributeIndex = _.findIndex(columnItemArray, { AttributeId: columnItem.Id })
-        if (matchedColumnAttributeIndex!== -1 && 
-          columnItemArray[matchedColumnAttributeIndex].AttributeGroupId === this.AttributeValue_1[0].AttributeId) {
-          obj['Sno'] = columnItemArray[matchedColumnAttributeIndex].Sno
-          obj['Id'] = columnItemArray[matchedColumnAttributeIndex].Id
-          obj['quantity'] = columnItemArray[matchedColumnAttributeIndex].Qty
-          obj['columnAttributeId'] = columnItemArray[matchedColumnAttributeIndex].AttributeId
-          obj['ItemTransId'] = columnItemArray[matchedColumnAttributeIndex].ItemTransId
-        }
-        const matchedRowAttributeIndex = _.findIndex(columnItemArray, { AttributeGroupId: this.AttributeValue_2[0].AttributeId })
-        if (matchedRowAttributeIndex!== -1) {
-          obj['rowAttributeId'] = columnItemArray[matchedRowAttributeIndex].AttributeId
-        }
-        objArray.push({ ...obj })
-      } else if (_.isEmpty(columnItemArray)) {
-      const  obj = {
-          categoryValue: 0,
-          instructionValue: 0,
-          itemValue: 0,
-          unitValue: 0,
-          Sno: 0,
-          Id: 0,
-          quantity: null,
-          columnAttributeId: columnItem.Id,
-          rowAttributeId: 0,
-          ItemTransId: 0
-        }
-        objArray.push({ ...obj })
+      } else {
+        this.open()
       }
-    })
-    if (objArray.length > 0) {
-      const filteredItems = _.filter(this.storedItems, { CategoryId: Number(objArray[0].categoryValue) })
-      const filteredUnits = await this._irs.getUnitByItemId(Number(objArray[0].itemValue))
-      const obj1 = {
-        items: _.isEmpty(columnItemArray) ? [{ id: 0, text: 'Select Item' }] : [{ id: 0, text: 'Select Item' }, ...filteredItems],
-        units: _.isEmpty(columnItemArray) ? [{ id: 0, text: 'Select Unit' }] : [...filteredUnits],
-        selectCategoryValue: objArray[0].categoryValue,
-        selectInstructionValue: objArray[0].instructionValue,
-        selectAttributeValue: objArray[0].rowAttributeId,
-        selectItemValue: objArray[0].itemValue,
-        selectUnitValue: objArray[0].unitValue,
-        quantityArray: [...objArray]
-      }
-      this.values.push(JSON.parse(JSON.stringify(obj1)))
-    }
+    }))
   }
 
-  preparePayLoad() {
-    return {
-      OnDate: this._gs.utcToClientDateFormat(this.model.OnDate, 'm/d/Y'),
-      ParentId: this.model.selectedParentItemId ? this.model.selectedParentItemId : 0,
-      ParentTypeId: this.model.type === 'item' ? 15 : 23,
-      ItemTrans: this.mapdummyItemTrans(),
-      ItemAttributeTransLists: this.mapDummyItemAttributesTransDetails()
-    }
-  }
-
-  mapdummyItemTrans() {
-    const itemTrans = []
-    let sno = 1
-    _.forEach(this.values, (rowItem, i) => {
-      _.forEach(rowItem['quantityArray'], (columnItem, j) => {
-        if (columnItem.quantity) {
-          const obj = {
-            Sno: this.editMode ?  columnItem.Sno : sno,
-            Id: this.editMode ?  columnItem.Id : 0,
-            ItemId: columnItem.itemValue,
-            UnitId: columnItem.unitValue,
-            InstructionId: columnItem.instructionValue,
-            Qty: columnItem.quantity,
-            ParentId: this.model.selectedParentItemId ? this.model.selectedParentItemId : 0,
-            ParentTypeId: this.model.type === 'item' ? 15 : 23
-          }
-          itemTrans.push(obj)
-          sno = sno + 1
-        }
-      })
-    })
-    return itemTrans
-  }
-
-  mapDummyItemAttributesTransDetails() {
-    const itemAttributesTransDetails = []
-    let sno = 1
-    _.forEach(this.values, (rowItem, i) => {
-      _.forEach(rowItem['quantityArray'], (columnItem, j) => {
-        if (columnItem.quantity) {
-          const obj = {
-            Sno: this.editMode ?  columnItem.Sno : sno,
-            Id: this.editMode ?  columnItem.Id : 0,
-            AttributeId: columnItem.columnAttributeId,
-            ItemTransId: this.editMode ? columnItem.ItemTransId : sno, // same as sno.
-            Qty: columnItem.quantity,
-            ItemId: columnItem.itemValue
-          }
-          itemAttributesTransDetails.push(obj)
-          if (!_.isEmpty(this.storedAttributeValues) && this.storedAttributeValues.length > 1) {
-            const obj1 = {
-              Sno: this.editMode ?  columnItem.Sno : sno,
-              Id: this.editMode ?  columnItem.Id : 0,
-              AttributeId: columnItem.rowAttributeId,
-              ItemTransId: this.editMode ?  columnItem.ItemTransId : sno,
-              Qty: columnItem.quantity,
-              ItemId: columnItem.itemValue
-            }
-            itemAttributesTransDetails.push(obj1)
-          }
-          sno = sno + 1
-        }
-      })
-    })
-    return itemAttributesTransDetails
+  open() {
+    this._irs.onFormReady()
+    $('#item_requirement_form').modal({ backdrop: 'static', keyboard: false })
+    $('#item_requirement_form').modal(UIConstant.MODEL_SHOW)
   }
 
   postItemRequireData() {
     this.submitSave = true
+    this.checkForFocus()
     this.addItem()
-    const requestData = this.preparePayload()
-    if (this.checkForValidation() && this.validateItem)
-    this._irs.postItemRequirementDat(requestData).subscribe((res) => {
-      this._ts.showSuccess('Successfully done', '');
-      this.closeModal();
-      this.triggerCloseModal.emit();
-    },
-    (error) => {
-      this._ts.showErrorLong(error, '')
-    })
+    if (this.checkForValidation() && this.validItem) {
+      const requestData = this.preparePayload()
+      if (requestData.ItemRequirements.length > 0) {
+        this.destroy$.push(this._irs.postItemRequirementDat(requestData).subscribe((res) => {
+          this._ts.showSuccess('Successfully done', '');
+          this.closeModal();
+          this.triggerCloseModal.emit();
+        },
+        (error) => {
+          this.submitSave = false
+          this._ts.showErrorLong(error, '')
+        }))
+      } else {
+        this._ts.showError('Add Atleast 1 row', '')
+      }
+    }
   }
 
   validateForm() {
@@ -497,14 +555,18 @@ export class ItemRequirementComponent implements OnInit {
         }
       }, 10)
     }
+    // console.log('this.masterData.itemData : ', this.masterData.itemData)
   }
 
+  @ViewChild('attr_select') attrSelect: Select2Component
   initItem () {
     this.itemReq = {}
+    this.itemReq.Total = 0
     this.masterData.categoryValue = 0
     this.masterData.itemValue = 0
     this.masterData.unitValue = 0
     this.masterData.instructionValue = 0
+    this.masterData.itemProcessValue = 0
     this.editItemId = -1
     this.clickItem = false
     this.editItemSno = 0
@@ -512,12 +574,13 @@ export class ItemRequirementComponent implements OnInit {
     if (this.itemSelect2) this.itemSelect2.setElementValue(0)
     if (this.unitSelect2) this.unitSelect2.setElementValue(0)
     if (this.instructionSelect2) this.instructionSelect2.setElementValue(0)
-    if (this.masterData.defaultAttr && this.masterData.defaultAttr.length > 0) this.initAttrs()
+    if (this.itemProcessSelect2) this.itemProcessSelect2.setElementValue(0)
+    if (this.masterData.defaultAttr && this.masterData.defaultAttr.length > 0)  this.initAttrs()
+    this.checkForItems(0)
   }
 
   ItemAttributeTransList: any = []
   initAttrs () {
-    // let sno = (this.ItemAttributeTransLists.length > 0) ? this.ItemAttributeTransLists[this.ItemAttributeTransLists.length -1].Sno + 1 : 1
     const itemTransId = (this.ItemRequirements.length > 0) ? this.ItemRequirements[this.ItemRequirements.length -1].Sno + 1 : 1
     this.ItemAttributeTransList = []
     this.masterData.defaultAttr.forEach((attr, index) => {
@@ -531,6 +594,7 @@ export class ItemRequirementComponent implements OnInit {
         ItemTransId: itemTransId
       })
     })
+    // console.log(this.ItemAttributeTransList)
   }
 
   @ViewChild('item_select2') itemSelect2: Select2Component
@@ -540,8 +604,11 @@ export class ItemRequirementComponent implements OnInit {
       this.isAddNew = true
       this._cs.openItemMaster('', (this.itemReq.CategoryId) ? this.itemReq.CategoryId : 0)
       this.itemSelect2.selector.nativeElement.value = ''
+      this.masterData.unitValue = 0
+      this.itemReq.Rate = 0
     } else {
       this.itemReq.ItemId = +evt.value
+      this.getItemDetail()
       this.ItemAttributeTransList.forEach(element => {
         element.ItemId = +evt.value
       })
@@ -550,6 +617,17 @@ export class ItemRequirementComponent implements OnInit {
       }
     }
     this.validateItem()
+  }
+
+  getItemDetail () {
+    this.destroy$.push(this._irs.getItemDetail(this.itemReq.ItemId).subscribe((res)=> {
+      this.itemReq.Rate = res['ItemDetails'][0].PurchaseRate
+      this.masterData.unitValue = res['ItemDetails'][0].UnitId
+      console.log(this.itemReq.Rate)
+    },
+    (error) => {
+      this._ts.showErrorLong(error, '')
+    }))
   }
 
   @ViewChild('item_parent_select2') itemParentSelect2: Select2Component
@@ -588,15 +666,23 @@ export class ItemRequirementComponent implements OnInit {
 
   @ViewChild('instruction_select2') instructionSelect2: Select2Component
   onInstructionSelect (evt) {
-    this.itemReq.InstructionId = +evt.value
-    if (evt.value > 0) {
+    if (+evt.value > 0) {
+      this.itemReq.InstructionId = +evt.value
       this.itemReq.instructionName = evt.data[0].text
+    } else if (+evt.value === -1) {
+      this.instructionSelect2.selector.nativeElement.value = ''
+      this._cs.getCommonMenu(169).then((menudata) => {
+        console.log(menudata)
+        this._cs.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
+      });
     }
   }
 
   addItem () {
+    this.checkForFocus()
     if (+this.itemReq.ItemId > 0 && +this.itemReq.UnitId > 0 && this.validItem) {
-      this.addCustomCharge()
+      this.addCustomItem()
+      this.calculateAllTotal()
       if (this.editItemId > 0) {
         this.showHideItem = true
       }
@@ -607,25 +693,34 @@ export class ItemRequirementComponent implements OnInit {
       })
       this.clickItem = true
       this.initItem()
+      setTimeout(() => {
+        this.categorySelect2.selector.nativeElement.focus()
+      }, 10)
     }
   }
 
-  addCustomCharge() {
+  addCustomItem() {
+    // console.log(this.PARENT_TYPE_ID)
     if (this.editItemId === -1) {
       const sno = (this.ItemRequirements.length > 0) ? this.ItemRequirements[this.ItemRequirements.length -1].Sno + 1 : 1
       this.ItemRequirements.push({
         Id : 0,
         Sno : sno,
-        Qty : 0,
+        Qty : (this.itemReq.Qty) ? this.itemReq.Qty : 0,
         ParentId :0,
-        ParentTypeId :15 ,
+        ParentTypeId: this.PARENT_TYPE_ID ,
         ProdAvg : 0,
         ItemId : this.itemReq.ItemId,
+        ItemProcessId: this.itemReq.ItemProcessId,
+        itemProcessName: this.itemReq.itemProcessName,
         itemName: this.itemReq.itemName,
         UnitId : this.itemReq.UnitId,
         unitName: this.itemReq.unitName,
-        Shrinkage : 0,
-        Fold : 0,
+        Rate: this.itemReq.Rate,
+        Shrinkage : (this.itemReq.Shrinkage) ? this.itemReq.Shrinkage : 0,
+        Fold : (this.itemReq.Fold) ? this.itemReq.Fold : 0,
+        Addition : (this.itemReq.Addition) ? this.itemReq.Addition : 0,
+        Total: this.itemReq.Total,
         InstructionId : this.itemReq.InstructionId,
         instructionName : this.itemReq.instructionName,
         CategoryId: this.itemReq.CategoryId,
@@ -640,18 +735,23 @@ export class ItemRequirementComponent implements OnInit {
     } else {
       const index = this.ItemRequirements.findIndex((item) => item.Sno === this.editItemSno)
       this.ItemRequirements[index] = {
-        Id : 0,
+        Id : this.editItemId,
         Sno : this.editItemSno,
-        Qty : 0,
+        Qty : this.itemReq.Qty,
         ParentId :0,
-        ParentTypeId :15 ,
+        ParentTypeId: this.PARENT_TYPE_ID,
         ProdAvg : 0,
         ItemId : this.itemReq.ItemId,
+        ItemProcessId: this.itemReq.ItemProcessId,
+        itemProcessName: this.itemReq.itemProcessName,
         itemName: this.itemReq.itemName,
         UnitId : this.itemReq.UnitId,
         unitName: this.itemReq.unitName,
-        Shrinkage : 0,
-        Fold : 0,
+        Rate: this.itemReq.Rate,
+        Shrinkage : (this.itemReq.Shrinkage) ? this.itemReq.Shrinkage : 0,
+        Fold : (this.itemReq.Fold) ? this.itemReq.Fold : 0,
+        Addition : (this.itemReq.Addition) ? this.itemReq.Addition : 0,
+        Total: this.itemReq.Total,
         InstructionId : this.itemReq.InstructionId,
         instructionName : this.itemReq.instructionName,
         CategoryId: this.itemReq.CategoryId,
@@ -660,17 +760,18 @@ export class ItemRequirementComponent implements OnInit {
         isEditable: this.EditabledItemRow,
         ItemAttributeTransLists: this.ItemAttributeTransList
       }
-      if (this.editItemId !== -1) {
-        this.ItemRequirements[this.ItemRequirements.length - 1].Id = this.editItemId
-      }
+      // if (this.editItemId !== -1) {
+      //   this.ItemRequirements[this.ItemRequirements.length - 1].Id = this.editItemId
+      // }
     }
+    console.log(this.ItemRequirements)
   }
 
   onEnterPressItem(evt: KeyboardEvent) {
     this.addItem()
-    setTimeout(() => {
-      this.categorySelect2.selector.nativeElement.focus()
-    }, 10)
+    // setTimeout(() => {
+    //   this.categorySelect2.selector.nativeElement.focus()
+    // }, 10)
   }
 
   @ViewChild('category_select2') categorySelect2: Select2Component
@@ -682,47 +783,74 @@ export class ItemRequirementComponent implements OnInit {
   }
 
   checkForValidation() {
-    if (this.model.OnDate || this.model.selectedParentItemId) {
-      let isValid = 1
-      if (this.model.OnDate) {
-        this.invalidObj['OnDate'] = false
-      } else {
-        this.invalidObj['OnDate'] = true
-        isValid = 0
-      }
-      if (this.model.selectedParentItemId) {
-        this.invalidObj['selectedParentItemId'] = false
-      } else {
-        this.invalidObj['selectedParentItemId'] = true
-        isValid = 0
-      }
-      return !!isValid
+    // if (this.model.OnDate || this.model.selectedParentItemId) {
+      
+    // }
+    let isValid = 1
+    if (this.model.OnDate) {
+      this.invalidObj['OnDate'] = false
+    } else {
+      this.invalidObj['OnDate'] = true
+      isValid = 0
+    }
+    if (this.model.selectedParentItemId) {
+      this.invalidObj['selectedParentItemId'] = false
+    } else {
+      this.invalidObj['selectedParentItemId'] = true
+      isValid = 0
     }
     this.checkForFocus()
+    return !!isValid
   }
 
+  @ViewChildren('error') errorSelect2: QueryList<Select2Component>
   checkForFocus () {
+    let stack = []
     setTimeout(() => {
-      $(".errorSelecto:first").focus({ preventScroll: false })
-    }, 2000)
+      if ($(".errorSelecto:first")[0].nodeName === 'SELECT2') {
+        this.errorSelect2.forEach((item: Select2Component, index: number) => {
+          if (item.selector.nativeElement.parentElement.classList.contains('errorSelecto')) {
+            stack.push(index)
+          }
+        })
+        this.errorSelect2.forEach((item: Select2Component, index: number) => {
+          if (stack[0] === index) {
+            const element = this.renderer.selectRootElement(item.selector.nativeElement, true)
+            element.focus({ preventScroll: false })
+          }
+        })
+      } else {
+        $(".errorSelecto:first").focus()
+      }
+    }, 10)
   }
 
   validateItem() {
-    if (+this.itemReq.ItemId > 0 || +this.itemReq.UnitId > 0) {
+    if (+this.itemReq.ItemId > 0) {
       let isValid = 1
       if (+this.itemReq.ItemId > 0) { this.invalidObj['ItemId'] = false } else { isValid = 0; this.invalidObj['ItemId'] = true; }
       if (+this.itemReq.UnitId > 0) { this.invalidObj['UnitId'] = false; } else { isValid = 0; this.invalidObj['UnitId'] = true; }
+      if (+this.itemReq.Rate > 0) { this.invalidObj['Rate'] = false; } else { isValid = 0; this.invalidObj['Rate'] = true; }
       let qtyValid = 0
-      this.ItemAttributeTransList.forEach(element => {
-        if (+element.Qty > 0) {
-          qtyValid = 1
+      if (!this.withoutAttr && this.toShowAttrs) {
+        this.ItemAttributeTransList.forEach(element => {
+          if (+element.Qty > 0) {
+            qtyValid = 1
+          }
+        })
+        if (!qtyValid) {
+          this.invalidObj['Qty'] = true
+          isValid = 0
+        } else {
+          this.invalidObj['Qty'] = false
         }
-      })
-      if (!qtyValid) {
-        this.invalidObj['Qty'] = true
-        isValid = 0
-      } else {
-        this.invalidObj['Qty'] = false
+      } else if (this.withoutAttr || !this.toShowAttrs) {
+        if (+this.itemReq.Qty > 0) {
+          this.invalidObj['Qty'] = false
+        } else {
+          this.invalidObj['Qty'] = true
+          isValid = 0
+        }
       }
       this.validItem = !!isValid
     } else {
@@ -733,6 +861,7 @@ export class ItemRequirementComponent implements OnInit {
 
   EditabledItemRow = true
   editItem(i, editId, sno) {
+    console.log(editId, sno)
     if (this.editItemId === -1) {
       this.editItemId = editId
       this.editItemSno = sno
@@ -741,9 +870,10 @@ export class ItemRequirementComponent implements OnInit {
       this.ItemRequirements[i].isEditable = false
       this.EditabledItemRow = true
       this.masterData.categoryValue = this.ItemRequirements[i].CategoryId
+      this.checkForItems(this.itemReq.CategoryId)
       this.masterData.unitValue = this.ItemRequirements[i].UnitId
       this.masterData.instructionValue = this.ItemRequirements[i].InstructionId
-      this.masterData.itemValue = this.ItemRequirements[i].ItemId
+      this.masterData.itemProcessValue = this.ItemRequirements[i].ItemProcessId
       this.itemReq.categoryName = this.ItemRequirements[i].categoryName
       this.itemReq.unitName = this.ItemRequirements[i].unitName
       this.itemReq.instructionName = this.ItemRequirements[i].instructionName
@@ -751,9 +881,26 @@ export class ItemRequirementComponent implements OnInit {
       this.itemReq.CategoryId = this.ItemRequirements[i].CategoryId
       this.itemReq.UnitId = this.ItemRequirements[i].UnitId
       this.itemReq.InstructionId = this.ItemRequirements[i].InstructionId
-      this.checkForItems(this.itemReq.CategoryId)
-      this.itemReq.ItemId = this.ItemRequirements[i].ItemId
+      this.itemReq.ItemProcessId = this.ItemRequirements[i].ItemProcessId
+      this.itemReq.itemProcessName = this.ItemRequirements[i].itemProcessName
+      this.itemReq.Qty = this.ItemRequirements[i].Qty
+      this.itemReq.Addition = this.ItemRequirements[i].Addition
+      this.itemReq.Shrinkage = this.ItemRequirements[i].Shrinkage
+      this.itemReq.Fold = this.ItemRequirements[i].Fold
+      this.itemReq.Total = this.ItemRequirements[i].Total
       this.ItemAttributeTransList = this.ItemRequirements[i].ItemAttributeTransLists
+      this.itemReq.ItemId = this.ItemRequirements[i].ItemId
+      this.itemReq.StyleId = this.ItemRequirements[i].StyleId
+      this.itemReq.styleName = this.ItemRequirements[i].styleName
+      setTimeout(() => {
+      // this.masterData.itemValue = this.ItemRequirements[i].ItemId
+      this.itemSelect2.setElementValue(this.ItemRequirements[i].ItemId)
+      // console.log('set item value : ')
+      }, 300)
+      setTimeout(() => {
+        this.unitSelect2.setElementValue(this.ItemRequirements[i].UnitId)
+        this.itemReq.Rate = this.ItemRequirements[i].Rate
+      }, 400)
     }
   }
 
@@ -763,26 +910,114 @@ export class ItemRequirementComponent implements OnInit {
 
   preparePayload () {
     let ItemAttributeTransList = []
-    if (this.masterData.defaultAttr.length > 0) {
-      this.ItemRequirements.forEach((element) => {
-        ItemAttributeTransList = ItemAttributeTransList.concat(element.ItemAttributeTransLists)
-      })
+    let ItemAttributeTransListtosend = []
+    if (!this.withoutAttr) {
+      if (this.masterData.defaultAttr.length > 0) {
+        this.ItemRequirements.forEach((element) => {
+          ItemAttributeTransList = ItemAttributeTransList.concat(element.ItemAttributeTransLists)
+        })
+        ItemAttributeTransListtosend = ItemAttributeTransList.filter(element => {
+          return element.Qty > 0
+        })
+        ItemAttributeTransListtosend.forEach((element, index) => {
+          element.Sno = index + 1
+        })
+      }
     }
-    ItemAttributeTransList.forEach(element => {
-      element.Qty = (element.Qty) ? element.Qty : 0
-    })
     const payload = {
+      "WithoutAttr": (this.withoutAttr) ? true : false,
       "ItemId" : this.model.selectedParentItemId,
+      "StyleId": this.model.StyleId,
       "AttributeStr" : this.model.AttributeGroupId,
       "OnDate" : this._gs.clientToSqlDateFormat(this.model.OnDate, this.clientDateFormat),
       "ItemRequirements" : this.ItemRequirements,
-      "ItemAttributeTransLists": ItemAttributeTransList
+      "ItemAttributeTransLists": ItemAttributeTransListtosend,
+      "Id": (this.editMode) ? this.editData.ItemRequirement[0].ReqNo: 0
     }
     console.log(JSON.stringify(payload))
     return payload
   }
 
   ngOnDestroy () {
-    // this.destroy$.unsubscribe()
+    if (this.destroy$ && this.destroy$.length > 0) {
+      this.destroy$.forEach((element) => element.unsubscribe())
+    }
+  }
+
+  @ViewChild('item_process_select2') itemProcessSelect2: Select2Component
+  onItemProcessSelect (evt) {
+    // console.log(evt)
+    // if (+evt.value === -1 && evt.data[0].selected) {
+    //   this.itemProcessSelect2.selector.nativeElement.value = ''
+    //   this._cs.getCommonMenu(188).then((menudata) => {
+    //     console.log(menudata)
+    //     this._cs.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
+    //   });
+    // } else {
+    //   this.itemReq.ItemProcessId = +evt.value
+    //   if (evt.value > 0) {
+    //     this.itemReq.itemProcessName = evt.data[0].text
+    //   }
+    // }
+    // this.validateItem()
+    this.itemReq.ItemProcessId = +evt.value
+    if (evt.value > 0) {
+      this.itemReq.itemProcessName = evt.data[0].text
+    }
+  }
+
+  onPressEnter() {
+    this.withoutAttr = !this.withoutAttr
+  }
+
+  calculate () {
+    if (this.withoutAttr) {
+      this.itemReq.Total = +(+this.itemReq.Qty * +this.itemReq.Rate) > 0 ? +(+this.itemReq.Qty * +this.itemReq.Rate).toFixed(this.noOfDecimal) : 0
+    } else {
+      if (this.masterData.defaultAttr.length > 0) {
+        let sum = 0
+        this.ItemAttributeTransList.forEach(element => {
+          sum += +element.Qty
+        })
+        this.itemReq.Total = +(+sum * +this.itemReq.Rate) > 0 ? (+sum * +this.itemReq.Rate).toFixed(this.noOfDecimal) : 0
+      } else {
+        this.itemReq.Total = +(+this.itemReq.Qty * +this.itemReq.Rate) > 0 ? (+this.itemReq.Qty * +this.itemReq.Rate).toFixed(this.noOfDecimal) : 0
+      }
+    }
+  }
+
+  calculate1 (Qty, Rate) {
+    if (this.withoutAttr) {
+      return (+Qty * +Rate).toFixed(this.noOfDecimal)
+    } else {
+      if (this.masterData.defaultAttr.length > 0) {
+        let sum = 0
+        this.ItemAttributeTransList.forEach(element => {
+          sum += +element.Qty
+        })
+        return (+sum * +Rate).toFixed(this.noOfDecimal)
+      } else {
+        return (+Qty * +Rate).toFixed(this.noOfDecimal)
+      }
+    }
+  }
+
+  calculateAllTotal() {
+    let sum = 0
+
+    this.ItemRequirements.forEach(element => {
+      sum += +element.Total
+    })
+    this.allTotal = +(+sum) > 0 ? +(+sum).toFixed(this.noOfDecimal) : 0
+  }
+
+  @ViewChild('style_select2') styleSelect2: Select2Component
+  onStyleSelect(evt) {
+    if (+evt.value === -1 && evt.data[0].selected) {
+      this.styleSelect2.selector.nativeElement.value = ''
+      this._ms.openStyle('', false)
+    } else {
+      this.model.StyleId = +evt.value
+    }
   }
 }

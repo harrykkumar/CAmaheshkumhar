@@ -299,7 +299,7 @@
                 <tr>
                   <th>S.N.</th>
                   <th>Item</th>
-                  <th *ngIf="industryId === '2' " > Item Details</th>
+                  <th> Item Details</th>
                   <th style="text-align:right">Quantity</th>
                   <th *ngIf="industryId === '3' " class="desc">Length x Height x Width </th>
                       <ng-container *ngIf="industryId === '5' ">
@@ -312,7 +312,7 @@
                 <tr *ngFor="let item of ItemTransactionactions; let i=index">
                   <td>{{1+i}}</td>
                   <td>{{ item.ItemName}}</td>
-                  <ng-container *ngIf="industryId === '2' ">
+                  <ng-container>
                       <td>
                           <span *ngFor="let attr of  item.Attribute; let isLast=last">
                                {{attr.AttributeName}}{{isLast ? '' : ', '}}

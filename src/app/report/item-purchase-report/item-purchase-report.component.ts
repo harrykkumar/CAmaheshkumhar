@@ -45,6 +45,7 @@ export class ItemPurchaseReportComponent implements OnInit {
   
     this.newBillSub = this._commonService.getSearchForPurchaseStatus().subscribe(
       (obj: any) => {
+      
         this.getItemSaleDetails(UIConstant.PURCHASE_TYPE ,obj.ledgerId,obj.categoryId,obj.itemId,obj.fromDate,obj.toDate,obj.batchNo ,1,10)
         this.setFromadate = this.gs.utcToClientDateFormat(obj.fromDate, this.clientDateFormat)
         this.setTodate = this.gs.utcToClientDateFormat( obj.toDate, this.clientDateFormat)
@@ -85,6 +86,7 @@ export class ItemPurchaseReportComponent implements OnInit {
     this._commonService.fixTableHF('cat-table')
     let  fromDate = this.gs.clientToSqlDateFormat(this.setFromadate, this.clientDateFormat)
     let toDate = this.gs.clientToSqlDateFormat(this.setTodate, this.clientDateFormat)
+    
      this.getItemSaleDetails(UIConstant.PURCHASE_TYPE ,0,'','',fromDate,toDate,'' ,this.page, this.pageNo)
  
   }

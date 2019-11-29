@@ -3,7 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { VoucherEntryMainComponent } from './voucher-entry-main/voucher-entry-main.component';
 
 const childRoute: Routes = [
-  { path: '', component: VoucherEntryMainComponent, data: { title: 'Voucher' } }
+  { path: '', component: VoucherEntryMainComponent, data: { title: 'Voucher' } },
+  { path: ':type/:id', component: VoucherEntryMainComponent, data: { title: 'Voucher' } }
 ]
 @NgModule({
   imports: [

@@ -1,6 +1,6 @@
 import { ApiConstant } from './../../shared/constants/api';
 import { ToastrCustomService } from 'src/app/commonServices/toastr.service';
-import { Injectable } from '@angular/core'
+import { Injectable, Inject } from '@angular/core'
 import { BehaviorSubject, Subject, Observable } from 'rxjs'
 import { AddCust } from '../../model/sales-tracker.model';
 import { BaseServices } from '../base-services'
@@ -10,6 +10,7 @@ import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { ConnectionService } from 'ng-connection-service';
 declare const $: any
 import * as _ from 'lodash';
+import { DOCUMENT } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +33,9 @@ export class CommonService {
   private openAddAttributeSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openAddressAddSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openPurchaseAddSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openSaleReturnDirectAddSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openPurchaseDirectReturnAddSub = new BehaviorSubject<AddCust>({ 'open': false })
+
   private openVoucherAddSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openCatImportSub = new BehaviorSubject<AddCust>({ 'open': false })
   private newVoucherAdded = new Subject()
@@ -59,6 +63,8 @@ export class CommonService {
   private ledgerSummarySub = new BehaviorSubject<AddCust>({ 'open': false })
   private openSaleDirectReturnSubject = new BehaviorSubject<AddCust>({ 'open': false })
   private onsaleDirectActionClicked$ = new Subject()
+  private onsaleDirectRetuenActionClicked$ = new Subject()
+  private onPurchaseDirectReturnActionClicked$ = new Subject()
   private AfterSaveShowPrint$ = new Subject()
   public previousUrl: String;
   public currentUrl: String;
@@ -79,7 +85,8 @@ export class CommonService {
   setupChange$ = this.setpupsChange.asObservable()
   private openAddActiveInventorySub = new BehaviorSubject<AddCust>({ 'open': false })
   private openAddTaxProcessSub= new BehaviorSubject<AddCust>({ 'open': false })
-
+  domainLogo: string = 'assets/img/logo.png';
+  workdomain: string = 'Saniiro Technologies Pvt Ltd';
   isInternet: boolean = true;
   //  validation reg ex
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
@@ -88,11 +95,13 @@ export class CommonService {
   gstInRegx = `^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$`
 
   constructor(private router: Router, private baseService: BaseServices,
+    @Inject(DOCUMENT) private _document: HTMLDocument,
     private connectionService: ConnectionService,
     private toaster: ToastrCustomService) {
     this.catchInternetConnectionEvent();
     this.setPreviousUrl();
     this.storeNoConnectionImageUrl();
+    this.getLogoAndDomain();
   }
 
   storeNoConnectionImageUrl(){
@@ -608,9 +617,32 @@ export class CommonService {
 
     return this.openPurchaseAddSub.asObservable()
   }
-
   closePurchase() {
     this.openPurchaseAddSub.next({ 'open': false })
+  }
+  closePurchaseDirectReturn() {
+    this.openPurchaseDirectReturnAddSub.next({ 'open': false })
+  }
+  openPurchaseDirectReturn(editId) {
+    this.openPurchaseDirectReturnAddSub.next({ 'open': true, 'editId': editId })
+  }
+
+  getPurchaseDirectReturnStatus() {
+    return this.openPurchaseDirectReturnAddSub.asObservable()
+  }
+
+
+  openSaleReturnDirect(editId) {
+    this.openSaleReturnDirectAddSub.next({ 'open': true, 'editId': editId })
+  }
+
+  getSaleReturnDirectStatus() {
+
+    return this.openSaleReturnDirectAddSub.asObservable()
+  }
+
+  closeSaleReturnDirect() {
+    this.openSaleReturnDirectAddSub.next({ 'open': false })
   }
 
   getModuleSettings(name) {
@@ -643,6 +675,15 @@ export class CommonService {
   getSaleDirectActionClickedStatus() {
     return this.onsaleDirectActionClicked$.asObservable()
   }
+  onsaleReturnDirectActionClicked(action) {
+    this.onsaleDirectRetuenActionClicked$.next(action)
+  }
+
+  getSaleReturnDirectActionClickedStatus() {
+    return this.onsaleDirectRetuenActionClicked$.asObservable()
+  }
+
+
   AfterSaveShowPrint(action) {
     this.AfterSaveShowPrint$.next(action)
   }
@@ -657,10 +698,10 @@ export class CommonService {
   }
 
   /* Function to allow numeric input only for input type text  ----b */
-  isNumber(evt) {
+  isNumber(evt, mobileNo?) {
     evt = (evt) ? evt : window.event
     const charCode = (evt.which) ? evt.which : evt.keyCode
-    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+    if (charCode > 31 && (charCode < 48 || charCode > 57) || (!mobileNo && charCode === 48)) {
       return false
     }
   }
@@ -792,8 +833,14 @@ export class CommonService {
   getModulesettingAPI(type) {
     return this.baseService.getRequest(ApiConstant.GET_MODULE_SETTING + type)
   }
+  barcodeAPIForSale(billDate,barcode,ItemId, CustomerId,mobileIMEi_id) {
+    return this.baseService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + ItemId + '&Barcode='+barcode +'&Ledgerid=' + CustomerId+'&BillDate='+billDate+'&ItemPropertyTransIds='+mobileIMEi_id)
+  }
   barcodeAPI(billDate,barcode,ItemId, CustomerId) {
     return this.baseService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + ItemId + '&Barcode='+barcode +'&Ledgerid=' + CustomerId+'&BillDate='+billDate)
+  }
+  barcodeAPIReturn(billDate,barcode,ItemId, CustomerId,type) {
+    return this.baseService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + ItemId + '&Barcode='+barcode +'&Ledgerid=' + CustomerId+'&BillDate='+billDate+'&TransType='+type)
   }
   getItemRateByLedgerAPI(ItemId, CustomerId) {
     return this.baseService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + ItemId + '&Ledgerid='+ CustomerId)
@@ -1255,9 +1302,9 @@ export class CommonService {
     const url = `${ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA}?Type=${data.Type}&Page=${data.Page}&Size=${data.Size}`;
     return this.baseService.getRequest(url)
   }
-  getReportItemByCategorySale(type) {
-    return this.baseService.getRequest(ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA + '?Type=' + type)
-
+  getReportItemByCategorySale(data) {
+    const url = `${ApiConstant.REPORT_ITEM_BY_CATEGORY_SALE_DATA}?CategoryId=${data.CategoryId}&ToDate=${data.ToDate}&Type=${data.Type}&FromDate=${data.FromDate}&Page=${data.Page}&Size=${data.Size}`;
+    return this.baseService.getRequest(url)
   }
   getReporSalePurchaserSummary(data) {
     const url = `${ApiConstant.REPORT_SALE_PURCHASE_SUMMARY}?ReportFor=${data.ReportFor}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&Page=${data.Page}&Size=${data.Size}&Type=${data.Type}`;
@@ -1365,8 +1412,8 @@ export class CommonService {
     return this.openPurchaseReturnSub$.asObservable()
   }
   getGstrAnxList(data) {
-    const queryParam = this.getQueryStringFromObject(data);
-    return this.baseService.getRequest(`${ApiConstant.GSTR_AN_X}?${queryParam}`);
+    const url = `${ApiConstant.GSTR_AN_X}?FromDate=${data.FromDate}&ToDate=${data.ToDate}&Type=${data.Type}`;
+    return this.baseService.getRequest(url)
   }
 
   getGstrSummaryList(query) {
@@ -1567,5 +1614,57 @@ export class CommonService {
 
   getFinanceParameters() {
     return this.baseService.getRequest(ApiConstant.FINANCE_CREATE)
+  }
+
+  getLogoAndDomain() {
+    const domain = window.location.origin;
+    this.baseService.getRequest(`${ApiConstant.CUSTOMER_AGENT}?WorkDomain=${domain}`).subscribe(
+      (res) => {
+        if (res.Code === 1000 && !_.isEmpty(res.Data)) {
+          const data = res.Data[0];
+          localStorage.setItem(UIConstant.WORK_DOMAIN_ID, data.Id)
+          this._document.getElementById('appFavIcon').setAttribute('href', data.LogoPath);
+          this.domainLogo = data.LogoPath
+          this.workdomain = data.WorkDomain
+        }
+      })
+  }
+
+  getRequest(path, query?) {
+    const queryParam = this.getQueryStringFromObject(query);
+    let url = path
+    if (!_.isEmpty(query)) {
+      url = `${path}?${queryParam}`
+    }
+    return this.baseService.getRequest(url)
+  }
+
+  loadModalDynamically(that, containerRef, componentRef, componentToLoad, next, item?, dataToPass?) {
+    that[containerRef].clear();
+    const factory = that.resolver.resolveComponentFactory(componentToLoad);
+    that[componentRef] = that[containerRef].createComponent(factory);
+    that[componentRef].instance.openModal(item, dataToPass);
+    that[componentRef].instance.closeModal.subscribe(
+      (data) => {
+        that[componentRef].destroy();
+        next(data);
+      });
+  }
+
+  isEmpty(val) {
+    if (typeof val === "object" || Array.isArray(val)) {
+      if (_.isEmpty(val)) {
+        return true
+      } else {
+        return false
+      }
+    } else if (val === undefined || val === null || val === NaN || val === "" || val === 0 || val === false) {
+      return true
+    } else {
+      return false
+    }
+  }
+  COUNTRY_LABEL_CHANGE = (id) => {
+    return this.baseService.getRequest(ApiConstant.COUNTRY_CHANGE_LABEL_VALUE+id)
   }
 }

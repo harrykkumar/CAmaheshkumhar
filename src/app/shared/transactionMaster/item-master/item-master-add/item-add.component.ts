@@ -176,8 +176,8 @@ export class ItemAddComponent {
         if (data.id && data.name) {
           let newData = Object.assign([], this.selectUnitType)
           newData.push({ id: data.id, text: data.name })
-         // this.selectUnitType = newData
-         this.UnitIdForEDit = data.id
+          // this.selectUnitType = newData
+          this.UnitIdForEDit = data.id
           if (this.unitSettingType === 1) {
             this.getUnitTypeDetail(0)
           }
@@ -686,13 +686,13 @@ export class ItemAddComponent {
         this.categoryType = newData
       }
     },
-    (error) => {
-      console.log(error)
-      this.loading = false
-    },
-    () => {
-      this.loading = false
-    })
+      (error) => {
+        console.log(error)
+        this.loading = false
+      },
+      () => {
+        this.loading = false
+      })
   }
 
   @ViewChild('cat_select2') catSelect2: Select2Component
@@ -751,7 +751,7 @@ export class ItemAddComponent {
   }
   GetAllPostData: any = []
   getUnitTypeDetail(value) {
-    
+
     this.unitTypePlaceHolder = { placeholder: 'Select Unit' }
     let newData = [{ id: '0', text: 'Select Unit' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this.unitMasterService.getSubUnits().subscribe(data => {
@@ -772,14 +772,14 @@ export class ItemAddComponent {
       }
     })
   }
-  UnitIdForEDit:any=0
+  UnitIdForEDit: any = 0
   postDataForUnit(data) {
     if (data.length > 0) {
       data.forEach(element => {
-        if ((element.PrimaryUnitId === element.SecondaryUnitId) && (element.SecondaryUnitId === JSON.parse(this.UnitIdForEDit )) && (element.PrimaryUnitId === JSON.parse( this.UnitIdForEDit))) {
+        if ((element.PrimaryUnitId === element.SecondaryUnitId) && (element.SecondaryUnitId === JSON.parse(this.UnitIdForEDit)) && (element.PrimaryUnitId === JSON.parse(this.UnitIdForEDit))) {
           this.UnitId = element.Id
           this.unitTypeValue = element.Id
-          
+
         }
       });
     }
@@ -846,10 +846,17 @@ export class ItemAddComponent {
   selectedItemType(itemTypeCode) {
     this.ItemType = +itemTypeCode.value
   }
-
-  closeItemMaster() {
+  yesConfirmationClose() {
+    $('#close_confirm4').modal(UIConstant.MODEL_HIDE)
     this.commonService.closeItemMaster('')
     this.initComp()
+  }
+  closeConfirmation() {
+    $('#close_confirm4').modal(UIConstant.MODEL_SHOW)
+  }
+  closeItemMaster() {
+    this.closeConfirmation()
+
   }
   addNewItemMaster(value) {
     this.submitClick = true
@@ -858,6 +865,7 @@ export class ItemAddComponent {
       this.submitClick = false
       this.loading = false
     }
+    this.dynamicFocus()
     if (this.checkForValidation() && !this.existsCodes.barcode && !this.existsCodes.name &&
       !this.pendingCheck && !this.pendingCheck1) {
       if (value === 'reset') {
@@ -905,6 +913,72 @@ export class ItemAddComponent {
 
   openImageModal() {
     this._itemmasterServices.openImageModal(this.addedImages)
+  }
+  @ViewChild('hsnNoRef') hsnNoRef: ElementRef
+  @ViewChild('barCodeRef') barCodeRef: ElementRef
+  @ViewChild('itemCodeRef') itemCodeRef: ElementRef
+
+
+  dynamicFocus() {
+
+    if (!isNaN(+this.CategoryId) && +this.CategoryId > 0) {
+      this.invalidObj['CategoryId'] = false
+    } else {
+      this.invalidObj['CategoryId'] = true
+      this.catSelect2.selector.nativeElement.focus({ preventScroll: false })
+
+    }
+    if (this.Name && this.Name.trim()) {
+      this.invalidObj['Name'] = false
+    } else if (!this.invalidObj.CategoryId) {
+      this.invalidObj['Name'] = true
+      this.itemname.nativeElement.focus()
+
+    }
+    if (this.HsnNo && this.HsnNo.trim()) {
+      this.invalidObj['HsnNo'] = false
+    } else if (!this.invalidObj.CategoryId && !this.invalidObj.Name) {
+      this.invalidObj['HsnNo'] = true
+      this.hsnNoRef.nativeElement.focus()
+    }
+    if (this.BarCode && this.BarCode.trim()) {
+      this.invalidObj['BarCode'] = false
+    } else if (!this.invalidObj.CategoryId && !this.invalidObj.Name && !this.invalidObj.HsnNo) {
+      this.invalidObj['BarCode'] = true
+      this.barCodeRef.nativeElement.focus()
+
+    }
+    if (this.ItemCode && this.ItemCode.trim()) {
+      this.invalidObj['ItemCode'] = false
+    } else if (!this.invalidObj.CategoryId && !this.invalidObj.Name && !this.invalidObj.HsnNo && !this.invalidObj.BarCode) {
+      this.invalidObj['ItemCode'] = true
+      this.itemCodeRef.nativeElement.focus()
+
+
+    }
+    if (!isNaN(+this.UnitId) && +this.UnitId > 0) {
+      this.invalidObj['UnitId'] = false
+    } else if (!this.invalidObj.ItemCode && !this.invalidObj.CategoryId && !this.invalidObj.Name && !this.invalidObj.HsnNo && !this.invalidObj.BarCode) {
+
+      this.invalidObj['UnitId'] = true
+      this.unitSelect2.selector.nativeElement.focus({ preventScroll: false })
+
+
+    }
+    if (!isNaN(+this.TaxId) && +this.TaxId > 0) {
+      this.invalidObj['TaxId'] = false
+    } else if (!this.invalidObj.UnitId && !this.invalidObj.ItemCode && !this.invalidObj.CategoryId && !this.invalidObj.Name && !this.invalidObj.HsnNo && !this.invalidObj.BarCode) {
+
+      this.invalidObj['TaxId'] = true
+      this.taxSelect2.selector.nativeElement.focus({ preventScroll: false })
+
+
+    }
+
+
+
+
+
   }
   checkForValidation(): boolean {
     let isValid = 1
@@ -967,7 +1041,7 @@ export class ItemAddComponent {
       }
       if (element.id === SetUpIds.autoGeneratedBarcode) {
         this.isBarCode = !!(+element.val)
-        if(!this.editMode){
+        if (!this.editMode) {
           this.getBarCodeSetting()
         }
       }
@@ -1026,7 +1100,7 @@ export class ItemAddComponent {
           console.log('bar code : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data.length > 0 && data.Data[0].BarCode) {
             this.BarCode = data.Data[0].BarCode
-           
+
             this.ItemCode = this.BarCode
           }
         }

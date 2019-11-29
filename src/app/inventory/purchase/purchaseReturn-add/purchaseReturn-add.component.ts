@@ -2241,7 +2241,9 @@ export class PurchaseReturnComponent {
       categoryName: this.categoryName,
       selected:this.DisabledRow,
       isDisabled: true,
-      SpItemUtilities:[]
+      SpItemUtilities:[],
+      ItemPropertyTrans : []
+
 
     })
 
@@ -2261,10 +2263,8 @@ export class PurchaseReturnComponent {
     if (type === 'charge') {
       this.editChargeId = editId
       this.editChargeSno = sno
-      // i = i - 1
       this.LedgerName = this.AdditionalCharges[i].LedgerName
       this.LedgerChargeId = this.AdditionalCharges[i].LedgerChargeId
-     // this.alreadySelectCharge(this.LedgerChargeId, this.LedgerName, false)
       this.AmountCharge = this.AdditionalCharges[i].AmountCharge
       this.TaxSlabChargeId = this.AdditionalCharges[i].TaxSlabChargeId
       this.TaxChargeName = this.AdditionalCharges[i].TaxChargeName
@@ -2286,12 +2286,9 @@ export class PurchaseReturnComponent {
         this.validateCharge()
       }, 100)
     }
-    // else if (type === 'charge' && this.editChargeId !== -1) {
-    //   this.toastrService.showInfo('', 'There is already one transaction to edit, please update it this first in order to edit others')
-    // }
+   
     if (type === 'trans') {
       this.editTransId = editId
-      //i = i - 1
       if (+this.PaymentDetail[i].PayModeId !== 1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
@@ -2310,13 +2307,10 @@ export class PurchaseReturnComponent {
         this.deleteItem(i, type)
       }
     }
-    //  else if (type === 'trans' && this.editTransId !== -1) {
-    //   this.toastrService.showInfo('', 'Already in edit mode')
-    // }
+
     if (type === 'items' && editId > 0) {
       this.editItemId = editId
       this.editItemSno = sno
-      //    i = i - 1
       this.TransType = 0
       this.TransId = 0
       this.ChallanId = 0
@@ -2355,29 +2349,12 @@ export class PurchaseReturnComponent {
       this.itemAttributeTrans = this.Items[i].itemAttributeTrans
       this.appliedTaxRatesItem = this.Items[i].itemTaxTrans
       this.taxRates = this.Items[i].taxRates
-   //   this.getTaxDetail(this.TaxSlabId)
-
-      // this.unitSelect2.setElementValue(this.UnitId)
-      // this.taxSlabSelect2.setElementValue(this.TaxSlabId)
-      //  this.taxTypeSelect2.setElementValue(this.TaxType)
       if (this.attrSelect2.length > 0) {
         this.attrSelect2.forEach((item: Select2Component, index: number, array: Select2Component[]) => {
           item.setElementValue(this.itemAttributeTrans[index].AttributeId)
         })
       }
-      let ItemId = this.Items[i].ItemId
-      // this.updateCategories(this.categoryId)
-      //  this.checkForItems(this.categoryId)
-      let _self = this
-      setTimeout(() => {
-        // _self.itemselect2.setElementValue(ItemId)
-        //  _self.ItemId = ItemId
-        //  _self.deleteItem(i, type)
-      }, 1)
     }
-    //else if (type === 'items' && this.editItemId !== -1) {
-    //this.toastrService.showInfo('', 'There is already one item to edit, please update it this first in order to edit others')
-    // }
   }
 
   deleteItem(i, forArr) {
@@ -2391,21 +2368,23 @@ export class PurchaseReturnComponent {
       this.Items.forEach(item => {
         this.ItemAttributeTrans = this.ItemAttributeTrans.concat([], item.itemAttributeTrans)
       })
-      console.log('after TaxAmount : ', this.TaxAmount)
     }
     if (forArr === 'charge') {
-      if (this.chargesData[i].disabled) {
-      //  this.alreadySelectCharge(this.AdditionalCharges[i].LedgerChargeId, this.AdditionalCharges[i].LedgerName, false)
-      }
       this.AdditionalCharges.splice(i, 1)
     }
-    // this.calculate()
   }
 
   closePurchase() {
+    this.closeConfirmation()
+  }
+  yesConfirmationClose() {
+    $('#close_confirmReturn').modal(UIConstant.MODEL_HIDE)
+    this.closeModal()
     this.commonService.closePurchaseReturn()
   }
-
+  closeConfirmation() {
+    $('#close_confirmReturn').modal(UIConstant.MODEL_SHOW)
+  }
   initItem() {
     this.TransType = 0
     this.TransId = 0
@@ -2438,9 +2417,7 @@ export class PurchaseReturnComponent {
     this.categoryId = 0
     this.SubTotal = 0
     this.AmountItem = 0
-    // this.editItemId = -1
     this.clickItem = false
-    // console.log('categories : ', this.categories)
     if (this.allCategories && this.allCategories.length > 0) {
       this.getCatagoryDetail(this.allCategories)
     }
@@ -2675,14 +2652,9 @@ export class PurchaseReturnComponent {
     this.RoundOffManual = 0
     this.billSummary = []
     this.AddressData = []
-    //this.setBillDate()
     this.setPartyBillDate()
     this.setPayDate()
-    // this.setExpiryDate()
     this.setDueDate()
-    // this.setMfdDate()
-  
-    //this.getNewCurrentDate()
   }
 
   getNewCurrentDate() {
@@ -2700,7 +2672,6 @@ export class PurchaseReturnComponent {
   private purchaseReturnAddParams(): PurchaseReturnAdd {
     let BillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
     let CurrentDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
-  //  let PartyBillDate = this.gs.clientToSqlDateFormat(this.PartyBillDate, this.clientDateFormat)
     let DueDate = this.gs.clientToSqlDateFormat(this.DueDate, this.clientDateFormat)
     let Items = JSON.parse(JSON.stringify(this.Items))
     let PaymentDetail = JSON.parse(JSON.stringify(this.PaymentDetail))
@@ -2730,7 +2701,6 @@ export class PurchaseReturnComponent {
         CurrencyRate: 0,
         TotalDiscount: +this.TotalDiscount,
         PartyId: +this.PartyId,
-        //SupplyState:1252,
         ReferralId: 0,
         ReferralTypeId: 0,
         ReferralComission: 0,
@@ -2802,16 +2772,7 @@ export class PurchaseReturnComponent {
         isValid = 0
         this.invalidObj['PayDate'] = true
       }
-      // if (+this.PayModeId === 3) {
-      //   if (this.ChequeNo) {
-      //     this.invalidObj['ChequeNo'] = false
-      //   } else {
-      //     isValid = 0
-      //     this.invalidObj['ChequeNo'] = true
-      //   }
-      // } else {
-      //   this.invalidObj['ChequeNo'] = false
-      // }
+     
       this.validTransaction = !!isValid
     } else {
       this.validTransaction = true
@@ -2835,18 +2796,7 @@ export class PurchaseReturnComponent {
       || this.Length || this.Width || this.Height
     ) {
       let isValid = 1
-      // if (+this.PartyId > 0) {
-      //   this.invalidObj['PartyId'] = false
-      // } else {
-      //   this.invalidObj['PartyId'] = true
-      //   isValid = 0
-      // }
-      // if (+this.OrgId > 0) {
-      //   this.invalidObj['OrgId'] = false
-      // } else {
-      //   this.invalidObj['OrgId'] = true
-      //   isValid = 0
-      // }
+     
       if (this.BillDate) {
         this.invalidObj['BillDate'] = false
       } else {
@@ -2872,99 +2822,7 @@ export class PurchaseReturnComponent {
         this.invalidObj['GodownId'] = true
         isValid = 0
       }
-      // if (this.AddressId) {
-      //   this.invalidObj['AddressId'] = false
-      // } else {
-      //   this.invalidObj['AddressId'] = true
-      //   isValid = 0
-      // }
-      // if (this.Items.length === 0 && this.submitSave) {
-      //   isValid = 0
-      //   if (+this.ItemId > 0) {
-      //     this.invalidObj['ItemId'] = false
-      //   } else {
-      //     isValid = 0
-      //     this.invalidObj['ItemId'] = true
-      //   }
-      //   if (+this.UnitId > 0) {
-      //     this.invalidObj['UnitId'] = false
-      //   } else {
-      //     isValid = 0
-      //     this.invalidObj['UnitId'] = true
-      //   }
-      //   // if (+this.TaxSlabId > 0) {
-      //   //   this.invalidObj['TaxSlabId'] = false
-      //   // } else {
-      //   //   isValid = 0
-      //   //   this.invalidObj['TaxSlabId'] = true
-      //   // }
-      //   if (+this.PurchaseRate > 0) {
-      //     this.invalidObj['PurchaseRate'] = false
-      //   } else {
-      //     isValid = 0
-      //     this.invalidObj['PurchaseRate'] = true
-      //   }
-      //   if (+this.Quantity > 0) {
-      //     this.invalidObj['Quantity'] = false
-      //   } else {
-      //     isValid = 0
-      //     this.invalidObj['Quantity'] = true
-      //   }
-      //   if (+this.Quantity >= +this.ReturnQuantity) {
-      //     this.invalidObj['ReturnQuantity'] = false
-      //   } else {
-      //     isValid = 0
-      //     this.invalidObj['ReturnQuantity'] = true
-      //   }
-      //   if (this.industryId === 5) {
-      //     if (this.BatchNo) {
-      //       this.invalidObj['BatchNo'] = false
-      //     } else {
-      //       isValid = 0
-      //       this.invalidObj['BatchNo'] = true
-      //     }
-      //     if (this.MfdDate) {
-      //       this.invalidObj['MfdDate'] = false
-      //     } else {
-      //       isValid = 0
-      //       this.invalidObj['MfdDate'] = true
-      //     }
-      //     if (this.ExpiryDate) {
-      //       this.invalidObj['ExpiryDate'] = false
-      //     } else {
-      //       isValid = 0
-      //       this.invalidObj['ExpiryDate'] = true
-      //     }
-      //   }
-      //   if (this.industryId === 3) {
-      //     if (+this.Length > 0) {
-      //       this.invalidObj['Length'] = false
-      //     } else {
-      //       isValid = 0
-      //       this.invalidObj['Length'] = true
-      //     }
-      //     if (+this.Height > 0) {
-      //       this.invalidObj['Height'] = false
-      //     } else {
-      //       isValid = 0
-      //       this.invalidObj['Height'] = true
-      //     }
-      //     if (+this.Width > 0) {
-      //       this.invalidObj['Width'] = false
-      //     } else {
-      //       isValid = 0
-      //       this.invalidObj['Width'] = true
-      //     }
-      //   }
-      //   this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-      //     if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-      //       $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-      //     } else {
-      //       isValid = 0
-      //       $('#' + $('.attr')[index].id).addClass('errorSelecto')
-      //     }
-      //   })
-      // }
+     
       return !!isValid
     }
   }
@@ -3001,126 +2859,6 @@ export class PurchaseReturnComponent {
     return this.validItem = !!isValid
   }
 
-  // validateItem() {
-  //   if (+this.ItemId > 0) {
-  //     let isValid = 1
-  //     if (+this.DiscountType === 0) {
-  //       this.validDiscount = (+this.Discount >= 0 && +this.Discount <= 100) ? true : false
-  //     } else {
-  //       this.validDiscount = true
-  //     }
-  //     if (this.validDiscount) {
-  //       this.invalidObj['Discount'] = false
-  //     } else {
-  //       isValid = 0
-  //       this.invalidObj['Discount'] = true
-  //     }
-  //     if (+this.ItemId > 0) {
-  //       this.invalidObj['ItemId'] = false
-  //     } else {
-  //       isValid = 0
-  //       this.invalidObj['ItemId'] = true
-  //     }
-  //     if (+this.UnitId > 0) {
-  //       this.invalidObj['UnitId'] = false
-  //     } else {
-  //       isValid = 0
-  //       this.invalidObj['UnitId'] = true
-  //     }
-  //     // if (+this.TaxSlabId > 0) {
-  //     //   this.invalidObj['TaxSlabId'] = false
-  //     // } else {
-  //     //   isValid = 0
-  //     //   this.invalidObj['TaxSlabId'] = true
-  //     // }
-  //     if (+this.PurchaseRate > 0) {
-  //       this.invalidObj['PurchaseRate'] = false
-  //     } else {
-  //       isValid = 0
-  //       this.invalidObj['PurchaseRate'] = true
-  //     }
-  //     if (+this.Quantity > 0) {
-  //       this.invalidObj['Quantity'] = false
-  //     } else {
-  //       isValid = 0
-  //       this.invalidObj['Quantity'] = true
-  //     }
-  //     if (+this.Quantity >= +this.ReturnQuantity) {
-  //       this.invalidObj['ReturnQuantity'] = false
-  //     } else {
-  //       isValid = 0
-  //       this.invalidObj['ReturnQuantity'] = true
-  //     }
-  //     if (this.industryId === 5) {
-  //       if (this.BatchNo) {
-  //         this.invalidObj['BatchNo'] = false
-  //       } else {
-  //         isValid = 0
-  //         this.invalidObj['BatchNo'] = true
-  //       }
-  //       if (this.MfdDate) {
-  //         this.invalidObj['MfdDate'] = false
-  //       } else {
-  //         isValid = 0
-  //         this.invalidObj['MfdDate'] = true
-  //       }
-  //       if (this.ExpiryDate) {
-  //         this.invalidObj['ExpiryDate'] = false
-  //       } else {
-  //         isValid = 0
-  //         this.invalidObj['ExpiryDate'] = true
-  //       }
-  //     }
-  //     if (this.industryId === 3) {
-  //       if (+this.Length > 0) {
-  //         this.invalidObj['Length'] = false
-  //       } else {
-  //         isValid = 0
-  //         this.invalidObj['Length'] = true
-  //       }
-  //       if (+this.Height > 0) {
-  //         this.invalidObj['Height'] = false
-  //       } else {
-  //         isValid = 0
-  //         this.invalidObj['Height'] = true
-  //       }
-  //       if (+this.Width > 0) {
-  //         this.invalidObj['Width'] = false
-  //       } else {
-  //         isValid = 0
-  //         this.invalidObj['Width'] = true
-  //       }
-  //     }
-  //     this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-  //       if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-  //         $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-  //       } else {
-  //         isValid = 0
-  //         $('#' + $('.attr')[index].id).addClass('errorSelecto')
-  //       }
-  //     })
-  //     this.validItem = !!isValid
-  //   } else {
-  //     this.validItem = true
-  //     this.invalidObj['Height'] = false
-  //     this.invalidObj['Width'] = false
-  //     this.invalidObj['Length'] = false
-  //     this.invalidObj['ExpiryDate'] = false
-  //     this.invalidObj['MfdDate'] = false
-  //     this.invalidObj['BatchNo'] = false
-  //     this.invalidObj['ReturnQuantity'] = false
-  //     this.invalidObj['PurchaseRate'] = false
-  // //    this.invalidObj['TaxSlabId'] = false
-  //     this.invalidObj['UnitId'] = false
-  //     this.invalidObj['ItemId'] = false
-  //     this.invalidObj['Discount'] = false
-  //     this.attrSelect2.forEach((attr: Select2Component, index: number, array: Select2Component[]) => {
-  //       if (this.itemAttributeTrans[index] && this.itemAttributeTrans[index].AttributeId > 0) {
-  //         $('#' + $('.attr')[index].id).removeClass('errorSelecto')
-  //       }
-  //     })
-  //   }
-  // }
 
   validateAttribute() {
     let isValid = true
@@ -3160,12 +2898,9 @@ export class PurchaseReturnComponent {
           console.log(error)
         },
         () => {
-        //  this.addItems()
           this.addTransactions()
-         // this.addCharge()
           this.getBillSummary()
           this.calculateAllTotal()
-         // this.validateItem()
           this.validateTransaction()
           this.checkValidationForAmount()
           if (valid) {
@@ -3187,7 +2922,6 @@ export class PurchaseReturnComponent {
                         _self.commonService.closePurchaseReturn()
                         this.closeModal()
                       } else {
-                        // _self.initItem()
                         _self.initTransaction()
                         _self.initCharge()
                         _self.initComp()
@@ -3226,11 +2960,9 @@ export class PurchaseReturnComponent {
         }
       )
     } else {
-      //this.addItems()
       this.addTransactions()
       this.getBillSummary()
       this.calculateAllTotal()
-     // this.validateItem()
       this.validateTransaction()
       this.checkValidationForAmount()
       if (valid) {
@@ -3309,7 +3041,6 @@ export class PurchaseReturnComponent {
 
   addCharge() {
     if (this.LedgerName && +this.LedgerChargeId > 0 && +this.AmountCharge > 0) {
-     // this.alreadySelectCharge(this.LedgerChargeId, this.LedgerName, true)
       this.addCustomCharge()
       this.clickCharge = true
       this.initCharge()
@@ -3389,7 +3120,6 @@ export class PurchaseReturnComponent {
   }
 
   onTaxSlabChargeSelect(evt) {
-    // console.log('on change of tax slab : ', evt)
     if (+evt.value === -1) {
       this.commonService.openTax('')
       this.taxSlabChargeSelect2.selector.nativeElement.value = ''

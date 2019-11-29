@@ -1,0 +1,83 @@
+<div
+  class="modal fade right"
+  id="add_item_detail"
+  role="dialog"
+  aria-labelledby="add_item_detail"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-full-height modal-right" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add Item Details</h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closePopUp()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form
+        #addItemDetailsForm="ngForm"
+        novalidate
+      >
+        <div class="modal-body">
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label>Items</label>
+                <ng-select
+                  name="itemDetailsName"
+                  [items]="productList"
+                  bindLabel="Name"
+                  bindValue="Id"
+                  placeholder="Select Items"
+                  [(ngModel)]="selectedItemId"
+                  required
+                  [ngClass]="{'ng-select-invalid': addItemDetailsForm?.submitted && !selectedItemId}"
+                >
+                </ng-select>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Quantity</label>
+                <input
+                  type="number"
+                  name="QtyName"
+                  [(ngModel)]="quantity"
+                  class="form-control"
+                  placeholder="Enter Quantity"
+                  required
+                  [ngClass]="{
+                    'is-invalid': addItemDetailsForm?.submitted && !quantity
+                  }"
+                />
+              </div>
+              <div class="form-group col-md-12">
+                  <label>Value</label>
+                  <input
+                    type="number"
+                    name="valueName"
+                    [(ngModel)]="itemValue"
+                    class="form-control"
+                    placeholder="Enter Value"
+                    required
+                    [ngClass]="{
+                      'is-invalid': addItemDetailsForm?.submitted && !itemValue
+                    }"
+                  />
+                </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary waves-effect"
+          (click)="addItemDetailsForm.form.valid && submit()">
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

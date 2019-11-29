@@ -150,33 +150,12 @@ export class SaleSummaryReportComponent implements OnInit, AfterViewInit {
     this.model.endDate = item.endDate
     this.getTypeEWise = this.getsetTypeWise(item.type)
     this.getSaleSummaryData()
-    if(this.getTypeEWise ==='billWise' && item.saleId >0 ){
-        let action={}
-         action =
-               { type: FormConstants.ViewPrint,
-                 id: item.saleId
-             ,isViewPrint :true}
-          //  this._router.navigate(['ims/sale'])
-           // this.saleMainComponent.onPrintForDirectSale(item.saleId,'saleDirect_PrintType1',true)
-
+      if(this.getTypeEWise ==='billWise' && item.saleId >0 ){
+             this._commonService.openPrint(item.saleId,'DirectSale',true)
       }
 
   }
-  // onLoadPrint() {
-  //   if (this.PrintFormateType === 1) {
-  //     return 'saleDirect_PrintType1'
-  //   }
-  //   if (this.PrintFormateType === 2) {
-  //     return 'saleDirect_PrintType2'
-  //   }
-  //   if (this.PrintFormateType === 3) {
-  //     return 'saleDirect_PrintType3'
-  //   }
-  //   if (this.PrintFormateType === 4) {
-  //     return 'saleDirect_PrintType4'
-  //   }
-
-  // }
+ 
   @ViewChild('setWise') setTypeWise: Select2Component
   HeadingLedger: any = []
   getValueFalg: boolean = true

@@ -1,0 +1,59 @@
+<div
+  class="modal fade right"
+  id="add_common_master"
+  role="dialog"
+  aria-labelledby="add_common_master"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-full-height modal-right" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add {{pageTitle }}</h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="closePopUp()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form
+        #addCommonMasterForm="ngForm"
+        novalidate
+      >
+        <div class="modal-body">
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label>Name</label>
+                <input
+                  type="text"
+                  name="masterName"
+                  [(ngModel)]="masterName"
+                  class="form-control"
+                  placeholder="Enter Name"
+                  required
+                  [ngClass]="{
+                    'is-invalid': addCommonMasterForm?.submitted && !masterName
+                  }"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary waves-effect"
+          (click)="addCommonMasterForm.form.valid && submit()">
+            Save
+          </button>
+          <button type="button" class="btn btn-primary waves-effect"
+          (click)="addCommonMasterForm.form.valid && submit('reset')">
+            Save With Add New
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

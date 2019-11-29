@@ -23,4 +23,13 @@ export class ManufacturingService {
       this.openStyleSub.next({ 'open': false })
     }
   }
+
+  private openOPSub = new BehaviorSubject<AddCust>({'open': false})
+  openOP$ = this.openOPSub.asObservable()
+  openOP(orderId, editId) {
+    this.openOPSub.next({ 'open': true, 'id': orderId, 'editId': editId })
+  }
+  closeOP() {
+    this.openOPSub.next({ 'open': false })
+  }
 }

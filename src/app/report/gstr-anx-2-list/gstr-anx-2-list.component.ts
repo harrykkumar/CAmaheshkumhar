@@ -56,8 +56,10 @@ export class GstrAnx2ListComponent implements OnInit {
   }
 
   getGstrAnxTwoList() {
-    const fromDate = this.gs.convertToSqlFormat(this.model.fromDatevalue)
-    const toDate = this.gs.convertToSqlFormat(this.model.toDateValue)
+    // const fromDate = this.gs.convertToSqlFormat(this.model.fromDatevalue)
+    // const toDate = this.gs.convertToSqlFormat(this.model.toDateValue)
+    let fromDate = this.gs.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
+    let toDate = this.gs.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
     const data = {
       Type: 'Purchase',
       FromDate: fromDate,

@@ -1,65 +1,42 @@
-<div
-  class="modal fade"
-  id="attribute_combine_form"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="exampleModalLabel"
-  aria-hidden="true"
->
-  <div
-    class="modal-dialog large_form modal-full-height modal-top"
-    role="document"
-  >
+<div class="modal fade" id="attribute_combine_form" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
     <div class="modal-content bgcH-grey-100">
       <!--Header-->
-      <form 
-      #attributeCombineForm="ngForm"
-        novalidate
+      <form #attributeCombineForm="ngForm" novalidate
         (ngSubmit)="attributeCombineForm.form.valid && validateForm() && postData()">
-      <div class="modal-header primary-bg">
-        <div class="container-fluid">
-          <div class="row">
-            <div class="col-md-3 left_side_head">
-              <p class="heading_lead">
-                <i class="fas fa-chart-line" aria-hidden="true"></i>Order
-                Attribute
-              </p>
-            </div>
-            <div class="col-md-9">
-              <div class="btn_header">
-                <button type="submit" class="btn btn-default waves-effect">Save </button>
-                <!-- <a href="#" class="btn btn-info waves-effect">Save and New</a> -->
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true" class="white-text">×</span>
-                </button>
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-3 left_side_head">
+                <p class="heading_lead">
+                  <i class="fas fa-chart-line" aria-hidden="true"></i>Order
+                  Attribute
+                </p>
+              </div>
+              <div class="col-md-9">
+                <div class="btn_header">
+                  <button type="submit" class="btn btn-default waves-effect">Save </button>
+                  <!-- <a href="#" class="btn btn-info waves-effect">Save and New</a> -->
+                  <button type="button" class="close" (click)="onClose()" aria-label="Close">
+                    <span aria-hidden="true" class="white-text">×</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!--Body-->
+        <!--Body-->
         <div class="modal-body">
-          <div class="form-row" *ngIf="attributeWithValuesList?.length > 1" >
-            <div
-              *ngFor="let item of attributeWithValuesList; let i = index"
-              class="form-group col-md-4">
+          <div class="form-row" *ngIf="attributeWithValuesList?.length > 0">
+            <div *ngFor="let item of attributeWithValuesList; let i = index" class="form-group col-md-4">
               <label>{{ item?.Name }}<span class="compulsory_field">*</span></label>
               <div class="input-group adw_select">
                 <div class="input-group adw_select">
-                  <select2
-                    [data]="item?.attributeValueList"
-                    class="control_select"
-                    [options]="options"
-                    (valueChanged)="onAttributeValueChange($event, i)"
-                    autocomplete="true"
-                    [value]="item?.attributeValue"
-                  >
+                  <select2 [data]="item?.attributeValueList" class="control_select" [options]="options"
+                    (valueChanged)="onAttributeValueChange($event, i)" autocomplete="true"
+                    [value]="item?.attributeValue">
                   </select2>
                 </div>
               </div>
@@ -68,53 +45,49 @@
               <label>Measurement Attribute</label>
               <div class="input-group adw_select">
                 <div class="input-group adw_select">
-                  <select2
-                    [data]="measurementAttrSelect2"
-                    class="control_select"
-                    [options]="{multiple: true}"
-                    (valueChanged)="onMeasurementSelect($event)"
-                    autocomplete="true"
-                    [value]="measurementAttrValue"
-                  >
+                  <select2 [data]="measurementAttrSelect2" class="control_select" [options]="{multiple: true}"
+                    (valueChanged)="onMeasurementSelect($event)" autocomplete="true" [value]="measurementAttrValue">
                   </select2>
                 </div>
               </div>
             </div>
           </div>
-          <div class="form-row" *ngIf="buyerFormData?.productionQty > 0" ><span class="font-weight-bold-light" >Production Quantity -&nbsp;</span> {{buyerFormData?.productionQty}}</div>
-          <br/>
+          <div class="form-row" *ngIf="buyerFormData?.productionQty > 0"><span class="font-weight-bold-light">Production
+              Quantity -&nbsp;</span> {{buyerFormData?.productionQty}}</div>
+          <br />
           <div class="row animated-background">
             <div class="col-md-12">
               <div class="bgc-white bdrs-3 mB-20">
                 <div class="table-responsive table-item-attribute">
-                  <table class="table cat-table table-hover"
-                    id="attribute-combine-table">
+                  <table class="table cat-table table-hover" id="attribute-combine-table">
                     <thead>
                       <tr class="default_row">
-                        <th rowspan="2" colspan="1" >SNo.</th>
-                        <th rowspan="2" colspan="1" >attributeCombination</th>
-                        <th
-                          rowspan="2"
-                          colspan="1"
-                          class="dynamic_fix"
-                          *ngFor="let attributeValue of filteredAttrs"
-                        >
+                        <th rowspan="2" colspan="1" class="cust_width_80">SNo.</th>
+                        <th rowspan="2" colspan="1" class="cust_width_250">attributeCombination</th>
+                        <th rowspan="2" colspan="1" class="dynamic_fix cust_width_150"
+                          *ngFor="let attributeValue of filteredAttrs">
                           {{ attributeValue?.Name }}
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr class="default_row"
-                        *ngFor="let item of combineAttributeList; let i = index">
+                      <tr class="default_row" *ngFor="let item of combineAttributeList; let i = index">
                         <td>{{ i + 1 }}</td>
                         <td>{{ item?.text }}</td>
                         <td *ngFor="let columnItem of item['values']; let j = index;">
-                          <input
-                            type="number"
-                            class="form-control"
-                            name="itemValue-{{ i }}-{{j}}"
-                            [(ngModel)]="columnItem['Qty']"
-                          />
+                          <div class="mb-2">
+                            <input type="number" appIncludeDecimal class="form-control" placeholder="Quantity"
+                              name="itemValue-{{ i }}-{{j}}" (input)="checkForValidation()"
+                              [(ngModel)]="columnItem['Qty']" />
+                          </div>
+                          <div class="mb-2">
+                            <input type="text" placeholder="Product Code" class="form-control" name="productcode-{{ i }}-{{j}}"
+                              [(ngModel)]="columnItem['ProductCode']" (input)="checkForValidation()" />
+                          </div>
+                          <div>
+                            <input type="text" placeholder="Product Description" class="form-control" (input)="checkForValidation()"
+                              name="description-{{ i }}-{{j}}" [(ngModel)]="columnItem['ProductDescription']" />
+                          </div>
                         </td>
                       </tr>
                     </tbody>

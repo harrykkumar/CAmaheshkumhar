@@ -72,4 +72,12 @@ export class SampleApprovalService {
   getSampleEditData (id) {
     return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.EDIT_SAMPLE_DATA + id))
   }
+
+  getStatusList () {
+    return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.COUNTRY_LIST_URL + 192))
+  }
+
+  deleteSample(id) {
+    return this._gs.manipulateResponse(this.baseService.deleteRequest(ApiConstant.DELETE_SAMPLE + id))
+  }
 }

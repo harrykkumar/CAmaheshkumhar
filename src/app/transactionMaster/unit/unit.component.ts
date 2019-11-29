@@ -44,7 +44,6 @@ export class UnitComponent implements OnInit, OnDestroy {
         }
       }
     )
-
     this.formSearch()
   }
 

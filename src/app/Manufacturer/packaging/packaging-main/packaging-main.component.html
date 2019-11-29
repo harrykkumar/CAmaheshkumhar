@@ -9,16 +9,16 @@
             </div>
             <div class="col-md-8">
               <div class="btn_header">
-                <a>
+                <!-- <a>
                   <img src="../assets/img/printer.png">
                 </a>
                 <a>
                   <img src="../assets/img/pdf.png"></a>
                 <a>
-                  <img src="../assets/img/excel.png"></a>
-                <button type="button" [disabled]="disableBtn" class="btn btn-primary waves-effect waves-light" 
-                (click)="generateChallan()">Generate Challan</button>
-                <button type="button" (click)="toggleSearch()" class="btn btn-primary waves-effect waves-light" >
+                  <img src="../assets/img/excel.png"></a> -->
+                <button type="button" [disabled]="disableBtn" class="btn btn-primary waves-effect waves-light"
+                  (click)="generateChallan()">Generate Challan</button>
+                <button type="button" (click)="toggleSearch()" class="btn btn-primary waves-effect waves-light">
                   Search
                 </button>
               </div>
@@ -26,9 +26,9 @@
           </div>
         </div>
       </div>
-      <packaging-search [toShow]="toShowSearch" ></packaging-search>
+      <packaging-search [toShow]="toShowSearch"></packaging-search>
       <div class="bgc-white bdrs-3 mB-20">
-        <div class="table-responsive parent" style="overflow: auto;">
+        <div class="table-responsive table_height">
           <table class="table fixTable packaging-table table-bordered table-hover">
             <thead>
               <tr>
@@ -40,6 +40,7 @@
                 <th>Order Date</th>
                 <th>Packing Date</th>
                 <th>Total Qty</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -47,13 +48,13 @@
                 itemsPerPage: itemsPerPage,
                 currentPage: p,
                 totalItems: total
-              }; let i = index;" >
+              }; let i = index;">
                 <td>
-                  <div class="custom-control custom-checkbox" *ngIf="item.ChallanId === 0" >
+                  <div class="custom-control custom-checkbox" *ngIf="item.ChallanId === 0">
                     <input name="packingorder-{{ i }}" [(ngModel)]="item.checked"
-                    (keydown.enter)="item.checked = !item.checked; activateChallanBtn()"
-                    (change)="activateChallanBtn()"
-                    type="checkbox" class="custom-control-input" id="packingorderAttribute-{{ i }}" />
+                      (keydown.enter)="item.checked = !item.checked; activateChallanBtn()"
+                      (change)="activateChallanBtn()" type="checkbox" class="custom-control-input"
+                      id="packingorderAttribute-{{ i }}" />
                     <label class="custom-control-label" for="packingorderAttribute-{{ i }}"></label>
                   </div>
                 </td>
@@ -64,6 +65,17 @@
                 <td>{{item?.OrderDate | dateFormat: clientDateFormat}}</td>
                 <td>{{item?.PackingDate | dateFormat: clientDateFormat}}</td>
                 <td>{{item?.TotalQty}}</td>
+                <td>
+                  <a data-toggle="tooltip" data-placement="top" title="Print" class="actionBtn">
+                    <i class="fa fa-print fa-1x" aria-hidden="true" (click)="print(item.Id, 'packing_print')">
+                    </i></a>
+                  <a *ngIf="item.ChallanId === 0" data-toggle="tooltip" data-placement="top" title="Edit"
+                    class="actionBtn">
+                    <i class="fa fa-edit fa-1x" aria-hidden="true" (click)="editOP(item.Id)">
+                    </i></a>
+                  <a data-toggle="tooltip" class="actionBtn" data-placement="bottom" title="delete"
+                    (click)="delete(item.Id)"><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -73,8 +85,164 @@
   </div>
 </main>
 <packaging-challan></packaging-challan>
-<app-pagination
-  (lastValueEmitter)="lastItemIndex = $event"
-  (pageNoEmitter)="p = $event; getPacketsList()"
-  (pageSizeEmitter)="itemsPerPage = $event; getPacketsList()"
-></app-pagination>
+<app-pagination (lastValueEmitter)="lastItemIndex = $event" (pageNoEmitter)="p = $event; getPacketsList()"
+  (pageSizeEmitter)="itemsPerPage = $event; getPacketsList()"></app-pagination>
+
+<body class="modal" id="packing_print">
+  <header class="clearfix">
+    <div id="logo">
+      <img src="{{orgImage}}">
+    </div>
+    <div id="company">
+      <h2 class="name">{{Clientinfos[0]?.OfficeName }}</h2>
+      <div>{{AddressDetailsOrg[0]?.AddressValue}}</div>
+      <div>
+        {{AddressDetailsOrg[0]?.AreaName}}
+        {{AddressDetailsOrg[0]?.CityName}}
+        {{AddressDetailsOrg[0]?.StateName}}
+        {{AddressDetailsOrg[0]?.CountryName }}
+      </div>
+      <div>{{EmailsOrg[0]?.EmailAddress }} </div>
+      <div>{{ContactInfosOrg[0]?.ContactNo }} </div>
+      <div><label>PAN NO. : </label>{{Clientinfos[0]?.PanNo }}</div>
+      <div><label>GSTIN : </label>{{Clientinfos[0]?.GstinNo }}</div>
+      <div><a>{{Websites[0]?.Name}}</a></div>
+    </div>
+  </header>
+  <main>
+    <div id="details" class="clearfix">
+      <div class=" header1">
+        <h4 style="text-align:center; margin:0;padding:0;">Packing List</h4>
+      </div>
+      <div class="row1">
+        <div class="col1">
+          <table>
+            <tr>
+              <td style="width:25%;">Buyer/Consignee :</td>
+              <td><strong>{{OrderPackets[0]?.BuyerName}}</strong></td>
+            </tr>
+            <tr>
+              <td style="width:25%;">Address : </td>
+              <td><strong>{{AddressDetails[0]?.AddressValue}}
+                  {{AddressDetails[0]?.AreaName}}
+                  {{AddressDetails[0]?.CityName}}</strong></td>
+            </tr>
+            <tr>
+              <td style="width:25%;">State : </td>
+              <td><strong>{{AddressDetails[0]?.StateName}}</strong></td>
+            </tr>
+            <tr>
+              <td style="width:25%;">Country</td>
+              <td><strong>{{AddressDetails[0]?.CountryName}}</strong></td>
+            </tr>
+          </table>
+        </div>
+        <div class="col1">
+          <table>
+            <tr>
+              <td style="width:25%;">Invoice No :</td>
+              <td><strong>{{OrderPackets[0]?.BillNo}}</strong></td>
+            </tr>
+            <tr>
+              <td style="width:25%;">Packing Date :</td>
+              <td><strong>{{OrderPackets[0]?.PackingDate| dateFormat: clientDateFormat}}</strong></td>
+            </tr>
+            <tr>
+              <td style="width:25%;">Pan Number : </td>
+              <td><strong>{{Clientinfos[0]?.PanNo}}</strong></td>
+            </tr>
+            <tr>
+              <td style="width:25%;">Gst No. : </td>
+              <td><strong>{{Clientinfos[0]?.GstinNo}}</strong></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="table_summery">
+      <table border="0" class="table1" style="margin-bottom:0;" cellspacing="0" cellpadding="4">
+        <thead>
+          <tr>
+            <th>Sno</th>
+            <th class="unit" style="width:10%;">BoxNo</th>
+            <th class="unit" style="width:20%;">ItemName</th>
+            <th class="unit" style="width:10%;">ItemCode</th>
+            <th class="unit">ProductCode</th>
+            <th class="unit">ProductDescription</th>
+            <th class="unit" *ngIf="!withoutAttr">{{defaultAttrName}}</th>
+            <th class="unit" *ngIf="!withoutAttr" style="width:20%;">{{comboFor}}</th>
+            <th class="unit">Qty</th>
+            <th class="unit">New Wt.</th>
+            <th class="unit">GR. Wet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of ItemTransactionactions;let i = index;">
+            <td class="unit">{{i+1}}</td>
+            <td class="unit">{{item.Code}}</td>
+            <td class="unit">{{item?.itemName}}</td>
+            <td class="unit">{{item?.itemCode}}</td>
+            <td class="unit">{{item?.ProductCode}}</td>
+            <td class="unit">{{item?.ProductDescription}}</td>
+            <td class="unit" *ngIf="!withoutAttr">{{item?.defaultAttrName}}</td>
+            <td class="unit" *ngIf="!withoutAttr">{{item?.attributeValueName}}</td>
+            <td class="unit">{{item?.Quantity}}</td>
+            <td class="unit"></td>
+            <td class="unit"></td>
+          </tr>
+        </tbody>
+        <tfoot>
+        </tfoot>
+      </table>
+      <div class="clearfix">
+
+        <div class="row1 bdB">
+
+          <div class="col1 tbl_footer">
+            <table>
+              <tr>
+                <td>Total Qty</td>
+                <td class="total">{{OrderPackets[0]?.TotalQty}}</td>
+              </tr>
+              <tr>
+                <td>Total Boxes</td>
+                <td class="total">{{OrderPackets[0]?.NoOfPackets}}</td>
+              </tr>
+              <tr>
+                <td>Total Net Wt.</td>
+                <td class="total"></td>
+              </tr>
+              <tr>
+                <td>Total Gross Wt. KGS</td>
+                <td class="total"></td>
+              </tr>
+              <tr>
+                <td>Dimension of Boxes</td>
+                <td class="total"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div class="trm_cond">
+    <div class="row">
+      <p><strong>Terms & Condition</strong></p>
+    </div>
+    <ul style="margin:0;">
+      <li *ngFor="let term of TermsConditions; let i= index">{{term.Terms}}</li>
+    </ul>
+  </div>
+  <footer>
+
+    <div class="row1">
+      <div class="col1">
+        <h3 class="name-footer">For : {{Clientinfos[0]?.OfficeName}}</h3>
+      </div>
+      <div class="col1">Authorised Signatory</div>
+    </div>
+  </footer>
+</body>
+
+<packaging-edit></packaging-edit>

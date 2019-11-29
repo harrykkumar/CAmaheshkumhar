@@ -12,6 +12,7 @@ import { TaxModule } from '../../../../transactionMaster/tax/tax.module'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 import { SetUpIds } from '../../../constants/setupIds.constant';
 import { GlobalService } from '../../../../commonServices/global.service'
+import { viewClassName } from '@angular/compiler';
 
 declare var $: any
 @Component({
@@ -21,7 +22,11 @@ declare var $: any
 })
 export class TaxAddComponent {
   @Output() onFilter = new EventEmitter()
-
+  @ViewChild('taxSlabRef') taxSlabRef: ElementRef
+  taxTypeList: any
+  IGSTDisabledBox: boolean
+  SGSTDisabledBox: boolean
+  gstApplyedMethod: any
   id: any
   type: any
   deafaultValue = ''
@@ -33,17 +38,50 @@ export class TaxAddComponent {
   select2Error: boolean = false
   taxDetail: TaxModal[]
   subscribe: Subscription
+  taxErrMsg: any
+  taxErrorFlag: any
+  taxErrormass: any
+  taxType: any
   taxboxDivVisibale: boolean
   selectTaxTypePlaceHolde: Select2Options
   editMode: boolean
   selectTaxTpye: any
   modalSub: Subscription
   keepOpen: boolean = false
-  constructor(public _globalService: GlobalService, public toastrCustomService: ToastrCustomService, private _taxMasterServices: TaxMasterService,
+  currencies: any = []
+  editMainID: any
+  ParentTypeId: 5
+  CodeId: any
+  editFlg: boolean = true
+  slab: any
+  taxrate: any
+  taxName: any
+  CurrencyType: any
+  invalidObjCont: any = {}
+  requiredValueFalg: any
+  setDate: any
+  taxTypeId: any
+  taxTypeName: any
+  EditFlag: any
+  TypeUid: any
+  taxId: any
+  CurrencyName: any
+  CurrencyId: any
+  isForOtherState: any
+  invalidObjSlab: any = {}
+  @ViewChild('first') first: ElementRef
+  saveTaxRate: boolean = false
+  taxrRateId: any
+  addConctFlag: boolean = false
+  checkBoxYes: boolean
+  @ViewChild('checkBtn_focs') CheckButton
+
+  constructor(public _globalService: GlobalService,
+    public toastrCustomService: ToastrCustomService,
+    private _taxMasterServices: TaxMasterService,
     private _formBuilder: FormBuilder,
-    private _commonGetSetServices: CommonSetGraterServices,
     private commonService: CommonService,
-    private renderer: Renderer2
+
   ) {
 
     this.modalSub = this.commonService.getTaxStatus().subscribe(
@@ -65,8 +103,7 @@ export class TaxAddComponent {
       }
     )
   }
-  currencies: any = []
-  editMainID: any
+
   getAvailableCurrency() {
     let _self = this
     this.commonService.setupSettingByType(UIConstant.SALE_TYPE).subscribe(Settings => {
@@ -125,12 +162,12 @@ export class TaxAddComponent {
     $('#add_tax').modal(UIConstant.MODEL_SHOW)
     setTimeout(() => {
       this.taxtypeSelect2.selector.nativeElement.focus()
+    this.first.nativeElement.focus()
+
     }, 500)
   }
-  taxTypeList: any
-  IGSTDisabledBox: boolean
-  SGSTDisabledBox: boolean
-  gstApplyedMethod: any
+
+
   getTypeOfTax(addEditModeFlg, selectedTaxId) {
     if (addEditModeFlg) {
       this.taxTypeList = []
@@ -176,11 +213,8 @@ export class TaxAddComponent {
     let isValid = 1
     this.saveTaxRate = true
     this.taxTypeList.forEach((element, index) => {
-
       if (this.taxTypeList[index].taxrate !== null && this.taxTypeList[index].taxrate !== '') {
         if (this.taxTypeList[index].type === 1) {
-
-
           isValid = 1
           AllrateZero = this.taxTypeList.filter(
             rate => (rate.taxrate === 0 && rate.groupid === 1)
@@ -192,6 +226,9 @@ export class TaxAddComponent {
               else {
                 isValid = 0
               }
+            }
+            else{
+              isValid = 0
             }
 
           }
@@ -266,10 +303,6 @@ export class TaxAddComponent {
   }
 
 
-  taxErrMsg: any
-  taxErrorFlag: any
-  taxErrormass: any
-  taxType: any
   getTaxEditData(id) {
     this.EditFlag = false
     this.taxboxDivVisibale = true
@@ -329,11 +362,6 @@ export class TaxAddComponent {
 
     })
   }
-  taxTypeId: any
-  taxTypeName: any
-
-  EditFlag: any
-  TypeUid: any
   selectedTaxType(event) {
     if (event.value && event.data.length > 0) {
       this.TypeUid = +event.data[0].id
@@ -347,11 +375,6 @@ export class TaxAddComponent {
     }
 
   }
-  taxId: any
-  CurrencyName: any
-  CurrencyId: any
-  isForOtherState: any
-
   onSelectCurrency(event) {
 
     if (event.data.length > 0) {
@@ -362,21 +385,12 @@ export class TaxAddComponent {
     }
 
   }
-  slab: any
-  taxrate: any
-  taxName: any
-  CurrencyType: any
-  invalidObjCont: any = {}
-  requiredValueFalg: any
-  setDate: any
+
   setDueDate() {
-    // this.setDate = this._globalService.getDefaultDate(this.clientDateFormat)
   }
 
 
-  invalidObjSlab: any = {}
   checkValidation() {
-
     let isValid3 = 1
     if (this.slab !== '' && this.slab.length > 3) {
       this.invalidObjSlab['slab'] = false
@@ -388,14 +402,12 @@ export class TaxAddComponent {
     return !!isValid3
   }
 
-  @ViewChild('first') first: ElementRef
   addTax() {
     this.submitClick = true
     this.addtaxrates()
     this.checkValidation()
     this.select2Validation()
-    if (this.TypeUid > 0 && this.slab !== '' && this.slab !== null) {
-      //   if (this.taxrates.length > UIConstant.ZERO) {
+    if (this.TypeUid > 0 && this.slab !== '') {
       if (this.validateTaxRates()) {
         this._taxMasterServices.addTax(this.taxParams()).subscribe(Data => {
           if (Data.Code === UIConstant.THOUSAND) {
@@ -430,10 +442,16 @@ export class TaxAddComponent {
       }
       else {
         this.toastrCustomService.showError('', 'Please Fill Rate')
+        this.rateref.nativeElement.focus()
+
       }
+
+    }else{
+      this.first.nativeElement.focus()
 
     }
   }
+@ViewChild('rateref') rateref : ElementRef
 
   private taxParams(): TaxModule {
     const taxElement = {
@@ -474,9 +492,6 @@ export class TaxAddComponent {
       this.taxrates.splice(i, 1)
     }
   }
-  ParentTypeId: 5
-  CodeId: any
-  editFlg: boolean = true
 
   editRowItem(i, item) {
     this.checkBoxYes = false
@@ -494,9 +509,7 @@ export class TaxAddComponent {
       this.toastrCustomService.showWarning('', 'First edit Tax')
     }
   }
-  saveTaxRate: boolean = false
-  taxrRateId: any
-  addConctFlag: boolean = false
+
   addtaxrates() {
     this.taxrates = []
     this.saveTaxRate = true
@@ -514,7 +527,7 @@ export class TaxAddComponent {
     this.isForOtherState = true
 
   }
-  checkBoxYes: boolean
+
   selectKeyChecked(event) {
     if ((event.keyCode ? event.keyCode : event.which) == 13) {
       if (event.target.checked) {
@@ -533,23 +546,11 @@ export class TaxAddComponent {
     this.slab = ''
     this.EditFlag = true
 
-    //this.isForOtherState = true
 
   }
-  @ViewChild('checkBtn_focs') CheckButton
-  // enterPressItem(e: KeyboardEvent) {
-  //   this.addtaxrates()
-  //   setTimeout(() => {
-  //     this.CheckButton.nativeElement.focus()
-  //   }, 10)
-
-  // }
-
-
 
   SaveOnF10(event) {
     if ((event.keyCode ? event.keyCode : event.which) == 121) {
-      // this.addTax()
 
     }
 

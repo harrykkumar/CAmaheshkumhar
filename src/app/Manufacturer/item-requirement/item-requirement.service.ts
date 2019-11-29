@@ -14,9 +14,19 @@ export class ItemRequirementService {
   select2List$ = this.select2ArrSub.asObservable()
   private attrSub = new Subject()
   attr$ = this.attrSub.asObservable()
+  private formReadySub = new Subject()
+  formReady$ = this.formReadySub.asObservable()
   constructor(
     private baseService: BaseServices, private _gs: GlobalService
   ) { }
+
+  getItemList() {
+    return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.ITEM_MASTER_DETAIL_URL))
+  }
+  
+  getStyleList(itemId) {
+    return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.SAMPLE_STYLE + '?ItemId=' + itemId ))
+  }
 
   getItemRequirement() {
     return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.ITEM_REQUIREMENT))
@@ -44,15 +54,15 @@ export class ItemRequirementService {
     ).toPromise();
   }
 
-  getItemRequirementListData(data) {
-    let url = ApiConstant.ITEM_REQUIRE_GET
-    if (!_.isEmpty(data)) {
-      url = `${ApiConstant.ITEM_REQUIRE_GET}?Page=${data.Page}&Size=${data.Size}`
-    }
-    return this.baseService.getRequest(url)
-      .pipe(map((data: any) => data.Data))
-      .toPromise()
-  }
+  // getItemRequirementListData(data) {
+  //   let url = ApiConstant.ITEM_REQUIRE_GET
+  //   if (!_.isEmpty(data)) {
+  //     url = `${ApiConstant.ITEM_REQUIRE_GET}?Page=${data.Page}&Size=${data.Size}`
+  //   }
+  //   return this.baseService.getRequest(url)
+  //     .pipe(map((data: any) => data.Data))
+  //     .toPromise()
+  // }
 
   getUnitByItemId(itemId) {
     return this.baseService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + itemId).
@@ -74,13 +84,17 @@ export class ItemRequirementService {
   }
 
   deleteItemRequirement(data){
-    return this.baseService.deleteRequest(`${ApiConstant.ITEM_REQUIRE_POST}?ParentId=${data.ParentId}&ParentTypeId=${data.ParentTypeId}`)
+    return this.baseService.deleteRequest(`${ApiConstant.ITEM_REQUIRE_POST}?ParentId=${data.ReqNo}&ParentTypeId=${data.ParentTypeId}`)
   }
 
-  getSelect2Arr(data, key, title) {
+  getSelect2Arr(data, key, title, id?) {
+    let Id = 'Id'
+    if (id) {
+      Id = id
+    }
     const list = _.map(data, (item) => {
       return {
-        id: item.Id,
+        id: item[Id],
         text: item[key]
       }
     })
@@ -126,5 +140,27 @@ export class ItemRequirementService {
       })
       this.attrSub.next({default: defaultMesAttrs, combos: [{id: 0, text: 'Select Attribute'}, ...newData]})
     }
+  }
+
+  getItemDetail(itemId) {
+    return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.GET_ITEM__RATE_BY_ITEMID_CUSTOMERID_SETTING + itemId))
+  }
+
+  onFormReady() {
+    this.formReadySub.next()
+  }
+
+  private queryStrSub = new Subject<string>()
+  public queryStr$ = this.queryStrSub.asObservable()
+  setSearchQueryParamsStr (str) {
+    this.queryStrSub.next(str)
+  }
+
+  editItemReq(id) {
+    return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.EDIT_MATERIAL_REQUIREMENT + id))
+  }
+
+  printInvoice(id) {
+    return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.MATERIAL_REQ_PRINT + id))
   }
 }

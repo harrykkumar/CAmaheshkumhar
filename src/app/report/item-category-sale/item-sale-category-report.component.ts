@@ -11,6 +11,7 @@ import { Subject } from 'rxjs';
 declare var $: any
 declare var flatpickr: any
 import { ExcelService } from '../../commonServices/excel.service';
+import { Select2OptionData, Select2Component } from 'ng2-select2'
 
 
 @Component({
@@ -27,6 +28,8 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
   pageSize: number = 20
   pageNo: number = 1
   totalItemSize: number = 0
+  finToDate:any 
+  finFromDate:any
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
   private unSubscribe$ = new Subject<void>()
 
@@ -38,6 +41,12 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
   ) {
     this.clientDateFormat = this._settings.dateFormat
     this.noOfDecimal = this._settings.noOfDecimal
+    this.finToDate = this._settings.finToDate
+    this.finFromDate = this._settings.finFromDate
+    this.toDate()
+    this.getAllDataForItemSarch()
+    this.fromDate()
+ 
     this.getLedgerItemList();
   }
   noOfDecimal: any
@@ -50,15 +59,17 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.toDate()
-    this.fromDate()
+   
   }
+  
   fromDate = () => {
-    this.model.fromDatevalue = ''
+    this.model.fromDatevalue = this._globalService.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
   }
 
   toDate = () => {
-    this.model.toDateValue = ''
+    
+    this.model.toDateValue = this._globalService.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
+  
   }
 
   onLedgerItemChange = (event) => {
@@ -91,16 +102,61 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
   labelLength: any
   mainData: any
   AttributeValues: any
-  // getSaleCategoryDetail () {
-  //   this._commonService.getReportItemByCategorySale(UIConstant.SALE_TYPE).subscribe(data => {
-  //     if (data.Code === UIConstant.THOUSAND) {
-  //       this.mainData = data.Data
-  //     }
-
-  //   })
-  // }
   mainDataExcel: any = []
   saleCategory: any = {}
+  CategoryId:any =0
+  public categoryType: Array<Select2OptionData>
+
+ updatedFlag: any
+ newdataCatItem: any
+ itemCategoryType: any
+
+ getAllDataForItemSarch () {
+ this._commonService.getSalePurchaseUtilityItems().subscribe(data =>{
+    let newDataForItems= [{id :'',text:'Select Items'}]
+    let newDataForCustomer= [{id :'',text:'Select Customer'}]
+    let newDataForCaegoryParent= [{id :'',text:'Select Category'}]
+
+      if(data.Code === UIConstant.THOUSAND){
+         if(data.Data.Items.length > 0){
+          data.Data.Items.forEach(element => {
+            newDataForItems.push({
+              id: element.Id,
+              text: element.Name
+            })
+          })  
+         }
+         this.itemCategoryType =newDataForItems
+         if(data.Data.Customers.length > 0){
+          data.Data.Customers.forEach(element => {
+            newDataForCustomer.push({
+              id: element.Id,
+              text: element.Name
+            })
+          })  
+         }
+       
+         if(data.Data && data.Data.ItemCategoryParent.length > 0){
+          data.Data.ItemCategoryParent.forEach(element => {
+            newDataForCaegoryParent.push({
+              id: element.Id,
+              text: element.Name
+            })
+          })  
+         }
+         this.categoryType =newDataForCaegoryParent
+      }  
+  })
+}
+
+
+selectedCategory (event) {
+  if (event.value && event.data.length > 0) {
+    if (event.data[0].id !== '' ) {
+      this.CategoryId = +event.value
+    }
+  }
+}
   getSaleCategoryDetail = () => {
     let fromDate, toDate
     if (this.model.fromDatevalue) {
@@ -113,11 +169,13 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
       LedgerId: this.model.selectedLedgerItem ? this.model.selectedLedgerItem.id : 0,
       Page: this.pageNo,
       Size: this.pageSize,
-      type: 'sale'
+      Type: 'sale',
+      FromDate:fromDate,
+      ToDate:toDate,
+      CategoryId:this.CategoryId ? this.CategoryId : 0
     }
-    //  this.mainData =[]
-    //  this.saleCategory={}
-    this._commonService.getReportItemByCategorySale(UIConstant.SALE_TYPE).pipe(
+
+    this._commonService.getReportItemByCategorySale(data).pipe(
       takeUntil(this.unSubscribe$)
     ).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.ItemAttributeReports.length > 0) {
@@ -184,11 +242,18 @@ export class ItemSaleCategoryReportComponent implements OnInit, AfterViewInit {
     this.unSubscribe$.next()
     this.unSubscribe$.complete()
   }
+   @ViewChild('cat_select2' ) cat_select2value : Select2Component
+  CategoryValue:any =0
   searchResetButton() {
     this.viewFlag = true
     this.isViewPrint = false
-    this.model.toDateValue = ''
-    this.model.fromDatevalue = ''
+    if(this.cat_select2value){
+      this.cat_select2value.setElementValue(0)
+    }
+    this.CategoryId =0
+    this.CategoryValue =0
+    this.model.toDateValue = this._globalService.utcToClientDateFormat(this.finFromDate, this.clientDateFormat)
+    this.model.fromDatevalue = this._globalService.utcToClientDateFormat(this.finToDate, this.clientDateFormat)
     this.getSaleCategoryDetail()
 
   }

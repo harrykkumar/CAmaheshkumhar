@@ -18,6 +18,8 @@ export class PurchaseService {
   itemData$ = this.itemDataSub.asObservable()
   vendorDataSub = new Subject<{data: Array<Select2OptionData>}>()
   vendorData$ = this.vendorDataSub.asObservable()
+  IMEInumberSub = new Subject<{data: Array<Select2OptionData>}>()
+  IMEInumber$ = this.IMEInumberSub.asObservable()
   taxProcessesData = new Subject<{data: Array<Select2OptionData>}>()
   taxProcessesData$ = this.taxProcessesData.asObservable()
   paymentModesData = new Subject<{data: Array<Select2OptionData>}>()
@@ -142,7 +144,16 @@ export class PurchaseService {
     // console.log('items: ', newData)
     this.itemDataSub.next({ 'data': JSON.parse(JSON.stringify(newData)) })
   }
-
+  IMEINumber (array) {
+    let newData = []
+    array.forEach(data => {
+      newData.push({
+        id: data.Id,
+        text: data.Name
+      })
+    })
+    this.IMEInumberSub.next({ 'data': newData })
+  }
   createVendors (array) {
     // console.log(array)
     let newData = [{ id: '0', text: 'Select Vendor' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]

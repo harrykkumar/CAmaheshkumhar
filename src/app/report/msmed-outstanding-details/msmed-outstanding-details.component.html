@@ -134,7 +134,7 @@
                  let i = index;">
                   <td>{{ i + 1 }}</td>
                   <td>{{ item.PartyName }}</td>
-                  <td>{{ item.BillDate }}</td>
+                  <td>{{ item.BillDate | dateFormat:clientDateFormat}}</td>
                   <td>{{ item.BillAmount }}</td>
                   <td>{{ item.PaidAmount }}</td>
                   <td>{{ item.Balance }}</td>

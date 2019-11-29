@@ -2,13 +2,15 @@ import { Component, Output, EventEmitter, ViewChild } from '@angular/core'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms'
 import { Subscription } from 'rxjs'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
-import { UIConstant } from '../../../constants/ui-constant'
+import { UIConstant } from '../../../constants/ui-constant';
 import { Addresses } from '../../../../model/sales-tracker.model'
 import { VendorServices } from '../../../../commonServices/TransactionMaster/vendoer-master.services'
 import { CommonService } from '../../../../commonServices/commanmaster/common.services'
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
+import { AddNewCityComponent } from '../../../components/add-new-city/add-new-city.component';
+import * as _ from 'lodash';
+import { CompanyProfileService } from 'src/app/start/company-profile/company-profile.service';
 declare const $: any
-
 @Component({
   selector: 'app-address-add',
   templateUrl: './address-add.component.html',
@@ -41,10 +43,17 @@ export class AddressAddComponent {
   legerId: any
   storeAddress: any
   addressError: boolean
+
+  @ViewChild('addCityForm') addCityForm
+  countryList1: Array<any> = []
+  stateList1: Array<any> = []
+  model: any = {}
+  dummyModel: any = {}
   constructor (private _formBuilder: FormBuilder,
     private _coustomerServices: VendorServices,
     private _CommonService: CommonService,
-    private toastrService: ToastrCustomService) {
+    private toastrService: ToastrCustomService,
+    private _profileService : CompanyProfileService) {
     this.addTyperessForm()
     this.addArea()
     this.modalSub = this._CommonService.getAddressStatus().subscribe(
@@ -142,7 +151,7 @@ export class AddressAddComponent {
   cityValue: any
   getCitylist (id, value) {
     this.subscribe = this._coustomerServices.getCityList(id).subscribe(Data => {
-      this.cityList = []
+      this.cityList = [{id: '0', text: 'Select City'}, {id: '-1', text: UIConstant.ADD_NEW_OPTION}]
       Data.Data.forEach(element => {
         this.cityList.push({
           id: element.Id,
@@ -156,13 +165,22 @@ export class AddressAddComponent {
   get adAre () { return this.areaForm.controls }
   cityError: boolean
   cityName: any
+  @ViewChild('addNewCityRef') addNewCityRefModel  : AddNewCityComponent
   selectedCityId (event) {
     if (event.data.length > 0) {
-      this.cityId = event.value
+      this.cityId = +event.value
       this.cityName = event.data[0].text
       this.cityError = false
+      if (this.cityId === -1) {
+        const data = {
+          countryList: !_.isEmpty(this.countryList) ?  [...this.countryList] : [],
+          stateList: !_.isEmpty(this.stateList)  ? [...this.stateList] : [],
+          countryId: (this.countrId) ? this.countrId : 0,
+          stateId: (this.stateId) ? this.stateId : 0
+        }
+        this.openModal1(data);
+      }
       if (this.cityId > 0) {
-        // alert("ared")
         this.getAreaId(this.cityId)
       }
     }
@@ -241,8 +259,6 @@ export class AddressAddComponent {
   }
 
   selectedArea (event) {
-    // // debugger
-    //  alert("change")
     if (event.data.length > 0) {
       if (event.data[0].selected) {
         if (event.data[0].id !== '0') {
@@ -328,7 +344,7 @@ export class AddressAddComponent {
     this.addressClick = true
     this.addressDetailsValidation()
     // // debugger
-    if (this.countrId > 0 && this.stateId > 0 && this.cityId > 0 && this.addressForm.value.address !== null) {
+    if (this.countrId > 0 && this.stateId > 0 && this.cityId > 0 && this.addressForm.value.address) {
       this.subscribe = this._CommonService.postAddNewAddress(this.addressParam()).subscribe(data => {
         if (data.Code === 1000 && data.Data.length > 0) {
 
@@ -367,5 +383,94 @@ export class AddressAddComponent {
     }
     console.log(Obj.addressObj, 'add address')
     return Obj.addressObj
+  }
+
+  onStateSelectionChange(event) {
+    this.model.selectedStateId = Number(event.value)
+}
+
+onCountrySelectionChange(event) {
+    this.model.selectedCountryId = Number(event.value)
+  if (this.model.selectedCountryId > 0) {
+    this._profileService.getStateList(this.model.selectedCountryId).subscribe((res) => {
+      this.stateList1 = [{ id: UIConstant.ZERO, text: 'Select State' }, ...res]
+      if (!_.isEmpty(this.dummyModel) && this.dummyModel.stateValue > 0) {
+        this.model.stateValue = this.dummyModel.stateValue
+        this.dummyModel.stateValue = null
+      }
+    })
+  } else {
+    this.stateList1 = [{ id: UIConstant.ZERO, text: 'Select State' }];
+  }
+}
+
+openModal1(Data?){
+  // debugger
+  this.countryList1 = [...Data.countryList]
+  this.model.countryValue = Data.countryId
+  if (Number(Data.stateId) > 0) {
+    this.dummyModel.stateValue = Number(Data.stateId)
+  }
+  $('#city_modal').modal(UIConstant.MODEL_SHOW)
+
+}
+
+
+saveCity(data?){
+  const requestBody = {
+    Id: 0,
+    ShortName2: this.model.cityName,
+    CommonCode: 103 ,
+    CommonId1:this.model.selectedStateId,
+    CommonDesc2: this.model.cityName
+  }
+
+  this._profileService.addNewCity(requestBody).subscribe((res) => {
+    if(res.Code === UIConstant.THOUSAND) {
+      this.toastrService.showSuccess('Success', 'City Added Succesfully');
+      if (data === 'AddNew') {
+        this.resetForm()
+      } else {
+        const selectedIds = {
+          countryId: this.model.selectedCountryId,
+          stateId: this.model.selectedStateId,
+          cityId: Number(res.Data),
+          cityName: this.model.cityName
+        }
+        this.closeForm(selectedIds)
+      }
+    } else {
+      this.toastrService.showError('Error', res.Message);
+    }
+  })
+}
+
+  resetForm(){
+    this.stateList1 = [{ id: UIConstant.ZERO, text: 'Select State' }];
+    this.model.countryValue = 0
+    this.model.stateValue = 0
+    this.addCityForm.resetForm()
+  }
+
+  closeForm(data?){
+    this.resetForm()
+    $('#city_modal').modal(UIConstant.MODEL_HIDE);
+    if (!_.isEmpty(data) && data.cityId > 0) {
+      this.countryValue = data.countryId
+      this.countrId = data.countryId
+      let newData = Object.assign([], this.cityList)
+      newData.push({ id: data.cityId, text: data.cityName })
+      this.cityList = newData
+      setTimeout(() => {
+        this.stateValue = data.stateId
+        this.stateId = data.stateId
+      }, 2000)
+      setTimeout(() => {
+        this.cityValue = data.cityId
+        this.cityId = data.cityId
+      }, 4000)
+    } else {
+      this.cityValue = 0
+    }
   }
 }

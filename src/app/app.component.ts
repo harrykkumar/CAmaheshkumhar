@@ -1,3 +1,4 @@
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { Component, OnInit } from '@angular/core'
 import * as _ from 'lodash'
 
@@ -6,12 +7,9 @@ import * as _ from 'lodash'
   templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
-  constructor(
-  ) {
+  constructor() {
   }
   title = 'SalesTracker'
   ngOnInit() {
-
   }
-
 }

@@ -1,242 +1,388 @@
 <div class="modal fade" id="item_requirement_form" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
-    <div class="modal-content bgcH-grey-100">
-      <form #itemRequirementForm="ngForm" novalidate (ngSubmit)="
-          itemRequirementForm.form.valid &&
-            checkForValidation() &&
-            postItemRequireData()
-        ">
-        <!--Header-->
-        <div class="modal-header primary-bg">
-          <div class="container-fluid">
+    <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+      <div class="modal-content bgcH-grey-100">
+        <!--itemRequirementForm.form.valid &&-->
+        <form #itemRequirementForm="ngForm" (ngSubmit)="checkForValidation() && postItemRequireData()" novalidate>
+          <div class="modal-header primary-bg">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-md-6 left_side_head">
+                  <p class="heading_lead">
+                    <i class="far fa-building"></i>Material Requirement/Item-Costing Form
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <div class="btn_header">
+                    <button type="submit" class="btn btn-default waves-effect" >Save</button>
+                    <button type="button" class="close" (click)="closeModal()" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true" class="white-text">×</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="loading" class="modal-content">
+            <div class="modal-body" style="height:inherit;">
+              <img src="assets/img/spinner-blue-circle.gif" alt="loading screen"
+                style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
+            </div>
+          </div> <!--style="overflow-y: inherit !important;" -->
+          <div class="modal-body" *ngIf="!loading">
+            <div class="form-row" *ngIf="toShowAttrs && ItemRequirements?.length === 0">
+              <div class="custom-control custom-checkbox my-1 mr-sm-2">
+                <input type="checkbox" name="withoutAttr" (keydown.enter)="onPressEnter()" class="custom-control-input"
+                  id="withoutattribute" [(ngModel)]="withoutAttr" />
+                <label class="custom-control-label pt-1" for="withoutattribute">Without Attribute</label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label>Item</label>
+                <div class="input-group adw_select">
+                  <select2 #error [data]="masterData.parentItemData" class="control_select" autocomplete="true"
+                    #item_parent_select2 (valueChanged)="onParentItemSelect($event)" [value]="model?.parentItemValue"
+                    [ngClass]="{
+                      errorSelecto: itemRequirementForm.submitted
+                       && !model?.selectedParentItemId
+                    }">
+                  </select2>
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                <label>Style</label>
+                <div class="input-group adw_select">
+                  <select2 name="styleSelect2" #style_select2 [data]="masterData.styleData"
+                    class="control_select" (valueChanged)="onStyleSelect($event);" autocomplete="true"
+                    [options]="{placeholder: 'Select Style'}"
+                    [value]="model.styleValue">
+                  </select2>
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                <label class="fw-500">Date</label>
+                <div class="timepicker-input input-icon form-group">
+                  <datepicker-popup [toSetDate]="model.OnDate" [applyFinYear]="'true'"
+                    (dateInFormat)="model.OnDate = $event;checkForValidation();"
+                    [class]="itemRequirementForm.submitted && (!model?.OnDate || invalidObj.OnDate)">
+                  </datepicker-popup>
+                </div>
+              </div>
+              <div class="form-group col-md-3" *ngIf="masterData?.comboFor?.length > 0">
+                <label>Attributes</label>
+                <div class="input-group adw_select">
+                  <select2 [data]="masterData.comboFor" [disabled]="withoutAttr" #attr_select class="control_select"
+                    autocomplete="true" (valueChanged)="model.AttributeGroupId = $event.value;"
+                    [value]="model?.attributeGroupValue">
+                  </select2>
+                </div>
+              </div>
+            </div>
             <div class="row">
-              <div class="col-md-3 left_side_head">
-                <p class="heading_lead">
-                  <i class="far fa-building"></i>Material Requirement Form
-                </p>
-              </div>
-              <div class="col-md-9">
-                <div class="btn_header">
-                  <button type="submit" class="btn btn-default waves-effect">
-                    Save
-                  </button>
-                  <button type="button" class="close" (click)="closeModal()" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" class="white-text">×</span>
-                  </button>
+              <div class="col-md-12">
+                <div class="bgc-white bdrs-3 mB-20">
+                  <form #itemForm="ngForm" (ngSubmit)="validateItem();calculate();addItem();" novalidate >
+                    <div class="table-responsive parent"> <!--fixTable4-->
+                      <table class="table editable_tbl charge-table table-hover" id="table">
+                        <thead>
+                          <tr>
+                            <th class="cust_width_80">#</th>
+                            <th>Category</th>
+                            <th>Item</th>
+                            <!-- <th>Style</th> -->
+                            <th>Item Process</th>
+                            <th>Unit</th>
+                            <ng-container *ngIf="masterData?.defaultAttr?.length > 0 && !withoutAttr">
+                              <th class="cust_width_80" *ngFor="let attr of masterData?.defaultAttr">{{attr.Name}}</th>
+                            </ng-container>
+                            <ng-container *ngIf="masterData?.defaultAttr?.length === 0 || withoutAttr">
+                              <th class="cust_width_80" >Qty</th>
+                            </ng-container>
+                            <th class="cust_width_80" >Rate</th>
+                            <th class="cust_width_80" >Addition (%)</th>
+                            <th class="cust_width_80" >Shrinkage (%)</th>
+                            <th class="cust_width_80" >Fold (%)</th>
+                            <th>Instruction</th>
+                            <th class="cust_width_120" >Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="default_row" *ngFor="let req of ItemRequirements; index as i;"
+                            (click)="editItem(i+1, req.Id, req.Sno)">
+                            <td class="profile-pic1">
+                              <div class="edit1">
+                                <ng-container *ngIf="req.isEditable">
+                                  <a (click)="deleteItem(i)" *ngIf="ItemRequirements?.length > 0">
+                                    <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
+                                  </a>
+                                </ng-container>
+                                <ng-container *ngIf="req.isEditable">
+                                  <a (click)="editItem(i+1, req.Id, req.Sno)" *ngIf="ItemRequirements?.length > 0"><i
+                                      class="fas fa-pen fa-1x"></i>
+                                  </a>
+                                </ng-container>
+                                <ng-container *ngIf="!req.isEditable">
+                                  <a *ngIf="ItemRequirements?.length > 0" (click)="calculate();addItem();"><i
+                                      class="fas fa-plus fa-1x"></i>
+                                  </a>
+                                </ng-container>
+                              </div>
+                            </td>
+                            <td *ngIf="req.isEditable" class="align-middle">{{req.categoryName}}</td>
+                            <td *ngIf="!req.isEditable">
+                              <div class="input-group adw_select">
+                                <select2 name="categorySelect2" #category_select2 [data]="masterData.categoryData"
+                                  class="control_select"
+                                  (valueChanged)="onCategorySelect($event);checkForItems(+$event.value)" autocomplete="true"
+                                  [options]="{placeholder: 'Select Category'}"
+                                  [value]="masterData.categoryValue">
+                                </select2>
+                              </div>
+                            </td>
+                            <td *ngIf="req.isEditable" class="align-middle">{{req.itemName}}</td>
+                            <td *ngIf="!req.isEditable">
+                              <div class="input-group adw_select">
+                                <select2 #error name="itemSelect2" #item_select2 [data]="masterData.itemData"
+                                  class="control_select" (valueChanged)="onItemSelect($event);" autocomplete="true"
+                                  [options]="{placeholder: 'Select Item'}"
+                                  [ngClass]="{'errorSelecto': invalidObj?.ItemId && (itemRequirementForm.submitted || !clickItem)  }"
+                                  [value]="masterData.itemValue">
+                                </select2>
+                              </div>
+                            </td>
+                            <!-- <td *ngIf="req.isEditable" class="align-middle">{{req.styleName}}</td>
+                            <td *ngIf="!req.isEditable">
+                              <div class="input-group adw_select">
+                                <select2 name="styleSelect2" #style_select2 [data]="masterData.styleData"
+                                  class="control_select" (valueChanged)="onStyleSelect($event);" autocomplete="true"
+                                  [options]="{placeholder: 'Select Style'}"
+                                  [value]="masterData.styleValue">
+                                </select2>
+                              </div>
+                            </td> -->
+                            <td *ngIf="req.isEditable" class="align-middle">
+                              {{req.itemProcessName}}
+                            </td>
+                            <td *ngIf="!req.isEditable">
+                              <div class="input-group adw_select">
+                                <select2 name="itemProcessSelect2" #item_process_select2 [data]="masterData.itemProcessData"
+                                  class="control_select" (valueChanged)="onItemProcessSelect($event);" autocomplete=" true"
+                                  [options]="{placeholder: 'Select Item Process'}"
+                                  [ngClass]="{'errorSelecto': invalidObj?.ItemProcessId && (itemRequirementForm.submitted || !clickItem)  }"
+                                  [value]="masterData.itemProcessValue">
+                                </select2>
+                              </div>
+                            </td>
+                            <td *ngIf="req.isEditable" class="align-middle">{{req.unitName}}</td>
+                            <td *ngIf="!req.isEditable">
+                              <div class="input-group adw_select">
+                                <select2 #error #unit_select2 [data]="masterData.unitData" class="control_select"
+                                  (valueChanged)="onUnitSelect($event)" autocomplete="true"
+                                  [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.UnitId }"
+                                  [options]="{ placeholder: 'Select Unit' }" [value]="masterData.unitValue"></select2>
+                              </div>
+                            </td>
+                            <ng-container *ngIf="req.isEditable && masterData?.defaultAttr?.length > 0 && !withoutAttr">
+                              <td *ngFor="let attr of req.ItemAttributeTransLists; index as j">
+                                {{attr.Qty}}
+                              </td>
+                            </ng-container>
+                            <ng-container *ngIf="!req.isEditable && masterData?.defaultAttr?.length > 0 && !withoutAttr">
+                              <td *ngFor="let attr of req.ItemAttributeTransLists; index as j">
+                                <input type="text" appIncludeDecimal name="attr-{{i}}-{{j}}" class="form-control"
+                                  id="attr-{{i}}-{{j}}" [(ngModel)]="attr.Qty" (input)="validateItem();calculate();"
+                                  (keyup.enter)="onEnterPressItem($event)">
+                              </td>
+                            </ng-container>
+                            <ng-container *ngIf="req.isEditable && (masterData?.defaultAttr?.length === 0 || withoutAttr)">
+                              <td>
+                                {{req.Qty}}
+                              </td>
+                            </ng-container>
+                            <ng-container *ngIf="!req.isEditable && (masterData?.defaultAttr?.length === 0 || withoutAttr)">
+                              <td>
+                                <input type="text" appIncludeDecimal name="req-{{i}}" class="form-control" id="req-{{i}}"
+                                  [(ngModel)]="itemReq.Qty" (input)="validateItem();calculate();"
+                                  (keyup.enter)="onEnterPressItem($event)">
+                              </td>
+                            </ng-container>
+                            <td *ngIf="req.isEditable" class="align-middle">{{req.Rate}}</td>
+                            <td *ngIf="!req.isEditable">
+                              <input type="text" appIncludeDecimal name="rate" class="form-control"
+                                [(ngModel)]="itemReq.Rate" (input)="validateItem();calculate()"
+                                (keyup.enter)="onEnterPressItem($event)"
+                                [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Rate }" />
+                            </td>
+                            <td *ngIf="req.isEditable" class="align-middle">{{req.Addition}}</td>
+                            <td *ngIf="!req.isEditable">
+                              <input type="text" name="addition" [disabled]="itemReq.ItemProcessId === 2"
+                                class="form-control" limitqty [maxNum]="'100'"
+                                [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Addition }"
+                                [(ngModel)]="itemReq.Addition"
+                                (keyup.enter)="onEnterPressItem($event)">
+                            </td>
+                            <td *ngIf="req.isEditable" class="align-middle">{{req.Shrinkage}}</td>
+                            <td *ngIf="!req.isEditable">
+                              <input type="text" name="shrinkage" [disabled]="itemReq.ItemProcessId === 2"
+                                  class="form-control" limitqty [maxNum]="'100'"
+                                [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Shrinkage }"
+                                [(ngModel)]="itemReq.Shrinkage" (keyup.enter)="onEnterPressItem($event)" >
+                            </td>
+                            <td *ngIf="req.isEditable" class="align-middle">{{req.Fold}}</td>
+                            <td *ngIf="!req.isEditable">
+                              <input type="text" name="fold" class="form-control" [disabled]="itemReq.ItemProcessId === 2"
+                                limitqty [maxNum]="'100'"
+                                [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Fold }"
+                                [(ngModel)]="itemReq.Fold" (keyup.enter)="onEnterPressItem($event)" >
+                            </td>
+                            <td *ngIf="req.isEditable" class="align-middle">{{req.instructionName}}</td>
+                            <td *ngIf="!req.isEditable">
+                              <select2 #instruction_select2 [data]="masterData.instructionData" class="control_select"
+                                (valueChanged)="onInstructionSelect($event)" autocomplete="true"
+                                [options]="{ placeholder: 'Select Instruction' }" [value]="masterData.instructionValue">
+                              </select2>
+                            </td>
+                            <td *ngIf="req.isEditable" class="align-middle">
+                              {{req.Total}}
+                            </td>
+                            <td *ngIf="!req.isEditable">
+                              <input type="text" appIncludeDecimal name="total" class="form-control"
+                                [(ngModel)]="itemReq.Total" readonly (keyup.enter)="onEnterPressItem($event)">
+                            </td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <tr *ngIf='showHideItem' class="selected_row active">
+                            <td>
+                              <div class="action_btn">
+                                <button type="submit" class="btn btn-primary btn_add_more">+</button>
+                              </div>
+                            </td>
+                            <td>
+                              <div class="input-group adw_select">
+                                <select2 name="categorySelect2" #category_select2 [data]="masterData.categoryData"
+                                  class="control_select" autocomplete="true"
+                                  (valueChanged)="onCategorySelect($event);checkForItems(+$event.value)"
+                                  [options]="{placeholder: 'Select Category'}" [value]="masterData.categoryValue">
+                                </select2>
+                              </div>
+                            </td>
+                            <td>
+                              <div class="input-group adw_select">
+                                <select2 #error name="itemSelect2" #item_select2 [data]="masterData.itemData"
+                                  class="control_select" (valueChanged)="onItemSelect($event);calculate();"
+                                  autocomplete="true" [options]="{placeholder: 'Select Item'}"
+                                  [ngClass]="{'errorSelecto': invalidObj?.ItemId && (itemRequirementForm.submitted || !clickItem)  }"
+                                  [value]="masterData.itemValue">
+                                </select2>
+                              </div>
+                            </td>
+                            <!-- <td>
+                              <div class="input-group adw_select">
+                                <select2 name="styleSelect2" #style_select2 [data]="masterData.styleData"
+                                  class="control_select" (valueChanged)="onStyleSelect($event);" autocomplete="true"
+                                  [options]="{placeholder: 'Select Style'}"
+                                  [value]="masterData.styleValue">
+                                </select2>
+                              </div>
+                            </td> -->
+                            <td>
+                              <div class="input-group adw_select">
+                                <select2 name="itemProcessSelect2" #item_process_select2 [data]="masterData.itemProcessData"
+                                  class="control_select" (valueChanged)="onItemProcessSelect($event);" autocomplete=" true"
+                                  [options]="{placeholder: 'Select Item Process'}"
+                                  [ngClass]="{'errorSelecto': invalidObj?.ItemProcessId && (itemRequirementForm.submitted || !clickItem)  }"
+                                  [value]="masterData.itemProcessValue">
+                                </select2>
+                              </div>
+                            </td>
+                            <td>
+                              <div class="input-group adw_select">
+                                <select2 #error #unit_select2 [data]="masterData.unitData" class="control_select"
+                                  (valueChanged)="onUnitSelect($event)" autocomplete="true"
+                                  [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.UnitId }"
+                                  [options]="{ placeholder: 'Select Unit' }" [value]="masterData.unitValue"></select2>
+                              </div>
+                            </td>
+                            <ng-container *ngIf="masterData?.defaultAttr?.length > 0 && !withoutAttr">
+                              <td *ngFor="let attr of ItemAttributeTransList; index as j;">
+                                <input type="text" appIncludeDecimal name="attr-{{j}}" (input)="validateItem()"
+                                  (keyup.enter)="onEnterPressItem($event)" class="form-control" id="attr-{{j}}"
+                                  [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Qty }"
+                                  [(ngModel)]="attr.Qty" (input)="calculate()">
+                              </td>
+                            </ng-container>
+                            <ng-container *ngIf="masterData?.defaultAttr?.length === 0 || withoutAttr">
+                              <td>
+                                <input type="text" appIncludeDecimal name="req-{{i}}"
+                                  (keyup.enter)="onEnterPressItem($event)" (input)="validateItem()" class="form-control"
+                                  id="req-{{i}}"
+                                  [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Qty }"
+                                  [(ngModel)]="itemReq.Qty" (input)="calculate()">
+                              </td>
+                            </ng-container>
+                            <td>
+                              <input class="form-control" type="text"
+                                [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Rate }"
+                                appIncludeDecimal name="rate" id="rate" [(ngModel)]="itemReq.Rate"
+                                (keyup.enter)="onEnterPressItem($event)"
+                                (input)="validateItem();calculate()">
+                            </td>
+                            <td>
+                              <input type="text" name="addition" [disabled]="itemReq.ItemProcessId === 2"
+                                class="form-control" limitqty [maxNum]="'100'"
+                                [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Addition }"
+                                (keyup.enter)="onEnterPressItem($event)"
+                                [(ngModel)]="itemReq.Addition">
+                            </td>
+                            <td>
+                              <input type="text" name="shrinkage" [disabled]="itemReq.ItemProcessId === 2"
+                                class="form-control" limitqty [maxNum]="'100'"
+                                [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Shrinkage }"
+                                (keyup.enter)="onEnterPressItem($event)"
+                                [(ngModel)]="itemReq.Shrinkage">
+                            </td>
+                            <td>
+                              <input type="text" name="fold" class="form-control" [disabled]="itemReq.ItemProcessId === 2"
+                                limitqty [maxNum]="'100'"
+                                [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Fold }"
+                                (keyup.enter)="onEnterPressItem($event)"
+                                [(ngModel)]="itemReq.Fold">
+                            </td>
+                            <td>
+                              <select2 #instruction_select2 [data]="masterData.instructionData" class="control_select"
+                                (valueChanged)="onInstructionSelect($event)" autocomplete="true"
+                                [options]="{ placeholder: 'Select Instruction' }" [value]="masterData.instructionValue">
+                              </select2>
+                            </td>
+                            <td>
+                              <input type="text" appIncludeDecimal name="total" class="form-control"
+                                (keyup.enter)="onEnterPressItem($event)"
+                                [ngClass]="{'errorSelecto': (itemRequirementForm.submitted || !clickItem) && invalidObj?.Total }"
+                                [(ngModel)]="itemReq.Total" readonly>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td colspan="5" ></td>
+                            <ng-container *ngIf="masterData?.defaultAttr?.length > 0 && !withoutAttr">
+                              <td class="cust_width_80" *ngFor="let attr of masterData?.defaultAttr"></td>
+                            </ng-container>
+                            <ng-container *ngIf="masterData?.defaultAttr?.length === 0 || withoutAttr">
+                              <td></td>
+                            </ng-container>
+                            <td colspan="5" ></td>
+                            <td>{{allTotal}}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="modal-body">
-          <div class="form-row">
-            <div class="form-group col-md-4">
-              <label>Items</label>
-              <div class="input-group adw_select">
-                <select2 [data]="masterData.parentItemData" class="control_select" autocomplete="true"
-                  #item_parent_select2 (valueChanged)="onParentItemSelect($event)" [value]="model?.parentItemValue"
-                  [ngClass]="{
-                    errorSelecto:
-                      itemRequirementForm.submitted &&
-                      !model?.selectedParentItemId
-                  }">
-                </select2>
-              </div>
-            </div>
-            <div class="form-group col-md-3">
-              <label class="fw-500">Date</label>
-              <div class="timepicker-input input-icon form-group">
-                <datepicker-popup [toSetDate]="model.OnDate" [applyFinYear]="'true'"
-                  (dateInFormat)="model.OnDate = $event;checkForValidation();" 
-                  [class]="itemRequirementForm.submitted && (!model?.OnDate || invalidObj.OnDate)">
-                </datepicker-popup>
-              </div>
-            </div>
-            <div class="form-group col-md-3" *ngIf="masterData?.comboFor?.length > 0">
-              <label>Attributes</label>
-              <div class="input-group adw_select">
-                <select2 [data]="masterData.comboFor" class="control_select" autocomplete="true"
-                  (valueChanged)="model.AttributeGroupId = $event.value;" [value]="model?.attributeGroupValue">
-                </select2>
-              </div>
-            </div>
-          </div>
-          <div class="row animated-background">
-            <div class="col-md-12">
-              <div class="bgc-white bdrs-3 mB-20">
-                <div class="table-responsive table_height">
-                  <table class="table charge-table" id="fixTable">
-                    <thead>
-                      <tr>
-                        <th class="cust_width_80">#</th>
-                        <th>Category</th>
-                        <th>Item</th>
-                        <th>Unit</th>
-                        <th>Instruction</th>
-                        <ng-container *ngIf="masterData?.defaultAttr?.length > 0">
-                          <th *ngFor="let attr of masterData?.defaultAttr">{{attr.Name}}</th>
-                        </ng-container>
-                        <ng-container *ngIf="masterData?.defaultAttr?.length === 0">
-                          <th>Qty</th>
-                        </ng-container>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr class="default_row" *ngFor="let req of ItemRequirements; index as i;"
-                        (click)="editItem(i+1, req.Id, req.Sno)">
-                        <td class="profile-pic1">
-                          <div class="edit1">
-                            <ng-container *ngIf="req.isEditable">
-                              <a (click)="deleteItem(i)" *ngIf="ItemRequirements?.length > 0">
-                                <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
-                              </a>
-                            </ng-container>
-                            <ng-container *ngIf="req.isEditable">
-                              <a (click)="editItem(i+1, req.Id, req.Sno)" *ngIf="ItemRequirements?.length > 0"><i
-                                  class="fas fa-pen fa-1x"></i>
-                              </a>
-                            </ng-container>
-                            <ng-container *ngIf="!req.isEditable">
-                              <a *ngIf="ItemRequirements?.length > 0" (click)="addItem()"><i
-                                  class="fas fa-plus fa-1x"></i>
-                              </a>
-                            </ng-container>
-                          </div>
-                        </td>
-                        <td *ngIf="req.isEditable" class="align-middle">{{req.categoryName}}</td>
-                        <td *ngIf="!req.isEditable">
-                          <div class="input-group adw_select">
-                            <select2 name="categorySelect2" #category_select2 [data]="masterData.categoryData"
-                              class="control_select"
-                              (valueChanged)="onCategorySelect($event);checkForItems(+$event.value)" autocomplete="true"
-                              [options]="{placeholder: 'Select Category'}"
-                              [ngClass]="{'errorSelecto': invalidObj?.categoryId && (submitSave || !clickItem)  }"
-                              [value]="masterData.categoryValue">
-                            </select2>
-                          </div>
-                        </td>
-                        <td *ngIf="req.isEditable" class="align-middle">{{req.itemName}}</td>
-                        <td *ngIf="!req.isEditable">
-                          <div class="input-group adw_select">
-                            <select2 name="itemSelect2" #item_select2 [data]="masterData.itemData"
-                              class="control_select" (valueChanged)="onItemSelect($event);onItemSelect($event)"
-                              autocomplete="true" [options]="{placeholder: 'Select Item'}"
-                              [ngClass]="{'errorSelecto': invalidObj?.ItemId && (submitSave || !clickItem)  }"
-                              [value]="masterData.itemValue">
-                            </select2>
-                          </div>
-                        </td>
-                        <td *ngIf="req.isEditable" class="align-middle">
-                          {{req.unitName}}
-                        </td>
-                        <td *ngIf="!req.isEditable">
-                          <div class="input-group adw_select">
-                            <select2 #unit_select2 [data]="masterData.unitData" class="control_select"
-                              (valueChanged)="onUnitSelect($event)" autocomplete="true"
-                              [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.UnitId }"
-                              [options]="{ placeholder: 'Select Unit' }" [value]="masterData.unitValue"></select2>
-                          </div>
-                        </td>
-                        <td *ngIf="req.isEditable" class="align-middle">
-                          {{req.instructionName}}
-                        </td>
-                        <td *ngIf="!req.isEditable">
-                          <select2 #instruction_select2 [data]="masterData.instructionData" class="control_select"
-                            (valueChanged)="onInstructionSelect($event)" autocomplete="true"
-                            [options]="{ placeholder: 'Select Instruction' }" [value]="masterData.instructionValue">
-                          </select2>
-                        </td>
-                        <ng-container *ngIf="req.isEditable && masterData?.defaultAttr?.length > 0">
-                          <td *ngFor="let attr of req.ItemAttributeTransLists; index as j">
-                            {{attr.Qty}}
-                          </td>
-                        </ng-container>
-                        <ng-container *ngIf="!req.isEditable && masterData?.defaultAttr?.length > 0">
-                          <td *ngFor="let attr of req.ItemAttributeTransLists; index as j">
-                            <input type="number" appIncludeDecimal name="attr-{{i}}-{{j}}" class="form-control"
-                              id="attr-{{i}}-{{j}}" [(ngModel)]="attr.Qty" (input)="validateItem()">
-                          </td>
-                        </ng-container>
-                        <ng-container *ngIf="req.isEditable && masterData?.defaultAttr?.length === 0">
-                          <td>
-                            {{req.Qty}}
-                          </td>
-                        </ng-container>
-                        <ng-container *ngIf="!req.isEditable && masterData?.defaultAttr?.length === 0">
-                          <td>
-                            <input type="number" appIncludeDecimal name="req-{{i}}" class="form-control" id="req-{{i}}"
-                              [(ngModel)]="req.Qty" (input)="validateItem()">
-                          </td>
-                        </ng-container>
-                      </tr>
-                    </tbody>
-                    <tfoot>
-                      <tr *ngIf='showHideItem' class="selected_row active">
-                        <td>
-                          <div class="action_btn">
-                            <button type="button" class="btn btn-primary btn_add_more"
-                              (click)="validateItem();addItem()">+</button>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="input-group adw_select">
-                            <select2 name="categorySelect2" #category_select2 [data]="masterData.categoryData"
-                              class="control_select" autocomplete="true"
-                              (valueChanged)="onCategorySelect($event);checkForItems(+$event.value)"
-                              [options]="{placeholder: 'Select Category'}" [value]="masterData.categoryValue">
-                            </select2>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="input-group adw_select">
-                            <select2 name="itemSelect2" #item_select2 [data]="masterData.itemData"
-                              class="control_select" (valueChanged)="onItemSelect($event)" autocomplete="true"
-                              [options]="{placeholder: 'Select Item'}"
-                              [ngClass]="{'errorSelecto': invalidObj?.ItemId && (submitSave || !clickItem)  }"
-                              [value]="masterData.itemValue">
-                            </select2>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="input-group adw_select">
-                            <select2 #unit_select2 [data]="masterData.unitData" class="control_select"
-                              (valueChanged)="onUnitSelect($event)" autocomplete="true"
-                              [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.UnitId }"
-                              [options]="{ placeholder: 'Select Unit' }" [value]="masterData.unitValue"></select2>
-                          </div>
-                        </td>
-                        <td>
-                          <select2 #instruction_select2 [data]="masterData.instructionData" class="control_select"
-                            (valueChanged)="onInstructionSelect($event)" autocomplete="true"
-                            [options]="{ placeholder: 'Select Instruction' }" [value]="masterData.instructionValue">
-                          </select2>
-                        </td>
-                        <ng-container *ngIf="masterData?.defaultAttr?.length > 0">
-                          <td *ngFor="let attr of ItemAttributeTransList; index as j;">
-                            <input type="number" appIncludeDecimal name="attr-{{j}}" (input)="validateItem()"
-                              (keyup.enter)="onEnterPressItem($event)" class="form-control" id="attr-{{j}}"
-                              [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Qty }"
-                              [(ngModel)]="attr.Qty">
-                          </td>
-                        </ng-container>
-                        <ng-container *ngIf="masterData?.defaultAttr?.length === 0">
-                          <td>
-                            <input type="number" appIncludeDecimal name="req-{{i}}"
-                              (keyup.enter)="onEnterPressItem($event)" (input)="validateItem()" class="form-control"
-                              id="req-{{i}}"
-                              [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Qty }"
-                              [(ngModel)]="req.Qty">
-                          </td>
-                        </ng-container>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
-</div>
+  

@@ -73,7 +73,8 @@ export class AddNewCityComponent implements OnInit {
           const selectedIds = {
             countryId: this.model.selectedCountryId,
             stateId: this.model.selectedStateId,
-            cityId: Number(res.Data)
+            cityId: Number(res.Data),
+            cityName: this.model.cityName
           }
           this.closeForm(selectedIds)
         }

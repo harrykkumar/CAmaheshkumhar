@@ -1,0 +1,101 @@
+<div class="modal fade show" id="item_in_requirement" tabindex="-1" role="dialog" aria-labelledby="customer_form">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <form #requirmentItems="ngForm" (ngSubmit)="validate() && onSave()" novalidate>
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-6 left_side_head">
+                <p class="heading_lead"><i class="fa fa-user" aria-hidden="true"></i>Choose Item from Purchase Order</p>
+              </div>
+              <div class="col-md-6">
+                <button type="button" class="close" (click)="close()" aria-label="Close"><span aria-hidden="true"
+                class="white-text">×</span> </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table editable_tbl">
+              <thead>
+                <tr>
+                  <th>
+                    <div class="custom-control custom-checkbox" *ngIf="model?.requirementItems?.length > 1">
+                      <input type="checkbox" class="custom-control-input" id="selectall" name="selectorunselect"
+                        [(ngModel)]="model.selectAll" (change)="toggleSelect(model.selectAll)" />
+                      <label class="custom-control-label" for="selectall"></label>
+                    </div>
+                  </th>
+                  <th>Category</th>
+                  <th>Item</th>
+                  <th>Unit</th>
+                  <ng-container *ngIf="model.industryId === 3">
+                    <th>Length</th>
+                    <th>Width</th>
+                    <th>Height</th>
+                  </ng-container>
+                  <ng-container *ngIf="model.industryId === 5">
+                    <th class="cust_width_150">Batch No</th>
+                    <th class="cust_width_150">Mfd Date</th>
+                    <th class="cust_width_150">Expiry Date</th>
+                  </ng-container>
+                  <th>Purchase Rate</th>
+                  <th>Quantity</th>
+                  <th>PO Quanity</th>
+                  <th>Remaining Qty</th>
+                  <th>Approve Qty</th>
+                  <th>Tax</th>
+                  <!-- <th>Amount</th> -->
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of model?.requirementItems; let i = index;" >
+                  <td>
+                    <div class="custom-control custom-checkbox" *ngIf="item.maxLimit > 0" >
+                      <input name="checkOrder-{{ i }}" [(ngModel)]="item.checked"
+                        (keydown.enter)="item.checked = !item.checked" type="checkbox"
+                        class="custom-control-input" id="item-req-{{ i }}" />
+                      <label class="custom-control-label" for="item-req-{{ i }}"></label>
+                    </div>
+                  </td>
+                  <td>{{item.CategoryName}}</td>
+                  <td>{{item.ItemName}}</td>
+                  <td>{{item.UnitName}}</td>
+                  <ng-container *ngIf="model.industryId === 3">
+                    <td>{{item.Length}}</td>
+                    <td>{{item.Width}}</td>
+                    <td>{{item.Height}}</td>
+                  </ng-container>
+                  <ng-container *ngIf="model.industryId === 5">
+                    <td>{{item.BatchNo}}</td>
+                    <td>{{item.MfdDate | dateFormat: clientDateFormat}}</td>
+                    <td>{{item.ExpiryDate}}</td>
+                  </ng-container>
+                  <td>{{item.PurchaseRate}}</td>
+                  <td>{{item.Quantity}}</td>
+                  <td>{{item.PoQty}}</td>
+                  <td>{{item.RemainingQty}}</td>
+                  <td *ngIf="item.maxLimit > 0" ><input type="number" class="form-control" [(ngModel)]="item.ApprovedQty" 
+                    name="approveQty" appIncludeDecimal placeholder="Approve Quantity"
+                    limitqty [ngClass]="{errorSelecto:
+                      item.checked && !item.ApprovedQty}"
+                    (input)="item.ApprovedQty > 0 ? item.checked = true : item.checked = false; updateRemQty(item);"
+                    [maxNum]="item.maxLimit" ></td>
+                  <td *ngIf="item.maxLimit === 0" >0</td>
+                  <td>{{item.TaxSlabName}}</td>
+                  <!-- <td>{{item.Amount}}</td> -->
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer footer_modal_form">
+          <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
+          <button type="button"  class="btn btn_close waves-effect" (click)="close()" >Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

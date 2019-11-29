@@ -34,8 +34,8 @@
                             *ngIf="menuData?.write || menuData?.delete"
                             (click)="exportExcel()">
                                 <img src="assets/img/excel.png"></a>
-                            <!-- <button type="button" class="btn btn-primary waves-effect waves-light" [disabled]="loading"
-                (click)="openPurchase()">New {{title}}</button> -->
+                            <button type="button" class="btn btn-primary waves-effect waves-light" 
+                (click)="openPurchaseDirectReturn()">Add New Return</button>
                             <a (click)="toggleSearch()" class="btn btn-info" data-toggle="collapse"><i
                                     class="fas fa-search"></i>Search</a>
                         </div>
@@ -48,14 +48,9 @@
     </div>
 </main>
 <app-purchaseReturn #purchase_add></app-purchaseReturn>
+<purchase-direct-return-add #purchaseDirectReturn_add></purchase-direct-return-add>
 
 <body class="modal" id="PurchaseReturn_print_id">
-    <!-- <div  style="position:absolute;top:290;bottom:0;left:0;right:0;text-align: center;" >
-        <p style=" color:#97919126;;
-        font-size:100px;
-        transform:rotate(325deg);
-        -webkit-transform:rotate(325deg);" >{{paidFlag}}</p>
-          </div> -->
     <header class="clearfix">
         <div id="logo">
             <img src="{{orgImageData}}">
@@ -236,6 +231,8 @@
                             <th>S.No.</th>
                             <th class="desc" style="width:15%;">Category</th>
                             <th class="desc" style="width:15%;">Item Name</th>
+                            <th class="desc" *ngIf="industryId === 12 ">IMEI No.</th>
+
                             <th *ngIf="industryId ===2 " class="desc">Item Description</th>
                             <th class="desc" style="width:12%;">HSN/SAC</th>
                             <th *ngIf="industryId === 3 " class="desc">Length x Height x Width</th>
@@ -259,12 +256,22 @@
                         <tr *ngFor="let item of ItemTransactionactions; let i=index">
                             <td>{{1+i}}</td>
                             <td>{{ item.CategoryName}}</td>
-                            <td>{{ item.ItemName}}<br> {{item.Remark}}</td>
+                            <td>{{ item.ItemName}}<br> {{item.Remark}}
+                            </td>
+                            <td  style="width:30%;"  *ngIf="industryId === 12">
+                                    <ng-container *ngFor="let number of  item.IMEi; let isLast=last">
+                                        {{number.FieldValue1}}{{isLast ? '' : ', '}}
+                                        {{number.FieldValue2}}{{isLast ? '' : ', '}}
+                                      {{number.FieldValue3}}{{isLast ? '' : ', '}}
+                                       {{number.FieldValue4}}{{isLast ? '' : ', '}}
+                                </ng-container>
+                                </td>
                             <ng-container *ngIf="industryId === 2 ">
                                     <td>
                                         <span *ngFor="let attr of  item.Attribute; let isLast=last">
                                              {{attr.AttributeName}}{{isLast ? '' : ', '}}
                                              </span>
+
                                     </td>
                                 </ng-container>
                             <td>{{ item.HsnNo}}</td>

@@ -1,0 +1,82 @@
+<div class="modal fade show" id="rate_modal" tabindex="-1" role="dialog" aria-labelledby="customer_form">
+  <main class="">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content bgcH-grey-100">
+        <div class="modal-header primary-bg">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-6 left_side_head">
+                <p class="heading_lead"><i class="fa fa-user" aria-hidden="true"></i>View Item Rate from Purchase Order
+                </p>
+              </div>
+              <div class="col-md-6">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"
+                  class="white-text">×</span> </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table editable_tbl">
+              <thead>
+                <tr>
+                  <th>Sno</th>
+                  <th>Vendor Name</th>
+                  <th>Item name</th>
+                  <th>Attribute  Detail</th>
+                  <th>Rate</th>
+                  <th>On Date</th>
+                  <th>Party Bill Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of model?.Rates | paginate : {
+                  itemsPerPage: itemsPerPage,
+                  currentPage: p,
+                  totalItems: total
+                }; let i = index;" >
+                  <td>{{lastItemIndex + i + 1}}</td>
+                  <td>{{item.LedgerName}}</td>
+                  <td>{{item.ItemName}}</td>
+                  <td>{{item.AttributeNameStr}}</td>
+                  <td>{{item.PurchaseRate}}</td>
+                  <td>{{item.BillDate | dateFormat: clientDateFormat}}</td>
+                  <td>{{item.PartyBillDate | dateFormat: clientDateFormat}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer footer_modal_form">
+          <!-- <div class="form-row" >
+            <app-pagination
+              (lastValueEmitter)="lastItemIndex = $event"
+              (pageNoEmitter)="p = $event; getRates()"
+              (pageSizeEmitter)="itemsPerPage = $event; getRates()"
+            ></app-pagination>
+          </div>
+          <div class="form-row" >
+              <button type="button" class="btn btn-primary waves-effect waves-light">OK</button>
+              <button type="button" class="btn btn_close waves-effect" data-dismiss="modal">Close</button>
+          </div> -->
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-9 left_side_head justify-content-start">
+                <app-pagination
+                  (lastValueEmitter)="lastItemIndex = $event"
+                  (pageNoEmitter)="p = $event; getRates()"
+                  (pageSizeEmitter)="itemsPerPage = $event; getRates()"
+                ></app-pagination>
+              </div>
+              <div class="col-md-3 d-flex justify-content-end">
+                <button type="button" class="btn btn-primary waves-effect waves-light">OK</button>
+                <button type="button" class="btn btn_close waves-effect" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

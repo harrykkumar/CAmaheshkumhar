@@ -1,16 +1,6 @@
-<div
-  class="modal fade"
-  id="voucher_modal"
-  role="dialog"
-  aria-labelledby="exampleModalLabel"
-  aria-hidden="true"
-  data-backdrop="static"
-  data-keyboard="false"
->
-  <div
-    class="modal-dialog large_form modal-full-height modal-top"
-    role="document"
-  >
+<div class="modal fade" id="voucher_modal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
+  data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
     <div class="modal-content bgcH-grey-100">
       <div class="modal-header primary-bg">
         <div class="container-fluid">
@@ -22,25 +12,11 @@
             </div>
             <div class="col-md-9">
               <div class="btn_header">
-                <a
-                  class="btn btn-default waves-effect"
-                  #savebutton
-                  (click)="manipulateData('new')"
-                  >Save
+                <a class="btn btn-default waves-effect" #savebutton (click)="manipulateData('new')">Save
                 </a>
-                <a class="btn btn-info waves-effect" (click)="manipulateData('reset')" >Save and New</a>
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                >
-                  <span
-                    aria-hidden="true"
-                    class="white-text"
-                    (click)="closeForm()"
-                    >×</span
-                  >
+                <a class="btn btn-info waves-effect" (click)="manipulateData('reset')">Save and New</a>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal()">
+                  <span aria-hidden="true" class="white-text">×</span>
                 </button>
               </div>
             </div>
@@ -52,88 +28,43 @@
           <div class="col-md-12">
             <div class="classic-tabs">
               <ul class="nav tabs-cyan" role="tablist">
-                <li class="nav-item">
-                  <a 
-                    id="vendorPaymentTabLink"
-                    class="nav-link waves-light"
-                    [ngClass]="{ active: tabId === 1 }"
-                    [class.disabled]="editId ? notToDisable !== tabId : false"
-                    data-toggle="tab"
-                    role="tab"
-                    (click)="onTabClick(1)"
-                    >Vendor-Payment</a
-                  >
+                <li class="nav-item" *ngIf="(!addTypeId || (addTypeId && addType === 'purchase'))">
+                  <a id="vendorPaymentTabLink" class="nav-link waves-light" [ngClass]="{ active: tabId === 1 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false" data-toggle="tab" role="tab"
+                    (click)="onTabClick(1)">Vendor-Payment</a>
                 </li>
-                <li class="nav-item">
-                  <a
-                    id="customerReceiptTabLink"
-                    class="nav-link waves-light"
-                    [ngClass]="{ active: tabId === 2 }"
-                    [class.disabled]="editId ? notToDisable !== tabId : false"
-                    data-toggle="tab"
-                    role="tab"
-                    (click)="onTabClick(2)"
-                    >Customer-Receipt</a
-                  >
+                <li class="nav-item" *ngIf="(!addTypeId || (addTypeId && addType === 'sale'))">
+                  <a id="customerReceiptTabLink" class="nav-link waves-light" [ngClass]="{ active: tabId === 2 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false" data-toggle="tab" role="tab"
+                    (click)="onTabClick(2)">Customer-Receipt</a>
                 </li>
-                <li class="nav-item">
-                  <a
-                    id="contraTabLink"
-                    class="nav-link waves-light"
-                    [ngClass]="{ active: tabId === 3 }"
-                    [class.disabled]="editId ? notToDisable !== tabId : false"
-                    data-toggle="tab"
-                    role="tab"
-                    (click)="onTabClick(3)"
-                    >Contra</a
-                  >
+                <li class="nav-item" *ngIf="!addTypeId">
+                  <a id="contraTabLink" class="nav-link waves-light" [ngClass]="{ active: tabId === 3 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false" data-toggle="tab" role="tab"
+                    (click)="onTabClick(3)">Contra</a>
                 </li>
-                <li class="nav-item">
-                  <a
-                    id="journalTabLink"
-                    class="nav-link waves-light"
-                    [ngClass]="{ active: tabId === 4 }"
-                    [class.disabled]="editId ? notToDisable !== tabId : false"
-                    data-toggle="tab"
-                    role="tab"
-                    (click)="onTabClick(4)"
-                    >Journal</a
-                  >
+                <li class="nav-item" *ngIf="!addTypeId">
+                  <a id="journalTabLink" class="nav-link waves-light" [ngClass]="{ active: tabId === 4 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false" data-toggle="tab" role="tab"
+                    (click)="onTabClick(4)">Journal</a>
                 </li>
-                <li class="nav-item">
-                  <a
-                    id="paymentTabLink"
-                    class="nav-link waves-light"
-                    [ngClass]="{ active: tabId === 5 }"
-                    [class.disabled]="editId ? notToDisable !== tabId : false"
-                    data-toggle="tab"
-                    role="tab"
-                    (click)="onTabClick(5)"
-                    >Payment</a
-                  >
+                <li class="nav-item" *ngIf="!addTypeId">
+                  <a id="paymentTabLink" class="nav-link waves-light" [ngClass]="{ active: tabId === 5 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false" data-toggle="tab" role="tab"
+                    (click)="onTabClick(5)">Payment</a>
                 </li>
-                <li class="nav-item">
-                  <a
-                    id="receiptTabLink"
-                    class="nav-link waves-light"
-                    [ngClass]="{ active: tabId === 6 }"
-                    [class.disabled]="editId ? notToDisable !== tabId : false"
-                    data-toggle="tab"
-                    role="tab"
-                    (click)="onTabClick(6)"
-                    >Receipt</a
-                  >
+                <li class="nav-item" *ngIf="!addTypeId">
+                  <a id="receiptTabLink" class="nav-link waves-light" [ngClass]="{ active: tabId === 6 }"
+                    [class.disabled]="editId ? notToDisable !== tabId : false" data-toggle="tab" role="tab"
+                    (click)="onTabClick(6)">Receipt</a>
                 </li>
               </ul>
             </div>
           </div>
           <div *ngIf="loading">
             <div style="height:inherit;">
-              <img
-                src="assets/img/spinner-blue-circle.gif"
-                alt="loading screen"
-                style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;"
-              />
+              <img src="assets/img/spinner-blue-circle.gif" alt="loading screen"
+                style="width: 50px;height: 50px;position: absolute;left: 46%;top:46%;" />
             </div>
           </div>
           <ng-container *ngIf="!loading && (tabId === 1 || tabId === 2)">
@@ -143,200 +74,106 @@
                   <label>Organisation Name</label>
                   <div class="input-group adw_select">
                     <div class="input-group adw_select">
-                      <select2
-                        #organisation_select2
-                        id="organisation"
-                        [data]="organisationsData"
-                        class="control_select"
-                        (valueChanged)="onChangeOrganisationId($event)"
-                        autocomplete="true"
-                        [options]="{ placeholder: 'Select Organisation' }"
-                        [value]="organisationVlue"
-                      >
+                      <select2 #organisation_select2 id="organisation" [data]="organisationsData" class="control_select"
+                        (valueChanged)="onChangeOrganisationId($event)" autocomplete="true"
+                        [options]="{ placeholder: 'Select Organisation' }" [value]="organisationVlue">
                       </select2>
                     </div>
                   </div>
                 </div>
                 <div class="form-group col-md-4">
-                  <label
-                    ><span *ngIf="tabId === 1">Payment</span
-                    ><span *ngIf="tabId === 2">Receipt</span> VoucherNo.</label
-                  >
-                  <a
-                    *ngIf="
+                  <label><span *ngIf="tabId === 1">Payment</span><span *ngIf="tabId === 2">Receipt</span>
+                    VoucherNo.</label>
+                  <a *ngIf="
                       voucherService.tabs[tabId - 1].voucherNoManual &&
                       previousVoucherNo
-                    "
-                    class="tooltip1 info_tooltip"
-                    ><i class="fas fa-info"></i>
-                    <span class="tooltiptext"
-                      >Last Voucher No. used is - {{ previousVoucherNo }}</span
-                    >
+                    " class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
+                    <span class="tooltiptext">Last Voucher No. used is - {{ previousVoucherNo }}</span>
                   </a>
-                  <input
-                    type="text"
-                    placeholder="Voucher Number"
-                    class="form-control"
-                    name="VoucherNo"
-                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual"
-                    [(ngModel)]="VoucherNo"
-                  />
+                  <input type="text" placeholder="Voucher Number" class="form-control" name="VoucherNo"
+                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual" [(ngModel)]="VoucherNo" />
                 </div>
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
-                  <datepicker-popup
-                    [disableInput]="editId > 0"
-                    [applyFinYear]="true"
-                    [toSetDate]="VoucherDate"
-                    (opened)="dateStatus = $event"
-                    (dateInFormat)="VoucherDate = $event; checkForBill();"
-                  >
+                  <datepicker-popup [disableInput]="editId > 0" [applyFinYear]="true" [toSetDate]="VoucherDate"
+                    (opened)="dateStatus = $event" (dateInFormat)="VoucherDate = $event; checkForBill();">
                   </datepicker-popup>
                 </div>
                 <div class="form-group col-md-4">
                   <label *ngIf="tabId === 2">Party</label>
                   <label *ngIf="tabId === 1">Vendor</label>
                   <div class="input-group adw_select">
-                    <select2
-                      [options]="ledgerPlaceholder"
-                      #party_select2
-                      id="vendor"
-                      [data]="ledgerData"
-                      [disabled] = "editId"
-                      class="control_select"
-                      (valueChanged)="onPartySelect($event)"
-                      autocomplete="true"
-                      [value]="ledgerValue">
+                    <select2 [options]="ledgerPlaceholder" #party_select2 id="vendor" [data]="ledgerData"
+                      [disabled]="editId || addTypeId" class="control_select" (valueChanged)="onPartySelect($event)"
+                      autocomplete="true" [value]="ledgerValue">
                     </select2>
                   </div>
                 </div>
 
                 <div class="form-group col-md-8 pt-4">
                   <fieldset id="group">
-                    <div
-                      class="custom-control custom-radio custom-control-inline"
-                    >
-                      <input
-                        type="radio"
-                        class="custom-control-input"
-                        id="customRadio"
-                        name="group"
-                        [checked]="autoBill === true"
-                        (change)="
+                    <div class="custom-control custom-radio custom-control-inline">
+                      <input type="radio" class="custom-control-input" id="customRadio" name="group"
+                        [checked]="autoBill === true" (change)="
                           autoBill = $event.target.checked ? true : false;
                           updateAmount()
-                        "
-                      />
-                      <label class="custom-control-label" for="customRadio"
-                        >Auto Billing</label
-                      >
+                        " />
+                      <label class="custom-control-label" for="customRadio">Auto Billing</label>
                     </div>
-                    <div
-                      class="custom-control custom-radio custom-control-inline"
-                    >
-                      <input
-                        type="radio"
-                        class="custom-control-input"
-                        id="customRadio10"
-                        name="group"
-                        [checked]="autoBill === false"
-                        (change)="
+                    <div class="custom-control custom-radio custom-control-inline">
+                      <input type="radio" class="custom-control-input" id="customRadio10" name="group"
+                        [checked]="autoBill === false" (change)="
                           autoBill = $event.target.checked ? false : true;
                           updateAmount()
-                        "
-                      />
-                      <label class="custom-control-label" for="customRadio10"
-                        >Manual Billing</label
-                      >
+                        " />
+                      <label class="custom-control-label" for="customRadio10">Manual Billing</label>
                     </div>
                   </fieldset>
                 </div>
                 <div class="form-group col-md-4">
                   <label>Pay Modes</label>
                   <div class="input-group adw_select">
-                    <select2
-                      name="Paymode"
-                      #payment_select2
-                      [data]="paymentModesData"
-                      id="PayModeId"
-                      class="control_select"
-                      (valueChanged)="onPaymentModeSelect($event)"
-                      autocomplete="true"
+                    <select2 name="Paymode" #payment_select2 [data]="paymentModesData" id="PayModeId"
+                      class="control_select" (valueChanged)="onPaymentModeSelect($event)" autocomplete="true"
                       [options]="{ placeholder: 'Select Payment Modes' }"
-                      [ngClass]="{ errorSelecto: invalidObj?.PayModeId }"
-                      [value]="paymode"
-                    ></select2>
+                      [ngClass]="{ 'errorSelecto': invalidObj?.PayModeId }" [value]="paymode"></select2>
                   </div>
                 </div>
                 <div class="form-group col-md-4">
                   <label>Ledger</label>
                   <div class="input-group adw_select">
-                    <select2
-                      name="LedgerId"
-                      #ledger_select2
-                      [data]="paymentLedgerselect2"
-                      id="LedgerId"
-                      class="control_select"
-                      (valueChanged)="onPaymentLedgerSelect($event)"
-                      autocomplete="true"
-                      [options]="{ placeholder: 'Select Ledger' }"
-                      [ngClass]="{ errorSelecto: invalidObj?.LedgerId }"
-                      [value]="ledger"
-                    ></select2>
+                    <select2 name="LedgerId" #ledger_select2 [data]="paymentLedgerselect2" id="LedgerId"
+                      class="control_select" (valueChanged)="onPaymentLedgerSelect($event)" autocomplete="true"
+                      [options]="{ placeholder: 'Select Ledger' }" [ngClass]="{ 'errorSelecto': invalidObj?.LedgerId }"
+                      [value]="ledger"></select2>
                   </div>
                 </div>
                 <div class="form-group col-md-4">
                   <label>Amount</label>
-                  <input
-                    type="text"
-                    appIncludeDecimal
-                    name="Amount"
-                    class="form-control"
-                    id="Amount"
-                    [(ngModel)]="Amount"
-                    placeholder="Enter Amount"
+                  <input type="text" appIncludeDecimal name="Amount" class="form-control" id="Amount"
+                    [(ngModel)]="Amount" placeholder="Enter Amount" [ngClass]="{ 'is-invalid': invalidObj?.Amount }"
+                    (change)="onChangeAmount()"
                     (input)="checkForValidation();updateAmount();setAdvancePaymentForNoVoucherList($event)"
-                    [disabled]="!autoBill"
-                  />
+                    [disabled]="!autoBill" />
                 </div>
                 <div class="form-group col-md-12">
                   <label>Narration</label>
-                  <input
-                    name="Narration"
-                    class="form-control"
-                    (keydown.enter)="manipulateData()"
-                    id="Narration"
-                    [(ngModel)]="Narration"
-                    placeholder="Enter Narration"
-                  />
+                  <input name="Narration" class="form-control" (keydown.enter)="manipulateData('new')" id="Narration"
+                    [(ngModel)]="Narration" placeholder="Enter Narration" />
                 </div>
               </div>
             </div>
             <div class="col-lg-6 mt-5">
               <div class="bgc-white bdrs-3">
                 <div class="table-responsive">
-                  <table
-                    class="table record_data table-striped table-bordered dt-responsive nowrap"
-                    id="fixTable"
-                  >
+                  <table class="table record_data table-striped table-bordered dt-responsive nowrap" id="fixTable">
                     <thead>
                       <tr>
                         <th>
-                          <div
-                            class="custom-control custom-checkbox"
-                            *ngIf="voucherList.length > 0">
-                            <input
-                              type="checkbox"
-                              class="custom-control-input"
-                              id="selectall"
-                              name="selectorunselect"
-                              [(ngModel)]="selectAll"
-                              (change)="toggleSelect($event)"
-                            />
-                            <label
-                              class="custom-control-label"
-                              for="selectall"
-                            ></label>
+                          <div class="custom-control custom-checkbox" *ngIf="voucherList.length > 0">
+                            <input type="checkbox" class="custom-control-input" id="selectall" name="selectorunselect"
+                              [(ngModel)]="selectAll" (change)="toggleSelect($event)" />
+                            <label class="custom-control-label" for="selectall"></label>
                           </div>
                         </th>
                         <th>SNO</th>
@@ -352,18 +189,10 @@
                       <tr *ngFor="let voucher of voucherList; let i = index">
                         <td class="align-middle">
                           <div class="custom-control custom-checkbox">
-                            <input
-                              type="checkbox"
-                              id="row{{ i }}"
-                              class="custom-control-input item-container"
-                              [(ngModel)]="voucher.selected"
-                              name="checkbox-cont{{ i }}"
-                              (ngModelChange)="onVoucherToggle(i, $event)"
-                            />
-                            <label
-                              class="custom-control-label"
-                              for="row{{ i }}"
-                            ></label>
+                            <input type="checkbox" id="row{{ i }}" class="custom-control-input item-container"
+                              [(ngModel)]="voucher.selected" name="checkbox-cont{{ i }}"
+                              (ngModelChange)="onVoucherToggle(i, $event)" />
+                            <label class="custom-control-label" for="row{{ i }}"></label>
                           </div>
                         </td>
                         <td>{{ i + 1 }}</td>
@@ -375,23 +204,14 @@
                         <td class="text-right">{{ voucher.PaidAmount }}</td>
                         <td class="text-right">{{ voucher.Balance }}</td>
                         <td>
-                          <input
-                            #paymentRef
-                            [disabled]="
+                          <input #paymentRef [disabled]="
                               autoBill ||
                               (billSettlementType > 1 &&
                                 !autoBill &&
                                 !voucher.isPaymentEnable)
-                            "
-                            (input)="updateAmount()"
-                            type="text"
-                            appIncludeDecimal
-                            name="PaymentAmount"
-                            class="form-control"
-                            id="PaymentAmount{{ i }}"
-                            [(ngModel)]="voucher.PaymentAmount"
-                            placeholder="Enter Amount To Pay"
-                          />
+                            " (input)="updateAmount()" type="text" appIncludeDecimal name="PaymentAmount"
+                            class="form-control" id="PaymentAmount{{ i }}" [(ngModel)]="voucher.PaymentAmount"
+                            placeholder="Enter Amount To Pay" />
                         </td>
                       </tr>
                       <tr *ngIf="advancePayment > 0 && !(tabId === 2 && multipleBillSettlement)">
@@ -406,12 +226,7 @@
                         <td class="text-right">0</td>
                         <td class="text-right">0</td>
                         <td>
-                          <input
-                            type="text"
-                            class="form-control"
-                            readonly="true"
-                            [(ngModel)]="advancePayment"
-                          />
+                          <input type="text" class="form-control" readonly="true" [(ngModel)]="advancePayment" />
                         </td>
                       </tr>
                     </tbody>
@@ -427,91 +242,50 @@
                   <label>Organisation Name</label>
                   <div class="input-group adw_select">
                     <div class="input-group adw_select">
-                      <select2
-                        #organisation_select2
-                        id="organisation"
-                        [data]="organisationsData"
-                        class="control_select"
-                        (valueChanged)="onChangeOrganisationId($event)"
-                        autocomplete="true"
-                        [options]="{ placeholder: 'Select Organisation' }"
-                        [value]="organisationVlue">
+                      <select2 #organisation_select2 id="organisation" [data]="organisationsData" class="control_select"
+                        (valueChanged)="onChangeOrganisationId($event)" autocomplete="true"
+                        [options]="{ placeholder: 'Select Organisation' }" [value]="organisationVlue">
                       </select2>
                     </div>
                   </div>
                 </div>
                 <div class="form-group col-md-4">
                   <label>Contra VoucherNo.</label>
-                  <a
-                    *ngIf="
+                  <a *ngIf="
                       voucherService.tabs[tabId - 1].voucherNoManual &&
                       previousVoucherNo
-                    "
-                    class="tooltip1 info_tooltip"
-                  >
+                    " class="tooltip1 info_tooltip">
                     <i class="fas fa-info"></i>
-                    <span class="tooltiptext"
-                      >Last Voucher No. used is - {{ previousVoucherNo }}</span
-                    >
+                    <span class="tooltiptext">Last Voucher No. used is - {{ previousVoucherNo }}</span>
                   </a>
-                  <input
-                    type="text"
-                    placeholder="Voucher Number"
-                    class="form-control"
-                    name="VoucherNo"
-                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual"
-                    [(ngModel)]="VoucherNo"
-                  />
+                  <input type="text" placeholder="Voucher Number" class="form-control" name="VoucherNo"
+                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual" [(ngModel)]="VoucherNo" />
                 </div>
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
-                  <datepicker-popup
-                  [disableInput]="editId > 0"
-                  [applyFinYear]="true"
-                    [toSetDate]="VoucherDate"
-                    (opened)="dateStatus = $event"
-                    (dateInFormat)="VoucherDate = $event; checkForBill()"
-                  >
+                  <datepicker-popup [disableInput]="editId > 0" [applyFinYear]="true" [toSetDate]="VoucherDate"
+                    (opened)="dateStatus = $event" (dateInFormat)="VoucherDate = $event; checkForBill()">
                   </datepicker-popup>
                 </div>
-                <ng-container
-                  *ngFor="let voucherData of voucherDatas; let i = index"
-                >
+                <ng-container *ngFor="let voucherData of voucherDatas; let i = index">
                   <div class="form-group col-md-2">
-                    <label class="pt-4"
-                      >Transfer {{ voucherData?.Type === 0 ? 'From' : 'To'}}
+                    <label class="pt-4">Transfer {{ voucherData?.Type === 0 ? 'From' : 'To'}}
                     </label>
                   </div>
                   <div class="form-group col-md-2">
                     <label>Type</label>
-                    <ng-select
-                      name="crdr-{{i}}"
-                      [items]="transferData"
-                      bindLabel="text"
-                      bindValue="id"
-                      [clearable]="false"
-                      placeholder="Select Type"
-                      [(ngModel)]="voucherData.Type"
-                      [ngClass]="{  'errorSelecto': invalidObj?.crdr }"
-                      [disabled]="i === 1"
-                      (change)="setTypeForOther(i)"
-                    >
+                    <ng-select name="crdr-{{i}}" id="contraType-{{i}}" [items]="transferData" bindLabel="text"
+                      bindValue="id" [clearable]="false" placeholder="Select Type" [(ngModel)]="voucherData.Type"
+                      [ngClass]="{  'errorSelecto': invalidObj?.crdr }" [disabled]="i === 1"
+                      (change)="setTypeForOther(i)">
                     </ng-select>
                   </div>
                   <div class="form-group col-md-4">
                     <label>Ledger</label>
-                    <ng-select
-                      name="LedgerName-{{i}}"
-                      id="LedgerId-{{i}}"
-                      [items]="voucherData.data"
-                      bindLabel="text"
-                      bindValue="id"
-                      [clearable]="false"
-                      placeholder="Select Ledger"
-                      [(ngModel)]="voucherData.LedgerId"
+                    <ng-select name="LedgerName-{{i}}" id="LedgerId-{{i}}" [items]="voucherData.data" bindLabel="text"
+                      bindValue="id" [clearable]="false" placeholder="Select Ledger" [(ngModel)]="voucherData.LedgerId"
                       [ngClass]="{ 'errorSelecto': invalidObj?.LedgerId }"
-                      (change)="onSelectBank(voucherData.LedgerId, i)"
-                    >
+                      (change)="onSelectBank(voucherData.LedgerId, i)">
                     </ng-select>
                     <!-- <div class="input-group adw_select">
                       <select2
@@ -533,29 +307,15 @@
                   </div>
                   <div class="form-group col-md-4">
                     <label>Amount</label>
-                    <input
-                      type="text"
-                      appIncludeDecimal
-                      name="Amount"
-                      class="form-control"
-                      id="Amount"
-                      [(ngModel)]="voucherData.Amount"
-                      placeholder="Enter Amount"
-                      (input)="setAmountForOther(i)"
-                      [disabled]="i === 1"
-                    />
+                    <input type="text" appIncludeDecimal name="Amount" class="form-control" id="Amount"
+                      [(ngModel)]="voucherData.Amount" placeholder="Enter Amount" (input)="setAmountForOther(i)"
+                      [disabled]="i === 1" />
                   </div>
                 </ng-container>
                 <div class="form-group col-md-12">
                   <label>Narration</label>
-                  <input
-                    name="Narration"
-                    class="form-control"
-                    (keydown.enter)="manipulateData()"
-                    id="Narration"
-                    [(ngModel)]="Narration"
-                    placeholder="Enter Narration"
-                  />
+                  <input name="Narration" class="form-control" (keydown.enter)="manipulateData('new')" id="Narration"
+                    [(ngModel)]="Narration" placeholder="Enter Narration" />
                 </div>
               </div>
             </div>
@@ -567,94 +327,52 @@
                   <label>Organisation Name</label>
                   <div class="input-group adw_select">
                     <div class="input-group adw_select">
-                      <select2
-                        #organisation_select2
-                        id="organisation"
-                        [data]="organisationsData"
-                        class="control_select"
-                        (valueChanged)="onChangeOrganisationId($event)"
-                        autocomplete="true"
-                        [options]="{ placeholder: 'Select Organisation' }"
-                        [value]="organisationVlue"
-                      >
+                      <select2 #organisation_select2 id="organisation" [data]="organisationsData" class="control_select"
+                        (valueChanged)="onChangeOrganisationId($event)" autocomplete="true"
+                        [options]="{ placeholder: 'Select Organisation' }" [value]="organisationVlue">
                       </select2>
                     </div>
                   </div>
                 </div>
                 <div class="form-group col-md-4">
                   <label>Journal VoucherNo.</label>
-                  <a
-                    *ngIf="
+                  <a *ngIf="
                       voucherService.tabs[tabId - 1].voucherNoManual &&
                       previousVoucherNo
-                    "
-                    class="tooltip1 info_tooltip"
-                  >
+                    " class="tooltip1 info_tooltip">
                     <i class="fas fa-info"></i>
-                    <span class="tooltiptext"
-                      >Last Voucher No. used is - {{ previousVoucherNo }}</span
-                    >
+                    <span class="tooltiptext">Last Voucher No. used is - {{ previousVoucherNo }}</span>
                   </a>
-                  <input
-                    type="text"
-                    placeholder="Voucher Number"
-                    class="form-control"
-                    name="VoucherNo"
-                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual"
-                    [(ngModel)]="VoucherNo"
-                  />
+                  <input type="text" placeholder="Voucher Number" class="form-control" name="VoucherNo"
+                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual" [(ngModel)]="VoucherNo" />
                 </div>
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
-                  <datepicker-popup
-                  [disableInput]="editId > 0"
-                    [applyFinYear]="true"
-                    [toSetDate]="VoucherDate"
-                    (opened)="dateStatus = $event"
-                    (dateInFormat)="VoucherDate = $event; checkForBill()"
-                  >
+                  <datepicker-popup [disableInput]="editId > 0" [applyFinYear]="true" [toSetDate]="VoucherDate"
+                    (opened)="dateStatus = $event" (dateInFormat)="VoucherDate = $event; checkForBill()">
                   </datepicker-popup>
                 </div>
-                <ng-container *ngIf="sumDr > 0 || sumCr > 0" >
-                  <div class="col-md-6" ></div>
-                  <div class="col-md-3" ><span class="font-weight-bold" >CR - </span> {{sumCr}}</div>
-                  <div class="col-md-3" ><span class="font-weight-bold" >DR - </span> {{sumDr}}</div>
+                <ng-container *ngIf="sumDr > 0 || sumCr > 0">
+                  <div class="col-md-6"></div>
+                  <div class="col-md-3"><span class="font-weight-bold">CR - </span> {{sumCr}}</div>
+                  <div class="col-md-3"><span class="font-weight-bold">DR - </span> {{sumDr}}</div>
                 </ng-container>
-                
-                <ng-container
-                  *ngFor="let voucherData of voucherDataJ; let i = index"
-                >
+
+                <ng-container *ngFor="let voucherData of voucherDataJ; let i = index; let last = last">
                   <div class="form-group col-md-2">
                     <label>Type</label>
-                    <ng-select
-                      name="typeName-{{i}}"
-                      id="crdr-{{i}}"
-                      [items]="transferData"
-                      bindLabel="text"
-                      bindValue="id"
-                      [clearable]="false"
-                      placeholder="Select Type"
-                      [(ngModel)]="voucherData.Type"
-                      [ngClass]="{ errorSelecto: invalidObj?.crdr }"
-                      (change)="onchangesCRDRType(voucherData.Type)"
-                    >
+                    <ng-select name="typeName-{{i}}" id="crdr-{{i}}" [items]="transferData" bindLabel="text"
+                      bindValue="id" [clearable]="false" placeholder="Select Type" [(ngModel)]="voucherData.Type"
+                      [ngClass]="{ 'errorSelecto': invalidObj?.crdr }" (change)="onchangesCRDRType(voucherData.Type)">
                     </ng-select>
                   </div>
                   <div class="form-group col-md-4">
                     <label>Ledger</label>
-                    <ng-select
-                    name="LedgerIdName-{{i}}"
-                    id="LedgerId-{{i}}"
-                    [items]="voucherData.data"
-                    bindLabel="text"
-                    bindValue="id"
-                    [clearable]="false"
-                    placeholder="Select Type"
-                    [(ngModel)]="voucherData.LedgerId"
-                    [ngClass]="{ errorSelecto: invalidObj?.LedgerId }"
-                    (change)="onSelectJournalLedger(voucherData.LedgerId, i)"
-                  >
-                  </ng-select>
+                    <ng-select name="LedgerIdName-{{i}}" id="LedgerId-{{i}}" [items]="voucherData.data" bindLabel="text"
+                      bindValue="id" [clearable]="false" placeholder="Select Type" [(ngModel)]="voucherData.LedgerId"
+                      [ngClass]="{ 'errorSelecto': invalidObj?.LedgerId }"
+                      (change)="onSelectJournalLedger(voucherData.LedgerId, i)">
+                    </ng-select>
                     <!-- <div class="input-group adw_select">
                       <select2
                         name="LedgerId"
@@ -675,23 +393,12 @@
                   </div>
                   <div class="form-group col-md-4">
                     <label>Amount</label>
-                    <input
-                      type="text"
-                      appIncludeDecimal
-                      name="Amount"
-                      class="form-control"
-                      (keyup.enter)="addItems()"
-                      id="Amount"
-                      [(ngModel)]="voucherData.Amount"
-                      placeholder="Enter Amount"
-                    />
+                    <input type="text" appIncludeDecimal name="Amount" class="form-control" (keyup.enter)="addItems(i)"
+                      id="Amount-{{i}}" [(ngModel)]="voucherData.Amount" placeholder="Enter Amount" />
                   </div>
                   <div class="form-group col-md-2 btn_Action">
-                    <button
-                      type="submit"
-                      class="btn btn-primary btn_add_more mr-2"
-                      (click)="addItems()"
-                    >
+                    <button *ngIf="last" type="submit" id="addButton-{{i}}" class="btn btn-primary btn_add_more mr-2"
+                      (click)="addItems(i)">
                       +
                     </button>
                     <a *ngIf="voucherDataJ.length > 1" (click)="deleteItem(i)">
@@ -702,14 +409,8 @@
                 <div class="form-group col-lg-12">
                   <!-- [ngClass]="{'errorSelecto': invalidObj?.Narration}" -->
                   <label>Narration</label>
-                  <input
-                    name="Narration"
-                    class="form-control"
-                    (keydown.enter)="manipulateData()"
-                    id="Narration"
-                    [(ngModel)]="Narration"
-                    placeholder="Enter Narration"
-                  />
+                  <input name="Narration" class="form-control" (keydown.enter)="manipulateData('new')" id="Narration"
+                    [(ngModel)]="Narration" placeholder="Enter Narration" />
                 </div>
               </div>
             </div>
@@ -721,74 +422,39 @@
                   <label>Organisation Name</label>
                   <div class="input-group adw_select">
                     <div class="input-group adw_select">
-                      <select2
-                        #organisation_select2
-                        id="organisation"
-                        [data]="organisationsData"
-                        class="control_select"
-                        (valueChanged)="onChangeOrganisationId($event)"
-                        autocomplete="true"
-                        [options]="{ placeholder: 'Select Organisation' }"
-                        [value]="organisationVlue"
-                      >
+                      <select2 #organisation_select2 id="organisation" [data]="organisationsData" class="control_select"
+                        (valueChanged)="onChangeOrganisationId($event)" autocomplete="true"
+                        [options]="{ placeholder: 'Select Organisation' }" [value]="organisationVlue">
                       </select2>
                     </div>
                   </div>
                 </div>
                 <div class="form-group col-md-4">
-                  <label
-                    ><span *ngIf="tabId === 5">Payment</span
-                    ><span *ngIf="tabId === 6">Receipt</span> VoucherNo.
-                    </label>
-                  <a
-                    *ngIf="
+                  <label><span *ngIf="tabId === 5">Payment</span><span *ngIf="tabId === 6">Receipt</span> VoucherNo.
+                  </label>
+                  <a *ngIf="
                       voucherService.tabs[tabId - 1].voucherNoManual &&
                       previousVoucherNo
-                    "
-                    class="tooltip1 info_tooltip"
-                    ><i class="fas fa-info"></i>
-                    <span class="tooltiptext"
-                      >Last Voucher No. used is - {{ previousVoucherNo }}</span
-                    >
+                    " class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
+                    <span class="tooltiptext">Last Voucher No. used is - {{ previousVoucherNo }}</span>
                   </a>
-                  <input
-                    type="text"
-                    placeholder="Voucher Number"
-                    class="form-control"
-                    name="VoucherNo"
-                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual"
-                    [(ngModel)]="VoucherNo"
-                  />
+                  <input type="text" placeholder="Voucher Number" class="form-control" name="VoucherNo"
+                    [readonly]="!voucherService.tabs[tabId - 1].voucherNoManual" [(ngModel)]="VoucherNo" />
                 </div>
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
-                  <datepicker-popup
-                    [disableInput]="editId > 0"
-                    [applyFinYear]="true"
-                    [toSetDate]="VoucherDate"
-                    (opened)="dateStatus = $event"
-                    (dateInFormat)="VoucherDate = $event; checkForBill()"
-                  >
+                  <datepicker-popup [disableInput]="editId > 0" [applyFinYear]="true" [toSetDate]="VoucherDate"
+                    (opened)="dateStatus = $event" (dateInFormat)="VoucherDate = $event; checkForBill()">
                   </datepicker-popup>
                 </div>
                 <div class="form-group col-md-3">
-                  <label
-                    >{{ tabId === 5 ? "Payment Ledger" : "Receipt Ledger" }}
+                  <label>{{ tabId === 5 ? "Payment Ledger" : "Receipt Ledger" }}
                   </label>
                   <div class="input-group adw_select">
                     <div class="input-group adw_select">
-                      <select2
-                        #party_select2
-                        id="vendor"
-                        [data]="ledgerData"
-                        class="control_select"
-                        (valueChanged)="
+                      <select2 #party_select2 id="vendor" [data]="ledgerData" class="control_select" (valueChanged)="
                           PartyId = +$event.value; getVoucherList_Payment_recipt()
-                        "
-                        autocomplete="true"
-                        [options]="ledgerPlaceholder"
-                        [value]="ledgerValue"
-                      >
+                        " autocomplete="true" [options]="ledgerPlaceholder" [value]="ledgerValue">
                       </select2>
                     </div>
                   </div>
@@ -796,61 +462,31 @@
                 <div class="form-group col-md-3">
                   <label>Pay Modes</label>
                   <div class="input-group adw_select">
-                    <select2
-                      name="Paymode"
-                      #payment_select2
-                      [data]="paymentModesData"
-                      id="PayModeId"
-                      class="control_select"
-                      (valueChanged)="onPaymentModeSelect($event)"
-                      autocomplete="true"
+                    <select2 name="Paymode" #payment_select2 [data]="paymentModesData" id="PayModeId"
+                      class="control_select" (valueChanged)="onPaymentModeSelect($event)" autocomplete="true"
                       [options]="{ placeholder: 'Select Payment Mode' }"
-                      [ngClass]="{ errorSelecto: invalidObj?.PayModeId }"
-                      [value]="paymode"
-                    ></select2>
+                      [ngClass]="{ 'errorSelecto': invalidObj?.PayModeId }" [value]="paymode"></select2>
                   </div>
                 </div>
                 <div class="form-group col-md-3">
                   <label>Ledger</label>
                   <div class="input-group adw_select">
-                    <select2
-                      name="LedgerId"
-                      #ledger_select2
-                      [data]="paymentLedgerselect2"
-                      id="LedgerId"
-                      class="control_select"
-                      (valueChanged)="onPaymentLedgerSelect($event)"
-                      autocomplete="true"
-                      [options]="{ placeholder: 'Select Ledger' }"
-                      [ngClass]="{ errorSelecto: invalidObj?.LedgerId }"
-                      [value]="ledger"
-                    ></select2>
+                    <select2 name="LedgerId" #ledger_select2 [data]="paymentLedgerselect2" id="LedgerId"
+                      class="control_select" (valueChanged)="onPaymentLedgerSelect($event)" autocomplete="true"
+                      [options]="{ placeholder: 'Select Ledger' }" [ngClass]="{ 'errorSelecto': invalidObj?.LedgerId }"
+                      [value]="ledger"></select2>
                   </div>
                 </div>
                 <div class="form-group col-md-3">
                   <label>Amount</label>
-                  <input
-                    type="text"
-                    appIncludeDecimal
-                    name="Amount"
-                    class="form-control"
-                    id="Amount"
-                    [(ngModel)]="Amount"
-                    placeholder="Enter Amount"
-                    (input)="checkForValidation(); updateAmount()"
-                    [disabled]="!autoBill"
-                  />
+                  <input type="text" appIncludeDecimal name="Amount" class="form-control" id="Amount"
+                    [(ngModel)]="Amount" placeholder="Enter Amount" (change)="onChangeAmount()"
+                    (input)="checkForValidation(); updateAmount()" [disabled]="!autoBill" />
                 </div>
                 <div class="form-group col-md-12">
                   <label>Narration</label>
-                  <input
-                    name="Narration"
-                    class="form-control"
-                    (keydown.enter)="manipulateData()"
-                    id="Narration"
-                    [(ngModel)]="Narration"
-                    placeholder="Enter Narration"
-                  />
+                  <input name="Narration" class="form-control" (keydown.enter)="manipulateData('new')" id="Narration"
+                    [(ngModel)]="Narration" placeholder="Enter Narration" />
                 </div>
               </div>
             </div>
@@ -858,18 +494,11 @@
         </div>
       </div>
       <div class="modal-footer footer-fixed footer_modal_form">
-        <button
-          type="submit"
-          class="btn waves-effect btn-succ-ess"
-          >
+        <button type="button" class="btn waves-effect btn-succ-ess" (click)="manipulateData('new')">
           Save
         </button>
-        <button
-          type="button"
-          class="btn waves-effect btn-default def-ault-btn"
-         
-          data-dismiss="modal"
-        >
+        <button type="button" class="btn waves-effect btn-default def-ault-btn" (click)="closeModal()"
+          data-dismiss="modal">
           Close
         </button>
       </div>

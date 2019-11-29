@@ -10,13 +10,15 @@ import { PagingUtilityModule } from 'src/app/shared/pagination/pagination.module
 import { NgxPaginationModule } from 'ngx-pagination'
 import {SaleDirectReturnService} from './saleReturn.service'
 import {SaleDirectReturnComponent} from '../saleReturn-add/saleReturn-add.component'
+import { SaleReturnDirectAddComponent} from '../directSaleReturn-add/sale-direct-return-add.component'
 
 @NgModule({
   declarations: [
     SaleReturnDirectListComponent,
     SaleReturnDirectSearchComponent,
     SaleReturnDirectMainComponent,
-    SaleDirectReturnComponent
+    SaleDirectReturnComponent,
+    SaleReturnDirectAddComponent
   ],
   imports: [
     CommonModule,
@@ -27,7 +29,8 @@ import {SaleDirectReturnComponent} from '../saleReturn-add/saleReturn-add.compon
     NgxPaginationModule
   ],
   exports:[
-    SaleDirectReturnComponent
+    SaleDirectReturnComponent,
+    SaleReturnDirectAddComponent
   ],
   providers: [SaleDirectReturnService]
 })

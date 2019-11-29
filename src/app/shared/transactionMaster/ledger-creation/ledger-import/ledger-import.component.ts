@@ -466,8 +466,8 @@ export class LedgerImportComponent {
       }
     }
   }
-
-  closeImportModal () {
+  yesConfirmationClose() {
+    $('#close_confirm6').modal(UIConstant.MODEL_HIDE)
     this.reset()
     this.masterData = []
     this.sheetname = []
@@ -485,6 +485,13 @@ export class LedgerImportComponent {
     this.isDataLoading = false
     this.isLoading = false
     this.ledgerService.closeLedgerImport()
+  }
+  closeConfirmation() {
+    $('#close_confirm6').modal(UIConstant.MODEL_SHOW)
+  }
+  closeImportModal () {
+    this.closeConfirmation()
+   
   }
 
   getRcmTypeList () {

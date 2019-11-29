@@ -227,12 +227,17 @@ if(evt && evt.value>0){
   }
 
   search = () => {
+    
     if (this.model.fromDatevalue) {
       this.model.formattedFromDatevalue = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
+      alert( this.model.formattedFromDatevalue)
     }
+    
+
     if (this.model.toDateValue) {
       this.model.formattedToDateValue = this._globalService.clientToSqlDateFormat(this.model.toDateValue, this.clientDateFormat)
     }
+    
     this.searchByFilter.emit(this.model);
   }
 

@@ -1,3 +1,4 @@
+import { CrmComponent } from './../crm/crm.component';
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
 import { StartComponent } from './start/start.component'
@@ -209,9 +210,7 @@ const routes: Routes = [
       },
       {
         path: 'ims/voucher-entry',
-        // loadChildren:  () =>  import('../inventory/voucher-entry/voucher-entry.module').then(m => m.VoucherEntryModule)
-        loadChildren:'../inventory/voucher-entry/voucher-entry.module#VoucherEntryModule',
-        pathMatch: 'full'
+        loadChildren: '../inventory/voucher-entry/voucher-entry.module#VoucherEntryModule',
       },
       {
         path: 'common-menu/:code',
@@ -221,11 +220,6 @@ const routes: Routes = [
       {
         path: 'transaction-number',
         loadChildren:'../shared/transaction-number/transaction-number.module#TransactionNumberModule'
-      },
-      {
-        path: 'material-requirement',
-        // loadChildren:  () =>  import('../Manufacturer/item-requirement/item-requirement.module').then(m => m.ItemRequirementModule)
-        loadChildren:'../Manufacturer/item-requirement/item-requirement.module#ItemRequirementModule'
       },
       {
         path: 'ims/report/item-inventory',
@@ -475,7 +469,26 @@ const routes: Routes = [
         path: 'finance',
         loadChildren:'../finance/finance.module#FinanceModule'
       },
-
+      {
+        path: 'godown',
+        loadChildren:'../shared/transactionMaster/godown/godown.module#GodownModule'
+      },
+      {
+        path: 'customerAgent',
+        loadChildren:'../super-admin/customer-agent/customer-agent.module#CustomerAgentModule'
+      },
+      {
+        path: 'reports/vendor-rates',
+        loadChildren:'../report/vendor-rates/vendor-rates-report.module#VendorRatesReportModule'
+      },
+      {
+        path: 'crm',
+        loadChildren:'../crm/crm.module#CrmModule'
+      },
+      {
+        path: 'report/gstr-3b',
+        loadChildren: '../report/gstr-3b/gstr-3b.module#Gstr3bModule'
+      },
     ]
   }
 ]

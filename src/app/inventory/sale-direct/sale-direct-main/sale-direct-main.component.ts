@@ -50,6 +50,9 @@ export class SaleDirectMainComponent {
     ) {
     this.menuData = this._loginService.getMenuDetails(13, 9);
     this.getCurrentTime()
+    this.industryId = +this.settings.industryId
+    this.clientDateFormat = this.settings.dateFormat
+    this.dicimalDigitFormat = this.settings.noOfDecimal
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.loading = true
     this.SPUtilityData()
@@ -333,9 +336,15 @@ export class SaleDirectMainComponent {
 
               this.attributelength =data.Data.ItemAttributesTrans.length
           data.Data.ItemTransactions.forEach((element,index) => {
+            
             let attributeValue = data.Data.ItemAttributesTrans.filter(d => (d.ItemTransId === element.Id))
+            let IMEInumberValue = data.Data.ItemPropertyTrans.filter(d => (d.ItemTransId === element.Id))
+
             if (attributeValue.length > 0) {
               data.Data.ItemTransactions[index]['Attribute']=attributeValue
+            }
+            if (IMEInumberValue.length > 0) {
+              data.Data.ItemTransactions[index]['IMEi']=IMEInumberValue
             }
           });
           _self.ItemTransactionactions = data.Data.ItemTransactions

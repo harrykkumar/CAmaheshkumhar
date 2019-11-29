@@ -154,13 +154,7 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
     this.getTypeEWise = this.getsetTypeWise(item.type)
     this.getSaleSummaryData()
     if(this.getTypeEWise ==='billWise' && item.saleId >0 ){
-      let action={}
-       action =
-             { type: FormConstants.ViewPrint,
-               id: item.saleId,
-               printId: 'purchase_print_id'
-           ,isViewPrint :true}
-    this._commonService.onActionClicked(action)
+      this._commonService.openPrint(item.saleId,'purchase',true)
     }
 
   }
@@ -196,7 +190,6 @@ export class PurchaseSummaryReportComponent implements OnInit, AfterViewInit {
   endDateChanage: any
   getSaleSummaryData = () => {
     let fromDate, toDate
-   // alert(this.model.fromDatevalue)
     if (this.model.fromDatevalue) {
       fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
     }
