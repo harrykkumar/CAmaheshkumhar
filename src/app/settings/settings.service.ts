@@ -3,6 +3,7 @@ import { BaseServices } from '../commonServices/base-services';
 import { Observable, Subject } from 'rxjs';
 import { ResponseSale } from '../model/sales-tracker.model';
 import { ApiConstant } from '../shared/constants/api';
+import { GlobalService } from '../commonServices/global.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +13,14 @@ export class SettingsService {
   public saveSub$ = this.saveSub.asObservable()
   private searchSub = new Subject<any>()
   public search$ = this.searchSub.asObservable()
-  constructor (private baseServices: BaseServices) {}
+  constructor (private baseServices: BaseServices, private _gs: GlobalService) {}
 
-  getFormFields (): Observable<ResponseSale> {
-    return this.baseServices.getRequest(ApiConstant.GET_DYNAMIC_SETUP_FIELDS)
+  getFormFields(type?): Observable<ResponseSale> {
+    if (type) {
+      return this.baseServices.getRequest(`${ApiConstant.GET_DYNAMIC_SETUP_FIELDS}?Type=OrgSetup`)
+    } else {
+      return this.baseServices.getRequest(ApiConstant.GET_DYNAMIC_SETUP_FIELDS)
+    }
   }
 
   postFormValues (obj): Observable<ResponseSale> {
@@ -28,5 +33,9 @@ export class SettingsService {
 
   onSearch (search) {
     this.searchSub.next(search)
+  }
+
+  getSettingsById(id) {
+    return this.baseServices.getRequest(ApiConstant.MENU_SETTING_RIGHTS_BY_ID + id)
   }
 }

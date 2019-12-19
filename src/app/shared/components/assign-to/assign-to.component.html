@@ -1,0 +1,78 @@
+<div
+  class="modal fade right"
+  id="assign_to"
+  data-backdrop="static"
+  data-keyboard="false"
+  role="dialog"
+  aria-labelledby="category_master"
+  aria-hidden="true"
+>
+  <div class="modal-dialog " role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">
+         {{transferLeads?.length > 0 ? 'Transfer' : 'Assign'}}
+         {{(parentTypeId === 47 ? 'Lead' : 'Follow-Up')}}</h4>
+        <button
+          type="button"
+          class="close"
+          (click)="closePopUp()"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form #assignForm="ngForm" novalidate>
+        <div class="modal-body">
+          <div class="card-body">
+            <div>
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label for="commonMenuName">User</label>
+                  <ng-select
+                    id="userId"
+                    name="userName"
+                    [items]="userData"
+                    bindLabel="Name"
+                    bindValue="Id"
+                    [multiple]="parentId"
+                    placeholder="Select User"
+                    [(ngModel)]="assignUserId"
+                    required
+                    [ngClass]="{
+                      errorSelecto: assignForm?.submitted && !assignUserId
+                    }"
+                  >
+                  </ng-select>
+                </div>
+                <div class="form-group col-md-12" *ngIf="!parentId">
+                  <label>Remark</label>
+                  <textarea
+                    name="assignRemark"
+                    type="text"
+                    [(ngModel)]="assignRemark"
+                    class="form-control"
+                    placeholder="Enter Remark"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-primary waves-effect"
+            (click)="assignForm?.form?.valid && assignTo()"
+            [disabled]="assignForm?.form?.invalid"
+            (keydown.enter)="assignForm?.form?.valid && assignTo()"
+          >
+           {{transferLeads?.length > 0 ? 'Transfer' : 'Assign'}}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

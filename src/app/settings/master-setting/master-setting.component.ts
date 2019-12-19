@@ -6,7 +6,7 @@ import { ToastrCustomService } from '../../commonServices/toastr.service';
 import { filter, catchError, map } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { Currencies } from '../currency';
-import { SetUpIds } from '../../shared/constants/setupIds.constant'; 
+import { SetUpIds } from '../../shared/constants/setupIds.constant';
 import { DateFormats } from '../data-format';
 import { Subscription } from 'rxjs/Subscription';
 import { LoginService } from 'src/app/commonServices/login/login.services';
@@ -69,7 +69,7 @@ export class MasterSettingComponent implements OnInit, AfterViewInit {
 
   settings: Array<modelType> = []
   getFormFields () {
-    this.settingsService.getFormFields().pipe(
+    this.settingsService.getFormFields(this.isNewSetting).pipe(
       filter(data => {
         if (data.Code === UIConstant.THOUSAND) {
           return true
@@ -232,7 +232,8 @@ export class MasterSettingComponent implements OnInit, AfterViewInit {
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             this.toastrService.showSuccess('Saved Successfully', '')
             if (this.isNewSetting) {
-              this.router.navigate(['organization/transaction-number']);
+              // this.router.navigate(['organization/transaction-number']);
+              this.router.navigate(['organizations']);
             } else {
               const selectedModule =  JSON.parse(localStorage.getItem('SELECTED_MODULE'))
               this._settings.removeModuleSettings()
@@ -255,6 +256,7 @@ export class MasterSettingComponent implements OnInit, AfterViewInit {
 
   ngOnDestroy () {
     this.saveSub$.unsubscribe()
+    this.isNewSetting = false
   }
 }
 

@@ -1,0 +1,59 @@
+<div id="demo" class="collapse bgc-white" [ngStyle]="{'display': toShow ? 'block' : 'none'}">
+  <form [formGroup]="searchForm" (ngSubmit)="search()" noValidate>
+    <div class="form-row p-10">
+      <div class="col-md-3 form-group">
+        <fieldset id="group">
+          <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" class="custom-control-input" id="samplechdate" name="group" value="1"
+              [checked]="searchForm?.get('Type')?.value == 'BO'" (change)="setValue('BO')" />
+            <label class="custom-control-label" for="samplechdate">BO</label>
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" class="custom-control-input" id="sampleseae10000" name="group" value="2"
+              [checked]="searchForm?.get('Type')?.value == 'MI'" (change)="setValue('MI')" />
+            <label class="custom-control-label" for="sampleseae10000">MI</label>
+          </div>
+        </fieldset>
+      </div>
+      <div class="col-md-2 form-group">
+        <div class="timepicker-input input-icon">
+          <datepicker-popup #first [toSetDate]="searchForm?.get('FromDate')?.value" [placeholder]="'Select From Date'"
+            (dateInFormat)="setFromDate($event)" [class]="f.FromDate?.errors?.isValidDate">
+          </datepicker-popup>
+        </div>
+      </div>
+      <div class="col-md-2 form-group">
+        <div class="timepicker-input input-icon">
+          <datepicker-popup [toSetDate]="searchForm?.get('ToDate')?.value" [placeholder]="'Select To Date'"
+            (dateInFormat)="setToDate($event)" [class]="f.ToDate?.errors?.isValidDate">
+          </datepicker-popup>
+        </div>
+      </div>
+      <div class="col-md-2 form-group">
+        <div class="input-group adw_select">
+          <select2 #ledger_select2 id="vendor" [data]="ledgerData" class="control_select"
+            (valueChanged)="setBuyerId($event)" autocomplete="true" [options]="{placeholder: 'Select Buyer'}"
+            [value]="ledgerValue">
+          </select2>
+        </div>
+      </div>
+      <div class="col-md-2 form-group">
+        <div class="input-group adw_select">
+          <select2 #item_select2 [data]="itemData" class="control_select"
+            (valueChanged)="setItemId($event)" autocomplete="true" [options]="{placeholder: 'Select Item'}"
+            [value]="itemValue">
+          </select2>
+        </div>
+      </div>
+      <div class="form-group col-md-2">
+        <input type="text" class="form-control" formControlName="ReqNo" id="org_code687" placeholder="Req No.">
+      </div>
+      <div class="form-group col-md-2 text-center">
+        <button type="submit" class="btn btn-primary waves-effect waves-light m-0">Search</button>
+      </div>
+      <div class="form-group col-md-2">
+        <button type="button" class="btn btn_close waves-effect m-0" (click)="resetSearch()">Reset</button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -27,12 +27,9 @@
             <div class="btn_header">
               <!-- <a>
                 <img src="assets/img/printer.png" />
-              </a>
-              <a> <img src="assets/img/pdf.png"/></a>
-
-              <a>
-                <img src="assets/img/excel.png" />
               </a> -->
+              <a><img src="assets/img/pdf.png"/></a>
+              <a (click)="getDataInExcel()" ><img src="assets/img/excel.png"/></a>
               <button type="button" class="btn btn-primary waves-effect waves-light" (click)="addBuyerOrder()">
                 Add New
               </button>
@@ -84,7 +81,7 @@
                       <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
                           class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
                       <ul class="dropdown-menu fsz-sm">
-                        <li>
+                        <li *ngIf="item?.IsEditModeOpen" >
                           <a data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn"
                             (click)="addItemRequirement(item)">
                             <i class="fa fa-edit fa-1x" aria-hidden="true"></i>
@@ -139,9 +136,6 @@
 </app-pagination>
 
 <app-add-buyer-order #addBuyerOrderFormRef (triggerCloseModal)="onModalClosed($event)"></app-add-buyer-order>
-
-<!-- <template #packagingaddcontainer>
-</template> -->
 
 <ng-container *ngIf="printFor === 'bo'" >
   <body class="modal" id="print_buyer_order">

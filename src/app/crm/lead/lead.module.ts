@@ -6,7 +6,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { AddLeadComponent } from '../add-lead/add-lead.component';
 import { AddLeadDetailComponent } from '../add-lead-detail/add-lead-detail.component';
 import { LeadRoutingModule } from './lead.routing';
-import { LeadReportComponent } from '../lead-report/lead-report.component';
 
 @NgModule({
   declarations: [

@@ -13,14 +13,8 @@
               <div class="mr-2">
                 <div id="custom-search-input" class="btn_header1">
                   <div class="input-group col-md-12">
-                    <input
-                      type="text"
-                      class="form-control input-lg"
-                      placeholder="Search"
-                      (input)="getLeadList('search')"
-                      name="searchText"
-                      [(ngModel)]="searchText"
-                    />
+                    <input type="text" class="form-control input-lg" placeholder="Search"
+                      (input)="getLeadList('search')" name="searchText" [(ngModel)]="searchText" />
                     <span class="input-group-btn">
                       <a>
                         <i class="fas fa-search"></i>
@@ -30,23 +24,12 @@
                 </div>
               </div>
               <div class="btn_header">
-                <!-- <a><img src="assets/img/printer.png" /> </a>
-                <a><img src="assets/img/pdf.png"/></a>
-                <a><img src="assets/img/excel.png"/></a> -->
-                <button
-                  type="button"
-                  class="btn btn-primary waves-effect waves-light"
-                  data-toggle="modal"
-                  (click)="addLead()"
-                >
+                <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
+                  (click)="addLead()">
                   Add New
                 </button>
-                <a
-                  href="#lead_search_form"
-                  class="btn btn-info waves-effect waves-light"
-                  data-toggle="collapse"
-                  ><i class="fas fa-search"></i>Search</a
-                >
+                <a href="#lead_search_form" class="btn btn-info waves-effect waves-light" data-toggle="collapse"><i
+                    class="fas fa-search"></i>Search</a>
               </div>
             </div>
           </div>
@@ -55,48 +38,47 @@
     </div>
     <div id="lead_search_form" class="card collapse mb-2">
       <div class="px-3 pt-2">
-        <form
-          #leadSearchFormControl="ngForm"
-          (ngSubmit)="leadSearchFormControl.form.valid && getLeadList()"
-          novalidate
-        >
+        <form #leadSearchFormControl="ngForm" (ngSubmit)="leadSearchFormControl.form.valid && getLeadList()" novalidate>
           <div class="form row">
             <div class="form-group col-md-3 ">
               <label>Lead Status</label>
-              <ng-select
-              name="statusName"
-              [items]="crmService.leadUtilityData.EnquiryStatus"
-              bindLabel="commondesc"
-              bindValue="id"
-              placeholder="Select Status"
-              (change)="onStatusChange($event)"
-              [(ngModel)]="leadStatusId">
+              <ng-select name="statusName" [items]="crmService.leadUtilityData.EnquiryStatus" bindLabel="commondesc"
+                bindValue="id" placeholder="Select Status" [(ngModel)]="leadStatusId">
+              </ng-select>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Business Type</label>
+              <ng-select id="businessTypeId" name="businessTypeName" [items]="crmService.leadUtilityData.BusinessType"
+                bindLabel="commondesc" bindValue="id" placeholder="Select Business Type" [(ngModel)]="businessTypeId">
+              </ng-select>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Source</label>
+              <ng-select id="sourceId" name="sourceName" [items]="crmService.leadUtilityData.EnquirySource"
+                bindLabel="commondesc" bindValue="id" placeholder="Select Source" [(ngModel)]="sourceId">
               </ng-select>
             </div>
             <div class="form-group col-md-3 ">
               <label class="fw-500">From</label>
               <div class="timepicker-input input-icon form-group">
-                <datepicker-popup [toSetDate]="fromDateValue"
-                (dateInFormat)="fromDateValue = $event;"></datepicker-popup>
+                <datepicker-popup [toSetDate]="fromDateValue" (dateInFormat)="fromDateValue = $event">
+                </datepicker-popup>
               </div>
             </div>
             <div class="form-group col-md-3">
               <label class="fw-500">To</label>
               <div class="timepicker-input input-icon form-group">
-                <datepicker-popup [toSetDate]="toDateValue"
-                (dateInFormat)="toDateValue = $event;"></datepicker-popup>
+                <datepicker-popup [toSetDate]="toDateValue" (dateInFormat)="toDateValue = $event"></datepicker-popup>
               </div>
             </div>
             <div class="form-group col-md-3 pt-3">
-              <button (click)="searchButton()"
-                type="submit"
-                class="btn btn-primary waves-effect waves-light"
-              >
+              <button type="submit" class="btn btn-primary waves-effect waves-light">
                 Search
               </button>
-              <button type="button" (click)="leadSearchFormControl.resetForm()" class="btn btn_close waves-effect">Reset</button>
+              <button type="button" (click)="leadSearchFormControl.resetForm()" class="btn btn_close waves-effect">
+                Reset
+              </button>
             </div>
-
           </div>
         </form>
       </div>
@@ -104,250 +86,170 @@
     <div class="row">
       <div class="col-md-12">
         <div class="bgc-white bdrs-3 pb-3 mB-20">
-          <!-- <div class="sidebar-offcanvas top_action_saniiro">
+          <div class="sidebar-offcanvas top_action_saniiro">
             <ul class="filter-cat">
-              <li>Bulk Mail</li>
-              <li>Bulk SMS</li>
               <li>
-                <a class="" data-toggle="modal" data-target="#assign_to"
-                  >Assign to</a
-                >
+                <div class="divgray"></div>
+                <a href="javascript:void(0)"><span class="colorspan">Assigned</span></a>
               </li>
-              <li>Merge</li>
-              <li>Update Field</li>
               <li>
-                <a class="" data-toggle="modal" data-target="#confm_delete"
-                  >Delete</a
-                >
+                <div class="divgreen"></div>
+                <a href="javascript:void(0)" (click)="leadStatusId = 6; getLeadList()">
+                  <span class="colorspan">Converted</span></a>
+              </li>
+              <li>
+                <div class="divetentative"></div>
+                <a href="javascript:void(0)" (click)="leadStatusId = 5; getLeadList()">
+                  <span class="colorspan">Tentative</span>
+                </a>
+              </li>
+              <li style="background:#4285f4;">
+                <a href="javascript:void(0)"
+                 class="font-weight-bold text-decoration-none text-white"
+                  (click)="transferLead()">
+                  Transfer Lead
+                </a>
               </li>
             </ul>
-          </div> -->
+          </div>
           <div class="table-responsive table_height">
-              <table class="table cat-table table-hover">
+            <table class="table cat-table table-hover">
               <thead class="saniiro_tbl_header">
                 <tr class="default_row">
-                  <th>Name</th>
-                  <th>Lead Score</th>
-                  <th>Lead Status</th>
+                  <th>
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="alleadSelectorId"
+                         name="alleadSelectorName"
+                        [checked]="isAllLeadSelected"
+                         (change)="isAllLeadSelected = $event.target.checked; checkAllLead();">
+                        <label class="custom-control-label" for="alleadSelectorId"></label>
+                      </div>
+                  </th>
+                  <th>
+                    Org/Customer Detail
+                    <span class="pl-2">
+                      <a href="javascript:void(0)" (click)="
+                          isAsc[0] = !isAsc[0]; sortByKey(isAsc[0], 'Customer')
+                        ">
+                        <i class="fas" style="color:#4285f4;" [ngClass]="{
+                            'fa-chevron-down': isAsc[0],
+                            'fa-chevron-up': !isAsc[0]
+                          }"></i>
+                      </a>
+                    </span>
+                  </th>
+                  <!-- <th>Lead Score</th> -->
+                  <th>
+                    Lead Score/Status
+                    <span class="pl-2">
+                      <a href="javascript:void(0)" (click)="
+                          isAsc[1] = !isAsc[1]; sortByKey(isAsc[1], 'Status')
+                        ">
+                        <i class="fas" style="color:#4285f4;" [ngClass]="{
+                            'fa-chevron-down': isAsc[1],
+                            'fa-chevron-up': !isAsc[1]
+                          }"></i>
+                      </a>
+                    </span>
+                  </th>
                   <th>Lead Source</th>
                   <th>Last Connected Time</th>
-                  <th>Contact Detail</th>
-                  <th>Business Type</th>
-                  <th>Follow Up</th>
+                  <th>
+                    Contact Person
+                    <span class="pl-2">
+                      <a href="javascript:void(0)" (click)="
+                          isAsc[4] = !isAsc[4];
+                          sortByKey(isAsc[4], 'ContactPerson')
+                        ">
+                        <i class="fas" style="color:#4285f4;" [ngClass]="{
+                            'fa-chevron-down': isAsc[4],
+                            'fa-chevron-up': !isAsc[4]
+                          }"></i>
+                      </a>
+                    </span>
+                  </th>
+                  <!-- <th>Contact Person</th> -->
+                  <th width="200">Remark</th>
+                  <th>Action</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let item of leadData">
-                  <td class="align-middle">
-                    <div
-                      class="dropdown arrow_down d-inline-block mr-1 profile_pict"
-                    >
-                      <a class="dropdown-toggle" data-toggle="dropdown">
-                        <img
-                          src="../assets/static/images/img.jpg"
-                          alt="..."
-                          class="img-circle profile_image"
-                        />
-                      </a>
-                      <div class="dropdown-menu dropdown_detail p-2">
-                        <div class="card-header">
-                          <div class="row user_top_info">
-                            <div class="col-8">
-                              <a
-                                class="strong text-ellipsis ember-view"
-                                >{{item?.Customer}}
-                              </a>
-                              <address>{{item.AddressValue}}</address>
-                            </div>
-                            <div class="col-4 left_media">
-                              <a href="#"><i class="fas fa-phone"></i></a>
-                              <a href="#"><i class="far fa-envelope"></i></a>
-                              <a href="#"
-                                ><i class="far fa-envelope-open"></i
-                              ></a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                <tr *ngFor="let item of leadData; let i = index;">
+                  <td>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input"
+                      id="customCheck{{i}}" name="example1"
+                      [checked]="item.selected"
+                       (change)="item.selected = $event.target.checked" >
+                      <label class="custom-control-label" for="customCheck{{i}}"></label>
                     </div>
-                    <div class="section-edit detail_width_dropdown">
-                      <a
-                        (click)="openLeadReport(item)"
-                        class="strong text-ellipsis ember-view"
-                        >{{item?.Customer}}
+                  </td>
+                  <td class="align-middle">
+                    <div class="dropdown arrow_down d-inline-block mr-1 profile_pict">
+                      <a class="dropdown-toggle" data-toggle="dropdown">
+                        <img src="../assets/static/images/img.jpg" alt="..." class="img-circle profile_image" />
                       </a>
-                      <address>{{item.AddressValue}}</address>
+                    </div>
+                    <div class="section-edit detail_width_dropdown ">
+                      <a (click)="openLeadReport(item)" class="strong text-ellipsis ember-view">{{ item?.Customer }}
+                      </a>
+                      <address>{{ item.AddressValue }}</address>
                       <div class="edit-hover dropdown enquiry-tag arrow_down">
-                        <a class="dropdown-toggle" data-toggle="dropdown"
-                          ><i class="fas fa-pencil-alt"></i
-                        ></a>
                         <div class="dropdown-menu name_leads">
                           <div class="header_dropdown">
-                            <i class="far fa-check-circle fa-1x mr-2"></i
-                            ><i class="far fa-times-circle fa-1x"></i>
+                            <i class="far fa-check-circle fa-1x mr-2"></i><i class="far fa-times-circle fa-1x"></i>
                           </div>
-                          <!-- <div class="form-row">
-                            <div class="form-group col-md-12 col-12">
-                              <label>First Name</label>
-                              <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Enter Value"
-                              />
-                            </div>
-                            <div class="form-group col-md-12 col-12">
-                              <label>Last Name</label>
-                              <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Enter Value"
-                              />
-                            </div>
-                            <div class="form-group col-md-12 col-12">
-                              <label>Job Title</label>
-                              <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Enter Value"
-                              />
-                            </div>
-                            <div class="form-group col-md-12 col-12">
-                              <label>Company Name</label>
-                              <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Enter Value"
-                              />
-                            </div>
-                          </div> -->
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td class="align-middle">NIL</td>
-                  <td class="align-middle">{{item?.Status}}</td>
+                  <td class="align-middle text-center">
+                    <span>NIL</span>
+                    <div class="assign">
+                      {{ item?.Status }}
+                    </div>
+                  </td>
                   <td class="align-middle">
                     <div class="section-edit">
-                      <div><strong>{{item?.Source}}</strong></div>
-                      <!-- <p>New</p> -->
-
-                      <!-- <div class="edit-hover dropdown enquiry-tag arrow_down">
-                        <a class="dropdown-toggle" data-toggle="dropdown"
-                          ><i class="fas fa-pencil-alt"></i
-                        ></a>
-                        <div class="dropdown-menu name_leads">
-                          <div class="header_dropdown">
-                            <i class="far fa-check-circle fa-1x mr-2"></i
-                            ><i class="far fa-times-circle fa-1x"></i>
-                          </div>
-                          <div class="form-row">
-                            <div class="form-group col-md-12 col-12">
-                              <label>Source</label>
-                              <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Enter Value"
-                              />
-                            </div>
-                            <div class="form-group col-md-12 col-12">
-                              <label>Lead Stage</label>
-                              <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Enter Value"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div> -->
+                      <div>
+                        <strong>{{ item?.Source }}</strong>
+                      </div>
                     </div>
                   </td>
                   <td class="align-middle">
                     <div>
-                     {{item?.CreatedOn | date :'short'}}
+                      {{ item?.CreatedOn | date: "short" }}
                     </div>
                   </td>
-                  <td class="align-middle">
+                  <td class="align-middle text-center">
                     <div class="section-edit">
-                      <div class="font-weight-600">{{item?.ContactPerson}}</div>
-                      <div>{{item?.ContactNo}}</div>
-                      <div>{{item?.Email}}</div>
-                      <!-- <div class="edit-hover dropdown enquiry-tag arrow_down">
-                        <a class="dropdown-toggle" data-toggle="dropdown"
-                          ><i class="fas fa-pencil-alt"></i
-                        ></a>
-                        <div class="dropdown-menu name_leads">
-                          <div class="header_dropdown">
-                            <i class="far fa-check-circle fa-1x mr-2"></i
-                            ><i class="far fa-times-circle fa-1x"></i>
-                          </div>
-                          <div class="form-row">
-                            <div class="form-group col-md-12 col-12">
-                              <label>Owner Name</label>
-                              <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Enter Value"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div> -->
+                      <div>{{ item?.ContactPerson }}</div>
+                      <div class="bold">
+                        {{ item?.BusinessType }}
+                      </div>
                     </div>
                   </td>
-                  <td class="align-middle">{{item?.BusinessType}}</td>
+                  <td class="align-middle" style=" word-wrap: break-word;">
+                    {{ item?.Remark }}
+                  </td>
                   <td class="text-center">
                     <a href="javascript:void(0)" (click)="addLead(item, 'follow-up')">
-                    <i class="fas fa-clipboard-check follow_icon"></i></a></td>
+                      <i class="fas fa-clipboard-check follow_icon"></i></a>
+                  </td>
                   <td class="align-middle">
                     <div class="dropdown enquiry-tag">
-                      <a class="dropdown-toggle" data-toggle="dropdown"
-                        ><i class="fa fa-cog mR-3 cH-blue fa-1x"></i
-                        ><b class="caret"></b
-                      ></a>
+                      <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog mR-3 cH-blue fa-1x"></i><b
+                          class="caret"></b></a>
 
                       <ul class="dropdown-menu fsz-sm">
                         <li>
-                          <a
-                            data-target="#leads_detail"
-                            data-toggle="modal"
-                            class="d-b td-n p-1"
-                            ><i class="far fa-check-square mR-10 cH-blue"></i
-                            ><span>Detail</span></a
-                          >
+                          <a (click)="addLead(item)" class="d-b td-n p-1"><i
+                              class="far fa-edit mR-10 cH-blue"></i><span>Edit</span></a>
                         </li>
                         <li>
-                          <a
-                          (click)="addLead(item)"
-                            class="d-b td-n p-1"
-                            ><i class="far fa-edit mR-10 cH-blue"></i
-                            ><span>Edit</span></a
-                          >
-                        </li>
-                        <li>
-                          <a class="d-b td-n p-1"
-                            ><i class="fas fa-calendar-alt mR-10 cH-blue"></i
-                            ><span>Add Appointment</span></a
-                          >
-                        </li>
-                        <li>
-                          <a class="d-b td-n p-1"
-                            ><i class="fa fa-headphones mR-10 cH-blue"></i
-                            ><span>Add Quatation</span></a
-                          >
-                        </li>
-                        <li>
-                          <a class="d-b td-n p-1"
-                            ><i class="far fa-check-square mR-10 cH-blue"></i
-                            ><span>Add Task</span></a
-                          >
-                        </li>
-                        <li>
-                          <a class="d-b td-n p-1"
-                            ><i class="far fa-check-square mR-10 cH-blue"></i
-                            ><span>Follow Up</span></a
-                          >
+                          <a (click)="assignTo(item)" class="d-b td-n p-1"><i
+                              class="fas fa-location-arrow mR-10 cH-blue"></i><span>Assign To</span></a>
                         </li>
                       </ul>
                     </div>
@@ -363,4 +265,5 @@
 </main>
 
 <ng-container #addLeadContainerRef></ng-container>
-<ng-container #leadReportContainerRef></ng-container>
+<ng-container #leadInfoContainerRef></ng-container>
+<ng-container #assignToContainerRef></ng-container>

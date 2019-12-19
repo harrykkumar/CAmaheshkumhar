@@ -245,7 +245,6 @@ export class SaleDirectReturnComponent {
     private settings: Settings,
     private renderer: Renderer2,
     private gs: GlobalService) {
-    this.getFormDependency()
     this.commonService.getSaleDirectReturnStatus().subscribe(
       (status: AddCust) => {
         if (status.open) {
@@ -998,6 +997,8 @@ export class SaleDirectReturnComponent {
 
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
+    this.getFormDependency()
+
     this.BillNo = ''
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.getSPUtilitySaleReturnData()
@@ -1114,6 +1115,8 @@ export class SaleDirectReturnComponent {
               this.setBillNo(data.TransactionNoSetups)
             }
           }
+             _self.getCatagoryDetail(data.ItemCategorys)
+          _self.allItems = [...data.Items]
           _self._saleDirectReturnService.createItems(data.Items)
           _self._saleDirectReturnService.createVendors(data.Customers)
           _self._saleDirectReturnService.createTaxProcess(data.TaxProcesses)

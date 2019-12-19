@@ -380,17 +380,20 @@ export class VendorAddComponent implements OnDestroy {
 
   bankName: any = ''
   accountNo: any
+  accountHolderName:any
   ifscCode: any
   branch: any
   micrNo: any
   postcode: any
   adressvalue: any
-
+  addressValue: any
+  adresss: any
   onloadingbank() {
     this.bankName = ''
     this.ifscCode = ''
     this.branch = ''
     this.accountNo = ''
+    this.accountHolderName=''
     this.micrNo = ''
   }
 
@@ -1355,19 +1358,20 @@ export class VendorAddComponent implements OnDestroy {
     this.ifscCode = bankData.IfscCode
     this.branch = bankData.Branch
     this.micrNo = bankData.MicrNo
+    this.accountHolderName= bankData.accountHolderName
 
   }
 
   addNewbankDetail() {
     this.bankClick = true
-    if (this.bankName !== '') {
+    if (this.bankName !== '' && this.accountNo !=='' && this.branch!=='' && this.accountHolderName !=='') {
       if (this.bankIndex !== undefined) {
         if (this.bankArray.length > 0) {
-
           let newarray = {
             Id: this.bankArray[this.bankIndex].Id !== 0 ? this.bankArray[this.bankIndex].Id : 0,
             Name: this.bankName,
             AcNo: this.accountNo,
+            accountHolderName: this.accountHolderName,
             IfscCode: this.ifscCode,
             ParentTypeId: 5,
             Branch: this.branch,
@@ -1381,6 +1385,7 @@ export class VendorAddComponent implements OnDestroy {
           Id: 0,
           Name: this.bankName,
           AcNo: this.accountNo,
+          accountHolderName: this.accountHolderName,
           IfscCode: this.ifscCode,
           ParentTypeId: 5,
           Branch: this.branch,
@@ -1388,8 +1393,9 @@ export class VendorAddComponent implements OnDestroy {
         })
       }
       this.bankClick = false
+      this.onloadingbank()
     }
-    this.onloadingbank()
+   
     setTimeout(() => {
       this.bankNameref.nativeElement.focus()
     }, 1000)
@@ -1398,8 +1404,10 @@ export class VendorAddComponent implements OnDestroy {
     this.bankArray.splice(index, 1)
   }
 
+
   reapeatName(name: string) {
     this.contactPerson = (name)
+    this.accountHolderName =(name)
 
   }
 
@@ -1629,6 +1637,16 @@ export class VendorAddComponent implements OnDestroy {
         this.GstinNoValue=resp.Data[0].GstinNo
         this.CinNoValue=resp.Data[0].CinNo
         this.FssiNoValue=resp.Data[0].FssiNo 
+        if(id!==123){
+          this.requiredGSTNumber=false
+          this.validGSTNumber =false
+          this.validPANFlag = false
+        }
+        else{
+          this.requiredGSTNumber=true
+          this.validGSTNumber =true
+          this.validPANFlag = true
+        }
       }
       
     })

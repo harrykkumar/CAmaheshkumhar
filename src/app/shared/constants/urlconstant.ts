@@ -81,4 +81,6 @@ export class URLConstant {
 
   public static get SUPER_ADMIN_CLIENT_MODULE (): string { return 'super-admin/client' }
 
+  public static get FORGOT_CREDENTIALS_URL (): string { return 'forgot-credentials' }
+
 }

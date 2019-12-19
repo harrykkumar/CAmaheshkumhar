@@ -79,7 +79,7 @@ export class BuyerOrderSearchSearchComponent {
   getLedgerList () {
     let newData = [{ id: '0', text: 'Select Buyer' }]
     this.destroy$.push(this.gs.manipulateResponse(this._ledgerServices.getVendor(5, '')).subscribe(data => {
-      console.log('ledger data : ', data)
+      // console.log('ledger data : ', data)
       if (data.length > 0) {
         data.forEach(element => {
           newData.push({

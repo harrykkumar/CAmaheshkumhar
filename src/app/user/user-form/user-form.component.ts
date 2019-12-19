@@ -1,3 +1,6 @@
+import { ApiConstant } from 'src/app/shared/constants/api';
+import { BaseServices } from 'src/app/commonServices/base-services';
+import { NgForm } from '@angular/forms';
 import { LoginService } from './../../commonServices/login/login.services';
 import { UserFormService } from './user-form.service'
 import { Component, Input, Output, EventEmitter, SimpleChanges, ViewChild, AfterViewInit, OnInit } from '@angular/core'
@@ -19,14 +22,14 @@ declare const flatpickr: any
 })
 export class UserFormComponent implements OnInit {
   userType: string
-  @ViewChild('mobileDetailModel') mobileDetailModel
-  @ViewChild('emailDetailModel') emailDetailModel
+  @ViewChild('mobileDetailModel') mobileDetailModel: NgForm
+  @ViewChild('emailDetailModel') emailDetailModel: NgForm
   @ViewChild('userFormModel') userFormModel
-  @ViewChild('org_select2') org_select2
+  @Output() closeModal = new EventEmitter();
 
-  
-  @Input() showUserForm: any
-  @Output() closeUserForm = new EventEmitter<any>()
+
+  // @Input() showUserForm: any
+  // @Output() closeUserForm = new EventEmitter<any>()
   private unSubscribe$ = new Subject<void>()
   model: any = {}
   dummyData: any = {}
@@ -46,40 +49,48 @@ export class UserFormComponent implements OnInit {
   emailTypeList: Array<any> = []
   Multiorgnization:number=0
   MultiBranch:number=0
-disabledFlagOrgBranch:boolean
+  disabledFlagOrgBranch:boolean
   editEmailDetailIndex: number = null
   editMobileDetailIndex: number = null
+  currentContactLength: any;
+  selectedContactCode: any;
+  orgCountryCodeId: any;
   constructor(
     private _userService: UserFormService,
     public _orgService: CompanyProfileService,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
-    public _loginService: LoginService
-  ) { 
+    public _loginService: LoginService,
+    private baseService: BaseServices
+  ) {
+    this.user.mobileArray = []
+    this.user.emailArray = []
     this.getBranchList('Branch')
     this.getOrgnizationList()
     this.checkLoginUserCodematch()
- 
-  }
-
-  /* Function invoke when profile menu clicked  */
-  ngOnChanges(changes: SimpleChanges): void {
     this.userType = this._loginService.userData.LoginUserDetailsinfo[0].UserType
     this.Multiorgnization = this._loginService.userData.LoginUserDetailsinfo[0].MO
     this.MultiBranch = this._loginService.userData.LoginUserDetailsinfo[0].MB
-
-    if (this.showUserForm.open === true) {
-        this.getOrgnizationList()
-      $('#add_user').modal(UIConstant.MODEL_SHOW)
-      this.initDropDownData().subscribe((res) => {
-        if (this.showUserForm.mode === 'EDIT') {
-          this.getFormData(this.showUserForm.editId)
-        }
-      })
-    } else {
-      $('#add_user').modal(UIConstant.MODEL_HIDE)
-    }
+    this.getMobileTypeList()
+    this.getEmailTypeList()
   }
+
+  openModal(item?) {
+    this._commonService.openModal('add_user');
+    forkJoin(this.getUserTypeList(), this.getMobileCountryCodeList()).subscribe(
+      (res) => {
+        if (!this._commonService.isEmpty(item)) {
+          this.getFormData(item.Id)
+        }
+      }
+    )
+  }
+
+  closePopUp(data?) {
+    this._commonService.closeModal('add_user')
+    this.closeModal.emit(data);
+  }
+
 
   checkLoginUserCodematch () {
     if(this._loginService.loginUserDetails.Code === this._loginService.userData.LoginUserDetailsinfo[0].Code){
@@ -89,52 +100,8 @@ disabledFlagOrgBranch:boolean
       this.disabledFlagOrgBranch = false
     }
   }
-  ngOnInit(){
-    
-  }
 
-
-  /* Function to initialise dropdown list data */
-  initDropDownData = () => {
-    this.user.mobileArray = []
-    this.user.emailArray = []
-    this.clientData = [{ id: UIConstant.ZERO, text: 'Select Client' }]
-    this.officeData = [{ id: UIConstant.ZERO, text: 'Select Office' }]
-  //  this.branchData = [{ id: UIConstant.ZERO, text: 'Select Branch' }]
-    this.userTypeData = [{ id: UIConstant.ZERO, text: 'Select User Type' }]
-    this.underTypeData = [{ id: UIConstant.ZERO, text: 'Select Under Type' }]
-    this.underUserData = [{ id: UIConstant.ZERO, text: 'Select Under User' }]
-    this.getMobileTypeList()
-    this.getEmailTypeList()
-    return forkJoin(
-      this.getClientList(),
-      this.getUserTypeList(),
-      this.getMobileCountryCodeList()
-    )
-  }
-
-  /* Function to close user form */
-  closeForm = () => {
-    this.closeUserForm.emit(this.showUserForm)
-    this.resetFormData()
-  }
-
-  /* Function to get client list data */
-  getClientList = () => {
-    return this._userService.getClientList().
-      pipe(takeUntil(this.unSubscribe$),
-        map((data) => {
-          const list = _.map(data.Data, (element) => {
-            return {
-              id: element.Id,
-              text: element.Name,
-              data: { ...element }
-            }
-          })
-          this.clientData = [{ id: UIConstant.ZERO, text: 'Select Client' }, ...list]
-          return this.clientData
-        })
-      )
+  ngOnInit() {
   }
 
   /* Function to get branch list data */
@@ -142,21 +109,16 @@ disabledFlagOrgBranch:boolean
     this._userService.getBranchListByType('?RequestFrom='+type).
       pipe(takeUntil(this.unSubscribe$),
         map((data) => {
-          const list = _.map(data.Data, (element) => {
+          return  _.map(data.Data, (element) => {
             return {
               id: element.Id,
               text: element.Name,
               data: { ...element }
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select'+ type }, ...list]
         })
       ).subscribe((res) => {
-        this.branchData = res
-        if (this.branchData.length > 1 && this.dummyData.selectedBranch && this.dummyData.selectedBranch.id) {
-          this.model.branchId = this.dummyData.selectedBranch.id
-          this.dummyData.selectedBranch.id = 0
-        }
+        this.branchData = [...res]
       }, error => console.log(error))
   }
 
@@ -165,23 +127,17 @@ disabledFlagOrgBranch:boolean
     this._orgService.getCompanyProfile().
       pipe(takeUntil(this.unSubscribe$),
         map((data) => {
-          const list = _.map(data.Data, (element) => {
+          return _.map(data.Data, (element) => {
             return {
               id: element.Id,
               text: element.Name,
               data: { ...element }
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Orgnization' }, ...list]
         })
       ).subscribe((res) => {
-        this.orgnizationData = res
-        this.model.orgId =this.orgnizationData[1].id
-        this.org_select2.setElementValue(this.orgnizationData[1].id)
-        if (this.officeData.length > 1 && this.dummyData.selectedOffice && this.dummyData.selectedOffice.id) {
-          this.model.officeId = this.dummyData.selectedOffice.id
-          this.dummyData.selectedOffice.id = 0
-        }
+        this.orgnizationData = [...res]
+        this.model.orgId =this.orgnizationData[0].id
       }, error => console.log(error))
   }
 
@@ -197,115 +153,75 @@ disabledFlagOrgBranch:boolean
               data: { ...element }
             }
           })
-          this.userTypeData = [{ id: UIConstant.ZERO, text: 'Select User Type' }, ...list]
+          this.userTypeData = [...list]
           return this.userTypeData
         })
       )
   }
 
   /* Function to get under type list data */
-  getUnderTypeList = (userTypeId) => {
-    debugger
-    let list;
-    if(this.userTypeData.length===2){
-      list =this.userTypeData
+  getUnderTypeList = (userTypeId, data?) => {
+    const list = _.filter(this.userTypeData, (element) => {
+      if (element.id < userTypeId) {
+        return true
+      }
+    })
+    if (!this._commonService.isEmpty(list)) {
+      this.underTypeData = [...list]
+    } else {
+      const list1 = _.find(this.userTypeData, { id: 1 });
+      this.underTypeData = [{ ...list1 }]
     }
-    else{
-      list = _.filter(this.userTypeData, (element) => {
-        if (element.id < userTypeId) {
-          return true
-        }
-      })
-    }
-   
-    this.underTypeData = [...list]
-    if (this.underTypeData.length > 1 && this.dummyData.selectedUnderType && this.dummyData.selectedUnderType.id) {
-      this.model.underTypeId = this.dummyData.selectedUnderType.id
-      this.dummyData.selectedUnderType.id = 0
+    if (!this._commonService.isEmpty(data)) {
+      this.model.underTypeId = data.UnderTypeId
+      this.getUnderUserList(this.model.underTypeId, data)
     }
   }
 
   /* Function to get under user list data */
-  getUnderUserList = (underType) => {
+  getUnderUserList = (underType, data?) => {
     this._userService.getUnderUserList(underType).
       pipe(takeUntil(this.unSubscribe$),
         map((data) => {
-          const list = _.map(data.Data.LoginUserDetails, (element) => {
+          return _.map(data.Data.LoginUserDetails, (element) => {
             return {
               id: element.Id,
               text: element.Name
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Under User' }, ...list]
         })
       ).subscribe((res) => {
-        this.underUserData = res
-        if (this.underUserData.length > 0 && this.dummyData.selectedUnderUser && this.dummyData.selectedUnderUser.id) {
-          this.model.underUserId = this.dummyData.selectedUnderUser.id
-          this.dummyData.selectedUnderUser.id = 0
+        this.underUserData = [...res]
+        if (!_.isEmpty(data)) {
+          this.model.underUserId = data.UnderUserId
         }
       }, error => console.log(error))
   }
 
-  /* Function invoke on client change */
-  onClientChange = (event) => {
-    if (event && event.data.length > 0) {
-      this.user.selectedClient = event.data[0]
-    ///  if (this.user.selectedClient.id > 0) {
-
-        //this.getBranchList(this.user.selectedClient.id)
-      //}
-    }
-  }
-
-  /* Function invoke on branch change */
-  onBranchChange = (event) => {
-    if (event && event.data.length > 0) {
-      this.user.selectedBranch = event.data[0]
-      //if (this.user.selectedBranch.id > 0) {
-      //  this.getOfficeList(this.user.selectedBranch.id)
-     // }
-    }
-  }
-
-  /* Function invoke on office change */
-  onOfficeChange = (event) => {
-    if (event && event.data.length > 0) {
-      this.user.selectedOffice = event.data[0]
-    }
-  }
-
   /* Function invoke on user type change */
   onUserTypeChange = (event) => {
-    if (event && event.data.length > 0) {
-      this.user.selectedUserType = event.data[0]
-      if (this.user.selectedUserType.id > 0) {
-        this.getUnderTypeList(this.user.selectedUserType.id)
-      }
+    if (this.model.userTypeId) {
+      this.getUnderTypeList(this.model.userTypeId)
+    } else {
+      this.underTypeData = []
+      this.model.underTypeId = null
     }
   }
 
   /* Function invoke on under type change */
   onUnderTypeChange = (event) => {
-    if (event && event.data.length > 0) {
-      this.user.selectedUnderType = event.data[0]
-      if (this.user.selectedUnderType.id > 0) {
-        this.getUnderUserList(this.user.selectedUnderType.id)
+      if (this.model.underTypeId) {
+        this.getUnderUserList(this.model.underTypeId)
+      } else {
+        this.underUserData = []
+        this.model.underUserId = null
       }
-    }
-  }
-
-  /* Function invoke on under user change */
-  onUnderUserChange = (event) => {
-    if (event && event.data.length > 0) {
-      this.user.selectedUnderUser = event.data[0]
-    }
   }
 
   /* Function to validate mobile detail */
   validateMobileDetail = () => {
     let valid = true
-    if (this.mobileDetail.selectedMobileCountryCode && Number(this.mobileDetail.selectedMobileCountryCode.id) === 0) {
+    if (!this.selectedContactCode) {
       valid = false
     }
     return valid
@@ -313,26 +229,31 @@ disabledFlagOrgBranch:boolean
 
   /* Function to add new mobile details */
   addNewMobileDetail = () => {
+    const data = {
+      id: this.editMobileDetailIndex !== null ? this.user.mobileArray[this.editMobileDetailIndex].id : 0,
+      selectedMobileType: this.mobileDetail.selectedMobileType,
+      selectedMobileCountryCode: this.selectedContactCode,
+      mobileNo: this.mobileDetail.mobileNo
+    }
     if (this.editMobileDetailIndex !== null && this.editMobileDetailIndex >= 0) {
-      this.user.mobileArray[this.editMobileDetailIndex] = { ...this.mobileDetail }
+      this.user.mobileArray[this.editMobileDetailIndex] = {...data}
       this.editMobileDetailIndex = null
     } else {
-      this.user.mobileArray =
-        [...this.user.mobileArray, this.mobileDetail]
+      this.user.mobileArray = [...this.user.mobileArray, { ...data }]
     }
-    this.mobileDetail = {
-      selectedMobileType: 1,
-      selectedMobileCountryCode:
-        { id: UIConstant.ZERO, text: 'Select Country Code' },
-      mobileNo: ''
-    }
-    this.mobileDetailModel.submitted = false
+    this.mobileDetailModel.resetForm();
+    setTimeout(() => {
+      this.mobileDetail.selectedMobileType = 1
+      this.selectedContactCode = this.orgCountryCodeId
+    })
   }
 
   /* Function to edit mobile details */
   editMobileDetail = (index) => {
-    this.mobileDetail = { ...this.user.mobileArray[index] }
     this.editMobileDetailIndex = index
+    this.mobileDetail.selectedMobileType = this.user.mobileArray[index].selectedMobileType
+    this.selectedContactCode = this.user.mobileArray[index].selectedMobileCountryCode;
+    this.mobileDetail.mobileNo = this.user.mobileArray[index].mobileNo;
   }
 
   /* Function to remove mobile detail */
@@ -357,24 +278,36 @@ disabledFlagOrgBranch:boolean
     return this._orgService.getMobileCountryCodeList().
       pipe(
         takeUntil(this.unSubscribe$),
-        tap(response => this.mobileCountryCodeList = [...response])
+        tap((response) => {
+          this.mobileCountryCodeList = [...response]
+          const orgAddress = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
+          if (!_.isEmpty(orgAddress)) {
+            const obj = _.find(this.mobileCountryCodeList, { phoneCode: orgAddress.CountryCode })
+            if (!_.isEmpty(obj)) {
+              this.orgCountryCodeId = obj.id
+              this.selectedContactCode = this.orgCountryCodeId
+              this.onCountryCodeSelectionChange();
+            }
+          }
+        })
       )
   }
 
   /* Function to add new email details */
   addNewEmailDetail = () => {
-    if (this.editEmailDetailIndex !== null && this.editEmailDetailIndex >= 0) {
+    if (this.editEmailDetailIndex !== null) {
       this.user.emailArray[this.editEmailDetailIndex] = { ...this.emailDetail }
       this.editEmailDetailIndex = null
     } else {
-      this.user.emailArray =
-        [...this.user.emailArray, this.emailDetail]
+      this.user.emailArray.push({ ...this.emailDetail })
     }
-    this.emailDetail = {
-      selectedEmailType: 1,
-      selectedEmail: ''
-    }
-    this.emailDetailModel.submitted = false
+    this.emailDetailModel.resetForm()
+    setTimeout(() => {
+      this.emailDetail = {
+        selectedEmailType: 1,
+        selectedEmail: ''
+      }
+    })
   }
 
   /* Function to edit email detail */
@@ -389,9 +322,12 @@ disabledFlagOrgBranch:boolean
   }
 
   /* Function invoke on coutnry code selection change */
-  onCountryCodeSelectionChange = (event) => {
-    if (event.data.length > 0) {
-      this.mobileDetail.selectedMobileCountryCode = event.data[0]
+  onCountryCodeSelectionChange = () => {
+    if (this.selectedContactCode) {
+      const data = _.find(this.mobileCountryCodeList, { id: this.selectedContactCode })
+      if(!_.isEmpty(data)){
+        this.currentContactLength = data.contactLength
+      }
     }
   }
 
@@ -409,55 +345,47 @@ disabledFlagOrgBranch:boolean
   /* Function to get initialise form field data */
   initFormData = (response) => {
     const loginData = response.LoginUserDetails[0]
-    this.user = {
-      id: loginData.Id ? loginData.Id : 0,
-      code: loginData.Code ? loginData.Code : 0,
-      selectedClient: { id: loginData.ClientId },
-      selectedUserType: { id: loginData.UserTypeId },
-      name: loginData.Name,
-      userName: loginData.LoginId,
-      password: loginData.Password,
-      email: loginData.EmailAddress,
-      isUseEmail: loginData.IsShowTransactions,
-      isUseTime: loginData.IsUseTime,
-      inTime: loginData.FromTime,
-      outTime: loginData.ToTime,
-      emailPassword: loginData.EmailPassword,
-      emailArray: _.map(response.Emails, (item) => {
-        return {
-          id: item.Id,
-          selectedEmailType: item.EmailType,
-          selectedEmail: item.EmailAddress
-        }
-      }),
-      mobileArray: _.map(response.ContactInfos, (item) => {
-        return {
-          id: item.Id,
-          selectedMobileType: item.ContactType,
-          selectedMobileCountryCode: {
-            id: item.CountryCode === null ? 0 : item.CountryCode
-          },
-          mobileNo: item.ContactNo
-        }
-      })
-    }
-
-    this.model = {
-      clientId: loginData.ClientId,
-      userTypeId: loginData.UserTypeId
-    }
-
-    this.dummyData = {
-      selectedBranch: { id: loginData.BranchId },
-      selectedOffice: { id: loginData.OfficeId },
-      selectedUnderType: { id: loginData.UnderTypeId },
-      selectedUnderUser: { id: loginData.UnderUserId }
+    if(!_.isEmpty(loginData)){
+      this.model.orgId = loginData.OrgId
+      this.model.branchId = loginData.BranchId
+      this.model.userTypeId = loginData.UserTypeId
+      this.getUnderTypeList(this.model.userTypeId, loginData)
+      this.user = {
+        id: loginData.Id ? loginData.Id : 0,
+        code: loginData.Code ? loginData.Code : 0,
+        name: loginData.Name,
+        userName: loginData.LoginId,
+        password: loginData.Password,
+        email: loginData.EmailAddress,
+        isUseEmail: loginData.IsShowTransactions,
+        isUseTime: loginData.IsUseTime,
+        inTime: loginData.FromTime,
+        outTime: loginData.ToTime,
+        emailPassword: loginData.EmailPassword,
+        emailArray: _.map(response.Emails, (item) => {
+          return {
+            id: item.Id,
+            selectedEmailType: item.EmailType,
+            selectedEmail: item.EmailAddress
+          }
+        }),
+        mobileArray: _.map(response.ContactInfos, (item) => {
+          return {
+            id: item.Id,
+            selectedMobileType: item.ContactType,
+            selectedMobileCountryCode: item.CountryCode,
+            mobileNo: item.ContactNo
+          }
+        })
+      }
     }
   }
 
   /* Function to prepare payload for post user data */
   prepareSavePayload = () => {
     return {
+      BranchId: this.model.branchId,
+      OrgId: this.model.orgId,
       Code: this.user.code,
       Id: this.user.id,
       Name: this.user.name,
@@ -467,8 +395,8 @@ disabledFlagOrgBranch:boolean
       EmailPassword: this.user.emailPassword,
       IsShowTransactions: this.user.isUseEmail,
       IsUseTime: this.user.isUseTime,
-      UserTypeId: this.user.selectedUserType.id,
-      UnderUserId: this.user.selectedUnderUser.id,
+      UserTypeId: this.model.userTypeId ? this.model.userTypeId : 0,
+      UnderUserId: this.model.underUserId ? this.model.underUserId : 0,
       LoginId: this.user.userName,
       Password: this.user.password,
       ContactInfos: _.map(this.user.mobileArray, (mobile) => {
@@ -476,7 +404,7 @@ disabledFlagOrgBranch:boolean
           Id: mobile.id ? mobile.id : 0,
           ContactNo: mobile.mobileNo,
           ContactType: mobile.selectedMobileType,
-          CountryCode: mobile.selectedMobileCountryCode.id,
+          CountryCode: mobile.selectedMobileCountryCode,
           ParentTypeId: 3
         }
       }),
@@ -499,40 +427,21 @@ disabledFlagOrgBranch:boolean
     ).subscribe((res) => {
       if (res.Code === UIConstant.THOUSAND) {
         this.toastrService.showSuccess('Success', 'Saved Successfully')
-        this.closeForm()
+        this.closePopUp(true)
       } else {
         this.toastrService.showError('Error', res.Message)
       }
     }, error => console.log(error))
   }
 
-  /* Function to reset user data */
-  resetFormData = () => {
-    this.user = {}
-    this.model = {}
-    this.emailDetail.selectedEmailType = 1
-    this.mobileDetail.selectedMobileType = 1
-    this.mobileDetailModel.submitted = false
-    this.emailDetailModel.submitted = false
-    this.userFormModel.submitted = false
-    this.userFormModel.reset()
-  }
-
   validateForm = () => {
-    let valid = true
-    if (this.user.selectedClient && Number(this.user.selectedClient.id) === 0) {
-      valid = false
-    } else if (valid && this.user.selectedBranch && Number(this.user.selectedBranch.id) === 0) {
-      valid = false
-    } else if (valid && this.user.selectedOffice && Number(this.user.selectedOffice.id) === 0) {
-      valid = false
-    } else if (valid && Number(this.user.selectedUserType.id) === 0) {
-      valid = false
-    } else if (valid && Number(this.user.selectedUnderType.id) === 0) {
-      valid = false
-    } else if (valid && Number(this.user.selectedUnderUser.id) === 0) {
-      valid = false
+    if (this.mobileDetail.selectedMobileType && this.selectedContactCode && this.mobileDetail.mobileNo) {
+      this.addNewMobileDetail()
     }
+    if (this.emailDetail.selectedEmailType && this.emailDetail.selectedEmail) {
+      this.addNewEmailDetail()
+    }
+    let valid = true
     if (this.user.mobileArray.length === 0) {
       valid = false
     }
@@ -542,7 +451,10 @@ disabledFlagOrgBranch:boolean
     return valid
   }
 
-  setAddNew = () => {
-    this.showUserForm.addNew = true
-  }
+  onPaste(e) {
+    this._commonService.allowOnlyNumericValueToPaste(e, (res) => {
+      this.mobileDetail.mobileNo = res
+    })
+  };
+
 }

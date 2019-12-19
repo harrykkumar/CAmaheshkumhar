@@ -119,9 +119,14 @@
                         <label class="custom-control-label" for="{{i}}-itemAttribute"></label>
                       </div>
                     </td>
-                    <td *ngFor="let name of item?.AttributeNamestr;">
-                      {{name}}
-                    </td>
+                    <ng-container *ngIf="multiple" >
+                      <td *ngFor="let name of item?.AttributeNamestr;">
+                        {{name}}
+                      </td>
+                    </ng-container>
+                    <ng-container *ngIf="!multiple" >
+                      <td>{{item?.AttributeNamestr}}</td>
+                    </ng-container>
                     <td>
                       <input type="text" class="form-control" name="barCode-{{ i }}" [(ngModel)]="item.Barcode"
                         disabled="true" />
@@ -130,10 +135,14 @@
                       <input type="text" class="form-control" name="client-barCode-{{ i }}"
                         [(ngModel)]="item.ClientBarCode" [disabled]="!item.Checked" (input)="updateBarCode(i)" />
                     </td>
-                    <td>
+                    <td class="align-item-center d-flex">
                       <input type="text" class="form-control" appIncludeDecimal name="opening-stock-qty-{{ i }}"
                         (input)="onOpeningStockChange(i)" [(ngModel)]="item.Qty" [disabled]="!item.Checked"
                         [ngClass]="{ 'is-invalid':item.Checked && !item.Qty && item.isInvalid }" />
+                        <span  *ngIf='industryId===12'>
+                            <a   (click)="createMobilepopup(item,i)" class="info_tooltip">
+                                <i class="fas fa-plus"></i></a>
+                        </span>
                     </td>
                     <td>
                       <input type="text" class="form-control" appIncludeDecimal name="opening-stock-value-{{ i }}"
@@ -172,3 +181,97 @@
     </div>
   </div>
 </div>
+<div class="modal right fade" id="openingStockpopup_for_EmiNumber" role="dialog" data-backdrop="static" data-keyboard="false">
+  <form #formRef="ngForm">
+      <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
+          <div class="modal-content bgcH-grey-100">
+              <div class="modal-header close_popup">
+                  <h4 class="modal-title w-100 c-grey-900">Value</h4>
+                  <button type="button" class="close"  data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">×</span>
+                  </button>
+              </div>
+              <div class="modal-body">
+                  <div class="form row" *ngFor="let item of ItemPropertyTrans; let i=index">
+                     
+                    <div class="form-group col-1 align-self-center">
+                      <span class="">{{i+1}}</span>
+                    </div>
+                      <div class="form-group col px-1">
+                           <input #propertRef (input)="getIMEIName($event);" type="text" class="form-control"
+                          name="FieldValue1{{i}}" placeholder="Enter Value" [(ngModel)]="item.FieldValue1">
+                      </div>
+                      <div class="form-group col px-1">
+                          <input #propertRef (input)="getIMEIName($event);" type="text" class="form-control"
+                          name="FieldValue2{{i}}" placeholder="Enter Value" 
+                          [(ngModel)]="item.FieldValue2">
+                      </div>
+                      <div class="form-group col px-1">
+                          <input #propertRef (input)="getIMEIName($event);" type="text" class="form-control"
+                          name="FieldValue3{{i}}" placeholder="Enter Value" 
+                          [(ngModel)]="item.FieldValue3">
+                      </div>
+                      <div class="form-group col px-1">
+                          <input #propertRef (input)="getIMEIName($event);" type="text" class="form-control"
+                          name="FieldValue4{{i}}"
+                           placeholder="Enter Value" [(ngModel)]="item.FieldValue4">
+                      </div>
+                      <hr>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary waves-effect" (click)="closeIMEI()" type="button">
+                      Ok</button>
+              </div>
+          </div>
+      </div>
+  </form>
+</div>
+
+
+<div class="modal right fade" id="item_attr_for_EmiNumber" role="dialog" data-backdrop="static" data-keyboard="false">
+    <form #formRef="ngForm">
+        <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
+            <div class="modal-content bgcH-grey-100">
+                <div class="modal-header close_popup">
+                    <h4 class="modal-title w-100 c-grey-900">IMEI Value</h4>
+                    <button type="button" class="close"  data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form row" *ngFor="let item of ItemPropertyTrans; let i=index">
+                       
+                      <div class="form-group col-1 align-self-center">
+                        <span class="">{{i+1}}</span>
+                      </div>
+                        <div class="form-group col px-1">
+                             <input #propertRef type="text" class="form-control"
+                            name="FieldValue1{{i}}" placeholder="Enter Value" [(ngModel)]="item.FieldValue1">
+                        </div>
+                        <div class="form-group col px-1">
+                            <input #propertRef1  type="text" class="form-control"
+                            name="FieldValue2{{i}}" placeholder="Enter Value" 
+                            [(ngModel)]="item.FieldValue2">
+                        </div>
+                        <div class="form-group col px-1">
+                            <input #propertRef2 type="text" class="form-control"
+                            name="FieldValue3{{i}}" placeholder="Enter Value" 
+                            [(ngModel)]="item.FieldValue3">
+                        </div>
+                        <div class="form-group col px-1">
+                            <input #propertRef3  type="text" class="form-control"
+                            name="FieldValue4{{i}}"
+                             placeholder="Enter Value" [(ngModel)]="item.FieldValue4">
+                        </div>
+                        <hr>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary waves-effect" (click)="closeIMEI()" type="button">
+                        Ok</button>
+                </div>
+            </div>
+        </div>
+    </form>
+  </div>

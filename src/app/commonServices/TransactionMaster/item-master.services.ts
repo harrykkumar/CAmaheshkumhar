@@ -14,6 +14,8 @@ import { UIConstant } from '../../shared/constants/ui-constant';
 })
 export class ItemmasterServices {
   private openImageModalSub = new BehaviorSubject<AddCust>({ 'open': false })
+  private openImageforSingalModalSub = new BehaviorSubject<AddCust>({ 'open': false })
+
   private imageAddSub = new Subject<Image>()
   public imageAdd$ = this.imageAddSub.asObservable()
   private queryStrSub = new Subject<string>()
@@ -67,7 +69,9 @@ export class ItemmasterServices {
   getImageModalStatus () {
     return this.openImageModalSub.asObservable()
   }
-
+  openImageModal_fOR_type (addedImages) {
+    this.openImageModalSub.next({ 'open': true, 'images': addedImages.images, 'queue': addedImages.queue, 'baseImages': addedImages.baseImages, 'id': addedImages.id, 'imageType': addedImages.imageType ,'type': addedImages.type})
+  }
   imagesAdded (images) {
     this.imageAddSub.next(images)
   }

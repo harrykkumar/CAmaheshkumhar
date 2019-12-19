@@ -18,6 +18,7 @@ export class DatepickerComponent implements OnInit, OnDestroy {
   @Output() dateInFormat = new EventEmitter()
   @Output() opened = new EventEmitter()
   @Output() isError = new EventEmitter()
+  @Output() inputChanged = new EventEmitter()
   @Input() toSetDate;
   @Input() isBackDate;
   @Input() disableInput: boolean;
@@ -54,14 +55,14 @@ export class DatepickerComponent implements OnInit, OnDestroy {
     if (changes.includeTime && changes.includeTime.currentValue) {
       this.type = 'both'
     }
-    if (changes.toSetDate && changes.toSetDate.currentValue && 
+    if (changes.toSetDate && changes.toSetDate.currentValue &&
       changes.toSetDate.currentValue !== changes.toSetDate.previousValue) {
       this.today = this.gs.sqlToUtc(this.gs.clientToSqlDateFormat(changes.toSetDate.currentValue, this.clientDateFormat))
       this.dt2.select(this.today)
       setTimeout(() => {
         this.dt2.dtInput.elementRef.nativeElement.value = changes.toSetDate.currentValue
-        this.class = false
-        this.isError.emit(this.class)
+        // this.class = false
+        // this.isError.emit(this.class)
       }, 1)
     }
     if (changes.toSetDate && changes.toSetDate.currentValue === '') {
@@ -69,7 +70,7 @@ export class DatepickerComponent implements OnInit, OnDestroy {
         let d = new Date(changes.toSetDate.currentValue)
         this.resetDatepicker(d)
         this.dt2.dtInput.elementRef.nativeElement.value = changes.toSetDate.currentValue
-        this.class = false
+        // this.class = false
         this.dateInFormat.emit('')
       }, 1)
     }
@@ -150,14 +151,14 @@ export class DatepickerComponent implements OnInit, OnDestroy {
     // console.log(this.inputElem.nativeElement.value)
     if (this.gs.checkForFormatType(this.clientDateFormat) === 1) {
       const date = this.gs.convertToInParts(this.inputElem.nativeElement.value, this.clientDateFormat)
-      // console.log(date)
+      console.log(date)
       if (date !== '') {
         this.today = (new Date(date[0], date[1], date[2])).toISOString()
         let dateToSet = this.gs.utcToClientDateFormat(this.today, this.clientDateFormat)
         if (this.today) {
-          if (this.maxDate !== undefined && this.minDate !== undefined && 
+          if (this.maxDate !== undefined && this.minDate !== undefined &&
             !isNaN(this.maxDate.getTime()) && !isNaN(this.minDate.getTime())) {
-            if ((new Date(this.today)).getTime() <= this.maxDate.getTime() && 
+            if ((new Date(this.today)).getTime() <= this.maxDate.getTime() &&
               (new Date(this.today)).getTime() >= this.minDate.getTime()) {
               this.class = false
               this.dateInFormat.emit(dateToSet)
@@ -178,9 +179,10 @@ export class DatepickerComponent implements OnInit, OnDestroy {
           this.class = true
         }
       } else {
-        this.class = false
+        this.dateInFormat.emit('')
+        // this.class = false
       }
-      this.isError.emit(this.class)
+      // this.isError.emit(this.class)
     } else {
       let newDate = '' + (new Date(this.inputElem.nativeElement.value))
       console.log('newDate : ', newDate)
@@ -210,7 +212,7 @@ export class DatepickerComponent implements OnInit, OnDestroy {
                   this.toastrService.showWarningLong('Date can\'t be less then ' + new Date(this.minDate).toDateString(), '')
                 }
               } else {
-                this.class = false
+                // this.class = false
                 this.dateInFormat.emit(dateToSet)
               }
             } else {
@@ -281,6 +283,13 @@ export class DatepickerComponent implements OnInit, OnDestroy {
     }
   }
 
+  inputChange() {
+    // console.log(this.selectedDate)
+    if (this.selectedDate === null || this.selectedDate === 'Invalid Date' || !this.selectedDate) {
+      this.dateInFormat.emit('')
+    }
+  }
+
   ngOnDestroy () {
     this.class = false
   }
@@ -288,6 +297,6 @@ export class DatepickerComponent implements OnInit, OnDestroy {
 
 
 /**console.log(this.today)
-          console.log(this.today && 
+          console.log(this.today &&
             (new Date(this.today)).getTime() <= this.maxDate.getTime() &&
             (new Date(this.today)).getTime() >= this.minDate.getTime()) */

@@ -1,0 +1,587 @@
+<div
+  class="modal fade"
+  id="leads_report"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalLabel"
+>
+  <div
+    class="modal-dialog large_form modal-full-height modal-top"
+    role="document"
+  >
+    <div class="modal-content bgcH-grey-100">
+      <!--Header-->
+      <div class="modal-header primary-bg">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-3 left_side_head">
+              <p class="heading_lead">
+                <i class="far fa-building"></i>{{ formType ? 'Follow Up Report' : 'Lead Report'}}
+              </p>
+            </div>
+            <div class="col-md-9">
+              <div class="btn_header">
+                <!-- <a class="btn btn-default waves-effect">Save </a>
+                              <a href="" class="btn btn-info waves-effect" data-dismiss="modal">Save and New</a> -->
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true" class="white-text">×</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--Body-->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="card-header">
+              <div class="row justify-content-center">
+                <div class="col-lg-7">
+                  <div class="align-middle">
+                    <div
+                      class="dropdown arrow_down d-inline-block mr-1 profile_pict"
+                    >
+                      <a class="dropdown-toggle" data-toggle="dropdown">
+                        <img
+                          src="../assets/static/images/img.jpg"
+                          alt="..."
+                          class="img-circle profile_image"
+                        />
+                      </a>
+                    </div>
+                    <div class="section-edit detail_width_dropdown">
+                      <a
+                        data-target="#leads_detail"
+                        data-toggle="modal"
+                        class="strong text-ellipsis ember-view"
+                      >
+                        {{
+                          leadCustomer?.OrgName
+                        }}
+                      </a>
+                      <a href="javascript:void(0)" class="mr-1"
+                        ><i
+                          class="fab facebook-color fa-facebook-square fa-1x"
+                        ></i
+                      ></a>
+                      <a href="javascript:void(0)" class="mr-1"
+                        ><i
+                          class="fab fa-twitter-square fa-1x twitter-color"
+                        ></i
+                      ></a>
+                      <a href="javascript:void(0)" class="mr-1"
+                        ><i class="fab fa-linkedin fa-1x linkedin-color"></i
+                      ></a>
+                      <address class="m-0">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{
+                          leadAddress?.AddressValue
+                        }},
+                        {{leadAddress?.Area}},
+                        {{leadAddress?.City}},
+                        {{leadAddress?.State}},
+                        {{leadAddress?.Country}}
+                      </address>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-3 left_media">
+                  <a href="javascript:void(0)" data-toggle="tooltip" title="Make a Call"
+                    ><i class="fas fa-phone"></i
+                  ></a>
+                  <a href="javascript:void(0)" data-toggle="tooltip" title="Send Message"
+                    ><i class="far fa-envelope"></i
+                  ></a>
+                  <a href="javascript:void(0)" data-toggle="tooltip" title="Send Mail"
+                    ><i class="far fa-envelope-open"></i
+                  ></a>
+                  <a
+                    href="javascript:void(0)"
+                    data-toggle="modal"
+                    data-target="#lead_New"
+                    title="Edit Details"
+                    ><i class="fas fa-pencil-alt"></i
+                  ></a>
+
+                  <div class="dropdown enquiry-tag arrow_down ">
+                    <a
+                      class="dropdown-toggle"
+                      data-toggle="dropdown"
+                      aria-expanded="true"
+                      ><i class="fa fa-cog"></i
+                    ></a>
+
+                    <ul class="dropdown-menu fsz-sm" x-placement="top-start">
+                      <li>
+                        <a class="d-b td-n p-1"
+                          ><i class="fa fa-headphones mR-10 cH-blue"></i
+                          ><span>Add Quatation</span></a
+                        >
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1"
+                          ><i class="fas fa-calendar-alt mR-10 cH-blue"></i
+                          ><span>Add Appointment</span></a
+                        >
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1"
+                          ><i class="far fa-check-square mR-10 cH-blue"></i
+                          ><span>Add Task</span></a
+                        >
+                      </li>
+                      <li>
+                        <a class="d-b td-n p-1"
+                          ><i class="far fa-check-square mR-10 cH-blue"></i
+                          ><span>Follow Up</span></a
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-lg-2">
+                  <div class="insights-lead">
+                    <div class="strong text-uppercase">Lead score</div>
+                    <div
+                      id="ember4341"
+                      class="radial-progress-lg ember-view radial-progress bg-leadscore--hot-inverse"
+                    >
+                      76
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-lg-12 bdR">
+                  <div class="classic-tabs">
+                    <ul class="nav tabs-cyan" role="tablist">
+                      <li class="nav-item">
+                        <a
+                          class="nav-link waves-light active waves-effect waves-light"
+                          data-toggle="tab"
+                          href="#Det11"
+                          role="tab"
+                          >Personal & Contact Detail</a
+                        >
+                      </li>
+                      <li class="nav-item">
+                        <a
+                          class="nav-link waves-light waves-effect waves-light"
+                          data-toggle="tab"
+                          href="#Det13"
+                          role="tab"
+                          >Company Detail</a
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-lg-12">
+                  <div class="tab-content">
+                    <!--Panel 1-->
+                    <div
+                      class="tab-pane fade in show active"
+                      id="Det11"
+                      role="tabpanel"
+                    >
+                      <div class="section-edit">
+                        <div class="row crm_lead_detail p-3">
+                          <div class="col-lg-6">
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Key Person Name</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">
+                                  {{
+                                    contactPerson[currentContactPersonIndex]?.Name
+                                  }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6" >
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Department</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">
+                                  {{
+                                    contactPerson[currentContactPersonIndex]?.Department
+                                  }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6" >
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Designation</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">
+                                  {{
+                                    contactPerson[currentContactPersonIndex]?.TypeIdName
+                                  }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6">
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Personal Mobile</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">
+                                  {{
+                                    contactPerson[currentContactPersonIndex]?.CountryCode
+                                  }}-{{
+                                    contactPerson[currentContactPersonIndex]?.ContactNo
+                                  }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6">
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Email Personal</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">
+                                  {{
+                                    contactPerson[currentContactPersonIndex]?.EmailTypeName
+                                  }}-{{
+                                  contactPerson[currentContactPersonIndex]?.EmailAddress
+                                }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <button [disabled]="currentContactPersonIndex < 1"
+                        (click)="currentContactPersonIndex = currentContactPersonIndex - 1">Prev</button>
+                        <button [disabled]="currentContactPersonIndex === (contactPerson.length - 1)"
+                        (click)="currentContactPersonIndex = currentContactPersonIndex + 1"> Next</button>
+                      </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="Det13" role="tabpanel">
+                      <div class="section-edit">
+                        <div class="row crm_lead_detail p-3">
+                          <div class="col-lg-6">
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Company Name</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">
+                                  {{
+                                    leadCustomer?.OrgName
+                                  }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6">
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user"
+                                  >Number of Employees</span
+                                >
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">{{leadCustomer?.EmpRange}}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6" >
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user"
+                                  >Company Annual Revenue</span
+                                >
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">{{
+                                  leadCustomer?.Revenue
+                                }}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6">
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Company Website</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">{{
+                                  leadCustomer?.WebSite
+                                }}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6">
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Business Type</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">{{leadList?.BusinessType}}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6" >
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Industory Type </span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user"
+                                  >{{leadCustomer?.IndustryType}}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6">
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Company Phone</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">
+                                  {{
+                                    leadContactInfo
+                                      .CountryCode
+                                  }}-
+                                  {{
+                                    leadContactInfo?.ContactNo
+                                  }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="col-lg-6" >
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Email Business</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">
+                                  {{
+                                    leadEmail?.EmailAddress
+                                  }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-6" >
+                            <div class="form-row">
+                              <div class="col-lg-6">
+                                <span class="label_user">Company Address</span>
+                              </div>
+                              <div class="col-lg-6">
+                                <span class="value_user">
+                                  {{
+                                    leadAddress?.AddressValue
+                                  }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                          <!-- <div class="col-lg-6">
+                                                      <div class="form-row">
+                                                          <div class="col-lg-6"><span class="label_user">Company Address 2</span></div>
+                                                          <div class="col-lg-6"><span class="value_user">78 lane Number-5 Muktanand nagar opposite pooja Tower Gopalpura Jaipur Rajasthan</span></div>
+
+                                                      </div>
+                                                  </div> -->
+                        </div>
+
+                        <!-- <div class="edit-hover">
+                                                  <a data-toggle="modal" data-target="#lead_New"><i class="fas fa-pencil-alt"></i></a>
+                                              </div> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-body lead_stage">
+              <div class="row">
+                <div class="col-lg-6">
+                  <p>
+                    <i class="fas fa-calendar-alt"></i><span>Lead Date:</span
+                    ><strong>
+                      {{
+                         (leadList?.LeadDate
+                            | date: 'short')
+                      }}
+                    </strong>
+                  </p>
+                </div>
+                <div class="col-lg-6 text-right">
+                  <p>
+                    <i class="fas fa-calendar-alt"></i
+                    ><span>Last Connected:</span
+                    ><strong>
+                      {{
+                        (leadList?.LeadLastUpdatedDate
+                            | date: 'short')
+                      }}
+                    </strong>
+                  </p>
+                </div>
+              </div>
+              <div class="arrow-steps clearfix">
+                <div
+                  *ngFor="let item of crmService?.leadUtilityData?.EnquiryStatus"
+                  class="step"
+                  [ngClass]="{
+                    current: (item.id === leadList?.Status)
+                  }"
+                >
+                  <span>{{ item?.commondesc }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="right_lead_detail bdL">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-lg-12 bdR">
+                    <div class="tab_hr">
+                      <ul class="nav tabs-cyan" role="tablist">
+                        <li class="nav-item">
+                          <a
+                            class="nav-link waves-light active waves-effect waves-light"
+                            data-toggle="tab"
+                            href="#NT11"
+                            role="tab"
+                            >Notes
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col-lg-12">
+                    <div class="tab-content">
+                      <!--Panel 1-->
+                      <div
+                        class="tab-pane fade in show active"
+                        id="NT11"
+                        role="tabpanel"
+                      >
+                        <div class="card-body">
+                          <form #addNotesForm="ngForm"
+                          novalidate
+                          (ngSubmit)="addNotesForm.form.valid && submitNotes()">
+                          <div class="quick-actions-add-panel notes-add-panel">
+                            <div
+                              class="panel-body pd-t-20 pd-b-0"
+                              data-test-add-description=""
+                            >
+                              <textarea
+                                id="ember18135"
+                                placeholder="Start typing..."
+                                rows="5"
+                                name="descriptionName"
+                                [(ngModel)]="noteDescription"
+                                required
+                                class="form-control inline-edit js-inline-add mg-b-15 ember-view ember-text-area"
+                                [ngClass]="{'errorSelecto': addNotesForm.submitted && !noteDescription}"
+                              ></textarea>
+                            </div>
+                            <div class="panel-footer">
+                              <button
+                                class="btn-notes-add btn primary-bg"
+                                type="submit"
+                              >
+                                <i class="flex far fa-check-circle"></i>Add
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                        </div>
+                        <div class="card-body bdT">
+                          <div class="section-edit" *ngFor="let item of notesList;">
+                            <div class="row" >
+                              <div class="col-1">
+                                <i class="far fa-sticky-note"></i>
+                              </div>
+                              <div class="col-10" >
+                                <div class="font-weight-normal">
+                                  {{item?.Description}}
+                                </div>
+                                <div
+                                  class="text-dark-muted"
+                                >
+                                {{item?.CreatedBy}}
+                                </div>
+                                <div
+                                  class="text-dark-muted"
+                                >
+                                {{item?.Days}}
+                                </div>
+                              </div>
+                            </div>
+                            <div class="icon_hover">
+                              <a (click)="editNotes(item)"
+                                data-toggle="tooltip"
+                                data-original-title="Edit Notes"
+                                ><i class="fas fa-pencil-alt"></i
+                              ></a>
+                              <a (click)="editNotes(item, 'delete')"
+                                ><i class="far fa-trash-alt"></i
+                              ></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        class="tab-pane fade"
+                        id="NT12"
+                        role="tabpanel"
+                      ></div>
+                      <div
+                        class="tab-pane fade"
+                        id="NT13"
+                        role="tabpanel"
+                      ></div>
+                      <div
+                        class="tab-pane fade"
+                        id="NT14"
+                        role="tabpanel"
+                      ></div>
+                      <div
+                        class="tab-pane fade"
+                        id="NT15"
+                        role="tabpanel"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

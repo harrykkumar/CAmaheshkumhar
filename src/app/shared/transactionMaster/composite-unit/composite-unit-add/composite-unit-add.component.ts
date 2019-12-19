@@ -9,7 +9,6 @@ import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { UIConstant } from '../../../constants/ui-constant'
 import { ErrorConstant } from '../../../constants/error-constants'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
-
 declare const $: any
 @Component({
   selector: 'app-composite-unit-add',
@@ -22,7 +21,7 @@ export class CompositeUnitAddComponent implements OnDestroy {
   id: any
   submitClick: boolean
   errorMassage: string
-  primaryUnitId: number
+  primaryUnitId: any
   select2Primary: any
   select2Secondary: any
   primaryUnitQty: number = 1
@@ -61,15 +60,19 @@ export class CompositeUnitAddComponent implements OnDestroy {
         }
       }
     )
+    
     this.unitModalSub = this.commonService.getUnitStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           if (+this.primaryUnitId === -1) {
             let newData1 = Object.assign([], this.selectMainUnit)
             newData1.push({ id: +data.id, text: data.name })
-            this.selectMainUnit = newData1
+          //  this.selectMainUnit = newData1
+           this.selectPackedIn = newData1
             this.primaryUnitId = +data.id
-            this.select2Primary = +data.id
+          //  this.select2Primary = +data.id
+            this.secondaryUnitId = +data.id
+            this.select2Secondary = +data.id
             setTimeout(() => {
               if (this.mainUnitSelect2) {
                 const element = this.renderer.selectRootElement(this.mainUnitSelect2.selector.nativeElement, true)
@@ -79,9 +82,13 @@ export class CompositeUnitAddComponent implements OnDestroy {
           } else if (+this.secondaryUnitId === -1) {
             let newData = Object.assign([], this.selectPackedIn)
             newData.push({ id: +data.id, text: data.name })
-            this.selectPackedIn = newData
+           // this.selectPackedIn = newData
             this.secondaryUnitId = +data.id
-            this.select2Secondary = +data.id
+           // this.select2Secondary = +data.id
+
+            this.selectMainUnit = newData
+            this.primaryUnitId = +data.id
+            this.select2Primary = +data.id
             setTimeout(() => {
               if (this.packedInSelect2) {
                 const element = this.renderer.selectRootElement(this.packedInSelect2.selector.nativeElement, true)
@@ -101,18 +108,38 @@ export class CompositeUnitAddComponent implements OnDestroy {
     this.unitModalSub.unsubscribe()
   }
 
+  getResultValue (){
+    if(this.primaryUnitId !=='0' && this.secondaryUnitId!=='0'){
+      this.result = this.compositeForm.value.UnitQty+ ' ' + this.primaryName+' ' +'='+this.PrimaryUnitQty+ ' ' + this.secondaryUnitName
+      this.compositeForm.controls.result.setValue(this.result) 
+    }
+    else{
+      this.compositeForm.controls.result.setValue('') 
+
+    }
+
+
+  
+  }
+  result:any
   createCompositeForm () {
     this.UnitQty = new FormControl(1, [Validators.required])
     this.UnitName = new FormControl('', Validators.required)
     this.compositeForm = this._formBuilder.group({
       UnitQty: this.UnitQty,
-      UnitName: this.UnitName
+      UnitName: this.UnitName,
+      PrimaryUnitQty:this.PrimaryUnitQty,
+      result:this.result
     })
-    // console.log(this.compositeForm.controls.UnitQty.value)
   }
+  PrimaryUnitQty:any =1
+  onloading(){
+    this.compositeForm.controls.PrimaryUnitQty.setValue(1)
 
+  }
   openModal () {
     this.submitClick = false
+    this.onloading()
     this.checkForValidation()
     if (this.packedInSelect2) {
       this.packedInSelect2.setElementValue('')
@@ -127,8 +154,8 @@ export class CompositeUnitAddComponent implements OnDestroy {
       this.id = UIConstant.ZERO
       $('#composite_unit').modal(UIConstant.MODEL_SHOW)
       setTimeout(() => {
-        if (this.packedInSelect2) {
-          const element = this.renderer.selectRootElement(this.packedInSelect2.selector.nativeElement, true)
+        if (this.mainUnitSelect2) {
+          const element = this.renderer.selectRootElement(this.mainUnitSelect2.selector.nativeElement, true)
           element.focus({ preventScroll: false })
         }
       }, 1000)
@@ -150,12 +177,14 @@ export class CompositeUnitAddComponent implements OnDestroy {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
         this.compositeForm.controls.UnitQty.setValue(data.Data[0].SecondaryUnitQty)
         this.compositeForm.controls.UnitName.setValue(data.Data[0].Name)
+        this.compositeForm.controls.PrimaryUnitQty.setValue(data.Data[0].PrimaryUnitQty)
         setTimeout(() => {
           this.primaryUnitId = data.Data[0].PrimaryUnitId
           this.secondaryUnitId = data.Data[0].SecondaryUnitId
-          this.mainUnitSelect2.setElementValue(data.Data[0].PrimaryUnitId)
-          this.packedInSelect2.setElementValue(data.Data[0].SecondaryUnitId)
+          this.mainUnitSelect2.setElementValue(data.Data[0].SecondaryUnitId)
+          this.packedInSelect2.setElementValue(data.Data[0].PrimaryUnitId)
         }, 1000)
+      this.getResultValue()
         $('#composite_unit').modal(UIConstant.MODEL_SHOW)
       }
     })
@@ -170,11 +199,14 @@ export class CompositeUnitAddComponent implements OnDestroy {
             if (this.keepOpen) {
               this.initialiseExtras()
               this.toastrService.showSuccess('', 'Saved successfully')
+              this.commonService.newCompositeUnitAdd()
+
             } else {
               const datatoSend = { id: data.Data, name: this.compositeForm.value.UnitName }
               this.commonService.newCompositeUnitAdd()
               this.toastrService.showSuccess('', 'Saved successfully')
               this.commonService.closeCompositeUnit(datatoSend)
+              this.id =0
             }
           } else if(data.Code === UIConstant.THOUSANDONE){
             this.toastrService.showInfo('', data.Description)
@@ -206,30 +238,38 @@ export class CompositeUnitAddComponent implements OnDestroy {
   validObj: any = {}
   @ViewChild('UnitQtyRef') UnitQtyRef :ElementRef
   dynamicFocus() {
-    if (+this.primaryUnitId > 0) {
-      this.validObj['primaryUnitId'] = false
-    } else {
-      this.validObj['primaryUnitId'] = true
-    this.packedInSelect2.selector.nativeElement.focus({ preventScroll: false })    
-    }
     if (+this.secondaryUnitId > 0) {
       this.validObj['secondaryUnitId'] = false
-    } else if(!this.validObj.primaryUnitId) {
+    } else {
       this.validObj['secondaryUnitId'] = true
     this.mainUnitSelect2.selector.nativeElement.focus({ preventScroll: false })    
     }
+    if (this.compositeForm.value.UnitName!=='') {
+      this.validObj['UnitName'] = false
+    } else if(  !this.validObj.secondaryUnitId) {
+      this.validObj['UnitName'] = true
+    this.unitnameRef.nativeElement.focus() 
+    }
+    if (this.compositeForm.value.PrimaryUnitQty!=='') {
+      this.validObj['PrimaryUnitQty'] = false
+    } else if(  !this.validObj.secondaryUnitId  && !this.validObj.UnitName ) {
+      this.validObj['PrimaryUnitQty'] = true
+    this.unitnameRef.nativeElement.focus() 
+    }
+    
+    if (+this.primaryUnitId > 0) {
+      this.validObj['primaryUnitId'] = false
+    } else if(!this.validObj.secondaryUnitId  && !this.validObj.UnitName && !this.validObj.PrimaryUnitQty ) {
+      this.validObj['primaryUnitId'] = true
+    this.packedInSelect2.selector.nativeElement.focus({ preventScroll: false })    
+    }
     if (this.compositeForm.value.UnitQty!=='') {
       this.validObj['UnitQty'] = false
-    } else if(!this.validObj.secondaryUnitId && !this.validObj.primaryUnitId) {
+    } else if(!this.validObj.secondaryUnitId  && !this.validObj.UnitName  && !this.validObj.PrimaryUnitQty   && !this.validObj.primaryUnitId)  {
       this.validObj['UnitQty'] = true
     this.UnitQtyRef.nativeElement.focus()    
     }
-    if (this.compositeForm.value.UnitName!=='') {
-      this.validObj['UnitName'] = false
-    } else if(!this.validObj.UnitQty  && !this.validObj.secondaryUnitId && !this.validObj.primaryUnitId) {
-      this.validObj['UnitName'] = true
-    this.unitnameRef.nativeElement.focus()    
-    }
+
     
 }
 checkForValidation () {
@@ -240,6 +280,12 @@ checkForValidation () {
       this.validObj['primaryUnitId'] = false
     } else {
       this.validObj['primaryUnitId'] = true
+      isValid = 0
+    }
+    if (+this.PrimaryUnitQty > 0) {
+      this.validObj['PrimaryUnitQty'] = false
+    } else {
+      this.validObj['PrimaryUnitQty'] = true
       isValid = 0
     }
     if (+this.secondaryUnitId > 0) {
@@ -296,49 +342,67 @@ checkForValidation () {
       }
     })
   }
-
+  secondaryUnitName:any=''
   @ViewChild('mainUnit_select2') mainUnitSelect2: Select2Component
   selectedMainUnit (event) {
+    if(event.value==='0'){
+      this.secondaryUnitId  = '0'
+      this.secondaryUnitName =''
+    }
     if (event.value && event.data.length > 0) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
         this.secondaryUnitId  = +event.value
+        this.secondaryUnitName =''
+
         this.mainUnitSelect2.selector.nativeElement.value = ''
         this.commonService.openUnit('')
       } else {
-        if (event.data[0] && event.data[0].text) {
+        if (event.value> 0 && event.data[0] && event.data[0].text) {
         this.secondaryUnitId  = +event.value
+        this.secondaryUnitName =event.data[0].text
 
         }
       }
+      this.getResultValue()
       this.checkForValidation()
     }
   }
-
+  primaryName:any=''
   @ViewChild('packedIn_select2') packedInSelect2: Select2Component
   selectdPackedIn (event) {
+
+    if(event.value==='0'){
+      this.primaryUnitId  = '0'
+      this.primaryName =''
+    }
     if (event.value && event.data.length > 0) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
         this.primaryUnitId = +event.value
-
+        this.primaryName =''
         this.packedInSelect2.selector.nativeElement.value = ''
         this.commonService.openUnit('')
       } else {
-        if (event.data[0] && event.data[0].text) {
+        if ( event.value >0 && event.data[0] && event.data[0].text) {
+          this.primaryName =event.data[0].text
         this.primaryUnitId = +event.value
 
         }
       }
+      this.getResultValue()
       this.checkForValidation()
     }
   }
 
   @ViewChild('first') first: ElementRef
   initialiseExtras () {
+    this.id =0
     this.compositeForm.controls.UnitQty.setValue(1)
     this.compositeForm.controls.UnitName.setValue('')
+    this.compositeForm.controls.result.setValue('')
+    this.mainUnitSelect2.setElementValue(0)
+    this.packedInSelect2.setElementValue(0)
     setTimeout(() => {
-      const element = this.first.nativeElement
-      element.focus({ preventScroll: false })
+      this.mainUnitSelect2.selector.nativeElement.focus({ preventScroll: false })         
     }, 100)
   }
 

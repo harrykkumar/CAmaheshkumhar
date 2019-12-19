@@ -4,7 +4,7 @@
     <div class="modal-content bgcH-grey-100">
       <!--Header-->
       <form #attributeCombineForm="ngForm" novalidate
-        (ngSubmit)="attributeCombineForm.form.valid && validateForm() && postData()">
+        (ngSubmit)="attributeCombineForm.form.valid && postData()">
         <div class="modal-header primary-bg">
           <div class="container-fluid">
             <div class="row">
@@ -16,7 +16,7 @@
               </div>
               <div class="col-md-9">
                 <div class="btn_header">
-                  <button type="submit" class="btn btn-default waves-effect">Save </button>
+                  <button type="submit" #save_button class="btn btn-default waves-effect">Save </button>
                   <!-- <a href="#" class="btn btn-info waves-effect">Save and New</a> -->
                   <button type="button" class="close" (click)="onClose()" aria-label="Close">
                     <span aria-hidden="true" class="white-text">×</span>
@@ -78,15 +78,18 @@
                           <div class="mb-2">
                             <input type="number" appIncludeDecimal class="form-control" placeholder="Quantity"
                               name="itemValue-{{ i }}-{{j}}" (input)="checkForValidation()"
-                              [(ngModel)]="columnItem['Qty']" />
+                              [(ngModel)]="columnItem['Qty']"
+                              (keydown.esc)="shiftToFocus()"  />
                           </div>
                           <div class="mb-2">
                             <input type="text" placeholder="Product Code" class="form-control" name="productcode-{{ i }}-{{j}}"
-                              [(ngModel)]="columnItem['ProductCode']" (input)="checkForValidation()" />
+                              [(ngModel)]="columnItem['ProductCode']" (input)="checkForValidation()"
+                              (keydown.esc)="shiftToFocus()" />
                           </div>
                           <div>
                             <input type="text" placeholder="Product Description" class="form-control" (input)="checkForValidation()"
-                              name="description-{{ i }}-{{j}}" [(ngModel)]="columnItem['ProductDescription']" />
+                              name="description-{{ i }}-{{j}}" [(ngModel)]="columnItem['ProductDescription']"
+                              (keydown.esc)="shiftToFocus()" />
                           </div>
                         </td>
                       </tr>

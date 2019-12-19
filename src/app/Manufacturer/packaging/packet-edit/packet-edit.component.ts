@@ -24,6 +24,7 @@ export class PackagingEditComponent {
   loading: boolean = true
   disableBtnSubmit: boolean = false
   destroy$: Subscription[] = []
+  orderPacketId: number = 0
   @ViewChild('packingModelForm') packingModelForm: NgForm;
   constructor (private _ps: PackagingService,
     private _ts: ToastrCustomService,
@@ -86,6 +87,7 @@ export class PackagingEditComponent {
       }
       if (data.BuyerOrderPacketDetails.length > 0 && data.ItemAttributesTrans && data.OrderPackets.length > 0 && data.OrderPacketDetails.length > 0) {
         this.bOrderId = data.OrderPackets[0].Id
+        this.orderPacketId = data.OrderPackets[0].BorderId
         this._ps.getItemCombos1(data.ItemAttributesTrans, data.BuyerOrderPacketDetails, data.OrderPackets[0].Id, data.OrderPacketDetails)
       }
       if (data.ItemAttributesTrans.length > 0) {
@@ -139,7 +141,7 @@ export class PackagingEditComponent {
       Height: (+this.masterData.Height > 0) ? +this.masterData.Height : 0,
       Width: (+this.masterData.Width > 0) ? +this.masterData.Height : 0,
       NetWeight: (+this.masterData.NetWeight > 0) ? +this.masterData.NetWeight : 0,
-      BorderId: this.bOrderId,
+      BorderId: this.orderPacketId,
       OrderDate: this._gs.clientToSqlDateFormat(this.masterData['OrderDate'], this.clientDateFormat),
       OrderPacketDetails: itemToPack
     }
@@ -165,6 +167,8 @@ export class PackagingEditComponent {
           this._ts.showError(error, '')
         }
       ))
+    } else {
+      this._ts.showErrorLong('Atleast Select 1 Item to Save', '')
     }
   }
 

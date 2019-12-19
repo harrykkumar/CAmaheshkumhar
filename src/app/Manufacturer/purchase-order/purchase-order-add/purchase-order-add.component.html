@@ -43,7 +43,8 @@
               </label>
               <div class="input-group adw_select">
                 <select2 #vendor_select2 #error id="vendor" [data]="model.vendorData" class="control_select"
-                  (valueChanged)="onVendorSelect($event);" autocomplete="true" [options]="{placeholder: 'Select Vendor'}"
+                  (valueChanged)="onVendorSelect($event);" autocomplete="true" 
+                  [options]="{placeholder: 'Select Vendor'}"
                   [ngClass]="{'errorSelecto': submitSave && invalidObj?.LedgerId }" [value]="model.vendorValue">
                 </select2>
               </div>
@@ -62,14 +63,15 @@
               <a *ngIf="isBillNoManuall && !editMode" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
                 <span class="tooltiptext">Last Bill No. used is - {{previousBillNo}}</span>
               </a>
-              <input type="text" placeholder="PO Number" [disabled]="!isBillNoManuall" class="form-control" name="BillNo" [disabled]="editMode" 
-              (input)="checkForValidation()"
-              [ngClass]="{'errorSelecto': submitSave && invalidObj?.PONumber }" [(ngModel)]="model.PoNo">
+              <input type="text" placeholder="PO Number" [disabled]="!isBillNoManuall" class="form-control"
+                name="BillNo" [disabled]="editMode" 
+                (input)="checkForValidation()"
+                [ngClass]="{'errorSelecto': submitSave && invalidObj?.PONumber }" [(ngModel)]="model.PoNo">
             </div>
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label class="fw-500">PO Date</label>
-              <datepicker-popup [toSetDate]="model.PoDate" [applyFinYear]="'true'"
-                (dateInFormat)="model.PoDate = $event;getNewBillNo();checkForValidation();"
+              <datepicker-popup [toSetDate]="model.PoDate" [applyFinYear]="'true'" 
+                (dateInFormat)="model.PoDate = $event;checkForValidation();getNewBillNo();"
                 [class]="submitSave && invalidObj?.PoDate">
               </datepicker-popup>
             </div>
@@ -705,6 +707,6 @@
 </div>
 <!--[buyerData]="model.customerData" 
 [itemData]="itemData" [ledgerData]="model.vendorData"-->
-<item-rate [open]="model.openRate" [buyerId]="+ParentId" 
+<item-rate [open]="model.openRate" [buyerId]="+ParentId"
 ></item-rate>
 <requirement-items [open]="model.openItems" [buyerId]="+ParentId" (itemDataEmitter)="setItems($event)" ></requirement-items>

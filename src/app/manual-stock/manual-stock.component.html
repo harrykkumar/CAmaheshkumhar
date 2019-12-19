@@ -1,0 +1,86 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div id="mainContent">
+      <div class="modal-header page-header p-0">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-5 left_side_head">
+              <p class="heading_lead c-grey-900"><i class="fas fa-chart-line" aria-hidden="true"></i>Manual Stock</p>
+            </div>
+            <div class="col-md-7">
+              <div class="btn_header">
+                <a>
+                  <img src="../assets/img/pdf.png"></a>
+                <a>
+                  <img src="../assets/img/excel.png"></a> 
+                <button type="button" (click)="toggleSearch()" class="btn btn-primary waves-effect waves-light">
+                  Search
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <manual-stock-search [toShow]="toShowSearch"></manual-stock-search>
+      <form #stockForm="ngForm" (ngSubmit)="validateAll() && save()" novalidate>
+        <div class="row animated-background">
+          <div class="col-md-12" >
+            <button type="submit" class="btn btn-primary waves-effect waves-light">
+              Save
+            </button>
+            <!-- <button type="button" (click)="getPreviousStock()" class="btn btn-primary waves-effect waves-light">
+              reload
+            </button> -->
+          </div>
+          <div class="col-md-12">
+            <form #stockItemForm="ngForm" (ngSubmit)="validate() && addItems()" novalidate>
+              <div class="bgc-white bdrs-3 mB-20">
+                <div class="table">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th style="width: 10%;" >SNo.</th>
+                        <th style="width: 30%;" >Date</th>
+                        <th style="width: 30%;" >Opening Stock</th>
+                        <th style="width: 30%;" >#</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of items; let i = index;let last = last">
+                        <td>{{ i + 1 }}</td>
+                        <td>
+                          <datepicker-popup [toSetDate]="item?.VerifiedOn"
+                            (dateInFormat)="item.VerifiedOn = $event;" [applyFinYear]="'true'"
+                            [class]="stockItemForm.submitted && (!item?.VerifiedOn || item?.matched)" >
+                          </datepicker-popup>
+                        </td>
+                        <td>
+                          <input type="text" class="form-control" appIncludeDecimal
+                            placeholder="OpeningStock" name="OpeningStock-{{ i }}" id="OpeningStock-{{ i }}"
+                            [(ngModel)]="item['OpeningStock']" (keyup.enter)="validate() && submitForm(stockItemForm) && addItems()" 
+                            [ngClass]="{'errorSelecto': stockItemForm.submitted && +item['OpeningStock'] <= 0}"
+                          />
+                        </td>
+                        <td>
+                          <div class="form-group col-md-2 btn_Action">
+                            <button *ngIf="last" type="submit" id="addButton-{{i}}" 
+                              class="btn btn-primary btn_add_more mr-2">+</button>
+                          </div>
+                          <div class="form-group col-md-2 btn-Action" >
+                            <a *ngIf="items.length > 1 && i !== items.length - 1" (click)="deleteItem(i)">
+                              <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>

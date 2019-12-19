@@ -228,7 +228,7 @@ export class TaxAddComponent {
               }
             }
             else{
-              isValid = 0
+              isValid = 1
             }
 
           }
@@ -439,12 +439,11 @@ export class TaxAddComponent {
 
           }
         })
-      }
-      else {
-        this.toastrCustomService.showError('', 'Please Fill Rate')
-        this.rateref.nativeElement.focus()
-
-      }
+     }
+      // else {
+      //   this.toastrCustomService.showError('', 'Please Fill Rate')
+      //   this.rateref.nativeElement.focus()
+      // }
 
     }else{
       this.first.nativeElement.focus()

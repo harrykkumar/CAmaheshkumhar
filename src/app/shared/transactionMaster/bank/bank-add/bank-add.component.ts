@@ -357,19 +357,19 @@ export class BankAddComponent {
       this.invalidObj['accountNo'] = true
       this.accountNoRef.nativeElement.focus()
     }
-    if (this.ifscCode && this.ifscCode.trim()) {
-      this.invalidObj['ifscCode'] = false
-    } else if (!this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
-      this.invalidObj['ifscCode'] = true
-      this.ifscCodeRef.nativeElement.focus()
-    }
+    // if (this.ifscCode && this.ifscCode.trim()) {
+    //   this.invalidObj['ifscCode'] = false
+    // } else if (!this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
+    //   this.invalidObj['ifscCode'] = true
+    //   this.ifscCodeRef.nativeElement.focus()
+    // }
     if (this.branch && this.branch.trim()) {
       this.invalidObj['branch'] = false
-    } else if (!this.invalidObj.ifscCode && !this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
+    } else if (!this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
       this.invalidObj['branch'] = true
       this.branchRef.nativeElement.focus()
     }
-    if (this.coustmoreRegistraionId === '1' && this.countrId===123 && !this.invalidObj.branch &&!this.invalidObj.ifscCode && !this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
+    if (this.coustmoreRegistraionId === '1' && this.countrId===123 && !this.invalidObj.branch  && !this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
       this.invalidObj['requiredGST'] = true
       this.GStRequireRef.nativeElement.focus()
     } else if (!this.invalidObj.parentId && !this.invalidObj.ledgerName) {
@@ -398,12 +398,12 @@ export class BankAddComponent {
       this.invalidObj['accountNo'] = true
       isValid = 0
     }
-    if (this.ifscCode && this.ifscCode.trim()) {
-      this.invalidObj['ifscCode'] = false
-    } else  {
-      this.invalidObj['ifscCode'] = true
-      isValid = 0
-    }
+    // if (this.ifscCode && this.ifscCode.trim()) {
+    //   this.invalidObj['ifscCode'] = false
+    // } else  {
+    //   this.invalidObj['ifscCode'] = true
+    //   isValid = 0
+    // }
     if (this.branch && this.branch.trim()) {
       this.invalidObj['branch'] = false
     } else {

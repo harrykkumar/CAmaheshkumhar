@@ -15,7 +15,8 @@
           <td *ngIf="!isNewSetting">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="customCheck{{i}}" name="example1"
-               (change)="setting.selected = $event.target.checked" >
+                [checked]="setting.selected" 
+                (change)="setting.selected = $event.target.checked" >
               <label class="custom-control-label" for="customCheck{{i}}"></label>
             </div>
           </td>
@@ -26,23 +27,32 @@
           <td *ngIf="setting.Type === 1">
             <fieldset id="group{{i}}">
               <div class="custom-control custom-radio custom-control-inline">
-                <input type="radio" class="custom-control-input" id="customRadio{{i}}" name="group{{i}}" [checked]="+setting.Value === 1" (change)="setting.Value = ($event.target.checked) ? 1 : 0" >
+                <input type="radio" class="custom-control-input" id="customRadio{{i}}"
+                 name="group{{i}}" [checked]="+setting.Value === 1" 
+                 (change)="setting.Value = ($event.target.checked) ? 1 : 0;setting.selected = true" >
                 <label class="custom-control-label" for="customRadio{{i}}">Yes</label>
               </div>
               <div class="custom-control custom-radio custom-control-inline">
-                <input type="radio" class="custom-control-input" id="customRadio10{{i}}" name="group{{i}}" [checked]="+setting.Value === 0" (change)="setting.Value = ($event.target.checked) ? 0 : 1" >
+                <input type="radio" class="custom-control-input" id="customRadio10{{i}}"
+                 name="group{{i}}" [checked]="+setting.Value === 0" 
+                 (change)="setting.Value = ($event.target.checked) ? 0 : 1;setting.selected = true" >
                 <label class="custom-control-label" for="customRadio10{{i}}">No</label>
               </div>
             </fieldset>
           </td>
           <td *ngIf="setting.Type === 2" >
-            <input type="text" class="form-control" *ngIf="setting.BaseType === 2" [value]="setting.DefaultValue" (input)="setting.Value = $event.target.value;" >
-            <input type="text" class="form-control" appDigitsOnlyDirective *ngIf="setting.BaseType === 1" [value]="setting.DefaultValue" (input)="setting.Value = $event.target.value;" >
+            <input type="text" class="form-control" *ngIf="setting.BaseType === 2" 
+            [value]="setting.DefaultValue" (input)="setting.Value = $event.target.value;
+              setting.selected = true" >
+            <input type="text" class="form-control" appDigitsOnlyDirective
+             *ngIf="setting.BaseType === 1" [value]="setting.DefaultValue" 
+             (input)="setting.Value = $event.target.value;setting.selected = true" >
           </td>
           <td *ngIf="setting.Type === 3 || setting.Type === 5" >
-            <select (change)="setting.Value = ( $event.target.value );" class="form-control" >
+            <select (change)="setting.Value = ( $event.target.value );setting.selected = true" class="form-control" >
               <option value="-1" >Select {{setting.name}}</option>
-              <option *ngFor="let opt of setting.data" [value]="opt.Id" [selected]="( +setting.DefaultValue === +opt.Id )">
+              <option *ngFor="let opt of setting.data" [value]="opt.Id"
+               [selected]="( +setting.DefaultValue === +opt.Id )">
                 {{ opt.Val }}
               </option>
             </select>
@@ -52,7 +62,7 @@
               <select2
                 [data]="setting.data" class="control_select"
                 [options]="options"
-                (valueChanged)="setting.Value = $event.value;"
+                (valueChanged)="setting.Value = $event.value;setting.selected = true"
                 autocomplete="true"
                 [options]="{placeholder: 'Select'}"
                 [value]="setting.Value">

@@ -443,7 +443,7 @@
                 </div>
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
-                  <datepicker-popup [disableInput]="editId > 0" [applyFinYear]="true" [toSetDate]="VoucherDate"
+                  <datepicker-popup [disableInput]="editId > 0" [applyFinYear]="'true'" [toSetDate]="VoucherDate"
                     (opened)="dateStatus = $event" (dateInFormat)="VoucherDate = $event; checkForBill()">
                   </datepicker-popup>
                 </div>

@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 import { AddCust } from '../../../model/sales-tracker.model';
 import { ManufacturingService } from '../../manufacturing.service';
 import { Subject } from 'rxjs/internal/Subject';
+// import { BuyerOrderAttributeAddComponent } from '../buyer-order-attribute-add/buyer-order-attribute-add.component';
 declare const $: any
 @Component({
   selector: 'app-add-buyer-order',
@@ -26,6 +27,7 @@ export class AddBuyerOrderComponent implements OnInit {
   clientDateFormat: string = ''
   @Output() triggerCloseModal = new EventEmitter();
   @ViewChild('attribute_combine_form') attributeFormModal: AttributeCombinationComponent
+  // @ViewChild('buyer_order_add_form') buyerOrderAddForm: BuyerOrderAttributeAddComponent
   @ViewChild('itemForm') itemFormModal
   @ViewChild('buyerOrderForm') buyerOrderFormModal
   listItem: any = {}
@@ -247,6 +249,7 @@ export class AddBuyerOrderComponent implements OnInit {
         this.model['defaultAttrName'] = this.buyerOrderAttr[defaultAttrIndex]['Val']
         this.buyerOrderAttr.splice(defaultAttrIndex, 1)
         if (defaultAttrIndex > -1 && this.buyerOrderAttr.length > 0) {
+          this.model['buyerOrderAttrs'] = (_.map(this.buyerOrderAttr, (element) => element.Id)).join(',')
           this.open()
         } else {
           this._toaster.showErrorLong('Please complete the master settings', '')
@@ -329,7 +332,13 @@ export class AddBuyerOrderComponent implements OnInit {
   }
 
   createOrderList (buyerOrderTrans, transList?) {
-    this.previousOrders = []
+    this.orderList = []
+    _.forEach(['totalOrderedQty', 'totalProductionQty', 'totalAmount'], (element) => {
+      if (!this.model[element]) {
+        this.model[element] = 0
+      }
+    })
+    this.model.totalAmount = 0
     if (transList) {
       _.forEach(buyerOrderTrans, (element, index) => {
         let obj = {}
@@ -341,43 +350,86 @@ export class AddBuyerOrderComponent implements OnInit {
               obj['itemId'] = trans.ItemId
               obj['orderQuantity'] = element.OrderQty
               obj['productionQty'] = element.ProductionQty
+              obj['orderQuantity1'] = 0
+              obj['productionQty1'] = 0
               obj['rate'] = element.Rate
               obj['amount'] = element.SubTotalAmount
               obj['addPercentage'] = element.Additional
               obj['unit'] = element.UnitId
               obj['unitName'] = element.UnitName
-              obj['remark'] = element.Remark
+              obj['remark'] = (element.Remark || '')
               obj['Id'] = element.Id
               obj['Sno'] = index + 1
               obj['itemName'] = element.ItemName
+              obj['GroupTransId'] = element.GroupTransId
+              obj['PackingTypeId'] = element.PackingTypeId
+              obj['baseAttrId'] = element.MeasurementAttributetId
+              obj['setupAttrIds'] = element.SetupAttributeStrId
+              obj['StyleId'] = element.StyleId
+              obj['SetId'] = element.SetId
+              obj['ProductCode'] = element.ProductCode
+              obj['ProductDescription'] = element.ProductDescription
+              obj['editable'] = false
             } else {
               obj['attributeValueId'] = (obj['attributeValueId']) ? obj['attributeValueId'] + '-' + trans.AttributeValueId : trans.AttributeValueId
               obj['attributeValueName'] = (obj['attributeValueName']) ? obj['attributeValueName'] + '-' + trans.AttributeValueName : trans.AttributeValueName
             }
+            this.model['totalOrderedQty'] = (this.model['totalOrderedQty'] || 0) + +obj['orderQuantity']
+            this.model['totalProductionQty'] = (this.model['totalProductionQty'] || 0) + +obj['productionQty']
+            this.model['totalAmount'] = (this.model['totalAmount'] || 0) + +obj['amount']
           }
         })
         console.log(obj)
-        this.previousOrders.push({...obj})
+        this.orderList.push({...obj})
       })
+      console.log(this.orderList)
+      const groupOnId = _.groupBy(this.orderList, (item) => {
+        return item.GroupTransId
+      })
+      for (const key in groupOnId) {
+        if (groupOnId.hasOwnProperty(key)) {
+          this.itemsInOrder.push({'transformed': [], 'original': [], 'total': {}})
+          const element = groupOnId[key];
+          this.itemsInOrder[this.itemsInOrder.length - 1]['transformed'].push(...element)
+          this.itemsInOrder[this.itemsInOrder.length - 1]['total']['orderQty'] = this.getTotal(this.itemsInOrder.length - 1, 'orderQuantity')
+          this.itemsInOrder[this.itemsInOrder.length - 1]['total']['productionQty'] = this.getTotal(this.itemsInOrder.length - 1, 'productionQty')
+          this.update()
+          this.calculateItemTotal()
+        }
+      }
+      console.log(this.itemsInOrder)
     } else {
       _.forEach(buyerOrderTrans, (element, index) => {
         let obj = {}
         obj['itemId'] = element.ItemId
         obj['orderQuantity'] = element.OrderQty
         obj['productionQty'] = element.ProductionQty
+        obj['orderQuantity1'] = 0
+        obj['productionQty1'] = 0
         obj['rate'] = element.Rate
         obj['amount'] = element.SubTotalAmount
         obj['addPercentage'] = element.Additional
         obj['unit'] = element.UnitId
         obj['unitName'] = element.UnitName
-        obj['remark'] = element.Remark
+        obj['remark'] = (element.Remark || '')
         obj['Id'] = element.Id
         obj['Sno'] = index + 1
         obj['itemName'] = element.ItemName
-        this.previousOrders.push({...obj})
+        obj['StyleId'] = element.StyleId
+        obj['SetId'] = element.SetId
+        this.model['totalOrderedQty'] = (this.model['totalOrderedQty'] || 0) + +obj['orderQuantity']
+        this.model['totalProductionQty'] = (this.model['totalProductionQty'] || 0) + +obj['productionQty']
+        this.model['totalAmount'] = (this.model['totalAmount'] || 0) + +obj['amount']
+        this.orderList.push({...obj})
       })
     }
-    console.log(this.previousOrders)
+  }
+
+  update () {
+    _.forEach(this.itemsInOrder[this.itemsInOrder.length - 1]['transformed'], (element) => {
+      element.orderQuantity1 = this.itemsInOrder[this.itemsInOrder.length - 1]['total']['orderQty']
+      element.productionQty1 = this.itemsInOrder[this.itemsInOrder.length - 1]['total']['productionQty']
+    })
   }
 
   generateAttributeTrans (ItemAttributesTransSno) {
@@ -421,17 +473,22 @@ export class AddBuyerOrderComponent implements OnInit {
   }
 
   addItem(valid) {
+    this.checkForFocus()
     if (valid && this.validateItemAddForm()) {
-      if (this.toOpenAttr) {
-        this.openAttributeCombinationModal()
+      if (this.editInfoIndex > -1) {
+        this.updateItemsInfo()
       } else {
-        this.addToList()
+        if (this.toOpenAttr) {
+          this.openAttributeCombinationModal()
+        } else {
+          this.addToList()
+        }
       }
     }
   }
 
   editItemAttribute(index) {
-    this.attributeFormModal.openModal(this.model, this.itemsInOrder[index].original)
+    // this.attributeFormModal.openModal(this.model, this.itemsInOrder[index].original)
   }
 
   addToList () {
@@ -445,21 +502,31 @@ export class AddBuyerOrderComponent implements OnInit {
       unitName : this.model.unitName,
       rate: this.model.rate,
       amount: (+this.itemFormModal.value.orderQuantity * +this.model.rate).toFixed(2),
-      remark : this.model.remark
+      remark : (this.model.remark || ''),
+      SetId: (this.model.SetId || 0),
+      StyleId: this.model.StyleId,
+      editable: false,
+      GroupTransId: this.orderList.length + 1,
+      PackingTypeId: this.model.PackingTypeId,
     }
     this.model['totalOrderedQty'] = (this.model['totalOrderedQty'] || 0) + +obj['orderQuantity']
     this.model['totalProductionQty'] = (this.model['totalProductionQty'] || 0) + +obj['productionQty']
     this.model['totalAmount'] = (this.model['totalAmount'] || 0) + +obj['amount']
     this.orderList.push({ ...obj })
     this.resetItemAddForm()
-    this.setDefaultParameters()
-    this.commonService.fixTableHF('order-list-table')
+    // this.setDefaultParameters()
+    this.commonService.fixTableHFL('order-list-table')
   }
 
+  attrValues: any = {}
+  sputilityData: any = {}
   getUtilityItemList(){
     this.destroy$.push(this._gs.manipulateResponse(this._buyerOrderService.getUtilityItemList()).subscribe((res) => {
       this.attributeFormModal.combineAttributeList = []
       this.attributeFormModal.getUtilityItemList(res)
+      this.sputilityData = res
+      this.attrValues = JSON.parse(JSON.stringify({Attributes: res.Attributes, AttributeValues: res.AttributeValues}))
+      // this.buyerOrderAddForm.generateCombination(res)
       this._buyerOrderService.getList(res['Customers'], 'Name', 'Buyer')
       this._buyerOrderService.getList(res['Styles'], 'Name', 'Style')
       this._buyerOrderService.getList(res['Season'], 'Name', 'Season')
@@ -480,7 +547,7 @@ export class AddBuyerOrderComponent implements OnInit {
 
   generateProductionQty() {
     if (this.model.addPercentage && this.model.orderQuantity) {
-      this.model.productionQty = (+this.model.orderQuantity + (+this.model.orderQuantity*+this.model.addPercentage)/100).toFixed(2)
+      this.model.productionQty = +(+this.model.orderQuantity + (+this.model.orderQuantity*+this.model.addPercentage)/100).toFixed(2)
     } else if (this.model.orderQuantity && !this.model.addPercentage) {
       this.model.productionQty = this.model.orderQuantity
     }
@@ -488,49 +555,71 @@ export class AddBuyerOrderComponent implements OnInit {
 
   itemsInOrder: any = []
   onCombinationModalClose(Data) {
-    this.itemsInOrder.push({'original': Data, 'transformed': []})
-    console.log('combineAttributeList : ', this.itemsInOrder)
-    if (!this.editMode) {
-      _.forEach(['totalOrderedQty', 'totalProductionQty', 'totalAmount'], (element) => {
-        if (!this.model[element]) {
-          this.model[element] = 0
-        }
-      })
-      this.model.totalAmount = 0
+    let model1: any = {}
+    if (this.editIndex > -1) {
+      model1 = this.itemsInOrder[this.editIndex].transformed[0]
+      console.log(model1)
+    } else {
+      model1 = this.model
+      this.itemsInOrder.push({'original': Data.data, 'transformed': [], 'total': {}})
+      console.log('combineAttributeList : ', this.itemsInOrder)
     }
-    _.forEach(Data, (element) => {
+    // _.forEach(['totalOrderedQty', 'totalProductionQty', 'totalAmount'], (element) => {
+    //   if (!this.model[element]) {
+    //     this.model[element] = 0
+    //   }
+    // })
+    // this.model.totalAmount = 0
+    _.forEach(Data.data, (element) => {
       _.forEach(element['values'], (item) => {
         if (item.Qty > 0) {
           const obj = {
-            itemId: this.model.itemId,
+            itemId: model1.itemId,
             sizeId: item.sizeAttributeId,
             sizeName: item.sizeAttributeName,
             attributeValueId: item.attributeCombinationId,
             attributeValueName: item.attributeCombinationName,
-            orderQuantity: this.getOrderQuantity(+item.Qty, +this.model.addPercentage),
-            addPercentage: (+this.model.addPercentage > 0) ? +this.model.addPercentage : 0,
+            orderQuantity: this.getOrderQuantity(+item.Qty, +model1.addPercentage),
+            orderQuantity1: +model1.orderQuantity,
+            productionQty1: +Data.productionQty,
+            addPercentage: (+model1.addPercentage > 0) ? +model1.addPercentage : 0,
             productionQty: +item.Qty,
-            unit: this.model.unit,
-            unitName : this.model.unitName,
-            rate: this.model.rate,
-            amount: +(item.Qty*this.model.rate).toFixed(2),
-            remark : this.model.remark,
-            itemName: this.model.itemName,
-            SetId: this.model.SetId,
-            StyleId: this.model.styleNumberId,
+            unit: model1.unit,
+            unitName : model1.unitName,
+            rate: model1.rate,
+            amount: +(item.Qty * model1.rate).toFixed(2),
+            remark : model1.remark,
+            itemName: model1.itemName,
+            SetId: model1.SetId,
+            StyleId: model1.StyleId,
             ProductCode: item.ProductCode,
-            ProductDescription: item.ProductDescription
+            ProductDescription: item.ProductDescription,
+            editable: false,
+            GroupTransId: (model1.GroupTransId) ? model1.GroupTransId : 0,
+            PackingTypeId: model1.PackingTypeId,
+            baseAttrId: (model1.baseAttrId || ''),
+            setupAttrIds: (model1.setupAttrIds || '')
           }
           this.model['totalOrderedQty'] = (this.model['totalOrderedQty'] || 0) + +obj['orderQuantity']
           this.model['totalProductionQty'] = (this.model['totalProductionQty'] || 0) + +obj['productionQty']
           this.model['totalAmount'] = (this.model['totalAmount'] || 0) + +obj['amount']
           this.orderList.push({ ...obj })
-          this.itemsInOrder[this.itemsInOrder.length - 1]['transformed'].push({ ...obj })
+          if (this.editIndex > -1) {
+            this.itemsInOrder[this.editIndex]['transformed'].push({ ...obj })
+          } else {
+            this.itemsInOrder[this.itemsInOrder.length - 1]['transformed'].push({ ...obj })
+          }
+          console.log('items in order : ', this.itemsInOrder)
         }
       })
     })
+    this.calculateItemTotal()
     this.resetItemAddForm()
     this.commonService.fixTableHF('order-list-table')
+    setTimeout(() => {
+      const element = this.renderer.selectRootElement(this.itemSelect2.selector.nativeElement, true)
+      element.focus({ preventScroll: false })
+    }, 1000)
   }
 
   getOrderQuantity (qty, addPer) {
@@ -541,28 +630,75 @@ export class AddBuyerOrderComponent implements OnInit {
     }
   }
 
-  deleteItem (index, item, type) {
-    this.model['totalOrderedQty'] = this.model['totalOrderedQty'] - item['orderQuantity']
-    this.model['totalProductionQty'] = this.model['totalProductionQty'] - item['productionQty']
-    this.model['totalAmount'] = this.model['totalAmount']- item['amount']
-    if (type == 'new') {
-      this.orderList.splice(index, 1)
-    } else if (type === 'old') {
-      let toDel = []
-      _.forEach(this.model['transDetail'], (element, index) => {
-        if (element.ItemTransId === item.Id) {
-          toDel.push(element)
+  calculateItemTotal (index?) {
+    if (+index >= 0) {
+      this.itemsInOrder[index]['total']['productionQty'] = this.getTotal(index, 'productionQty')
+      this.itemsInOrder[index]['total']['orderQty'] = this.getTotal(index, 'orderQuantity')
+      this.itemsInOrder[index]['total']['amount'] = this.getTotal(index, 'amount')
+      if (this.itemsInOrder[index]['transformed'][0].orderQuantity1 !== this.itemsInOrder[index]['total']['orderQty']) {
+        this._toaster.showError('Order Qty does not match', '')
+      }
+    } else {
+      if (this.editIndex > -1) {
+        this.itemsInOrder[this.editIndex]['total']['productionQty'] = this.getTotal(this.editIndex, 'productionQty')
+        this.itemsInOrder[this.editIndex]['total']['orderQty'] = this.getTotal(this.editIndex, 'orderQuantity')
+        this.itemsInOrder[this.editIndex]['total']['amount'] = this.getTotal(this.editIndex, 'amount')
+        if (this.itemsInOrder[this.editIndex]['transformed'][0].orderQuantity1 !== this.itemsInOrder[this.editIndex]['total']['orderQty']) {
+          this._toaster.showError('Order Qty does not match', '')
         }
-      })
-      console.log(toDel)
-      this.model['transDetail'] = _.differenceWith(this.model['transDetail'], toDel, _.isEqual)
-      console.log(this.model['transDetail'])
-      this.previousOrders.splice(index, 1)
+      } else {
+        this.itemsInOrder[this.itemsInOrder.length - 1]['total']['productionQty'] = this.getTotal(this.itemsInOrder.length - 1, 'productionQty')
+        this.itemsInOrder[this.itemsInOrder.length - 1]['total']['orderQty'] = this.getTotal(this.itemsInOrder.length - 1, 'orderQuantity')
+        this.itemsInOrder[this.itemsInOrder.length - 1]['total']['amount'] = this.getTotal(this.itemsInOrder.length - 1, 'amount')
+        if (this.itemsInOrder[this.itemsInOrder.length - 1]['transformed'][0].orderQuantity1 !== this.itemsInOrder[this.itemsInOrder.length - 1]['total']['orderQty']) {
+          this._toaster.showError('Order Qty does not match', '')
+        }
+      }
     }
-    this.commonService.fixTableHF('order-list-table')
   }
 
+  calculateAllTotal() {
+    _.forEach(['totalOrderedQty', 'totalProductionQty', 'totalAmount'], (element) => {
+      this.model[element] = 0
+    })
+    if (this.toOpenAttr) {
+      _.forEach(this.itemsInOrder, (element) => {
+        this.model['totalOrderedQty'] += +element.total.orderQty
+        this.model['totalProductionQty'] += +element.total.productionQty
+        this.model['totalAmount'] += +element.total.amount
+      })
+    } else {
+      _.forEach(this.orderList, (element) => {
+        this.model['totalOrderedQty'] += +element.orderQuantity
+        this.model['totalProductionQty'] += +element.productionQty
+        this.model['totalAmount'] += +element.amount
+      })
+    }
+  }
+
+  deleteItem (index, item, topIndex) {
+    if(confirm('Do you want to Delete ?')){
+      this.model['totalOrderedQty'] = this.model['totalOrderedQty'] - item['orderQuantity']
+      this.model['totalProductionQty'] = this.model['totalProductionQty'] - item['productionQty']
+      this.model['totalAmount'] = this.model['totalAmount']- item['amount']
+      if (this.itemsInOrder[topIndex]['transformed'].length > 1) {
+        this.itemsInOrder[topIndex]['transformed'].splice(index, 1)
+        this.calculateItemTotal(topIndex)
+      } else {
+        this.itemsInOrder.splice(topIndex, 1)
+      }
+      this.calculateAllTotal()
+      return true
+    } else {
+      return false
+    }
+  }
+
+  @ViewChild('packing_select2') packingSelect2: Select2Component
   resetItemAddForm() {
+    this.editIndex = -1
+    this.editInfoIndex = -1
+    this.editRow = false
     this.model.itemValue = 0
     this.model.packageTypeValue = 1
     this.model.styleNumberValue = 0
@@ -573,12 +709,17 @@ export class AddBuyerOrderComponent implements OnInit {
     this.model.rate = 0
     this.model.addPercentage = 0
     this.model.remark = ''
+    this.model.setValue = 0
+    this.model.productionQty = 0
+    this.itemSelect2.setElementValue(0)
+    this.styleSelect2.setElementValue(0)
+    this.packingSelect2.setElementValue(1)
     this.itemFormModal.resetForm()
   }
 
   resetBuyerOrderForm() {
     _.forEach(
-      ['buyerNameValue', 'orderTypeValue', 'seasonValue', 'genderValue', 'styleNumberValue', 
+      ['buyerNameValue', 'orderTypeValue', 'seasonValue', 'genderValue', 'styleNumberValue',
       'shipModeValue', 'currencyValue', 'departmentValue'],
       (element) => {
         this.model[element] = 0
@@ -586,6 +727,7 @@ export class AddBuyerOrderComponent implements OnInit {
     this.imageList = []
     this.ImageFiles = []
     this.orderList = []
+    this.itemsInOrder = []
     this.previousOrders = []
     this.model.totalOrderedQty = 0
     this.model.totalProductionQty = 0
@@ -603,16 +745,29 @@ export class AddBuyerOrderComponent implements OnInit {
 
   validateBuyerOrderForm() {
     let valid = true
-    const iterateList = ['buyerNameId', 'orderDate', 'orderPoNumber', 'currencyId']
+    const iterateList = ['buyerNameId', 'orderDate', 'orderPoNumber', 'currencyId', 'AddressId']
     for (var i = 0; i < iterateList.length; i++) {
       if (!this.model[iterateList[i]]) {
         valid = false
         break
       }
     }
-    if (this.orderList.length === 0 && valid) {
-      valid = false
-      this._toaster.showErrorLong('', 'Please add atleast 1 item to place order')
+    if (this.toOpenAttr) {
+      if (this.itemsInOrder.length === 0 && valid) {
+        valid = false
+        this._toaster.showErrorLong('', 'Please add atleast 1 item to place order')
+      } else {
+        _.forEach(this.itemsInOrder, (element) => {
+          if (element['transformed'][0].orderQuantity1 !== element['total']['orderQty']) {
+            valid = false
+          }
+        })
+      }
+    } else {
+      if (this.orderList.length === 0 && valid) {
+        valid = false
+        this._toaster.showErrorLong('', 'Please add atleast 1 item to place order')
+      }
     }
     this.checkForFocus()
     return valid
@@ -620,7 +775,8 @@ export class AddBuyerOrderComponent implements OnInit {
 
   prepareItemAttributeTransDetails() {
     const itemTransDetails = []
-    let sno = (this.editMode) ? this.previousOrders[this.previousOrders.length - 1].Sno + 1: 1
+    // (this.editMode) ? this.previousOrders[this.previousOrders.length - 1].Sno + 1:
+    let sno = 1
     _.forEach(this.orderList, (item) => {
       const obj = {
         "ItemId": item.itemId,
@@ -671,34 +827,72 @@ export class AddBuyerOrderComponent implements OnInit {
     return _itemTransDetails
   }
 
-  prepareBuyerOrderTransDetails(){
-    let newArr = this.orderList.concat(this.previousOrders)
-    return _.map(newArr, (item) => {
-      return {
-        "OrderId": 0,
-        "GroupId": 0,
-        "ItemId": item.itemId,
-        "UnitId": item.unit,
-        "Rate": item.rate,
-        "StyleId": item.StyleId,
-        "SetId": item.SetId,
-        "Length": 1,
-        "Height": 1,
-        "Width": 1,
-        "OrderQty": item.orderQuantity,
-        "ProductionQty": item.productionQty,
-        "Additional": item.addPercentage,
-        "SubTotalAmount": item.amount,
-        "DiscountType": "0",
-        "Discount": "0",
-        "DiscountAmt": "0",
-        "Remark": item.remark,
-        "ClientBarCode": "",
-        "Id": item.Id ? item.Id : 0,
-        "ProductCode": item.ProductCode,
-        "ProductDescription": item.ProductDescription
-      }
-    })
+  prepareBuyerOrderTransDetails() {
+    if (this.toOpenAttr) {
+      this.orderList = []
+      let arr = []
+      _.forEach(this.itemsInOrder, (element) => {
+        _.forEach(element.transformed, (item) => {
+          this.orderList.push(item)
+          arr.push({
+            "OrderId": 0,
+            "GroupId": 0,
+            "ItemId": item.itemId,
+            "UnitId": item.unit,
+            "Rate": item.rate,
+            "StyleId": item.StyleId,
+            "SetId": (item.SetId || 0),
+            "Length": 1,
+            "Height": 1,
+            "Width": 1,
+            "OrderQty": item.orderQuantity,
+            "ProductionQty": item.productionQty,
+            "Additional": item.addPercentage,
+            "SubTotalAmount": item.amount,
+            "DiscountType": "0",
+            "Discount": "0",
+            "DiscountAmt": "0",
+            "Remark": item.remark,
+            "ClientBarCode": "",
+            "Id": item.Id ? item.Id : 0,
+            "ProductCode": item.ProductCode,
+            "ProductDescription": item.ProductDescription,
+            "GroupTransId": item.GroupTransId,
+            "PackingTypeId": item.PackingTypeId
+          })
+        })
+      })
+      return arr
+    } else {
+      return _.map(this.orderList, (item) => {
+        return {
+          "OrderId": 0,
+          "GroupId": 0,
+          "ItemId": item.itemId,
+          "UnitId": item.unit,
+          "Rate": item.rate,
+          "StyleId": item.StyleId,
+          "SetId": (item.SetId || 0),
+          "Length": 1,
+          "Height": 1,
+          "Width": 1,
+          "OrderQty": item.orderQuantity,
+          "ProductionQty": item.productionQty,
+          "Additional": item.addPercentage,
+          "SubTotalAmount": item.amount,
+          "DiscountType": "0",
+          "Discount": "0",
+          "DiscountAmt": "0",
+          "Remark": item.remark,
+          "ClientBarCode": "",
+          "Id": item.Id ? item.Id : 0,
+          "ProductCode": item.ProductCode,
+          "ProductDescription": item.ProductDescription,
+          "GroupTransId": item.GroupTransId,
+          "PackingTypeId": item.PackingTypeId
+        }
+      })
+    }
   }
 
   preparePayload(){
@@ -736,20 +930,21 @@ export class AddBuyerOrderComponent implements OnInit {
   }
 
   submitForm() {
-    this.disableBtnSubmit = true
-    this.checkForFocus()
-    const requestData = this.preparePayload()
-    requestData['Id'] = (this.editMode) ? this.model.editId : 0
-    console.log('obj : ', JSON.stringify(requestData))
-    this._buyerOrderService.postBuyerOrderData(requestData).subscribe((res) => {
-      this._toaster.showSuccess('Success', 'Buyer Order Saved Successfully')
+    if (this.validateBuyerOrderForm()) {
+      this.disableBtnSubmit = true
+      const requestData = this.preparePayload()
+      requestData['Id'] = (this.editMode) ? this.model.editId : 0
+      console.log('obj : ', JSON.stringify(requestData))
+      this._buyerOrderService.postBuyerOrderData(requestData).subscribe((res) => {
+        this._toaster.showSuccess('Success', 'Buyer Order Saved Successfully')
         this.resetBuyerOrderForm()
         this.triggerCloseModal.emit()
-    },
-    (error) => {
-      this.disableBtnSubmit = false
-      this._toaster.showError(error, '')
-    })
+      },
+      (error) => {
+        this.disableBtnSubmit = false
+        this._toaster.showError(error, '')
+      })
+    }
   }
 
   assignFormData(Data) {
@@ -765,19 +960,37 @@ export class AddBuyerOrderComponent implements OnInit {
   }
 
   validateItemAddForm() {
-    if (!this.model.packingTypeId) {
-      return false
-    } else if (!this.model.itemId) {
-      return false
-    } else {
-      return true
+    let valid = true
+    const iterateList = ['rate', 'orderQuantity', 'productionQty']
+    for (var i = 0; i < iterateList.length; i++) {
+      if (+this.model[iterateList[i]] <= 0) {
+        valid = false
+        break
+      }
     }
+    const iterateList1 = ['PackingTypeId', 'StyleId', 'itemId']
+    for (var i = 0; i < iterateList1.length; i++) {
+      if (!this.model[iterateList1[i]]) {
+        valid = false
+        break
+      }
+    }
+    return valid
+    // if (!this.model.PackingTypeId) {
+    //   return false
+    // } else if (!this.model.itemId) {
+    //   return false
+    // } else {
+    //   return true
+    // }
   }
 
   openAttributeCombinationModal(){
+    this.model['GroupTransId'] = (this.itemsInOrder.length > 0) ? this.itemsInOrder[this.itemsInOrder.length - 1]['transformed'][0].GroupTransId + 1 : 1
     this.attributeFormModal.openModal(this.model)
+    // this.buyerOrderAddForm.openModal()
   }
-  
+
   @ViewChild('address_select2') addressSelect2: Select2Component
   @ViewChild('style_select2') styleSelect2: Select2Component
   @ViewChild('item_select2') itemSelect2: Select2Component
@@ -826,8 +1039,7 @@ export class AddBuyerOrderComponent implements OnInit {
         this.styleSelect2.selector.nativeElement.value = ''
         this._ms.openStyle('', false)
       }
-    } 
-    
+    }
     if (key === 'AddressId' && this.model[key] === -1) {
       this.addressSelect2.selector.nativeElement.value = ''
       this.commonService.openAddress(this.model['buyerNameId'])
@@ -853,7 +1065,7 @@ export class AddBuyerOrderComponent implements OnInit {
         this.commonService.openCommonMenu({'open': true, 'data': menudata, 'isAddNew': false})
       });
     }
-    if (key === 'packingTypeId' && this.model[key] === 4) {
+    if (key === 'PackingTypeId' && this.model[key] === 4) {
       this._buyerOrderService.getSetTypeData().subscribe((data) => {
         console.log(data)
         this._buyerOrderService.getList(data, 'CommonDesc', 'Set Type')
@@ -888,7 +1100,7 @@ export class AddBuyerOrderComponent implements OnInit {
       this.createImageFiles()
     })
   }
-  
+
   removeImage = (index) => {
     _.forIn(this.imageList, (value) => {
         value.splice(index, 1)
@@ -979,35 +1191,168 @@ export class AddBuyerOrderComponent implements OnInit {
     }, 10)
   }
 
-  editItem (orders) {
-    const groupBy = _.groupBy(this.model.editData.ItemAttributesTransSno, element => element.AttributeValueId)
-    console.log(groupBy)
-    let groupby_copy = JSON.parse(JSON.stringify(groupBy))
-    let filteredValues = []
-    for (const key in groupBy) {
-      if (key === this.defaultMeasuring) {
-        groupBy[key].forEach(element => {
-          filteredValues.push(element.AttributeId)
-        });
-      } else {
-        groupBy[key] = _.map((groupBy[key]), (element) => element.AttributeId)
+  editIndex: number = -1
+  addMore(index) {
+    let copy = JSON.parse(JSON.stringify(this.itemsInOrder[index]['transformed']))
+    const item1 = _.find(copy, (element) => {
+      if (element.baseAttrId && element.setupAttrIds) {
+        return element
       }
-      console.log(groupBy[key])
+    })
+    this.editIndex = +index
+    if (!_.isEmpty(item1) || item1) {
+      const item = JSON.parse(JSON.stringify(item1))
+      item.baseAttrId = +item.baseAttrId
+      const arr = item.setupAttrIds.split(',')
+      const ind = arr.findIndex((element) => element === '' + item.baseAttrId)
+      if (ind > -1) {
+        arr.splice(ind, 1)
+        this.attributeFormModal.openModal(
+          {productionQty: (+this.itemsInOrder[index]['transformed'][0].productionQty1 - +this.itemsInOrder[index].total.productionQty)}, {attrsFor: this.sputilityData,
+          baseAttr: item.baseAttrId,
+          attrValues: arr
+        })
+      }
+    } else {
+      this.attributeFormModal.openModal(
+        {productionQty: (+this.itemsInOrder[index]['transformed'][0].productionQty1 - +this.itemsInOrder[index].total.productionQty)}
+        , {attrsFor: this.sputilityData, baseAttr: '', attrValues: ''})
     }
-    console.log(groupBy)
-    console.log(groupby_copy)
-    // defaultmeasuring.forEach(element => {
-    //   filteredValues.push(element.AttributeId)
-    // });
-    // delete groupBy[this.defaultMeasuring]
-    // console.log()
+  }
 
-    // attributeCombinationId: element.id,
-    // attributeCombinationName: element.text,
-    // sizeAttributeId: sizeAttribute.Id,
-    // sizeAttributeName: sizeAttribute.Name,
-    // Qty: null,
-    // ProductDescription: '',
-    // ProductCode: ''
+  deleteItem1 (index) {
+    if(confirm('Do you want to Delete ?')){
+      if (index === this.editInfoIndex) {
+        this.resetItemAddForm()
+      }
+      this.itemsInOrder.splice(index, 1)
+      this.calculateAllTotal()
+      return true
+    } else {
+      return false
+    }
+  }
+  editInfoIndex: number = -1
+  editRow: boolean = false
+  editInfo(item, index) {
+    if (!this.itemFormModal.dirty || this.itemFormModal.pristine) {
+      if (this.toOpenAttr) {
+        this.editInfoIndex = index
+        this.model.itemValue = item.transformed[0].itemId
+        this.model.packageTypeValue = item.transformed[0].PackingTypeId
+        this.model.styleNumberValue = item.transformed[0].StyleId
+        this.model.unit = item.transformed[0].unit
+        this.model.unitName = ''
+        this.model.itemName = ''
+        this.model.orderQuantity = +item.transformed[0].orderQuantity1
+        this.model.addPercentage = (item.transformed[0].addPercentage > 0) ? +item.transformed[0].addPercentage : 0
+        this.generateProductionQty()
+        this.model.remark = item.transformed[0].remark
+        this.model.productionQty1 = item.transformed[0].productionQty1
+        // item.transformed[0].productionQty
+        setTimeout(() => {
+          this.model.setValue = item.transformed[0].SetId
+          this.model.rate = item.transformed[0].rate
+          console.log(this.model)
+          const element = this.renderer.selectRootElement(this.itemSelect2.selector.nativeElement, true)
+          element.focus({ preventScroll: false })
+        }, 2000)
+      } else {
+        this.editInfoIndex = index
+        this.model.itemValue = item.itemId
+        this.model.packageTypeValue = item.PackingTypeId
+        this.model.styleNumberValue = item.StyleId
+        this.model.unit = item.unit
+        this.model.unitName = ''
+        this.model.itemName = ''
+        this.model.orderQuantity = +item.orderQuantity
+        this.model.addPercentage = (item.addPercentage > 0) ? +item.addPercentage : 0
+        this.generateProductionQty()
+        this.model.remark = item.remark
+        this.model.productionQty = item.productionQty
+        setTimeout(() => {
+          this.model.setValue = item.SetId
+          this.model.rate = item.rate
+          console.log(this.model)
+          const element = this.renderer.selectRootElement(this.itemSelect2.selector.nativeElement, true)
+          element.focus({ preventScroll: false })
+        }, 2000)
+      }
+    }
+  }
+
+  getTotal(index, key) {
+    return _.reduce(this.itemsInOrder[index]['transformed'], (result, value) => {
+      result += +value[key]
+      return result;
+    }, 0)
+  }
+
+  updateItemsInfo() {
+    if (this.editInfoIndex > -1) {
+      if (this.toOpenAttr) {
+        _.forEach(this.itemsInOrder[this.editInfoIndex]['transformed'], (element) => {
+          element.itemId = this.model.itemId
+          element.orderQuantity = this.getOrderQuantity(+element.productionQty, +this.model.addPercentage)
+          element.orderQuantity1 = +this.model.orderQuantity
+          element.addPercentage = (+this.model.addPercentage > 0) ? +this.model.addPercentage : 0
+          element.productionQty = +element.productionQty
+          element.productionQty1 = +this.model.productionQty
+          element.unit = this.model.unit
+          element.unitName = this.model.unitName
+          element.rate = this.model.rate
+          element.amount = +(+element.productionQty * +this.model.rate).toFixed(2)
+          element.remark  = this.model.remark
+          element.itemName = this.model.itemName
+          element.SetId = this.model.SetId
+          element.StyleId = this.model.StyleId
+          element.PackingTypeId = this.model.PackingTypeId
+        })
+        this.calculateItemTotal()
+      } else {
+        this.orderList[this.editInfoIndex].itemId = this.model.itemId
+        this.orderList[this.editInfoIndex].orderQuantity = +this.model.orderQuantity
+        this.orderList[this.editInfoIndex].orderQuantity1 = +this.model.orderQuantity
+        this.orderList[this.editInfoIndex].addPercentage = (+this.model.addPercentage > 0) ? +this.model.addPercentage : 0
+        this.orderList[this.editInfoIndex].productionQty = +this.model.productionQty
+        this.orderList[this.editInfoIndex].productionQty1 = +this.model.productionQty
+        this.orderList[this.editInfoIndex].unit = this.model.unit
+        this.orderList[this.editInfoIndex].unitName = this.model.unitName
+        this.orderList[this.editInfoIndex].rate = this.model.rate
+        this.orderList[this.editInfoIndex].amount = +(this.model.productionQty * +this.model.rate).toFixed(2)
+        this.orderList[this.editInfoIndex].remark  = this.model.remark
+        this.orderList[this.editInfoIndex].itemName = this.model.itemName
+        this.orderList[this.editInfoIndex].SetId = this.model.SetId
+        this.orderList[this.editInfoIndex].StyleId = this.model.StyleId
+        this.orderList[this.editInfoIndex].PackingTypeId = this.model.PackingTypeId
+        this.calculateAllTotal()
+      }
+      this.resetItemAddForm()
+    }
+  }
+
+  editRowClick(item) {
+    if (!this.editRow) {
+      item.editable = true;
+      this.editRow = true;
+    } else {
+      item.editable = false;
+    }
+  }
+
+  deleteItem2 (index, item) {
+    if(confirm('Do you want to Delete ?')){
+      this.model['totalOrderedQty'] = this.model['totalOrderedQty'] - item['orderQuantity']
+      this.model['totalProductionQty'] = this.model['totalProductionQty'] - item['productionQty']
+      this.model['totalAmount'] = this.model['totalAmount']- item['amount']
+      if (this.editInfoIndex === index) {
+        this.resetItemAddForm()
+      }
+      this.orderList.splice(index, 1)
+      this.commonService.fixTableHF('order-list-table')
+      return true
+    } else {
+      return false
+    }
   }
 }

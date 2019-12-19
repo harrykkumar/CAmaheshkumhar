@@ -1,0 +1,48 @@
+<div
+  class="modal fade"
+  id="confirm_dialog"
+  role="dialog"
+  aria-labelledby="comman_master"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">{{title}}</h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="card-body">
+          <div>
+            <h4 class="text-center">
+              {{message}}
+            </h4>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-primary waves-effect"
+          (click)="setResponse(false)"
+        >
+          No
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger waves-effect"
+          (click)="setResponse(true)"
+        >
+          Yes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

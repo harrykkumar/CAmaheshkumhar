@@ -262,7 +262,6 @@ export class SaleReturnDirectAddComponent {
     private renderer: Renderer2,
     private gs: GlobalService,
     private _catagoryservices: CategoryServices) {
-    this.getFormDependency()
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.commonService.openDiscountMasterStatus().subscribe(
       (data: AddCust) => {
@@ -588,6 +587,8 @@ export class SaleReturnDirectAddComponent {
           })
           this.ItemId = +data.id
           this.itemValue = data.id
+          let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+          this.getItemRateByLedgerData(newBillDate, '', this.ItemId, this.PartyId)
           setTimeout(() => {
             if (this.itemselect2) {
               const element = this.renderer.selectRootElement(this.itemselect2.selector.nativeElement, true)
@@ -689,6 +690,7 @@ export class SaleReturnDirectAddComponent {
           if (data && data.ItemCategorys && data.ItemCategorys.length > 0) {
             _self.getCatagoryDetail(data.ItemCategorys)
           }
+          
           _self.allItems = [...data.Items]
           _self._saleDirectService.createItems(data.Items)
           _self._saleDirectService.createCustomers(data.Customers)
@@ -697,6 +699,7 @@ export class SaleReturnDirectAddComponent {
           this.getOrgnization(data.Organizations)
           _self._saleDirectService.createGodowns(data.Godowns)
           this.SputilityIMEIData = data.ItemProperties
+          this.ImeiNamelabel=data.ItemProperties[0].Name
           _self._saleDirectService.createSubUnits(data.SubUnits)
           _self._saleDirectService.createTaxSlabs(data.TaxSlabs)
           _self._saleDirectService.createCurrencies(data.Currencies)
@@ -716,6 +719,7 @@ export class SaleReturnDirectAddComponent {
         }
       )
   }
+  ImeiNamelabel:any
   allbankList: any
   selectedBankvalue: any
   getBankList(lsit) {
@@ -780,8 +784,8 @@ export class SaleReturnDirectAddComponent {
     this.AdditionalCharges = []
     this.PaymentDetail = []
     this.taxRatesForEdit = data.TaxRates
-    this.createOther(data.SaleTransactionses[0])
     this.createMobileIMEiNumber(data.ItemPropertyTrans)
+    this.createOther(data.SaleTransactionses[0])
     this.createAttributes(data.ItemAttributesTrans)
     this.createItemTaxTrans(data.ItemTaxTransDetails)
     this.createItems(data.ItemTransactions)
@@ -1480,6 +1484,7 @@ export class SaleReturnDirectAddComponent {
   editItemFlag: boolean
   getBillSummryListFlag: boolean
   onLoading() {
+    this.getFormDependency()
     this.BillDiscountApplied = []
     this.addressBillingValue = null
     this.addressShippingValue = null
@@ -3071,7 +3076,7 @@ export class SaleReturnDirectAddComponent {
     let paymentTotal = this.getPaymentTotal()
     if (this.BillAmount === paymentTotal) {
       e.preventDefault()
-      this.saveSaleDirect()
+      this.saveSaleDirectReturn()
     } else {
       this.addTransactions()
       setTimeout(() => {
@@ -3685,16 +3690,17 @@ export class SaleReturnDirectAddComponent {
   }
 
   closeSale() {
-    // this.BillDiscountApplied = []
-    // this.showHideAddItemRow = true
-    // this.showHideItemCharge = true
-    // this.showHidePayment = true
-    // this.addressBillingValue = null
-    // this.addressShippingValue = null
-    // this.itemFirstPosition()
+
     this.closeConfirmation()
   }
   yesConfirmationClose() {
+        this.BillDiscountApplied = []
+    this.showHideAddItemRow = true
+    this.showHideItemCharge = true
+    this.showHidePayment = true
+    this.addressBillingValue = null
+    this.addressShippingValue = null
+    this.itemFirstPosition()
     $('#close_confirm_returnsale').modal(UIConstant.MODEL_HIDE)
     $('#saleDirect_modal').modal(UIConstant.MODEL_HIDE)
 
@@ -4501,7 +4507,7 @@ export class SaleReturnDirectAddComponent {
 
 
 
-  saveSaleDirect() {
+  saveSaleDirectReturn() {
     let _self = this
     this.submitSave = true
     let dataToSend = this.saleDirectParams()

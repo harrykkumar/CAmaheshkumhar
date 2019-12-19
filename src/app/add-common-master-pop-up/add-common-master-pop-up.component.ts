@@ -70,7 +70,7 @@ export class AddCommonMasterPopUpComponent implements OnInit {
           this.closePopUp(res.Data);
         }
       } else {
-        this.toastrService.showError('', res.message);
+        this.toastrService.showError('', res.Message);
       }
       this.spinner.hide();
     });

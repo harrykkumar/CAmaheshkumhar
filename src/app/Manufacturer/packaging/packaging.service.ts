@@ -9,6 +9,7 @@ import { debounceTime } from 'rxjs/operators/debounceTime';
 import { distinctUntilChanged } from 'rxjs/operators/distinctUntilChanged';
 import { switchMap } from 'rxjs/operators/switchMap';
 import { AddCust } from '../../model/sales-tracker.model';
+import { UIConstant } from '../../shared/constants/ui-constant';
 @Injectable({
   providedIn: 'root'
 })
@@ -145,8 +146,6 @@ export class PackagingService {
       this.combosSub.next({data: itemSArr})
     }
   }
-
-
 
   getCheckedItems(packetItems, buyerOrderItems) {
     _.forEach(buyerOrderItems, (element) => {
@@ -316,5 +315,25 @@ export class PackagingService {
 
   onEditUpdate() {
     this.editUpdateSub.next()
+  }
+
+  getBOTransList() {
+    return this.gs.manipulateResponse(this.baseService.getRequest(ApiConstant.BUYER_ORDER_TRANS_LIST))
+  }
+
+  private select2ArrSub = new Subject()
+  select2List$ = this.select2ArrSub.asObservable()
+  getList(data, key, title, id?){
+    let id1 = 'Id'
+    if (id) {
+      id1 = id
+    }
+    const list = _.map(data, (item) => {
+      return {
+        id: item[id1],
+        text: item[key]
+      }
+    })
+    this.select2ArrSub.next({data: [{ id: 0, text: 'Select ' + title },...list], title: title})
   }
 }

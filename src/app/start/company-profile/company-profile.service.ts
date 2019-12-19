@@ -146,6 +146,7 @@ export class CompanyProfileService {
 
   /* Function to get all the state list */
   getStateList = (countryCode) => {
+    
     return this._vendorService.gatStateList(countryCode).
       pipe(
         map((data: any) => {

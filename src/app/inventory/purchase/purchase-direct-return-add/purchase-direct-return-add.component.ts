@@ -257,7 +257,6 @@ export class PurchaseDirectReturnAddComponent {
     private renderer: Renderer2,
     private gs: GlobalService,
     private _catagoryservices: CategoryServices) {
-    this.getFormDependency()
     this.commonService.openDiscountMasterStatus().subscribe(
       (data: AddCust) => {
         if (data.open === false && data && data.data) {
@@ -622,6 +621,8 @@ export class PurchaseDirectReturnAddComponent {
           })
           this.ItemId = +data.id
           this.itemValue = data.id
+          let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+          this.getItemDetail(newBillDate, '', this.ItemId, this.PartyId)
           setTimeout(() => {
             if (this.itemselect2) {
               const element = this.renderer.selectRootElement(this.itemselect2.selector.nativeElement, true)
@@ -734,13 +735,13 @@ export class PurchaseDirectReturnAddComponent {
     this.AdditionalCharges = []
     this.PaymentDetail = []
     this.taxRatesForEdit = data.TaxRates
+    this.createMobileIMEiNumber(data.ItemPropertyTrans)
+    this.createTransaction(data.PaymentDetails)
     this.createOther(data.PurchaseTransactions[0])
     this.createAttributes(data.ItemAttributesTrans)
-    this.createMobileIMEiNumber(data.ItemPropertyTrans)
     this.createItemTaxTrans(data.ItemTaxTransDetails)
     this.createItems(data.ItemTransactions)
     this.createAdditionalCharges(data.AdditionalChargeDetails)
-    this.createTransaction(data.PaymentDetails)
     this.allUnits = data.SubUnitWithItems
 
     this.loading = false
@@ -1263,6 +1264,8 @@ export class PurchaseDirectReturnAddComponent {
            this.getOrgnization(data.Organizations)
            _self.purchaseService.createGodowns(data.Godowns)
            this.SputilityIMEIData = data.ItemProperties
+           this.ImeiNamelabel=data.ItemProperties[0].Name
+
            _self.purchaseService.createSubUnits(data.SubUnits)
            _self.purchaseService.createTaxSlabs(data.TaxSlabs)
            _self.purchaseService.createCurrencies(data.Currencies)
@@ -1280,6 +1283,7 @@ export class PurchaseDirectReturnAddComponent {
          }
        )
    }
+   ImeiNamelabel:any
    allbankList: any
    selectedBankvalue: any
    getBankList(lsit) {
@@ -1313,12 +1317,13 @@ export class PurchaseDirectReturnAddComponent {
   }
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
+    this.Items=[]
+    this.getFormDependency()
     this.onLoading()
     this.getListOfChargeData()
+    this.initialiseExtras()
     $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
     this.industryId = +this.settings.industryId
-    // this.industryId = 12
-
     this.taxTypeData = [
       { id: '0', text: 'Exclusive' },
       { id: '1', text: 'Inclusive' }

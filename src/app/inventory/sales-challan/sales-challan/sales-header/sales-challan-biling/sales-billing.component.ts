@@ -263,7 +263,6 @@ export class SalesChallanBillingComponent {
     private renderer: Renderer2,
     private gs: GlobalService,
     private _catagoryservices: CategoryServices) {
-    this.getFormDependency()
     this.commonService.openDiscountMasterStatus().subscribe(
       (data: AddCust) => {
         if (data.open === false && data && data.data) {
@@ -1400,6 +1399,7 @@ export class SalesChallanBillingComponent {
   }
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
+    this.getFormDependency()
     this.onLoading()
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.addItemDisbaled = this.editMode === true ? false : true
@@ -2801,7 +2801,7 @@ export class SalesChallanBillingComponent {
     let paymentTotal = this.getPaymentTotal()
     if (this.BillAmount === paymentTotal) {
       e.preventDefault()
-      this.saveSaleDirect()
+      this.saveSaleChallanBilling()
     } else {
       this.addTransactions()
       setTimeout(() => {
@@ -3092,6 +3092,7 @@ export class SalesChallanBillingComponent {
       element['Sno'] = Sno
       element['ItemTransId'] = Sno
     })
+    
     this.Items.push({
       Id: 0,
       Sno: Sno,
@@ -3682,7 +3683,7 @@ export class SalesChallanBillingComponent {
 
     const saleDirectParams = {
       obj: {
-        Id: this.Id ? this.Id : UIConstant.ZERO,
+        Id: 0,
         ReferralCommissionTypeId: 0,
         ReferralCommission: 0,
         PaymentDetail: PaymentDetail,
@@ -4150,7 +4151,7 @@ export class SalesChallanBillingComponent {
   }
   SaveName: string = 'Save'
   DisabledSaveBtn: any = false
-  saveSaleDirect() {
+  saveSaleChallanBilling() {
     let _self = this
     this.submitSave = true
     let dataToSend = this.saleDirectParams()

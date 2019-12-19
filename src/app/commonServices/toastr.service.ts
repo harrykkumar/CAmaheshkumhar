@@ -12,19 +12,19 @@ export class ToastrCustomService {
 
   showError (mess1, mess2) {
     this.toastr.error(mess1, mess2, {
-      timeOut: 1000 
+      timeOut: 5000 
     })
   }
 
   showErrorLong (mess1, mess2) {
     this.toastr.error(mess1, mess2, {
-      timeOut: 5000 
+      timeOut: 6000 
     })
   }
 
   showWarningLong (mess1, mess2) {
     this.toastr.warning(mess1, mess2, {
-      timeOut: 5000 
+      timeOut: 6000 
     })
   }
 
@@ -36,7 +36,7 @@ export class ToastrCustomService {
 
   showWarning (mess1, mess2) {
     this.toastr.warning(mess1, mess2, {
-      timeOut: 1000
+      timeOut: 5000
     })
   }
 }

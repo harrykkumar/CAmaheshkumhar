@@ -6,8 +6,6 @@ import { GlobalService } from '../../commonServices/global.service';
 import { UIConstant } from '../../shared/constants/ui-constant';
 import { Select2OptionData } from 'ng2-select2';
 import { Subject } from 'rxjs';
-
-
 @Injectable({
   providedIn: 'root'
 })
@@ -16,6 +14,8 @@ export class BuyerOrderService {
   addressData$ = this.addressData.asObservable()
   private select2ArrSub = new Subject()
   select2List$ = this.select2ArrSub.asObservable()
+  private attrSub = new Subject()
+  attr$ = this.attrSub.asObservable()
   private queryStrSub = new Subject<string>()
   public queryStr$ = this.queryStrSub.asObservable()
   constructor(
@@ -23,10 +23,8 @@ export class BuyerOrderService {
     private gs: GlobalService
   ) { }
 
-  getUtilityItemList(){
-    return this.baseService.getRequest(ApiConstant.SPUTILITY + 'buyerOrder')
-  }
 
+  
   getList(data, key, title, id?){
     let id1 = 'Id'
     if (id) {
@@ -39,6 +37,41 @@ export class BuyerOrderService {
       }
     })
     this.select2ArrSub.next({data: [{ id: 0, text: 'Select ' + title }, {id: -1, text: UIConstant.ADD_NEW_OPTION}, ...list], title: title})
+  }
+
+  getUtilityItemList(){
+    return this.baseService.getRequest(ApiConstant.SPUTILITY + 'buyerOrder')
+  }
+
+  getAttr(data) {
+    const defaultAttrIndex = _.findIndex(data.AttributeValueResponses, {IsRequired : true})
+    console.log(defaultAttrIndex)
+    const defaultAttr = JSON.parse(JSON.stringify(data.AttributeValueResponses[defaultAttrIndex]))
+    const list = _.map(data.AttributeValueResponses[defaultAttrIndex].AttributeValuesResponse, (item) => {
+      return {
+        id: item['Id'],
+        text: item['Name']
+      }
+    })
+    const defaultList = {
+      Name: defaultAttr.Name,
+      values: [...list]
+    }
+    const listCopy = JSON.parse(JSON.stringify(defaultList))
+    data.AttributeValueResponses.splice(defaultAttrIndex, 1)
+    const list1 = _.map(data.AttributeValueResponses, (element) => {
+      const valueList = _.map((element.AttributeValuesResponse), (attributeValue) => {
+        return {
+          id: attributeValue.Id,
+          text: attributeValue.Name
+        }
+      })
+      return {
+        Name: element.Name,
+        values: [...valueList]
+      }
+    })
+    this.attrSub.next({defaults: listCopy, combos: list1})
   }
 
   getGenderList() {

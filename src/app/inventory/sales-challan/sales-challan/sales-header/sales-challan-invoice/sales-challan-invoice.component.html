@@ -12,16 +12,15 @@
             <div class="col-md-9">
               <div class="btn_header">
                 <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-default waves-effect" #savebutton
-                  (click)="keepOpen=false;saveSaleDirect()">
+                  (click)="keepOpen=false;saveSaleChallan()">
 
                   {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
                 </button>
                 <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-info waves-effect"
-                  (click)="keepOpen=true;saveSaleDirect()">
+                  (click)="keepOpen=true;saveSaleChallan()">
 
                   {{DisabledSaveBtn === true  ? 'Please Wait..' :'  Save and AddNew' }}
                 </button>
-                <!-- <a class="btn btn-info waves-effect" (click)="keepOpen=true;saveSaleDirect()">Save and New</a> -->
                 <button type="button" class="close">
                   <span aria-hidden="true" class="white-text" (click)="closeSale()">×</span>
                 </button>
@@ -42,7 +41,12 @@
           <div class="form-row">
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label><span>Party</span>
+                
               </label>
+              <a class="pl-2 label_green">OB:</a>
+              <span class="pl-2 label_green">
+                {{outStandingBalance}}{{ setCRDR}}
+              </span>
               <div class="input-group adw_select">
                 <select2 #vendor_select2 id="Customers" [data]="customersData" class="control_select"
                   (valueChanged)="onCustomerSelect($event)" autocomplete="true"
@@ -52,7 +56,7 @@
                 </select2>
               </div>
             </div>
-
+<!-- 
             <div class="form-group col-md-4 col-xl-2">
               <label> OutStanding Balance</label>
               <div class="discount">
@@ -64,7 +68,7 @@
                   <option>{{setCRDR}}</option>
                 </select>
               </div>
-            </div>
+            </div> -->
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label for="orgnizationName">Organization Name</label>
               <input readonly='true' type="text" class="form-control" id="orgnizationName"
@@ -735,7 +739,7 @@
         <button [disabled]='DisabledSaveBtn'
           type="submit"
           class="btn waves-effect btn-succ-ess"
-          (click)="keepOpen=false;saveSaleDirect()"
+          (click)="keepOpen=false;saveSaleChallan()"
           >
           {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
         </button>

@@ -472,7 +472,11 @@
             </div>
             <div style="text-align: right; " class="col1">
                 <h3 style="text-align: right; font-size: 16px" class="name-footer">For :
-                    {{ClientInfos && ClientInfos[0]?.OfficeName }}</h3> <br><br>
+                    {{ClientInfos && ClientInfos[0]?.OfficeName }}</h3> 
+                    
+                    <span *ngIf='SignatorySetup===1'>
+                            <img src="{{imageForSignature}}" height="30" />
+                    </span><br><br>
                 Authorised Signatory
             </div>
 
@@ -726,7 +730,12 @@
                     <div class="row">
                         <div class="col" style="text-align: right; ">
                             <h3 class="name-footer" style="text-align: right; font-size: 16px">For :
-                                {{ClientInfos && ClientInfos[0]?.OfficeName }}</h3>Authorised Signatory
+                                {{ClientInfos && ClientInfos[0]?.OfficeName }}
+                            </h3>
+                            <span *ngIf='SignatorySetup===1'>
+                                    <img src="{{imageForSignature}}" height="30" />
+                            </span>
+                            Authorised Signatory
                         </div>
                     </div>
                 </footer>
@@ -970,7 +979,12 @@
                     <div class="row">
                         <div class="col" style="text-align: right; ">
                             <h3 class="name-footer" style="text-align: right; font-size: 16px">For :
-                                {{ClientInfos && ClientInfos[0]?.OfficeName }}</h3>Authorised Signatory
+                                {{ClientInfos && ClientInfos[0]?.OfficeName }}
+                            </h3>
+                            <span *ngIf='SignatorySetup===1'>
+                                    <img src="{{imageForSignature}}" height="30" />
+                            </span>
+                            Authorised Signatory
                         </div>
                     </div>
                 </footer>
@@ -1228,7 +1242,12 @@
                     <div class="row">
                         <div class="col" style="text-align: right; ">
                             <h3 class="name-footer" style="text-align: right; font-size: 16px">For :
-                                {{ClientInfos && ClientInfos[0]?.OfficeName }}</h3>Authorised Signatory
+                                {{ClientInfos && ClientInfos[0]?.OfficeName }}
+                            </h3>
+                            <span *ngIf='SignatorySetup===1'>
+                                    <img src="{{imageForSignature}}" height="30" />
+                            </span>
+                            Authorised Signatory
                         </div>
                     </div>
                 </footer>

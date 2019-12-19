@@ -7,13 +7,13 @@ const childRoutes: Routes = [
   {
     path: '',
     component: SettingsMainComponent,
-    data: { title: 'Masters Settings' },
-    children: [
-      {
-        path: 'setup',
-        component: MasterSettingComponent
-      }
-    ]
+    // data: { title: 'Masters Settings' },
+    // children: [
+    //   {
+    //     path: 'setup',
+    //     component: MasterSettingComponent
+    //   }
+    // ]
   }
 ]
 @NgModule({

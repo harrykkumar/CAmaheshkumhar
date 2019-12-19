@@ -30,6 +30,7 @@ export class PackagingAddComponent {
   loading: boolean = true
   disableBtnSubmit: boolean = false
   destroy$: Subscription[] = []
+  isAddNew: boolean
   @ViewChild('packingModelForm') packingModelForm: NgForm;
   constructor (private _ps: PackagingService,
     private _ts: ToastrCustomService,
@@ -39,9 +40,16 @@ export class PackagingAddComponent {
       this.clientDateFormat = this.settings.dateFormat;
       this.destroy$.push(this._ms.openOP$.subscribe((data: AddCust) => {
         if (data.open) {
+          this.resetForm()
           if (+data.id > 0) {
+            this.isAddNew = false
             this.orderId = data.id
             this.getOrderData();
+          } else {
+            this.loading = false
+            this.orderId = 0
+            this.isAddNew = true
+            this.getBoData();
           }
           this.openModal();
           if (+data.editId > 0) {
@@ -59,6 +67,15 @@ export class PackagingAddComponent {
         console.log('item data : ', this.masterData['itemData'])
       }
     }))
+
+    this._ps.select2List$.subscribe((data: any) => {
+      // console.log(data)
+      if (data.data && data.title) {
+        if (data.title === 'Buyer Order') {
+          this.masterData['buyerNameList'] = JSON.parse(JSON.stringify(data.data))
+        }
+      }
+    })
 
     this.destroy$.push(this._ps.previousPackets$.subscribe((data) => {
       if (data) {
@@ -349,6 +366,8 @@ export class PackagingAddComponent {
           this._ts.showError(error, '')
         }
       ))
+    } else {
+      this._ts.showErrorLong('Add Atleast 1 Packet to Save', '')
     }
   }
 
@@ -434,5 +453,14 @@ export class PackagingAddComponent {
       this.comboFor = (this.comboFor) ? this.comboFor + ' - ' + key : key
     }
     // console.log(this.comboFor, this.defaultAttrName)
+  }
+
+  getBoData () {
+    this._ps.getBOTransList().subscribe(
+      (data) => {
+        console.log(data)
+        this._ps.getList(data, 'BuyerName', 'Buyer Order')
+      }
+    )
   }
 }

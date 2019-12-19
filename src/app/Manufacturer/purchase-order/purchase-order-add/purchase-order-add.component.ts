@@ -12,12 +12,10 @@ import { GlobalService } from '../../../commonServices/global.service'
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { AdditionalCharges, ItemTaxTrans } from '../../../model/sales-tracker.model';
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
-import { takeUntil } from 'rxjs/operators';
 import { CategoryServices } from '../../../commonServices/TransactionMaster/category.services';
 import { PurchaseOrderService } from '../purchase-order.service';
-
+import * as _ from 'lodash';
 declare const $: any
-declare const _: any
 @Component({
   selector: 'purchase-order-add',
   templateUrl: './purchase-order-add.component.html',
@@ -763,6 +761,7 @@ export class PurchaseOrderAddComponent {
   @ViewChild('vendor_select2') vendorSelect2: Select2Component
   onVendorSelect(event) {
     console.log('vendor select : ', event)
+    this.LedgerId = +event.value
     if (event.value && event.data.length > 0) {
       if (event.value === '-1' && event.data[0] && event.data[0].text === UIConstant.ADD_NEW_OPTION) {
         this.vendorSelect2.selector.nativeElement.value = ''
@@ -772,7 +771,6 @@ export class PurchaseOrderAddComponent {
         this.AddressData = Object.assign([], this.allAddressData)
       } else {
         if (event.value > 0 && event.data[0] && event.data[0].text) {
-          this.LedgerId = +event.value
           this.getAllAddresses(this.LedgerId)
         }
       }
@@ -1378,6 +1376,7 @@ export class PurchaseOrderAddComponent {
   }
   @ViewChild('unit_select2') unitSelect2: Select2Component
   onUnitSelect(evt) {
+    this.UnitId = +evt.value
     if (evt.value && evt.data.length > 0) {
       if (+evt.value === -1) {
         this.unitSelect2.selector.nativeElement.value = ''
@@ -1389,7 +1388,6 @@ export class PurchaseOrderAddComponent {
         }
       } else {
         if (evt.value > 0) {
-          this.UnitId = +evt.value
           this.unitName = evt.data[0].text
         }
       }
@@ -2072,9 +2070,15 @@ export class PurchaseOrderAddComponent {
       isValid = 0
     }
     if (this.model.PoDate) {
-      this.invalidObj['BillNo'] = false
+      this.invalidObj['PoDate'] = false
     } else {
-      this.invalidObj['BillNo'] = true
+      this.invalidObj['PoDate'] = true
+      isValid = 0
+    }
+    if (this.model.PoNo) {
+      this.invalidObj['PONumber'] = false
+    } else {
+      this.invalidObj['PONumber'] = true
       isValid = 0
     }
     if (this.Items.length === 0 && this.submitSave) {
@@ -2150,7 +2154,7 @@ export class PurchaseOrderAddComponent {
         }
       }
     }
-    this.checkForFocus()
+    // this.checkForFocus()
     return !!isValid
   }
 
@@ -2290,6 +2294,8 @@ export class PurchaseOrderAddComponent {
       } else {
         this.toastrService.showError('Add Atleast 1 Item', '')
       }
+    } else {
+      this.checkForFocus()
     }
   }
 

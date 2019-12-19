@@ -31,12 +31,16 @@
           <div class="form-row">
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label>Customer</label>
+              <a class="pl-2 label_green">OB:</a>
+              <span class="pl-2 label_green">
+                {{outStandingBalance}}{{ setCRDR}}
+              </span>
               <div class="input-group adw_select">
                   <input [disabled]='true'  type="text" class="form-control" id="e-way" placeholder="Customer Name"   class="form-control" name="customername" [(ngModel)]="customerName">
 
               </div>
             </div>
-            <div class="form-group col-md-2 col-xl-2">
+            <!-- <div class="form-group col-md-2 col-xl-2">
                 <label> OutStanding Balance</label>
                        <div class="discount">
                      <input [disabled]='true'  type="text" class="form-control" id="e-way" placeholder="Amount"   class="form-control" name="outStandingBalance" [(ngModel)]="outStandingBalance">  
@@ -44,7 +48,7 @@
                           <option >{{setCRDR}}</option>
                         </select>
                       </div>
-              </div>
+              </div> -->
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label>Organisation Name</label>
               <div class="input-group adw_select">

@@ -1088,10 +1088,10 @@ span#inputGroupFileAddon01 {
 }
 
 .divgreen {
-  background-color: #b3e2bf;
+  background-color: #0bdc41;
   width: 12px;
   height: 12px;
-  border: 1px solid #97cea5;
+  border: 1px solid #0bdc41;
   margin-top: 4px;
   float: left;
   margin-right: 4px;
@@ -1102,6 +1102,16 @@ span#inputGroupFileAddon01 {
   width: 12px;
   height: 12px;
   border: 1px solid #d8bfd8;
+  margin-top: 4px;
+  float: left;
+  margin-right: 4px;
+}
+
+.divetentative {
+  background-color: #aeeabe;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #aeeabe;
   margin-top: 4px;
   float: left;
   margin-right: 4px;
@@ -4451,7 +4461,7 @@ input[type="number"]::-webkit-outer-spin-button {
 ::-webkit-scrollbar-thumb {
   border-radius: 8px;
   /* border: 2px solid white; */
-  background-color: rgba(155, 150, 150, 0.33);
+  background-color: rgba(221, 208, 208, 0.78);
 }
 
 ::-webkit-scrollbar-track {
@@ -4712,6 +4722,11 @@ input[type="number"]::-webkit-outer-spin-button {
   max-width: 70% !important;
 }
 
+.modal .half-right-3 {
+  width: 70% !important;
+  max-width: 80% !important;
+}
+
 .modal .half-right-1 {
   width: 50% !important;
   max-width: 60% !important;
@@ -4889,7 +4904,7 @@ input[type="number"]::-webkit-outer-spin-button {
   color: #666;
   cursor: default;
   margin: 0 3px;
-  padding: 10px 10px 10px 30px;
+  padding: 10px 10px 10px 20px;
   float: left;
   position: relative;
   background-color: #d9e3f7;
@@ -4908,8 +4923,8 @@ input[type="number"]::-webkit-outer-spin-button {
   right: -17px;
   width: 0;
   height: 0;
-  border-top: 19px solid transparent;
-  border-bottom: 18px solid transparent;
+  border-top: 19px solid transparent !important;
+  border-bottom: 18px solid transparent !important;
   border-left: 17px solid #d9e3f7;
   z-index: 2;
   transition: border-color 0.2s ease;
@@ -4918,7 +4933,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .arrow-steps .step:before {
   right: auto;
   left: 0;
-  border-left: 17px solid #fff;
+  border-left: 17px solid #fff !important;
   z-index: 0;
 }
 
@@ -5588,4 +5603,107 @@ table.table1 th {
 
 #add_new_city.modal {
   z-index: 99999 !important;
+}
+.bg-crm {
+  background: #d9e3f77d !important;
+}
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
+  background-color: #ecf1fb !important;
+  color: #333;
+}
+.address_btn_more {
+  padding-top: 20px;
+}
+
+.overdue {
+  background: #ffffdb;
+}
+.today {
+  background: #e6fffd;
+}
+.assigned {
+  background: #e8e8e6;
+}
+.complete {
+  background: #0bdc41;
+}
+.quotation {
+  background: #d8bfd8;
+}
+.tentative {
+  background: #aeeabe;
+}
+
+.bg-1 {
+  background-color: rgba(142, 32, 225, 0.24);
+  color: #680eac !important;
+  padding: 3px 11px;
+  border-radius: 15px;
+}
+
+.bg-2 {
+  background-color: rgba(42, 88, 173, 0.11);
+  color: #4285f4 !important;
+  padding: 3px 11px;
+  border-radius: 15px;
+}
+
+.bg-3 {
+  background-color: rgba(14, 138, 62, 0.14);
+  color: #0e8a3e !important;
+  padding: 3px 11px;
+  border-radius: 15px;
+}
+
+.userName:hover a {
+  display: block !important;
+}
+.font_size_sub {
+  font-size: 1rem;
+}
+.label_green {
+  color: #28a745 !important;
+  font-weight: 700;
+}
+
+.userImage:hover a {
+  display: block !important;
+  position: absolute;
+  top: 33%;
+  right: auto;
+  left: 24%;
+}
+
+.userHeaderImage:hover + a {
+  display: block !important;
+  position: absolute;
+  top: 0%;
+  right: auto;
+  left: 50%;
+}
+
+
+.editLabel:hover a {
+  display: block !important;
+}
+.overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 50%;
+  left: 15%;
+  height: 100%;
+  width: 70%;
+  opacity: 0;
+  transition: .3s ease;
+  background-color: #333;
+}
+.userImage:hover .overlay {
+  opacity: 1;
+  z-index: 9999;
+}
+.error-class {
+  border-bottom: 1px solid #ec1818 !important;
 }

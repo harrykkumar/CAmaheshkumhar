@@ -162,7 +162,7 @@
             <div class="form-row mt-2">
               <div class="col-lg-10">
                 <div class="card p-2">
-                  <div class="form-row ">
+                  <div class="form-row">
                     <div class="form-group col-md-2 col-lg-2">
                       <label>Item Name</label>
                       <div class="input-group adw_select">
@@ -180,46 +180,42 @@
                       <div class="input-group adw_select">
                         <select2 #style_select2 #error [data]="listItem?.styleNumberList" class="control_select"
                           (valueChanged)="
-                              onDropDownChange($event, 'styleNumberId')
+                              onDropDownChange($event, 'StyleId')
                             " autocomplete="true" [value]="model?.styleNumberValue" [ngClass]="{
                               errorSelecto:
-                              itemForm?.submitted && !model?.styleNumberId
+                              itemForm?.submitted && !model?.StyleId
                             }">
                         </select2>
                       </div>
                     </div>
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Rate</label>
-                      <input type="text" appIncludeDecimal #rate="ngModel" class="form-control" name="rate"
+                      <input type="number" appIncludeDecimal #rate="ngModel" class="form-control" name="rate"
                         (change)="generateProductionQty()" [(ngModel)]="model.rate" [ngClass]="{
                             'errorSelecto':
-                              (itemForm?.submitted && rate.invalid)
+                              (itemForm?.submitted && +model?.rate <= 0)
                           }" required />
                     </div>
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Order Qty</label>
-                      <input type="text" appIncludeDecimal #orderQtyModal="ngModel" class="form-control"
+                      <input type="number" appIncludeDecimal #orderQtyModal="ngModel" class="form-control"
                         name="orderQuantity" (change)="generateProductionQty()" [(ngModel)]="model.orderQuantity"
                         [ngClass]="{
                             'errorSelecto':
-                              (itemForm?.submitted && orderQtyModal.invalid)
+                              (itemForm?.submitted && +model?.orderQuantity <= 0)
                           }" required />
                     </div>
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Add %</label>
-                      <!--[ngClass]="{
-                            'errorSelecto':
-                              (itemForm?.submitted && addPercentageModal.invalid)
-                          }" required-->
-                      <input type="text" appIncludeDecimal #addPercentageModal="ngModel" class="form-control" name="add"
+                      <input type="number" appIncludeDecimal #addPercentageModal="ngModel" class="form-control" name="add"
                         (input)="generateProductionQty()" [(ngModel)]="model.addPercentage" />
                     </div>
                     <div class="form-group col-md-2 col-lg-2 ">
                       <label>Production Qty</label>
-                      <input type="text" appIncludeDecimal #productionQtyModal="ngModel" class="form-control"
+                      <input type="number" appIncludeDecimal #productionQtyModal="ngModel" class="form-control"
                         name="productionQty" [(ngModel)]="model.productionQty" [ngClass]="{
                             'errorSelecto':
-                              (itemForm?.submitted && productionQtyModal.invalid)
+                              (itemForm?.submitted && +model?.productionQty <= 0)
                           }" required />
                     </div>
                     <div class="form-group col-md-3 col-lg-3">
@@ -229,17 +225,17 @@
                     <div class="form-group col-md-3 col-lg-3">
                       <label>Packing Type</label>
                       <div class="input-group adw_select">
-                        <select2 [data]="listItem?.packagingTypeList" #error class="control_select" (valueChanged)="
-                              onDropDownChange($event, 'packingTypeId')
+                        <select2 [data]="listItem?.packagingTypeList" #error #packing_select2 class="control_select" (valueChanged)="
+                              onDropDownChange($event, 'PackingTypeId')
                             " autocomplete="true" [value]="model?.packageTypeValue" [ngClass]="{
                               errorSelecto:
-                                (itemForm?.submitted && !model?.packingTypeId) 
+                                (itemForm?.submitted && !model?.PackingTypeId)
                             }">
                         </select2>
                       </div>
                     </div>
-                   
-                    <div class="form-group col-md-3 col-lg-3" *ngIf="model?.packingTypeId == 4">
+
+                    <div class="form-group col-md-3 col-lg-3" *ngIf="model?.PackingTypeId == 4">
                       <label>Set Type</label>
                       <div class="input-group adw_select">
                         <select2 #setType_select2 #error [data]="listItem?.setTypeData" class="control_select"
@@ -247,7 +243,7 @@
                               onDropDownChange($event, 'SetId')
                             " autocomplete="true" [value]="model?.setValue" [ngClass]="{
                               errorSelecto:
-                                (itemForm?.submitted && ((model?.packingTypeId == 4) ? !model?.SetId : true)) 
+                                (itemForm?.submitted && ((model?.PackingTypeId == 4) ? !model?.SetId : true)) 
                             }">
                         </select2>
                       </div>
@@ -265,8 +261,8 @@
                   <div class="card-body">
                     <div class="p-3">
                       <a (click)="openImageModal()" class="custom-file-upload" id="imageUploadId"><i
-                          class="fas fa-upload"></i> Image Upload
-                      </a> </div>
+                        class="fas fa-upload"></i> Image Upload
+                      </a></div>
                     <div>
                       <div *ngIf="ImageFiles && ImageFiles.length > 0">
                         <div class="mB-5" *ngFor="let image of ImageFiles; let i = index">
@@ -286,7 +282,113 @@
               </div>
             </div>
           </form>
-          <div class="form-row">
+          <div class="form-row" *ngIf="toOpenAttr" >
+            <div class="col-md-3" >Total Order Qty - {{model?.totalOrderedQty?.toFixed(2)}}</div>
+            <div class="col-md-3" >Total Production Qty - {{model?.totalProductionQty?.toFixed(2)}}</div>
+            <div class="col-md-3" >Total Amount - {{model?.totalAmount?.toFixed(2)}}</div>
+            <div class="col-md-12 profile-pic-grid" *ngFor="let items of itemsInOrder;let j = index;"
+              [ngClass]="{'errorSelecto': items['transformed'][0].orderQuantity1 !== items['total']['orderQty']}" >
+              <div class="table-responsive" style="border: 2px solid #ccc;">
+                <table class="table table editable_tbl">
+                  <thead>
+                    <tr>
+                      <th style="width: 10%;"></th>
+                      <!-- <th style="width: 10%;" ></th> -->
+                      <th style="width: 5%;" *ngIf="toOpenAttr"></th>
+                      <th style="width: 15%;" *ngIf="toOpenAttr"></th>
+                      <th colspan="2" style="width: 10%;" >Original Order Qty: {{items['transformed'][0].orderQuantity1}}</th>
+                      <th>Order Qty: {{items?.total?.orderQty}}</th>
+                      <th colspan="2" style="width: 10%;">Original Production Qty: {{items['transformed'][0].productionQty1}}</th>
+                      <th>Production Qty: {{items?.total?.productionQty}}</th>
+                      <th style="width: 10%;"></th>
+                      <th style="width: 10%;"></th>
+                      <th style="width: 10%;">{{items?.total?.amount}}</th>
+                    </tr>
+                    <tr class="default_row">
+                      <th style="width: 5%;">#</th>
+                      <th style="width: 15%;" >Item</th>
+                      <th style="width: 5%;" *ngIf="toOpenAttr">{{model.defaultAttrName}}</th>
+                      <th style="width: 15%;" *ngIf="toOpenAttr">Attribute Combination</th>
+                      <th style="width: 5%;" >Code</th>
+                      <th style="width: 7%;" >Order Qty</th>
+                      <th style="width: 5%;">Unit</th>
+                      <th style="width: 5%;">Add %</th>
+                      <th style="width: 8%;">Prod. Qty</th>
+                      <th style="width: 10%;">Rate</th>
+                      <th style="width: 10%;">Description</th>
+                      <th style="width: 10%;">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of items.transformed; let i = index" class="selected_row active" >
+                      <td>
+                        <div class="action_btn">
+                          <a *ngIf="!item.editable"  (click)="deleteItem(i, item, j)">
+                            <i aria-hidden="true" class="fa fa-trash fa-1x"></i>
+                          </a>
+                          <a *ngIf="!item.editable" (click)="editRowClick(item)">
+                            <i aria-hidden="true" class="fa fa-edit fa-1x"></i>
+                          </a>
+                          <a *ngIf="item.editable"
+                            (click)="item.editable = false;
+                            item.productionQty = +item.productionQty;
+                            item.ProductDescription = item.ProductDescription;
+                            item.ProductCode = item.ProductCode;
+                            editRow = false;">
+                            <i class="fas fa-plus fa-1x"></i>
+                          </a>
+                        </div>
+                      </td>
+                      <td>{{item?.itemName}}</td>
+                      <td *ngIf="toOpenAttr">{{ item?.sizeName }}</td>
+                      <td *ngIf="toOpenAttr">{{ item?.attributeValueName }}</td>
+                      <td *ngIf="!item.editable" (click)="editRowClick(item)" >
+                        {{item?.ProductCode}}
+                      </td>
+                      <td *ngIf="item.editable" >
+                        <input type="text" #ProductCode="ngModel" class="form-control"
+                        name="ProductCode" 
+                        [(ngModel)]="item.ProductCode" />
+                      </td>
+                      <td>{{item?.orderQuantity?.toFixed(2)}}</td>
+                      <td>{{item?.unitName}}</td>
+                      <td>{{item?.addPercentage}}</td>
+                      <td *ngIf="!item.editable" (click)="editRowClick(item)">
+                        {{item?.productionQty?.toFixed(2)}}</td>
+                      <td *ngIf="item.editable" >
+                        <input type="number" appIncludeDecimal #productionQty="ngModel" class="form-control"
+                        name="productionQty" 
+                        (input)="
+                        item.orderQuantity = +(getOrderQuantity(item.productionQty, item.addPercentage));
+                        item.amount = +(+item.rate * +item.productionQty);
+                        calculateItemTotal(j);calculateAllTotal();"
+                        [(ngModel)]="item.productionQty" 
+                        [ngClass]="{'errorSelecto': !item.productionQty}" required />
+                      </td>
+                      <td>{{item?.rate}}</td>
+                      <td *ngIf="!item.editable" (click)="editRowClick(item)" >
+                        {{item?.ProductDescription}}
+                      </td>
+                      <td *ngIf="item.editable" >
+                        <input type="text" #productDescription="ngModel" class="form-control"
+                        name="ProductDescription" 
+                        [(ngModel)]="item.ProductDescription" />
+                      </td>
+                      <td>{{item?.amount}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="edit-grid">
+                <!--<i class="fas fa-times"></i><i class="fas fa-plus fa-1x"></i>-->
+                <a (click)="deleteItem1(j)" >Delete</a>
+                <a *ngIf="items['transformed'][0].orderQuantity1 !== items['total']['orderQty']" (click)="addMore(j)">Add More</a>
+                <a (click)="editInfo(items, j)" >Edit Info</a>
+              </div>
+            </div>
+          </div>
+          <!--new-->
+          <div class="form-row" *ngIf="!toOpenAttr" >
             <div class="col-md-12 card  p-2">
               <div class="table-responsive table_height4">
                 <table class="table order-list-table editable_tbl table-hover">
@@ -294,72 +396,41 @@
                     <tr class="default_row">
                       <th style="width: 10px;">#</th>
                       <th>Item</th>
-                      <th *ngIf="toOpenAttr">{{model.defaultAttrName}}</th>
-                      <th *ngIf="toOpenAttr">Attribute Combination</th>
-                      <th>Code</th>
                       <th>Order Qty</th>
                       <th>Unit</th>
                       <th>Add %</th>
                       <th>Prod. Qty</th>
                       <th>Rate</th>
-                      <th>Description</th>
                       <th>Amount</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <ng-container *ngIf="editMode && previousOrders.length > 0">
-                      <tr *ngFor="let item of previousOrders; let i = index" class="selected_row active">
-                        <td>
-                          <div class="action_btn">
-                            <a (click)="deleteItem(i, item, 'old')">
-                              <i aria-hidden="true" class="fa fa-trash fa-1x"></i>
-                            </a>
-                          </div>
-                        </td>
-                        <td>{{item?.itemName}}</td>
-                        <td *ngIf="toOpenAttr">{{ item?.sizeName }}</td>
-                        <td *ngIf="toOpenAttr">{{ item?.attributeValueName }}</td>
-                        <td>{{item?.ProductCode}}</td>
-                        <td>{{ item?.orderQuantity?.toFixed(2) }}</td>
-                        <td>{{item?.unitName}}</td>
-                        <td>{{item?.addPercentage}}</td>
-                        <td>{{item?.productionQty?.toFixed(2)}}</td>
-                        <td>{{item?.rate}}</td>
-                        <td>{{item?.ProductDescription}}</td>
-                        <td>{{item?.amount}}</td>
-                      </tr>
-                    </ng-container>
                      <tr *ngFor="let item of orderList; let i = index" class="selected_row active">
                       <td>
                         <div class="action_btn">
-                          <a (click)="deleteItem(i, item, 'new')">
+                          <a (click)="deleteItem2(i, item)">
                             <i aria-hidden="true" class="fa fa-trash fa-1x"></i>
+                          </a>
+                          <a (click)="editInfo(item, i)">
+                            <i aria-hidden="true" class="fa fa-edit fa-1x"></i>
                           </a>
                         </div>
                       </td>
                       <td>{{item?.itemName}}</td>
-                      <td *ngIf="toOpenAttr">{{ item?.sizeName }}</td>
-                      <td *ngIf="toOpenAttr">{{ item?.attributeValueName }}</td>
-                      <td>{{item?.ProductCode}}</td>
                       <td>{{item?.orderQuantity?.toFixed(2)}}</td>
                       <td>{{item?.unitName}}</td>
                       <td>{{item?.addPercentage}}</td>
                       <td>{{item?.productionQty?.toFixed(2)}}</td>
                       <td>{{item?.rate}}</td>
-                      <td>{{item?.ProductDescription}}</td>
                       <td>{{item?.amount}}</td>
                     </tr>
                     <tr>
-                      <td></td>
-                      <td *ngIf="toOpenAttr"></td>
-                      <td *ngIf="toOpenAttr"></td>
                       <td></td>
                       <td></td>
                       <td>{{model?.totalOrderedQty?.toFixed(2)}}</td>
                       <td></td>
                       <td></td>
                       <td>{{model?.totalProductionQty?.toFixed(2)}}</td>
-                      <td></td>
                       <td></td>
                       <td>{{model?.totalAmount?.toFixed(2)}}</td>
                     </tr>
@@ -368,54 +439,7 @@
               </div>
             </div>
           </div>
-          <!-- <div class="form-row">
-            <div class="col-md-12 profile-pic-grid" *ngFor="let items of itemsInOrder;let j = index;" >
-              <div class="table-responsive" style="border: 2px solid #ccc;">
-                <table class="table table editable_tbl">
-                  <thead>
-                    <tr class="default_row">
-                      <th style="width: 10px;">#</th>
-                      <th>Item</th>
-                      <th *ngIf="toOpenAttr">{{model.defaultAttrName}}</th>
-                      <th *ngIf="toOpenAttr">Attribute Combination</th>
-                      <th>Code</th>
-                      <th>Order Qty</th>
-                      <th>Unit</th>
-                      <th>Add %</th>
-                      <th>Prod. Qty</th>
-                      <th>Rate</th>
-                      <th>Description</th>
-                      <th>Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let item of items.transformed; let i = index" class="selected_row active">
-                      <td>
-                        <div class="action_btn">
-                          <a (click)="deleteItem(i, item, 'new')">
-                            <i aria-hidden="true" class="fa fa-trash fa-1x"></i>
-                          </a>
-                        </div>
-                      </td>
-                      <td>{{item?.itemName}}</td>
-                      <td *ngIf="toOpenAttr">{{ item?.sizeName }}</td>
-                      <td *ngIf="toOpenAttr">{{ item?.attributeValueName }}</td>
-                      <td>{{item?.ProductCode}}</td>
-                      <td>{{item?.orderQuantity?.toFixed(2)}}</td>
-                      <td>{{item?.unitName}}</td>
-                      <td>{{item?.addPercentage}}</td>
-                      <td>{{item?.productionQty?.toFixed(2)}}</td>
-                      <td>{{item?.rate}}</td>
-                      <td>{{item?.ProductDescription}}</td>
-                      <td>{{item?.amount}}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="edit-grid"><a (click)="editItemAttribute(j)" ><i class="far fa-edit"></i></a>
-                <a><i class="fas fa-times"></i></a></div>
-            </div>
-          </div> -->
+          <!--new-->
         </div>
       </form>
     </div>
@@ -424,3 +448,4 @@
 
 <app-attribute-combination #attribute_combine_form (triggerCloseModal)="onCombinationModalClose($event)">
 </app-attribute-combination>
+<!-- <buyer-order-attr-add #buyer_order_add_form ></buyer-order-attr-add> -->

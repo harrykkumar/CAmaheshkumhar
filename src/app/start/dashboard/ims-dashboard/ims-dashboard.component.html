@@ -16,9 +16,7 @@
                 <div class="row">
                   <div class="col-md-6 mb-3 pr-0">
                     <div class="widget-flat card bdr-card-4">
-                       
                       <div class="card-header">
-                         
                           Assets
                       </div>
                       <div class="card-body">
@@ -51,7 +49,7 @@
                         Top 5 Debtors
                       </div>
                       <div class="card-body p-0 height_fix_card">
-                        <table class="table-borderless table ">
+                        <table  class="table-borderless table ">
                           <tbody>
                             
                             <tr *ngFor ="let Debtors of Debitors" (click)="onLedgerStatement(Debtors)"> 
@@ -61,8 +59,11 @@
                             </tr> 
                           </tbody>
                         </table>
+                        <span  *ngIf='Debitors.length===0' >
+                        <img src="assets/img/nodata.png" alt="loading screen" style="width: 83%;height: 79%;position: absolute;left: 8%;top:21%;" />
+                        </span>
                       </div>
-                      <div class="card-footer">
+                      <div *ngIf='Debitors.length!==0' class="card-footer">
                         <a
                           [routerLink]="[ '/report/outstanding-receiables']"
                           class="text-right more_detail"
@@ -77,16 +78,19 @@
                         Top 5 Creditors
                       </div>
                       <div class="card-body p-0 height_fix_card">
-                        <table class="table-borderless table">
+                        <table  class="table-borderless table">
                           <tbody>
                             <tr *ngFor ="let Creators of Creditor" (click)="onLedgerStatement(Creators)">  
                               <td>{{Creators.Name}}</td>
                               <td class="text-right">{{(Creators.Amount).toFixed(noOfDecimal)}}</td>
                             </tr> 
                           </tbody>
-                        </table>
+                        </table> 
+                        <span  *ngIf='Creditor.length===0' >
+                        <img src="assets/img/nodata.png" alt="loading screen" style="width: 83%;height: 79%;position: absolute;left: 8%;top:21%;" />
+                      </span>
                       </div>
-                      <div class="card-footer">
+                      <div  *ngIf='Creditor.length!==0'  class="card-footer">
                         <a
                         [routerLink]="[ '/report/outstanding-payables']"
                           class="text-right more_detail"
@@ -98,12 +102,11 @@
                   <div class="col-md-6 mb-3 pr-0">
                     <div class="widget-flat card bdr-card-4">
                       <div class="card-header">
-                        Active Inventory
+                        Active Inventory 
                       </div>
                       <div class="card-body p-0 height_fix_card">
                         <table class="table-borderless table">
                           <tbody>
-                           
                             <tr *ngFor ="let item of InventoryGrowths"> 
                               <td>{{item.LedgerName}}</td>
                               <!-- <td>{{ item.BillDate | dateFormat : DateFormate}}</td> -->
@@ -111,10 +114,12 @@
                             </tr> 
                           </tbody>
                         </table>
+                        <span  *ngIf="InventoryGrowths.length===0" >
+                        <img src="assets/img/nodata.png" alt="loading screen" style="width: 83%;height: 79%;position: absolute;left: 8%;top:21%;" />
+                        </span>
                       </div>
-                      <div class="card-footer">
+                      <div *ngIf='InventoryGrowths.length!==0' class="card-footer">
                         <a
-                         
                           [routerLink]="[ '/ims/report/item-inventory']"
                           class="text-right more_detail"
                           >More</a
@@ -180,8 +185,11 @@
                          
                           </tbody>
                         </table>
+                        <span  *ngIf="SaleOverDueItem.length===0" >
+                          <img src="assets/img/nodata.png" alt="loading screen" style="width: 83%;height: 79%;position: absolute;left: 8%;top:37%;" />
+                          </span>
                       </div>
-                      <div class="card-footer">
+                      <div *ngIf='SaleOverDueItem.length!==0' class="card-footer">
                         <a
                           (click)="navigateTo()"
                           class="text-right more_detail"
@@ -210,7 +218,7 @@
                           </tbody>
                         </table>
                       </div>
-                      <div class="card-footer">
+                      <div *ngIf="CashStatutory[0]?.GSTAmount>0 || CashStatutory[0]?.Tds>0" class="card-footer">
                         <a href="JavaScript:void(0)" class="text-right more_detail"
                           >More</a
                         >
@@ -238,7 +246,7 @@
                           </tbody>
                         </table>
                       </div>
-                      <div class="card-footer">
+                      <div *ngIf="CashStatutory[0]?.CashIn>0 || CashStatutory[0]?.CashOut>0" class="card-footer">
                         <a 
                         [routerLink]="[ '/ims/report/cashbook']"
                          class="text-right more_detail"

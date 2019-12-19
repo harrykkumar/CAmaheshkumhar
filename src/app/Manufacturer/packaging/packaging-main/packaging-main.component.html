@@ -11,11 +11,14 @@
               <div class="btn_header">
                 <!-- <a>
                   <img src="../assets/img/printer.png">
-                </a>
+                </a> -->
                 <a>
                   <img src="../assets/img/pdf.png"></a>
-                <a>
-                  <img src="../assets/img/excel.png"></a> -->
+                <a (click)="getDataInExcel()" >
+                  <img src="../assets/img/excel.png"></a>
+                <button type="button" (click)="openPacking()" class="btn btn-primary waves-effect waves-light">
+                  Add New
+                </button>
                 <button type="button" [disabled]="disableBtn" class="btn btn-primary waves-effect waves-light"
                   (click)="generateChallan()">Generate Challan</button>
                 <button type="button" (click)="toggleSearch()" class="btn btn-primary waves-effect waves-light">
@@ -73,7 +76,7 @@
                     class="actionBtn">
                     <i class="fa fa-edit fa-1x" aria-hidden="true" (click)="editOP(item.Id)">
                     </i></a>
-                  <a data-toggle="tooltip" class="actionBtn" data-placement="bottom" title="delete"
+                  <a *ngIf="item.ChallanId === 0" data-toggle="tooltip" class="actionBtn" data-placement="bottom" title="delete"
                     (click)="delete(item.Id)"><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
                 </td>
               </tr>

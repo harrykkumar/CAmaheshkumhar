@@ -27,7 +27,13 @@ export const SIDE_MENU_MODEL = [
     Id: 107,
     Name: "Crm",
     path: "",
-    icon: "fas fa-cog"
+    icon: "far fa-handshake"
+  },
+  {
+    Id: 114,
+    Name: "Gst-Report",
+    path: "",
+    icon: "fas fa-file"
   },
   {
     Id: 2,
@@ -114,18 +120,6 @@ export const SIDE_MENU_MODEL = [
     ParentId: 9,
     Name: "Purchase",
     path: "ims/purchase",
-    icon: ""
-  },
-  {
-    Id: 16,
-    Name: "Sale-Challan Billing",
-    path: "",
-    icon: ""
-  },
-  {
-    Id: 17,
-    Name: "Purchase-Challan Billing",
-    path: "",
     icon: ""
   },
   {
@@ -318,13 +312,13 @@ export const SIDE_MENU_MODEL = [
     path: "owner/branch/office",
     icon: ""
   },
-  {
-    Id: 51,
-    ParentId: 28,
-    Name: "Master Setting",
-    path: "settings/setup",
-    icon: ""
-  },
+  // {
+  //   Id: 51,
+  //   ParentId: 28,
+  //   Name: "Master Setting",
+  //   path: "settings/setup",
+  //   icon: ""
+  // },
   {
     Id: 52,
     Name: "General Ledger",
@@ -617,6 +611,36 @@ export const SIDE_MENU_MODEL = [
     ParentId: 20,
     Name: "GSTR-3B",
     path: "report/gstr-3b",
+    icon: ""
+  },
+  {
+    Id: 116,
+    Name: "Item Vendor Rate Report",
+    path: "report/item-vendor-rates",
+    icon: ""
+  },
+  {
+    Id: 115,
+    Name: "PurchaseOrder Status Report",
+    path: "report/buyer-order-status",
+    icon: ""
+  },
+  {
+    Id: 120,
+    Name: "Manual Stock",
+    path: "manual-stock",
+    icon: ""
+  },
+  {
+    Id: 118,
+    Name: "Settings",
+    path: "",
+    icon: "fas fa-cog"
+  },
+  {
+    Id: 16,
+    Name: "Emailer Generator",
+    path: "email-editor",
     icon: ""
   }
 ];

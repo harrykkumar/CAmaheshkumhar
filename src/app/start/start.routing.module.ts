@@ -153,11 +153,10 @@ const routes: Routes = [
         loadChildren:  '../report/item-category-sale/item-sale-category-report.module#ItemSaleCategoryReportModule'
 
       },
-      {
-        path: 'settings',
-        loadChildren: '../settings/settings.module#SettingsModule'
-
-      },
+      // {
+      //   path: 'settings',
+      //   loadChildren: '../settings/settings.module#SettingsModule'
+      // },
       {
         path: 'account/ledgergroup',
         loadChildren:  '../transactionMaster/ledger-group/ledger-group.module#LedgerGroupModule'
@@ -489,6 +488,26 @@ const routes: Routes = [
         path: 'report/gstr-3b',
         loadChildren: '../report/gstr-3b/gstr-3b.module#Gstr3bModule'
       },
+      {
+        path: 'report/item-vendor-rates',
+        loadChildren: '../report/item-vendor-rate/item-vendor-rate-report.module#VendorRatesReportModule'
+      },
+      {
+        path: 'report/buyer-order-status',
+        loadChildren: '../report/bo-delivery-status-report/bo-status-rate-report.module#BOStatusReportModule'
+      },
+      {
+        path: 'manual-stock',
+        loadChildren: '../manual-stock/manual-stock.module#ManualStockModule'
+      },
+      {
+        path: 'menu-setting/:id',
+        loadChildren: '../menu-master-setting/menu-master-setting.module#MenuMasterSettingModule'
+      },
+      {
+        path: 'email-editor',
+        loadChildren: '../transactionMaster/email-editor/email-editor-list.module#EmailEditorListModule'
+      }
     ]
   }
 ]

@@ -51,7 +51,11 @@ export class UserModulesComponent implements OnInit {
     }
     selectedModule['index'] = index
     localStorage.setItem('SELECTED_MODULE', JSON.stringify(selectedModule))
-    this.router.navigate([path])
+    if (selectedModule.Id === 4) {
+      this.router.navigate(['crm/dashboard']);
+    } else {
+      this.router.navigate([path])
+    }
   }
 
   initModulesData = async () => {

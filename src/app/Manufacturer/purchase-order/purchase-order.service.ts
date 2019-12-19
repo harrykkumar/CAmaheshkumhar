@@ -9,6 +9,7 @@ import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import * as _ from 'lodash';
 import { Select2OptionData } from 'ng2-select2';
 import { FormConstants } from '../../shared/constants/forms.constant';
+import { MFApiConstant } from '../mfApi';
 @Injectable({
   providedIn: 'root'
 })
@@ -533,5 +534,28 @@ export class PurchaseOrderService {
 
   deletePO (id) {
     return this._gs.manipulateResponse(this._bs.deleteRequest(ApiConstant.POST_PO + '?Id=' + id))
+  }
+
+  getPOItems(id) {
+    return this._gs.manipulateResponse(this._bs.getRequest(ApiConstant.GET_PO_BY_ID + '?Id=' + id + '&type=PoApproval'))
+  }
+
+  private openPOApprovalSub = new BehaviorSubject<AddCust>({ 'open': false })
+  openPOApproval$ = this.openPOApprovalSub.asObservable()
+
+  openPOApproval (id) {
+    this.openPOApprovalSub.next({'open': true, 'id': id})
+  }
+
+  closePOApproval() {
+    this.openPOApprovalSub.next({'open': false})
+  }
+
+  postPOApproval (data) {
+    return this._gs.manipulateResponse(this._bs.postRequest(MFApiConstant.PO_QTY_APPROVAL_POST, data))
+  }
+
+  getPOItemsForPurchase (idStr) {
+    return this._gs.manipulateResponse(this._bs.getRequest(MFApiConstant.GET_PO_DETAILS_BY_ID_STR + idStr + '&Type=PoPurchase'))
   }
 }

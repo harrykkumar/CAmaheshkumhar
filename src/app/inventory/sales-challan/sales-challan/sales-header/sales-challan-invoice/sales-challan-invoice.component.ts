@@ -258,7 +258,6 @@ export class SalesChallanInvoiceComponent {
     private gs: GlobalService,
     private _catagoryservices: CategoryServices) {
 
-    this.getFormDependency()
 
     this.commonService.getCatImportAddStatus.pipe(takeUntil(this.onDestroy$)).subscribe(
       () => {
@@ -656,7 +655,7 @@ export class SalesChallanInvoiceComponent {
           }
           _self.allItems = [...data.Items]
           _self.TransactionNoSetups = data.TransactionNoSetups
-          debugger
+          
           if (!this.editMode) {
             if (!this.isBillNoManuall) {
               this.setBillNo(data.TransactionNoSetups)
@@ -665,6 +664,7 @@ export class SalesChallanInvoiceComponent {
           if (data.ItemCategorys.length > 0) {
             _self.getCatagoryDetail(data.ItemCategorys)
           }
+          
           _self._saleDirectService.createItems(data.Items)
           _self._saleDirectService.createCustomers(data.Customers)
           _self._saleDirectService.createTaxProcess(data.TaxProcesses)
@@ -1375,6 +1375,7 @@ export class SalesChallanInvoiceComponent {
   @ViewChild('currency_select2') currencySelect2: Select2Component
 
   openModal() {
+    // this.getFormDependency()
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.onLoading()
     this.SPUtilityData()
@@ -4180,7 +4181,7 @@ export class SalesChallanInvoiceComponent {
 
 
 
-  saveSaleDirect() {
+  saveSaleChallan() {
     let _self = this
     this.submitSave = true
     let dataToSend = this.saleDirectParams()

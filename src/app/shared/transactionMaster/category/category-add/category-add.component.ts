@@ -36,10 +36,10 @@ export class CategoryAddComponent {
   loading: boolean = true
   catOrSubCatSub: Subscription
   keepOpen: boolean
-  editID:any
+  editID: any
   public selectCategory: Array<Select2OptionData>
 
-  constructor (private _catagoryservices: CategoryServices,
+  constructor(private _catagoryservices: CategoryServices,
     private _formBuilder: FormBuilder,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
@@ -55,12 +55,12 @@ export class CategoryAddComponent {
           } else {
             this.addForItem = false
             if (data.editId === '') {
-              this.editID =0
+              this.editID = 0
               this.editMode = false
             } else {
               this.editMode = true
               this.Id = data.editId
-              this.editID= data.editId
+              this.editID = data.editId
             }
           }
           this.getCategoryList()
@@ -84,7 +84,7 @@ export class CategoryAddComponent {
     )
   }
 
-  getCategoryList () {
+  getCategoryList() {
     this.catagoriesPlaceHolder = { placeholder: 'Select Category' }
     let newData = [{ id: '0', text: 'Select Category' }]
     this.itemService.getAllSubCategories(2).subscribe(data => {
@@ -101,29 +101,32 @@ export class CategoryAddComponent {
         // console.log('available categories : ', this.selectCategory)
       }
     },
-    (error) => {
-      console.log(error)
-    },
-    () => {
-      this.loading = false
-    })
+      (error) => {
+        console.log(error)
+      },
+      () => {
+        this.loading = false
+      })
   }
 
-  ngOnDestroy () {
+  ngOnDestroy() {
     this.modalSub.unsubscribe()
     this.catOrSubCatSub.unsubscribe()
   }
-  ngOnInit () {
+  ngOnInit() {
     this.submitClick = false
   }
 
-  get f () {
+  get f() {
     // console.log(this.categoryForm.controls)
     return this.categoryForm.controls
   }
-
+  onloading() {
+    this.Id = 0
+    this.parentId = 0
+  }
   select2PopuValue = false
-  openModal () {
+  openModal() {
     this.submitClick = false
     if (this.catSelect2) {
       this.catSelect2.setElementValue('')
@@ -131,8 +134,7 @@ export class CategoryAddComponent {
     if (this.editMode) {
       this.getEditDetailData(this.Id)
     } else {
-      this.parentId = UIConstant.ZERO
-      this.Id = UIConstant.ZERO
+      this.onloading()
       $('#category_master').modal(UIConstant.MODEL_SHOW)
       setTimeout(() => {
         if (this.catname) {
@@ -143,7 +145,7 @@ export class CategoryAddComponent {
     }
   }
 
-  closeModal () {
+  closeModal() {
     if ($('#category_master').length > 0) {
       this.Id = UIConstant.ZERO
       $('#category_master').modal(UIConstant.MODEL_HIDE)
@@ -153,7 +155,7 @@ export class CategoryAddComponent {
   @ViewChild('cat_select2') catSelect2: Select2Component
   @ViewChild('catname') catname: ElementRef
   formValue: ResponseCategory = {}
-  getEditDetailData (id) {
+  getEditDetailData(id) {
     let _self = this
     this._catagoryservices.GetCatagory(id).subscribe(data => {
       // console.log('category : ', data)
@@ -178,7 +180,7 @@ export class CategoryAddComponent {
     })
   }
 
-  private formCategory () {
+  private formCategory() {
     this.categoryForm = this._formBuilder.group({
       'CategoryName': ['', Validators.compose([Validators.required, Validators.minLength(2)])],
       'ShortName': [''],
@@ -186,7 +188,7 @@ export class CategoryAddComponent {
     })
   }
 
-  selectedCategory (event) {
+  selectedCategory(event) {
     console.log('on select of category : ', event)
     if (event.value && event.data.length > 0) {
       if (+event.value > 0) {
@@ -201,7 +203,7 @@ export class CategoryAddComponent {
     }
   }
 
-  saveAndUpdateCategory () {
+  saveAndUpdateCategory() {
     this.submitClick = true
     let _self = this
     if (this.categoryForm.valid) {
@@ -236,21 +238,22 @@ export class CategoryAddComponent {
             }
           } else {
             if (this.keepOpen) {
-              let namesave = this.editID ===0 ?UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+              let namesave = this.editID === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
 
-              _self.toastrService.showSuccess('',namesave)
-              let toSend = { name: _self.categoryForm.value.CategoryName, id: data.Data,
-                level: _self.categoryForm.value.level + 1 }
+              _self.toastrService.showSuccess('', namesave)
+              let toSend = {
+                name: _self.categoryForm.value.CategoryName, id: data.Data,
+                level: _self.categoryForm.value.level + 1
+              }
               this.commonService.closeCategory(toSend)
-
               this.getCategoryList()
               this.initialiseExtras()
-              
               _self.commonService.categoryAdded()
+              this.onloading()
             } else {
               // let namesave = this.editID ===0 ?UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
               _self.commonService.categoryAdded()
-              _self.toastrService.showSuccess('',UIConstant.SAVED_SUCCESSFULLY )
+              _self.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
               this.getCategoryList()
               setTimeout(() => {
                 if (this.catname) {
@@ -258,24 +261,25 @@ export class CategoryAddComponent {
                   element.focus({ preventScroll: false })
                 }
               }, 500)
-              // this.commonService.closeCategory(toSend)
               _self.initData()
+              this.onloading()
+
             }
             this.editMode = false
           }
-        } else 
-        if (data.Code === UIConstant.THOUSANDONE) {
-          this.toastrService.showError(data.Description, '')
-        } else {
-          _self.toastrService.showError('', data.Description)
-        }
+        } else
+          if (data.Code === UIConstant.THOUSANDONE) {
+            this.toastrService.showError(data.Description, '')
+          } else {
+            _self.toastrService.showError('', data.Description)
+          }
       })
     } else {
       this.toastrService.showError('', 'Form is Invalid')
     }
   }
 
-  private CategoryParams (): SaveCategoryModel {
+  private CategoryParams(): SaveCategoryModel {
     const categoryElement = {
       categoryObj: {
         ParentId: this.parentId > 0 ? this.parentId : 0,
@@ -287,19 +291,19 @@ export class CategoryAddComponent {
     console.log('CategoryParams : ', JSON.stringify(categoryElement.categoryObj))
     return categoryElement.categoryObj
   }
-initData (){
-  this.categoryForm.reset()
-  this.toEmitName = ''
-  this.submitClick = false
-  this.selectCategory = []
-}
-  clearCategoryvalidation () {
+  initData() {
+    this.categoryForm.reset()
+    this.toEmitName = ''
+    this.submitClick = false
+    this.selectCategory = []
+  }
+  clearCategoryvalidation() {
     this.initData()
     this.commonService.closeCategory('')
     this.editMode = false
   }
 
-  getCatLevel () {
+  getCatLevel() {
     let settings = JSON.parse(this.settings.moduleSettings).settings
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
@@ -308,7 +312,7 @@ initData (){
     })
   }
 
-  initialiseExtras () {
+  initialiseExtras() {
     this.categoryForm.controls.ShortName.setValue('')
     this.categoryForm.controls.CategoryName.setValue('')
     setTimeout(() => {

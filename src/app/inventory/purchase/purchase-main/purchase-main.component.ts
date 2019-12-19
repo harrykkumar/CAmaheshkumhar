@@ -47,7 +47,7 @@ export class PurchaseMainComponent {
     this.menuData = this._loginService.getMenuDetails(15, 9);
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
 
-        this.loading = true
+      //  this.loading = true
         this.getSPUtilityData()
     this.data$ = this.commonService.getActionClickedStatus().subscribe(
       (action: any) => {
@@ -107,7 +107,6 @@ export class PurchaseMainComponent {
   }
   @ViewChild('purchase_add') purchaseAdd: PurchaseAddComponent
   getSPUtilityData () {
-    this.loading = true
     let _self = this
     this.commonService.getSPUtilityData(UIConstant.PURCHASE_TYPE)
     .pipe(
@@ -159,7 +158,7 @@ export class PurchaseMainComponent {
       },
       () => {
         setTimeout(() => {
-          this.loading = false
+         // this.loading = false
         }, 1)
       }
     )

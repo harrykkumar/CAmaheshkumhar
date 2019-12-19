@@ -29,6 +29,8 @@ export class serviceBillingMainComponent {
   printData1: any = []
   industryId: number
   loading = true
+  imageForSignature:any
+  SignatorySetup:any=0
   constructor (private route: ActivatedRoute,
      private commonService: CommonService,
       private saleServicebilling: serviceBillingService,
@@ -58,7 +60,7 @@ export class serviceBillingMainComponent {
     this.industryId = +this.settings.industryId
     this.clientDateFormat = this.settings.dateFormat
     this.dicimalDigitFormat = this.settings.noOfDecimal
-
+    this.imageForSignature=''
   }
 
   ngAfterContentInit() {
@@ -256,8 +258,17 @@ Heading:any =[]
         }
         if (data.Data.ImageContents.length > 0) {
           _self.orgImageData = ''
-          _self.orgImageData = data.Data.ImageContents[0].FilePath
-          console.log(_self.orgImageData, 'image')
+          _self.imageForSignature=''
+          // _self.orgImageData = data.Data.ImageContents[0].FilePath
+          // console.log(_self.orgImageData, 'image')
+         
+          if(data.Data &&  data.Data.ImageContents && data.Data.ImageContents[0] &&  data.Data.ImageContents[0].ClientType &&  data.Data.ImageContents[0].ClientType==='Org'){
+            _self.orgImageData = data.Data.ImageContents[0].FilePath
+          }
+          if(data.Data &&  data.Data.ImageContents &&  data.Data.ImageContents[1] && data.Data.ImageContents[1].ClientType &&  data.Data.ImageContents[1].ClientType==='Signature'){
+           
+            _self.imageForSignature = data.Data.ImageContents[1].FilePath
+          }
         } else {
           _self.orgImageData = ''
         }
@@ -398,6 +409,9 @@ Heading:any =[]
       // }
       if (element.id === SetUpIds.PaymentDatilsOnPrint_Sale_ServiceSale) {
         this.PaymentDetailsFlag = +element.val
+      }
+      if (element.id === SetUpIds.SignatorySetup) {
+        this.SignatorySetup = +element.val
       }
       
     })

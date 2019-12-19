@@ -1,7 +1,7 @@
 import { BuyerOrderService } from './../buyer-order.service';
 import { AddBuyerOrderComponent } from './../add-buyer-order/add-buyer-order.component';
 import { Component, OnInit, ViewChild, OnDestroy, AfterViewInit, ViewContainerRef, ComponentFactoryResolver, ElementRef } from '@angular/core';
-import { Subject, Subscription, fromEvent } from 'rxjs';
+import { Subscription, fromEvent } from 'rxjs';
 import * as _ from 'lodash'
 import { CommonService } from '../../../commonServices/commanmaster/common.services';
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
@@ -15,6 +15,8 @@ import { debounceTime } from 'rxjs/operators/debounceTime';
 import { distinctUntilChanged } from 'rxjs/operators/distinctUntilChanged';
 import { PagingComponent } from '../../../shared/pagination/pagination.component';
 import { ManufacturingService } from '../../manufacturing.service';
+import { GlobalService } from '../../../commonServices/global.service';
+import { ExcelService } from '../../../commonServices/excel.service';
 declare const $: any
 @Component({
   selector: 'app-buyer-order-list',
@@ -36,6 +38,7 @@ export class BuyerOrderListComponent implements OnInit, OnDestroy, AfterViewInit
   searchForm: FormGroup
   isSearching: boolean = false
   destroy$: Subscription[] = []
+  noOfDecimal = 2
   @ViewChild('addBuyerOrderFormRef') addBuyerOrderFormModal: AddBuyerOrderComponent;
   @ViewChild('packagingaddcontainer', { read: ViewContainerRef }) entry: ViewContainerRef;
   constructor(
@@ -45,8 +48,11 @@ export class BuyerOrderListComponent implements OnInit, OnDestroy, AfterViewInit
     private toastrService: ToastrCustomService,
     private settings: Settings,
     private _formBuilder: FormBuilder,
-    private _ms: ManufacturingService
+    private _ms: ManufacturingService,
+    private _gs: GlobalService,
+    private excelService: ExcelService
   ) {
+    this.noOfDecimal = +this.settings.noOfDecimal
     this.clientDateFormat = this.settings.dateFormat
     this.destroy$.push(this.buyerOrderService.queryStr$.subscribe(
       (str) => {
@@ -866,4 +872,65 @@ export class BuyerOrderListComponent implements OnInit, OnDestroy, AfterViewInit
       return itemSArr
     }
   }
+
+  orgDetails: any = {}
+  summary: any = {}
+  ExcelHeaders: any = []
+  getDataInExcel () {
+    this.destroy$.push(this.buyerOrderService.getBuyerListOnSearch('').subscribe(data => {
+      this.orgDetails ={
+        ImageContents:data.ImageContents,
+        AddressDetails:data.AddressDetails,
+        OrganizationDetails:data.OrganizationDetails
+      }
+      this.summary = ["Total", "", "", "", "",
+        data.BuyerOrderSummaryData[0].TotalOrderQty.toFixed(this.noOfDecimal),
+        data.BuyerOrderSummaryData[0].TotalProductionQty.toFixed(this.noOfDecimal),
+        data.BuyerOrderSummaryData[0].NetAmount.toFixed(this.noOfDecimal)]
+        this.ExcelHeaders = ['Sno','BuyerCode','Buyer','OrderNo','OrderDate','OrderQty','ProductionQty','Amount']
+        let datatoexport = []
+        data.BuyerOrderInfos.forEach((element, index) => {
+          element.OrderDate = this._gs.utcToClientDateFormat(element.OrderDate, this.clientDateFormat)
+          datatoexport.push([
+            index + 1,
+            element['BuyerCode'],
+            element['BuyerName'],
+            element['OrderNo'],
+            element['OrderDate'],
+            element['TotalOrderQty'],
+            element['TotalProductionQty'],
+            element['NetAmount']
+          ])
+        })
+        if(datatoexport.length > 0) {
+          this.excelService.generateExcel(this.orgDetails.OrganizationDetails[0].OrgName,
+          this.orgDetails.AddressDetails[0].CityName + ' ' + 
+          this.orgDetails.AddressDetails[0].StateName + ' ' + 
+          this.orgDetails.AddressDetails[0].CountryName, this.ExcelHeaders,
+          datatoexport, 'Buyer Order Report',
+          this._gs.utcToClientDateFormat(this.settings.finFromDate, this.clientDateFormat),
+          this._gs.getDefaultDate(this.clientDateFormat) ,this.summary)
+        }
+      },
+      (error) => {
+        this.toastrService.showError(error, '')
+      }))
+    }
+  // downloadSample (data) {
+  //   let datatoexport = []
+  //   data.forEach((element, index) => {
+  //     datatoexport.push({
+  //       Sno: index + 1,
+  //       BuyerCode: element['BuyerCode'],
+  //       Buyer: element['BuyerName'],
+  //       OrderNo: element['OrderNo'],
+  //       OrderDate: element['OrderDate'],
+  //       OrderQty: element['TotalOrderQty'],
+  //       ProductionQty: element['TotalProductionQty'],
+  //       Amount: element['NetAmount']
+  //     })
+  //   })
+  //   console.log('datatoexport : ', datatoexport)
+  //   this.excelService.generateExcel(datatoexport, 'buyer_order_list')
+  // }
 }

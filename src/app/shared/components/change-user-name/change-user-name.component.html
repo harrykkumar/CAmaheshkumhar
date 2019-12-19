@@ -1,0 +1,61 @@
+<div
+  class="modal fade right"
+  id="userNameModal"
+  data-backdrop="static"
+  data-keyboard="false"
+  role="dialog"
+  aria-labelledby="userNameModal"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-sm modal-top-left" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">{{title}}</h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form #userNameForm="ngForm" novalidate>
+        <div class="modal-body">
+          <div class="card-body">
+            <div>
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label>{{label}}</label>
+                  <input
+                    name="userName"
+                    #nameModel="ngModel"
+                    type="text"
+                    [(ngModel)]="userName"
+                    class="form-control"
+                    placeholder="Enter Name"
+                    required
+                    [ngClass]="{
+                      errorSelecto: userNameForm?.submitted && !userName
+                    }"
+                  />
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-primary waves-effect"
+                  (keydown.enter)="
+                    userNameForm?.form?.valid && submit()
+                  "
+                  (click)="userNameForm?.form?.valid && submit()"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

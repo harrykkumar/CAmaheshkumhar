@@ -1,5 +1,5 @@
 import { ToastrCustomService } from './../../../commonServices/toastr.service';
-import { ViewChild, EventEmitter, Output } from '@angular/core';
+import { ViewChild, EventEmitter, Output, ElementRef } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import * as _ from 'lodash'
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
@@ -37,6 +37,10 @@ export class AttributeCombinationComponent implements OnInit {
           let arr = JSON.parse(JSON.stringify(data.data))
           arr.splice(1, 1)
           this.measurementAttrSelect2 = arr
+          this.measurementAttrValue = this.measurementAttrSelect2.map(attr => attr.id.toString())
+          this.measurementAttrValue.splice(0, 1)
+          // console.log(this.measurementAttrValue)
+          this.filteredAttrs = JSON.parse(JSON.stringify(this.sizeAttributeValueList))
         }
       }
     })
@@ -84,7 +88,7 @@ export class AttributeCombinationComponent implements OnInit {
         { AttributeId: res.Attributes[sizeAttributeIndex].Id })
       res.Attributes.splice(sizeAttributeIndex, 1)
     }
-    console.log('sizeAttributeValueList : ', this.sizeAttributeValueList)
+    // console.log('sizeAttributeValueList : ', this.sizeAttributeValueList)
     this._bs.getList(this.sizeAttributeValueList, 'Name', 'Measurement Attribute')
     this.attributeWithValuesList = _.map(res.Attributes, (element) => {
       const valueList = _.map(_.filter(res.AttributeValues, { AttributeId: element.Id }), (attributeValue) => {
@@ -155,9 +159,19 @@ export class AttributeCombinationComponent implements OnInit {
     this._cs.fixTableHF('cat-table')
   }
 
-  postData(){
+  postData() {
+    if (this.buyerFormData.productionQty) {
+      if (this.validateForm()) {
+        this.post()
+      }
+    } else {
+      this.post()
+    }
+  }
+
+  post() {
     let _combineAttributeList = JSON.parse(JSON.stringify(this.combineAttributeList))
-    this.triggerCloseModal.emit(_combineAttributeList)
+    this.triggerCloseModal.emit({data: _combineAttributeList, productionQty: (this.buyerFormData.productionQty || 0)})
     this.resetForm()
     $('#attribute_combine_form').modal(UIConstant.MODEL_HIDE)
   }
@@ -190,22 +204,30 @@ export class AttributeCombinationComponent implements OnInit {
     this.attributeCombineFormModal.resetForm()
   }
 
-  openModal(Data?, editData?) {
+  attrCopy = []
+  attrValuesCopy = []
+  openModal(data?, editData?) {
     $('#attribute_combine_form').modal({ backdrop: 'static', keyboard: false })
     $('#attribute_combine_form').modal(UIConstant.MODEL_SHOW)
-    this.measurementAttrValue = this.measurementAttrSelect2.map(attr => attr.id.toString())
-    this.measurementAttrValue.splice(0, 1)
-    console.log(this.measurementAttrValue)
-    this.filteredAttrs = JSON.parse(JSON.stringify(this.sizeAttributeValueList))
-    this.buyerFormData = {...Data}
-    // if (!_.isEmpty(editData)) {
-    //   this.buyerFormData = {}
-    //   this.combineAttributeList = editData
-    //   console.log(this.combineAttributeList)
-    // }
-    // setTimeout(() => {
-
-    // }, 3000)
+    if (!_.isEmpty(data)) {
+      this.buyerFormData = {...data}
+    } else {
+      this.buyerFormData = {}
+    } 
+    if (!_.isEmpty(editData)) {
+      if (!editData.baseAttr && !editData.attrValues) {
+        if (editData.attrsFor) {
+          this.combineAttributeList = []
+          this.getUtilityItemList(editData.attrsFor)
+        }
+      } else {
+        const baseAtrr = JSON.parse(JSON.stringify(editData.attrsFor.AttributesParent.filter((element) => element.Id === +editData.baseAttr)))
+        const settingAttrs = editData.attrsFor.AttributesParent.filter((element) => editData.attrValues.indexOf('' + element.Id) > -1)
+        baseAtrr[0].IsRequired = true
+        const res = {Attributes: [...baseAtrr, ...settingAttrs], AttributeValues: editData.attrsFor.AttributeValuesParent}
+        this.getUtilityItemList(res)
+      }
+    }
   }
 
   onMeasurementSelect (evt) {
@@ -258,5 +280,10 @@ export class AttributeCombinationComponent implements OnInit {
     } else {
       $('#attribute_combine_form').modal(UIConstant.MODEL_HIDE)
     }
+  }
+
+  @ViewChild('save_button') saveButton: ElementRef
+  shiftToFocus() {
+    this.saveButton.nativeElement.focus()
   }
 }

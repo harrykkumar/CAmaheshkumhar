@@ -282,7 +282,11 @@ export class LoginService {
       await this.getAllSettings(this.userData.Modules[0].Id)
       this.selectedUserModule['index'] = 0
       localStorage.setItem('SELECTED_MODULE', JSON.stringify(this.selectedUserModule))
-      this.router.navigate(['dashboard'])
+      if (this.selectedUserModule.Id === 4) {
+        this.router.navigate(['crm/dashboard']);
+      } else {
+        this.router.navigate(['dashboard'])
+      }
     } else {
       this.router.navigate(['modules'])
     }

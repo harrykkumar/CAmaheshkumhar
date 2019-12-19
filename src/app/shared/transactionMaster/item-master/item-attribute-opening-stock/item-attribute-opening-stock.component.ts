@@ -5,6 +5,8 @@ import * as _ from 'lodash'
 import { ToastrCustomService } from '../../../../commonServices/toastr.service';
 import { GlobalService } from '../../../../commonServices/global.service';
 declare const $: any
+import { Settings } from '../../../../shared/constants/settings.constant'
+
 @Component({
   selector: 'app-item-attribute-opening-stock',
   templateUrl: './item-attribute-opening-stock.component.html',
@@ -27,19 +29,22 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
     private comboService: ComboService,
     private _itemmasterServices: ItemmasterServices,
     private toastrService: ToastrCustomService,
-    private gs: GlobalService
+    private gs: GlobalService,
+    private settings: Settings
   ) {
   }
-
+  industryId: any
   ngOnInit() {
+    this.industryId = +this.settings.industryId
+
   }
 
-  updateBarCode (i) {
+  updateBarCode(i) {
     let attrComb = this.attribute[i]
     attrComb['Barcode'] = attrComb['ClientBarCode']
   }
 
-  getBarCodes (length: number) {
+  getBarCodes(length: number) {
     let _self = this
     this._itemmasterServices.getBarCodes(length).subscribe(
       (data) => {
@@ -85,7 +90,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
   }
 
   idsChecked = []
-  getIds (data) {
+  getIds(data) {
     if (!_.isEmpty(data)) {
       let ids = data.map((elem) => elem.AttributeStr)
       this.idsChecked = ids
@@ -124,23 +129,23 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
     )
   }
 
-  generateAttributes (attributes) {
-    let newData = [{id: '0', text: 'Select Attribute'}]
+  generateAttributes(attributes) {
+    let newData = [{ id: '0', text: 'Select Attribute' }]
     attributes.forEach((element) => {
-      let obj = {id: element.Id, text: element.Name}
+      let obj = { id: element.Id, text: element.Name }
       newData.push(obj)
     })
     this.masterData['attrKeySelect2Data'] = newData
   }
 
-  checkForLength () {
+  checkForLength() {
     let ids = this.attribute.map((attr) => attr.Id)
     let diff = _.differenceWith(ids, this.idsChecked)
     console.log(diff)
     this.getBarCodes(diff.length)
   }
 
-  onAttrKeySelect (data: {value: string[], data: any}) {
+  onAttrKeySelect(data: { value: string[], data: any }) {
     console.log('attr key select', data)
     if (data.value.length > 0) {
       this.attribute = []
@@ -166,7 +171,9 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
     }
   }
 
-  onAttrSelect (data: {value: string[], data: any}) {
+
+
+  onAttrSelect(data: { value: string[], data: any }) {
     console.log('attr select', data)
     if (data.value.length > 0) {
       console.log(this.mainOnFilter)
@@ -184,8 +191,8 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
     }
   }
 
-  makeAttriComb () {
-    let newData = [{id: '0', text: 'Select Combination'}]
+  makeAttriComb() {
+    let newData = [{ id: '0', text: 'Select Combination' }]
     const iterationtime = this.attribute.length - 1;
     if (iterationtime > 0) {
       for (let lastIndex = iterationtime; lastIndex > 0; lastIndex--) {
@@ -196,7 +203,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
               Id: `${firstAttributeValue.Id},${secondAttributeValue.Id}`,
               Name: `${firstAttributeValue.Name},${secondAttributeValue.Name}`
             }
-            let obj = {id: data.Id, text: data.Name}
+            let obj = { id: data.Id, text: data.Name }
             newData.push(obj);
             dummyArray.push(data);
           })
@@ -209,10 +216,10 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
       this.generateGroupId()
     } else {
       this.attribute = JSON.parse(JSON.stringify(this.attribute[0]));
-      let newData = [{id: '0', text: 'Select Combination'}]
+      let newData = [{ id: '0', text: 'Select Combination' }]
       this.attribute.forEach((element, index) => {
         console.log(element)
-        let obj = {id: element.Id, text: element.Name}
+        let obj = { id: element.Id, text: element.Name }
         newData.push(obj)
         element.GroupId = index + 1
         element.AttributeStr = element.Id
@@ -228,7 +235,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
   generateCombination = (val?) => {
     this.attribute = []
     return new Promise((resolve) => {
-    _.forEach(this.masterData.Attributes, (attribute) => {
+      _.forEach(this.masterData.Attributes, (attribute) => {
         const data = _.filter(this.masterData.AttributeValues, (attributeValue) => {
           if (attributeValue.AttributeId === attribute.Id) {
             return true;
@@ -241,12 +248,14 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
     })
   }
 
+  multiple: boolean = false
   makeAttributeValueCombination = () => {
-    let newData = [{id: '0', text: 'Select Combination'}]
+    let newData = [{ id: '0', text: 'Select Combination' }]
     return new Promise((resolve) => {
       console.log('this.attribute.length : ', this.attribute.length)
       const iterationtime = this.attribute.length - 1;
       if (iterationtime > 0) {
+        this.multiple = true
         for (let lastIndex = iterationtime; lastIndex > 0; lastIndex--) {
           let dummyArray = [];
           _.forEach(this.attribute[lastIndex - 1], (firstAttributeValue) => {
@@ -255,7 +264,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
                 Id: `${firstAttributeValue.Id},${secondAttributeValue.Id}`,
                 Name: `${firstAttributeValue.Name},${secondAttributeValue.Name}`
               }
-              let obj = {id: data.Id, text: data.Name}
+              let obj = { id: data.Id, text: data.Name }
               newData.push(obj)
               dummyArray.push(data);
             })
@@ -267,19 +276,27 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
         this.masterData['attributeData'] = newData
         this.mainAttributeData = JSON.parse(JSON.stringify(newData))
       } else {
+        this.multiple = false
         this.attribute = JSON.parse(JSON.stringify(this.attribute[0]));
         this.attribute.forEach((element) => {
-          let obj = {id: element.Id, text: element.Name}
+          let obj = { id: element.Id, text: element.Name }
           newData.push(obj)
         })
         this.masterData['attributeData'] = newData
       }
-      this.generateGroupId();
+      _.map(this.attribute, (element, i) => {
+        element.GroupId = i + 1
+        element.AttributeStr = element.Id
+        element.AttributeNamestr = element.Name
+        element.idStr = element.Id
+        element.Checked = false
+      })
+      // this.generateGroupId();
       resolve();
     });
   }
 
-  updateEditValues () {
+  updateEditValues() {
     if (!_.isEmpty(this.openModel.data)) {
       let ids = this.openModel.data.map((elem) => elem.AttributeStr)
       if (!_.isEmpty(this.openModel.data)) {
@@ -300,6 +317,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
     this.mainAttrValues = []
     this.mainAttributeData = []
     this.mainOnFilter = []
+    this.onloading()
     $('#item-attribute-opening-stock').modal('show')
   }
 
@@ -332,7 +350,7 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
         _.forEach(Data, (editElement) => {
           if (editElement.AttributeStr === generateElement.AttributeStr) {
             this.attribute[index] = { ...editElement, Checked: false };
-            if(_.isString(editElement.AttributeNamestr)){
+            if (_.isString(editElement.AttributeNamestr)) {
               this.attribute[index].AttributeNamestr = this.attribute[index].AttributeNamestr.split(',');
             }
           }
@@ -343,7 +361,11 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
       resolve()
     })
   }
-
+  
+  onloading (){
+   this.ItemPropertyTrans =[]
+   this.preQty =0
+  }
   postFormData = (dataToPost, type) => {
     const data = {
       editMode: this.openModel.editMode,
@@ -408,10 +430,10 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
     for (i = 1; i < tr.length; i++) {
       tdArray = tr[i].getElementsByTagName("td");
       loop2: for (j = 2; j < (2 + this.masterData.Attributes.length); j++) {
-       const innerTd = tdArray[j];
+        const innerTd = tdArray[j];
         if (innerTd) {
           txtValue = innerTd.textContent || innerTd.innerText;
-          if (txtValue.toUpperCase().indexOf(filter) > -1 ) {
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
             tr[i].style.display = "table-row";
             break loop2;
           } else {
@@ -420,5 +442,56 @@ export class ItemAttributeOpeningStockComponent implements OnInit {
         }
       }
     }
+  }
+  ItemPropertyTrans: any = []
+  getIMEIName() {
+
+  }
+  createMobilepopup(Quantity) {
+    if (this.industryId === 12) {
+      this.createMobileList(+Quantity.Qty, null)
+      $('#item_attr_for_EmiNumber').modal('show')
+      //  this.propertRefValue.nativeElement.focus()
+
+    }
+  }
+  preQty: any = 0
+  imei_ID: any = 0
+  createMobileList(Quantity, index) {
+    if (Quantity > 0) {
+      if (Quantity !== this.ItemPropertyTrans.length) {
+        let qty = Quantity - this.preQty
+        if (this.preQty > qty) {
+          this.ItemPropertyTrans = []
+          for (let i = 0; i < Quantity; i++) {
+            this.ItemPropertyTrans.push({
+              Id: this.imei_ID,
+              ItemTransId: index,
+              ItemPropertyId: 0,
+              Sno: index,
+              UnderTransId: 0
+            });
+          }
+        }
+        else {
+          for (let i = 0; i < qty; i++) {
+            this.ItemPropertyTrans.push({
+              Id: this.imei_ID,
+              multiplePropertyList: [],
+              ItemTransId: index,
+              ItemPropertyId: 0,
+              Sno: index,
+              UnderTransId: 0
+            });
+          }
+        }
+        this.preQty = Quantity
+      }
+    }
+  }
+  closeIMEI() {
+    $('#item_attr_for_EmiNumber').modal('hide')
+    // this.OpeningStockValueRef.nativeElement.focus()
+
   }
 }

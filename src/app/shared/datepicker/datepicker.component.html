@@ -7,11 +7,14 @@
   (keydown)="eventHandler($event)"
   (keydown.tab)="validateDate()"
   [(ngModel)]="selectedDate"
+  (ngModelChange)="inputChange()"
   (dateTimeChange)="onSelect($event)"
   [min]="minDate"
   [max]="maxDate"
   [owlDateTimeTrigger]="dt2" [owlDateTime]="dt2" #inputElem >
-  <div class="input-group-addon bgc-white bd bdwR-0" (click)="toggleView()" ><i class="fas fa-calendar-alt"></i></div>
+  <div class="input-group-addon bgc-white bd bdwR-0" (click)="toggleView()" >
+    <i class="fas fa-calendar-alt"></i>
+  </div>
   <owl-date-time [pickerType]="type"
   [startAt]="today"
   [disabled]="disableInput"
@@ -19,7 +22,7 @@
   #dt2></owl-date-time>
 </div>
 <!--
-    
+  (change)="inputChanged.emit($event.target.value)"
   (input)="validateDate()"
   (keyup.Tab)="toggleView()"
   readonly="true"

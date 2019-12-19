@@ -24,9 +24,9 @@ export class ImageModalComponent implements OnDestroy {
           this.openModal()
           if (data.images && data.images.length > 0) {
             this.imageAddedBefore = true
-            this.images = { 'images': [...data.images], 'queue': [...data.queue], 'safeUrls': [...data.images], 'baseImages': [...data.baseImages], 'id': [...data.id] }
+              this.images = {'type':data.type, 'images': [...data.images], 'queue': [...data.queue], 'safeUrls': [...data.images], 'baseImages': [...data.baseImages], 'id': [...data.id] }
           } else {
-            this.images = { 'images': [], 'queue': [], 'safeUrls': [], 'baseImages': [], 'id': [] }
+            this.images = {'type':data.type, 'images': [], 'queue': [], 'safeUrls': [], 'baseImages': [], 'id': [] }
             this.imageAddedBefore = false
           }
           console.log('images from item master : ', this.images)
@@ -35,6 +35,7 @@ export class ImageModalComponent implements OnDestroy {
         }
       }
     )
+    
   }
 
   onUploadImages (evt) {

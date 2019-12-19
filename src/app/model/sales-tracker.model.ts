@@ -504,6 +504,7 @@ export interface Image {
   baseImages: number[]
   id?: number[]
   imageType?:string
+  type?:String
 }
 export interface ServiceItemAdd {
   Id: number
@@ -546,6 +547,7 @@ export interface ItemMasterAdd {
   ItemAttributeTrans?: Array<PurchaseAttribute>[]
   ItemTransactions?: Array<ComboItem>[]
   ItemAttributewithRate?: Array<any>
+  ItemPropertyTrans?:any
 }
 
 export interface PurchaseItem {

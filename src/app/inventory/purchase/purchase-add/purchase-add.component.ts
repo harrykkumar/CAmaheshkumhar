@@ -257,7 +257,6 @@ export class PurchaseAddComponent {
     private renderer: Renderer2,
     private gs: GlobalService,
     private _catagoryservices: CategoryServices) {
-    this.getFormDependency()
     this.commonService.openDiscountMasterStatus().subscribe(
       (data: AddCust) => {
         if (data.open === false && data && data.data) {
@@ -405,23 +404,23 @@ export class PurchaseAddComponent {
         }
       }
     )
-    this.purchaseService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
-      data => {
-        if (data.data) {
+    // this.purchaseService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    //   data => {
+    //     if (data.data) {
 
-          this.organisationsData = data.data
-          if (this.organisationsData.length >= 1) {
-            this.OrgId = +this.organisationsData[0].id
-            this.organisationValue = +this.organisationsData[0].id
-            this.OrganisationName = this.organisationsData[0].text
-            if (this.isBillNoManuall) {
-              this.CurrentDate = this.gs.getDefaultDate(this.clientDateFormat)
-              this.getNewBillNo()
-            }
-          }
-        }
-      }
-    )
+    //       this.organisationsData = data.data
+    //       if (this.organisationsData.length >= 1) {
+    //         this.OrgId = +this.organisationsData[0].id
+    //         this.organisationValue = +this.organisationsData[0].id
+    //         this.OrganisationName = this.organisationsData[0].text
+    //         if (this.isBillNoManuall) {
+    //           this.CurrentDate = this.gs.getDefaultDate(this.clientDateFormat)
+    //           this.getNewBillNo()
+    //         }
+    //       }
+    //     }
+    //   }
+    // )
     this.purchaseService.godownsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.data) {
@@ -626,6 +625,8 @@ export class PurchaseAddComponent {
           })
           this.ItemId = +data.id
           this.itemValue = data.id
+          let newBillDate = this.gs.clientToSqlDateFormat(this.CurrentDate, this.clientDateFormat)
+          this.getItemDetail(newBillDate, '', this.ItemId, this.PartyId)
           setTimeout(() => {
             if (this.itemselect2) {
               const element = this.renderer.selectRootElement(this.itemselect2.selector.nativeElement, true)
@@ -754,13 +755,13 @@ export class PurchaseAddComponent {
     this.AdditionalCharges = []
     this.PaymentDetail = []
     this.taxRatesForEdit = data.TaxRates
+    this.createMobileIMEiNumber(data.ItemPropertyTrans)
+    this.createTransaction(data.PaymentDetails)
     this.createOther(data.PurchaseTransactions[0])
     this.createAttributes(data.ItemAttributesTrans)
-    this.createMobileIMEiNumber(data.ItemPropertyTrans)
     this.createItemTaxTrans(data.ItemTaxTransDetails)
     this.createItems(data.ItemTransactions)
     this.createAdditionalCharges(data.AdditionalChargeDetails)
-    this.createTransaction(data.PaymentDetails)
     this.allUnits = data.SubUnitWithItems
 
     this.loading = false
@@ -986,6 +987,9 @@ export class PurchaseAddComponent {
 
   createTransaction(paymentDetails) {
     if (paymentDetails.length > 0) {
+      if (paymentDetails[0].PayModeId === 9) {
+        this.selectedBankvalue = paymentDetails[0].LedgerId
+      }
       paymentDetails.forEach(element => {
         this.Paymode = element.Paymode
         this.PayModeId = element.PayModeId
@@ -995,6 +999,7 @@ export class PurchaseAddComponent {
         this.Amount = element.Amount
         this.PayDate = this.gs.utcToClientDateFormat(element.PayDate, this.clientDateFormat)
         this.ChequeNo = element.ChequeNo
+        this.totalAmount(paymentDetails)
         this.addTransactions()
         if (this.PaymentDetail[this.PaymentDetail.length - 1]) {
           this.PaymentDetail[this.PaymentDetail.length - 1].Id = element.Id
@@ -1019,6 +1024,7 @@ export class PurchaseAddComponent {
     this.ConvertedAmount = +others.ConvertedAmount
     this.CurrencyRate = +others.CurrencyRate
     this.TotalDiscount = 0
+    this.BillAmount=  +others.BillAmount
     this.PartyId = +others.LedgerId
     this.ReferralId = others.ReferralId
     this.ReferralTypeId = others.ReferralTypeId
@@ -1099,6 +1105,9 @@ export class PurchaseAddComponent {
   BarCodeEnableFlag: any = 0
   taxCalInclusiveType: number = 2
   MultipleBillDiscountPurchase: number = 1
+  HideCategoryOnPurchase:any=false
+  HideItem_Discount:any=false
+  HideTax_Details:any=false
   getSetUpModules(settings) {
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
@@ -1127,6 +1136,15 @@ export class PurchaseAddComponent {
       }
       if (element.id === SetUpIds.BarCodeEnable) {
         this.BarCodeEnableFlag = +element.val
+      }
+      if (element.id === SetUpIds.HideCategoryOnPurchase) {
+        this.HideCategoryOnPurchase = element.val
+      }
+      if (element.id === SetUpIds.HideItem_Discount) {
+        this.HideItem_Discount = element.val
+      }
+      if (element.id === SetUpIds.HideTax_Details) {
+        this.HideTax_Details = element.val
       }
     })
     this.createModels(this.catLevel)
@@ -1229,6 +1247,8 @@ export class PurchaseAddComponent {
   }
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
+    this.getSPUtilityData()
+    this.getFormDependency()
     this.onLoading()
     this.getListOfChargeData()
     $('#purchase_modal').modal(UIConstant.MODEL_SHOW)
@@ -1477,12 +1497,13 @@ export class PurchaseAddComponent {
         this.calculate()
       }
       if (+evt.value === -1) {
-        if (this.categoryId > 0) {
+     //   if (this.categoryId > 0) {
+          this.categoryId=0
           this.commonService.openItemMaster('', this.categoryId)
           this.itemselect2.selector.nativeElement.value = ''
-        } else {
-          this.toastrService.showInfo('Please select a category', '')
-        }
+        // } else {
+        //   this.toastrService.showInfo('Please select a category', '')
+        // }
         this.validateItem()
       } else {
         if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
@@ -1519,7 +1540,7 @@ export class PurchaseAddComponent {
   editCreateMobilepopup(pro) {
     if (this.industryId === 12) {
       let property = pro.ItemPropertyTrans 
-      debugger
+      
       this.ItemPropertyTrans = pro.ItemPropertyTrans 
       this.createMobileList(pro)
       $('#purchase_popup_for_EmiNumber').modal(UIConstant.MODEL_SHOW)
@@ -1534,7 +1555,6 @@ export class PurchaseAddComponent {
 
   imei_ID: any = 0
   createMobileList(propertyValue) {
-    
     console.log(propertyValue)
     let Sno = 0
       if (this.Items.length === 0) {
@@ -1650,7 +1670,9 @@ export class PurchaseAddComponent {
           this.UnitId = data.Data.ItemDetails[0].UnitId
           this.unitSelect2.setElementValue(data.Data.ItemDetails[0].UnitId)
           this.unitName = data.Data.ItemDetails[0].UnitName
-          this.taxSlabSelect2.setElementValue(data.Data.ItemDetails[0].TaxId)
+          if(this.HideTax_Details===true){
+            this.taxSlabSelect2.setElementValue(data.Data.ItemDetails[0].TaxId)
+          }
           this.taxSlabName = data.Data.ItemDetails[0].TaxSlab
           this.SaleRate = data.Data.ItemDetails[0].SaleRate
           this.IsNotDiscountable = data.Data.ItemDetails[0].IsNotDiscountable
@@ -2064,6 +2086,7 @@ export class PurchaseAddComponent {
   }
 
   calculatePaymentAmount() {
+    
     let paymentTotal = 0
     for (let i = 0; i <= this.PaymentDetail.length - 1; i++) {
       paymentTotal = paymentTotal + +this.PaymentDetail[i].Amount
@@ -2457,7 +2480,17 @@ export class PurchaseAddComponent {
     }
     this.validateTransaction()
   }
-
+  getCasePayment:any=0
+  totalAmount(PaymentDetail) {
+    
+    this.getCasePayment = 0
+    if (PaymentDetail.length > 0) {
+      PaymentDetail.forEach(element => {
+        this.getCasePayment = this.getCasePayment + +element.Amount
+      }
+      )
+    }
+  }
   getPaymentTotal(): number {
     let paymentTotal = 0
     for (let i = 0; i <= this.PaymentDetail.length - 1; i++) {
@@ -2468,10 +2501,22 @@ export class PurchaseAddComponent {
         paymentTotal += +this.Amount
       }
     }
+    if (this.editMode && +this.Amount > 0 && +this.PayModeId > 0 && +this.LedgerId > 0) {
+      if (this.PaymentDetail.length === 1) {
+        paymentTotal = +this.Amount
+      }
+      else {
+        paymentTotal = +this.getCasePayment
+
+      }
+    }
+
     return paymentTotal
   }
+ 
   isValidAmount = true
   checkValidationForAmount() {
+    
     let paymentTotal = this.getPaymentTotal()
     paymentTotal = (isNaN(+paymentTotal)) ? 0 : +paymentTotal
     this.BillAmount = (isNaN(+this.BillAmount)) ? 0 : +this.BillAmount
@@ -2509,6 +2554,7 @@ export class PurchaseAddComponent {
   }
 
   addTransactions() {
+    
     if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
       if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
         if (this.checkValidationForAmount()) {
@@ -2925,6 +2971,9 @@ export class PurchaseAddComponent {
   deleteItem(i, forArr, flag) {
     if (forArr === 'trans') {
       this.PaymentDetail.splice(i, 1)
+      if (this.PaymentDetail.length === 0) {
+        this.getCasePayment = 0
+      }
       this.checkValidationForAmount()
     }
     if (forArr === 'items') {
@@ -4286,6 +4335,7 @@ export class PurchaseAddComponent {
     this.calculateBillTotal()
   }
   calculateBillTotal() {
+    
     this.BillAmount = 0
     this.billSummary.forEach(element => {
       this.BillAmount += +element.total
@@ -4636,5 +4686,152 @@ export class PurchaseAddComponent {
 
   }
 
+  getSPUtilityData () {
+    let _self = this
+    this.commonService.getSPUtilityData(UIConstant.PURCHASE_TYPE)
+    .pipe(
+      filter(data => {
+        if (data.Code === UIConstant.THOUSAND) {
+          return true
+        } else {
+          throw new Error(data.Description)
+        }
+      }),
+      catchError(error => {
+        return throwError(error)
+      }),
+      map(data => data.Data)
+    ).subscribe(
+      data => {
+        console.log('sputility data : ', data)
+        if (data.AttributeValueResponses.length > 0) {
+          _self.purchaseService.generateAttributes(data)
+        }
+        _self.clientStateId = data.ClientAddresses[0].StateId
+        _self.TransactionNoSetups = data.TransactionNoSetups
+        if (!this.editMode) {
+          if (!this.isBillNoManuall) {
+            this.setBillNo(data.TransactionNoSetups)
+          }
+        }
+        if (data && data.ItemCategorys && data.ItemCategorys.length > 0) {
+          _self.getCatagoryDetail(data.ItemCategorys)
+        }
+        _self.allItems = [...data.Items]
+        this.getOrgnization(data.Organizations)
 
+        _self.purchaseService.createItems(data.Items)
+        _self.purchaseService.createVendors(data.Vendors)
+        _self.purchaseService.IMEINumber(data.ItemProperties)
+           this.ImeiNamelabel = data.ItemProperties[0].Name
+        _self.purchaseService.createTaxProcess(data.TaxProcesses)
+        _self.purchaseService.createPaymentModes(data.PaymentModes)
+        _self.purchaseService.createOrganisations(data.Organizations)
+        _self.purchaseService.createGodowns(data.Godowns)
+        _self.purchaseService.createReferralTypes(data.ReferalTypes)
+        _self.purchaseService.createSubUnits(data.SubUnits)
+        _self.purchaseService.createTaxSlabs(data.TaxSlabs)
+        _self.purchaseService.createReferral(data.Referals)
+        _self.purchaseService.createCurrencies(data.Currencies)
+        _self.purchaseService.createFreightBy(data.FreightModes)
+        _self.purchaseService.createCharges(data.LedgerCharges)
+        this.getBankList(data.Banks)
+
+      },
+      (error) => {
+        console.log(error)
+        this.toastrService.showError(error, '')
+      },
+      () => {
+        setTimeout(() => {
+        }, 1)
+      }
+    )
+  }
+  ImeiNamelabel:any
+  // SPUtilityData() {
+  //   let _self = this
+  //   this.commonService.getSPUtilityData('purchase')
+  //     .pipe(
+  //       filter(data => {
+  //         if (data.Code === UIConstant.THOUSAND) {
+  //           return true
+  //         } else {
+  //           throw new Error(data.Description)
+  //         }
+  //       }),
+  //       catchError(error => {
+  //         return throwError(error)
+  //       }),
+  //       map(data => data.Data)
+  //     ).subscribe(
+  //       data => {
+  //         if (data.AttributeValueResponses.length > 0) {
+  //           this.purchaseService.generateAttributes(data)
+  //         }
+  //         _self.clientStateId = data.ClientAddresses[0].StateId
+  //         _self.TransactionNoSetups = data.TransactionNoSetups
+  //         if (!this.editMode) {
+  //           if (!this.isBillNoManuall) {
+  //             this.setBillNo(data.TransactionNoSetups)
+  //           }
+  //         }
+  //         if (data && data.ItemCategorys && data.ItemCategorys.length > 0) {
+  //           _self.getCatagoryDetail(data.ItemCategorys)
+  //         }
+  //         _self.allItems = [...data.Items]
+  //         _self.purchaseService.createItems(data.Items)
+  //         _self.purchaseService.createTaxProcess(data.TaxProcesses)
+  //         _self.purchaseService.createPaymentModes(data.PaymentModes)
+  //         this.getOrgnization(data.Organizations)
+  //         _self.purchaseService.createGodowns(data.Godowns)
+  //         this.SputilityIMEIData = data.ItemProperties
+  //         _self.purchaseService.createSubUnits(data.SubUnits)
+  //         _self.purchaseService.createTaxSlabs(data.TaxSlabs)
+  //         _self.purchaseService.createCurrencies(data.Currencies)
+  //         _self.purchaseService.createCharges(data.LedgerCharges)
+  //         this.getBankList(data.Banks)
+
+  //       },
+  //       (error) => {
+  //         console.log(error)
+  //         this.toastrService.showError(error, '')
+  //       },
+  //       () => {
+  //         setTimeout(() => {
+  //         }, 1)
+  //       }
+  //     )
+  // }
+  getOrgnization(data) {
+    if (data.length > 0) {
+      this.OrgId = +data[0].Id
+      this.OrganisationName = data[0].Name
+      this.organisationValue = +data[0].Id
+     // this.OrgGStType = +data[0].GstTypeId
+      if (this.isBillNoManuall) {
+        this.CurrentDate = this.gs.getDefaultDate(this.clientDateFormat)
+        this.getNewBillNo()
+
+      }
+    }
+  }
+  allbankList: any
+  selectedBankvalue: any
+  getBankList(lsit) {
+    if (lsit.length > 0) {
+      let newdata = []
+      lsit.forEach(element => {
+        newdata.push({
+          id: element.LedgerId,
+          text: element.Name
+        })
+      });
+      this.allbankList = newdata
+      if (this.PaymentDetail.length === 0) {
+        this.selectedBankvalue = newdata[0].id
+      }
+
+    }
+  }
 }

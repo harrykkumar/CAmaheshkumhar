@@ -515,4 +515,29 @@ export class ApiConstant {
 
   public static get  COUNTRY_CHANGE_LABEL_VALUE(): string { return this.BASE_URL + '/api/v1/common/materstatutory?CountryId=' }
 
+  public static get  BUYER_ORDER_TRANS_LIST(): string { return this.BASE_URL + '/api/v1/Manufacturer/BuyerOrderTransList' }
+
+  public static get VENDOR_STATUS_REPORT(): string { return this.BASE_URL + '/api/v1/Manufacturer/report/VendorItemRateStatus' }
+
+  public static get VENDOR_STATUS_PO_REPORT(): string { return this.BASE_URL + '/api/v1/Manufacturer/report/Vendorwisepo' }
+
+  public static get  CRM_DASHBOARD(): string { return this.BASE_URL + '/api/v1/CRM/CRMDashboard' }
+
+  public static get  USER_NAME_CHANGE(): string { return this.BASE_URL + '/api/v1/Owner/username' }
+
+  public static get MANUAL_STOCK_POST(): string { return this.BASE_URL + '/api/v1/account/manualclosingstock' }
+
+  public static get DYNAMIC_LABEL(): string { return this.BASE_URL + '/api/v1/CRM/leaddynamicformlabel'}
+
+  public static get MENU_SETTING_RIGHTS_BY_ID(): string { return this.BASE_URL + '/api/v1/CommonSetupsetting?MenuId=' }
+
+  public static get LEAD_NOTE(): string { return this.BASE_URL + '/api/v1/CRM/leadnote' }
+
+  public static get LEAD_ASSIGN(): string { return this.BASE_URL + '/api/v1/CRM/leadassign' }
+
+  public static get EMAIL_EDITOR(): string { return this.BASE_URL + '/api/v1/common/contentvaluedata' }
+
+  public static get LEAD_TRANSFER(): string { return this.BASE_URL + '/api/v1/CRM/leadtransfer' }
+
+  public static get CHECK_FOR_CREDENTIALS(): string { return this.BASE_URL + '/api/v1/SendSMSForgotPassword' }
 }

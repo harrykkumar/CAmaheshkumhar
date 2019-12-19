@@ -35,7 +35,6 @@ export class CommonService {
   private openPurchaseAddSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openSaleReturnDirectAddSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openPurchaseDirectReturnAddSub = new BehaviorSubject<AddCust>({ 'open': false })
-
   private openVoucherAddSub = new BehaviorSubject<AddCust>({ 'open': false })
   private openCatImportSub = new BehaviorSubject<AddCust>({ 'open': false })
   private newVoucherAdded = new Subject()
@@ -88,6 +87,9 @@ export class CommonService {
   domainLogo: string = 'assets/img/logo.png';
   workdomain: string = 'Saniiro Technologies Pvt Ltd';
   isInternet: boolean = true;
+  orgUserName: string
+  sideMenuProfileImg: string;
+
   //  validation reg ex
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
@@ -609,8 +611,8 @@ export class CommonService {
     return this.baseService.getRequest(ApiConstant.GET_ATTRIBUTE_SALE_CHALLAN_DATA)
   }
 
-  openPurchase(editId) {
-    this.openPurchaseAddSub.next({ 'open': true, 'editId': editId })
+  openPurchase(editId, id?) {
+    this.openPurchaseAddSub.next({ 'open': true, 'editId': editId, 'id': id })
   }
 
   getPurchaseStatus() {
@@ -698,11 +700,24 @@ export class CommonService {
   }
 
   /* Function to allow numeric input only for input type text  ----b */
-  isNumber(evt, mobileNo?) {
+  isNumber(evt, checkZeroAtBegin?, mobileNo?) {
     evt = (evt) ? evt : window.event
     const charCode = (evt.which) ? evt.which : evt.keyCode
-    if (charCode > 31 && (charCode < 48 || charCode > 57) || (!mobileNo && charCode === 48)) {
+    if (charCode > 31 && (charCode < 48 || charCode > 57) || (checkZeroAtBegin && !mobileNo && charCode === 48)) {
       return false
+    }
+  }
+
+  allowOnlyNumericValueToPaste(e, cb) {
+    setTimeout(() => {
+      cb(e.clipboardData.getData('text/plain').replace(/\D/g, ''))
+    }, 0);
+  }
+
+  notAllowSpace(evt) {
+    const charCode = (evt.which) ? evt.which : evt.keyCode
+    if (charCode === 32) {
+      return false;
     }
   }
 
@@ -1666,5 +1681,16 @@ export class CommonService {
   }
   COUNTRY_LABEL_CHANGE = (id) => {
     return this.baseService.getRequest(ApiConstant.COUNTRY_CHANGE_LABEL_VALUE+id)
+  }
+/* Function to collection sorting */
+  sortByColumn(isAsc, key, dataToIterate) {
+    const orderType = isAsc ? 'asc' : 'desc';
+    return _.orderBy(dataToIterate, ((item) => {
+      if (_.isString(item[key])) {
+        return item[key].trim().toLowerCase()
+      } else {
+        return item[key]
+      }
+    }), [orderType]);
   }
 }

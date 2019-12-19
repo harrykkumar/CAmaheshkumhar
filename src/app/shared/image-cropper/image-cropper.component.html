@@ -21,6 +21,10 @@
       </div>
       <div class="modal-body">
         <div class="card-body">
+<button type="button" class="btn btn-primary" (click)="rotateLeft()">Rotate left</button>
+<button type="button" class="btn btn-primary" (click)="rotateRight()">Rotate right</button>
+<button type="button" class="btn btn-primary" (click)="flipHorizontal()">Flip horizontal</button>
+<button type="button" class="btn btn-primary" (click)="flipVertical()">Flip vertical</button>
           <div>
             <image-cropper
               [imageChangedEvent]="imageChangedEvent"

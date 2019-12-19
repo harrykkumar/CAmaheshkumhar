@@ -1,4 +1,4 @@
-<div class="modal fade" id="packaging" tabindex="-1" role="dialog" aria-labelledby="material_reqirment"
+<div class="modal fade" id="packaging" role="dialog" aria-labelledby="material_reqirment"
   aria-hidden="true">
   <div class="modal-dialog large_form modal-full-height modal-top" role="document">
     <div class="modal-content bgcH-grey-100">
@@ -42,11 +42,6 @@
                     <input type="text" readonly [(ngModel)]="masterData.BuyerCode" name="BuyerCode"
                       class="form-control">
                   </div>
-                  <!-- <div class="form-group col-lg-3">
-                    <label>StyleName</label>
-                    <input type="text" readonly [(ngModel)]="masterData.StyleName" name="StyleName"
-                      class="form-control">
-                  </div> -->
                   <div class="form-group col-lg-4">
                     <label>OrderDate</label>
                     <input type="text" readonly [(ngModel)]="masterData.OrderDate" name="OrderDate"
@@ -99,6 +94,17 @@
                     <input type="text" appIncludeDecimal [(ngModel)]="masterData.NetWeight" 
                     name="NetWeight" class="form-control" >
                   </div>
+                  <div class="form-group col-lg-4" *ngIf="isAddNew">
+                    <label>Buyer Order</label>
+                    <div class="input-group adw_select">
+                      <select2 #buyer_order_select2 id="buyer_order" [data]="masterData.buyerNameList" 
+                        class="control_select"
+                        (valueChanged)="orderId = +$event.value;getOrderData();" autocomplete="true"
+                        [options]="{ placeholder: 'Select Buyer Order' }"
+                        [ngClass]="{'errorSelecto': submitSave && !orderId }" [value]="masterData.boValue">
+                      </select2>
+                    </div>
+                  </div>
                   <div class="form-group mt-3">
                     <button type="submit" class="btn btn-primary waves-effect waves-light">Done</button>
                   </div>
@@ -116,14 +122,14 @@
                             <label class="custom-control-label" for="selectall"></label>
                           </div>
                         </th>
-                        <th style="width: 5%;">Sno.</th>
-                        <th style="width: 15%;" >Item</th>
-                        <th style="width: 10%;" *ngIf="masterData?.isAttr">{{defaultAttrName}}</th>
-                        <th style="width: 25%;" *ngIf="masterData?.isAttr">{{comboFor}}</th>
-                        <th style="width: 15%;" >Product Code</th>
-                        <th style="width: 10%;" >Order Qty</th>
-                        <th style="width: 10%;" >Remaining Qty</th>
-                        <th style="width: 10%;" >Qty To Pack</th>
+                        <th style="width: 5%;" >Sno.</th>
+                        <th [ngStyle]="{width: masterData?.isAttr ? '15%' : '40%'}" >Item</th>
+                        <th [ngStyle]="{width: masterData?.isAttr ? '10%' : '0%'}" *ngIf="masterData?.isAttr">{{defaultAttrName}}</th>
+                        <th [ngStyle]="{width: masterData?.isAttr ? '25%' : '0%'}"  *ngIf="masterData?.isAttr">{{comboFor}}</th>
+                        <th [ngStyle]="{width: masterData?.isAttr ? '15%' : '0%'}"  *ngIf="masterData?.isAttr">Product Code</th>
+                        <th [ngStyle]="{width: masterData?.isAttr ? '10%' : '15%'}" >Order Qty</th>
+                        <th [ngStyle]="{width: masterData?.isAttr ? '10%' : '15%'}" >Remaining Qty</th>
+                        <th [ngStyle]="{width: masterData?.isAttr ? '10%' : '25%'}" >Qty To Pack</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -285,7 +291,7 @@
           </div>
         </div>
         <div class="modal-footer footer-fixed footer_modal_form">
-          <button type="submit" class="btn waves-effect btn-succ-ess" (click)="postData()">
+          <button type="button" class="btn waves-effect btn-succ-ess" (click)="postData()">
             Save <i class="fa fa-spinner fa-spin" *ngIf="disableBtnSubmit"></i>
           </button>
           <button type="button" class="btn waves-effect btn-default close-btn" (click)="closeModal(packagingForm)">

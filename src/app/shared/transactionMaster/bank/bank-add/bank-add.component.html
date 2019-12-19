@@ -33,7 +33,7 @@
                         <div class="form-group col-md-6">
                             <label class="active">IFSC Code</label>
                             <input #ifscCodeRef type="text" class="form-control" (input)='checkForValidation()'
-                                [ngClass]="{ 'errorSelecto': submitClick && invalidObj?.ifscCode  }" placeholder=" IFSC Code "
+                              placeholder=" IFSC Code "
                                 name='ifscCode' [(ngModel)]="ifscCode">
                         </div>
                         <div class="form-group col-md-6">

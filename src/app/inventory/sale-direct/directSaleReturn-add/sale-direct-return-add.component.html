@@ -12,16 +12,15 @@
             <div class="col-md-9">
               <div class="btn_header">
                 <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-default waves-effect" #savebutton
-                  (click)="keepOpen=false;saveSaleDirect()">
+                  (click)="keepOpen=false;saveSaleDirectReturn()">
                   {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
                 </button>
                 <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-info waves-effect"
-                  (click)="keepOpen=true;saveSaleDirect()">
+                  (click)="keepOpen=true;saveSaleDirectReturn()">
 
                   {{DisabledSaveBtn === true  ? 'Please Wait..' :'  Save and AddNew' }}
                 </button>
-                <!-- <a class="btn btn-info waves-effect" (click)="keepOpen=true;saveSaleDirect()">Save and New</a> -->
-                <button type="button" class="close">
+               <button type="button" class="close">
                   <span aria-hidden="true" class="white-text" (click)="closeSale()">×</span>
                 </button>
 
@@ -41,6 +40,10 @@
           <div class="form-row">
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
                 <label> Party</label>
+                <a class="pl-2 label_green">OB:</a>
+                <span class="pl-2 label_green">
+                  {{outStandingBalance}}{{ setCRDR}}
+                </span>
               <div class="input-group adw_select">
                 <select2 #vendor_select2 id="Customers" [data]="customersData" class="control_select"
                   (valueChanged)="onCustomerSelect($event)" autocomplete="true"
@@ -50,18 +53,7 @@
               </div>
             </div>
 
-            <div class="form-group col-md-4 col-xl-2">
-              <label> OutStanding Balance</label>
-              <div class="discount">
-                <input [disabled]='true' type="text" class="form-control" id="e-way" placeholder="Amount"
-                  class="form-control" name="outStandingBalance" [(ngModel)]="outStandingBalance">
-
-                <select [disabled]='true' class="form-control discount_type drop_remove" id="InterestRate"
-                  name="InterestRateType">
-                  <option>{{setCRDR}}</option>
-                </select>
-              </div>
-            </div>
+        
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label for="orgnizationName">Organization Name</label>
               <input readonly='true' type="text" class="form-control" id="orgnizationName"
@@ -1030,7 +1022,7 @@
         <button [disabled]='DisabledSaveBtn'
           type="submit"
           class="btn waves-effect btn-succ-ess"
-          (click)="keepOpen=false;saveSaleDirect()"
+          (click)="keepOpen=false;saveSaleDirectReturn()"
           >
           {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
         </button>
@@ -1073,7 +1065,7 @@
         <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
             <div class="modal-content bgcH-grey-100">
                 <div class="modal-header close_popup">
-                    <h4 class="modal-title w-100 c-grey-900">{{SputilityIMEIData[0]?.Name}}</h4>
+                    <h4 class="modal-title w-100 c-grey-900">{{ImeiNamelabel}}</h4>
                     <button type="button" class="close"  (click)='closeIMEI()' aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>

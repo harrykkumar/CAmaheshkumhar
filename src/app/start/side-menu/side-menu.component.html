@@ -7,10 +7,13 @@
             <div class="peers ai-c fxw-nw">
               <div class="peer">
                 <div (click)="Homepage()" class="logo">
-                  <img [src]="commonService.domainLogo" alt="" style="max-height: 50px !important;"/>
+                  <img
+                    [src]="commonService.domainLogo"
+                    alt=""
+                    style="max-height: 50px !important;"
+                  />
                 </div>
               </div>
-
               <div class="peer peer-greed">
                 <h5 class="lh-1 mB-0 logo-text"></h5>
               </div>
@@ -19,7 +22,12 @@
         </div>
         <div class="peer">
           <div class="mobile-toggle sidebar-toggle">
-            <a id="sidebar-toggle" class="sidebar-toggle" href="javascript:void(0);" (click)="siderbarMenu()">
+            <a
+              id="sidebar-toggle"
+              class="sidebar-toggle"
+              href="javascript:void(0);"
+              (click)="siderbarMenu()"
+            >
               <i class="far fa-window-close"></i>
             </a>
           </div>
@@ -30,38 +38,28 @@
       <ul class="sidebar-menu pos-r side_background">
         <li class="nav-item ">
           <div class="profile clearfix">
-            <div class="dropdown dropright profile_pic">
-              <a
-                class="dropdown-toggle "
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-                id="imageMenuLink"
+            <div class="dropdown dropright profile_pic userImage">
+              <img class="img-circle profile_img" width="50" height="50" [src]="commonService.sideMenuProfileImg" />
+              <div class="overlay">
+                <a
+                class="d-none pl-2"
+                (click)="openImageModal()"
               >
-              <img
-              *ngIf="_loginService?.userData?.ImageContents && _loginService?.userData?.ImageContents[0]?.FilePath;else defaultImage"
-              class="img-circle profile_img"
-             [src]="_loginService?.userData?.ImageContents[0] &&_loginService?.userData?.ImageContents[0]?.FilePath"
-
-            />
-
-            <ng-template #defaultImage>
-                <img  class="img-circle profile_img"
-                src="../../../assets/img/man.png"
-                />
-            </ng-template>
+                <i class="fas fa-pencil-alt fa-1x"></i>
               </a>
-                <ul class="dropdown-menu  bgc-white img_drop" aria-labelledby="imageMenuLink">
-                    <li>
-                        <a  class="d-b td-n pY-5"
-                        (click)="openImageModal()"
-                        >Change Image</a>
-                    </li>
-                </ul>
+              </div>
             </div>
-            <div class="profile_info">
-              <span>Welcome,</span>
-              <h2>{{ (loggedinUserData?.LoginUserDetailsinfo)[0].Name }}</h2>
+            <div class="profile_info userName">
+              <span>Welcome,</span><br>
+              <h2 class="userName d-sm-inline-flex">
+                {{ commonService.orgUserName }}
+                <a
+                  class="d-none pl-2"
+                  (click)="openChangeUserNameModal(commonService.orgUserName)"
+                >
+                  <i class="fas fa-pencil-alt "></i>
+                </a>
+              </h2>
             </div>
           </div>
         </li>
@@ -85,3 +83,4 @@
   </div>
   <div class="over-bar"></div>
 </div>
+<ng-container #changeUserNameContainerRef></ng-container>

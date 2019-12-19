@@ -5,9 +5,10 @@ import { CommonModule } from '@angular/common';
 import { FollowUpListRoutingModule } from './follow-up-list-routing.module';
 import { AddLeadDetailComponent } from '../add-lead-detail/add-lead-detail.component';
 import { AddLeadComponent } from '../add-lead/add-lead.component';
+import { FollowUpCountInfoComponent } from '../follow-up-count-info/follow-up-count-info.component';
 
 @NgModule({
-  declarations: [FollowUpListComponent],
+  declarations: [FollowUpListComponent, FollowUpCountInfoComponent],
   imports: [
     CommonModule,
     FollowUpListRoutingModule,
@@ -16,6 +17,7 @@ import { AddLeadComponent } from '../add-lead/add-lead.component';
   entryComponents: [
     AddLeadComponent,
     AddLeadDetailComponent,
+    FollowUpCountInfoComponent,
   ]
 })
 export class FollowUpListModule { }

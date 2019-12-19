@@ -1,0 +1,27 @@
+<div id="demo" class="collapse bgc-white" [ngStyle]="{'display': toShow ? 'block' : 'none'}">
+  <form [formGroup]="searchForm" (ngSubmit)="search()" noValidate>
+    <div class="form-row p-10">
+      <div class="col-md-3 form-group">
+        <div class="timepicker-input input-icon">
+          <datepicker-popup #first [toSetDate]="searchForm?.get('FromDate')?.value" 
+            [placeholder]="'Select From Date'" [applyFinYear]="'true'"
+            (dateInFormat)="setFromDate($event)" [class]="f.FromDate?.errors?.isValidDate">
+          </datepicker-popup>
+        </div>
+      </div>
+      <div class="col-md-3 form-group">
+        <div class="timepicker-input input-icon">
+          <datepicker-popup [toSetDate]="searchForm?.get('ToDate')?.value" [placeholder]="'Select To Date'"
+            (dateInFormat)="setToDate($event)" [class]="f.ToDate?.errors?.isValidDate" [applyFinYear]="'true'" >
+          </datepicker-popup>
+        </div>
+      </div>
+      <div class="form-group col-md-2 text-center">
+        <button type="submit" class="btn btn-primary waves-effect waves-light m-0">Search</button>
+      </div>
+      <div class="form-group col-md-2">
+        <button type="button" class="btn btn_close waves-effect m-0" (click)="resetSearch()">Reset</button>
+      </div>
+    </div>
+  </form>
+</div>

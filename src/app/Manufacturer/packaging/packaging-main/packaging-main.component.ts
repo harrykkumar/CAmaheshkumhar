@@ -1,4 +1,4 @@
-import { Component, ViewChild, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
+import { Component, ViewChild, ViewContainerRef } from '@angular/core';
 import { PackagingService } from '../packaging.service';
 import { ToastrCustomService } from '../../../commonServices/toastr.service';
 import { Settings } from '../../../shared/constants/settings.constant';
@@ -7,6 +7,8 @@ import { CommonService } from '../../../commonServices/commanmaster/common.servi
 import { UIConstant } from '../../../shared/constants/ui-constant';
 import * as _ from 'lodash';
 import { ManufacturingService } from '../../manufacturing.service';
+import { GlobalService } from '../../../commonServices/global.service';
+import { ExcelService } from '../../../commonServices/excel.service';
 declare const $: any;
 @Component({
   selector: 'packaging-main',
@@ -25,9 +27,12 @@ export class PackagingMainComponent {
   total: number = 0
   lastItemIndex: number = 0
   isSearching: boolean = true
+  noOfDecimal = 2
   @ViewChild('packagingaddcontainer', { read: ViewContainerRef }) entry: ViewContainerRef;
-  constructor (private _ps: PackagingService, private _ts: ToastrCustomService, private _ms: ManufacturingService,
-    private settings: Settings, private _cs: CommonService, private resolver: ComponentFactoryResolver) {
+  constructor (private _ps: PackagingService, private _ts: ToastrCustomService,
+    private _ms: ManufacturingService, private _gs: GlobalService, private excelService: ExcelService,
+    private settings: Settings, private _cs: CommonService) {
+    this.noOfDecimal = +this.settings.noOfDecimal
     this.clientDateFormat = this.settings.dateFormat;
     this.destroy$.push(this._ps.challanAdded$.subscribe(() => {
       this.getPacketsList()
@@ -53,6 +58,10 @@ export class PackagingMainComponent {
     }))
   }
 
+  openPacking () {
+    this._ms.openOP('', '')
+  }
+
   editOP(id) {
     this._ps.openEditOP(id)
   }
@@ -70,7 +79,7 @@ export class PackagingMainComponent {
     this.destroy$.push(this._ps.getPacketsList('?Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(
       (data) => {
         this.isSearching = false
-        this.packetLists = data
+        this.packetLists = data.OrderPacketWithBuyer
         this.total = this.packetLists[0].TotalRows
         this.packetLists.forEach((element) => {
           element['checked'] = false
@@ -82,6 +91,50 @@ export class PackagingMainComponent {
         this._ts.showError(error, '')
       }
     ))
+  }
+
+  orgDetails: any = {}
+  summary: any = {}
+  ExcelHeaders: any = []
+  getDataInExcel () {
+    this.destroy$.push(this._ps.getPacketsList('').subscribe(data => {
+      this.orgDetails ={
+        ImageContents:data.ImageContents,
+        AddressDetails:data.AddressDetails,
+        OrganizationDetails:data.OrganizationDetails
+      }
+      this.summary = ["Total", "", "", "", "", "", "", ""]
+        this.ExcelHeaders = [
+          'Sno.','Buyer Name','Buyer Code','No of Items','Order No.','Order Date','Packing Date','Total Qty'
+        ]
+        let datatoexport = []
+        data.OrderPacketWithBuyer.forEach((element, index) => {
+          element.OrderDate = this._gs.utcToClientDateFormat(element.OrderDate, this.clientDateFormat)
+          datatoexport.push([
+            index + 1,
+            element['BuyerName'],
+            element['Code'],
+            element['NoOfPackets'],
+            element['OrderNo'],
+            element['OrderDate'],
+            element['PackingDate'],
+            element['TotalQty']
+          ])
+        })
+        console.log(datatoexport)
+        if(datatoexport.length > 0) {
+          this.excelService.generateExcel(this.orgDetails.OrganizationDetails[0].OrgName,
+          this.orgDetails.AddressDetails[0].CityName + ' ' + 
+          this.orgDetails.AddressDetails[0].StateName + ' ' + 
+          this.orgDetails.AddressDetails[0].CountryName, this.ExcelHeaders,
+          datatoexport, 'Packet Order Report',
+          this._gs.utcToClientDateFormat(this.settings.finFromDate, this.clientDateFormat),
+          this._gs.getDefaultDate(this.clientDateFormat) ,this.summary)
+        }
+      },
+      (error) => {
+        this._ts.showError(error, '')
+      }))
   }
 
   activateChallanBtn () {
@@ -157,7 +210,6 @@ export class PackagingMainComponent {
     }))
   }
 
-  
   printInvoice(cmpName, isViewForm) {
     let title = document.title
     let divElements = document.getElementById(cmpName).innerHTML

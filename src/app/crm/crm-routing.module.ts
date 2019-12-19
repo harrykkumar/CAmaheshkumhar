@@ -14,6 +14,10 @@ const routes: Routes = [
       {
         path: 'follow-up',
         loadChildren: './follow-up-list/follow-up-list.module#FollowUpListModule'
+      },
+      {
+        path: 'dashboard',
+        loadChildren: './crm-dashboard/crm-dashboard.module#CrmDashboardModule'
       }
     ]
   },

@@ -255,7 +255,6 @@ export class serviceBillingAddComponent {
     private settings: Settings,
     private renderer: Renderer2,
     private gs: GlobalService) {
-    this.getFormDependency()
     this.commonService.openDiscountMasterStatus().subscribe(
       (data: AddCust) => {
         if (data.open === false && data && data.data) {
@@ -1114,6 +1113,8 @@ onLoading(){
   caseSaleArrayId:any =[]
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal () {
+    this.getFormDependency()
+
     this.onLoading()
     this.clearCaseCustomer()
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))

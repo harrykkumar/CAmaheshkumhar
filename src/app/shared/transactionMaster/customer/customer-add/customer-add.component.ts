@@ -387,6 +387,7 @@ export class CustomerAddComponent implements OnDestroy {
     this.cityValue= null
   }
   onloadingInit() {
+    this.contactPerson=''
     this.EmailAddress=''
     this.contactId = 0
     this.customerName=''
@@ -1139,7 +1140,7 @@ export class CustomerAddComponent implements OnDestroy {
     
     this.addressClick = true
     this.addressDetailsValidation()
-    if (this.stateId > 0 && this.cityId > 0 && this.countrId > 0 && this.adresss !== '') {
+    if (this.stateId > 0 && this.cityId > 0 && this.countrId > 0 && this.adresss !== '' && this.adresss !==null) {
       this.addressRequiredForLedger = false
       this.countryList.forEach(element => {
         if (element.id === JSON.parse(this.countrId)) {
@@ -1204,8 +1205,9 @@ export class CustomerAddComponent implements OnDestroy {
         })
       }
       this.addressClick = false
+      this.onloadingAddress()
     }
-    this.onloadingAddress()
+  
     this.adressType(0)
     setTimeout(() => {
       // this.countryselecto.selector.nativeElement.focus()
@@ -1235,7 +1237,7 @@ export class CustomerAddComponent implements OnDestroy {
     this.validmobileLength =Address.Length
     this.stateId=Address.StateId
     this.areaID = Address.AreaId
-    this.adresss = Address.addressValue
+    this.adresss = Address.AddressValue
     let country = {
       id: Address.CountryId,
       text: Address.CountryName
@@ -1300,7 +1302,7 @@ export class CustomerAddComponent implements OnDestroy {
   }
 
   postcode: any
-  adresss: any = ''
+  adresss: any 
 
 
   ngOnDestroy() {
@@ -1659,6 +1661,7 @@ export class CustomerAddComponent implements OnDestroy {
 
 
   }
+
   getListCountryLabelList(id){
     this._CommonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
       if(resp.Code===1000 && resp.Data.length>0){
@@ -1667,6 +1670,16 @@ export class CustomerAddComponent implements OnDestroy {
         this.GstinNoValue=resp.Data[0].GstinNo
         this.CinNoValue=resp.Data[0].CinNo
         this.FssiNoValue=resp.Data[0].FssiNo 
+        if(id!==123){
+          this.requiredGSTNumber=false
+          this.validGSTNumber =false
+          //this.validPANFlag = false
+        }
+        else{
+          this.requiredGSTNumber=true
+          this.validGSTNumber =true
+          //this.validPANFlag = true
+        }
       }
       
     })

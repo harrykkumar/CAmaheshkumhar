@@ -288,9 +288,28 @@ export class ItemAddComponent {
     })
     console.log('combo : ', this.combo)
   }
-
+  mobileSeriesNUmberOther:any =[]
+  createMobileIMEiNumber (seriesNumber) {
+    seriesNumber.forEach((element, index) => {
+      this.ItemPropertyTrans[index] = {
+        Id: element.Id,
+        ItemId: element.ItemId,
+        FieldValue1 :element.FieldValue1===null? '' :element.FieldValue1,
+        FieldValue2 :element.FieldValue2===null? '' :element.FieldValue2,
+        FieldValue3 :element.FieldValue3===null? '' :element.FieldValue3,
+        FieldValue4 :element.FieldValue4===null? '' :element.FieldValue4,
+        ItemTransId: element.ItemTransId,
+        ItemPropertyId: element.ItemPropertyId,
+        Sno: index + 1,
+        UnderTransId: element.Id
+      }
+    })
+  }
   createFormData(data) {
     this.openModal()
+    if(data && data.ItemPropertyTrans && data.ItemPropertyTrans.length>0){
+    this.createMobileIMEiNumber(data.ItemPropertyTrans)
+    }
     this.createAttributes(data.ItemAttributesTrans)
     this.createItems(data.ComboDetails)
     this.createItemStockAttribute(data.ItemBarCodeDetails);
@@ -345,10 +364,11 @@ export class ItemAddComponent {
       }, 1000)
     }
   }
-
+  industryId:any
   @ViewChild('itemname') itemname: ElementRef
   @ViewChild('barcode') barcode: ElementRef
   openModal() {
+    this.industryId = +this.settings.industryId
     this.initComp()
     $('#item_form').removeClass('fadeInUp')
     $('#item_form').addClass('fadeInDown')
@@ -500,6 +520,8 @@ export class ItemAddComponent {
     if (this.modeOfForm === 'new') {
       this.loading = true
     }
+    this.preQty =0
+    this.ItemPropertyTrans = []
     this.invalidObj = {}
     this.submitClick = false
     this.isBarCode = false
@@ -663,7 +685,9 @@ export class ItemAddComponent {
         ImageFiles: this.ImageFiles,
         ItemTransactions: this.Items,
         ItemAttributeTrans: this.ItemAttributeTrans,
-        ItemAttributewithRate: this.prepareItemAttributeStkPayloadToSave(this.ItemAttributewithRate)
+        ItemAttributewithRate: this.prepareItemAttributeStkPayloadToSave(this.ItemAttributewithRate),
+        ItemPropertyTrans: this.ItemPropertyTrans,
+
       } as ItemMasterAdd
     }
     return itemAddElement.obj
@@ -1238,4 +1262,64 @@ export class ItemAddComponent {
     })
     return data
   }
+  createMobilepopup (evt){
+    if ( this.CategoryId > 0 &&  this.OpeningStock >0 && this.UnitId>0 && this.industryId === 12) {
+      this.createMobileList(null)
+      $('#item_for_EmiNumber').modal(UIConstant.MODEL_SHOW)
+      this.propertRefValue.nativeElement.focus()
+     
+    }
+  }
+  closeIMEI() {
+    $('#item_for_EmiNumber').modal(UIConstant.MODEL_HIDE)
+    this.OpeningStockValueRef.nativeElement.focus()
+
+  }
+  getIMEIName (evt){
+
+  }
+@ViewChild('OpeningStockValueRef') OpeningStockValueRef :ElementRef
+@ViewChild('propertRef') propertRefValue :ElementRef
+  preQty: any = 0
+  imei_ID: any = 0
+  ItemPropertyTrans:any
+  createMobileList(propertyValue) {
+    console.log(propertyValue)
+    let Sno = 0
+      // if (this.Items.length === 0) {
+      //   Sno = 1
+      // } else {
+      //   Sno = this.Items[this.Items.length - 1].Sno + 1
+      // }
+    if (+this.OpeningStock > 0) {
+      if (+this.OpeningStock !== this.ItemPropertyTrans.length) {
+        let qty = this.OpeningStock - this.preQty
+        if (this.preQty > this.OpeningStock) {
+          this.ItemPropertyTrans = []
+          for (let i = 0; i < this.OpeningStock; i++) {
+            this.ItemPropertyTrans.push({
+              Id: 0,
+              //ItemTransId:Sno,
+              ItemPropertyId : 0,
+              UnderTransId :0
+            });
+          }
+        }
+        else {
+          for (let i = 0; i < qty; i++) {
+            this.ItemPropertyTrans.push({
+              Id: this.imei_ID,
+              multiplePropertyList:[],
+            //  ItemTransId:Sno,
+              ItemPropertyId : 0,
+              UnderTransId : 0
+            });
+          }
+        }
+        this.preQty = this.OpeningStock
+      }
+    }
+  }
+
+
 }

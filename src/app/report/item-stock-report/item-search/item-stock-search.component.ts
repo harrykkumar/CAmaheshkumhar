@@ -230,7 +230,7 @@ if(evt && evt.value>0){
     
     if (this.model.fromDatevalue) {
       this.model.formattedFromDatevalue = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
-      alert( this.model.formattedFromDatevalue)
+  
     }
     
 

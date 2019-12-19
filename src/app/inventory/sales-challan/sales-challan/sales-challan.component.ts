@@ -103,7 +103,6 @@ export class SalesChallanComponent implements OnInit {
     this.formSearch()
     this.StausValue=0
 
-    this.getLedgerItemList()
     this.dataStatus = [
       { id: '0', text: 'Running' },
       { id: '1', text: 'Canceled' },
@@ -147,17 +146,18 @@ export class SalesChallanComponent implements OnInit {
   }
   onOpenInvoice(id) {
     this._commonService.openInvoice(id)
-    //this.itemIdCollection = []
+  
   }
   allChallanNos: any
   onOpenChallanBilling() {
     this._commonService.openChallanBill(this.allChallanIds, this.allChallanNos)
-    //this.itemIdCollection = []
+   
   }
 
   toShowSearch = false
 
   toggleSearch() {
+    this.getLedgerItemList()
     this.toShowSearch = !this.toShowSearch
   }
   /* get sale travel Detail */

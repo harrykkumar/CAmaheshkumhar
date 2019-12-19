@@ -38,6 +38,7 @@ export class SaleDirectMainComponent {
   loading = true
   queryStr$: Subscription
   menuData: any;
+  imageForSignature:any
   constructor(public gs: GlobalService,
     public excelService: ExcelService,
     private route: ActivatedRoute,
@@ -48,6 +49,8 @@ export class SaleDirectMainComponent {
     private _formBuilder: FormBuilder,
     private _loginService: LoginService
     ) {
+    this.imageForSignature=''
+    this.orgImageData=''
     this.menuData = this._loginService.getMenuDetails(13, 9);
     this.getCurrentTime()
     this.industryId = +this.settings.industryId
@@ -227,7 +230,7 @@ export class SaleDirectMainComponent {
     this.queryStr$.unsubscribe()
     this.actionSubPrint.unsubscribe()
     this.actionSub.unsubscribe()
-   // this.redirectSub.unsubscribe()
+
 
   }
 
@@ -236,7 +239,7 @@ export class SaleDirectMainComponent {
   }
 
   openPurchase() {
-    this.saledirectAdd.initialiseExtras()
+   this.saledirectAdd.initialiseExtras()
     this.commonService.openPurchase('')
   }
   DiscountTrans: any = []
@@ -308,10 +311,14 @@ export class SaleDirectMainComponent {
 
         }
         if (data.Data.ImageContents.length > 0) {
-          _self.orgImageData = ''
-          _self.orgImageData = data.Data.ImageContents[0].FilePath
-        } else {
-          _self.orgImageData = ''
+          this.orgImageData =''
+          this.imageForSignature=''
+          if(data.Data &&  data.Data.ImageContents && data.Data.ImageContents[0] &&  data.Data.ImageContents[0].ClientType &&  data.Data.ImageContents[0].ClientType==='Org'){
+            _self.orgImageData = data.Data.ImageContents[0].FilePath
+          }
+          if(data.Data &&  data.Data.ImageContents &&  data.Data.ImageContents[1] && data.Data.ImageContents[1].ClientType &&  data.Data.ImageContents[1].ClientType==='Signature'){
+            _self.imageForSignature = data.Data.ImageContents[1].FilePath
+          }
         }
         if (data.Data && data.Data.ItemTransactions.length > 0) {
           _self.ItemTransactionactions = []
@@ -489,6 +496,7 @@ _self.printTypeFormateValue1(htmlId, isViewForm)
   PrintWithSave: any = 0
   PaymentDetailsFlag:any=1
   categoryShowOnPrint:any=1
+  SignatorySetup:any=0
   getSetUpModules(settings) {
     settings.forEach(element => {
       if (element.id === SetUpIds.printFormate) {
@@ -514,6 +522,9 @@ _self.printTypeFormateValue1(htmlId, isViewForm)
       }
       if (element.id === SetUpIds.categoryShowOnPrint) {
         this.categoryShowOnPrint = +element.val
+      }
+      if (element.id === SetUpIds.SignatorySetup) {
+        this.SignatorySetup = +element.val
       }
 
     })

@@ -6,7 +6,7 @@ import { Settings } from './../../shared/constants/settings.constant';
 import { UIConstant } from './../../shared/constants/ui-constant';
 import { ItemmasterServices } from './../../commonServices/TransactionMaster/item-master.services';
 import { ToastrCustomService } from './../../commonServices/toastr.service';
-import { Component, OnInit, ViewChild, Input, Output, SimpleChanges, OnChanges, EventEmitter, ElementRef, AfterViewInit, Renderer2, DoCheck } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, SimpleChanges, OnChanges, EventEmitter, ElementRef, AfterViewInit, Renderer2, DoCheck, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { Subject } from 'rxjs';
 import { CompanyProfileService } from './company-profile.service';
 import { takeUntil } from 'rxjs/operators';
@@ -19,15 +19,15 @@ import { TabsetComponent } from 'ngx-bootstrap';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { LoginService } from 'src/app/commonServices/login/login.services';
 import { TokenService } from 'src/app/commonServices/token.service';
-import { Alert } from 'selenium-webdriver';
-
-
+import { CropImageComponent } from './../../shared/image-cropper/image-cropper.component';
+import { DatepickerComponent } from 'src/app/shared/datepicker/datepicker.component';
 @Component({
   selector: 'app-company-profile',
   templateUrl: './company-profile.component.html',
   styleUrls: ['./company-profile.component.css']
 })
 export class CompanyProfileComponent implements OnInit {
+  @ViewChild('imageCropperContainerRef', { read: ViewContainerRef }) imageCropperContainerRef: ViewContainerRef;
   @ViewChild('addNewCityRef') addNewCityRefModel: AddNewCityComponent
   @ViewChild('addNewAreaRef') addNewAreaRefModel: AddNewAreaComponent
   @ViewChild('mobileDetailModel') mobileDetailModel
@@ -54,14 +54,21 @@ export class CompanyProfileComponent implements OnInit {
   @ViewChild('keyPersonNameRef') keyPersonNameRef: ElementRef
   @ViewChild('tinNumberRef') tinNumberRef: ElementRef
   @ViewChild('bankNameRef') bankNameRef: ElementRef
+  @ViewChild('subIndustryTypeSelect') subIndustryTypeSelect: Select2Component
+  @ViewChild('finSessionSelect') finSessionSelect: Select2Component
+  @ViewChild('mobileCodeRef') mobileCodeRef: Select2Component
   @Input() modalData: any;
   @Output() closeModal = new EventEmitter();
   private unSubscribe$ = new Subject<void>()
   imageList: any = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
+  imageFilesForSignature: any = { Name: '', BaseString: '', IsBaseImage: 0, Id: 0 };
   ImageFiles: any = []
+  SignatureImageFiles: any = []
   model: any = {}
   personalDetailModel: any = {}
   dummyData: any = {}
+  regxPAN = /^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$/;
+  regxGST = /^([0][1-9]|[1-2][0-9]|[3][0-7])([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$/;
   emailDetail: any = {}
   mobileDetail: any = {}
   editEmailDetailIndex: number = null
@@ -108,12 +115,15 @@ export class CompanyProfileComponent implements OnInit {
     private renderer: Renderer2,
     private spinnerService: NgxSpinnerService,
     private _loginService: LoginService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private resolver: ComponentFactoryResolver,
   ) {
+
     this.spinnerService.show()
     if (this._settings.dateFormat) {
       this.clientDateFormat = this._settings.dateFormat
     }
+    // this.bookStartDateRef.nativeElement.focus()
     this._settings.dateFormat = 'd-m-Y'
     this._route.paramMap.subscribe((parameters) => {
       this.editId = parameters.get('id');
@@ -125,7 +135,7 @@ export class CompanyProfileComponent implements OnInit {
       if (type === 'select2') {
         this[ref].selector.nativeElement.focus({ preventScroll: false })
       } else {
-        if(this[ref] && this[ref].nativeElement &&this[ref].nativeElement.focus()){
+        if (this[ref] && this[ref].nativeElement && this[ref].nativeElement.focus()) {
           this[ref].nativeElement.focus({ preventScroll: false })
 
         }
@@ -139,17 +149,43 @@ export class CompanyProfileComponent implements OnInit {
     $('#companyOrganisationModal').modal({ backdrop: 'static', keyboard: false })
     $('#companyOrganisationModal').modal(UIConstant.MODEL_SHOW)
     this.selectTab(0);
-    this.setFocus('companyNameReference');
+    //this.setFocus('companyNameReference');
     this.getListCountryLabelList(0)
 
-
     this.initDropDownData()
+    this.loadbank()
+
     this.getUploadedImages()
   }
 
-
+  loadbank() {
+    this.bankDetail = {
+      name: '',
+      accountNumber: '',
+      branch: '',
+      accountHolderName: this.personalDetail.companyName
+    }
+  }
   /* Function to initialise dropdown list data */
   initDropDownData = async () => {
+    this.imageFilesForSignature = {
+      Name: '',
+    }
+    this.GSTStateCode = 0
+    this.statutoryDetail.gstNo = ''
+    this.mobileDetail.mobileNo = ''
+    this.personalDetail = { companyName: '', selectedFinSession: { id: 0 } }
+
+    this.addressDetail = {
+      selectedState: {
+        id: 0
+      },
+      selectedCity: {
+        id: 0
+      }
+    }
+
+    this.addressDetail.address = ''
     this.personalDetail.mobileArray = []
     this.personalDetail.emailArray = []
     this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }]
@@ -167,6 +203,7 @@ export class CompanyProfileComponent implements OnInit {
     this.branchTypeList = await this._orgService.getBranchTypeList()
     this.countryList = await this._orgService.getCountryList()
     this.accMethodList = await this._orgService.getAccountingMethod()
+    this.personalDetailModel.accMethodId = this.accMethodList[1].id
     this.finSessionList = await this._orgService.getFinSessionList()
     this.getMobileCountryCodeList()
     this.getMobileTypeList()
@@ -218,6 +255,7 @@ export class CompanyProfileComponent implements OnInit {
   }
 
   setEndDataValue(month, session, year) {
+
     if (session > month) {
       this.dummyData.bookStartDateInvalid = false;
       let endDate = `${this.personalDetail.selectedFinSession.shortName}/${year}`
@@ -225,9 +263,9 @@ export class CompanyProfileComponent implements OnInit {
       this.personalDetail.bookEndDate = `${this.personalDetail.storedBookStartDate}--${endDate}`
     } else if (session === month) {
       this.personalDetail.bookStartDate = '';
-
       this.dummyData.bookStartDateInvalid = true;
       this.toastrService.showError('', 'Please Select another Book Start Month');
+      this.bookStartDateRef.inputElem.nativeElement.value = ''
     } else if (session < month) {
       this.dummyData.bookStartDateInvalid = false;
       const modifiedYear = year + 1
@@ -249,7 +287,7 @@ export class CompanyProfileComponent implements OnInit {
   }
 
   onFinSessionSelectionChange = (event) => {
-    if (event.data.length > 0) {
+    if (event.value > 0 && event.data.length > 0) {
       this.personalDetail.selectedFinSession = event.data[0]
       this.setEndDateOnSessionChange()
     }
@@ -279,7 +317,7 @@ export class CompanyProfileComponent implements OnInit {
       this.getKeyPersonTypeList(Number(event.value))
     }
   }
-  changeMasterStatutoraryList:any
+  changeMasterStatutoraryList: any
   /* Function invoke on country dropdown selection change */
   onCountrySelectionChange = (event) => {
     if (event.data.length > 0) {
@@ -292,28 +330,28 @@ export class CompanyProfileComponent implements OnInit {
       this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }];
     }
   }
-  countryId:any
-getListCountryLabelList(id){
-  this._orgService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
-    if(resp.Code===1000 && resp.Data.length>0){
-      this.TinNoValue=resp.Data[0].TinNo
-      this.PanNoValue=resp.Data[0].PanNo
-      this.countryId = id
-      this.GstinNoValue=resp.Data[0].GstinNo
-      this.CinNoValue=resp.Data[0].CinNo
-      this.FssiNoValue=resp.Data[0].FssiNo 
-    }
-    else{
+  countryId: any
+  getListCountryLabelList(id) {
+    this._orgService.COUNTRY_LABEL_CHANGE(id).subscribe(resp => {
+      if (resp.Code === 1000 && resp.Data.length > 0) {
+        this.TinNoValue = resp.Data[0].TinNo
+        this.PanNoValue = resp.Data[0].PanNo
+        this.countryId = id
+        this.GstinNoValue = resp.Data[0].GstinNo
+        this.CinNoValue = resp.Data[0].CinNo
+        this.FssiNoValue = resp.Data[0].FssiNo
+      }
+      else {
 
-      this.spinnerService.show()
-    }
-  })
-}
-TinNoValue:any
-PanNoValue:any
-GstinNoValue:any
-CinNoValue:any
-FssiNoValue:any
+        this.spinnerService.show()
+      }
+    })
+  }
+  TinNoValue: any
+  PanNoValue: any
+  GstinNoValue: any
+  CinNoValue: any
+  FssiNoValue: any
   getOneState(rsp) {
     let newdata = []
     newdata.push({
@@ -331,84 +369,140 @@ FssiNoValue:any
         takeUntil(this.unSubscribe$)
       ).
       subscribe((response: any) => {
-        // countryId: !_.isEmpty(this.addressDetail.selectedCountry) ? this.addressDetail.selectedCountry.id : 0,
         if (response.Code === UIConstant.THOUSAND && response.Data.length > 0) {
-          //  if(!_.isEmpty(this.addressDetail.selectedCountry)){
           this.addressDetail.selectedCountry.id = response.Data[0].CommonId
           this.addressDetail.selectedCountry.text = response.Data[0].CommonName
-          this.GSTStateCode = response.Data[0].ShortName1
           this.countrySelect.setElementValue(response.Data[0].CommonId)
-          let event = { value: response.Data[0].Id, data: [{ id: response.Data[0].Id, stateCode: response.Data[0].ShortName1 }] }
+          let event = {
+            value: response.Data[0].Id, data: [
+              {
+                id: response.Data[0].Id,
+                stateCode: response.Data[0].ShortName1,
+                text: response.Data[0].CommonDesc1
+              }]
+          }
           this.onStateSelectionChange(event)
+          this.GSTStateCode = response.Data[0].ShortName1
+          this.addressDetail.selectedState.text = response.Data[0].CommonDesc1
+          this.addressDetail.selectedState.stateCode = response.Data[0].ShortName1
+          this.addressDetail.stateCode = response.Data[0].ShortName1
           this.addressDetail.selectedState.id = response.Data[0].Id
           this.getOneState(response)
           this.matchStateCodeWithGSTNumber()
-          //}
-
-
-
         }
-        else {
-          //  countryId: !_.isEmpty(this.addressDetail.selectedCountry) ? this.addressDetail.selectedCountry.id : 0,
-          //this.addressDetail.selectedCountry.id =0
-          //this.addressDetail.selectedCountry.text =''
-          //this.addressDetail.selectedState.id=0
 
-        }
       })
   }
 
 
-  GstinNoCode: any
+  GstinNoCode: any = 0
   disabledStateCountry: boolean = false
-
-  checkGSTNumberByState(event) {
-    this.statutoryDetail.gstNo = event.target.value;
-    let str = this.statutoryDetail.gstNo
-    let val = str.trim();
-    this.GstinNoCode = val.substr(0, 2);
-    if (this.GstinNoCode !== '') {
-      this.getStateCode(this.GstinNoCode)
-      this.addressDetailArray.splice(0, 1)
-      this.RemoveAddressButtonFlag = true
-    }
-    else {
-      this.disabledStateCountry = false
-
-    }
-
-
-    //this.checkGSTNumberValid()
+  gstNumberRegxValidation(gstNumber) {
+    return this.regxGST.test(gstNumber)
   }
+  
+  checkGSTforCompany() {
+    
 
-  GSTStateCode: any
-  matchStateCodeWithGSTNumber() {
-    if (this.GSTStateCode > 0 && this.GstinNoCode !== '') {
-      if (this.GSTStateCode === this.GstinNoCode) {
-        return true
+    let valid = true
+    if (this.addressDetailArray.length > 0  ) {
+      if ((this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === '123') || (this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === 123)) {
+        if (_.isEmpty(this.statutoryDetail.gstNo)) {
+          valid = true
+        }
+        if (!_.isEmpty(this.statutoryDetail.gstNo)) {
+          if (!this.gstNumberRegxValidation(this.statutoryDetail.gstNo)) {
+            valid = false
+          }
+        }
       }
       else {
-        return false
+        valid = true
       }
-    } else {
+    }
+    else {
+      if (this.addressDetailArray.length === 0) {
+        if (_.isEmpty(this.statutoryDetail.gstNo)) {
+          valid = true
+        }
+        if (!_.isEmpty(this.statutoryDetail.gstNo)) {
+          if (!this.gstNumberRegxValidation(this.statutoryDetail.gstNo)) {
+            valid = false
+          }
+        }
+      }
+
+    }
+    return valid
+  }
+  checkGSTNumberByState() {
+    
+    if (this.checkGSTforCompany()) {
+      let str = this.statutoryDetail.gstNo
+      let val = str.trim();
+      this.GstinNoCode = val.substr(0, 2);
+      console.log(this.GstinNoCode, this.GSTStateCode)
+      if (!_.isEmpty(this.GstinNoCode)) {
+        if (this.GstinNoCode !== this.GSTStateCode) {
+          if (this.addressDetailArray.length > 0  ) {
+            if ((this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === '123') || (this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === 123)) {
+              this.addressDetailArray.splice(0, 1)
+              this.RemoveAddressButtonFlag = true
+            }
+          }
+        }
+        this.getStateCode(this.GstinNoCode)
+      }
+
+    }
+
+  }
+
+  GSTStateCode: any = 0
+  matchStateCodeWithGSTNumber() {
+
+    if (this.addressDetailArray.length > 0) {
+      if (this.personalDetail.selectedRegistrationType.id === '1' && ((this.addressDetailArray[0] && this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === '123') || (this.addressDetailArray[0] && this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === 123))) {
+        if (this.GSTStateCode > 0 && this.GstinNoCode !== '') {
+          if (this.GSTStateCode === this.GstinNoCode) {
+            return true
+          }
+          else {
+            return false
+          }
+        } else {
+          return true
+        }
+      } else {
+        return true
+      }
+    }
+    else {
       return true
     }
+
   }
 
   /* Function invoke on state dropdown selection change */
   onStateSelectionChange = (event) => {
-    if (event.data.length > 0) {
-      this.addressDetail.selectedState = event.data[0]
-      this.GSTStateCode = event.data[0].stateCode
+    console.log(event)
+    if (+event.value > 0) {
+      if (event.data.length > 0 && event.data[0].selected) {
+        this.addressDetail.selectedState = event.data[0]
+        this.GSTStateCode = event.data[0].stateCode
+        this.addressDetail.stateCode = this.GSTStateCode
+        this.addressDetail.selectedState.text = event.data[0].text
 
+      }
+      if (this.addressDetail.selectedState && this.addressDetail.selectedState.id > UIConstant.ZERO) {
+        this.getCityList(this.addressDetail.selectedState.id)
+      }
     }
-    if (this.addressDetail.selectedState && this.addressDetail.selectedState.id > UIConstant.ZERO) {
-      this.GSTStateCode = event.data[0].stateCode
-      this.getCityList(this.addressDetail.selectedState.id)
-    } else {
+    else {
       this.cityList = [
-        { id: 0, text: 'Select City' },
-        { id: -1, text: UIConstant.ADD_NEW_OPTION },]
+        { id: 0, text: 'Select City', stateCode: 0 },
+        { id: -1, text: UIConstant.ADD_NEW_OPTION, stateCode: 0 },]
+
     }
   }
 
@@ -436,6 +530,7 @@ FssiNoValue:any
 
   /* Function invoke on area dropdown selection change and assign new value */
   onAreaSelectionChange = (event) => {
+
     if (Number(event.value) === -1) {
       const data = {
         countryList: !_.isEmpty(this.countryList) ? [...this.countryList] : [],
@@ -445,8 +540,14 @@ FssiNoValue:any
       }
       this.addNewAreaRefModel.openModal(data);
     }
-    if (event.data.length > 0) {
+    if (event.value > 0 && event.data.length > 0) {
       this.addressDetail.selectedArea = event.data[0]
+    }
+    if (event.value === "0" || event.value === 0) {
+      this.addressDetail.selectedArea = {
+        id: 0,
+        text: ''
+      }
     }
   }
 
@@ -475,10 +576,13 @@ FssiNoValue:any
 
   /* Function invoke on click of close profile icon
       will close the dialog box and reset data */
-      PopUpemitCloseProfile (){
-        this.closeConfirmation()
-
-      }
+      confirmation_value:any
+  PopUpemitCloseProfile(type) {
+    if(type==='form'){
+      this.confirmation_value ='close this page'
+      this.closeConfirmation()
+    }
+  }
   emitCloseProfile(data?) {
     $('#companyOrganisationModal').modal(UIConstant.MODEL_HIDE)
     this.RemoveAddressButtonFlag = true
@@ -487,12 +591,12 @@ FssiNoValue:any
 
   /* Function to get all the state list */
   getStateList = (countryCode) => {
+
     this._orgService.getStateList(countryCode).
       pipe(
         takeUntil(this.unSubscribe$)
       ).
       subscribe((response: any) => {
-
         this.stateList = [{ id: UIConstant.ZERO, text: 'Select State' }, ...response]
         if (this.dummyData.stateCodeId) {
           this.model.stateCodeId = this.dummyData.stateCodeId
@@ -534,9 +638,6 @@ FssiNoValue:any
         }
       }, error => console.log(error))
   }
-
-
-
   /* Function to get all the key person type list */
   getKeyPersonTypeList = (organizationTypeId) => {
     this._orgService.getKeyPersonTypeList(organizationTypeId).
@@ -562,23 +663,31 @@ FssiNoValue:any
 
   /* Function to add new bank details */
   addNewbankDetail = () => {
-    if (this.editBankDetailIndex !== null) {
-      this.bankDetailArray[this.editBankDetailIndex] = { ...this.bankDetail }
-      this.editBankDetailIndex = null
-    } else {
-      if (_.isEmpty(this.bankDetailArray)) {
-        this.bankDetailArray = []
+    if (this.validation_bank()) {
+      if (this.editBankDetailIndex !== null) {
+        this.bankDetailArray[this.editBankDetailIndex] = { ...this.bankDetail }
+        this.editBankDetailIndex = null
+      } else {
+        if (_.isEmpty(this.bankDetailArray)) {
+          this.bankDetailArray = []
+        }
+        this.bankDetailArray = [...this.bankDetailArray, this.bankDetail]
       }
-      this.bankDetailArray = [...this.bankDetailArray, this.bankDetail]
+      if (this.personalDetail.companyName !== '') {
+        this.bankDetail.accountHolderName = this.personalDetail.companyName
+      }
+      this.loadbank()
+
+      this.bankFormModel.submitted = false
     }
-    this.bankDetail = {}
-    this.bankFormModel.submitted = false
   }
 
   /* Function to edit existing bank details */
   editBankData = (i) => {
     this.bankDetail = { ...this.bankDetailArray[i] }
     this.editBankDetailIndex = i
+ 
+
   }
 
   /* Function to remove existing bank details */
@@ -589,24 +698,36 @@ FssiNoValue:any
   RemoveAddressButtonFlag: boolean = true
   /* Function to add new address details */
   addNewAddress = () => {
-    this.RemoveAddressButtonFlag = false
+    
     if (this.editAddressDetailIndex !== null) {
-      this.addressDetailArray[this.editAddressDetailIndex] = { ...this.addressDetail }
+      if (this.addressDetail.selectedCity.id > 0 && (!_.isEmpty(this.addressDetail.address)) && this.addressDetail.address !== "" && this.addressDetail.selectedState.id > 0) {
+        this.RemoveAddressButtonFlag = false
 
-      this.editAddressDetailIndex = null
+        this.addressDetailArray[this.editAddressDetailIndex] = { ...this.addressDetail }
+        this.editAddressDetailIndex = null
+
+      }
     } else {
       if (_.isEmpty(this.addressDetailArray)) {
         this.addressDetailArray = []
       }
-      this.addressDetailArray = [...this.addressDetailArray, this.addressDetail]
+      if (this.addressDetail.selectedCity.id > 0 && (!_.isEmpty(this.addressDetail.address)) && this.addressDetail.address !== "" && this.addressDetail.selectedState.id > 0) {
+        this.RemoveAddressButtonFlag = false
+        this.addressDetailArray = [...this.addressDetailArray, this.addressDetail]
+      }
+
     }
     this.addressDetail = {
       selectedAddressType: this.addressTypeList[0].id,
+      id: 0,
+      Id: 0,
       AddressTypeName: '',
       postalCode: '',
+      stateCode: 0,
       address: '',
-      selectedCountry: { id: 0, text: '' },
-      selectedState: { id: 0, text: '' },
+      selectedCountry: { id: 0, text: '', stateCode: 0 },
+      selectedCity: { id: 0, text: '' },
+      selectedState: { id: 0, text: '', stateCode: 0 },
       selectedArea: { id: 0, text: '' }
     }
     this.model.countryCodeId = 0
@@ -615,14 +736,24 @@ FssiNoValue:any
     this.model.areaId = 0
     this.addressFormModel.submitted = false
     this.selectTab(3);
+    //this.gstNo_refValue.nativeElement.focus()
+
+
+
   }
 
   /* Function to edit existing address details */
   editAddress = (i) => {
     this.addressDetail = { ...this.addressDetailArray[i] }
     this.model.countryCodeId = this.addressDetailArray[i].selectedCountry.id
-    this.dummyData.areaId = this.addressDetailArray[i].selectedArea.id
+    if (this.addressDetailArray[i] && this.addressDetailArray[i].selectedArea && this.addressDetailArray[i].selectedArea.id) {
+      this.dummyData.areaId = this.addressDetailArray[i].selectedArea.id
+    } else {
+      this.dummyData.areaId = 0
+    }
     this.dummyData.stateCodeId = this.addressDetailArray[i].selectedState.id
+    // this.dummyData.stateCode = this.addressDetailArray[i].selectedState.id
+
     this.dummyData.cityCodeId = this.addressDetailArray[i].selectedCity.id
     this.editAddressDetailIndex = i
     this.addressDetailArray.splice(i, 1)
@@ -638,6 +769,7 @@ FssiNoValue:any
 
   /* Function to add new key person details */
   addNewKeyPerson = () => {
+
     if (this.editKeyPersonDetailIndex !== null) {
       this.keyPersonDetailArray[this.editKeyPersonDetailIndex] = { ...this.keyPersonDetail }
       this.editKeyPersonDetailIndex = null
@@ -737,11 +869,21 @@ FssiNoValue:any
     }
     return valid
   }
-
+  panNumberRegxValidation(panNumber) {
+    return this.regxPAN.test(panNumber)
+  }
   /* Function to validate key person details */
   validateKeyPersonDetail = () => {
     let valid = true
-    if (!_.isEmpty(this.keyPersonDetail.keyPersonMobileCountryCode) && Number(this.keyPersonDetail.keyPersonMobileCountryCode.id) === 0) {
+    if (_.isEmpty(this.keyPersonDetail.panNo)) {
+      valid = true
+    }
+    else {
+      if (!this.panNumberRegxValidation(this.keyPersonDetail.panNo)) {
+        valid = false
+      }
+    }
+    if (this.keyPersonDetail.keyPerson === '' || this.keyPersonDetail.keyPerson === null) {
       valid = false
     }
     if (!_.isEmpty(this.keyPersonDetail.selectedKeyPersonType) && Number(this.keyPersonDetail.selectedKeyPersonType.id) === 0) {
@@ -763,6 +905,9 @@ FssiNoValue:any
       valid = false
     }
     if (!_.isEmpty(this.addressDetail.selectedCity) && Number(this.addressDetail.selectedCity.id) === 0) {
+      valid = false
+    }
+    if (_.isEmpty(this.addressDetail.address) && this.addressDetail.addres == "") {
       valid = false
     }
     if (!_.isEmpty(this.addressDetail.selectedAddressType) && Number(this.addressDetail.selectedAddressType.id) === 0) {
@@ -806,13 +951,17 @@ FssiNoValue:any
   removeEmailDetail = (index) => {
     this.personalDetail.emailArray.splice(index, 1)
   }
-
+  //  this.addressDetailArray.splice(0, 1)
+  //  this.addressDetail.splice(0, 1)
   /* Function to prepare prepare the request payload data for post */
   prepareSavePayload = () => {
+    console.log(this.addressDetailArray, 'address-payload')
     const addressArray = _.map(this.addressDetailArray, (address) => {
       return {
-        Id: address.id ? address.id : 0,
+        // Id: address.id ? address.id : 0,
+        Id: !_.isEmpty(address.id) ? address.id : 0,
         AddressValue: address.address,
+        stateCode: address.stateCode,
         AddressType: address.selectedAddressType,
         CountryId: address.selectedCountry.id,
         StateId: address.selectedState.id,
@@ -848,7 +997,7 @@ FssiNoValue:any
         Name: item.name,
         Branch: item.branch,
         AcNo: item.accountNumber,
-        AccountHolderName:item.accountHolderName,
+        AccountHolderName: item.accountHolderName,
         ParentTypeId: 5,
         Ifsccode: item.ifscCode,
         MicrNo: item.micrNo
@@ -908,39 +1057,65 @@ FssiNoValue:any
       ContactPersons: keyPersonArray,
       Statutories: statutoriesArray,
       Banks: bankArray,
-      ImageFiles: this.ImageFiles
+      ImageFiles: this.ImageFiles,
+      SignatureImageFiles: [this.imageFilesForSignature]
     }
+  }
+  dynamicKeyPersonFocus() {
+
   }
 
   /* Function to save the profile */
   saveOrgProfile = () => {
-   if(!this.validateForm()){
-    this.dynamicFocusValidation()
-   }
-   else{
-   this.spinnerService.show();
-    const data = this.prepareSavePayload()
-    this._orgService.saveCompanyProfile(data).subscribe(
-      (Data: any) => {
-        if (Data.Code === UIConstant.THOUSAND) {
-          this.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
-          if (!this.modalData.editId) {
-            this.navigateToSetting(Data.Data);
-          } else {
-            this.emitCloseProfile(Data.Data);
-            this.spinnerService.hide()
-          }
-        } else {
-          this.toastrService.showError('', Data.Message)
-          this.spinnerService.hide()
+    if (this.validateKeyPersonDetail()) {
+      this.addNewKeyPerson()
+    }
+    if (this.validateAddressDetail()) {
+      this.addNewAddress()
+    }
+    this.checkGSTNumberByState()
+    if (!this.checkForValidation()) {
+      this.dynamicFocus()
+
+    }
+
+    else {
+      if(this.checkGSTforCompany()){
+        if (this.matchStateCodeWithGSTNumber()) {
+          this.spinnerService.show();
+          const data = this.prepareSavePayload()
+          this._orgService.saveCompanyProfile(data).subscribe(
+            (Data: any) => {
+              if (Data.Code === UIConstant.THOUSAND) {
+                this.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
+                if (!this.modalData.editId) {
+                  this.navigateToSetting(Data.Data);
+                } else {
+                  this.emitCloseProfile(Data.Data);
+                  this.spinnerService.hide()
+                }
+              } else {
+                this.toastrService.showError('', Data.Message)
+                this.spinnerService.hide()
+              }
+            }, error => {
+              console.log(error)
+              this.toastrService.showError('', 'error in profile save')
+              this.spinnerService.hide()
+            }
+          )
         }
-      }, error => {
-        console.log(error)
-        this.toastrService.showError('', 'error in profile save')
-        this.spinnerService.hide()
+        else {
+          this.toastrService.showError('', 'Your ' + this.GstinNoValue + ' invalid with  selected state')
+  
+        }
+      }else{
+        this.toastrService.showError('', 'Invalid GST number')
+
       }
-    )
-   }
+      
+
+    }
 
   }
 
@@ -960,7 +1135,7 @@ FssiNoValue:any
           this._loginService.selectedOrganization = _.find(this._loginService.organizationList, { Id: Id });
           localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this._loginService.selectedOrganization))
           this.emitCloseProfile(data)
-          this.router.navigate(['organization/settings/setup']);
+          this.router.navigate(['/organization/menu-setting', '0']);
         }
       })
   }
@@ -984,54 +1159,75 @@ FssiNoValue:any
     this.imageList = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
     if (!_.isEmpty(profileData) && profileData.ImageFiles.length > 0) {
       profileData.ImageFiles.forEach(element => {
-        this.imageList['queue'].push(element.Name)
-        this.imageList['images'].push(element.FilePath)
-        this.imageList['baseImages'].push(0)
-        this.imageList['id'].push(element.Id)
+        if(element.Type==='Image'){
+          this.imageList['queue'].push(element.Name)
+          this.imageList['images'].push(element.FilePath)
+          this.imageList['baseImages'].push(0)
+          this.imageList['id'].push(element.Id)
+        }
+        if(element.Type==='Signature'){
+          this.imageFilesForSignature = {
+            Name: element.Name,
+            BaseString: element.FilePath,
+            IsBaseImage: 0,
+            Id: element.Id 
+          };
+        }
+      
       })
       this.createImageFiles();
     }
+
+    this.bankDetail.accountHolderName = profileData.OrganisationDetails[0].Name
     this.addressDetail = {
       selectedAddressType: this.addressTypeList[0].id,
       AddressTypeName: '',
       postalCode: '',
+      stateCode: 0,
       address: '',
       selectedCountry: { id: 0, text: '' },
+      selectedCity: { id: 0, text: '' },
       selectedState: { id: 0, text: '' },
       selectedArea: { id: 0, text: '' }
     }
-    this.addressDetailArray = _.map(profileData.AddressesDetails, (item) => {
-      return {
-        id: item.Id,
-        postalCode: item.PostCode,
-        address: item.AddressValue,
-        selectedAddressType: item.AddressType,
-        addressTypeName: item.AddressTypeName,
-        selectedCountry: {
-          id: item.CountryId,
-          text: item.CountryName
-        },
-        selectedState: {
-          id: item.StateId,
-          text: item.Statename
-        },
-        selectedCity: {
-          id: item.CityId,
-          text: item.CityName
-        },
-        selectedArea: {
-          id: item.AreaId,
-          text: item.AreaName
-        }
-      }
-    })
 
+    if (profileData.AddressesDetails.length > 0) {
+      this.RemoveAddressButtonFlag = false
+       this.GSTStateCode= profileData.AddressesDetails[0].ShortNameState
+      this.addressDetailArray = _.map(profileData.AddressesDetails, (item) => {
+        return {
+          id: item.Id,
+          postalCode: item.PostCode,
+          stateCode: item.ShortNameState ,
+          address: item.AddressValue,
+          selectedAddressType: item.AddressType,
+          addressTypeName: item.AddressTypeName,
+          AddressTypeName: item.AddressTypeName,
+          selectedCountry: {
+            id: item.CountryId,
+            text: item.CountryName
+          },
+          selectedState: {
+            id: item.StateId,
+            text: item.Statename
+          },
+          selectedCity: {
+            id: item.CityId,
+            text: item.CityName
+          },
+          selectedArea: {
+            id: item.AreaId,
+            text: item.AreaName
+          }
+        }
+      })
+    }
     this.bankDetailArray = _.map(profileData.Banks, (item) => {
       return {
         id: item.Id,
         name: item.Name,
         accountNumber: item.AcNo,
-        accountHolderName:item.AccountHolderName,
+        accountHolderName: item.AccountHolderName,
         branch: item.Branch,
         ifscCode: item.IfscCode,
         micrNo: item.MicrNo
@@ -1050,7 +1246,7 @@ FssiNoValue:any
         cinNo: statutory.CinNo,
         fassiNo: statutory.FssiNo
       }
-      this.personalDetailModel.accMethodId = 0
+      // this.personalDetailModel.accMethodId = 0
     }
 
     const emailArray = _.map(profileData.Emails, (item) => {
@@ -1127,15 +1323,7 @@ FssiNoValue:any
     if (valid && !_.isEmpty(this.personalDetail.selectedRegistrationType) && Number(this.personalDetail.selectedRegistrationType.id) === 0) {
       valid = false
     }
-    if (valid && this.personalDetail.mobileArray.length === 0) {
-      valid = false
-    }
-    if (valid && this.personalDetail.emailArray.length === 0) {
-      valid = false
-    }
-    if (valid && this.keyPersonDetailArray.length === 0) {
-      valid = false
-    }
+
     if (valid && this.addressDetailArray.length === 0) {
       valid = false
     }
@@ -1148,13 +1336,49 @@ FssiNoValue:any
   openImageModal() {
     this.itemMaster.openImageModal(this.imageList)
   }
-
+  imageCropperRef: any;
+  confirmation_signature (type){
+      if(type==='IMAGE'){
+        this.confirmation_value ='upload new signature'
+        this.closeConfirmation()
+      }
+  }
+  openSignatureImageModal(event,local,type) {
+    // if( this.imageFilesForSignature && this.imageFilesForSignature.Name!==''){
+    //   if(type==='IMAGE'){
+    //     this.confirmation_value ='upload new signature'
+    //     this.closeConfirmation()
+    //   }
+    // }
+    
+    console.log(event)
+    if (!_.isEmpty(event)) {
+      this.imageCropperContainerRef.clear();
+      const factory = this.resolver.resolveComponentFactory(CropImageComponent);
+      this.imageCropperRef = this.imageCropperContainerRef.createComponent(factory);
+      this.imageCropperRef.instance.fileChangeEvent(event);
+      this.imageCropperRef.instance.closeModal.subscribe(
+        (data) => {
+          this.imageCropperRef.destroy();
+          if (data) {
+            const file = event.target.files[0];
+            this.imageFilesForSignature = {
+              Name: file.name,
+              BaseString: data,
+              IsBaseImage: 1,
+              Id: (!_.isEmpty(this.imageFilesForSignature) && this.imageFilesForSignature.Id) ? this.imageFilesForSignature.Id : 0,
+            };
+          }
+        });
+    }
+  }
   getUploadedImages = () => {
     this.itemMaster.imageAdd$.subscribe((response) => {
       this.imageList = response;
       this.createImageFiles()
     })
   }
+
 
   removeImage = (index) => {
     _.forIn(this.imageList, (value) => {
@@ -1165,19 +1389,23 @@ FssiNoValue:any
     this.createImageFiles()
   }
 
+  //SignatureImageFiles
   createImageFiles() {
     let ImageFiles = []
     if (!_.isEmpty(this.imageList)) {
       for (let i = 0; i < this.imageList['images'].length; i++) {
-        let obj = { Name: this.imageList['queue'][i],
-         BaseString: this.imageList['images'][i],
-         IsBaseImage: this.imageList['baseImages'][i],
-          Id: this.imageList['id'][i] ? this.imageList['id'][i] : 0 }
+        let obj = {
+          Name: this.imageList['queue'][i],
+          BaseString: this.imageList['images'][i],
+          IsBaseImage: this.imageList['baseImages'][i],
+          Id: this.imageList['id'][i] ? this.imageList['id'][i] : 0
+        }
         ImageFiles.push(obj)
       }
       this.ImageFiles = ImageFiles
     }
   }
+
 
   ngOnDestroy(): void {
     this.unSubscribe$.next()
@@ -1246,36 +1474,389 @@ FssiNoValue:any
       this.organizationTab.tabs[tabId].active = true;
     }
   }
-
+  nameForAccountHolder(name) {
+    this.bankDetail.accountHolderName = (name)
+  }
   dynamicFocusValidation() {
-   // this.validateForm()
-    if (  this.addressDetailArray.length===0) {
-        this.selectTab(2);
-        this.setFocus('countrySelect');
+    // this.validateForm()
+    if (this.addressDetailArray.length === 0) {
+      this.selectTab(2);
+      this.setFocus('countrySelect');
     }
-    if (this.personalDetail.selectedRegistrationType.id ==='1' && ( this.statutoryDetail.gstNo ===undefined || this.statutoryDetail.gstNo ==="")) {
-        this.selectTab(3);
-        this.setFocus('countrySelect');
+    if (this.personalDetail.selectedRegistrationType.id === '1' && (this.statutoryDetail.gstNo === undefined || this.statutoryDetail.gstNo === "")) {
+      this.selectTab(3);
+      this.setFocus('countrySelect');
     }
-    if ( this.keyPersonDetailArray.length===0) {
-        this.selectTab(1);
-        this.setFocus('keyPersonNameRef');
+    if (this.keyPersonDetailArray.length === 0) {
+      this.selectTab(1);
+      this.setFocus('keyPersonNameRef');
     }
-    if( this.personalDetail.mobileArray.length===0) {
+    if (this.personalDetail.mobileArray.length === 0) {
       this.selectTab(0);
-     this.setFocus('companyNameReference');
+      this.setFocus('companyNameReference');
     }
-    if( this.personalDetail.emailArray.length===0) {
+    if (this.personalDetail.emailArray.length === 0) {
       this.selectTab(0);
-     this.setFocus('companyNameReference');
+      this.setFocus('companyNameReference');
     }
   }
   yesConfirmationClose(data) {
     $('#close_confirm_orgnization').modal(UIConstant.MODEL_HIDE)
-   this.emitCloseProfile(data)
-    
+    this.emitCloseProfile(data)
+
   }
   closeConfirmation() {
     $('#close_confirm_orgnization').modal(UIConstant.MODEL_SHOW)
   }
+  validObj: any = {}
+
+  @ViewChild('org_mobileNo_ref') org_mobileNo_ref: ElementRef
+  @ViewChild('bookStartDateRef') bookStartDateRef: DatepickerComponent
+
+  dynamicFocus() {
+    if (this.addressDetailArray.length > 0 && (this.personalDetail.companyName === ''
+      || this.personalDetail.selectedIndustryType.id === 0
+      || this.personalDetail.selectedSubIndustry.id === 0
+      || this.personalDetail.selectedRegistrationType.id === 0
+      || this.personalDetail.selectedBranchType.id === 0
+      || this.personalDetail.bookStartDate === ''
+      || this.personalDetail.selectedFinSession.id === 0)) {
+      this.selectTab(0);
+    }
+    if ((this.personalDetail.mobileArray.length === 0 && this.addressDetailArray.length === 0) || (this.addressDetailArray.length > 0 && this.personalDetail.mobileArray.length === 0)) {
+      this.selectTab(0);
+    }
+    // if( this.personalDetail.emailArray.length===0 && this.addressDetailArray.length>0) {
+    //   this.selectTab(0);
+    // }
+    if (this.personalDetail.companyName !== '') {
+      this.validObj['companyName_Falg'] = false
+    } else {
+      this.validObj['companyName_Falg'] = true
+      this.companyNameReference.nativeElement.focus()
+    }
+    if (this.personalDetail.selectedIndustryType.id > 0) {
+      this.validObj['typeOfIndustry_Falg'] = false
+    } else if (!this.validObj.companyName_Falg) {
+      this.validObj['typeOfIndustry_Falg'] = true
+      this.industryTypeSelect.selector.nativeElement.focus({ preventScroll: false })
+    }
+    if (this.personalDetail.selectedSubIndustry.id > 0) {
+      this.validObj['typeOfSubIndustry_Falg'] = false
+    } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg) {
+      this.validObj['typeOfSubIndustry_Falg'] = true
+      this.subIndustryTypeSelect.selector.nativeElement.focus({ preventScroll: false })
+    }
+    if (this.personalDetail.selectedRegistrationType.id > 0) {
+      this.validObj['selectedRegistrationType_Falg'] = false
+    } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg) {
+      this.validObj['selectedRegistrationType_Falg'] = true
+      this.registrationTypeSelect.selector.nativeElement.focus({ preventScroll: false })
+    }
+    if (this.personalDetail.selectedBranchType.id > 0) {
+      this.validObj['selectedBranchType_flag'] = false
+    } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg) {
+      this.validObj['selectedBranchType_flag'] = true
+      this.branchTypeSelect.selector.nativeElement.focus({ preventScroll: false })
+    }
+    if (this.personalDetail.bookStartDate !== '') {
+      this.validObj['bookStartDate'] = false
+    } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg && !this.validObj.selectedBranchType_flag) {
+      this.validObj['bookStartDate'] = true
+      this.bookStartDateRef.inputElem.nativeElement.focus()
+      //this.book    
+    }
+    if (this.personalDetail.selectedFinSession.id > 0) {
+      this.validObj['selectedFinSession'] = false
+    } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg && !this.validObj.selectedBranchType_flag && !this.validObj.bookStartDate) {
+      this.validObj['selectedFinSession'] = true
+      this.finSessionSelect.selector.nativeElement.focus({ preventScroll: false })
+    }
+    if (this.emailDetail.selectedEmailType > 0) {
+      this.validObj['emailDetail_selectedEmailType'] = false
+    } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg && !this.validObj.selectedBranchType_flag && !this.validObj.bookStartDate && !this.validObj.selectedFinSession) {
+      this.validObj['emailDetail_selectedEmailType'] = true
+      this.mobileCodeRef.selector.nativeElement.focus({ preventScroll: false })
+    }
+
+    if (this.mobileDetail.selectedMobileCountryCode.id > 0) {
+      this.validObj['mobileDetail_selectedMobileCountryCode'] = false
+    } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg && !this.validObj.selectedBranchType_flag && !this.validObj.bookStartDate && !this.validObj.selectedFinSession && !this.validObj.emailDetail_selectedEmailType) {
+      this.validObj['mobileDetail_selectedMobileCountryCode'] = true
+      this.mobileCountryCodeSelect.selector.nativeElement.focus({ preventScroll: false })
+    }
+    if (this.mobileDetail.mobileNo !== '') {
+      this.validObj['mobileDetail_mobileNo'] = false
+    } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg && !this.validObj.selectedBranchType_flag && !this.validObj.bookStartDate && !this.validObj.selectedFinSession && !this.validObj.emailDetail_selectedEmailType && !this.validObj.mobileDetail_selectedMobileCountryCode) {
+      this.validObj['mobileDetail_mobileNo'] = true
+      this.org_mobileNo_ref.nativeElement.focus()
+    }
+    if (this.personalDetail.companyName !== ''
+      && this.personalDetail.selectedIndustryType.id !== 0
+      && this.personalDetail.selectedSubIndustry.id !== 0
+      && this.personalDetail.selectedRegistrationType.id !== 0
+      && this.personalDetail.selectedBranchType.id !== 0
+      && this.personalDetail.bookStartDate !== '' && this.personalDetail.mobileArray.length > 0
+      && this.personalDetail.selectedFinSession.id !== 0 && this.addressDetailArray.length === 0) {
+      this.selectTab(2);
+      if (this.addressDetail.selectedCountry.id > 0) {
+        this.validObj['addressDetail_selectedCountry_flag'] = false
+      } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg && !this.validObj.selectedBranchType_flag && !this.validObj.bookStartDate && !this.validObj.selectedFinSession) {
+        this.validObj['addressDetail_selectedCountry_flag'] = true
+        this.countrySelect.selector.nativeElement.focus({ preventScroll: false })
+      }
+      if (this.addressDetail.selectedState.id > 0) {
+        this.validObj['addressDetail_selectedState_flag'] = false
+      } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg && !this.validObj.selectedBranchType_flag
+        && !this.validObj.bookStartDate && !this.validObj.selectedFinSession && !this.validObj.addressDetail_selectedCountry_flag) {
+        this.validObj['addressDetail_selectedState_flag'] = true
+        this.stateSelect.selector.nativeElement.focus({ preventScroll: false })
+      }
+      if (this.addressDetail.selectedCity.id > 0) {
+        this.validObj['addressDetail_selectedCity_flag'] = false
+      } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg &&
+        !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg &&
+        !this.validObj.selectedBranchType_flag && !this.validObj.bookStartDate &&
+        !this.validObj.selectedFinSession && !this.validObj.addressDetail_selectedCountry_flag && !this.validObj.addressDetail_selectedState_flag) {
+
+        this.validObj['addressDetail_selectedCity_flag'] = true
+        this.citySelect.selector.nativeElement.focus({ preventScroll: false })
+      }
+      if (this.addressDetail.selectedAddressType > 0) {
+        this.validObj['addressDetail_selectedAddressType_flag'] = false
+      } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg && !this.validObj.selectedBranchType_flag && !this.validObj.bookStartDate
+        && !this.validObj.selectedFinSession && !this.validObj.addressDetail_selectedCountry_flag && !this.validObj.addressDetail_selectedState_flag && !this.validObj.addressDetail_selectedCity_flag) {
+
+        this.validObj['addressDetail_selectedAddressType_flag'] = true
+        this.addressTypeSelect.selector.nativeElement.focus({ preventScroll: false })
+      }
+      if (this.addressDetail.address !== '') {
+        this.validObj['addressDetail_address_flag'] = false
+      } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg && !this.validObj.selectedBranchType_flag && !this.validObj.bookStartDate &&
+        !this.validObj.selectedFinSession && !this.validObj.addressDetail_selectedCountry_flag && !this.validObj.addressDetail_selectedState_flag && !this.validObj.addressDetail_selectedCity_flag && !this.validObj.addressDetail_selectedAddressType_flag) {
+        this.validObj['addressDetail_address_flag'] = true
+        this.addressValue.nativeElement.focus()
+      }
+    }
+    if (this.personalDetail.companyName !== ''
+      && this.personalDetail.selectedIndustryType.id !== 0
+      && this.personalDetail.selectedSubIndustry.id !== 0
+      && this.personalDetail.selectedRegistrationType.id !== 0
+      && this.personalDetail.selectedBranchType.id !== 0
+      && this.personalDetail.bookStartDate !== '' && this.personalDetail.mobileArray.length > 0
+      && this.personalDetail.selectedFinSession.id !== 0 && this.statutoryDetail.gstNo === ''&& this.personalDetail.selectedRegistrationType.id === '1') {
+        if (this.addressDetailArray.length > 0) {
+          if (((this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === '123') || (this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === 123))) {
+            this.selectTab(3);
+            this.validObj['gstNo_ref_flag'] = false
+            this.gstNo_refValue.nativeElement.focus()
+
+          }
+        }
+     
+    }
+
+  }
+  @ViewChild('accountHolderNameRef') accountHolderNameRef: ElementRef
+  @ViewChild('accountNumberRef') accountNumberRef: ElementRef
+  @ViewChild('bankbranchRef') bankbranchRef: ElementRef
+
+  validation_bank() {
+    let isValid = 1
+    {
+      if (this.bankDetail.name !== '') {
+        this.validObj['bankName_flag'] = false
+      } else {
+        this.validObj['bankName_flag'] = true
+        this.bankNameRef.nativeElement.focus()
+        isValid = 0
+      }
+      if (this.bankDetail.accountHolderName !== '') {
+        this.validObj['accountHolderName_flag'] = false
+      } else if (!this.validObj.bankName_flag) {
+        this.validObj['accountHolderName_flag'] = true
+        this.accountHolderNameRef.nativeElement.focus()
+        isValid = 0
+      }
+      if (this.bankDetail.accountNumber !== '') {
+        this.validObj['accountNumber_flag'] = false
+      } else if (!this.validObj.bankName_flag && !this.validObj.accountHolderName_flag) {
+        this.validObj['accountNumber_flag'] = true
+        this.accountNumberRef.nativeElement.focus()
+        isValid = 0
+      }
+      if (this.bankDetail.branch !== '') {
+        this.validObj['bankbranch_flag'] = false
+      } else if (!this.validObj.bankName_flag && !this.validObj.accountHolderName_flag && !this.validObj.accountNumber_flag) {
+        this.validObj['bankbranch_flag'] = true
+        this.bankbranchRef.nativeElement.focus()
+        isValid = 0
+      }
+      return !!isValid
+    }
+  }
+  @ViewChild('gstNo_ref') gstNo_refValue: ElementRef
+  @ViewChild('addressValue') addressValue: ElementRef
+  checkForValidation() {
+    let isValid = 1
+    //1 orgnization details
+    {
+      if (this.personalDetail.companyName !== '') {
+        this.validObj['companyName_Falg'] = false
+      } else {
+        this.validObj['companyName_Falg'] = true
+        isValid = 0
+      }
+      if (this.personalDetail.selectedIndustryType.id > '0') {
+        this.validObj['typeOfIndustry_Falg'] = false
+      } else {
+        this.validObj['typeOfIndustry_Falg'] = true
+        isValid = 0
+      }
+      if (this.personalDetail.selectedSubIndustry.id > '0') {
+        this.validObj['typeOfSubIndustry_Falg'] = false
+      } else {
+        this.validObj['typeOfSubIndustry_Falg'] = true
+        isValid = 0
+      }
+      if (this.personalDetail.selectedRegistrationType.id > '0') {
+        this.validObj['selectedRegistrationType_Falg'] = false
+      } else {
+        this.validObj['selectedRegistrationType_Falg'] = true
+        isValid = 0
+      }
+      if (this.personalDetail.selectedBranchType.id > '0') {
+        this.validObj['selectedBranchType_flag'] = false
+      } else {
+        this.validObj['selectedBranchType_flag'] = true
+        isValid = 0
+      }
+      if (this.personalDetail.bookStartDate !== '') {
+        this.validObj['bookStartDate'] = false
+      } else {
+        this.validObj['bookStartDate'] = true
+        isValid = 0
+      }
+      if (this.personalDetail.selectedFinSession.id > '0') {
+        this.validObj['selectedFinSession'] = false
+      } else {
+        this.validObj['selectedFinSession'] = true
+        isValid = 0
+      }
+      if (this.addressDetail.selectedCountry.id > '0' || this.addressDetailArray.length > 0) {
+        this.validObj['addressDetail_selectedCountry_flag'] = false
+      } else {
+        this.validObj['addressDetail_selectedCountry_flag'] = true
+        isValid = 0
+      }
+      if (this.addressDetail.selectedState.id > 0 || this.addressDetailArray.length > 0) {
+        this.validObj['addressDetail_selectedState_flag'] = false
+      } else {
+        this.validObj['addressDetail_selectedState_flag'] = true
+        isValid = 0
+      }
+      if ((this.addressDetail && this.addressDetail.selectedCity && this.addressDetail.selectedCity.id > 0) || this.addressDetailArray.length > 0) {
+        this.validObj['addressDetail_selectedCity_flag'] = false
+      } else {
+        this.validObj['addressDetail_selectedCity_flag'] = true
+        isValid = 0
+      }
+      if (this.addressDetail.selectedAddressType > 0 || this.addressDetailArray.length > 0) {
+        this.validObj['addressDetail_selectedAddressType_flag'] = false
+      } else {
+        this.validObj['addressDetail_selectedAddressType_flag'] = true
+        isValid = 0
+      }
+      if (this.addressDetail.address !== '' || this.addressDetailArray.length > 0) {
+        this.validObj['addressDetail_address_flag'] = false
+      } else {
+        this.validObj['addressDetail_address_flag'] = true
+        isValid = 0
+      }
+
+      if (this.mobileDetail.selectedMobileCountryCode.id > 0 || this.personalDetail.mobileArray.length > 0) {
+        this.validObj['mobileDetail_selectedMobileCountryCode'] = false
+      } else {
+        this.validObj['mobileDetail_selectedMobileCountryCode'] = true
+      }
+      if (this.personalDetail.companyName !== ''
+        && this.personalDetail.selectedIndustryType.id !== 0
+        && this.personalDetail.selectedSubIndustry.id !== 0
+        && this.personalDetail.selectedRegistrationType.id !== 0
+        && this.personalDetail.selectedBranchType.id !== 0
+        && this.personalDetail.bookStartDate !== '' && this.personalDetail.mobileArray.length > 0
+        && this.personalDetail.selectedFinSession.id !== 0 && this.statutoryDetail.gstNo !== '' && this.personalDetail.selectedRegistrationType.id === '1') {
+        if (this.addressDetailArray.length === 0) {
+          this.selectTab(2)
+          this.countrySelect.selector.nativeElement.focus({ preventScroll: false })
+        }
+      }
+      if (this.personalDetail.companyName !== ''
+        && this.personalDetail.selectedIndustryType.id !== 0
+        && this.personalDetail.selectedSubIndustry.id !== 0
+        && this.personalDetail.selectedRegistrationType.id !== 0
+        && this.personalDetail.selectedBranchType.id !== 0
+        && this.personalDetail.bookStartDate !== '' && this.personalDetail.mobileArray.length > 0
+        && this.personalDetail.selectedFinSession.id !== 0 && this.statutoryDetail.gstNo === '' && this.personalDetail.selectedRegistrationType.id === '1') {
+        if (this.addressDetailArray.length > 0) {
+          if ((this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === '123') || (this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === 123)) {
+            this.selectTab(3);
+            this.validObj['gstNo_ref_flag'] = true
+            this.gstNo_refValue.nativeElement.focus()
+            isValid = 0
+          }
+        }
+        else {
+          this.selectTab(2);
+          this.countrySelect.selector.nativeElement.focus({ preventScroll: false })
+          isValid = 0
+        }
+
+      }
+      else if (this.statutoryDetail.gstNo !== '' && this.personalDetail.selectedRegistrationType.id === '1') {
+        if (this.addressDetailArray.length > 0) {
+          if (((this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === '123') || (this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === 123))) {
+            this.validObj['gstNo_ref_flag'] = false
+
+          }
+        }
+      }
+
+      else if (this.statutoryDetail.gstNo !== '' && this.personalDetail.selectedRegistrationType.id === '1') {
+
+        //
+        if (this.addressDetailArray.length > 0) {
+          if (((this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === '123') || (this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === 123))) {
+            this.validObj['gstNo_ref_flag'] = false
+
+          }
+        }
+
+
+        //
+        if (!_.isEmpty(this.statutoryDetail.gstNo)) {
+          if (this.addressDetailArray.length > 0 && this.personalDetail.selectedRegistrationType.id === '1') {
+            if (((this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === '123') || (this.addressDetailArray[0].selectedCountry && this.addressDetailArray[0].selectedCountry.id === 123))) {
+              this.validObj['gstNo_ref_flag'] = false
+              if (_.isEmpty(this.statutoryDetail.panNo)) {
+                isValid = 1
+              }
+              else {
+                if (!this.panNumberRegxValidation(this.statutoryDetail.panNo)) {
+                  isValid = 0
+                }
+              }
+              this.selectTab(3);
+              this.gstNo_refValue.nativeElement.focus()
+              isValid = 0
+            }
+          }
+        }
+        this.validObj['gstNo_ref_flag'] = false
+      }
+
+      return !!isValid
+    }
+  }
+
 }

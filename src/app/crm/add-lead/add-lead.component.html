@@ -11,7 +11,6 @@
   >
     <div class="modal-content">
       <a
-        *ngIf="editLeadId"
         data-toggle="modal"
         (click)="addLeadDetail()"
         class="modal-drawer modal-more"
@@ -24,23 +23,30 @@
       <form
         #addLeadForm="ngForm"
         novalidate
-        (ngSubmit)="focusOnMandatoryField() && addLeadForm.form.valid && validate() && submit()"
+        (ngSubmit)="
+          focusOnMandatoryField() &&
+            addLeadForm.form.valid &&
+            validate() &&
+            submit()
+        "
       >
-      <div class="modal-header close_popup align-items-center">
-        <h4 class="modal-title w-100 c-grey-900 col-9">{{formType ? 'Add Follow Up' : 'Add Leads'}} </h4>
-        <button type="submit" class="btn btn-primary waves-effect m-0">
-              Save
-            </button>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          aria-label="Close"
-          (click)="closePopUp()"
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
+        <div class="modal-header close_popup align-items-center">
+          <h4 class="modal-title w-100 c-grey-900 col-9">
+            {{ formType ? "Add Follow Up" : "Add Leads" }}
+          </h4>
+          <button type="submit" class="btn btn-primary waves-effect m-0">
+            Save
+          </button>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+            (click)="closePopUp()"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
 
         <div class="modal-body">
           <div class="form-row">
@@ -52,8 +58,13 @@
                 >
                   <div class="card">
                     <div class="card-body">
-                      <h6 class="card-title" style="font-size: small;
-                      font-weight: bold;">Last Lead Status</h6>
+                      <h6
+                        class="card-title"
+                        style="font-size: small;
+                      font-weight: bold;"
+                      >
+                        Last Lead Status
+                      </h6>
                       <p class="card-text" style="font-size: 0.7rem;">
                         <label>Created By - </label>
                         {{ lastLeadDetails?.CreatedBy }}
@@ -72,24 +83,64 @@
                     </div>
                   </div>
                 </div>
-                <div class="form-group col-md-12 col-12">
-                  <label>Search By</label>
-                  <ng-select
-                    name="customerName"
-                    #customerSelect
-                    [items]="crmService.leadUtilityData.LeadCustomer"
-                    bindLabel="textToDisplay"
-                    bindValue="Id"
-                    [disabled]="editLeadId"
-                    (change)="onChangeCustomer()"
-                    (keyup.enter)="focusOnComapny()"
-                    placeholder="Search By Customer/Mobile No/ Email"
-                    [(ngModel)]="model.selectedCustomerId"
-                  >
-                  </ng-select>
+                <div class="form-group col-md-12">
+                    <div class="form-row bg-crm py-2">
+                        <div class="form-group col-md-6 col-12 m-0">
+                            <input
+                              type="number"
+                              class="form-control"
+                              placeholder="Search By Mobile No"
+                              [disabled]="editLeadId"
+                              name="mobileNoSearchName"
+                              [(ngModel)]="mobileNoSearchText"
+                              (change)="onTextSearch('mobile')"
+                            />
+                          </div>
+                          <div class="form-group col-md-6 col-12 m-0">
+                            <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Search By Email"
+                            [disabled]="editLeadId"
+                            name="emailSearchName"
+                            [(ngModel)]="emailSearchText"
+                            (change)="onTextSearch('email')"
+                            />
+                          </div>
+                    </div>
                 </div>
-                <div class="form-group col-md-6 col-12">
-                  <label>Company/Organisation</label>
+
+
+                <div class="form-group col-md-6 col-12" *ngIf="formType === 'follow-up-from-follow-up'">
+                  <label>Source</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="sourceName"
+                    disabled="true"
+                    [(ngModel)]="model.sourceName"
+                  />
+                </div>
+                <div
+                  class="form-group col-md-6 col-12"
+                  *ngIf="formType === 'follow-up-from-follow-up'"
+                >
+                  <label>Last FollowUp Date</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="lastFollow"
+                    disabled="true"
+                    [(ngModel)]="model.lastFollowUpDate"
+                  />
+                </div>
+
+                <div class="form-group col-md-6 col-12 editLabel">
+                  <label class="d-inline-flex">{{isAllowDynamicField ? getLabelName(1957)
+                     : 'Company/Organisation'}}
+                     <a class="d-none ml-2" *ngIf="isAllowDynamicField" href="javascript:void(0)"
+                      (click)="openChangeUserNameModal(1957)">
+                       <i class="fas fa-pencil-alt fa-1x"></i></a></label>
                   <input
                     id="companyId"
                     type="text"
@@ -102,8 +153,12 @@
                     }"
                   />
                 </div>
-                <div *ngIf="!formType" class="form-group col-md-6 col-12">
-                  <label>Designation</label>
+                <div class="form-group col-md-6 col-12 editLabel">
+                  <label class="d-inline-flex">{{isAllowDynamicField ? getLabelName(1958)
+                    : 'Designation'}}
+                    <a class="d-none ml-2" *ngIf="isAllowDynamicField" href="javascript:void(0)"
+                     (click)="openChangeUserNameModal(1958)">
+                      <i class="fas fa-pencil-alt fa-1x"></i></a></label>
                   <ng-select
                     id="designationId"
                     name="meetingWithName"
@@ -119,6 +174,7 @@
                     "
                     placeholder="Select Meeting With"
                     [(ngModel)]="model.selectedDesignationId"
+                    [disabled]="formType || editLeadId"
                     required
                     [ngClass]="{
                       'ng-select-invalid':
@@ -127,13 +183,12 @@
                   >
                   </ng-select>
                 </div>
-                <div class="form-group col-md-6 col-12">
-                  <label>Key Person Name
-                    <i *ngIf="formType === 'follow-up'||formType === 'follow-up-from-follow-up'"
-                     title="Change KeyPerson"
-                     (click)="isKeyPersonDisable = false"
-                     class="fas fa-pencil-alt cH-blue"></i>
-                  </label>
+                <div class="form-group col-md-6 col-12 editLabel">
+                  <label class="d-inline-flex">{{isAllowDynamicField ? getLabelName(1959)
+                    : 'Key Person Name'}}
+                    <a class="d-none ml-2" *ngIf="isAllowDynamicField" href="javascript:void(0)"
+                     (click)="openChangeUserNameModal(1959)">
+                      <i class="fas fa-pencil-alt fa-1x"></i></a></label>
                   <input
                     id="keyPersonId"
                     type="text"
@@ -141,19 +196,22 @@
                     #keyPersonModel="ngModel"
                     placeholder="Enter Key Person"
                     name="keyPersonName"
-                    [disabled]="isKeyPersonDisable"
+                    [disabled]="formType || editLeadId"
                     [(ngModel)]="model.keyPerson"
                     required
                     (change)="onChangeKeyPerson()"
                     [ngClass]="{
-                      errorSelecto:
-                        addLeadForm?.submitted && !model?.keyPerson
+                      errorSelecto: addLeadForm?.submitted && !model?.keyPerson
                     }"
                   />
                 </div>
 
-                <div class="form-group col-md-6 col-12">
-                  <label>Business Type</label>
+                <div class="form-group col-md-6 col-12 editLabel">
+                  <label class="d-inline-flex">{{isAllowDynamicField ? getLabelName(1960)
+                    : 'Business Type'}}
+                    <a class="d-none ml-2" *ngIf="isAllowDynamicField" href="javascript:void(0)"
+                     (click)="openChangeUserNameModal(1960)">
+                      <i class="fas fa-pencil-alt fa-1x"></i></a></label>
                   <ng-select
                     id="businessTypeId"
                     name="businessTypeName"
@@ -169,6 +227,7 @@
                         193
                       )
                     "
+                    [disabled]="formType"
                     required
                     [ngClass]="{
                       errorSelecto:
@@ -177,8 +236,12 @@
                   >
                   </ng-select>
                 </div>
-                <div class="form-group col-md-3">
-                  <label>Country Code</label>
+                <div class="form-group col-md-3 editLabel">
+                  <label class="d-inline-flex">{{isAllowDynamicField ? getLabelName(1961)
+                    : 'Country Code'}}
+                    <a class="d-none ml-2" *ngIf="isAllowDynamicField" href="javascript:void(0)"
+                     (click)="openChangeUserNameModal(1961)">
+                      <i class="fas fa-pencil-alt fa-1x"></i></a></label>
                   <ng-select
                     name="countryCodeName"
                     [items]="mobileCountryCodeList"
@@ -198,20 +261,20 @@
                     class="form-control"
                     #mobileNoModel="ngModel"
                     placeholder="Enter Mobile No"
-                    (keypress)="commonService.isNumber($event, model.mobileNo)"
+                    (keypress)="commonService.isNumber($event, true, model.mobileNo)"
                     [disabled]="!model.countryCodeId"
-                    maxlength="{{currentContactLength}}"
-                    minlength="{{currentContactLength}}"
+                    maxlength="{{ currentContactLength }}"
+                    minlength="{{ currentContactLength }}"
                     name="mobileNoName"
                     [(ngModel)]="model.mobileNo"
                     [required]="
-                      setUpToCheckRequiredField === 1 ||
-                      setUpToCheckRequiredField === 2
+                      setUpToCheckRequiredField === 1 && !model.email
                     "
                     [ngClass]="{
                       errorSelecto:
                         (mobileNoModel?.dirty &&
-                          mobileNoModel?.errors?.maxlength) || (mobileNoModel?.dirty &&
+                          mobileNoModel?.errors?.maxlength) ||
+                        (mobileNoModel?.dirty &&
                           mobileNoModel?.errors?.minlength) ||
                         (addLeadForm?.submitted && mobileNoModel?.invalid)
                     }"
@@ -221,6 +284,7 @@
                     <label>Email</label>
                     <input
                       type="text"
+                      id="emailId"
                       class="form-control"
                       #emailModel="ngModel"
                       placeholder="Enter Email"
@@ -228,8 +292,7 @@
                       [(ngModel)]="model.email"
                       pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
                       [required]="
-                        setUpToCheckRequiredField === 3 ||
-                        setUpToCheckRequiredField === 2
+                        setUpToCheckRequiredField === 1 && !model.mobileNo
                       "
                       [ngClass]="{
                         errorSelecto:
@@ -238,10 +301,14 @@
                       }"
                     />
                   </div>
-                <div class="lead_stage lead_stage_sm pb-2">
+                <div class="lead_stage lead_stage_sm pb-2 mt-2 mb-2 pt-2 w-100">
                   <div class="form-row">
-                    <div class="col-lg-6">
-                      <label>Lead Status</label>
+                    <div class="col-lg-6 editLabel">
+                      <label class="d-inline-flex">{{isAllowDynamicField ? getLabelName(1962)
+                        : 'Lead Status'}}
+                        <a class="d-none ml-2" *ngIf="isAllowDynamicField" href="javascript:void(0)"
+                         (click)="openChangeUserNameModal(1962)">
+                          <i class="fas fa-pencil-alt fa-1x"></i></a></label>
                     </div>
                   </div>
                   <div class="arrow-steps clearfix">
@@ -262,58 +329,90 @@
                     </a>
                   </div>
                 </div>
+                <!-- <div class="form-group col-md-4"
+                 *ngIf="!isClosedRemark && model.selectedEnquiryStatusId && model.selectedEnquiryStatusId === 4">
+                  <label>Not Interested Reason</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    #notInterestedReason="ngModel"
+                    placeholder="Enter Reason"
+                    name="reason"
+                    [(ngModel)]="model.reason"
+                    [ngClass]="{
+                      errorSelecto:(addLeadForm?.submitted && model.selectedEnquiryStatusId === 4 && notInterestedReason?.invalid)
+                    }"
+                  />
+                </div>
+                <div class="form-group col-md-6 col-12"
+                 *ngIf="isClosedRemark && model.selectedEnquiryStatusId && model.selectedEnquiryStatusId === 4">
+                    <label>Not Interested Reason</label>
+                    <ng-select
+                     name="closedRemarkName"
+                      [items]="crmService.leadUtilityData.ClosedRemark"
+                      bindLabel="commondesc"
+                      bindValue="id" placeholder="Select Remark"
+                      [(ngModel)]="model.selectedRemarkId"
+                      required
+                      [ngClass]="{'ng-select-invalid': addLeadForm?.submitted && !model.selectedRemarkId}">
+                    </ng-select>
+                  </div> -->
               </div>
               <div
-                class="form-row"
+                class="form-row editLabel"
                 [hidden]="formType"
                 *ngIf="crmService.leadUtilityData?.EnquiryType?.length > 0"
               >
-                <label>Enquiry Type</label>
+              <label class="d-inline-flex">{{isAllowDynamicField ? getLabelName(1963)
+                : 'Enquiry Type'}}
+                <a class="d-none ml-2" *ngIf="isAllowDynamicField" href="javascript:void(0)"
+                 (click)="openChangeUserNameModal(1963)">
+                  <i class="fas fa-pencil-alt fa-1x"></i></a></label>
               </div>
-              <div
-              [hidden]="formType"
-                class="form-row"
-              >
+              <div [hidden]="formType" class="form-row">
                 <div
                   class="custom-control custom-radio mr-2"
                   *ngFor="
                     let item of crmService.leadUtilityData?.EnquiryType;
-                    let i = index;
+                    let i = index
                   "
                 >
-                <ng-container
-                *ngIf="!(item.id === 2 && !formType && editLeadId)">
-                  <input
-                  type="radio"
-                  class="custom-control-input "
-                  id="enquiryTypeId-{{ i }}"
-                  name="enquiryTypeName"
-                  [value]="item.id"
-                  [(ngModel)]="model.selectedEnquiryTypeId"
-                />
-                <label
-                    class="custom-control-label"
-                    for="enquiryTypeId-{{ i }}"
-                    >{{ item?.commondesc }}</label
+                  <ng-container
+                    *ngIf="!(item.id === 2 && !formType)"
                   >
-                </ng-container>
+                    <input
+                      type="radio"
+                      class="custom-control-input "
+                      id="enquiryTypeId-{{ i }}"
+                      name="enquiryTypeName"
+                      [value]="item.id"
+                      [(ngModel)]="model.selectedEnquiryTypeId"
+                    />
+                    <label
+                      class="custom-control-label"
+                      for="enquiryTypeId-{{ i }}"
+                      >{{ item?.commondesc }}</label
+                    >
+                  </ng-container>
                 </div>
               </div>
               <!-- <ng-container *ngIf="!formType"> -->
-                <div
-                class="form-row mt-2"
+              <div
+                class="form-row mt-2 editLabel"
                 *ngIf="crmService.leadUtilityData?.MeetingWithType?.length > 0"
               >
-                <label>Meeting with your team/person</label>
+              <label class="d-inline-flex">{{isAllowDynamicField ? getLabelName(1964)
+                : 'Meeting with your team/person'}}
+                <a class="d-none ml-2" *ngIf="isAllowDynamicField" href="javascript:void(0)"
+                 (click)="openChangeUserNameModal(1964)">
+                  <i class="fas fa-pencil-alt fa-1x"></i></a></label>
               </div>
-              <div
-                class="form-row"
-              >
+              <div class="form-row">
                 <div
                   class="custom-control custom-radio mr-2"
                   *ngFor="
                     let item of crmService.leadUtilityData?.MeetingWithType;
-                    let i = index;
+                    let i = index
                   "
                 >
                   <input
@@ -331,8 +430,12 @@
               </div>
               <!-- </ng-container> -->
               <div class="form-row">
-                <div class="form-group col-md-6 col-12">
-                  <label>Source</label>
+                <div class="form-group col-md-4 col-12 editLabel" *ngIf="!formType">
+                  <label class="d-inline-flex">{{isAllowDynamicField ? getLabelName(1965)
+                    : 'Source'}}
+                    <a class="d-none ml-2" *ngIf="isAllowDynamicField" href="javascript:void(0)"
+                     (click)="openChangeUserNameModal(1965)">
+                      <i class="fas fa-pencil-alt fa-1x"></i></a></label>
                   <ng-select
                     id="sourceId"
                     name="sourceName"
@@ -352,31 +455,77 @@
                   >
                   </ng-select>
                 </div>
-                <div class="form-group col-md-6 col-12">
-                  <label class="fw-500">Follow Up Date/Time</label>
+                <div class="form-group col-md-4 col-12">
+                  <label class="fw-500">Follow Up Date</label>
                   <div class="timepicker-input input-icon form-group">
                     <datepicker-popup
-                    id="followUpdateId"
-                    [toSetDate]="model.followUpDate"
+                      id="followUpdateId"
+                      [toSetDate]="model.followUpDate"
                       (dateInFormat)="model.followUpDate = $event"
-                      [class]="formType && addLeadForm?.submitted &&
-                      (model.selectedEnquiryStatusId !== 5 && model.selectedEnquiryStatusId !== 6)
-                       && !model?.followUpDate"
+                      (inputChanged)="onInputChange($event)"
+                      [disableInput]="!formType && editLeadId"
+                      [class]="
+                        formType &&
+                        addLeadForm?.submitted &&
+                        model.selectedEnquiryStatusId !== 5 &&
+                          model.selectedEnquiryStatusId !== 6 &&
+                        !model?.followUpDate
+                      "
                     >
                     </datepicker-popup>
                   </div>
                 </div>
+                <div class="form-group col-md-4 col-12" >
+                  <label class="fw-500">Time</label>
+                  <input
+                    id="timePickerId"
+                    type="text"
+                    class="timepicker form-control"
+                    placeholder="Select Time"
+                    [disabled]="!formType && editLeadId"
+                    [required]="formType &&
+                    model.selectedEnquiryStatusId !== 5 &&
+                      model.selectedEnquiryStatusId !== 6 &&
+                    !model?.followUpTime"
+                    [ngClass]="{
+                      'errorSelecto': formType && model.selectedEnquiryStatusId !== 5 &&
+                        model.selectedEnquiryStatusId !== 6 && addLeadForm?.submitted &&
+                      !model?.followUpTime
+                    }"
+                  />
+                </div>
+                <div
+                  class="form-group col-md-6 col-12"
+                  *ngIf="formType || model.followUpDate"
+                >
+                  <label>FollowUp Action</label>
+                  <ng-select
+                    id="followUpActionId"
+                    name="followUpTypeName"
+                    [items]="crmService.leadUtilityData.FollowUpAction"
+                    bindLabel="commondesc"
+                    bindValue="id"
+                    placeholder="Select Follow Up Type"
+                    [(ngModel)]="model.selectedFollowUpTypeId"
+                    required
+                    [ngClass]="{
+                      errorSelecto:
+                        addLeadForm?.submitted && !model?.selectedFollowUpTypeId
+                    }"
+                  >
+                  </ng-select>
+                </div>
 
                 <div class="form-group col-md-12 col-12">
-                    <label>Remark</label>
-                    <textarea
-                      type="text"
-                      class="form-control"
-                      placeholder="Enter Remark"
-                      name="remark"
-                      [(ngModel)]="model.remark"
-                    ></textarea>
-                  </div>
+                  <label>Remark</label>
+                  <textarea
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter Remark"
+                    name="remark"
+                    [(ngModel)]="model.remark"
+                  ></textarea>
+                </div>
 
                 <div class="form-row col-md-12">
                   <div class="card p-2" style="width: 100%;">
@@ -456,6 +605,7 @@
             </button>
           </div>
         </div>
+
       </form>
     </div>
   </div>
@@ -466,3 +616,4 @@
 <ng-container #addMobileNoContainerRef></ng-container>
 <ng-container #addEmailContainerRef></ng-container>
 <ng-container #addItemDetailsContainerRef></ng-container>
+<ng-container #changeUserNameContainerRef></ng-container>

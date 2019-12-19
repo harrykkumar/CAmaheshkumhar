@@ -13,16 +13,16 @@ const routes: Routes = [
   {
     path: '',
     redirectTo: 'login',
-    pathMatch: 'full',
+    pathMatch: 'full'
   },
   {
     path: 'login',
     loadChildren: './login/login.module#LoginModule'
   },
   {
-    path: 'forgot-password',
-    loadChildren: './forgot-password/forgot-password.module#ForGotPasswordModule'
-   },
+    path: 'forgot-credentials',
+    loadChildren: './forgot-credentials/forgot-credentials.module#ForgotCredentialsModule'
+  },
   {
     path: 'modules',
     loadChildren: '../app/start/user-modules/user-modules.module#UserModulesModule',
@@ -49,8 +49,8 @@ const routes: Routes = [
     canActivate: [OrganizationGuard]
   },
   {
-    path: 'organization/settings',
-    loadChildren: './settings/settings.module#SettingsModule',
+    path: 'organization/menu-setting/:id',
+    loadChildren: './menu-master-setting/menu-master-setting.module#MenuMasterSettingModule',
     canActivate: [OrganizationGuard]
   },
   {

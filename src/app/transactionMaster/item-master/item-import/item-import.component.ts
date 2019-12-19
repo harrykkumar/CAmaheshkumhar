@@ -621,13 +621,15 @@ export class ItemImportComponent implements OnDestroy {
               this.initComp()
               this.isDataLoading = false
               return false
-            } else if (!newRow['HSNNO']) {
-              this.toastrService.showErrorLong('HSNNO is Required at SNO. ' + newRow['SNO'], newRow['HSNNO'])
-              this.modeOfForm = 'reset'
-              this.initComp()
-              this.isDataLoading = false
-              return false
-            } else if (!this.gs.checkForValidNumbers(+newRow['PURCHASERATE'])) {
+            } 
+            // else if (!newRow['HSNNO']) {
+            //   this.toastrService.showErrorLong('HSNNO is Required at SNO. ' + newRow['SNO'], newRow['HSNNO'])
+            //   this.modeOfForm = 'reset'
+            //   this.initComp()
+            //   this.isDataLoading = false
+            //   return false
+            // } 
+            else if (!this.gs.checkForValidNumbers(+newRow['PURCHASERATE'])) {
               this.toastrService.showErrorLong('Invalid PURCHASERATE Value ' + 'at SNO. ' + newRow['SNO'], newRow['PURCHASERATE'])
               this.modeOfForm = 'reset'
               this.initComp()

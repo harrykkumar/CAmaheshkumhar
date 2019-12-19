@@ -1,0 +1,72 @@
+<div class="modal fade" id="email_editor" data-backdrop="static" data-keyboard="false" role="dialog"
+  aria-labelledby="email_editor" aria-hidden="true">
+  <div class="modal-dialog large_form modal-full-height modal-top" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <div class="modal-header primary-bg">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-3 left_side_head">
+              <p class="heading_lead">
+                <i class="fa fa-user" aria-hidden="true"></i>Email Editor
+              </p>
+            </div>
+            <div class="col-md-9">
+              <div class="btn_header">
+                <!-- <button type="button" class="btn btn-primary waves-effect" (click)="saveDesign()">Save Design
+                </button> -->
+                <button type="button" class="btn btn-primary waves-effect" (click)="exportHtml()">Save Design
+                </button>
+                <button type="button" class="close" (click)="close()">
+                  <span aria-hidden="true" class="white-text">×</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <email-editor [options]="options" (loaded)="editorLoaded($event)"></email-editor>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="save_file" role="dialog" aria-labelledby="save_file" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Save File</h4>
+        <button type="button" class="close" (click)="closeFile()" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form #saveFileForm="ngForm" (ngSubmit)="validate() && postDesign()" novalidate>
+        <div class="modal-body">
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label for="fileName">File Name</label>
+                <input #fileNameModal id="fileName" name="name" [(ngModel)]="designModal.Name" type="text"
+                  class="form-control" placeholder="Enter Name" required 
+                  [ngClass]="{'errorSelecto': saveFileForm.submitted && !designModal.Name}"
+                />
+              </div>
+              <div class="form-group col-md-12">
+                <div class="input-group adw_select">
+                  <label>Select Type</label>
+                  <select2 #error #type_select2 [data]="categoryTypes" class="control_select"
+                    (valueChanged)="designModal.ContentCategoryId = +$event.value" autocomplete="true"
+                    [options]="{ placeholder: 'Select Category' }" [value]="designModal.categoryValue"
+                    [ngClass]="{ 'errorSelecto': saveFileForm.submitted && designModal.ContentCategoryId <= 0 }"></select2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary waves-effect">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

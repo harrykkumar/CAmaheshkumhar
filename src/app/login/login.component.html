@@ -44,13 +44,11 @@
                   (keyup)="clearErrorValidation()"
                 />
               </div>
-              <!-- <div class="d-flex justify-content-around"> -->
-                <!-- <div>
-                  <a href="javascript:void(0)" (click)="forgotPassword()"
-                    >Forgot Password?</a
-                  >
-                </div> -->
-              <!-- </div> -->
+              <div class="d-flex justify-content-around">
+                <div> <!--routerLink="forgot-credentials"-->
+                  <a (click)="forgotPassword()" >Forgot Password?</a>
+                </div>
+              </div>
               <div *ngIf="invalidUser">{{ this.errorMessage }}</div>
               <button
                 class="btn btn-indigo btn-block  my-3 waves-effect z-depth-0"

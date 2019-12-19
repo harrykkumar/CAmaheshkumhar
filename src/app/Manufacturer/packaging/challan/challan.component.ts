@@ -18,7 +18,7 @@ declare const $: any
   templateUrl: './challan.component.html'
 })
 export class PackagingChallanComponent {
-  onDestroy$ = new Subject()
+  onDestroy$: Subscription[] = []
   loading: boolean = true
   godownsData: Array<Select2OptionData>
   referralTypesData: Array<Select2OptionData>
@@ -140,7 +140,6 @@ export class PackagingChallanComponent {
   submitSave: boolean = false
   industryId: number = 0
 
-
   formReadySub = new Subject<boolean>()
   fromReady$ = this.formReadySub.asObservable()
   settings$: Subscription
@@ -163,7 +162,7 @@ export class PackagingChallanComponent {
     private renderer: Renderer2,
     private gs: GlobalService) {
     this.clientDateFormat = this.settings.dateFormat;
-    this._ps.openChallan$.subscribe(
+    this.onDestroy$.push(this._ps.openChallan$.subscribe(
       (status: any) => {
         if (status.open && status.data.bOrderId && status.data.orderStr) {
           this.orderStr = status.data.orderStr
@@ -174,9 +173,9 @@ export class PackagingChallanComponent {
           this.closeModal()
         }
       }
-    )
+    ))
 
-    this.purchaseService.godownsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    this.onDestroy$.push(this.purchaseService.godownsData$.subscribe(
       data => {
         if (data.data) {
           this.godownsData = data.data
@@ -186,38 +185,38 @@ export class PackagingChallanComponent {
           }
         }
       }
-    )
-    this.purchaseService.referralTypesData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    ))
+    this.onDestroy$.push(this.purchaseService.referralTypesData$.subscribe(
       data => {
         if (data.data) {
           this.referralTypesData = data.data
         }
       }
-    )
-    this.purchaseService.referralData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    ))
+    this.onDestroy$.push(this.purchaseService.referralData$.subscribe(
       data => {
         if (data.data) {
           this.referralData = data.data
         }
       }
-    )
-    this.purchaseService.taxSlabsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    ))
+    this.onDestroy$.push(this.purchaseService.taxSlabsData$.subscribe(
       data => {
         if (data.data) {
           this.taxSlabsData = data.data
         }
       }
-    )
+    ))
 
-    this.purchaseService.chargestData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    this.onDestroy$.push(this.purchaseService.chargestData$.subscribe(
       data => {
         if (data.data) {
           this.chargesData = data.data
         }
       }
-    )
+    ))
 
-    this.commonService.getTaxStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
+    this.onDestroy$.push(this.commonService.getTaxStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.taxSlabsData)
@@ -233,9 +232,9 @@ export class PackagingChallanComponent {
           }, 2000)
         }
       }
-    )
+    ))
 
-    this.commonService.getledgerCretionStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
+    this.onDestroy$.push(this.commonService.getledgerCretionStatus().subscribe(
       data => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.chargesData)
@@ -251,24 +250,24 @@ export class PackagingChallanComponent {
           }, 2000)
         }
       }
-    )
+    ))
   }
 
   getAddressTaxType (bOrderId) {
-    this._ps.getAddressTaxType(bOrderId).subscribe(
+    this.onDestroy$.push(this._ps.getAddressTaxType(bOrderId).subscribe(
       (data) => {
         console.log(data)
         this.isOtherState = data[0].IsForOtherState
         this.addressValue = data[0].AddressName
         this.vendorGSTType = data[0].TaxTypeId
       }
-    )
+    ))
   }
 
   getSPUtilityData () {
     this.loading = true
     let _self = this
-    this.gs.manipulateResponse(this.commonService.getSPUtilityData(UIConstant.PACKAGINGCHALLAN)).subscribe(
+    this.onDestroy$.push(this.gs.manipulateResponse(this.commonService.getSPUtilityData(UIConstant.ORDER_CHALLAN)).subscribe(
       data => {
         console.log('sputility data : ', data)
         _self.purchaseService.createGodowns(data.Godowns)
@@ -289,7 +288,7 @@ export class PackagingChallanComponent {
           this.loading = false
         }, 1)
       }
-    )
+    ))
   }
 
   openModal() {
@@ -380,7 +379,7 @@ export class PackagingChallanComponent {
           observables.push(this.purchaseService.getSlabData(charge.TaxSlabChargeId));
         }
       }
-      forkJoin(...observables).subscribe(
+      this.onDestroy$.push(forkJoin(...observables).subscribe(
         data => {
           data.forEach((element, index) => {
             let appliedTaxRatesCharge = []
@@ -420,7 +419,7 @@ export class PackagingChallanComponent {
             this.AdditionalCharges[index]['TotalAmountCharge'] = +this.AdditionalCharges[index].AmountCharge + +this.AdditionalCharges[index]['TaxAmountCharge']
           });
         }
-      )
+      ))
     }
   }
 
@@ -589,7 +588,7 @@ export class PackagingChallanComponent {
     this.submitSave = true
     this.addCharge()
     if (this.checkForValidation() && this.validCharge) {
-      this._ps.postPackagingChallan(this.preparePayload()).subscribe(
+      this.onDestroy$.push(this._ps.postPackagingChallan(this.preparePayload()).subscribe(
         (data) => {
           console.log('data : ', data)
           this.toastrService.showSuccess('Successfully done', '')
@@ -600,7 +599,7 @@ export class PackagingChallanComponent {
           console.log(error)
           this.toastrService.showErrorLong(error, '')
         }
-      )
+      ))
     }
   }
 
@@ -758,7 +757,7 @@ export class PackagingChallanComponent {
   }
 
   getTaxChargeDetail(TaxSlabId) {
-    this.purchaseService.getSlabData(TaxSlabId).subscribe(
+    this.onDestroy$.push(this.purchaseService.getSlabData(TaxSlabId).subscribe(
       data => {
         console.log('tax slab data : ', data)
         if (data.Code === UIConstant.THOUSAND && data.Data) {
@@ -775,7 +774,7 @@ export class PackagingChallanComponent {
           this.createTaxes(FormConstants.ChargeForm)
         }
       }
-    )
+    ))
   }
 
   createTaxes(parentType) {
@@ -825,7 +824,7 @@ export class PackagingChallanComponent {
     if (this.BillDate) {
       let newBillDate = this.gs.clientToSqlDateFormat(this.BillDate, this.clientDateFormat)
       let type = 1
-      this._ps.getNewBillNo(newBillDate, type, UIConstant.SALE_CHALLAN_TYPE).subscribe(
+      this.onDestroy$.push(this._ps.getNewBillNo(newBillDate, type, UIConstant.SALE_CHALLAN_TYPE).subscribe(
         data => {
           console.log('bill no : ', data)
           if (data.length > 0) {
@@ -838,7 +837,7 @@ export class PackagingChallanComponent {
         (error) => {
           this.toastrService.showErrorLong(error, '')
         }
-      )
+      ))
     }
   }
 
@@ -881,8 +880,11 @@ export class PackagingChallanComponent {
   }
 
   ngOnDestroy() {
-    this.onDestroy$.next()
-    this.onDestroy$.complete()
+    if (this.onDestroy$ && this.onDestroy$.length > 0) {
+      this.onDestroy$.forEach((element) => {
+        element.unsubscribe()
+      })
+    }
   }
 
   close () {

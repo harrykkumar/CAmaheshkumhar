@@ -29,6 +29,14 @@ export class AddMobileNoComponent implements OnInit {
     this._orgService.getMobileCountryCodeList().
       subscribe((response: any) => {
         this.mobileCountryCodeList = [...response]
+        const orgAddress = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
+        if (!_.isEmpty(orgAddress)) {
+          const obj = _.find(this.mobileCountryCodeList, { phoneCode: orgAddress.CountryCode })
+          if (!_.isEmpty(obj)) {
+            this.selectedCountryCodeId = obj.id
+            this.setCurrentMobileNoLength()
+          }
+        }
       }, error => console.log(error))
   }
 

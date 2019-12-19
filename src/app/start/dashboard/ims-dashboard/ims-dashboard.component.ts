@@ -82,7 +82,9 @@ export class DashboardComponent {
     private notification: ToastrCustomService
 
   ) {
-
+    this.InventoryGrowths=[]
+    this.Creditor = []
+    this.Debitors= []
     this.getSetUpModules((JSON.parse(this._settings.moduleSettings).settings))
     this.spinnerService.hide()
   }
@@ -116,25 +118,35 @@ export class DashboardComponent {
         this.assetsLabelData = []
         this.LiabilitieschartData = []
         this.LiabilitieschartLabels = []
-        asstLibData.forEach(element => {
-          if(element.HeadId===1){
-            this.assetsAmountData.push(
-              element.Amount1
-            )
-            this.assetsLabelData.push(
-              element.GlName
-            )
-          }
-          if(element.HeadId===2){
-            this.LiabilitieschartData.push(
-              element.Amount1
-            )
-            this.LiabilitieschartLabels.push(
-              element.GlName
-            )
-          }
-          
-        });
+        if(resp.Data.length>0){
+          asstLibData.forEach(element => {
+            if(element.HeadId===1){
+              this.assetsAmountData.push(
+                element.Amount1
+              )
+              this.assetsLabelData.push(
+                element.GlName
+              )
+            }
+            if(element.HeadId===2){
+              this.LiabilitieschartData.push(
+                element.Amount1
+              )
+              this.LiabilitieschartLabels.push(
+                element.GlName
+              )
+            }
+            
+          });
+        }
+        else{
+          this.assetsAmountData = [100]
+          this.assetsLabelData = ['']
+          this.LiabilitieschartData = [100]
+          this.LiabilitieschartLabels = ['']
+        }
+        console.log( this.assetsLabelData)
+    
         this.chartLoader = false
         let assets = (<HTMLCanvasElement>this.AssetsId.nativeElement).getContext('2d');
 
@@ -268,7 +280,7 @@ export class DashboardComponent {
       }
     })
   }
-  InventoryGrowths: any
+  InventoryGrowths: any =[]
   getInventory() {
     this._commonService.getDashboardInventory(this.fromDate, this.todate,'active').subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND) {
@@ -277,7 +289,7 @@ export class DashboardComponent {
       }
     })
   }
-  CashStatutory: any
+  CashStatutory: any=[]
   getCashStatutory() {
     this._commonService.getDashboarCashStatutory(this.fromDate, this.todate).subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND) {
@@ -295,11 +307,14 @@ export class DashboardComponent {
       }
     })
   }
-
+  imageForCreditor:any =[]
   getCreditorDebitors() {
     this._commonService.getDashboardCreditorDebitors(this.fromDate, this.todate, 'Creditor').subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND) {
-        this.Creditor = resp.Data
+        if(resp.Data.length>0){
+          this.Creditor = resp.Data
+        }
+        
       }
     })
     this._commonService.getDashboardCreditorDebitors(this.fromDate, this.todate, 'Debtors').subscribe(resp => {

@@ -255,4 +255,8 @@ export class UIConstant {
   public static get FORMTYPE_FOLLOWUP_FROM_FOLLOWUP(): string {
     return 'follow-up-from-follow-up'
   }
+
+  public static get ORDER_CHALLAN(): string {
+    return 'OrderChallan'
+  }
 }

@@ -1,4 +1,5 @@
-import { LeadReportComponent } from './../crm/lead-report/lead-report.component';
+import { UserFormComponent } from './../user/user-form/user-form.component';
+import { LeadInfoComponent } from './../crm/lead-info/lead-info.component';
 import { ImageModalModule } from './transactionMaster/images-modal/image-modal.module';
 import { FooterComponent } from './../start/footer/footer.component';
 import { HeaderComponent } from './../start/header/header.component';
@@ -12,7 +13,6 @@ import { IncludeDecimalDirective } from './directives/include-decimal.directive'
 import { DateFormatPipe } from '../pipes/datepipe.pipe'
 import { TableUtilityModule } from './table-utility/table-utility.module'
 import { DynamicCategoryModule } from './dynamic-category/dynamic-category.module'
-import { UserFormComponent } from '../user/user-form/user-form.component'
 import { UserTypeFormComponent } from '../user/user-type-form/user-type-form.component'
 import { Select2Module } from 'ng2-select2'
 import { OrganisationBranchComponent } from '../start/org-branch/org-branch-form/org-branch-form.component'
@@ -29,7 +29,6 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CompanyProfileComponent } from '../start/company-profile/company-profile.component';
 import { ChartsModule } from 'ng2-charts';
-import  { DatePicker2AppModule} from './datepicker-2/datepicker2.module'
 import { SkipWhiteSpacesDirective } from './directives/no-white-spaces.directive';
 import { ItemSearchPipe } from '../pipes/item-search.pipe';
 import { LimitQty } from '../Manufacturer/buyer-order/limitQty.directive';
@@ -44,6 +43,9 @@ import { AddItemDetailsComponent } from '../crm/add-item-details/add-item-detail
 import { AddAddressComponent } from '../add-address/add-address.component';
 import { AddLeadComponent } from '../crm/add-lead/add-lead.component';
 import { AddLeadDetailComponent } from '../crm/add-lead-detail/add-lead-detail.component';
+import { ChangeUserNameComponent } from './components/change-user-name/change-user-name.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { AssignToComponent } from './components/assign-to/assign-to.component';
 @NgModule({
   imports: [
     FormsModule,
@@ -56,7 +58,6 @@ import { AddLeadDetailComponent } from '../crm/add-lead-detail/add-lead-detail.c
     TableUtilityModule,
     DynamicCategoryModule,
     DatepickerModule,
-    DatePicker2AppModule,
     RouterModule,
     ImageModalModule,
     NgxExtendedPdfViewerModule,
@@ -98,7 +99,6 @@ import { AddLeadDetailComponent } from '../crm/add-lead-detail/add-lead-detail.c
     NgSelectModule,
     CompanyProfileComponent,
     ChartsModule,
-    DatePicker2AppModule,
     ItemSearchPipe,
     LimitQty,
     NameSearchPipe,
@@ -112,7 +112,9 @@ import { AddLeadDetailComponent } from '../crm/add-lead-detail/add-lead-detail.c
     AddAddressComponent,
     AddLeadComponent,
     AddLeadDetailComponent,
-    LeadReportComponent
+    LeadInfoComponent,
+    ConfirmDialogComponent,
+    AssignToComponent
   ],
   declarations: [
     ControlMessageComponent,
@@ -140,7 +142,10 @@ import { AddLeadDetailComponent } from '../crm/add-lead-detail/add-lead-detail.c
     AddAddressComponent,
     AddLeadComponent,
     AddLeadDetailComponent,
-    LeadReportComponent
+    LeadInfoComponent,
+    ChangeUserNameComponent,
+    ConfirmDialogComponent,
+    AssignToComponent
   ],
   entryComponents: [
     CompanyProfileComponent,
@@ -151,7 +156,10 @@ import { AddLeadDetailComponent } from '../crm/add-lead-detail/add-lead-detail.c
     AddEmailComponent,
     AddItemDetailsComponent,
     AddAddressComponent,
-    LeadReportComponent
+    LeadInfoComponent,
+    UserFormComponent,
+    ChangeUserNameComponent,
+    AssignToComponent
   ]
 })
 export class SharedModule {

@@ -1,12 +1,15 @@
+import { Router } from '@angular/router';
+import { ConfirmDialogComponent } from './../../shared/components/confirm-dialog/confirm-dialog.component';
+import { UserFormComponent } from './../user-form/user-form.component';
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { LoginService } from './../../commonServices/login/login.services';
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, ViewContainerRef, ViewChild, ComponentFactoryResolver } from '@angular/core'
 import { Observable, of, throwError } from 'rxjs'
 import { catchError } from 'rxjs/internal/operators/catchError'
 import { map } from 'rxjs/operators'
 import * as _ from 'lodash'
 import { ResponseSale } from '../../model/sales-tracker.model'
 import { UserFormService } from '../user-form/user-form.service'
-
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',
@@ -17,15 +20,20 @@ export class UserListComponent implements OnInit {
   userList: Observable<Array<any>> = of([])
   menuData: any;
   searchString: string;
-
-  constructor (
+  @ViewChild('confirmDialogRef') confirmDialogRef : ConfirmDialogComponent;
+  @ViewChild('addUserContainerRef', { read: ViewContainerRef }) addUserContainerRef: ViewContainerRef;
+  addUserRef: any
+  constructor(
     private _userService: UserFormService,
-    private _loginService: LoginService
+    private _loginService: LoginService,
+    private resolver: ComponentFactoryResolver,
+    private commonService: CommonService,
+    private router: Router
   ) {
     this.menuData = this._loginService.getMenuDetails(44, 28);
-   }
+  }
 
-  ngOnInit () {
+  ngOnInit() {
     this.getUserListData()
   }
 
@@ -63,39 +71,23 @@ export class UserListComponent implements OnInit {
 
   }
 
-  addNewUser = () => {
-    this.showUser = {
-      open: true,
-      mode: 'CREATE'
-    }
-  }
-
-  editUser = (item) => {
-    this.showUser = {
-      open: true,
-      mode: 'EDIT',
-      editId: item.Id
-    }
-  }
-
-  // tslint:disable-next-line:no-empty
-  deleteUser = (id) => {
-
-  }
-
-  closeUserForm = (event) => {
-    if (event.addNew === true) {
-      this.showUser = {
-        open: true,
-        mode: 'CREATE',
-        addNew : false
-      }
-    } else {
-      this.showUser = {
-        open: false,
-        mode: event.mode
-      }
-      this.getUserListData()
-    }
+  addNewUser = (item?) => {
+    this.commonService.loadModalDynamically(this, 'addUserContainerRef', 'addUserRef', UserFormComponent,
+      (res) => {
+        if (this.commonService.isEmpty(item) && res) {
+          this.confirmDialogRef.title = 'Set User Permission'
+          this.confirmDialogRef.message = 'Want to Set Created User Permission ?'
+          this.confirmDialogRef.openModal()
+          this.confirmDialogRef.closeModal.subscribe((data) => {
+            if (data) {
+              this.router.navigate(['user-rights'])
+            } else {
+              this.getUserListData()
+            }
+          })
+        } else {
+          this.getUserListData()
+        }
+      }, item);
   }
 }

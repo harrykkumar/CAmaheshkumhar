@@ -11,13 +11,18 @@
               <div class="btn_header">
                 <!-- <a>
                   <img src="../assets/img/printer.png">
-                </a>
+                </a>-->
                 <a>
                   <img src="../assets/img/pdf.png"></a>
-                <a>
-                  <img src="../assets/img/excel.png"></a> -->
+                <a (click)="getDataInExcel()" >
+                  <img src="../assets/img/excel.png"></a> 
+                <button type="button" class="btn btn-primary waves-effect waves-light" (click)="generatePurchase()"
+                  [disabled]="disableBtn" >
+                  Generate Purchase
+                </button>
                 <button type="button" class="btn btn-primary waves-effect waves-light" (click)="openPO()">Add
-                  New</button>
+                  New
+                </button>
                 <button type="button" (click)="toggleSearch()" class="btn btn-primary waves-effect waves-light">
                   Search
                 </button>
@@ -50,7 +55,15 @@
                     currentPage: p,
                     totalItems: total
                   }; let i = index;">
-                    <td>{{lastItemIndex + i + 1}}</td>
+                    <td>
+                      <div class="custom-control custom-checkbox" *ngIf="item.PurchaseId === 0">
+                        <input name="po-{{ i }}" [(ngModel)]="item.checked"
+                          (keydown.enter)="item.checked = !item.checked; activatePurchaseBtn()"
+                          (change)="activatePurchaseBtn()" type="checkbox" class="custom-control-input"
+                          id="poAttribute-{{ i }}" />
+                        <label class="custom-control-label" for="poAttribute-{{ i }}"></label>
+                      </div>
+                    </td>
                     <td>{{item.LedgerName}}</td>
                     <td>{{item.PoNo}}</td>
                     <td>{{item.PoDate | dateFormat: clientDateFormat}}</td>
@@ -59,16 +72,35 @@
                     </td>
                     <td>{{item.Remark}}</td>
                     <td class="text-right" >{{item.TotalAmount}}</td>
-                    <td>
-                      <a title="Edit" class="actionBtn" data-toggle="tooltip" data-placement="top" >
-                        <i class="fa fa-edit fa-1x" aria-hidden="true" (click)="openPO(item.Id)" ></i>
-                      </a>
-                      <a title="delete" class="actionBtn" data-toggle="tooltip" data-placement="top" >
-                        <i class="fa fa-trash fa-1x" aria-hidden="true" (click)="delete(item.Id)" ></i>
-                      </a>
-                      <!-- <a  title="print" data-toggle="tooltip" data-placement="top" class="actionBtn" >
-                        <i class="fa fa-print fa-1x" aria-hidden="true" (click)="printInvoice(item.Id)" ></i>
-                      </a> -->
+                    <td class="texy-center" >
+                      <div class="dropdown enquiry-tag">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                          class="fa fa-cog mR-3 cH-blue fa-1x"></i><b class="caret"></b></a>
+                        <ul class="dropdown-menu fsz-sm">
+                          <li *ngIf="item.PurchaseId === 0" >
+                            <a data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn"
+                            (click)="openPO(item.Id)" >
+                              <i class="fa fa-edit fa-1x" aria-hidden="true"></i>
+                              Edit
+                            </a>
+                          </li>
+                          <li *ngIf="item.PurchaseId === 0" >
+                            <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="delete(item.Id)">
+                              <i class="fas fa-trash mR-10 cH-blue"></i><span>Delete</span>
+                            </a>
+                          </li>
+                          <li *ngIf="item.PurchaseId === 0" >
+                            <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700" (click)="approveQty(item.Id)" >
+                              <i class="far fa-paper-plane mR-10 fa-1x cH-blue"></i><span>Approve</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a class="d-b td-n p-1 bgcH-grey-100 c-grey-700">
+                              <i class="fas fa-print mR-10 cH-blue"></i><span>Print</span>
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -91,3 +123,5 @@
 </main>
 <app-pagination (lastValueEmitter)="lastItemIndex = $event" (pageNoEmitter)="p = $event; getPOList()"
   (pageSizeEmitter)="itemsPerPage = $event; getPOList()"></app-pagination>
+<po-approval #poApprovalModal ></po-approval>
+<po-purchase-add #poPurchaseModal (closeModalEvt)="getPOList()" ></po-purchase-add>

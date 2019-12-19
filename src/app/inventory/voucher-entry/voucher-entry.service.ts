@@ -1,4 +1,3 @@
-import { query } from '@angular/animations';
 import { CommonService } from './../../commonServices/commanmaster/common.services';
 import { Injectable, Inject } from "@angular/core";
 import { BaseServices } from '../../commonServices/base-services';

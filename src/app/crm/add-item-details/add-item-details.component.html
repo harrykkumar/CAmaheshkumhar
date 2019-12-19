@@ -68,6 +68,50 @@
                     }"
                   />
                 </div>
+                <div class="form-group col-md-12 custom-control custom-checkbox ml-4">
+                  <input type="checkbox" class="custom-control-input" id="amcSubscriptionId"
+                   name="amcSubscriptionName"
+                  [checked]="isAmcSubscription"
+                  [required]="selectedEnquiryStatusId !== 5 && selectedEnquiryStatusId !== 6"
+                   (change)="isAmcSubscription = $event.target.checked"
+                   [ngClass]="{
+                    'errorSelecto':selectedEnquiryStatusId !== 5 &&
+                      selectedEnquiryStatusId !== 6 && addItemDetailsForm?.submitted && !isAmcSubscription
+                  }">
+                  <label class="custom-control-label" for="amcSubscriptionId">Amc/Subscription</label>
+                </div>
+                <div class="form-group col-md-12">
+                  <label>Amount For Subscription</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Please Enter Amount"
+                    name="subscriptionAmount"
+                    [required]="selectedEnquiryStatusId !== 5 && selectedEnquiryStatusId !== 6"
+                    [(ngModel)]="subscriptionAmount"
+                    [ngClass]="{
+                      'errorSelecto':selectedEnquiryStatusId !== 5 &&
+                        selectedEnquiryStatusId !== 6 && addItemDetailsForm?.submitted && !subscriptionAmount
+                    }"
+                  />
+                </div>
+                <div class="form-group col-md-12">
+                  <label>Subscription Duration</label>
+                  <ng-select
+                    name="subscriptionDurationName"
+                    [items]="crmService.leadUtilityData.AMCDuration"
+                    bindLabel="commondesc"
+                    bindValue="id"
+                    placeholder="Select Duration"
+                    [(ngModel)]="subscriptionDuration"
+                    [required]="selectedEnquiryStatusId !== 5 && selectedEnquiryStatusId !== 6"
+                    [ngClass]="{
+                      'ng-select-invalid': selectedEnquiryStatusId !== 5 &&
+                      selectedEnquiryStatusId !== 6 && addItemDetailsForm?.submitted && !subscriptionDuration
+                    }"
+                  >
+                  </ng-select>
+                </div>
             </div>
           </div>
         </div>

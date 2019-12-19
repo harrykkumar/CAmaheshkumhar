@@ -12,7 +12,7 @@
             <div class="col-md-9">
               <div class="btn_header">
                 <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-default waves-effect" #savebutton
-                  (click)="keepOpen=false;saveSaleDirect()">
+                  (click)="keepOpen=false;saveSaleChallanBilling()">
 
                   {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
                 </button>
@@ -31,22 +31,15 @@
           <div class="form-row">
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label for="partyname">Party Name</label>
+              <a class="pl-2 label_green">OB:</a>
+              <span class="pl-2 label_green">
+                {{outStandingBalance}}{{ setCRDR}}
+              </span>
               <input readonly='true' type="text" class="form-control" id="partyname" placeholder="Party Name"
                 class="form-control" name="partyname" [(ngModel)]="partyname">
             </div>
 
-            <div class="form-group col-md-4 col-xl-2">
-              <label> OutStanding Balance</label>
-              <div class="discount">
-                <input [disabled]='true' type="text" class="form-control" id="e-way" placeholder="Amount"
-                  class="form-control" name="outStandingBalance" [(ngModel)]="outStandingBalance">
-
-                <select [disabled]='true' class="form-control discount_type drop_remove" id="InterestRate"
-                  name="InterestRateType">
-                  <option>{{setCRDR}}</option>
-                </select>
-              </div>
-            </div>
+         
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label for="orgnizationName">Organization Name</label>
               <input readonly='true' type="text" class="form-control" id="orgnizationName"
@@ -961,7 +954,7 @@
         <button
           type="submit"
           class="btn waves-effect btn-succ-ess"
-          (click)="keepOpen=false;saveSaleDirect()">
+          (click)="keepOpen=false;saveSaleChallanBilling()">
           {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
           
         </button>

@@ -1,4 +1,4 @@
-<div class="modal fade" id="purchase_modal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
+<div class="modal fade" id="po_purchase_modal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
   data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog large_form modal-full-height modal-top" role="document">
     <div class="modal-content bgcH-grey-100">
@@ -12,9 +12,11 @@
             <div class="col-md-9">
               <div class="btn_header">
                 <button [disabled]="DisabledSaveBtn" type="button" class="btn btn-default waves-effect" #savebutton
-                  (click)="keepOpen=false;manipulateData()">save</button>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true" class="white-text" (click)="close()">×</span>
+                  (click)="keepOpen=false;manipulateData()">
+                  {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
+                </button>
+                <button type="button" class="close">
+                  <span aria-hidden="true" class="white-text" (click)="closeModal()">×</span>
                 </button>
               </div>
             </div>
@@ -32,91 +34,144 @@
           <div class="form-row">
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label>Vendor</label>
+              <div>{{model?.VendorName}}</div>
+            </div>
+            <div class="form-group col-md-4 col-xl-2">
+              <label> OutStanding Balance</label>
+              <div class="discount">
+                <input [disabled]='true' type="text" class="form-control" id="e-way" placeholder="Amount"
+                  class="form-control" name="outStandingBalance" [(ngModel)]="model.outStandingBalance">
+                <select [disabled]='true' class="form-control discount_type drop_remove" id="InterestRate"
+                  name="InterestRateType">
+                  <option>{{model?.setCRDR}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+              <label class="fw-500">Voucher Date</label>
+              <datepicker-popup #error #paydateRef [toSetDate]="CurrentDate"
+                [applyFinYear]="'true'"
+                [isBackDate]="backDateEntry"
+                (dateInFormat)="CurrentDate = $event; PayDate = $event;
+                setDueDateAsCurrent($event); getNewBillNo();checkForValidation();"
+                [class]="submitSave && invalidObj?.CurrentDate"></datepicker-popup>
+            </div>
+            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+              <label>P.V.No</label>
+              <a *ngIf="isBillNoManuall && !editMode" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
+                <span class="tooltiptext">Last Bill No. used is - {{previousBillNo}}</span>
+              </a>
+              <input #billNumbeRef #error type="text" placeholder="Bill Number" class="form-control"
+                name="BillNo"
+                [readonly]="!isBillNoManuall" [disabled]="editMode" (input)="checkForValidation()"
+                [ngClass]="{'errorSelecto': submitSave && invalidObj?.BillNo }" [(ngModel)]="BillNo">
+            </div>
+            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+              <label>Party Bill No.</label>
+              <input #error #partyBillNoRef type="text" placeholder="Party Bill Number" class="form-control" 
+                name="PartyBillNo"
+                (input)="checkForValidation()" [ngClass]="{'errorSelecto': submitSave && invalidObj?.PartyBillNo }"
+                [(ngModel)]="PartyBillNo">
+            </div>
+            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+              <label class="fw-500"> Party Bill Date </label>
+              <datepicker-popup #error [applyFinYear]="'true'" [toSetDate]="PartyBillDate" [isBackDate]="backDateEntry"
+                [class]="submitSave && invalidObj?.PartyBillDate"
+                (dateInFormat)="PartyBillDate = $event;checkForValidation();"></datepicker-popup>
+            </div>
+            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+              <label>Godam/Location</label>
               <div class="input-group adw_select">
-                <select2 #vendor_select2 id="vendor" [data]="model.vendorData" class="control_select"
-                  (valueChanged)="onVendorSelect($event)" autocomplete="true" [options]="{placeholder: 'Select Vendor'}"
-                  [ngClass]="{'errorSelecto': submitSave && invalidObj?.LegerId }" [value]="model.vendorValue">
-                </select2>
+                <select2 #godown_select2 id="godown" [data]="godownsData" class="control_select"
+                  (valueChanged)="onGodownSelect($event)" autocomplete="true"
+                  [options]="{ placeholder: 'Select Godown' }" [value]="godownValue"></select2>
               </div>
             </div>
             <div class="form-group col-md-3 col-lg-3 col-xl-3">
               <label>Address</label>
               <div class="input-group adw_select">
-                <select2 #address_select2 id="address" [data]="model.addressData" class="control_select"
+                <select2 #address_select2 id="address" [data]="AddressData" class="control_select"
                   (valueChanged)="onAddressSelect($event)" autocomplete="true"
-                  [options]="{ placeholder: 'Select Address' }" [value]="model.addressValue"></select2>
+                  [options]="{ placeholder: 'Select Address' }" [value]="addressValue"></select2>
               </div>
             </div>
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
-              <label>P.O. Number</label>
-              <!-- <a *ngIf="isBillNoManuall && !editMode" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
-                <span class="tooltiptext">Last Bill No. used is - {{previousBillNo}}</span>
-              </a> -->
-              <input type="text" placeholder="PO Number" class="form-control" name="BillNo" [disabled]="editMode" 
-              (input)="checkForValidation()"
-              [ngClass]="{'errorSelecto': submitSave && invalidObj?.PONumber }" [(ngModel)]="model.PONumber">
+              <label>Billing Currency</label>
+              <div class="input-group adw_select">
+                <select2 #currency_select2 #error id="currency" [data]="currencyData" class="control_select"
+                  (valueChanged)="onCurrencySelect($event)" autocomplete="true"
+                  [options]="{ placeholder: 'Select Currency' }"
+                  [ngClass]="{'errorSelecto': submitSave && invalidObj?.CurrencyId }" 
+                  [value]="currencyValue"></select2>
+              </div>
             </div>
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
-              <label class="fw-500">PO Date</label>
-              <datepicker-popup [toSetDate]="model.CurrentDate" [applyFinYear]="'true'"
-                (dateInFormat)="model.PoDate = $event;
-                getNewBillNo();checkForValidation();" [class]="submitSave && invalidObj?.PoDate"
-                [placeholder]="PO Number">
+              <label>Convert To Currency</label>
+              <div class="input-group adw_select">
+                <select2 #convertTo_select2 id="convertToCurrency" [data]="convertToCurrencyData" 
+                  class="control_select"
+                  (valueChanged)="onConvertToCurrencySelect($event)" autocomplete="true"
+                  [options]="{ placeholder: 'Select Convert In Currency' }" 
+                  [value]="convertToCurrencyValue"></select2>
+              </div>
+            </div>
+            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+              <label for="currency-rate">Currency Rate</label>
+              <input type="text" class="form-control" id="currency-rate" placeholder="Currency Rate"
+                class="form-control" appIncludeDeciaml name="currencyRate" [(ngModel)]="CurrencyRate">
+            </div>
+            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+              <label for="due-date">Due Date</label>
+              <datepicker-popup [toSetDate]="DueDate" [applyFinYear]="'true'"
+                [daysToAdd]="CreditDays" (dateInFormat)="DueDate = $event">
               </datepicker-popup>
-            </div>
-            <div class="form-group col-md-3 col-lg-2 col-xl-2">
-              <label class="fw-500">Delivery Date</label>
-              <datepicker-popup [toSetDate]="''" [placeholder]="'From Date'" [applyFinYear]="'true'"
-                [class]="submitSave && invalidObj?.PartyBillDate"
-                (dateInFormat)="model.ExDeliveryFromDate = $event;checkForValidation();"
-              ></datepicker-popup>
-            </div>
-            <div class="form-group col-md-3 col-lg-2 col-xl-2">
-              <datepicker-popup [toSetDate]="''" [placeholder]="'To Date'" [applyFinYear]="'true'"
-                [class]="submitSave && invalidObj?.PartyBillDate"
-                (dateInFormat)="model.ExDeliveryToDate = $event;checkForValidation();"></datepicker-popup>
-            </div>
-            <div class="form-group col-md-3 col-lg-2 col-xl-2">
-              <label>Delivery Mode</label>
-              <div class="input-group adw_select">
-                <select2 #delivery_select2 id="godown" [data]="model.deliveryModeData" class="control_select"
-                  (valueChanged)="onDeliveryModeSelect($event)" autocomplete="true"
-                  [options]="{ placeholder: 'Select Delivery Mode' }"
-                  [ngClass]="{'errorSelecto': submitSave && invalidObj?.deliveryModeId }" [value]="mode.deliveryValue">
-                </select2>
-              </div>
-            </div>
-            <div class="form-group col-md-3 col-lg-2 col-xl-2">
-              <label>Buyer Order</label>
-              <div class="input-group adw_select">
-                <select2 #buyer_order_select2 id="currency" [data]="model.customerData" class="control_select"
-                  (valueChanged)="onBuyerOrderSelect($event)" autocomplete="true"
-                  [options]="{ placeholder: 'Select Buyer Order' }"
-                  [ngClass]="{'errorSelecto': submitSave && invalidObj?.ParentId }" [value]="model.boValue">
-                </select2>
-              </div>
-            </div>
-            <div class="form-group col-md-3 col-lg-2 col-xl-2">
-              <textarea class="form-control" name="remark" [(ngModel)]="mode.Remark"></textarea>
             </div>
           </div>
           <div class="card p-2">
+            <div class="form-row">
+              <div class=" col-md-1">
+                <h5 class="summery_text">Item Detail</h5>
+              </div>
+              <div *ngIf="BarCodeEnableFlag" class="form-group col-md-3 col-lg-2 col-xl-2">
+                <input #barcode type="text" class="form-control" id="barcode" placeholder="Barcode" class="form-control"
+                name="Barcode" (change)="barCodeReader()" [(ngModel)]="Barcode">
+              </div>
+            </div>
             <div class="table-responsive parent">
-              <table class="table fixTable1 editable_tbl item-table table-hover" id="table">
+              <table class="table fixTable4 editable_tbl item-table table-hover" id="table">
                 <thead>
                   <tr class="default_row table">
                     <th class="cust_width_80">#</th>
-                    <th>Category</th>
+                    <th class="cust_width_80">S.NO.</th>
+                    <th [colSpan]="categories.length">Category <a (click)="opeCatImport()" class="info_tooltip"><i
+                          class="fas fa-plus"></i></a></th>
                     <th>Item</th>
                     <th *ngFor="let column of attributeKeys ; ">
                       {{column}}
                     </th>
-                    <th>Description</th>
                     <th>Unit</th>
                     <th>Quantity</th>
-                    <th>Rate</th>
-                    <th>Tax</th>
-                    <th>Amount</th>
+                    <ng-container *ngIf="industryId === 3">
+                      <th>Length</th>
+                      <th>Width</th>
+                      <th>Height</th>
+                    </ng-container>
+                    <ng-container *ngIf="industryId === 5">
+                      <th class="cust_width_150">Batch No</th>
+                      <th class="cust_width_150">Mfd Date</th>
+                      <th class="cust_width_150">Expiry Date</th>
+                    </ng-container>
+                    <th>Purchase Rate</th>
+                    <th>Total</th>
+                    <th>Sale Rate</th>
+                    <th>Mrp Rate</th>
+                    <th>Discount</th>
+                    <th>Discount Amount</th>
+                    <th>TaxSlab</th>
+                    <th>Tax Type</th>
+                    <th>Tax Amount</th>
+                    <th class="cust_width_200">Remark</th>
+                    <th>Sub Amount</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -138,19 +193,18 @@
                           </a>
                         </ng-container>
                       </div>
-                      <div>
-                        {{item.SrNo}}
-                      </div>
+
                     </td>
+                    <td>{{item.SrNo}}</td>
                     <ng-container *ngIf="item.isDisabled">
-                      <td>{{item.categoryName}}</td>
+                      <td [colSpan]="categories.length" class="align-middle">{{item.categoryName}}</td>
                     </ng-container>
                     <ng-container *ngIf="!item.isDisabled">
-                      <td class="highLightRow">
+                      <td *ngFor="let category of categories" class="highLightRow">
                         <div class="input-group adw_select">
-                          <select2 [data]="category_select2" #cat_select2 class="control_select cat-cont"
-                            (valueChanged)="onSelectCategory($event)" (keydown.esc)="moveToCharge()"
-                            autocomplete="true" [options]="{ placeholder: 'Select Category' }" [value]="mode.catValue">
+                          <select2 [data]="category.data" #cat_select2 class="control_select cat-cont"
+                            (valueChanged)="onSelectCategory($event, category.level)" (keydown.esc)="moveToCharge()"
+                            autocomplete="true" [options]="{ placeholder: 'Select Category' }" [value]="category.value">
                           </select2>
                         </div>
                       </td>
@@ -158,10 +212,10 @@
                     <td *ngIf="item.isDisabled" class="align-middle">{{item.itemName}}</td>
                     <td *ngIf="!item.isDisabled" class="highLightRow">
                       <div class="input-group adw_select min_width_350">
-                        <select2 #item_select2 [data]="model.itemData" class="control_select "
+                        <select2 #error [disabled]="PartyId <= 0" #item_select2 [data]="itemData" class="control_select "
                           (valueChanged)="onItemSelect($event)" autocomplete="true"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.ItemId }"
-                          [options]="{placeholder: 'Select Item'}" [value]="model.itemValue">
+                          [options]="{placeholder: 'Select Item'}" [value]="itemValue">
                         </select2>
                       </div>
                     </td>
@@ -182,37 +236,42 @@
                     <td *ngIf="item.isDisabled" class="align-middle">{{item.unitName}}</td>
                     <td *ngIf="!item.isDisabled" class="highLightRow">
                       <div class="input-group adw_select">
-                        <select2 #unit_select2 [data]="subUnitsData" class="control_select"
+                        <select2 #unit_select2 #error [data]="subUnitsData" class="control_select"
                           (valueChanged)="onUnitSelect($event)" autocomplete="true"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.UnitId }"
                           [options]="{ placeholder: 'Select Unit' }" [value]="subUnitsValue"></select2>
                       </div>
                     </td>
                     <td *ngIf="item.isDisabled" class="align-middle">{{item.Quantity}}</td>
-                    <td *ngIf="!item.isDisabled" class="highLightRow">
-                      <input type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
+                    <td *ngIf="!item.isDisabled" class="highLightRow align-item-center d-flex">
+                      <input #quantityRef #error type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
                         (input)="validateItem();calculate();"
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Quantity }"
                         name="quantity" [(ngModel)]="Quantity">
+
+
+                      <span *ngIf='industryId===12'>
+                        <a (click)="editCreateMobilepopup(item)" class="info_tooltip"><i class="fas fa-plus"></i></a>
+                      </span>
                     </td>
                     <ng-container *ngIf="industryId === 3">
                       <td *ngIf="item.isDisabled" class="align-middle">{{item.Length.toFixed(noOfDecimalPoint)}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
-                        <input type="text" class="form-control" placeholder="Length" appIncludeDecimal name="length"
-                          (input)="validateItem();calculate();"
+                        <input #lengthRef #error type="text" class="form-control" placeholder="Length" appIncludeDecimal
+                          name="length" (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Length }"
                           [(ngModel)]="Length">
                       </td>
                       <td *ngIf="item.isDisabled" class="align-middle">{{item.Width.toFixed(2)}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
-                        <input type="text" class="form-control" placeholder="Width"
+                        <input #widthRef #error type="text" class="form-control" placeholder="Width"
                           (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Width }"
                           appIncludeDecimal name="Width" [(ngModel)]="Width">
                       </td>
                       <td *ngIf="item.isDisabled" class="align-middle">{{item.Height.toFixed(2)}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
-                        <input type="text" class="form-control" placeholder="Height"
+                        <input #heightRef #error type="text" class="form-control" placeholder="Height"
                           (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Height }"
                           appIncludeDecimal name="Height" [(ngModel)]="Height">
@@ -221,19 +280,22 @@
                     <ng-container *ngIf="industryId === 5">
                       <td *ngIf="item.isDisabled" class="align-middle">{{item.BatchNo.toFixed(2)}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
-                        <input type="text" class="form-control" placeholder="Batch No" (input)="validateItem();"
+                        <input #BatchNoRef #error type="text" class="form-control" placeholder="Batch No"
+                          (input)="validateItem();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.BatchNo }"
                           name="BatchNo" [(ngModel)]="BatchNo">
                       </td>
                       <td *ngIf="item.isDisabled" class="align-middle">{{item.MfdDate}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
-                        <datepicker-popup [toSetDate]="MfdDate" [isBackDate]="true"
+                        <datepicker-popup [toSetDate]="MfdDate"
+                          [isBackDate]="true"
                           (dateInFormat)="MfdDate = $event;validateItem();"
                           [class]="(submitSave || !clickItem) && invalidObj?.MfdDate"></datepicker-popup>
                       </td>
                       <td *ngIf="item.isDisabled" class="align-middle">{{item.ExpiryDate}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
-                        <datepicker-popup [toSetDate]="ExpiryDate" (dateInFormat)="ExpiryDate = $event;validateItem();"
+                        <datepicker-popup [toSetDate]="ExpiryDate" 
+                          (dateInFormat)="ExpiryDate = $event;validateItem();"
                           [class]="(submitSave || !clickItem) && invalidObj?.ExpiryDate"></datepicker-popup>
                       </td>
                     </ng-container>
@@ -241,8 +303,8 @@
                     </td>
 
                     <td *ngIf="!item.isDisabled" class="highLightRow">
-                      <input type="text" class="form-control" placeholder="Purchase Rate" name="PurchaseRate"
-                        (input)="validateItem();calculate()" appIncludeDecimal
+                      <input #PurchaserateRef #error type="text" class="form-control" placeholder="Purchase Rate"
+                        name="PurchaseRate" (input)="validateItem();calculate()" appIncludeDecimal
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.PurchaseRate }"
                         [(ngModel)]="PurchaseRate">
                     </td>
@@ -269,7 +331,7 @@
 
                     <td *ngIf="!item.isDisabled" class="highLightRow">
                       <div class="discount">
-                        <input [disabled]='IsNotDiscountable' type="text" class="form-control" placeholder="Discount"
+                        <input #error [disabled]='IsNotDiscountable' type="text" class="form-control" placeholder="Discount"
                           appIncludeDecimal name="Discount" [(ngModel)]="Discount" (input)="validateItem();calculate()"
                           [ngClass]="{'errorSelecto': invalidObj?.Discount }">
                         <select [disabled]='IsNotDiscountable' style="width: 70px !important;"
@@ -325,6 +387,7 @@
                 </tbody>
                 <tfoot>
                   <tr *ngIf="showHideAddItemRow" class="selected_row active">
+                    <td></td>
                     <td>
                       <div class="action_btn">
                         <button type="submit" class="btn btn-primary redAlert btn_add_more"
@@ -343,7 +406,7 @@
                     </ng-container>
                     <td>
                       <div class="input-group adw_select min_width_350">
-                        <select2 [disabled]="PartyId <= 0" #item_select2 [data]="itemData" class="control_select "
+                        <select2 #error [disabled]="PartyId <= 0" #item_select2 [data]="itemData" class="control_select "
                           (valueChanged)="onItemSelect($event)" autocomplete="true"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.ItemId }"
                           [options]="{placeholder: 'Select Item'}" [value]="itemValue">
@@ -359,33 +422,36 @@
                     </td>
                     <td>
                       <div class="input-group adw_select">
-                        <select2 #unit_select2 [data]="subUnitsData" class="control_select"
+                        <select2 #error #unit_select2 [data]="subUnitsData" class="control_select"
                           (valueChanged)="onUnitSelect($event)" autocomplete="true"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.UnitId }"
                           [options]="{ placeholder: 'Select Unit' }" [value]="subUnitsValue"></select2>
                       </div>
                     </td>
-                    <td>
-                      <input type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
-                        (input)="validateItem();calculate();"
+                    <td class="align-items-center d-flex">
+                      <input #error #quantityRef type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
+                        (blur)='createMobilepopup();' (input)="validateItem();calculate();"
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Quantity }"
                         name="quantity" [(ngModel)]="Quantity">
+                      <span *ngIf='industryId===12'>
+                        <a (click)="createMobilepopup()" class="info_tooltip"><i class="fas fa-plus"></i></a>
+                      </span>
                     </td>
                     <ng-container *ngIf="industryId === 3">
                       <td>
-                        <input type="text" class="form-control" placeholder="Length" appIncludeDecimal name="length"
-                          (input)="validateItem();calculate();"
+                        <input #error #lengthRef type="text" class="form-control" placeholder="Length" appIncludeDecimal
+                          name="length" (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Length }"
                           [(ngModel)]="Length">
                       </td>
                       <td>
-                        <input type="text" class="form-control" placeholder="Width"
+                        <input #error #widthRef type="text" class="form-control" placeholder="Width"
                           (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Width }"
                           appIncludeDecimal name="Width" [(ngModel)]="Width">
                       </td>
                       <td>
-                        <input type="text" class="form-control" placeholder="Height"
+                        <input #error #heightRef type="text" class="form-control" placeholder="Height"
                           (input)="validateItem();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Height }"
                           appIncludeDecimal name="Height" [(ngModel)]="Height">
@@ -393,7 +459,8 @@
                     </ng-container>
                     <ng-container *ngIf="industryId === 5">
                       <td>
-                        <input type="text" class="form-control" placeholder="Batch No" (input)="validateItem();"
+                        <input #error #BatchNoRef type="text" class="form-control" placeholder="Batch No"
+                          (input)="validateItem();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.BatchNo }"
                           name="BatchNo" [(ngModel)]="BatchNo">
                       </td>
@@ -408,8 +475,8 @@
                       </td>
                     </ng-container>
                     <td>
-                      <input type="text" class="form-control" placeholder="Purchase Rate" name="PurchaseRate"
-                        (input)="validateItem();calculate()" appIncludeDecimal
+                      <input #error #PurchaserateRef type="text" class="form-control" placeholder="Purchase Rate"
+                        name="PurchaseRate" (input)="validateItem();calculate()" appIncludeDecimal
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.PurchaseRate }"
                         [(ngModel)]="PurchaseRate">
                     </td>
@@ -427,7 +494,7 @@
                     </td>
                     <td>
                       <div class="discount">
-                        <input [disabled]='IsNotDiscountable' type="text" class="form-control" placeholder="Discount"
+                        <input #error [disabled]='IsNotDiscountable' type="text" class="form-control" placeholder="Discount"
                           appIncludeDecimal name="Discount" [(ngModel)]="Discount" (input)="validateItem();calculate()"
                           [ngClass]="{'errorSelecto': invalidObj?.Discount }">
                         <select [disabled]='IsNotDiscountable' style="width: 70px !important;"
@@ -470,6 +537,7 @@
                     </td>
                   </tr>
                   <tr>
+                    <td></td>
                     <td *ngFor="let item of categories"></td>
                     <td *ngFor="let item of attributeKeys"></td>
                     <td colspan="3" *ngIf="industryId === 3"></td>
@@ -534,7 +602,7 @@
                       <td *ngIf="charge.isEditable" class="align-middle">{{charge.LedgerName}}</td>
                       <td *ngIf="!charge.isEditable">
                         <div class="input-group adw_select">
-                          <select2 [disabled]="PartyId <= 0" name="chargeselect" #charge_select2 [data]="chargesData"
+                          <select2 #error [disabled]="PartyId <= 0" name="chargeselect" #charge_select2 [data]="chargesData"
                             class="control_select" (valueChanged)="onChargeSelect($event)"
                             (keydown.esc)="moveToPayment()" autocomplete="true"
                             [options]="{placeholder: 'Select Charge'}"
@@ -545,7 +613,7 @@
                       <td *ngIf="charge.isEditable" class="align-middle">{{charge.AmountCharge}}</td>
 
                       <td *ngIf="!charge.isEditable">
-                        <input type="text" [disabled]="PartyId <= 0" appIncludeDecimal name="AmountCharge"
+                        <input #error type="text" [disabled]="PartyId <= 0" appIncludeDecimal name="AmountCharge"
                           class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.AmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge();calculate();" id="AmountCharge" [(ngModel)]="AmountCharge"
@@ -556,7 +624,7 @@
                       </td>
                       <td *ngIf="!charge.isEditable">
                         <div class="input-group adw_select">
-                          <select2 #taxSlabCharge_select2 [data]="taxSlabsData" class="control_select"
+                          <select2 #error #taxSlabCharge_select2 [data]="taxSlabsData" class="control_select"
                             (valueChanged)="onTaxSlabChargeSelect($event)" autocomplete="true"
                             [ngClass]="{'errorSelecto': (submitSave || !clickCharge) && invalidObj?.TaxSlabChargeId }"
                             [options]="{ placeholder: 'Select Tax Slab' }" [value]="taxSlabChargeValue"></select2>
@@ -574,7 +642,7 @@
                         {{charge.TaxAmountCharge}}
                       </td>
                       <td *ngIf="!charge.isEditable">
-                        <input type="text" appIncludeDecimal readonly="true" name="TaxAmountCharge" class="form-control"
+                        <input #error type="text" appIncludeDecimal readonly="true" name="TaxAmountCharge" class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.TaxAmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge()" id="TaxAmountCharge" [(ngModel)]="TaxAmountCharge"
                           placeholder="Tax Amount">
@@ -582,7 +650,7 @@
                       <td *ngIf="charge.isEditable" class="align-middle">
                         {{charge.TotalAmountCharge}}
                       </td>
-                      <td *ngIf="!charge.isEditable"><input type="text" appIncludeDecimal readonly="true"
+                      <td *ngIf="!charge.isEditable"><input #error type="text" appIncludeDecimal readonly="true"
                           name="TotalAmountCharge" class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.TotalAmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge()" (keyup.enter)="enterPressCharge($event)" id="TotalAmountCharge"
@@ -600,7 +668,7 @@
                       </td>
                       <td>
                         <div class="input-group adw_select">
-                          <select2 [disabled]="PartyId <= 0" name="chargeselect" #charge_select2 [data]="chargesData"
+                          <select2 #error [disabled]="PartyId <= 0" name="chargeselect" #charge_select2 [data]="chargesData"
                             class="control_select" (valueChanged)="onChargeSelect($event)"
                             (keydown.esc)="moveToPayment()" autocomplete="true"
                             [options]="{placeholder: 'Select Charge'}"
@@ -608,7 +676,7 @@
                             [value]="ledgerChargeValue"></select2>
                         </div>
                       </td>
-                      <td><input type="text" [disabled]="PartyId <= 0" appIncludeDecimal name="AmountCharge"
+                      <td><input #error type="text" [disabled]="PartyId <= 0" appIncludeDecimal name="AmountCharge"
                           class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.AmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge();calculate();" id="AmountCharge" [(ngModel)]="AmountCharge"
@@ -616,7 +684,7 @@
                       </td>
                       <td>
                         <div class="input-group adw_select">
-                          <select2 #taxSlabCharge_select2 [data]="taxSlabsData" class="control_select"
+                          <select2 #error #taxSlabCharge_select2 [data]="taxSlabsData" class="control_select"
                             (valueChanged)="onTaxSlabChargeSelect($event)" autocomplete="true"
                             [ngClass]="{'errorSelecto': (submitSave || !clickCharge) && invalidObj?.TaxSlabChargeId }"
                             [options]="{ placeholder: 'Select Tax Slab' }" [value]="taxSlabChargeValue"></select2>
@@ -627,13 +695,13 @@
                           (valueChanged)="onTaxTypeChargeSelect($event)" autocomplete="true"
                           [options]="{ placeholder: 'Select Tax Type' }" [value]="taxTypeChargeValue"></select2>
                       </td>
-                      <td><input type="text" appIncludeDecimal readonly="true" name="TaxAmountCharge"
+                      <td><input #error type="text" appIncludeDecimal readonly="true" name="TaxAmountCharge"
                           class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.TaxAmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge()" id="TaxAmountCharge" [(ngModel)]="TaxAmountCharge"
                           placeholder="Tax Amount">
                       </td>
-                      <td><input type="text" appIncludeDecimal readonly="true" name="TotalAmountCharge"
+                      <td><input #error type="text" appIncludeDecimal readonly="true" name="TotalAmountCharge"
                           class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.TotalAmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge()" (keyup.enter)="enterPressCharge($event)" id="TotalAmountCharge"
@@ -647,14 +715,65 @@
           </div>
           <div class="form-row mt-2">
             <div class="col-md-12 card p-2">
-              <div class="col-md-6"></div>
-              <!-- <div class="col-md-6">
-                <div class="pt-2 pr-2 pl-2 " *ngIf="!loadingSummary" >
-                  <h5 class="summery_text">Bill Summary</h5>
+              <div class="form-row mt-2">
+                <div class="col-md-6">
+                  <div class="border-right p-2">
+                    <div class="form-row">
+                      <div class="form-group col-md-3">
+                        <label class="">Location To</label>
+                        <input type="text" class="form-control" id="Location" #loc_ref placeholder="Location"
+                          class="form-control" name="Location" [(ngModel)]="LocationTo">
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label>Vehicle Number</label>
+                        <input type="text" class="form-control" id="VehicleNo" placeholder="Vehicle No"
+                          class="form-control" name="VehicleNo" [(ngModel)]="VehicleNo">
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label>Driver Name</label>
+                        <input type="text" class="form-control" id="Drivername" placeholder="Driver name"
+                          class="form-control" name="Drivername" [(ngModel)]="Drivername">
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label>Transportation</label>
+                        <input type="text" class="form-control" id="Transportation" placeholder="Transportation"
+                          class="form-control" name="Transportation" [(ngModel)]="Transportation">
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label>Manual Round Off</label>
+                        <input type="number" class="form-control" id="RoundOffManual" placeholder="Round Off Manual"
+                          class="form-control" name="RoundOffManual" appIncludeDecimal (input)="calculate()"
+                          [(ngModel)]="RoundOffManual">
+                      </div>
+                      <div class=" form-group  col-md-3">
+                        <label>Bill Discount</label>
+                        <div class="discount">
+                          <input #error [disabled]="MultipleBillDiscountPurchase || addItemDisbaled" type="number"
+                            class="form-control" placeholder="Bill Discount" appIncludeDecimal name="BillDiscount"
+                            [(ngModel)]="BillDiscount" min="0" max="100"
+                            (input)="BillDiscountValidation($event);BillDiscountCalculate();"
+                            [ngClass]="{'errorSelecto': invalidObj?.Discount }">
+                          <select *ngIf='!MultipleBillDiscountPurchase' style="width: 70px !important;"
+                            class="form-control discount_type" id="BillDiscountType" [(ngModel)]="BillDiscountType"
+                            (ngModelChange)="BillDiscountCalculate()" name="BillDiscountType">
+                            <option *ngFor="let value of currencyValues;" [value]="value.id">{{value.symbol}}</option>
+                          </select>
+                          <div *ngIf='MultipleBillDiscountPurchase'>
+                            <a [class.disabled]="addItemDisbaled" (click)="openDiscountMaster()" class="Plus_tooltip"><i
+                                class="fas fa-plus-square "></i></a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="pt-2 pr-2 pl-2 " *ngIf="!loadingSummary">
+                    <h5 class="summery_text">Bill Summary</h5>
                     <div class="form-row">
                       <div class="col-md-6 text-left">
                         <div class="form-row">
-                          <ng-container *ngIf="TaxableValue > 0" >
+                          <ng-container *ngIf="TaxableValue > 0">
                             <div class="col-md-6 labal_text">Taxable Value</div>
                             <div class="col-md-6 value_text">{{TaxableValue.toFixed(noOfDecimalPoint)}}</div>
                           </ng-container>
@@ -662,14 +781,15 @@
                             <div class="col-md-6 labal_text">Total Bill Discount</div>
                             <div class="col-md-6 value_text">{{totalBillDiscount.toFixed(noOfDecimalPoint)}}</div>
                           </ng-container>
-                          <ng-container *ngFor="let charge of AdditionalChargesToShow" >
+                          <ng-container *ngFor="let charge of AdditionalChargesToShow">
                             <div class="col-md-6 labal_text">{{charge.LedgerName}}</div>
-                            <div class="col-md-6 value_text">{{charge.TaxableAmountCharge.toFixed(noOfDecimalPoint)}}</div>
+                            <div class="col-md-6 value_text">{{charge.TaxableAmountCharge.toFixed(noOfDecimalPoint)}}
+                            </div>
                           </ng-container>
                         </div>
                       </div>
-                      <div class="col-md-6 text-right" *ngIf="billSummary && billSummary.length > 0" >
-                        <div class="form-row" *ngFor="let tax of billSummary" >
+                      <div class="col-md-6 text-right" *ngIf="billSummary && billSummary.length > 0">
+                        <div class="form-row" *ngFor="let tax of billSummary">
                           <div class="col-md-6 labal_text">{{tax.name}}</div>
                           <div class="col-md-6 value_text">{{tax.total.toFixed(4)}}</div>
                         </div>
@@ -686,12 +806,155 @@
                       <div class="col-md-3 text-right font-weight-bold value_text">{{BillAmount}}</div>
                     </div>
                   </div>
-                  <div class="card pt-2 pr-2 pl-2" *ngIf="loadingSummary" >
-                    <div class="modal-body" style="height:inherit;" >
-                      <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" style="width: 25px;height: 25px;position: absolute;left: 49%;top:49%;" />
+                  <div class="card pt-2 pr-2 pl-2" *ngIf="loadingSummary">
+                    <div class="modal-body" style="height:inherit;">
+                      <img src="assets/img/spinner-blue-circle.gif" alt="loading screen"
+                        style="width: 25px;height: 25px;position: absolute;left: 49%;top:49%;" />
                     </div>
                   </div>
-              </div> -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row mt-2">
+            <div class="col-md-12 card p-2">
+              <div class="form-row">
+                <div class="parent" id="parent">
+                  <h5 class="summery_text">Payment Details</h5>
+                  <table class="table editable_tbl trans-table" id="fixTable">
+                    <thead>
+                      <tr>
+                        <th class="cust_width_80">#</th>
+                        <th>Mode</th>
+                        <th>Ledger Name</th>
+                        <th>Amount</th>
+                        <th>PayDate</th>
+                        <th>Ref. No.</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="default_row" *ngFor="let transaction of PaymentDetail; index as i"
+                        (click)="editItem(i+1, transaction.Id, 'trans',transaction.Sno)">
+                        <td class="profile-pic1">
+                          <div class="edit1">
+                            <ng-container *ngIf="transaction.isEditable">
+                              <a (click)="deleteItem(i, 'trans', transaction.Sno)" *ngIf="PaymentDetail.length > 0">
+                                <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
+                              </a>
+                            </ng-container>
+                            <ng-container *ngIf="transaction.isEditable">
+                              <a (click)="editItem(i+1, transaction.Id, 'trans',transaction.Sno)"
+                                *ngIf="PaymentDetail.length > 0"><i class="fas fa-pen fa-1x"></i>
+                              </a>
+                            </ng-container>
+                            <ng-container *ngIf="!transaction.isEditable">
+                              <a *ngIf="PaymentDetail.length > 0" (click)="addTransactions()"><i
+                                  class="fas fa-plus fa-1x"></i>
+                              </a>
+                            </ng-container>
+                          </div>
+                        </td>
+                        <td *ngIf="transaction.isEditable" class="align-middle" style="min-width:180px;">
+
+                          {{transaction.Paymode}}
+
+                        </td>
+                        <td *ngIf="!transaction.isEditable" style="min-width:180px;">
+                          <div class="input-group adw_select">
+                            <select2 #error name="Paymode" #payment_select2 [data]="paymentModesData" id="PayModeId"
+                              class="control_select" (valueChanged)="onPaymentModeSelect($event)" autocomplete="true"
+                              [options]="{placeholder: 'Select Payment Mode'}"
+                              [ngClass]="{'errorSelecto': invalidObj?.PayModeId && (submitSave || !clickTrans)  }"
+                              [value]="paymode"></select2>
+                          </div>
+                        </td>
+                        <td *ngIf="transaction.isEditable" class="align-middle">
+                          {{transaction.BankLedgerName}}
+                        </td>
+                        <td *ngIf="!transaction.isEditable">
+                          <div class="input-group adw_select">
+                            <select2 #error name="LedgerId" #ledger_select2 [data]="paymentLedgerselect2" id="LedgerId"
+                              class="control_select" (valueChanged)="onPaymentLedgerSelect($event)" autocomplete="true"
+                              [options]="{placeholder: 'Select Ledger'}"
+                              [ngClass]="{'errorSelecto': invalidObj?.LedgerId && (submitSave || !clickTrans)  }"
+                              [value]="ledger"></select2>
+                          </div>
+                        </td>
+                        <td *ngIf="transaction.isEditable" class="align-middle">
+                          {{transaction.Amount}}
+                        </td>
+                        <td *ngIf="!transaction.isEditable">
+                          <input #error type="text" appIncludeDecimal name="Amount" class="form-control"
+                            [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans)}"
+                            (input)="validateTransaction()" id="Amount" [(ngModel)]="Amount" placeholder="Enter Amount">
+                        </td>
+                        <td *ngIf="transaction.isEditable" class="align-middle">
+                          {{transaction.PayDate}}
+                        </td>
+                        <td *ngIf="!transaction.isEditable">
+                          <datepicker-popup [toSetDate]="PayDate" [isBackDate]="backDateEntry"
+                            [applyFinYear]="'true'"
+                            (dateInFormat)="PayDate = $event;validateTransaction();"
+                            [class]="invalidObj?.PayDate && (submitSave || !clickTrans)"></datepicker-popup>
+                        </td>
+                        <td *ngIf="transaction.isEditable" class="align-middle">
+                          {{transaction.ChequeNo}}
+                        </td>
+                        <td *ngIf="!transaction.isEditable">
+                          <input #error type="text" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo"
+                            (input)="validateTransaction()" (keyup.enter)="enterPressTrans($event)"
+                            [ngClass]="{'errorSelecto': invalidObj?.ChequeNo && (submitSave || !clickTrans)}"
+                            placeholder="Enter Reference No.">
+                        </td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr *ngIf="showHidePayment" class="selected_row active">
+                        <td>
+                          <div class="action_btn">
+                            <button (click)="validateTransaction();addTransactions()" type="submit"
+                              class="btn btn-primary btn_add_more">+</button>
+                          </div>
+                        </td>
+                        <td style="min-width:180px;">
+                          <div class="input-group adw_select">
+                            <select2 #error name="Paymode" #payment_select2 [data]="paymentModesData" id="PayModeId"
+                              class="control_select" (valueChanged)="onPaymentModeSelect($event)" autocomplete="true"
+                              [options]="{placeholder: 'Select Payment Mode'}"
+                              [ngClass]="{'errorSelecto': invalidObj?.PayModeId && (submitSave || !clickTrans)  }"
+                              [value]="paymode"></select2>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="input-group adw_select">
+                            <select2 #error name="LedgerId" #ledger_select2 [data]="paymentLedgerselect2" id="LedgerId"
+                              class="control_select" (valueChanged)="onPaymentLedgerSelect($event)" autocomplete="true"
+                              [options]="{placeholder: 'Select Ledger'}"
+                              [ngClass]="{'errorSelecto': invalidObj?.LedgerId && (submitSave || !clickTrans)  }"
+                              [value]="ledger"></select2>
+                          </div>
+                        </td>
+                        <td>
+                          <input #error type="text" appIncludeDecimal name="Amount" class="form-control"
+                            [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans)}"
+                            (input)="validateTransaction()" id="Amount" [(ngModel)]="Amount" placeholder="Enter Amount">
+                        </td>
+                        <td>
+                          <datepicker-popup [toSetDate]="PayDate" [isBackDate]="backDateEntry"
+                            [applyFinYear]="'true'"
+                            (dateInFormat)="PayDate = $event;validateTransaction();"
+                            [class]="invalidObj?.PayDate && (submitSave || !clickTrans)"></datepicker-popup>
+                        </td>
+                        <td><input #error type="text" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo"
+                            (input)="validateTransaction()" (keyup.enter)="enterPressTrans($event)"
+                            [ngClass]="{'errorSelecto': invalidObj?.ChequeNo && (submitSave || !clickTrans)}"
+                            placeholder="Enter Reference No.">
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </form>
@@ -699,12 +962,75 @@
       <div class="modal-footer footer-fixed footer_modal_form">
         <button [disabled]='DisabledSaveBtn' type="submit" (click)="keepOpen=false;manipulateData()"
           class="btn waves-effect btn-succ-ess">
-          Save
+          {{DisabledSaveBtn === true  ? 'Please Wait..' :'Save' }}
         </button>
-        <button type="button" class="btn waves-effect btn-default" (click)="close()">
+        <button type="button" class="btn waves-effect btn-default def-ault-btn" (click)="closePurchase()">
           Close
         </button>
       </div>
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="close_confirm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h6> Are you sure want to close this page?</h6>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" (click)="yesConfirmationClose()">yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- <div class="modal right fade" id="purchase_popup_for_EmiNumber" role="dialog" data-backdrop="static"
+  data-keyboard="false">
+  <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">{{SputilityIMEIData[0]?.text}}</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body" >
+        <div class="form row" *ngFor="let item of ItemPropertyTrans; let i=index">
+
+          <div class="form-group col-1 align-self-center">
+            <span class="">{{i+1}}</span>
+          </div>
+          <div class="form-group col px-1">
+            <input #propertRef (input)="getIMEIName($event);" type="text" class="form-control" name="FieldValue1{{i}}"
+              placeholder="Enter Value" [(ngModel)]="item.FieldValue1">
+          </div>
+          <div class="form-group col px-1">
+            <input #propertRef (input)="getIMEIName($event);" type="text" class="form-control" name="FieldValue2{{i}}"
+              placeholder="Enter Value" [(ngModel)]="item.FieldValue2">
+          </div>
+          <div class="form-group col px-1">
+            <input #propertRef (input)="getIMEIName($event);" type="text" class="form-control" name="FieldValue3{{i}}"
+              placeholder="Enter Value" [(ngModel)]="item.FieldValue3">
+          </div>
+          <div class="form-group col px-1">
+            <input #propertRef (input)="getIMEIName($event);" type="text" class="form-control" name="FieldValue4{{i}}"
+              placeholder="Enter Value" [(ngModel)]="item.FieldValue4">
+          </div>
+          <hr>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary waves-effect" (click)="closeIMEI()" type="button">
+          Ok</button>
+      </div>
+    </div>
+  </div>
+</div> -->

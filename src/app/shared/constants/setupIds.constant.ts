@@ -182,4 +182,20 @@ export class SetUpIds {
   public static get isManualBillNoEntryForChallanSale (): number {
     return 61
   }
+  public static get SignatorySetup (): number {
+    return 89
+  }
+  public static get HideCategoryOnSale (): number {
+    return 92
+  }
+  public static get HideCategoryOnPurchase (): number {
+    return 93
+  }
+  public static get HideItem_Discount (): number {
+    return 94
+  }
+  public static get HideTax_Details (): number {
+    return 95
+  }
+
 }

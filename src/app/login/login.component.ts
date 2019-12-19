@@ -84,7 +84,7 @@ export class LoginComponent {
   }
 
   forgotPassword () {
-    this.router.navigate([URLConstant.FORGOT_PASSWORD_URL])
+    this.router.navigate([URLConstant.FORGOT_CREDENTIALS_URL])
   }
 
   clearErrorValidation () {

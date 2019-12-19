@@ -248,7 +248,6 @@ export class PurchaseReturnComponent {
     private settings: Settings,
     private renderer: Renderer2,
     private gs: GlobalService) {
-    this.getFormDependency()
     this.data$ = this.commonService.getActionSaleReturnClickedStatus().subscribe(
       (action: any) => {
         console.log(action)
@@ -614,9 +613,9 @@ export class PurchaseReturnComponent {
       this.ItemId = element.ItemId
       this.UnitId = element.UnitId
       this.SaleTransId =  element.Id
-      this.Length =this.editMode === true ? element.Length :0
-      this.Height = this.editMode === true ? element.Height :0 
-      this.Width = this.editMode === true ? element.Width :0 
+      this.Length = element.Length
+      this.Height =  element.Height 
+      this.Width =  element.Width 
       this.Quantity = +element.Quantity
       this.ReturnQuantity =+retQty
       this.SaleRate = element.SaleRate
@@ -972,6 +971,8 @@ export class PurchaseReturnComponent {
 
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
+    this.getFormDependency()
+
     this.BillNo=''
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.billSummary =[]
@@ -2828,8 +2829,8 @@ export class PurchaseReturnComponent {
   }
   validateItem() {
     let isValid = 1
-    this.Items.forEach((element, index) => {
-      if (+this.Items[index].Quantity >= +this.Items[index].ReturnQuantity) {
+    this.Items.forEach((element) => {
+      if (+element.Quantity >= +element.ReturnQuantity) {
         this.invalidObj['ReturnQuantity'] = false
       } else {
         isValid = 0
@@ -2856,7 +2857,8 @@ export class PurchaseReturnComponent {
         }
       }
     });
-    return this.validItem = !!isValid
+    this.validItem = !!isValid
+    return !!isValid
   }
 
 
@@ -3004,7 +3006,7 @@ export class PurchaseReturnComponent {
           else{
             this.DisabledSaveBtn= false
 
-            this.toastrService.showError('Return Quantity never more then Sale Quantity', '')
+            this.toastrService.showErrorLong('Return Quantity never more then Sale Quantity', '')
 
           }
     
