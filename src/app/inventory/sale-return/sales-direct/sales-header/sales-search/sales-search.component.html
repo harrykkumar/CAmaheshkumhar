@@ -45,12 +45,12 @@
                    <div class="form-row">
                         <label class="text-center d-block m-auto">Amount</label>
                         <div class="form-group col-md-12">
-                            <input type="text" appIncludeDecimal class="form-control"
+                            <input type="text" appIncludeDecimal class="form-control" (input)="checkForValidAmount()"
                             [ngClass]="{'errorSelecto': f.FromAmount?.errors?.isValidAmount }"
                             formControlName="FromAmount" id="fromamount" placeholder="From Amount">
                         </div>
                         <div class="form-group col-md-12">
-                            <input type="text" appIncludeDecimal class="form-control"
+                            <input type="text" appIncludeDecimal class="form-control" (input)="checkForValidAmount()"
                             [ngClass]="{'errorSelecto': f.ToAmount?.errors?.isValidAmount }"
                             formControlName="ToAmount" id="toamount" placeholder="To Amount">
                         </div>

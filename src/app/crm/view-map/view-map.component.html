@@ -1,0 +1,53 @@
+<div
+  class="modal fade"
+  id="view_map"
+  role="dialog"
+  aria-labelledby="view_map"
+  data-backdrop="static"
+  data-keyboard="false"
+  aria-hidden="true"
+>
+  <div
+    class="modal-dialog large_form modal-full-height modal-top"
+    role="document"
+  >
+    <div class="modal-content bgcH-grey-100">
+      <div class="modal-header primary-bg">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-3 left_side_head">
+              <p class="heading_lead">
+                <i class="fa fa-industry" aria-hidden="true"></i>View Map
+              </p>
+            </div>
+            <div class="col-md-9">
+              <div class="btn_header">
+                <button type="button" (click)="closePopUp()" class="close">
+                  <span aria-hidden="true" class="white-text">×</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <agm-map [latitude]="lat" [longitude]="lng" [mapTypeId]="mapType">
+          <!-- <agm-marker
+            [latitude]="lat"
+            [longitude]="lng"
+            [label]="'Truelogics Infotech Pvt. Ltd.'"
+          >
+            <agm-info-window [disableAutoPan]="true">
+              Hi, this is the content of the <strong>info window</strong>
+            </agm-info-window>
+          </agm-marker> -->
+          <agm-direction
+            *ngIf="dir"
+            [origin]="dir.origin"
+            [destination]="dir.destination"
+          ></agm-direction>
+        </agm-map>
+      </div>
+    </div>
+  </div>
+</div>

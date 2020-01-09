@@ -272,6 +272,7 @@
                                        placeholder="Enter First Name"
                                        name="firstName"
                                         [(ngModel)]="model.firstName"
+                                        (change)="model.firstName =  commonService.convertToTitleCase(model.firstName)"
                                         required
                                         [ngClass]="{'errorSelecto': keyPersonForm.submitted && !model.firstName}"/>
                                     </div>

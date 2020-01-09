@@ -24,6 +24,7 @@ declare const $: any
 })
 export class LedgerImportComponent {
   OnDestroy$: Subscription
+  isvalidGROUPLEDGER:boolean;
   arrayBuffer: any
   sheetname: any = []
   masterData: any
@@ -141,12 +142,70 @@ export class LedgerImportComponent {
   }
 
   onItemToggle (index, SNO, evt) {
-    // console.log('index : ', index)
-    // console.log('evt : ', evt.target.id)
+    console.log('index : ', this.data['parentGroupData'])
+    console.log('evt : ',evt)
+    // console.log(this.masterData[evt.target.id-1].GROUPLEDGER,this.data['parentGroupData'][i].text)
     if (index > -1) {
       if (evt.target.checked) {
-        this.selectedItems.push(SNO)
+        this.selectedItems.push(SNO);
+        console.log(evt.target.dataset.id)
+        this.isvalidGROUPLEDGER = null;
+        this.masterData[evt.target.dataset.id].checked = true;
+        console.log(this.masterData)
+        for(let i=0;i<this.masterData.length;i++){
+          console.log(this.masterData[i]);
+          if(this.masterData[i].checked){
+            if(this.masterData[i].GROUPLEDGER){
+              for(let j=0;j<this.data['parentGroupData'].length;j++){
+                if(this.masterData[i].GROUPLEDGER == this.data['parentGroupData'][j].text){
+                  console.log('hi');
+                  this.isvalidGROUPLEDGER = true;
+                  break;
+                }else if(j == this.data['parentGroupData'].length-1){
+                  this.isvalidGROUPLEDGER = false;
+                  break;
+                }
+              }
+            }else{
+              this.isvalidGROUPLEDGER = false;
+              break;
+            }
+          }
+        }
+        // if(this.masterData[evt.target.dataset.id].GROUPLEDGER && this.isvalidGROUPLEDGER != false){
+        //   for(let i=0;i<this.data['parentGroupData'].length;i++){
+        //     if(this.masterData[evt.target.dataset.id].GROUPLEDGER == this.data['parentGroupData'][i].text){
+        //       console.log('hi');
+        //       this.isvalidGROUPLEDGER = true;
+        //     }
+        //   }
+        // }else{
+        //   this.isvalidGROUPLEDGER = false;
+        // }
       } else {
+        this.isvalidGROUPLEDGER = null;
+        this.masterData[evt.target.dataset.id].checked = false;
+        console.log(this.masterData)
+        for(let i=0;i<this.masterData.length;i++){
+          console.log(this.masterData[i]);
+          if(this.masterData[i].checked){
+            if(this.masterData[i].GROUPLEDGER){
+              for(let j=0;i<this.data['parentGroupData'].length;j++){
+                if(this.masterData[i].GROUPLEDGER == this.data['parentGroupData'][j].text){
+                  console.log('hi');
+                  this.isvalidGROUPLEDGER = true;
+                  break;
+                }else{
+                  this.isvalidGROUPLEDGER = false;
+                  break;
+                }
+              }
+            }else{
+              this.isvalidGROUPLEDGER = false;
+              break;
+            }
+          }
+        }
         let i = this.selectedItems.indexOf(SNO)
         if (i > -1) {
           this.selectedItems.splice(i,1)
@@ -387,82 +446,88 @@ export class LedgerImportComponent {
       this.firstSheetName = workbook.SheetNames[0]
       let worksheet = workbook.Sheets[this.firstSheetName]
       let masterTableArray = []
+      console.log(this.sheetname);
       if (this.sheetname[0] === 'Ledger') {
         // this.masterTableArray = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
         masterTableArray = XLSX.utils.sheet_to_json(worksheet, { raw: true })
-      }
-      this.masterTableArray = masterTableArray.splice(0, masterTableArray.length)
-      if (this.masterTableArray.length > 0) {
-        let keysArr = Object.values(XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0])
-        keysArr = this.gs.removeSpecialCharacters(keysArr)
-        // console.log('keysArr : ', keysArr)
-        const mandatoryKeys = ['SNO','NAME','SHORTNAME','GSTTYPE','ACCOUNTNO','CREDITLIMIT',
-        'CREDITDAYS','CONTACTNO','EMAIL','PANNO','GSTNO','OPENINGBALANCE','CRDR','COUNTRY',
-        'STATE','CITY','ADDRESS']
-        const resp = this.gs.checkForEqualityInArray(mandatoryKeys, keysArr)
-        if (resp !== '') {
-          this.toastrService.showErrorLong(resp, '')
+        this.masterTableArray = masterTableArray.splice(0, masterTableArray.length)
+        if (this.masterTableArray.length > 0) {
+          let keysArr = Object.values(XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0])
+          keysArr = this.gs.removeSpecialCharacters(keysArr)
+          // console.log('keysArr : ', keysArr)
+          const mandatoryKeys = ["SNO", "NAME", "SHORTNAME", "GROUPLEDGER", "GSTTYPE", "ACCOUNTNO", "CREDITLIMIT", "CREDITDAYS", "CONTACTNO", "EMAIL", "PANNO", "GSTNO", "OPENINGBALANCE", "CRDR", "COUNTRY", "STATE", "CITY", "ADDRESS"];
+          // const mandatoryKeys = ['SNO','NAME','SHORTNAME','GSTTYPE','ACCOUNTNO','CREDITLIMIT',
+          // 'CREDITDAYS','CONTACTNO','EMAIL','PANNO','GSTNO','OPENINGBALANCE','CRDR','COUNTRY',
+          // 'STATE','CITY','ADDRESS']
+          const resp = this.gs.checkForEqualityInArray(mandatoryKeys, keysArr)
+          if (resp !== '') {
+            this.toastrService.showErrorLong(resp, '')
+            this.reset()
+            this.isDataLoading = false
+          } else {
+            this.masterData = []
+            this.masterTableArray.forEach((element, index) => {
+              let keysArr = Object.keys(element)
+              let newRow = {}
+              for (let j = 0; j < keysArr.length; j++) {
+                let key = keysArr[j].trim().toUpperCase()
+                newRow[key] = ('' + element[keysArr[j]]).trim()
+              }
+              newRow['SNO'] = index + 1
+              newRow['CREDITLIMIT'] = +newRow['CREDITLIMIT']
+              newRow['CREDITDAYS'] = +newRow['CREDITDAYS']
+              newRow['OPENINGBALANCE'] = +newRow['OPENINGBALANCE']
+              newRow = this.gs.removeSpecialCharacters(newRow)
+              if (!isNaN(newRow['OPENINGBALANCE']) && newRow['OPENINGBALANCE'] > 0 && !newRow['CRDR']) {
+                this.toastrService.showErrorLong('CRDR is required at Sno. ' + newRow['SNO'], '')
+                this.modeOfForm = 'reset'
+                this.initComp()
+                this.isDataLoading = false
+              } else if (!newRow['NAME']) {
+                this.toastrService.showErrorLong('NAME is Required at Sno. ' + newRow['SNO'], '')
+                this.modeOfForm = 'reset'
+                this.initComp()
+                this.isDataLoading = false
+              } else if (newRow['PANNO'] && !this.commonService.panNumberRegxValidation(newRow['PANNO'])) {
+                this.toastrService.showErrorLong(newRow['PANNO'], 'PANNO is Incorrect at Sno. ' + newRow['SNO'])
+                this.modeOfForm = 'reset'
+                this.initComp()
+                this.isDataLoading = false
+              } else if (newRow['GSTTYPE'] === 'Regular' && !newRow['GSTNO']) {
+                this.toastrService.showErrorLong('GSTNO. is Required at Sno. ' + newRow['SNO'], '')
+                this.modeOfForm = 'reset'
+                this.initComp()
+                this.isDataLoading = false
+              } 
+              // else if (newRow['GSTTYPE'] === 'Regular' && !newRow['STATE']) {
+              //   this.toastrService.showErrorLong('STATE is Required at Sno. ' + newRow['SNO'], '')
+              //   this.modeOfForm = 'reset'
+              //   this.initComp()
+              //   this.isDataLoading = false
+              // } else if (newRow['GSTTYPE'] === 'Regular' && !newRow['COUNTRY']) {
+              //   this.toastrService.showErrorLong('COUNTRY is Required at Sno. ' + newRow['SNO'], '')
+              //   this.modeOfForm = 'reset'
+              //   this.initComp()
+              //   this.isDataLoading = false
+              // }
+               else {
+                let obj = { ...newRow }
+                this.masterData.push(obj)
+                if (this.masterData.length === this.masterTableArray.length) {
+                  this.isDataLoading = false
+                  this.masterKeys = Object.keys(_self.masterData[0])
+                  this.checkForDuplicates()
+                }
+              }
+            })
+          }
+        } else {
+          this.toastrService.showError('', 'No Data Found')
           this.reset()
           this.isDataLoading = false
-        } else {
-          this.masterData = []
-          this.masterTableArray.forEach((element, index) => {
-            let keysArr = Object.keys(element)
-            let newRow = {}
-            for (let j = 0; j < keysArr.length; j++) {
-              let key = keysArr[j].trim().toUpperCase()
-              newRow[key] = ('' + element[keysArr[j]]).trim()
-            }
-            newRow['SNO'] = index + 1
-            newRow['CREDITLIMIT'] = +newRow['CREDITLIMIT']
-            newRow['CREDITDAYS'] = +newRow['CREDITDAYS']
-            newRow['OPENINGBALANCE'] = +newRow['OPENINGBALANCE']
-            newRow = this.gs.removeSpecialCharacters(newRow)
-            if (!isNaN(newRow['OPENINGBALANCE']) && newRow['OPENINGBALANCE'] > 0 && !newRow['CRDR']) {
-              this.toastrService.showErrorLong('CRDR is required at Sno. ' + newRow['SNO'], '')
-              this.modeOfForm = 'reset'
-              this.initComp()
-              this.isDataLoading = false
-            } else if (!newRow['NAME']) {
-              this.toastrService.showErrorLong('NAME is Required at Sno. ' + newRow['SNO'], '')
-              this.modeOfForm = 'reset'
-              this.initComp()
-              this.isDataLoading = false
-            } else if (newRow['PANNO'] && !this.commonService.panNumberRegxValidation(newRow['PANNO'])) {
-              this.toastrService.showErrorLong(newRow['PANNO'], 'PANNO is Incorrect at Sno. ' + newRow['SNO'])
-              this.modeOfForm = 'reset'
-              this.initComp()
-              this.isDataLoading = false
-            } else if (newRow['GSTTYPE'] === 'Regular' && !newRow['GSTNO']) {
-              this.toastrService.showErrorLong('GSTNO. is Required at Sno. ' + newRow['SNO'], '')
-              this.modeOfForm = 'reset'
-              this.initComp()
-              this.isDataLoading = false
-            } else if (newRow['GSTTYPE'] === 'Regular' && !newRow['STATE']) {
-              this.toastrService.showErrorLong('STATE is Required at Sno. ' + newRow['SNO'], '')
-              this.modeOfForm = 'reset'
-              this.initComp()
-              this.isDataLoading = false
-            } else if (newRow['GSTTYPE'] === 'Regular' && !newRow['COUNTRY']) {
-              this.toastrService.showErrorLong('COUNTRY is Required at Sno. ' + newRow['SNO'], '')
-              this.modeOfForm = 'reset'
-              this.initComp()
-              this.isDataLoading = false
-            } else {
-              let obj = { ...newRow }
-              this.masterData.push(obj)
-              if (this.masterData.length === this.masterTableArray.length) {
-                this.isDataLoading = false
-                this.masterKeys = Object.keys(_self.masterData[0])
-                this.checkForDuplicates()
-              }
-            }
-          })
         }
-      } else {
-        this.toastrService.showError('', 'No Data Found')
-        this.reset()
-        this.isDataLoading = false
+      }else{
+        this.toastrService.showError('Sheet name different !! It should be Ledger', '');
       }
     }
   }

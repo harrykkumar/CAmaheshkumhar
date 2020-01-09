@@ -15,10 +15,10 @@
           <span><b>{{loggedinUserData?.toDate | dateFormat:clientDateFormat}})</b></span> -->
         </div>
         <div class="small_view">
-           <b> FINANCIAL YEAR {{loggedinUserData?.fromDate | dateFormat:clientDateFormat}} TO {{loggedinUserData?.toDate | dateFormat:clientDateFormat}}</b>
+           <b style="font-weight: 500; font-size: .6rem;"> FINANCIAL YEAR {{loggedinUserData?.fromDate | dateFormat:clientDateFormat}} TO {{loggedinUserData?.toDate | dateFormat:clientDateFormat}}</b>
         </div>
         <div class="small_view">
-          <b> USER CODE : {{_loginService?.loginUserDetails?.Code}}</b>
+          <b> USER : {{_loginService?.loginUserDetails?.LoginId | uppercase}}({{_loginService?.loginUserDetails?.Code}})</b>
         </div>
         <!-- <div class="d-inline-flex fsz-xsm c-grey-900 userName"> -->
           <!-- <span class="fsz-xsm c-grey-900 userName"> -->

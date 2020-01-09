@@ -1,9 +1,8 @@
 /**created by dolly garg */
 import { Component, ViewChild, OnDestroy, ViewChildren, QueryList, ElementRef, Output, EventEmitter, OnInit, HostListener } from '@angular/core';
-import { Subject, throwError } from 'rxjs';
 import { CommonService } from "src/app/commonServices/commanmaster/common.services";
-import { takeUntil, filter, catchError, map } from 'rxjs/internal/operators';
-import { AddCust, ResponseSale } from '../../../model/sales-tracker.model';
+import { map } from 'rxjs/internal/operators';
+import { AddCust } from '../../../model/sales-tracker.model';
 import { UIConstant } from '../../../shared/constants/ui-constant';
 import { Select2OptionData, Select2Component } from 'ng2-select2';
 import { PurchaseService } from '../../purchase/purchase.service';
@@ -29,7 +28,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   addTypeId: number = 0;
   editData: any
   isPaymentAmount = false
-  onDestroy$ = new Subject()
   subscribe: Subscription
   newCustAddCutomer: Subscription
   autoBill: boolean = true;
@@ -78,23 +76,31 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   advanceBillNo: string;
   sumCr: number = 0
   sumDr: number = 0
+  onDestroy$: Subscription[] = []
   @HostListener('window:keydown',['$event'])
   onKeyPress($event: KeyboardEvent) {
     // console.log($event)
     if(($event.altKey || $event.metaKey) && $event.keyCode == 18) {
-      if (this.tabId < 6 && this.tabId > 0 && !this.dateStatus) {
-        this.tabId++
-      } else if (this.tabId === 6) {
-        this.tabId = 1
+      if(confirm(
+        'It looks like you have been editing something. '
+        + 'If you leave before saving, your changes will be lost.')){
+        if (this.tabId < 6 && this.tabId > 0 && !this.dateStatus) {
+          this.tabId++
+        } else if (this.tabId === 6) {
+          this.tabId = 1
+        }
+        this.onTabClick(this.tabId)
+        this.setFocus()
+        return true
+      } else {
+        return false
       }
-      this.onTabClick(this.tabId)
-      this.setFocus()
     }
   }
   constructor(private commonService: CommonService, private purchaseService: PurchaseService,
     private voucherService: VoucherEntryServie, private settings: Settings, private gs: GlobalService,
     private toastrService: ToastrCustomService) {
-    this.ledgerCreationModel = this.commonService.getledgerCretionStatus().subscribe(
+    this.onDestroy$.push(this.commonService.getledgerCretionStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData2 = Object.assign([], this.ledgerData)
@@ -131,8 +137,8 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           }, 600)
         }
       }
-    )
-    this.commonService.getLedgerStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
+    ))
+    this.onDestroy$.push(this.commonService.getLedgerStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           let newData = Object.assign([], this.paymentLedgerselect2)
@@ -153,8 +159,8 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           }, 600)
         }
       }
-    )
-    this.newCustAddCutomer = this.commonService.getCustStatus().subscribe(
+    ))
+    this.onDestroy$.push(this.commonService.getCustStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           this.getListledger = data
@@ -191,8 +197,8 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           }, 600)
         }
       }
-    )
-    this.commonService.getVendStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
+    ))
+    this.onDestroy$.push(this.commonService.getVendStatus().subscribe(
       (data: AddCust) => {
         if (data.id && data.name) {
           this.addNewLedgerFlag = false
@@ -231,32 +237,32 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           }, 600)
         }
       }
-    )
+    ))
     this.clientDateFormat = this.settings.dateFormat
     this.transferData = [
       { id: 0, text: 'Dr' },
       { id: 1, text: 'Cr' }
     ];
-    this.getSPUitilityData()
-    this.subscribe = this.purchaseService.organisationsData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    // this.getSPUitilityData()
+    this.onDestroy$.push(this.purchaseService.organisationsData$.subscribe(
       data => {
         if (data.data) {
           this.organisationsData = data.data
-          if (this.organisationsData.length >= 1) {
+          if (this.organisationsData.length > 0) {
             this.OrgId = +this.organisationsData[0].id
             this.organisationValue = +this.organisationsData[0].id
             if (!this.voucherService.tabs[this.tabId - 1].voucherNoManual) {
               // this.VoucherDate = this.gs.getDefaultDate(this.clientDateFormat)
-              if (this.tabId === 1 || this.tabId === 2) {
-                this.getNewBillNo()
-              }
+              // if (this.tabId === 1 || this.tabId === 2) {
+              //   this.getNewBillNo()
+              // }
             }
           }
         }
       }
-    )
+    ))
 
-    this.subscribe = this.voucherService.ledgerData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    this.onDestroy$.push(this.voucherService.ledgerData$.subscribe(
       data => {
         if (data.data) {
           this.allLedgerList = data.data
@@ -279,20 +285,19 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
               default: 0
             }
           ]
-
         }
       }
-    )
+    ))
 
-    this.subscribe = this.purchaseService.paymentModesData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    this.onDestroy$.push(this.purchaseService.paymentModesData$.subscribe(
       data => {
         if (data.data) {
           this.paymentModesData = data.data
         }
       }
-    )
+    ))
 
-    this.subscribe = this.voucherService.vendorData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    this.onDestroy$.push(this.voucherService.vendorData$.subscribe(
       data => {
         if (data.data) {
           this.ledgerData = data.data
@@ -304,13 +309,17 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
             data: this.bankData,
           }
         }
+        if (this.addType && this.addTypeId) {
+          this.loading = false
+          this.getVoucherEntryListForParty()
+        }
       }
-    )
+    ))
 
-    this.subscribe = this.voucherService.customerData$.pipe(takeUntil(this.onDestroy$)).subscribe(
+    this.onDestroy$.push(this.voucherService.customerData$.subscribe(
       data => {
         if (data.data) {
-          let allledger = [{ id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+          // let allledger = [{ id: '-1', text: UIConstant.ADD_NEW_OPTION }]
           this.ledgerData = data.data
           this.cashData = data.data
           this.voucherDatas[1] = {
@@ -320,8 +329,12 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
             data: this.cashData,
           }
         }
+        if (this.addType && this.addTypeId) {
+          this.loading = false
+          this.getVoucherEntryListForParty()
+        }
       }
-    )
+    ))
   }
 
   ngOnInit() {
@@ -352,13 +365,14 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     }
   }
   getVoucherDetailsByVoucherId(voucherId) {
-    this.voucherService.getVoucherEntryDetails(voucherId).subscribe(
-      (res) => {
-        if (res.Code === UIConstant.THOUSAND) {
-          this.editData = JSON.parse(JSON.stringify(res.Data));
-          this.goToTab();
-        }
-      })
+    this.onDestroy$.push(this.voucherService.getVoucherEntryDetails(voucherId).subscribe(
+    (res) => {
+      this.editData = JSON.parse(JSON.stringify(res));
+      this.goToTab();
+    }, 
+    (error) => {
+      this.toastrService.showError(error, '')
+    }))
   }
 
   notToDisable: number = 0
@@ -422,7 +436,6 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   }
 
   getListOfEnableLedger() {
-
     if (this.tempJournaldata.length > 0) {
       let newData = []
       this.allLedgerList = []
@@ -444,7 +457,11 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
 
   openModal() {
     this.addNewLedgerFlag = true
-    this.tabId = 1
+    if (this.addType === 'sale') {
+      this.tabId = 2
+    } else {
+      this.tabId = 1
+    }
     this.getListOfEnableLedger()
     this.getjournalRefreshList()
     this.voucherDatas = []
@@ -458,6 +475,12 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   }
 
   getVoucherEntryListForParty() {
+    if (this.addType === 'sale') {
+      this.tabId = 2
+    }
+    if (this.addType === 'purchase') {
+      this.tabId = 1
+    }
     const selectedOrg = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'));
     const query = {
       ReportFor: this.addType,
@@ -465,29 +488,35 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       OrgId: +selectedOrg.Id,
       Id: +this.addTypeId
     }
-    this.voucherService.getVoucherEntryListForParty(query).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
-      if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-    }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data),
-      map((data: any) => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
-        (data) => {
-          if (!_.isEmpty(data)) {
-            data = this.updatePartyId(data)
-            this.voucherList = data
-          } else {
-            this.voucherList = []
-            this.Amount = 0
-            this.advancePayment = 0
-            this.advanceBillNo = ''
-          }
-          this.updateAmount()
-          this.checkForValidation()
-          this.partySelect2.setElementValue(Number(data[0].LedgerId));
-          this.PartyId = Number(data[0].LedgerId)
-        },
-        (error) => {
-          this.toastrService.showError(error, '')
+    this.onDestroy$.push(this.voucherService.getVoucherEntryListForParty(query).pipe(
+    map((data: any) => {
+      data.forEach(element => {
+        element['selected'] = false;
+        element['rejected'] = false;
+        element['PaymentAmount'] = 0;
+        element['IsAdvance'] = 0
+      });
+      return data; 
+    })).subscribe(
+      (data) => {
+        if (!_.isEmpty(data)) {
+          data = this.updatePartyId(data)
+          this.voucherList = data
+        } else {
+          this.voucherList = []
+          this.Amount = 0
+          this.advancePayment = 0
+          this.advanceBillNo = ''
         }
-      )
+        this.updateAmount()
+        this.checkForValidation()
+        this.partySelect2.setElementValue(Number(data[0].LedgerId));
+        this.PartyId = Number(data[0].LedgerId)
+      },
+      (error) => {
+        this.toastrService.showError(error, '')
+      }
+    ))
   }
 
   closeModal(type?) {
@@ -514,8 +543,8 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     if (evt.value && evt.data.length > 0) {
       if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
         this.OrgId = +evt.value
-        this.getNewBillNo()
-        this.getVoucherList()
+        // this.getNewBillNo()
+        // this.getVoucherList()
       }
     }
   }
@@ -530,7 +559,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       if (this.tabId === 6) {
         auto = this.voucherService.tabs[1].type
       }
-      this.gs.manipulateResponse(this.voucherService.getTransactionNo(auto,
+      this.onDestroy$.push(this.gs.manipulateResponse(this.voucherService.getTransactionNo(auto,
         +this.OrgId, newVoucherDate, auto)).subscribe(data => {
           if (data.length > 0) {
             if (!this.voucherService.tabs[this.tabId - 1].voucherNoManual) {
@@ -545,10 +574,8 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
         },
         (error) => {
           this.toastrService.showError(error, '')
-        },
-        () => {
         }
-      )
+      ))
     }
   }
 
@@ -558,8 +585,8 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     return new Promise((resolve) => {
       this.loading = true
       let _self = this
-      this.gs.manipulateResponse(this.commonService.getSPUtilityData(this.voucherService.tabs[this.tabId - 1].type)).
-      subscribe(data => {
+      this.onDestroy$.push(this.gs.manipulateResponse(this.commonService.getSPUtilityData(this.voucherService.tabs[this.tabId - 1].type)).
+        subscribe(data => {
           _self.setVoucherDate(data.TransactionNoSetups[0].CurrentDate)
           _self.purchaseService.createOrganisations(data.Organizations)
           _self.JournalDataForLedger = data.Customers
@@ -581,8 +608,17 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           } else if (_self.tabId === 5 || _self.tabId === 6) {
             _self.voucherService.createVendors(data.Vendors, _self.voucherService.tabs[_self.tabId - 1].type)
           }
-          if (this.addType && this.addTypeId) {
-            this.getVoucherEntryListForParty()
+          if (data.TransactionNoSetups.length > 0) {
+            if (!this.voucherService.tabs[this.tabId - 1].voucherNoManual) {
+              this.VoucherNo = data.TransactionNoSetups[0].BillNo
+              this.previousVoucherNo = ''
+            } else {
+              this.VoucherNo = ''
+              this.previousVoucherNo = data.TransactionNoSetups[0].BillNo
+            }
+          } else {
+            this.previousVoucherNo = ''
+            this.VoucherNo = ''
           }
           resolve('success');
         },
@@ -591,9 +627,16 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           _self.loading = false
         },
         () => {
-          _self.loading = false
+          if (this.editId) {
+            _self.loading = false
+            console.log('edit data : ', this.editData)
+            this.assignVoucherData(this.editData)
+          }
+          if (!(this.addType && this.addTypeId)) {
+            _self.loading = false
+          }
         }
-      )
+      ))
     })
   }
 
@@ -629,30 +672,36 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     if (!this.editId) {
       if (this.PartyId > 0 && +this.OrgId > 0) {
         return new Promise((resolve, reject) => {
-          this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor, 'Billwise', this.PartyId, +this.OrgId).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
-            if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-          }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data),
-            map((data: any) => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
-              data => {
-                console.log('voucher data : ', data)
-                if (!_.isEmpty(data)) {
-                  data = this.updatePartyId(data)
-                  this.voucherList = data
-                } else {
-                  this.voucherList = []
-                  this.Amount = 0
-                  this.advancePayment = 0
-                  this.advanceBillNo = ''
-                }
-                this.updateAmount()
-                this.checkForValidation()
-                resolve('done')
-              },
-              (error) => {
-                this.toastrService.showError(error, '')
-                reject()
-              }
-            )
+          this.onDestroy$.push(this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor, 'Billwise', this.PartyId, +this.OrgId)
+          .pipe(map((data: any) => { 
+            data.forEach(element => {
+              element['selected'] = false;
+              element['rejected'] = false;
+              element['PaymentAmount'] = 0;
+              element['IsAdvance'] = 0 
+            }); 
+            return data; 
+          })).subscribe(
+            data => {
+            console.log('voucher data : ', data)
+            if (!_.isEmpty(data)) {
+              data = this.updatePartyId(data)
+              this.voucherList = data
+            } else {
+              this.voucherList = []
+              this.Amount = 0
+              this.advancePayment = 0
+              this.advanceBillNo = ''
+            }
+            this.updateAmount()
+            this.checkForValidation()
+            resolve('done')
+          },
+          (error) => {
+            this.toastrService.showError(error, '')
+            reject()
+          }
+        ))
         })
       }
       else if (this.addNewLedgerFlag) {
@@ -669,10 +718,18 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   getVoucherList_Payment_recipt() {
     if (!this.editId) {
       if (this.PartyId > 0 && +this.OrgId > 0) {
-        this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor, 'Billwise', this.PartyId, +this.OrgId).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
-          if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-        }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data),
-          map((data: any) => { data.forEach(element => { element['selected'] = false; element['rejected'] = false; element['PaymentAmount'] = 0; element['IsAdvance'] = 0 }); return data; })).subscribe(
+        this.onDestroy$.push(this.voucherService.getVoucherList(this.voucherService.tabs[this.tabId - 1].ReportFor,
+          'Billwise', this.PartyId, +this.OrgId)
+        .pipe(
+          map((data: any) => {
+            data.forEach(element => {
+              element['selected'] = false;
+              element['rejected'] = false;
+              element['PaymentAmount'] = 0;
+              element['IsAdvance'] = 0 
+            }); 
+            return data; 
+          })).subscribe(
             data => {
               if (!_.isEmpty(data)) {
                 this.voucherList = data
@@ -688,15 +745,13 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
             (error) => {
               this.toastrService.showError(error, '')
             }
-          )
+          ))
       }
       else if (this.addNewLedgerFlag) {
         if (this.PartyId === -1) {
           this.partySelect2.selector.nativeElement.value = ''
           // this.commonService.openConfirmation(false, ' ')
           this.commonService.openledgerCretion('', 0)
-
-
         } else {
           this.voucherList = []
         }
@@ -738,29 +793,29 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   }
 
   setpaymentLedgerSelect2(paymentId) {
-    let _self = this
-    let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this.commonService.getPaymentLedgerDetail(paymentId).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
-      if (data.Code === UIConstant.THOUSAND && data.Data) {
-        data.Data.forEach(element => {
+    if (+paymentId > 0) {
+      let _self = this
+      let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
+      this.onDestroy$.push(this.gs.manipulateResponse(this.commonService.getPaymentLedgerDetail(paymentId)).subscribe(data => {
+        data.forEach(element => {
           newData.push({
             id: element.Id,
             text: element.Name
           })
         })
-      }
-      _self.paymentLedgerselect2 = newData
-    },
-    (error) => console.log(error),
-    () => {
-      if (this.editId) {
-        setTimeout(() => {
-          this.LedgerId = !_.isEmpty(this.editData.PaymentDetails[0]) ? this.editData.PaymentDetails[0].LedgerId : 0
-          this.ledger =  !_.isEmpty(this.editData.PaymentDetails[0]) ? this.editData.PaymentDetails[0].LedgerId : 0
-          this.checkForValidation()
-        }, 0)
-      }
-    })
+        _self.paymentLedgerselect2 = newData
+      },
+      (error) => console.log(error),
+      () => {
+        if (this.editId) {
+          setTimeout(() => {
+            this.LedgerId = !_.isEmpty(this.editData.PaymentDetails[0]) ? this.editData.PaymentDetails[0].LedgerId : 0
+            this.ledger =  !_.isEmpty(this.editData.PaymentDetails[0]) ? this.editData.PaymentDetails[0].LedgerId : 0
+            this.checkForValidation()
+          }, 0)
+        }
+      }))
+    }
   }
 
   onSelectBank(event, index) {
@@ -858,6 +913,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     this.dateStatus = false
     this.sumCr = 0
     this.sumDr = 0
+    this.VoucherDate = ''
   }
 
   onAddNew () {
@@ -975,7 +1031,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
       }]
       const voucherAddParams = {
         obj: {
-          Id: this.editId ? this.editId : UIConstant.ZERO,
+          Id: this.editId ? this.editId : 0,
           OrgId: this.OrgId,
           VoucherType: this.voucherService.tabs[this.tabId - 1].voucherType,
           VoucherNo: this.VoucherNo,
@@ -1008,7 +1064,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
         _.omit(voucherData[index], ['data']);
       })
       let obj = {
-        Id: this.editId ? this.editId : UIConstant.ZERO,
+        Id: this.editId ? this.editId : 0,
         OrgId: this.OrgId,
         VoucherType: this.voucherService.tabs[this.tabId - 1].voucherType,
         VoucherNo: this.VoucherNo,
@@ -1028,9 +1084,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     this.submitSave = true
     if (this.checkForValidation(true)) {
       if (this.tabId === 2 || this.tabId === 1 || this.tabId === 6 || this.tabId === 5) {
-        this.voucherService.postVoucher(this.voucherAddParams()).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
-          if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-        }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data)).subscribe(
+        this.onDestroy$.push(this.voucherService.postVoucher(this.voucherAddParams()).subscribe(
           data => {
             if (data) {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
@@ -1047,11 +1101,9 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           (error) => {
             _self.toastrService.showError(error, '')
           }
-        )
+        ))
       } else if (this.tabId === 3 || this.tabId === 4) {
-        this.voucherService.postVoucherContraJournal(this.voucherAddParams()).pipe(takeUntil(this.onDestroy$), filter((data: ResponseSale) => {
-          if (data.Code === UIConstant.THOUSAND) { return true } else { throw new Error(data.Description) }
-        }), catchError(error => { return throwError(error) }), map((data: ResponseSale) => data.Data)).subscribe(
+        this.onDestroy$.push(this.voucherService.postVoucherContraJournal(this.voucherAddParams()).subscribe(
           data => {
             if (data) {
               _self.toastrService.showSuccess(UIConstant.SAVED_SUCCESSFULLY, '')
@@ -1068,7 +1120,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
           (error) => {
             _self.toastrService.showError(error, '')
           }
-        )
+        ))
       }
     }
   }
@@ -1166,18 +1218,14 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
 
   getAdvancePaymentBillNo(amount) {
     const request = this.tabId === 1 ? 'ADVANCEPAYMENT' : 'ADVANCERECEIPT';
-    this.voucherService.getBillNoForAdvancePayment(request).subscribe((res) => {
-      if (res.Code === UIConstant.THOUSAND && !_.isEmpty(res.Data)) {
-        this.advanceBillNo = res.Data[0].BillNo;
+    this.onDestroy$.push(this.voucherService.getBillNoForAdvancePayment(request).subscribe((res) => {
+      if (!_.isEmpty(res)) {
+        this.advanceBillNo = res[0].BillNo;
         this.advancePayment = amount;
       } else {
         this.advanceBillNo = ''
       }
-    })
-  }
-
-  trackByFn(index) {
-    return index;
+    }))
   }
 
   checkForRows() {
@@ -1481,7 +1529,7 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     this.initParams();
     this.tabId = tabId;
     await this.getSPUitilityData();
-    this.getNewBillNo();
+    // this.getNewBillNo();
     if (this.tabId === 1) {
       this.ledgerPlaceholder = { placeholder: 'Select Vendor / Customer' }
     }
@@ -1497,42 +1545,44 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
     if (this.tabId === 6) {
       this.ledgerPlaceholder = { placeholder: 'Select Income' }
     }
-    if (this.editId) {
-      console.log('edit data : ', this.editData)
-      this.assignVoucherData(this.editData)
-    }
+    // if (this.editId) {
+    //   console.log('edit data : ', this.editData)
+    //   this.assignVoucherData(this.editData)
+    // }
     this.setFocus()
   }
 
   idsBefore: any = []
   async onPartySelect (evt: any) {
-    console.log('on select : ', evt)
-    if (!this.multipleBillSettlement || this.tabId === 1) {
-      this.addNewLedgerFlag = true
-      this.PartyId = +evt.value;
-      this.getVoucherList()
-    } else {
-      this.addNewLedgerFlag = false
-      let diff = _.differenceWith(evt.value, this.idsBefore)
-      console.log('diff : ', diff)
-      if(!_.isEmpty(diff)) {
-        this.PartyId = +(diff[diff.length - 1])
-        let voucherList = this.voucherList
-        await this.getVoucherList()
-        this.voucherList = this.voucherList.concat(voucherList)
+    // if (this.addTypeId && this.addType) {
+      console.log('on select : ', evt)
+      if (!this.multipleBillSettlement || this.tabId === 1) {
+        this.addNewLedgerFlag = true
+        this.PartyId = +evt.value;
+        this.getVoucherList()
       } else {
-        let diff = _.differenceWith(this.idsBefore, evt.value)
+        this.addNewLedgerFlag = false
+        let diff = _.differenceWith(evt.value, this.idsBefore)
         console.log('diff : ', diff)
-        let partyId = +(diff[diff.length - 1])
-        let voucherList = JSON.parse(JSON.stringify(this.voucherList))
-        let _voucherList = _.filter(voucherList, (element) => {
-          return element.PartyId !== partyId
-        })
-        this.voucherList = _voucherList
-        console.log('newVoucher list : ', this.voucherList)
+        if(!_.isEmpty(diff)) {
+          this.PartyId = +(diff[diff.length - 1])
+          let voucherList = this.voucherList
+          await this.getVoucherList()
+          this.voucherList = this.voucherList.concat(voucherList)
+        } else {
+          let diff = _.differenceWith(this.idsBefore, evt.value)
+          console.log('diff : ', diff)
+          let partyId = +(diff[diff.length - 1])
+          let voucherList = JSON.parse(JSON.stringify(this.voucherList))
+          let _voucherList = _.filter(voucherList, (element) => {
+            return element.PartyId !== partyId
+          })
+          this.voucherList = _voucherList
+          console.log('newVoucher list : ', this.voucherList)
+        }
+        this.idsBefore = evt.value
       }
-      this.idsBefore = evt.value
-    }
+    // }
   }
 
   setTypeForOther(index) {
@@ -1548,9 +1598,11 @@ export class VoucherEntryAddComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.onDestroy$.next()
-    this.onDestroy$.complete()
-    this.subscribe.unsubscribe()
+    if (this.onDestroy$ && this.onDestroy$.length > 0) {
+      this.onDestroy$.forEach((element) => {
+        element.unsubscribe()
+      })
+    }
   }
 }
 

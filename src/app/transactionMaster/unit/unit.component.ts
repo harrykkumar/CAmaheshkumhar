@@ -31,7 +31,7 @@ export class UnitComponent implements OnInit, OnDestroy {
     private toastrService: ToastrCustomService,
     private _formBuilder: FormBuilder,
     private _loginService: LoginService) {
-    this.menuData = this._loginService.getMenuDetails(3, 1);
+    this.menuData = this._loginService.getMenuDetails(3, 131);
     this.newUnitSub = this.commonService.newUnitStatus().subscribe(
       (obj) => {
         this.getUnitDetail()

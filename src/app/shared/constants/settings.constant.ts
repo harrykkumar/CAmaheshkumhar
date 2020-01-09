@@ -21,8 +21,6 @@ export class Settings {
     localStorage.removeItem('dateFormat');
   }
 
-
-
   get catLevel (): number {
     if (window.localStorage['catLevel']) {
       return window.localStorage['catLevel']
@@ -105,5 +103,13 @@ export class Settings {
 
   set noOfDecimal (dateFormat: string) {
     window.localStorage['noOfDecimal'] = dateFormat
+  }
+
+  get selectedOrg (): string {
+    if (window.localStorage['SELECTED_ORGANIZATION']) {
+      return window.localStorage['SELECTED_ORGANIZATION']
+    } else {
+      return ''
+    }
   }
 }

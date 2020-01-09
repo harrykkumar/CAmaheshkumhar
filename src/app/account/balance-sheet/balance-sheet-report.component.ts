@@ -170,30 +170,24 @@ export class BalanceSheetReportComponent implements OnInit {
     this.headI2dData = []
     if (head1.length > 0) {
       head1.forEach(element => {
-        if (element.LevelNo === 1 || element.LevelNo === 2) {
+        if (element.LevelNo === 1 || (element.LevelNo === 2 && element.IsWithDetails===0)
+        || (element.LevelNo === 3 && element.IsWithDetails === 0)
+        ) {
           this.headI1dData.push(element)
         }
       });
     }
       if (head1.length > 0) {
       head2.forEach(element => {
-        if (element.LevelNo === 1 || element.LevelNo === 2) {
+        if (element.LevelNo === 1 || (element.LevelNo === 2 && element.IsWithDetails===0)
+        || (element.LevelNo === 3 && element.IsWithDetails === 0)
+        ) {
           this.headI2dData.push(element)
         }
       });
     }
 
   }
-
-
-
-
-
-
-
-
-
-
 
   viewFlag: boolean
   HtmlPrintId: any
@@ -212,14 +206,11 @@ export class BalanceSheetReportComponent implements OnInit {
     printWindow.document.write('</body></html>')
     printWindow.document.close()
     printWindow.focus()
-    // $('#' + cmpName).modal(UIConstant.MODEL_HIDE)
     this.viewFlag = true
     setTimeout(function () {
-      //   if(this.isViewForm){
       document.getElementsByTagName('body')[0].classList.add('hidden-print');
       printWindow.print()
-      printWindow.close()
-      //}
+     printWindow.close()
     }, 100)
 
   }

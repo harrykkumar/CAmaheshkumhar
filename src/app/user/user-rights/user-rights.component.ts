@@ -44,11 +44,11 @@ export class UserRightsComponent implements OnInit, OnDestroy {
     this.getOrgnizationList()
     this.checkLoginUserCodematch()
   }
-  onOrgChange(evt) {
-    if (evt && evt.data && evt.data.length > 0) {
-      this.model.orgId = evt.data[0].id
-    }
-  }
+  // onOrgChange(evt) {
+  //   if (evt && evt.data && evt.data.length > 0) {
+  //     this.model.orgId = evt.data[0].id
+  //   }
+  // }
   ngOnInit() {
     this.userTypeData = [{ id: UIConstant.ZERO, text: 'Select User Type' }]
     this.userData = [{ id: UIConstant.ZERO, text: 'Select User' }]
@@ -103,7 +103,7 @@ export class UserRightsComponent implements OnInit, OnDestroy {
               data: { ...element }
             }
           })
-          return [{ id: UIConstant.ZERO, text: 'Select Orgnization' }, ...list]
+          return [...list]
         })
       ).subscribe((res) => {
         this.orgnizationData = res
@@ -333,6 +333,30 @@ export class UserRightsComponent implements OnInit, OnDestroy {
   preparePayload = () => {
     _.map(this.moduleList, (module) => {
       _.map(module.sideMenu, (menu) => {
+        if (menu.read) {
+          this.postPermissionArray.push({
+            Id: 0,
+            UserMenuId: menu.Id ? menu.Id : 0,
+            PermissionType: 1,
+            ModuleId: menu.ModuleId
+          })
+        }
+        if (menu.write) {
+          this.postPermissionArray.push({
+            Id: 0,
+            UserMenuId: menu.Id ? menu.Id : 0,
+            PermissionType: 2,
+            ModuleId: menu.ModuleId
+          })
+        }
+        if (menu.delete) {
+          this.postPermissionArray.push({
+            Id: 0,
+            UserMenuId: menu.Id ? menu.Id : 0,
+            PermissionType: 3,
+            ModuleId: menu.ModuleId
+          })
+        }
         if (menu && menu.subMenu && menu.subMenu.length > 0) {
           _.map(menu.subMenu, (subMenu) => {
             if (subMenu.read) {
@@ -366,6 +390,8 @@ export class UserRightsComponent implements OnInit, OnDestroy {
     return {
       UserTypeId: this.rights.selectedUserType.id,
       UserId: this.rights.selectedUser.id,
+      OrgId: this.model.orgId ? this.model.orgId : 0,
+      ModuleId: !_.isEmpty(this.toggledModule.module) ? this.toggledModule.module.Id : 0,
       UserMenuPermissions: this.postPermissionArray
     }
   }
@@ -379,10 +405,12 @@ export class UserRightsComponent implements OnInit, OnDestroy {
       if (response.Code === UIConstant.THOUSAND) {
         this.toastrService.showSuccess('Success', 'Saved Successfully')
         this.postPermissionArray = []
-        const userData: any = await this._loginService.getUserDetails(this._loginService.selectedOrganization.Id)
+        const org = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
+        const userData: any = await this._loginService.getUserDetails(org.Id)
         const existModuleData = JSON.parse(localStorage.getItem('SELECTED_MODULE'))
-        if (!_.isEmpty(existModuleData)) {
+        if (!this._commonService.isEmpty(existModuleData)) {
           const currentModuleData = _.find(userData.Modules, { Id: existModuleData.Id })
+          currentModuleData['index'] = existModuleData['index']
           localStorage.setItem('SELECTED_MODULE', JSON.stringify(currentModuleData))
         }
         this._loginService.permissionUpdated.next(true)

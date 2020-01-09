@@ -1,0 +1,159 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0">
+              <i class="fas fa-balance-scale"></i>Order Request Details
+            </p>
+          </div>
+          <div class="col-md-8 p-0">
+            <div class="right_saerch_side">
+              <div class="mr-2">
+                <!-- <form [formGroup]="searchForm">
+                  <div id="custom-search-input" class="btn_header1">
+                    <div class="input-group col-md-12">
+                      <input
+                        type="text"
+                        class="form-control input-lg"
+                        placeholder="Search"
+                        formControlName="searckKey"
+                        #searchData
+                      />
+                      <span class="input-group-btn">
+                        <a>
+                          <i class="fas fa-search"></i>
+                        </a>
+                      </span>
+                    </div>
+                  </div>
+                </form> -->
+              </div>
+              <div class="btn_header">
+                <a (click)="print()"><img src="assets/img/printer.png" /> </a>
+                <a><img src="assets/img/pdf.png"/></a>
+                <a><img src="assets/img/excel.png"/></a>
+                <!-- <button
+                  *ngIf="menuData?.write || menuData?.delete"
+                  type="button"
+                  class="btn btn-primary waves-effect waves-light"
+                  data-toggle="modal"
+                  (click)="addunit()"
+                >
+                  Add Unit
+                </button> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="orderRequestContainerId">
+    <div class="card card-body mb-2 mt-3">
+      <div class="d-flex justify-content-between">
+        <div class="col-md-3 d-flex flex-column">
+          <h6> Organisation Info</h6>
+          <hr class="m-0">
+          <label>{{orgDetails?.OrgName}} </label>
+          <label>{{orgDetails?.Mobile}} - {{orgDetails?.Email}} </label>
+          <label>Gst In : <span>{{orgDetails?.OrgGstIn}}</span> </label>
+          <label>Order From : <span>{{orderRequestUpperDetails[0]?.CustomerName}}</span> </label>
+        </div>
+        <div class="col-md-6 d-inline-flex">
+          <div class="col-md-6">
+          <h6> Order Info</h6>
+          <hr class="m-0">
+          <label>Order Id : <span class="font-weight-bold">#{{orderRequestUpperDetails[0]?.BillNo}}</span></label>
+          <label>Order Date : <span class="font-weight-bold">{{orderRequestUpperDetails[0]?.BillDate | date: "shortDate"}}</span></label>
+          <label>Order Status : {{orderRequestUpperDetails[0]?.Status}}</label>
+          <label>Order Created By : {{orderRequestUpperDetails[0]?.CreatedName}}</label>
+          <label style=" word-wrap: break-word;">Comparator Details: {{orderRequestUpperDetails[0]?.ComparatorDetails}}</label>
+          <label style=" word-wrap: break-word;">Remark: {{orderRequestUpperDetails[0]?.Remark}}</label>
+          </div>
+          <div class="col-md-6">
+            <img style="width: inherit;" [src]="orderRequestUpperDetails[0].FilePath" alt="">
+          </div>
+        </div>
+        <div class="col-md-3 d-flex flex-column">
+          <h6> Follow Up Info</h6>
+          <hr class="m-0">
+          <label>{{leadOrFollowUpDetails?.CompanyName}} </label>
+          <label>Contact Person : {{leadOrFollowUpDetails?.ContactPerson}} <span *ngIf="leadOrFollowUpDetails?.ContactPerson">,</span> {{leadOrFollowUpDetails?.ContactPersonNo}} </label>
+          <label>{{leadOrFollowUpDetails?.companyMobile}}  <span *ngIf="leadOrFollowUpDetails?.companyMobile">-</span>  {{leadOrFollowUpDetails?.companyEmail}} </label>
+          <label>{{leadOrFollowUpDetails?.followUpDate}}</label>
+             <!-- <span>-</span>  {{leadOrFollowUpDetails?.followUpTime}} -->
+
+          <!-- <label>Order From : <span>{{orderRequestUpperDetails[0]?.CustomerName}}</span> </label> -->
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="bgc-white bdrs-3 pb-3 mB-20">
+          <div class="table-responsive table_height">
+            <table class="table cat-table table-hover">
+              <thead>
+                <tr>
+                  <th >Sr No.</th>
+                  <th >Item</th>
+                  <th >Category</th>
+                  <th >Quantity</th>
+                  <th >Price</th>
+                  <!-- <th >Discount</th> -->
+                  <th >Net Amount</th>
+                  <!-- <th >Action</th> -->
+                </tr>
+              </thead>
+              <!-- <tbody *ngIf="isSearching" style="height:100px;">
+                <img
+                  src="assets/img/spinner-blue-circle.gif"
+                  alt="loading screen"
+                  style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;"
+                />
+              </tbody> -->
+              <tbody>
+                <tr
+                  *ngFor="let item of orderRequestDetails;
+                    let i = index;">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.ItemName }}</td>
+                  <td >{{item?.CategoryName}}</td>
+                  <td >{{item?.Quantity}}</td>
+                  <td >{{item?.MrpRate}}</td>
+                  <!-- <td >{{item?.DiscountAmt}}</td> -->
+                  <td >{{item?.SubTotalAmount}}</td>
+                  <!-- <td>
+                    <a
+                      data-toggle="tooltip"
+                      data-placement="top"
+                      title="Edit"
+                      (click)="editunit(item.Id)"
+                    >
+                      <i class="fa fa-edit fa-1x"> </i
+                    ></a>
+                    <a
+                      class="actionBtn"
+                      data-toggle="tooltip"
+                      data-placement="bottom"
+                      title="Delete"
+                      (click)="deleteUnit(item.Id)"
+                    >
+                      <i class="fa fa-trash fa-1x"></i
+                    ></a>
+                  </td> -->
+                </tr>
+                <tr>
+                  <td colspan="4"></td>
+                  <td class="font-weight-bold">Total</td>
+                  <td class="font-weight-bold">{{totalAmount ? totalAmount : 'NIL'}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</main>

@@ -7,14 +7,14 @@
           <div class="row">
             <div class="col-md-3 left_side_head">
               <p class="heading_lead">
-                <i class="fas fa-shopping-cart" aria-hidden="true"></i>Voucher
+                <i class="fas fa-shopping-cart" aria-hidden="true"></i>Voucher <span class="small-txt">{{organisationsData[0].text}}</span>
               </p>
             </div>
             <div class="col-md-9">
               <div class="btn_header">
                 <a class="btn btn-default waves-effect" #savebutton (click)="manipulateData('new')">Save
                 </a>
-                <a class="btn btn-info waves-effect" (click)="manipulateData('reset')">Save and New</a>
+                <a class="btn btn-info waves-effect" *ngIf="!editId" (click)="manipulateData('reset')">Save and New</a>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal()">
                   <span aria-hidden="true" class="white-text">×</span>
                 </button>
@@ -74,7 +74,8 @@
                   <label>Organisation Name</label>
                   <div class="input-group adw_select">
                     <div class="input-group adw_select">
-                      <select2 #organisation_select2 id="organisation" [data]="organisationsData" class="control_select"
+                      <select2 #organisation_select2 id="organisation" [data]="organisationsData" 
+                        class="control_select" disabled="true"
                         (valueChanged)="onChangeOrganisationId($event)" autocomplete="true"
                         [options]="{ placeholder: 'Select Organisation' }" [value]="organisationVlue">
                       </select2>
@@ -95,8 +96,9 @@
                 </div>
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
-                  <datepicker-popup [disableInput]="editId > 0" [applyFinYear]="true" [toSetDate]="VoucherDate"
-                    (opened)="dateStatus = $event" (dateInFormat)="VoucherDate = $event; checkForBill();">
+                  <datepicker-popup [applyFinYear]="'true'" [toSetDate]="VoucherDate" 
+                    (opened)="dateStatus = $event"
+                    (dateInFormat)="VoucherDate = $event; checkForBill();">
                   </datepicker-popup>
                 </div>
                 <div class="form-group col-md-4">
@@ -242,7 +244,8 @@
                   <label>Organisation Name</label>
                   <div class="input-group adw_select">
                     <div class="input-group adw_select">
-                      <select2 #organisation_select2 id="organisation" [data]="organisationsData" class="control_select"
+                      <select2 #organisation_select2  id="organisation" disabled="true"
+                        [data]="organisationsData" class="control_select"
                         (valueChanged)="onChangeOrganisationId($event)" autocomplete="true"
                         [options]="{ placeholder: 'Select Organisation' }" [value]="organisationVlue">
                       </select2>
@@ -263,8 +266,8 @@
                 </div>
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
-                  <datepicker-popup [disableInput]="editId > 0" [applyFinYear]="true" [toSetDate]="VoucherDate"
-                    (opened)="dateStatus = $event" (dateInFormat)="VoucherDate = $event; checkForBill()">
+                  <datepicker-popup [applyFinYear]="'true'" [toSetDate]="VoucherDate" (opened)="dateStatus = $event"
+                    (dateInFormat)="VoucherDate = $event; checkForBill()">
                   </datepicker-popup>
                 </div>
                 <ng-container *ngFor="let voucherData of voucherDatas; let i = index">
@@ -327,7 +330,8 @@
                   <label>Organisation Name</label>
                   <div class="input-group adw_select">
                     <div class="input-group adw_select">
-                      <select2 #organisation_select2 id="organisation" [data]="organisationsData" class="control_select"
+                      <select2 #organisation_select2 id="organisation" [data]="organisationsData"
+                        class="control_select" disabled="true"
                         (valueChanged)="onChangeOrganisationId($event)" autocomplete="true"
                         [options]="{ placeholder: 'Select Organisation' }" [value]="organisationVlue">
                       </select2>
@@ -348,8 +352,8 @@
                 </div>
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
-                  <datepicker-popup [disableInput]="editId > 0" [applyFinYear]="true" [toSetDate]="VoucherDate"
-                    (opened)="dateStatus = $event" (dateInFormat)="VoucherDate = $event; checkForBill()">
+                  <datepicker-popup [applyFinYear]="'true'" [toSetDate]="VoucherDate" (opened)="dateStatus = $event"
+                    (dateInFormat)="VoucherDate = $event; checkForBill()">
                   </datepicker-popup>
                 </div>
                 <ng-container *ngIf="sumDr > 0 || sumCr > 0">
@@ -422,7 +426,8 @@
                   <label>Organisation Name</label>
                   <div class="input-group adw_select">
                     <div class="input-group adw_select">
-                      <select2 #organisation_select2 id="organisation" [data]="organisationsData" class="control_select"
+                      <select2 #organisation_select2 id="organisation" [data]="organisationsData" 
+                        class="control_select" disabled="true"
                         (valueChanged)="onChangeOrganisationId($event)" autocomplete="true"
                         [options]="{ placeholder: 'Select Organisation' }" [value]="organisationVlue">
                       </select2>
@@ -443,8 +448,8 @@
                 </div>
                 <div class="form-group col-md-4">
                   <label class="fw-500">Voucher Date</label>
-                  <datepicker-popup [disableInput]="editId > 0" [applyFinYear]="'true'" [toSetDate]="VoucherDate"
-                    (opened)="dateStatus = $event" (dateInFormat)="VoucherDate = $event; checkForBill()">
+                  <datepicker-popup [applyFinYear]="'true'" [toSetDate]="VoucherDate" (opened)="dateStatus = $event"
+                    (dateInFormat)="VoucherDate = $event; checkForBill()">
                   </datepicker-popup>
                 </div>
                 <div class="form-group col-md-3">

@@ -32,7 +32,7 @@
                 <img data-toggle="modal" src="assets/img/printer.png" />
               </a>
               <a> <img src="assets/img/pdf.png"/></a>
-              <a>
+              <a (click)="exportExcel()"> 
                 <img src="assets/img/excel.png" />
               </a>
               <a
@@ -108,64 +108,40 @@
             >
               <thead>
                 <tr>
-                  <th rowspan="2">SNo</th>
-                  <th rowspan="2">Bill Date</th>
-                  <th rowspan="2">Invoice No</th>
-                  <th rowspan="2">Ledger Name</th>
-                  <th rowspan="2">State</th>
-                  <th rowspan="2">Item Name</th>
-                  <th rowspan="2">Mrp Rate</th>
-                  <th rowspan="2">Hsn No</th>
-                  <th rowspan="2">Qty</th>
-                  <th rowspan="2">Sale Rate</th>
-                  <th rowspan="2">Unit</th>
-                  <th rowspan="2">Taxable Amount (₹)</th>
-                  <th
-                    class="text-center"
-                    [colSpan]="2 * dynamicHeaderList?.length"
-                  >
-                    Tax amount (₹)
-                  </th>
-                  <th rowspan="2">TaxAmount</th>
-                  <th rowspan="2">Total Amount</th>
-                  <th rowspan="2">Bill Amount</th>
-                </tr>
-                <tr>
-                  <th *ngFor="let list of dynamicHeaderList">
-                    {{ list?.Name }}
-                  </th>
-                  <th *ngFor="let list of dynamicHeaderList">
-                    {{ list?.Name }} Rate
-                  </th>
+                  <th rowspan="2">S. No.</th>
+                  <th rowspan="2">GSTIN/UIN of Recipient</th>
+                  <th rowspan="2">Receiver Name </th>
+                  <th rowspan="2">Invoice Number </th>
+                  <th rowspan="2">Invoice date </th>
+                  <th rowspan="2">Invoice Value </th>
+                  <th rowspan="2">Place Of Supply </th>
+                  <th rowspan="2">Reverse Charge </th>
+                  <th rowspan="2">Applicable % of Tax Rate</th>
+                  <th rowspan="2">Invoice Type</th>
+                  <th rowspan="2">E-Commerce GSTIN</th>
+                  <th rowspan="2">Rate</th>
+                  <th rowspan="2">Taxable Value</th>
+                  <th rowspan="2">Cess Amount</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let item of gstrList; let i = index">
                   <td>{{ i + 1 }}</td>
-                  <td>{{ item?.Billdate }}</td>
-                  <td>{{ item?.InvoiceNo }}</td>
+                  <td>{{ item?.GSTINNO }}</td>
                   <td>{{ item?.LedgerName }}</td>
-                  <td>{{ item?.State }}</td>
-                  <td>{{ item?.ItemName }}</td>
-                  <td>{{ item?.MRPRate }}</td>
-                  <td>{{ item?.HSNNo }}</td>
-                  <td>{{ item?.Qty }}</td>
-                  <td>{{ item?.SaleRate }}</td>
-                  <td>{{ item?.Unit }}</td>
-                  <td>{{ item?.TaxableAmount }}</td>
-                  <td *ngFor="let taxItem of item?.dynamicHeaderList">
-                    {{ taxItem?.Amount }}
-                  </td>
-                  <td *ngFor="let taxItem of item?.dynamicHeaderList">
-                    {{ taxItem?.TaxRate }}%
-                  </td>
-                  <td>{{ item?.TaxAmount }}</td>
-                  <td>{{ item?.ItemTotalAmount }}</td>
-                  <td>{{ item?.BillAmount }}</td>
+                  <td>{{ item?.InvoiceNo }}</td>
+                  <td>{{ item?.Billdate }}</td>
+                  <td>{{ item?.BillAmount.toFixed(2) }}</td>
+                  <td>{{ item?.State}} {{item?.StateCode}}</td>
+                  <td>N</td>
+                  <td></td>
+                  <td>{{ item?.GstTypeName }}</td>
+                  <td></td>
+                  <td>{{item?.TotalTaxRate.toFixed(2)}}</td>
+                  <td>{{ item?.TaxableAmount.toFixed(2) }}</td>
+                  <td>0</td>
                 </tr>
-                <!-- <tr *ngIf="noDataFound" class="text-center">
-                  <td class="recordNotFound" colspan="12">No record Found</td>
-                </tr> -->
+              
               </tbody>
             </table>
           </div>

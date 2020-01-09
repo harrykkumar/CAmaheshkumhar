@@ -13,7 +13,7 @@ import { takeUntil } from 'rxjs/operators';
   styleUrls: ['./common-menu.component.css']
 })
 export class CommonMenuComponent {
-  private unSubscribe$ = new Subject<void>()  
+  private unSubscribe$ = new Subject<void>()
   searchForm: FormGroup
   openAddMenu: {};
   menuCode: string;
@@ -37,9 +37,14 @@ export class CommonMenuComponent {
         }
       })
 
-      this.commonService.onCommonMenuAdd$.subscribe((data) => {
+      // this.commonService.onCommonMenuAdd$.subscribe((data) => {
+      //   this.getCommonMenuListData()
+      // })
+    this.commonService.openCommonMenu$.subscribe((data) => {
+      if (data.open === false) {
         this.getCommonMenuListData()
-      })
+      }
+    })
     this.buildForm()
    }
 

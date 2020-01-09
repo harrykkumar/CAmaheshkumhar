@@ -4,7 +4,10 @@
 
 export const environment = {
   production: true,
+  // BASE_URL: 'http://demo.saniiro.com'
   BASE_URL: 'http://testapi.saniiro.com'
+  // BASE_URL: 'https://api.saniiro.com'
+
 }
 
 /*

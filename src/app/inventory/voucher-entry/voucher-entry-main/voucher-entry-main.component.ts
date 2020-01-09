@@ -66,20 +66,27 @@ export class VoucherEntryMainComponent implements OnInit {
     if (this.voucherEntryType && this.voucherEntryTypeId) {
       this.voucherAddComponentRef.instance.addType = this.voucherEntryType
       this.voucherAddComponentRef.instance.addTypeId = Number(this.voucherEntryTypeId)
+      if (this.voucherAddComponentRef.instance.addType === 'sale') {
+        this.voucherAddComponentRef.instance.tabId = 2
+      }
+      if (this.voucherAddComponentRef.instance.addType === 'purchase') {
+        this.voucherAddComponentRef.instance.tabId = 1
+      }
     }
     if (!_.isEmpty(voucherData) && voucherData.VoucherId) {
       this.voucherAddComponentRef.instance.editId = voucherData.VoucherId
       this.voucherAddComponentRef.instance.editType = voucherData.VoucherType
+    } else {
+      this.voucherAddComponentRef.instance.getSPUitilityData();
     }
-    this.voucherAddComponentRef.instance.voucherAddClosed.subscribe(
-      (res) => {
-        this.voucherAddComponentRef.destroy();
-        if (this.voucherEntryType && this.voucherEntryTypeId && !res) {
-          this.commonService.navigateToPreviousUrl();
-        } else if (this.voucherEntryType && this.voucherEntryTypeId && res) {
-          this.router.navigate(['ims/voucher-entry'])
-        }
-      });
+    this.voucherAddComponentRef.instance.voucherAddClosed.subscribe((res) => {
+      this.voucherAddComponentRef.destroy();
+      if (this.voucherEntryType && this.voucherEntryTypeId && !res) {
+        this.commonService.navigateToPreviousUrl();
+      } else if (this.voucherEntryType && this.voucherEntryTypeId && res) {
+        this.router.navigate(['ims/voucher-entry'])
+      }
+    });
   }
 
   ngOnInit() {
@@ -155,6 +162,7 @@ export class VoucherEntryMainComponent implements OnInit {
         map(data => data.Data)
       ).subscribe(
         data => {
+          this.totalAmount = 0
           this.printDataList = JSON.parse(JSON.stringify(data.PaymentDetails));
           this.printHeaderData = JSON.parse(JSON.stringify(data.LedgerVoucherMsts[0]))
           this.printOrgnizationDataList = data.ClientInfos

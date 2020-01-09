@@ -158,11 +158,10 @@
                                     <ul class="dropdown-menu fsz-sm table-hover">
                                       <li><a (click)="onPrintButtonSaleChallan(item.Id,'sales_Challan_print_id')" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fas fa-print mR-10 cH-blue"></i><span>Print</span></a></li>
                                       <li *ngIf="(item.SaleId === 0) && (menuData?.write || menuData?.delete)"><a (click)="onOpenInvoice(item.Id)" class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-edit mR-10 cH-blue"></i><span>Edit</span></a></li>
-                                      <li *ngIf="menuData?.delete"><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
+                                      <li (click)='CancelSaleChallan(item.Id)' *ngIf="menuData?.delete"><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-trash mR-10 cH-blue"></i><span>Cancel</span></a></li>
                                       <li
                                       *ngIf="(menuData?.write || menuData?.delete)"
                                       ><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-arrow-left mR-10 cH-blue"></i><span>Return</span></a></li>
-
                                       <li
                                       *ngIf="(menuData?.write || menuData?.delete)"
                                       ><a class="d-b td-n p-1 bgcH-grey-100 c-grey-700"><i class="fa fa-envelope mR-10 cH-blue"></i><span>Send

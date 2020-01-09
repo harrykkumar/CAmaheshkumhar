@@ -7,6 +7,10 @@ const routes: Routes = [
     path: '',
     component: LeadComponent
   },
+  {
+    path: ':id',
+    component: LeadComponent
+  }
 ];
 
 @NgModule({

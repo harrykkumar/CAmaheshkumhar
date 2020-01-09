@@ -30,17 +30,22 @@
             <div class="form-row">
               <ng-container *ngIf="disabledFlagOrgBranch">
                 <div *ngIf="Multiorgnization" class="form-group col-md-3">
-                  <label>Orgnization</label>
-                  <div class="input-group adw_select">
-                    <div class="input-group adw_select">
-                      <select2 [data]="orgnizationData" class="control_select" (valueChanged)="onOrgChange($event)"
-                        autocomplete="true" [value]="model?.orgId" [ngClass]="{
-                              errorSelecto:
-                                userFormModel?.submitted &&
-                                user?.selectedBranch?.id === '0'}">
-                      </select2>
-                    </div>
-                  </div>
+                  <label>Organization</label>
+                  <ng-select
+                    name="user"
+                    id="userId"
+                    [items]="orgnizationData"
+                    placeholder="Select Organization"
+                    bindLabel="text"
+                    bindValue="id"
+                    [(ngModel)]="model.orgId"
+                    [ngClass]="{
+                      'ng-select-invalid':
+                        userFormModel?.submitted &&
+                        user?.selectedBranch?.id === '0'}"
+                    required
+                  >
+                  </ng-select>
                 </div>
               </ng-container>
               <ng-container *ngIf="disabledFlagOrgBranch">
@@ -86,7 +91,7 @@
                 <div class="custom-control custom-checkbox">
                   <input #tranModel="ngModel" name="tranInput" [(ngModel)]="rights.showTrans" type="checkbox"
                     class="custom-control-input" id="showtrans" name="example1" />
-                  <label class="custom-control-label" for="showtrans">Show Transction</label>
+                  <label class="custom-control-label" for="showtrans">Show Transaction</label>
                 </div>
               </div>
               <div class="form-group col mt-sm-4">
@@ -109,7 +114,7 @@
           <div class="bgc-white bdrs-3">
             <div id="tabs" class="md-elevation-4dp ">
               <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item" *ngFor="let module of moduleList;let i = index;">
+                <li class="nav-item active" *ngFor="let module of moduleList;let i = index;">
                   <a (click)="onToggleModule(module, i)" class="nav-link active" data-index="0" data-toggle="tab"
                     href="#tab-{{module.Id}}" role="tab">
                     <img [src]="module?.src" class="mx-auto d-block">

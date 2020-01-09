@@ -1,3 +1,4 @@
+import { ActivatedRoute } from '@angular/router';
 import { AssignToComponent } from './../../shared/components/assign-to/assign-to.component';
 import { FollowUpCountInfoComponent } from './../follow-up-count-info/follow-up-count-info.component';
 import { LeadInfoComponent } from './../lead-info/lead-info.component';
@@ -41,6 +42,10 @@ export class FollowUpListComponent implements OnInit, AfterViewInit {
   followUpActionId: any;
   followUpDurationId: any;
   isAllFollowUpSelected: boolean = false;
+  p: number = 1
+  itemsPerPage: number = 20
+  total: number = 0
+  lastItemIndex: number = 0
   constructor(
     private commonService: CommonService,
     private resolver: ComponentFactoryResolver,
@@ -49,20 +54,31 @@ export class FollowUpListComponent implements OnInit, AfterViewInit {
     private _formBuilder: FormBuilder,
     private _settings: Settings,
     private gs: GlobalService,
-    public crmService: CrmService
-  ) { }
+    public crmService: CrmService,
+    private route: ActivatedRoute
+  ) {}
 
- async ngOnInit() {
+  async ngOnInit() {
     await this.crmService.getLeadUtility();
-    this.getFollowUpList();
+    this.route.queryParamMap.subscribe((queryParmeters) => {
+      const type = queryParmeters.get('type')
+      if (type === 'overdue') {
+        this.followUpDurationId = 1;
+      } else if (type === 'tentative') {
+        this.leadStatusId = 5
+      }
+      this.getFollowUpList();
+    })
   }
 
   ngAfterViewInit() {
     this.commonService.fixTableHF('cat-table')
   }
 
-  getFollowUpList() {
+  getFollowUpList(type?) {
     const query = {
+      Page: this.p,
+      Size: this.itemsPerPage,
       SearchText: this.commonService.isEmpty(this.searchText) ? '' : this.searchText,
       Status: this.leadStatusId ? this.leadStatusId : 0,
       FromDate: this.gs.clientToSqlDateFormat(this.fromDateValue, this._settings.dateFormat),
@@ -71,12 +87,14 @@ export class FollowUpListComponent implements OnInit, AfterViewInit {
       SourceID: this.sourceId ? this.sourceId : 0,
       FollowUpActionID: this.followUpActionId ? this.followUpActionId : 0,
       TimeDurationFiltersID: this.followUpDurationId ? this.followUpDurationId : 0,
-      IsLast : 1
+      IsLast : 1,
+      IsAssigned: type === 'Assigned' ? 1 : 0
     }
     this.commonService.getRequest(ApiConstant.LEAD_FOLLOW_UP_LIST, query).subscribe((res) => {
       if (res.Code === 1000 && !this.commonService.isEmpty(res.Data)) {
         this.dataToFilterStorage = [...res.Data]
         this.followUpList = [...res.Data];
+        this.total = this.followUpList[0].TotalRows
       } else {
         this.followUpList = [];
       }

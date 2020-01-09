@@ -1,4 +1,6 @@
-import { Component, ViewChild, Renderer2, ElementRef } from '@angular/core'
+import { ApiConstant } from './../../../constants/api';
+import { ItemAddSubscriptionComponent } from './item-add-subscription/item-add-subscription.component';
+import { Component, ViewChild, Renderer2, ElementRef, ViewContainerRef, ComponentFactoryResolver } from '@angular/core'
 import { Subscription, fromEvent } from 'rxjs'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { ItemmasterServices } from '../../../../commonServices/TransactionMaster/item-master.services'
@@ -20,6 +22,10 @@ import { SetUpIds } from 'src/app/shared/constants/setupIds.constant';
   styleUrls: ['./item-add.component.css']
 })
 export class ItemAddComponent {
+  @ViewChild('itemAddSubscriptionContainerRef', { read: ViewContainerRef }) itemAddSubscriptionContainerRef: ViewContainerRef;
+  itemAddSubscriptionRef: any;
+  itemAddSubscriptionList: Array<any> = []
+  IsAmcSubscription: boolean = false;
   modalOpen: Subscription
   submitClick: boolean
   itemDetail: ItemModel[]
@@ -100,20 +106,34 @@ export class ItemAddComponent {
   Items = []
   ItemAttributeTrans = []
   @ViewChild('combo_comp') comboComp: ComboComponent
-
+  isSubscriptionAllow: boolean = false
+  subscriptionTypeList: Array<any> = []
   combo: Array<ComboItem> = []
   itemAttributeOpeningStockOpen: any = {};
+  subscriptionTypeId: number;
   constructor(private _itemmasterServices: ItemmasterServices,
     private commonService: CommonService,
     private toastrService: ToastrCustomService,
     private unitMasterService: UnitMasterServices,
     private renderer: Renderer2,
-    private settings: Settings
+    private settings: Settings,
+    private resolver: ComponentFactoryResolver,
   ) {
     this.addedImages = { images: [], queue: [], safeUrls: [], baseImages: [] }
     this.modalOpen = this.commonService.getItemMasterStatus().subscribe(
       (status: any) => {
         if (status.open) {
+          this.IsAmcSubscription = false
+          this.itemAddSubscriptionList = []
+          this.getSubscriptionTypeList();
+          const setUpSettingArray = JSON.parse(localStorage.getItem('moduleSettings'))
+          if (!_.isEmpty(setUpSettingArray && setUpSettingArray.settings)) {
+            const data4 = _.find(setUpSettingArray.settings, { id: 104 });
+            if (!_.isEmpty(data4)) {
+              this.isSubscriptionAllow = data4.val
+            }
+          }
+
           this.modeOfForm = 'new'
           this.toDisableCat = false
           console.log('id : ', status.editId)
@@ -217,6 +237,18 @@ export class ItemAddComponent {
     )
   }
 
+  getSubscriptionTypeList() {
+    const query = {
+      CommonCode: 203
+    }
+    this.commonService.getRequest(ApiConstant.COMMON_MASTER_MENU, query).subscribe((res) => {
+      if (res.Code === 1000) {
+        this.subscriptionTypeList = [...res.Data]
+        this.subscriptionTypeId = null;
+      }
+    })
+  }
+
   removeImage(i) {
     this.addedImages.images.splice(i, 1)
     this.addedImages.queue.splice(i, 1)
@@ -316,6 +348,20 @@ export class ItemAddComponent {
     this.ImageFiles = []
     this.addedImages = { images: [], queue: [], safeUrls: [], baseImages: [], id: [] }
     this.itemDetails = data.ItemDetails[0]
+    this.IsAmcSubscription = this.itemDetails.IsSubscription
+    if(this.IsAmcSubscription){
+      this.subscriptionTypeId = this.itemDetails.SubscriptionType
+      if(!_.isEmpty(data.ItemSubscriptions)){
+        this.itemAddSubscriptionList = _.map(data.ItemSubscriptions, (item) => {
+          return {
+            id: item.Id,
+            period: item.Period,
+            periodLabel: item.PeriodName,
+            price: item.Price
+          }
+        })
+      }
+    }
     let images = data.ImageContentBases
     console.log('images : ', images)
     images.forEach(element => {
@@ -328,6 +374,7 @@ export class ItemAddComponent {
     this.createImageFiles()
     console.log('images : ', this.addedImages)
     this.Id = +this.itemDetails.Id
+    this.forServiceFlag = this.itemDetails.ItemType===3 ? false : true
     this.CategoryId = this.itemDetails.CategoryId
     this.Name = this.itemDetails.Name
     this.HsnNo = this.itemDetails.HsnNo
@@ -354,7 +401,9 @@ export class ItemAddComponent {
     if (this.editMode) {
       setTimeout(() => {
         this.itemTypeSelect2.setElementValue(this.itemDetails.ItemType)
-        this.packingTypeSelect2.setElementValue(this.itemDetails.PackingType)
+        if(this.forServiceFlag){
+          this.packingTypeSelect2.setElementValue(this.itemDetails.PackingType)
+        } 
         this.catSelect2.setElementValue(this.itemDetails.CategoryId)
         this.unitSelect2.setElementValue(this.itemDetails.UnitId)
         this.taxSelect2.setElementValue(this.itemDetails.TaxId)
@@ -368,6 +417,7 @@ export class ItemAddComponent {
   @ViewChild('itemname') itemname: ElementRef
   @ViewChild('barcode') barcode: ElementRef
   openModal() {
+    this.forServiceFlag= true
     this.industryId = +this.settings.industryId
     this.initComp()
     $('#item_form').removeClass('fadeInUp')
@@ -539,6 +589,7 @@ export class ItemAddComponent {
     this.combo = []
     this.ImageFiles = []
     this.createForm()
+   
     if (this.catSelect2) {
       this.catSelect2.setElementValue(this.CategoryId)
     }
@@ -687,6 +738,15 @@ export class ItemAddComponent {
         ItemAttributeTrans: this.ItemAttributeTrans,
         ItemAttributewithRate: this.prepareItemAttributeStkPayloadToSave(this.ItemAttributewithRate),
         ItemPropertyTrans: this.ItemPropertyTrans,
+        IsSubscription : this.IsAmcSubscription,
+        SubscriptionType: this.subscriptionTypeId ? this.subscriptionTypeId : 0,
+        ItemSubscriptions: _.map(this.itemAddSubscriptionList, (item) => {
+          return {
+            Id: item.id,
+            Period: item.period,
+            Price: item.price
+          }
+        })
 
       } as ItemMasterAdd
     }
@@ -698,15 +758,17 @@ export class ItemAddComponent {
     let newData = [{ id: '0', text: 'Select Category' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
     this._itemmasterServices.getAllSubCategories(1).subscribe(data => {
       // console.log('categories : ', data)
-      if (data.Code === UIConstant.THOUSAND) {
-        if (data.Data.length > 0) {
+      if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
+       // if (data.Data.length > 0) {
           data.Data.forEach(element => {
             newData.push({
               id: element.Id,
               text: element.Name
             })
           })
-        }
+       // }
+        this.categoryType = newData
+      }else{
         this.categoryType = newData
       }
     },
@@ -865,10 +927,15 @@ export class ItemAddComponent {
   }
   getItemDetail(value) {
     this.itemTpyePlaceHolder = { placeholder: 'Select item' }
-    this.selectItemTpye = [{ id: '1', text: 'Stockable' }, { id: '2', text: 'Stockable Not Sale' }]
+    this.selectItemTpye = [{ id: '1', text: 'Stockable' }, { id: '2', text: 'Stockable Not Sale' }, { id: '3', text: 'Non-Stockable/Service' }]
   }
+  forServiceFlag:boolean  = true
   selectedItemType(itemTypeCode) {
     this.ItemType = +itemTypeCode.value
+    if(itemTypeCode.data[0].selected){
+      this.forServiceFlag = itemTypeCode.value==='3' ?  false : true
+    }
+   
   }
   yesConfirmationClose() {
     $('#close_confirm4').modal(UIConstant.MODEL_HIDE)
@@ -882,6 +949,19 @@ export class ItemAddComponent {
     this.closeConfirmation()
 
   }
+  checkForService (){
+    if(this.forServiceFlag){
+      if(!this.existsCodes.barcode && !this.existsCodes.name){
+        return true
+      }
+      else{
+        return false
+      }
+    }
+    else{
+      return true
+    }
+  }
   addNewItemMaster(value) {
     this.submitClick = true
     if (value === 'reset') {
@@ -890,8 +970,10 @@ export class ItemAddComponent {
       this.loading = false
     }
     this.dynamicFocus()
-    if (this.checkForValidation() && !this.existsCodes.barcode && !this.existsCodes.name &&
-      !this.pendingCheck && !this.pendingCheck1) {
+    if (this.checkForValidation() 
+     && this.checkForService() && 
+      !this.pendingCheck && !this.pendingCheck1) 
+      {
       if (value === 'reset') {
         this.initComp()
         this.submitClick = false
@@ -944,50 +1026,45 @@ export class ItemAddComponent {
 
 
   dynamicFocus() {
-
     if (!isNaN(+this.CategoryId) && +this.CategoryId > 0) {
       this.invalidObj['CategoryId'] = false
     } else {
       this.invalidObj['CategoryId'] = true
       this.catSelect2.selector.nativeElement.focus({ preventScroll: false })
-
     }
     if (this.Name && this.Name.trim()) {
       this.invalidObj['Name'] = false
     } else if (!this.invalidObj.CategoryId) {
       this.invalidObj['Name'] = true
       this.itemname.nativeElement.focus()
-
     }
-    if (this.HsnNo && this.HsnNo.trim()) {
-      this.invalidObj['HsnNo'] = false
-    } else if (!this.invalidObj.CategoryId && !this.invalidObj.Name) {
-      this.invalidObj['HsnNo'] = true
-      this.hsnNoRef.nativeElement.focus()
+    if (this.isHSNMandatory) {
+      if (this.HsnNo && this.HsnNo.trim()) {
+        this.invalidObj['HsnNo'] = false
+      } else if (!this.invalidObj.CategoryId && !this.invalidObj.Name) {
+        this.invalidObj['HsnNo'] = true
+        this.hsnNoRef.nativeElement.focus()
+      }
     }
-    if (this.BarCode && this.BarCode.trim()) {
-      this.invalidObj['BarCode'] = false
-    } else if (!this.invalidObj.CategoryId && !this.invalidObj.Name && !this.invalidObj.HsnNo) {
-      this.invalidObj['BarCode'] = true
-      this.barCodeRef.nativeElement.focus()
-
-    }
-    if (this.ItemCode && this.ItemCode.trim()) {
-      this.invalidObj['ItemCode'] = false
-    } else if (!this.invalidObj.CategoryId && !this.invalidObj.Name && !this.invalidObj.HsnNo && !this.invalidObj.BarCode) {
-      this.invalidObj['ItemCode'] = true
-      this.itemCodeRef.nativeElement.focus()
-
-
+    if (this.isHSNMandatory)  {
+      if (this.BarCode && this.BarCode.trim()) {
+        this.invalidObj['BarCode'] = false
+      } else if (!this.invalidObj.CategoryId && !this.invalidObj.Name && !this.invalidObj.HsnNo) {
+        this.invalidObj['BarCode'] = true
+        this.barCodeRef.nativeElement.focus()
+      }
+      if (this.ItemCode && this.ItemCode.trim()) {
+        this.invalidObj['ItemCode'] = false
+      } else if (!this.invalidObj.CategoryId && !this.invalidObj.Name && !this.invalidObj.HsnNo && !this.invalidObj.BarCode) {
+        this.invalidObj['ItemCode'] = true
+        this.itemCodeRef.nativeElement.focus()
+      }
     }
     if (!isNaN(+this.UnitId) && +this.UnitId > 0) {
       this.invalidObj['UnitId'] = false
     } else if (!this.invalidObj.ItemCode && !this.invalidObj.CategoryId && !this.invalidObj.Name && !this.invalidObj.HsnNo && !this.invalidObj.BarCode) {
-
       this.invalidObj['UnitId'] = true
       this.unitSelect2.selector.nativeElement.focus({ preventScroll: false })
-
-
     }
     if (!isNaN(+this.TaxId) && +this.TaxId > 0) {
       this.invalidObj['TaxId'] = false
@@ -995,15 +1072,9 @@ export class ItemAddComponent {
 
       this.invalidObj['TaxId'] = true
       this.taxSelect2.selector.nativeElement.focus({ preventScroll: false })
-
-
     }
-
-
-
-
-
   }
+
   checkForValidation(): boolean {
     let isValid = 1
     if (!isNaN(+this.CategoryId) && +this.CategoryId > 0) {
@@ -1030,28 +1101,44 @@ export class ItemAddComponent {
       this.invalidObj['Name'] = true
       isValid = 0
     }
-    if (this.ItemCode && this.ItemCode.trim()) {
-      this.invalidObj['ItemCode'] = false
-    } else {
-      this.invalidObj['ItemCode'] = true
-      isValid = 0
+
+    if(this.forServiceFlag){
+      if (this.ItemCode && this.ItemCode.trim()) {
+        this.invalidObj['ItemCode'] = false
+      } else {
+        this.invalidObj['ItemCode'] = true
+        isValid = 0
+      }
     }
-    if (this.HsnNo && this.HsnNo.trim()) {
-      this.invalidObj['HsnNo'] = false
-    } else {
-      this.invalidObj['HsnNo'] = true
-      isValid = 0
+ 
+    if (this.isHSNMandatory) {
+      if (this.HsnNo && this.HsnNo.trim()) {
+        this.invalidObj['HsnNo'] = false
+      } else {
+        this.invalidObj['HsnNo'] = true
+        isValid = 0
+      }
     }
-    if (this.BarCode && this.BarCode.trim()) {
-      this.invalidObj['BarCode'] = false
-    } else {
-      this.invalidObj['BarCode'] = true
+    if(this.forServiceFlag){
+      if (this.BarCode && this.BarCode.trim()) {
+        this.invalidObj['BarCode'] = false
+      } else {
+        this.invalidObj['BarCode'] = true
+        isValid = 0
+      }
+    }
+   
+    if (this.IsAmcSubscription && this.subscriptionTypeId) {
+      this.invalidObj['SubscriptionType'] = false
+    } else if(this.IsAmcSubscription && this.commonService.isEmpty(this.subscriptionTypeId)) {
+      this.invalidObj['SubscriptionType'] = true
       isValid = 0
     }
     return !!isValid
   }
 
   toShowOpeningStock: boolean = false
+  isHSNMandatory: boolean
   getSetting(settings) {
     // console.log('settings : ', settings)
     settings.forEach(element => {
@@ -1075,6 +1162,9 @@ export class ItemAddComponent {
       }
       if (element.id === SetUpIds.attributesForPurchase) {
         this.toShowOpeningStock = (element.val && element.val.length > 0) ? true : false
+      }
+      if (element.id === SetUpIds.HSN_MANDATORY) {
+        this.isHSNMandatory = element.val
       }
     })
   }
@@ -1124,7 +1214,6 @@ export class ItemAddComponent {
           console.log('bar code : ', data)
           if (data.Code === UIConstant.THOUSAND && data.Data.length > 0 && data.Data[0].BarCode) {
             this.BarCode = data.Data[0].BarCode
-
             this.ItemCode = this.BarCode
           }
         }
@@ -1138,11 +1227,7 @@ export class ItemAddComponent {
     } else {
       this.OpeningStockValue = 0
     }
-    // if(+this.OpeningStockValue > 0 && +this.PurchaseRate > 0) {
-    //   this.OpeningStock = +(+this.OpeningStockValue / +this.PurchaseRate).toFixed(this.noOfDecimal)
-    // } else {
-    //   this.OpeningStock = 0
-    // }
+
   }
 
   onOpeningStockChange = () => {
@@ -1164,11 +1249,6 @@ export class ItemAddComponent {
     } else {
       this.PurchaseRate = 0
     }
-    // if(+this.PurchaseRate > 0 && +this.OpeningStockValue > 0) {
-    //   this.OpeningStock = +(+this.OpeningStockValue / +this.PurchaseRate).toFixed(this.noOfDecimal)
-    // } else {
-    //   this.OpeningStock = 0
-    // }
   }
 
   openItemStockAttributeModel = () => {
@@ -1267,7 +1347,7 @@ export class ItemAddComponent {
       this.createMobileList(null)
       $('#item_for_EmiNumber').modal(UIConstant.MODEL_SHOW)
       this.propertRefValue.nativeElement.focus()
-     
+
     }
   }
   closeIMEI() {
@@ -1319,6 +1399,13 @@ export class ItemAddComponent {
         this.preQty = this.OpeningStock
       }
     }
+  }
+
+  addItemSubscription() {
+    this.commonService.loadModalDynamically(this, 'itemAddSubscriptionContainerRef', 'itemAddSubscriptionRef', ItemAddSubscriptionComponent,
+      (res) => {
+        this.itemAddSubscriptionList = [...res]
+      }, this.itemAddSubscriptionList, this.Name);
   }
 
 

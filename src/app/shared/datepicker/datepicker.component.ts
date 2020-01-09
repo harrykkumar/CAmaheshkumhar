@@ -75,8 +75,9 @@ export class DatepickerComponent implements OnInit, OnDestroy {
       }, 1)
     }
     if (changes.isBackDate && !changes.isBackDate.currentValue &&
-        changes.isBackDate.currentValue !== changes.isBackDate.previousValue) {
-      this.minDate = new Date()
+      changes.isBackDate.currentValue !== changes.isBackDate.previousValue) {
+      const bookStartDate = JSON.parse(this.settings.selectedOrg).BookStartDate
+      this.minDate = new Date(bookStartDate)
     }
     if (changes.daysToAdd && changes.daysToAdd.currentValue >= 0) {
       const d = new Date()
@@ -235,7 +236,6 @@ export class DatepickerComponent implements OnInit, OnDestroy {
 
   keyCode: number
   eventHandler(evt) {
-    // console.log(evt)
     this.keyCode = evt.keyCode
   }
 
@@ -256,6 +256,16 @@ export class DatepickerComponent implements OnInit, OnDestroy {
       }
       if (val.length === (first + mid + last + 2)) {
         this.inputElem.nativeElement.value = this.inputElem.nativeElement.value
+        setTimeout(() => {
+          this.validateDate()
+        }, 0)
+      }
+      if (val.length > (first + mid + last + 2)) {
+        this.inputElem.nativeElement.value = val.substring(0, first + mid + last + 2)
+        console.log('val : ', val.substring(0, first + mid + last + 2))
+        setTimeout(() => {
+          this.validateDate()
+        }, 0)
       }
     }
   }

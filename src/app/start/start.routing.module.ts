@@ -507,6 +507,10 @@ const routes: Routes = [
       {
         path: 'email-editor',
         loadChildren: '../transactionMaster/email-editor/email-editor-list.module#EmailEditorListModule'
+      },
+      {
+        path: 'fieldSetting',
+        loadChildren: '../field-setting/field-setting.module#FieldSettingModule'
       }
     ]
   }

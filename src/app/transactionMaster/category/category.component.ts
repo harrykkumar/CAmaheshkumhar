@@ -52,7 +52,7 @@ export class CategoryComponent implements OnInit {
     private settings: Settings,
     private _loginService: LoginService
     ) {
-    this.menuData = this._loginService.getMenuDetails(2, 1);
+    this.menuData = this._loginService.getMenuDetails(2, 131);
     this.getCatLevel()
     this.newCatSub = this.commonService.newCatStatus().subscribe(
       (obj) => {

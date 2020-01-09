@@ -2,8 +2,7 @@
   class="modal fade right"
   id="add_item_detail"
   role="dialog"
-  aria-labelledby="add_item_detail"
-  aria-hidden="true"
+  tabindex="-1"
 >
   <div class="modal-dialog modal-full-height modal-right" role="document">
     <div class="modal-content">
@@ -22,6 +21,7 @@
       <form
         #addItemDetailsForm="ngForm"
         novalidate
+        (ngSubmit)="addItemDetailsForm.form.valid && submit()"
       >
         <div class="modal-body">
           <div class="card-body">
@@ -29,6 +29,7 @@
               <div class="form-group col-md-12">
                 <label>Items</label>
                 <ng-select
+                  id="itemId"
                   name="itemDetailsName"
                   [items]="productList"
                   bindLabel="Name"
@@ -36,7 +37,7 @@
                   placeholder="Select Items"
                   [(ngModel)]="selectedItemId"
                   required
-                  [ngClass]="{'ng-select-invalid': addItemDetailsForm?.submitted && !selectedItemId}"
+                  [ngClass]="{'ng-select-invalid': addItemDetailsForm.submitted && !selectedItemId}"
                 >
                 </ng-select>
               </div>
@@ -50,7 +51,7 @@
                   placeholder="Enter Quantity"
                   required
                   [ngClass]="{
-                    'is-invalid': addItemDetailsForm?.submitted && !quantity
+                    'errorSelecto': addItemDetailsForm?.submitted && !quantity
                   }"
                 />
               </div>
@@ -64,11 +65,11 @@
                     placeholder="Enter Value"
                     required
                     [ngClass]="{
-                      'is-invalid': addItemDetailsForm?.submitted && !itemValue
+                      'errorSelecto': addItemDetailsForm?.submitted && !itemValue
                     }"
                   />
                 </div>
-                <div class="form-group col-md-12 custom-control custom-checkbox ml-4">
+                <div class="form-group col-md-12 custom-control custom-checkbox ml-4" *ngIf="isSubscriptionAllow">
                   <input type="checkbox" class="custom-control-input" id="amcSubscriptionId"
                    name="amcSubscriptionName"
                   [checked]="isAmcSubscription"
@@ -78,24 +79,23 @@
                     'errorSelecto':selectedEnquiryStatusId !== 5 &&
                       selectedEnquiryStatusId !== 6 && addItemDetailsForm?.submitted && !isAmcSubscription
                   }">
-                  <label class="custom-control-label" for="amcSubscriptionId">Amc/Subscription</label>
+                  <label class="custom-control-label" for="amcSubscriptionId">Amc/Subscription (Optional)</label>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12" *ngIf="isSubscriptionAllow">
                   <label>Amount For Subscription</label>
                   <input
-                    type="text"
+                    type="number"
                     class="form-control"
                     placeholder="Please Enter Amount"
                     name="subscriptionAmount"
-                    [required]="selectedEnquiryStatusId !== 5 && selectedEnquiryStatusId !== 6"
+                    [required]="isAmcSubscription"
                     [(ngModel)]="subscriptionAmount"
                     [ngClass]="{
-                      'errorSelecto':selectedEnquiryStatusId !== 5 &&
-                        selectedEnquiryStatusId !== 6 && addItemDetailsForm?.submitted && !subscriptionAmount
+                      'errorSelecto':isAmcSubscription && addItemDetailsForm?.submitted && !subscriptionAmount
                     }"
                   />
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-12" *ngIf="isSubscriptionAllow">
                   <label>Subscription Duration</label>
                   <ng-select
                     name="subscriptionDurationName"
@@ -104,10 +104,9 @@
                     bindValue="id"
                     placeholder="Select Duration"
                     [(ngModel)]="subscriptionDuration"
-                    [required]="selectedEnquiryStatusId !== 5 && selectedEnquiryStatusId !== 6"
+                    [required]="isAmcSubscription"
                     [ngClass]="{
-                      'ng-select-invalid': selectedEnquiryStatusId !== 5 &&
-                      selectedEnquiryStatusId !== 6 && addItemDetailsForm?.submitted && !subscriptionDuration
+                      'ng-select-invalid': isAmcSubscription && addItemDetailsForm?.submitted && !subscriptionDuration
                     }"
                   >
                   </ng-select>
@@ -116,9 +115,12 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary waves-effect"
-          (click)="addItemDetailsForm.form.valid && submit()">
+          <button type="submit" class="btn btn-primary waves-effect" (click)="setValue(false)">
             Save
+          </button>
+          <button *ngIf="!editMode" type="submit" class="btn btn-primary waves-effect"
+          (click)="setValue(true)">
+            Save And Add New
           </button>
         </div>
       </form>

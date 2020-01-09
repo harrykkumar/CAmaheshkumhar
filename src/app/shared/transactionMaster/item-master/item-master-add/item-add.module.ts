@@ -7,6 +7,7 @@ import { ItemAddComponent } from './item-add.component'
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown'
 import { ComboComponent } from '../item-combo/combo.component'
 import { ItemAttributeOpeningStockComponent } from '../item-attribute-opening-stock/item-attribute-opening-stock.component';
+import { ItemAddSubscriptionComponent } from './item-add-subscription/item-add-subscription.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -19,13 +20,14 @@ import { ItemAttributeOpeningStockComponent } from '../item-attribute-opening-st
   declarations: [
     ItemAddComponent,
     ComboComponent,
-    ItemAttributeOpeningStockComponent
+    ItemAttributeOpeningStockComponent,
+    ItemAddSubscriptionComponent
   ],
   exports: [
     ItemAddComponent,
     ItemAttributeOpeningStockComponent
   ],
-  entryComponents:[ItemAttributeOpeningStockComponent],
+  entryComponents:[ItemAttributeOpeningStockComponent, ItemAddSubscriptionComponent],
   bootstrap: []
 })
 export class ItemAddModule {

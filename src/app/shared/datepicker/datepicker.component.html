@@ -11,6 +11,7 @@
   (dateTimeChange)="onSelect($event)"
   [min]="minDate"
   [max]="maxDate"
+  [disabled]="disableInput"
   [owlDateTimeTrigger]="dt2" [owlDateTime]="dt2" #inputElem >
   <div class="input-group-addon bgc-white bd bdwR-0" (click)="toggleView()" >
     <i class="fas fa-calendar-alt"></i>

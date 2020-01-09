@@ -1,0 +1,31 @@
+.main-content {
+    min-height: calc(100vh - 47px) !important;
+}
+.heading_welcome {
+    padding: 30px 0;
+  }
+  .heading_welcome strong {
+    color: #2a58ad;
+  }
+  .head_sub h4 {
+    font-size: 20px !important;
+    font-weight: 600;
+  }
+  .head_sub p {
+    font-weight: 600;
+    color: #666;
+    font-size: 14px;
+  }
+  .grid_left img {
+    height: 32px;
+}
+
+.left_side_head .fas {
+  color: #ffffff;
+  background: #2a58ad;
+ }
+ p.heading_lead {
+  color: #333;
+  top: 8px;
+  font-weight: 600;
+ }

@@ -101,7 +101,7 @@ export class CompanyProfileComponent implements OnInit {
   branchTypeList: Array<any> = []
   clientDateFormat: any
   editId: any;
-
+  typeofIndustryByDefault:boolean = false
   finSessionList: Array<any> = []
   constructor(
     public _globalService: GlobalService,
@@ -142,20 +142,23 @@ export class CompanyProfileComponent implements OnInit {
       }
     }, 300)
   }
-
+@ViewChild('typeofindustry_select') typeofindustry_select: Select2Component
   // tslint:disable-next-line:no-empty
   ngOnInit() {
     this.spinnerService.show()
     $('#companyOrganisationModal').modal({ backdrop: 'static', keyboard: false })
     $('#companyOrganisationModal').modal(UIConstant.MODEL_SHOW)
     this.selectTab(0);
-    //this.setFocus('companyNameReference');
     this.getListCountryLabelList(0)
-
     this.initDropDownData()
     this.loadbank()
-
     this.getUploadedImages()
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      $('#organizationName').focus()
+    }, 100);
   }
 
   loadbank() {
@@ -166,6 +169,7 @@ export class CompanyProfileComponent implements OnInit {
       accountHolderName: this.personalDetail.companyName
     }
   }
+ 
   /* Function to initialise dropdown list data */
   initDropDownData = async () => {
     this.imageFilesForSignature = {
@@ -175,7 +179,7 @@ export class CompanyProfileComponent implements OnInit {
     this.statutoryDetail.gstNo = ''
     this.mobileDetail.mobileNo = ''
     this.personalDetail = { companyName: '', selectedFinSession: { id: 0 } }
-
+    this.dummyData={SubIndustryId:0}
     this.addressDetail = {
       selectedState: {
         id: 0
@@ -208,9 +212,18 @@ export class CompanyProfileComponent implements OnInit {
     this.getMobileCountryCodeList()
     this.getMobileTypeList()
     this.getEmailTypeList()
+
     if (!this.modalData.editId) {
-      this.personalDetailModel.registrationTypeId = 1;
+      // this.personalDetailModel.registrationTypeId = 1;
       this.personalDetail.bookStartDate = '';
+      if(this._loginService.getModuleIdForAccount()){
+        this.personalDetailModel.industryTypeId =30
+        this.personalDetail.selectedIndustryType=31
+        this.dummyData.SubIndustryId = 31
+        this.personalDetailModel.SubIndustryId =31
+        this.personalDetail.selectedSubIndustry=31
+        this.typeofIndustryByDefault=true
+       }
     }
     if (this.modalData.editId) {
       this.getOrgProfileData()
@@ -441,7 +454,6 @@ export class CompanyProfileComponent implements OnInit {
       let str = this.statutoryDetail.gstNo
       let val = str.trim();
       this.GstinNoCode = val.substr(0, 2);
-      console.log(this.GstinNoCode, this.GSTStateCode)
       if (!_.isEmpty(this.GstinNoCode)) {
         if (this.GstinNoCode !== this.GSTStateCode) {
           if (this.addressDetailArray.length > 0  ) {
@@ -485,7 +497,7 @@ export class CompanyProfileComponent implements OnInit {
 
   /* Function invoke on state dropdown selection change */
   onStateSelectionChange = (event) => {
-    console.log(event)
+   
     if (+event.value > 0) {
       if (event.data.length > 0 && event.data[0].selected) {
         this.addressDetail.selectedState = event.data[0]
@@ -698,14 +710,11 @@ export class CompanyProfileComponent implements OnInit {
   RemoveAddressButtonFlag: boolean = true
   /* Function to add new address details */
   addNewAddress = () => {
-    
     if (this.editAddressDetailIndex !== null) {
       if (this.addressDetail.selectedCity.id > 0 && (!_.isEmpty(this.addressDetail.address)) && this.addressDetail.address !== "" && this.addressDetail.selectedState.id > 0) {
         this.RemoveAddressButtonFlag = false
-
         this.addressDetailArray[this.editAddressDetailIndex] = { ...this.addressDetail }
         this.editAddressDetailIndex = null
-
       }
     } else {
       if (_.isEmpty(this.addressDetailArray)) {
@@ -718,7 +727,7 @@ export class CompanyProfileComponent implements OnInit {
 
     }
     this.addressDetail = {
-      selectedAddressType: this.addressTypeList[0].id,
+      selectedAddressType: this.addressTypeList[0],
       id: 0,
       Id: 0,
       AddressTypeName: '',
@@ -826,6 +835,8 @@ export class CompanyProfileComponent implements OnInit {
       this.mobileDetail.selectedMobileCountryCode = event.data[0]
       if (!_.isEmpty(this.personalDetail.mobileArray)) {
         this.personalDetailModel.contactCodeValue = Number(this.personalDetail.mobileArray[0].selectedMobileCountryCode.id);
+       this.model.countryCodeId =this.personalDetail.mobileArray[0].selectedMobileCountryCode.CommonId
+
       }
     }
   }
@@ -899,18 +910,22 @@ export class CompanyProfileComponent implements OnInit {
   validateAddressDetail = () => {
     let valid = true
     if (!_.isEmpty(this.addressDetail.selectedCountry) && Number(this.addressDetail.selectedCountry.id) === 0) {
+      this.countrySelect.selector.nativeElement.focus({ preventScroll: false })
       valid = false
     }
     if (!_.isEmpty(this.addressDetail.selectedState) && Number(this.addressDetail.selectedState.id) === 0) {
+      this.stateSelect.selector.nativeElement.focus({ preventScroll: false })
       valid = false
     }
     if (!_.isEmpty(this.addressDetail.selectedCity) && Number(this.addressDetail.selectedCity.id) === 0) {
+      this.citySelect.selector.nativeElement.focus({ preventScroll: false })
       valid = false
     }
-    if (_.isEmpty(this.addressDetail.address) && this.addressDetail.addres == "") {
+    if (_.isEmpty(this.addressDetail.address) && this.addressDetail.address === "") {
+      this.addressValue.nativeElement.focus()
       valid = false
     }
-    if (!_.isEmpty(this.addressDetail.selectedAddressType) && Number(this.addressDetail.selectedAddressType.id) === 0) {
+    if (!_.isEmpty(this.addressDetail.selectedAddressType.id) && Number(this.addressDetail.selectedAddressType.id) === 0) {
       valid = false
     }
     return valid
@@ -955,14 +970,13 @@ export class CompanyProfileComponent implements OnInit {
   //  this.addressDetail.splice(0, 1)
   /* Function to prepare prepare the request payload data for post */
   prepareSavePayload = () => {
-    console.log(this.addressDetailArray, 'address-payload')
     const addressArray = _.map(this.addressDetailArray, (address) => {
       return {
         // Id: address.id ? address.id : 0,
         Id: !_.isEmpty(address.id) ? address.id : 0,
         AddressValue: address.address,
         stateCode: address.stateCode,
-        AddressType: address.selectedAddressType,
+        AddressType: address.selectedAddressType.id,
         CountryId: address.selectedCountry.id,
         StateId: address.selectedState.id,
         CityId: address.selectedCity.id,
@@ -1061,9 +1075,6 @@ export class CompanyProfileComponent implements OnInit {
       SignatureImageFiles: [this.imageFilesForSignature]
     }
   }
-  dynamicKeyPersonFocus() {
-
-  }
 
   /* Function to save the profile */
   saveOrgProfile = () => {
@@ -1076,9 +1087,7 @@ export class CompanyProfileComponent implements OnInit {
     this.checkGSTNumberByState()
     if (!this.checkForValidation()) {
       this.dynamicFocus()
-
     }
-
     else {
       if(this.checkGSTforCompany()){
         if (this.matchStateCodeWithGSTNumber()) {
@@ -1088,18 +1097,18 @@ export class CompanyProfileComponent implements OnInit {
             (Data: any) => {
               if (Data.Code === UIConstant.THOUSAND) {
                 this.toastrService.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
+                this.spinnerService.hide()
                 if (!this.modalData.editId) {
                   this.navigateToSetting(Data.Data);
                 } else {
                   this.emitCloseProfile(Data.Data);
-                  this.spinnerService.hide()
+                  // this.spinnerService.hide()
                 }
               } else {
                 this.toastrService.showError('', Data.Message)
                 this.spinnerService.hide()
               }
             }, error => {
-              console.log(error)
               this.toastrService.showError('', 'error in profile save')
               this.spinnerService.hide()
             }
@@ -1180,7 +1189,7 @@ export class CompanyProfileComponent implements OnInit {
 
     this.bankDetail.accountHolderName = profileData.OrganisationDetails[0].Name
     this.addressDetail = {
-      selectedAddressType: this.addressTypeList[0].id,
+      selectedAddressType: this.addressTypeList[0],
       AddressTypeName: '',
       postalCode: '',
       stateCode: 0,
@@ -1306,7 +1315,8 @@ export class CompanyProfileComponent implements OnInit {
           },
           panNo: item.PanNo,
           idEmail: item.IdEmail,
-          idContact: item.IdContact
+          idContact: item.IdContact,
+          email: item.EmailAddress
         }
       }
     })
@@ -1344,14 +1354,6 @@ export class CompanyProfileComponent implements OnInit {
       }
   }
   openSignatureImageModal(event,local,type) {
-    // if( this.imageFilesForSignature && this.imageFilesForSignature.Name!==''){
-    //   if(type==='IMAGE'){
-    //     this.confirmation_value ='upload new signature'
-    //     this.closeConfirmation()
-    //   }
-    // }
-    
-    console.log(event)
     if (!_.isEmpty(event)) {
       this.imageCropperContainerRef.clear();
       const factory = this.resolver.resolveComponentFactory(CropImageComponent);
@@ -1622,7 +1624,7 @@ export class CompanyProfileComponent implements OnInit {
         this.validObj['addressDetail_selectedCity_flag'] = true
         this.citySelect.selector.nativeElement.focus({ preventScroll: false })
       }
-      if (this.addressDetail.selectedAddressType > 0) {
+      if (this.addressDetail.selectedAddressType.id > 0) {
         this.validObj['addressDetail_selectedAddressType_flag'] = false
       } else if (!this.validObj.typeOfIndustry_Falg && !this.validObj.companyName_Falg && !this.validObj.typeOfSubIndustry_Falg && !this.validObj.selectedRegistrationType_Falg && !this.validObj.selectedBranchType_flag && !this.validObj.bookStartDate
         && !this.validObj.selectedFinSession && !this.validObj.addressDetail_selectedCountry_flag && !this.validObj.addressDetail_selectedState_flag && !this.validObj.addressDetail_selectedCity_flag) {
@@ -1761,7 +1763,7 @@ export class CompanyProfileComponent implements OnInit {
         this.validObj['addressDetail_selectedCity_flag'] = true
         isValid = 0
       }
-      if (this.addressDetail.selectedAddressType > 0 || this.addressDetailArray.length > 0) {
+      if (this.addressDetail.selectedAddressType.id> 0 || this.addressDetailArray.length > 0) {
         this.validObj['addressDetail_selectedAddressType_flag'] = false
       } else {
         this.validObj['addressDetail_selectedAddressType_flag'] = true

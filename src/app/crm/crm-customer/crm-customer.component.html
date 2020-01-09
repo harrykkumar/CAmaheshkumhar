@@ -1,0 +1,101 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0">
+              <i class="fas fa-balance-scale"></i>Customer
+            </p>
+          </div>
+          <div class="col-md-8 p-0">
+            <div class="right_saerch_side">
+              <div class="mr-2">
+                <!-- <div id="custom-search-input" class="btn_header1">
+                  <div class="input-group col-md-12">
+                    <input
+                      type="text"
+                      class="form-control input-lg"
+                      placeholder="Search"
+                      (input)="getCustomerList('search')"
+                      name="searchText"
+                      [(ngModel)]="searchText"
+                    />
+                    <span class="input-group-btn">
+                      <a>
+                        <i class="fas fa-search"></i>
+                      </a>
+                    </span>
+                  </div>
+                </div> -->
+              </div>
+              <div class="btn_header">
+                <a title="Export Customer" (click)="exportData()"><img src="assets/img/excel.png"></a>
+                <a title="Import Customer"><img src="assets/img/excel_import.png"></a>
+                <button
+                  type="button"
+                  class="btn btn-primary waves-effect waves-light"
+                  data-toggle="modal"
+                  (click)="addCustomer()"
+                >
+                  Add Customer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="bgc-white bdrs-3 pb-3 mB-20">
+          <div class="table-responsive table_height">
+            <table class="table cat-table table-hover">
+              <thead>
+                <tr>
+                  <th width="7%">Sr No.</th>
+                  <th >Customer Name</th>
+                  <th >Mobile No</th>
+                  <th >Email</th>
+                  <th >Address</th>
+                  <th >Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of customerList; let i = index;">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item?.CustomerName }}</td>
+                  <td>{{item?.ContactNo}}</td>
+                  <td>{{item?.EmailAddress}}</td>
+                  <td><address>{{item?.Address}} {{item?.City}} {{item?.State}} {{item?.Country}}</address></td>
+                  <td>
+                    <a
+                      class="actionBtn"
+                      data-toggle="tooltip"
+                      data-placement="top"
+                      title="Edit"
+                      (click)="addCustomer(item)"
+                    >
+                      <i class="fa fa-edit fa-1x"> </i
+                    ></a>
+                    <a
+                      class="actionBtn"
+                      data-toggle="tooltip"
+                      data-placement="bottom"
+                      title="Delete"
+                      (click)="deleteCustomer(item.Id)"
+                    >
+                      <i class="fa fa-trash fa-1x"></i
+                    ></a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<ng-container #addCrmCustomerContainerRef></ng-container>

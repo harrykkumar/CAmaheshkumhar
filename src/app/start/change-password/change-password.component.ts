@@ -25,9 +25,7 @@ userList: Array<any> = [];
       (res) => {
         if (res.Code === 1000 && !_.isEmpty(res.Data)) {
           this.userList = [...res.Data]
-          if(this.userList.length === 1) {
             this.model.userId = this.userList[0].Id
-          }
         } else {
           this.userList = []
         }
@@ -38,7 +36,7 @@ userList: Array<any> = [];
     this.commonService.openModal('change_password')
     this.spinner.hide()
   }
-  
+
   validate() {
     if (this.model.newPassword && this.model.confirmPassword && (this.model.newPassword !== this.model.confirmPassword)) {
       return false

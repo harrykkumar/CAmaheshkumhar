@@ -1,6 +1,6 @@
 import { ToastrCustomService } from './../../../commonServices/toastr.service';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import * as _ from 'lodash';
 import { GlobalService } from '../../../commonServices/global.service';
 declare const $: any
@@ -13,7 +13,6 @@ export class AddCommonMenuComponent implements OnInit {
   @Input('addMenu') addMenu;
   @Output() closeCommonMenuForm = new EventEmitter();
   @ViewChild('commonMenuForm') formModal;
-  @ViewChild('commonMenuName') commonMenuNameModal: ElementRef;
   formData: any = {};
   commonMenu : any = {};
   formUpdated: boolean;
@@ -21,23 +20,26 @@ export class AddCommonMenuComponent implements OnInit {
   constructor(
     private _gs: GlobalService,
     private commonService: CommonService,
-    private toastr: ToastrCustomService) { 
+    private toastr: ToastrCustomService) {
     this.commonService.openCommonMenu$.subscribe((data: any) => {
+      console.log(JSON.stringify(data));
       if(data && data.open === true) {
         if (!_.isEmpty(data.data)) {
           this.formUpdated = false;
-          $('#commonMenuName').focus();
           this.formData = { ...data.data };
           this.commonMenu.CommonCode = this.formData.CodeId
           this.commonMenu.ShortName = ''
           this.commonMenu.Id = 0
           if (data.Id) {
-            this.addMenu.Id = data.Id
-            this.getEditFormData();
+            // this.addMenu.Id = data.Id
+            this.getEditFormData(data.Id);
           }
           $('#common_menu_master').modal('show')
         }
         this.isAddNew = data.isAddNew
+        setTimeout(() => {
+          $('#commonMenuName').focus();
+        }, 300);
       } else {
        this.closeModal()
       }
@@ -46,8 +48,8 @@ export class AddCommonMenuComponent implements OnInit {
   ngOnInit() {
   }
 
-  getEditFormData(){
-    this._gs.manipulateResponse(this.commonService.getCommonMenuDataList(this.commonMenu.CommonCode, this.addMenu.Id)).subscribe((res) => {
+  getEditFormData(id){
+    this._gs.manipulateResponse(this.commonService.getCommonMenuDataList(this.commonMenu.CommonCode, id)).subscribe((res) => {
       const data  = _.map(res, (element) => {
         return {
           Id: element.Id,
@@ -70,7 +72,7 @@ export class AddCommonMenuComponent implements OnInit {
         this.formUpdated = true
         if(data === 'AddNew'){
           this.resetForm()
-          this.commonMenu.Id = 0 
+          this.commonMenu.Id = 0
         } else {
           this.commonService.closeCommonMenu({ 'open': false, 'name': this.commonMenu.Name,
            'id': response, 'code': this.commonMenu.CommonCode})

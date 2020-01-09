@@ -44,9 +44,7 @@
                                   (input)="nameForAccountHolder($event.target.value);" id="organizationName" autofocus
                                   type="text" class="form-control" placeholder="Organization Name" name="companyName"
                                   [(ngModel)]="personalDetail.companyName" [pattern]="_commonService.companyNameRegx"
-                                  required 
-                                  
-                                  [ngClass]="{
+                                  required [ngClass]="{
                                     'errorSelecto ':
                                       orgProfileFormModel?.submitted && validObj?.companyName_Falg && 
                                       (!personalDetail.companyName ||
@@ -57,7 +55,8 @@
                                 <label>Type Of Industry</label>
                                 <div class="input-group adw_select">
                                   <div class="input-group adw_select">
-                                    <select2 #industryTypeSelect [data]="industryTypeList" class="control_select"
+                                    <select2  [disabled]='typeofIndustryByDefault'
+                                     #industryTypeSelect [data]="industryTypeList" class="control_select"
                                       (valueChanged)="
                                         onIndustryTypeSelectionChange($event)
                                       " autocomplete="true" [value]="
@@ -78,7 +77,8 @@
                                 <label>Type Of Sub Industry</label>
                                 <div class="input-group adw_select">
                                   <div class="input-group adw_select">
-                                    <select2 #subIndustryTypeSelect [data]="subIndustryTypeList" class="control_select"
+                                    <select2 #subIndustryTypeSelect [disabled]='typeofIndustryByDefault'
+                                    [data]="subIndustryTypeList" class="control_select"
                                       (valueChanged)="
                                         onSubIndustryTypeSelectionChange($event)
                                       " autocomplete="true" [value]="
@@ -142,11 +142,10 @@
                               <div class="form-group col-md-3">
                                 <label class="fw-500">Book Start From</label>
                                 <div class="timepicker-input input-icon form-group">
-                                  <datepicker-popup #bookStartDateRef  [toSetDate]="personalDetail.bookStartDate" [setMinDate]="''"
-                                    [setMaxDate]="''" (dateInFormat)="
+                                  <datepicker-popup #bookStartDateRef [toSetDate]="personalDetail.bookStartDate"
+                                    [setMinDate]="''" [setMaxDate]="''" (dateInFormat)="
                                       personalDetail.bookStartDate = $event;
-                                      onBookStartDateChange($event)
-                                    " [class]="
+                                      onBookStartDateChange($event)" [class]="
                                       (orgProfileFormModel?.submitted &&
                                         !personalDetail.bookStartDate) ||
                                       dummyData.bookStartDateInvalid
@@ -259,8 +258,7 @@
                                                 " autocomplete="true" [value]="
                                                   mobileDetail
                                                     .selectedMobileCountryCode
-                                                    ?.id"
-                                                    [ngClass]="{
+                                                    ?.id" [ngClass]="{
                                                       errorSelecto: 
                                                         mobileDetailModel?.submitted && validObj?.mobileDetail_selectedMobileCountryCode 
                                                     }">
@@ -279,8 +277,7 @@
                                                   )
                                                 " name="mobileInput" [(ngModel)]="
                                                   mobileDetail.mobileNo
-                                                " #mobileNoModel="ngModel"
-                                                [ngClass]="{
+                                                " #mobileNoModel="ngModel" [ngClass]="{
                                                   'errorSelecto':
                                                     mobileNoModel.invalid ||
                                                     (orgProfileFormModel?.submitted &&
@@ -396,7 +393,7 @@
                     </div>
                   </div>
                 </tab>
-                <tab heading="Key Persons" >
+                <tab heading="Key Persons">
                   <div class="card">
                     <div class="card-body">
                       <div>
@@ -445,8 +442,7 @@
                                     onKeyPersonMobileCountryCodeChange($event)
                                   " autocomplete="true" [value]="
                                     personalDetailModel?.contactCodeValue
-                                  " 
-                                  >
+                                  ">
                                 </select2>
                                 <input [disabled]="
                                     keyPersonDetail?.keyPersonMobileCountryCode
@@ -461,15 +457,14 @@
                                   " [maxlength]="
                                     keyPersonDetail?.keyPersonMobileCountryCode
                                       ?.contactLength
-                                  "  />
+                                  " />
                               </div>
                             </div>
                             <div class="form-group col-md-3">
                               <label> {{PanNoValue}}</label>
                               <input type="text" #keyPersonPanNo="ngModel" class="form-control"
                                 placeholder="Enter  Number" name="panNo" [ngModel]="keyPersonDetail.panNo | uppercase"
-                                (ngModelChange)="keyPersonDetail.panNo = $event" [pattern]="regxPAN"
-                                [ngClass]="{
+                                (ngModelChange)="keyPersonDetail.panNo = $event" [pattern]="regxPAN" [ngClass]="{
                                   
                                   'is-invalid': keyPersonPanNo?.errors?.pattern
                                 }" />
@@ -540,7 +535,7 @@
 
 
 
-                <tab heading="Address" >
+                <tab heading="Address">
                   <div class="card ">
                     <div class="card-body ">
                       <form #addressFormModel="ngForm" (ngSubmit)="
@@ -553,7 +548,8 @@
                             <label>Country</label>
                             <div class="input-group adw_select">
                               <div class="input-group adw_select">
-                                <select2 #countrySelect id="countrySelectId" [data]="countryList" class="control_select"
+                                <select2 #countrySelect id="countrySelectId" 
+                                [data]="countryList" class="control_select"
                                   [options]="{
                                     placeholder: 'Select Country'
                                   }" (valueChanged)="
@@ -702,7 +698,7 @@
                     </div>
                   </div>
                 </tab>
-                <tab heading="Statutory Master Details" >
+                <tab heading="Statutory Master Details">
                   <div class="card">
                     <div class="card-body">
                       <div>
@@ -715,10 +711,8 @@
                           <div class="form-group col-md-4">
                             <label>{{PanNoValue}}</label>
                             <input type="text" #statPanModel="ngModel" class="form-control"
-                              placeholder="Enter PAN Number" name="panNo" 
-                              [ngModel]="statutoryDetail.panNo | uppercase"
-                              (ngModelChange)="statutoryDetail.panNo = $event" [pattern]="regxPAN"
-                              [ngClass]="{
+                              placeholder="Enter PAN Number" name="panNo" [ngModel]="statutoryDetail.panNo | uppercase"
+                              (ngModelChange)="statutoryDetail.panNo = $event" [pattern]="regxPAN" [ngClass]="{
                                 'is-invalid': statutoryDetail?.errors?.pattern
                                 }" />
                           </div>
@@ -726,11 +720,10 @@
                             <label>{{GstinNoValue}}</label>
                             <input #gstNo_ref [attr.disabled]="
                                   disabledGSTfor_UnRegi ? '' : null
-                                " #gstInModel="ngModel" type="text" class="form-control" 
-                              placeholder="Enter GSTIN Number" name="gstNo" 
+                                " #gstInModel="ngModel" type="text" class="form-control"
+                              placeholder="Enter GSTIN Number" name="gstNo"
                               [ngModel]="statutoryDetail.gstNo | uppercase"
-                              (ngModelChange)="statutoryDetail.gstNo = $event" [pattern]="regxGST"
-                              [ngClass]="{
+                              (ngModelChange)="statutoryDetail.gstNo = $event" [pattern]="regxGST" [ngClass]="{
                                 'is-invalid':
                                   gstInModel?.errors?.pattern 
                               }" [required]="countryId===123 &&
@@ -764,7 +757,7 @@
                     </div>
                   </div>
                 </tab>
-                <tab heading="Bank Detail" >
+                <tab heading="Bank Detail">
                   <div class="card">
                     <div class="card-body">
                       <div>
@@ -794,8 +787,9 @@
                             </div>
                             <div class="form-group col-md-2">
                               <label>Account Number</label>
-                              <input #accountNumberRef type="text" class="form-control" placeholder="Enter Account Number"
-                                name="accountNo" #accNoModel="ngModel" [(ngModel)]="bankDetail.accountNumber" [ngClass]="{
+                              <input #accountNumberRef type="text" class="form-control"
+                                placeholder="Enter Account Number" name="accountNo" #accNoModel="ngModel"
+                                [(ngModel)]="bankDetail.accountNumber" [ngClass]="{
                                   'errorSelecto':
                                     bankFormModel?.submitted &&
                                     accNoModel?.invalid
@@ -808,8 +802,8 @@
                             </div>
                             <div class="form-group col-md-2">
                               <label>Branch</label>
-                              <input #bankbranchRef type="text" class="form-control" placeholder="Enter Branch" name="branch"
-                                #branchModel="ngModel" [(ngModel)]="bankDetail.branch" [ngClass]="{
+                              <input #bankbranchRef type="text" class="form-control" placeholder="Enter Branch"
+                                name="branch" #branchModel="ngModel" [(ngModel)]="bankDetail.branch" [ngClass]="{
                                   'errorSelecto':
                                     bankFormModel?.submitted &&
                                     branchModel?.invalid
@@ -916,25 +910,21 @@
                         </div>
                         <div class="left_item row p-3">
                           <span class="compny_logo">Signature Image</span>
-                            <div class="form-group col-md-4">
-                              <div  class="custom-file-upload mB-20">
-                                <a  (click)="fileTypeInput.click()" class="custom-file-upload" ><i
-                                    class="fas fa-upload"></i> Signature Upload
-                                </a>
-                              </div>
-                              </div>
-                              <div hidden="true">
-                             
-                                <input 
-                                  type="file"
-                                  #fileTypeInput
-                                  (change)="openSignatureImageModal($event,false,'IMAGE')"
-                                />
-                              </div>
+                          <div class="form-group col-md-4">
+                            <div class="custom-file-upload mB-20">
+                              <a (click)="fileTypeInput.click()" class="custom-file-upload"><i
+                                  class="fas fa-upload"></i> Signature Upload
+                              </a>
+                            </div>
+                          </div>
+                          <div hidden="true">
+
+                            <input type="file" #fileTypeInput
+                              (change)="openSignatureImageModal($event,false,'IMAGE')" />
+                          </div>
                           <div class="col-lg-5">
-                            <div > 
-                              <img width="40%" id="center-img" [src]="imageFilesForSignature.BaseString"
-                                />
+                            <div>
+                              <img width="40%" id="center-img" [src]="imageFilesForSignature.BaseString" />
                             </div>
                           </div>
                         </div>
@@ -951,8 +941,8 @@
           <button type="submit" class="btn waves-effect btn-succ-ess">
             Save
           </button>
-          <button type="button" class="btn waves-effect btn-default def-ault-btn" (click)="PopUpemitCloseProfile('form')"
-            (keydown.Tab)="selectTab(0)">
+          <button type="button" class="btn waves-effect btn-default def-ault-btn"
+            (click)="PopUpemitCloseProfile('form')" (keydown.Tab)="selectTab(0)">
             Close
           </button>
         </div>

@@ -114,5 +114,4 @@ export class SaleCommonService {
     console.log(appliedTaxRates);
     return {'taxAmount': taxAmount, 'appliedTaxRates': appliedTaxRates}
   }
-
 }

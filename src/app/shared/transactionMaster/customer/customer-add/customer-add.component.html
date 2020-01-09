@@ -15,7 +15,7 @@
               </div>
               <div class="col-md-9">
                 <div class="btn_header">
-                  <button type="button" class="btn btn_close waves-effect" (click)="saveCustomer('reset')">
+                  <button  *ngIf='id===0'  type="button" class="btn btn_close waves-effect" (click)="saveCustomer('reset')">
                     Reset
                   </button>
                   <a class="btn btn-default waves-effect" (click)="saveCustomer('save')">Save
@@ -47,57 +47,40 @@
                           <div class="form-group col-md-4">
                             <label>Ledger Name</label>
                             <input #ledgerName type="text" class="form-control" (input)="
-                                      reapeatName($event.target.value);
-                                      checkValidationName()
-                                    " placeholder="Enter Ledger Name" name="customername" [(ngModel)]="customerName"
-                              [ngClass]="{
-                                      errorSelecto: submitClick && customerError
-                                    }" />
+                              reapeatName($event.target.value);redMarkLabel();
+                             " placeholder="Enter Ledger Name" name="customername" 
+                              [(ngModel)]="customerName"
+                              [ngClass]="{errorSelecto: invalidObj?.customerName}" />
                           </div>
                           <div class="form-group col-md-4">
                             <label>Contact Person</label>
                             <input type="text" class="form-control" placeholder="Enter Contact Person"
                               [(ngModel)]="contactPerson" name="contactname" />
                           </div>
-
                           <div class="form-group col-md-4">
                             <label for="bill_no">Customer Type</label>
                             <div class="input-group adw_select">
                               <div class="input-group adw_select">
                                 <select2 #customer_type_select2 [data]="customerType" class="control_select"
                                   (valueChanged)="selectCustomerType($event)" autocomplete="true"
-                                  [options]="{ placeholder: 'Selcet Type' }" [ngClass]="{
-                                          errorSelecto: submitClick && customCustomer
-                                        }" [value]="customerValue"></select2>
+                                  [options]="{ placeholder: 'Select Type' }" [ngClass]="{
+                                  errorSelecto: submitClick && customCustomer}" [value]="customerTypeId">
+                                </select2>
                               </div>
                             </div>
                           </div>
                           <div class="form-group col-md-4">
                             <label class="fw-500">DOA</label>
-                            <datepicker-popup [toSetDate]="DateOfAnniry" [applyFinYear]="false"
+                            <datepicker-popup [toSetDate]="DateOfAnniry"
                               [setMaxDate]='futureDateAn' (dateInFormat)="DateOfAnniry = $event;">
                             </datepicker-popup>
-                            <!-- <datepicker-popup [applyFinYear]="false"
-                                   [toSetDate]="DateOfAnniry" 
-                                   [isBackDate]="true"
-                                    [setMaxDate]="futureDateAn"
-                                     (dateInFormat)="DateOfAnniry = $event">
-                                    </datepicker-popup> -->
-
                           </div>
                           <div class="form-group col-md-4">
                             <label class="fw-500">DOB</label>
-                            <datepicker-popup [toSetDate]="DateOfBirth" [applyFinYear]="false" [isBackDate]="true"
+                            <datepicker-popup [toSetDate]="DateOfBirth" [applyFinYear]="false"
                               [setMaxDate]='futureDateB' (dateInFormat)="DateOfBirth = $event;">
                             </datepicker-popup>
-                            <!-- <datepicker-popup 
-                                     [applyFinYear]="false" 
-                                     [toSetDate]="DateOfBirth"
-                                     [isBackDate]="true"
-                                     [setMaxDate]="futureDateB" (dateInFormat)="DateOfBirth = $event">
-                                  </datepicker-popup> -->
                           </div>
-
                           <div class="form-group col-md-4">
                             <label>Opening Balance</label>
                             <input type="number" class="form-control" name="openingblance"
@@ -151,21 +134,18 @@
                                     <th width="10%">Contact-Type</th>
                                     <th width="20%">Country-Code</th>
                                     <th width="10%">Contact-No</th>
-                                   
                                   </tr>
                                 </thead>
                                 <tbody>
                                   <tr class="default_row" *ngFor="let item of mobileArray; let i = index">
                                     <td class="profile-pic1">
                                       <div class="edit1">
-                                        <a (click)="
-                                                      deleteArrayMobileType(i, 'contact')
-                                                    " *ngIf="mobileArray.length > 0">
+                                        <a (click)="deleteArrayMobileType(i, 'contact')" 
+                                          *ngIf="mobileArray.length > 0">
                                           <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
                                         </a>
-                                        <a (click)="
-                                                      editRowItem(i, 'contact', item.Id)
-                                                    " *ngIf="mobileArray.length > 0"><i class="fas fa-pen fa-1x"></i>
+                                        <a (click)="editRowItem(i, 'contact', item.Id)"
+                                          *ngIf="mobileArray.length > 0"><i class="fas fa-pen fa-1x"></i>
                                         </a>
                                       </div>
                                     </td>
@@ -184,8 +164,7 @@
                                   <tr>
                                     <td width="5%">
                                       <button type="submit" class="btn btn-primary btn_add_more"
-                                        (click)="addConatctDetails()">
-                                        +
+                                        (click)="addConatctDetails()">+
                                       </button>
                                     </td>
                                     <td width="20%">
@@ -194,24 +173,21 @@
                                         (valueChanged)="onChangeContactType($event)" autocomplete="true">
                                       </select2>
                                     </td>
-
                                     <td width="20%">
-                                      <div class="mobile_code   ">
+                                      <div class="mobile_code">
                                         <ng-select name="phonename" [items]="countryListWithCode" bindLabel="text"
                                           class="control_select width_20" bindValue="id" placeholder="Select Code"
-                                          (change)="
-                                                      onCountryCodeSelectionChange($event)
-                                                    " [(ngModel)]="countryCodeFlag">
+                                          [ngClass]="{errorSelecto:validmobileLength===0 || CountryCode===0}"
+                                          (change)="onCountryCodeSelectionChange($event)" [(ngModel)]="countryCodeFlag">
                                         </ng-select>
                                       </div>
                                     </td>
                                     <td width="50%">
-                                      <input #mobileRef (keydown.enter)="
-                                                    pressEnterMobileAdd($event)
-                                                  " name="mobileNo" [(ngModel)]="mobileNo" [attr.maxlength]="10"
-                                        (input)="checkNumberByCountry($event)" [ngClass]="{
-                                                    errorSelecto: validMobileFlag
-                                                  }" type="number" class="form-control" />
+                                      <input #mobileRef (keydown.enter)="pressEnterMobileAdd($event)" name="mobileNo"
+                                        [(ngModel)]="mobileNo" (input)="checkNumberByCountry($event);redMarkLabel()" [ngClass]="{
+                                        errorSelecto: !checkValidMobile() || invalidObj?.mobileNo
+                                      }" [minlength]="validmobileLength" [maxlength]="validmobileLength" type="text"
+                                        class="form-control" (keypress)="_CommonService.isNumber($event)" />
                                     </td>
                                   </tr>
                                 </tfoot>
@@ -226,19 +202,18 @@
                                     <th width="5%">#</th>
                                     <th>Email-Type</th>
                                     <th>Email-Address</th>
-                                  
                                   </tr>
                                 </thead>
                                 <tbody>
                                   <tr class="default_row" *ngFor="let item of emailArray; let i = index">
                                     <td class="profile-pic1">
                                       <div class="edit1">
-                                        <a (click)="
-                                                      deleteArrayMobileType(i, 'email')
-                                                    " *ngIf="emailArray.length > 0">
+                                        <a (click)="deleteArrayMobileType(i, 'email')" 
+                                          *ngIf="emailArray.length > 0">
                                           <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
                                         </a>
-                                        <a (click)="editRowItem(i, 'email', item.Id)" *ngIf="emailArray.length > 0"><i
+                                        <a (click)="editRowItem(i, 'email', item.Id)" 
+                                          *ngIf="emailArray.length > 0"><i
                                             class="fas fa-pen fa-1x"></i>
                                         </a>
                                       </div>
@@ -256,39 +231,38 @@
                                   <tr>
                                     <td width="5%">
                                       <button type="submit" class="btn btn-primary btn_add_more"
-                                        (click)="emailAddingArray()">
+                                        (click)="addEmailDetail()">
                                         +
                                       </button>
                                     </td>
                                     <td>
-                                      <select2 #select_emailtype [data]="emailTypeData" style="width:120px !important;"
+                                      <select2 #select_emailtype [data]="emailTypeData" 
+                                        style="width:120px !important;"
                                         class="control_select " (valueChanged)="onChangeEmailType($event)"
                                         autocomplete="true">
                                       </select2>
                                     </td>
 
                                     <td>
-                                      <input #emailRef (keydown.enter)="pressEnterEmailadd($event)" name="EmailAddress"
+                                      <input #emailRef (keydown.enter)="pressEnterEmailadd($event)" 
+                                        name="EmailAddress" (input)="redMarkLabel()"
                                         type="email" class="form-control" [(ngModel)]="EmailAddress"
-                                        [ngClass]="{ errorSelecto: !getEmailvalid }" />
+                                        [ngClass]="{ errorSelecto: !checkvalidationEmail() || invalidObj?.EmailAddress }" />
                                     </td>
                                   </tr>
                                 </tfoot>
                               </table>
                             </div>
                           </div>
-
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
             </div>
             <div class="col-md-6">
               <form #addressForm="ngForm">
-
                 <div class="col-lg-12">
                   <div class="classic-tabs">
                     <ul class="nav tabs-cyan" role="tablist">
@@ -300,31 +274,33 @@
                           <div class="form row">
                             <div class="form-group col-md-4">
                               <label for="bill_no">Country</label>
-                              <ng-select #country_selecto [disabled]="disabledStateCountry" name="CountryName"
+                              <ng-select #country_selecto  name="CountryName"
                                 [items]="countryList" bindLabel="text" bindValue="id" placeholder="Select Country"
-                                (change)="selectCountryListId($event)" [(ngModel)]="countryValue" [ngClass]="{
-                                              errorSelecto: addressClick && countryError && addressRequiredForLedger
-                                            }">
+                                (change)="selectCountryListId($event);redMarkLabel()"
+                                [ngClass]="{'errorSelecto': invalidObj?.countryValue}"
+                                [(ngModel)]="countryValue" >
                               </ng-select>
                             </div>
                             <div class="form-group col-md-4">
                               <label for="bill_no">State</label>
-                              <ng-select name="StateName" [items]="stateList" bindLabel="text" bindValue="id"
-                                placeholder="Select State" (change)="selectStatelist($event)"
-                                 [(ngModel)]="stateValue">
+                              <ng-select name="StateName" #state_select2 [items]="stateList" bindLabel="text"
+                                bindValue="id" placeholder="Select State"
+                                (change)="selectStatelist($event);redMarkLabel()" [(ngModel)]="stateValue"
+                                [ngClass]="{'errorSelecto': invalidObj?.stateValue}">
                               </ng-select>
                             </div>
                             <div class="form-group col-md-4">
                               <label for="bill_no">City</label>
                               <ng-select #city_select2 name="CityName" [items]="cityList" bindLabel="text"
-                                bindValue="id" placeholder="Select City" (change)="selectedCityId($event)"
-                                [(ngModel)]="cityValue">
+                                bindValue="id" placeholder="Select City"
+                                (change)="selectedCityId($event);redMarkLabel()" [(ngModel)]="cityValue"
+                                [ngClass]="{'errorSelecto': invalidObj?.cityValue}">
                               </ng-select>
                             </div>
                             <div class="form-group col-md-4">
                               <label for="bill_no">Area</label>
-                              <ng-select #city_select2 name="AreaName" [items]="areaList" bindLabel="text"
-                                bindValue="id" placeholder="Select Area" (change)="selectedArea($event)"
+                              <ng-select #area_selecto2 name="AreaName" [items]="areaList" bindLabel="text" bindValue="id"
+                                placeholder="Select Area" (change)="selectedArea($event);"
                                 [(ngModel)]="areNameId">
                               </ng-select>
                             </div>
@@ -339,37 +315,36 @@
                             <div class="form-group col-md-4">
                               <label>Post Code</label>
                               <input class="form-control" placeholder="Post Code" name="postcode"
-                                [(ngModel)]="postcode" />
+                                [(ngModel)]="postcode" type="number" />
                             </div>
                             <div class="form-group col-md-8">
                               <label>Address</label>
-                              <textarea class="form-control" placeholder="Enter Address" name="address"
-                                [(ngModel)]="adresss" [ngClass]="{ errorSelecto: addressClick && addressRequiredForLedger }"></textarea>
+                              <textarea class="form-control" placeholder="Enter Address" name="address" (input)="redMarkLabel()"
+                                [(ngModel)]="adresss" #address_value
+                                [ngClass]="{'errorSelecto': invalidObj?.address }"></textarea>
                             </div>
                             <div class="col-md-4 address_btn_more">
-                              <button  class="addAddress_btn" (click)="addNewAdress()">
+                              <button class="addAddress_btn" (click)="addNewAdress();">
                                 <div class=" p-2">
                                   <a class="add_btn ">
                                     <i class="fas fa-plus-circle"></i></a>
                                 </div>
                               </button>
                             </div>
-                            
                           </div>
                           <div class="form-row align-items-center mt-3">
                             <div class="profile-pic col-md-12" *ngFor="
-                                            let item of collectionOfAddress;
-                                            let i = index
-                                          ">
+                                let item of collectionOfAddress;
+                                let i = index
+                              ">
                               <div class="card p-3">
                                 <h5>{{ item.AddressTypeName }} Address</h5>
-                               
-                               <div class="form-row">
-                                
-                                 <div class="col-md-12"><span> {{ item.AddressValue }}, {{ item.AreaName }}, {{ item.CityName }},
-                                   {{ item.Statename }}, {{ item.CountryName }} {{ item.PostCode }}
-                                 </span></div>
-                               </div>
+                                <div class="form-row">
+                                  <div class="col-md-12"><span> {{ item.AddressValue }}, {{ item.AreaName }},
+                                      {{ item.CityName }},
+                                      {{ item.Statename }}, {{ item.CountryName }} {{ item.PostCode }}
+                                    </span></div>
+                                </div>
                                 <div class="edit">
                                   <a><i (click)="getEditAddress(item, i)" class="far fa-edit"></i>
                                   </a>
@@ -379,11 +354,7 @@
                                 </div>
                               </div>
                             </div>
-                           
-
                           </div>
-
-
                         </div>
                       </div>
                     </div>
@@ -398,47 +369,40 @@
                       <div class="card w-100">
                         <div class="card-body">
                           <div class="form-row">
-
                             <div class="form-group col-md-4">
                               <label for="bill_no">Customer Registration Type</label>
                               <div class="input-group adw_select">
-                                <div class="input-group adw_select">
-                                  <select2 #customer_register_type [data]="selectyCoustmoreRegistration"
-                                    class="control_select" (valueChanged)="selectCoustmoreId($event)"
-                                    autocomplete="true" [options]="selectCoustomerplaceHolder" [value]="coustomerValue"
-                                    [ngClass]="{
-                                                            'errorSelecto ':
-                                                              submitClick && customerRegistraionError
-                                                          }"></select2>
-                                </div>
+                                <select2 #customer_register_type [data]="selectyCoustmoreRegistration"
+                                  class="control_select" (valueChanged)="selectCoustmoreId($event);redMarkLabel()" autocomplete="true"
+                                  [options]="{ placeholder: 'Select Registration Type' }" [value]="coustmoreRegistraionId" ></select2>
                               </div>
                             </div>
                             <div class="form-group col-md-4">
                               <label for="org_code88">{{GstinNoValue}}</label>
-                              <input #gstRef [attr.disabled]="disabledGSTfor_UnRegi ? '' : null"
-                                (input)="checkGSTNumber($event)" style="text-transform:uppercase" [ngClass]="{
-                                                          errorSelecto: validGSTNumber || requiredGSTNumber 
-                                                        }" type="text" class="form-control" placeholder="Value"
-                                id="org_code88" name="gstinno" [(ngModel)]="gstin" />
+                              <input #gstRef
+                               [disabled]='disabledGSTfor_UnRegi'
+                              (input)="chekGSTvalidation();splitGSTNumber();redMarkLabel()" style="text-transform:uppercase" 
+                                [ngClass]="{'errorSelecto': !chekGSTvalidation() }" type="text"
+                                class="form-control" placeholder="{{GstinNoValue}}" id="org_code88" name="gstin"
+                                [(ngModel)]="gstin" />
                             </div>
                             <div class="form-group col-md-4">
                               <label for="org_code99">{{PanNoValue}}</label>
-                              <input #panRef (input)="onInputCheckPANNumber($event)" style="text-transform:uppercase"
-                                [ngClass]="{ errorSelecto: validPANFlag }" type="text" placeholder="Value"
+                              <input #panRef 
+                             
+                                style="text-transform:uppercase"
+                                [ngClass]="{'errorSelecto': !checkPANNumberValid() }" type="text" placeholder="{{PanNoValue}}"
                                 class="form-control" id="org_code99" name="panno" [(ngModel)]="panNo" />
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-
-
                   </div>
                 </div>
               </form>
             </div>
           </div>
-
         </div>
         <div class="modal-footer footer-fixed footer_modal_form">
           <button type="submit" class="btn waves-effect btn-succ-ess" (click)="saveCustomer('save')">

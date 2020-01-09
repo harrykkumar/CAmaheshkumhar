@@ -40,7 +40,7 @@
           <div class="profile clearfix">
             <div class="dropdown dropright profile_pic userImage">
               <img class="img-circle profile_img" width="50" height="50" [src]="commonService.sideMenuProfileImg" />
-              <div class="overlay">
+              <div class="userImgoverlay">
                 <a
                 class="d-none pl-2"
                 (click)="openImageModal()"
@@ -63,21 +63,25 @@
             </div>
           </div>
         </li>
-        <li class="nav-item sidebar-dropdown" *ngFor="let menu of sideMenu">
-          <a *ngIf="menu?.subMenu?.length > 0">
-            <span class="icon-holder">
-              <i class="{{ menu.icon }}"></i>
-            </span>
-            <span class="title">{{ menu.Name }}</span>
-          </a>
-          <ul class="sidebar-submenu scrollable">
-            <li *ngFor="let subMenu of menu?.subMenu">
-              <a class="sidebar-link" (click)="navigateTo(subMenu)"
-                >{{ subMenu?.Name }}
-              </a>
-            </li>
-          </ul>
-        </li>
+        <ng-container *ngFor="let menu of sideMenu; trackBy: trackById;">
+          <li class="nav-item sidebar-dropdown"
+           *ngIf="menu?.IsDirect === 1 || (menu?.IsDirect === 0 && menu?.subMenu?.length > 0)">
+            <a [ngClass]="{'isSubMenu': menu?.IsDirect === 0}" (click)="navigateTo(menu)" >
+              <span class="icon-holder">
+                <i class="{{ menu.icon }}"></i>
+              </span>
+              <span class="title">{{ menu.Name }}</span>
+              <span *ngIf="menu?.IsDirect === 1" class="arrow plus float-right mt-2"><i class="far fa-plus-square"></i></span>
+            </a>
+            <ul class="sidebar-submenu scrollable">
+              <li *ngFor="let subMenu of menu?.subMenu">
+                <a class="sidebar-link" (click)="navigateTo(subMenu)"
+                  >{{ subMenu?.Name }}
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ng-container>
       </ul>
     </div>
   </div>

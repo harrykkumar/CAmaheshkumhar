@@ -57,7 +57,7 @@
                     <label>P.Code</label>
                     <input type="text" [disabled]="!isBillManual" [(ngModel)]="masterData.Code" 
                     name="pCode" class="form-control" 
-                    [ngClass]="{errorSelecto: packagingForm.submitted && !masterData.Code}" >
+                    [ngClass]="{'errorSelecto': packagingForm.submitted && !masterData.Code}" >
                     <!-- <input type="text" #pcode [disabled]="!isBillManual" [(ngModel)]="masterData.Code" 
                     name="pCode" class="form-control"[ngClass]="{'loading': pendingCheck1 }"
                     (input)="checkForValidation();" (ngModelChange)="getPacketCodeStatus()">
@@ -69,9 +69,8 @@
                   <div class="form-group col-lg-2">
                     <label class="fw-500">On Date</label>
                     <datepicker-popup [toSetDate]="masterData?.CurrentDate"
-                      (dateInFormat)="masterData.Date = $event;showDate(masterData.Date)" [applyFinYear]="true" 
-                      [class]="{ errorSelecto:
-                      packagingForm?.submitted && !masterData.Date}">
+                      (dateInFormat)="masterData.Date = $event;" [applyFinYear]="'true'" 
+                      [class]="{ 'errorSelecto': packagingForm.submitted && !masterData?.Date}">
                     </datepicker-popup>
                   </div>
                   <div class="form-group col-lg-2">

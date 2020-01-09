@@ -9,7 +9,9 @@ export class CrmService {
   leadUtilityData: any = {}
   constructor(
     private commonService: CommonService
-  ) { }
+  ) {
+    this.getLeadUtility()
+  }
 
   getLeadUtility(){
     return new Promise((resolve, reject) => {
@@ -23,5 +25,19 @@ export class CrmService {
         }
       })
     })
+  }
+
+  convertFromRequestTime(time) {
+    const d = new Date();
+    if (_.includes(time, 'AM')) {
+      time = time.replace('AM', '');
+      time = time.split(':');
+      d.setHours(time[0], time[1]);
+    } else if (_.includes(time, 'PM')) {
+      time = time.replace('PM', '');
+      time = time.split(':');
+      d.setHours((12 + time[0]), time[1]);
+    }
+    return d;
   }
 }

@@ -39,7 +39,6 @@ import { CategoryImportModule } from '../shared/transactionMaster/category/categ
 import { ActiveInventoryTermAddModule}   from '../shared/transactionMaster/active-Inventory-term-add/active-inventoryTerm-add.module'
 import { AddCommonMenuComponent } from './common-menu/add-common-menu/add-common-menu.component';
 import { TaxProcessAddModule } from '../shared/transactionMaster/tax-process-add/tax-process-add.module'
-import { EmailEditorCustomModule } from '../shared/transactionMaster/email-editor/email-editor.module';
 
 @NgModule({
   declarations: [
@@ -86,7 +85,6 @@ import { EmailEditorCustomModule } from '../shared/transactionMaster/email-edito
     CategoryImportModule,
     ActiveInventoryTermAddModule,
     TaxProcessAddModule,
-    EmailEditorCustomModule
   ],
   bootstrap: []
 })

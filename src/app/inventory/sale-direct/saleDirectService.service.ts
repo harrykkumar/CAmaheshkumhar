@@ -7,6 +7,7 @@ import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { ResponseSale } from 'src/app/model/sales-tracker.model'
 import { ToastrCustomService } from '../../commonServices/toastr.service';
 import { SetUpIds } from '../../shared/constants/setupIds.constant';
+import { GlobalService } from '../../commonServices/global.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -52,7 +53,7 @@ export class SaleDirectService {
   private queryStrSub = new Subject<string>()
   public queryStr$ = this.queryStrSub.asObservable()
 
-  constructor(private baseService: BaseServices, private toastrService: ToastrCustomService) { }
+  constructor(private baseService: BaseServices, private _gs: GlobalService) { }
   getSaleDirectList(queryParams) {
     return this.baseService.getRequest(ApiConstant.SALE_DIRECT_BILLING_API + queryParams)
   }
@@ -551,5 +552,9 @@ export class SaleDirectService {
 // ?ContactNo=string&ParentTypeId=6 in sale and 7 in Purchase
   getCashPartyDetailsByMobile(ContactNo,type): Observable<ResponseSale> {
     return this.baseService.getRequest(ApiConstant.GET_CASH_PARTY_DETAILS_BY_MOBILE + '?ContactNo='+ContactNo +'&ParentTypeId='+type)
+  }
+
+  getLedgerTax(id) {
+    return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.GET_ADDRESS_OF_VENDOR + id))
   }
 }

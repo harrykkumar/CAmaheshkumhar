@@ -1,8 +1,8 @@
 import { LoginService } from './../../../commonServices/login/login.services';
 
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
-import { Subscription, fromEvent } from 'rxjs'
-import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { Subscription, fromEvent ,Subject} from 'rxjs'
+import { map, filter, takeUntil,debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { SaleTravel } from '../../../model/sales-tracker.model'
 import { UIConstant } from '../../../shared/constants/ui-constant'
 declare const $: any
@@ -13,7 +13,6 @@ import { PagingComponent } from '../../../shared/pagination/pagination.component
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { Settings } from '../../../shared/constants/settings.constant'
 import * as _ from 'lodash'
-
 @Component({
   selector: 'app-sales-challan',
   templateUrl: './sales-challan.component.html',
@@ -105,7 +104,7 @@ export class SalesChallanComponent implements OnInit {
 
     this.dataStatus = [
       { id: '0', text: 'Running' },
-      { id: '1', text: 'Canceled' },
+      { id: '1', text: 'Cancelled' },
     ]
     this.itemIdCollection = []
     this.generateBillFlagEnable = true
@@ -122,6 +121,13 @@ export class SalesChallanComponent implements OnInit {
             foot: true,
           });
         });
+      }
+    )
+   this._commonService.getDeleteStatus().subscribe(
+      (obj) => {
+        if (obj.id && obj.type && obj.type === 'SaleChallan') {
+          this.deleteItem(obj.id)
+        }
       }
     )
     this.queryStr$ = this._coustomerServices.queryStr$.subscribe(
@@ -290,12 +296,32 @@ export class SalesChallanComponent implements OnInit {
     this.pagingComp.setPage(1)
     return this._commonService.getAllDataOfSaleChallan('?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
   }
-  deleteItem(i, forArr) {
-    if (forArr === 'trans') {
-      this.transactions.splice(i, 1)
+  // deleteItem(i, forArr) {
+  //   if (forArr === 'trans') {
+  //     this.transactions.splice(i, 1)
+  //   }
+  // }
+  private unSubscribe$ = new Subject<void>()
+  CancelSaleChallan (id) {
+    this._commonService.openDelete(id, 'SaleChallan', 'SaleChallan')
+  }
+  deleteItem (id) {
+    if (id) {
+      this._commonService.cancelSaleChallan(id).pipe(
+        takeUntil(this.unSubscribe$)
+      ).subscribe((Data: any) => {
+        if (Data.Code === UIConstant.DELETESUCCESS) {
+          this._toastrCustomService.showSuccess('', UIConstant.DELETED_SUCCESSFULLY)
+          this._commonService.closeDelete('')
+          this.getSaleChallanDetail()
+        }
+        if (Data.Code === UIConstant.CANNOTDELETERECORD) {
+          this._toastrCustomService.showInfo('', Data.Description)
+          this._commonService.closeDelete('')
+        }
+      })
     }
   }
-
   // generate bar code
   InventoryTransactionSales: any
   barcode: any

@@ -23,11 +23,17 @@ export const SIDE_MENU_MODEL = [
     path: "",
     icon: "fas fa-cog"
   },
+  // {
+  //   Id: 107,
+  //   Name: "Crm",
+  //   path: "",
+  //   icon: "far fa-handshake"
+  // },
   {
-    Id: 107,
-    Name: "Crm",
+    Id: 131,
+    Name: "Item Master",
     path: "",
-    icon: "far fa-handshake"
+    icon: "fab fa-creative-commons-by"
   },
   {
     Id: 114,
@@ -109,12 +115,12 @@ export const SIDE_MENU_MODEL = [
     path: "ims/sale",
     icon: ""
   },
-  {
-    Id: 14,
-    Name: "Purchase-Challan",
-    path: "",
-    icon: ""
-  },
+  // {
+  //   Id: 14,
+  //   Name: "Purchase-Challan",
+  //   path: "",
+  //   icon: ""
+  // },
   {
     Id: 15,
     ParentId: 9,
@@ -594,17 +600,17 @@ export const SIDE_MENU_MODEL = [
   },
   {
     Id: 108,
-    ParentId: 107,
+    ParentId: 0,
     Name: "Lead",
     path: "crm/lead",
-    icon: ""
+    icon: "fas fa-chalkboard-teacher"
   },
   {
     Id: 109,
-    ParentId: 107,
+    ParentId: 0,
     Name: "Follow-Up",
     path: "crm/follow-up",
-    icon: ""
+    icon: "far fa-check-square"
   },
   {
     Id: 112,
@@ -641,6 +647,121 @@ export const SIDE_MENU_MODEL = [
     Id: 16,
     Name: "Emailer Generator",
     path: "email-editor",
+    icon: ""
+  },
+  {
+    Id: 131,
+    Name: "Settings",
+    path: "",
+    icon: "fab fa-creative-commons-by"
+  },
+  {
+    Id: 130,
+    Name: "Customer",
+    path: "crm/customer",
+    icon: "fas fa-user"
+  },
+  {
+    Id: 132,
+    Name: "Field Setting",
+    path: "fieldSetting",
+    icon: ""
+  },
+  {
+    Id: 107,
+    Name: "Order",
+    path: "",
+    icon: "fas fa-luggage-cart"
+  },
+  {
+    Id: 133,
+    Name: "Order",
+    path: "crm/order-request",
+    icon: ""
+  },
+  {
+    Id: 134,
+    Name: "Task",
+    path: "",
+    icon: "fas fa-tasks"
+  },
+  {
+    Id: 135,
+    Name: "Location Tracking",
+    path: "",
+    icon: "fas fa-search-location"
+  },
+  {
+    Id: 136,
+    Name: "Pending Dispatch",
+    path: "",
+    icon: "fas fa-file"
+  },
+  {
+    Id: 14,
+    ParentId: 135,
+    Name: "Current Location",
+    path: "crm/current-location",
+    icon: ""
+  },
+  {
+    Id: 137,
+    Name: "Dealer",
+    path: "crm/dealer",
+    icon: ""
+  },
+  {
+    Id: 138,
+    Name: "Customer Visit",
+    path: "crm/customer-visit",
+    icon: ""
+  },
+  {
+    Id: 139,
+    Name: "Users Dealer",
+    path: "crm/user-dealer-link",
+    icon: ""
+  },
+  {
+    Id: 140,
+    Name: 'Daily Activity',
+    path: "crm/daily-activity",
+    icon: ""
+  },
+  {
+    Id: 141,
+    Name: 'Financial Report',
+    path: "",
+    icon: "fas fa-file"
+  },
+  {
+    Id: 142,
+    Name: 'Registers',
+    path: "",
+    icon: "fas fa-file"
+  },
+  {
+    Id: 143,
+    Name: 'Books',
+    path: "",
+    icon: "fas fa-file"
+  },
+  {
+    Id: 144,
+    Name: 'Inventory Report',
+    path: "",
+    icon: "fas fa-file"
+  },
+  {
+    Id: 146,
+    Name: 'Quotation',
+    path: "",
+    icon: "fas fa-user"
+  },
+  {
+    Id: 147,
+    Name: 'Action Report',
+    path: "crm/action",
     icon: ""
   }
 ];

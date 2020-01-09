@@ -183,7 +183,7 @@
               </li>
               <li>
                 <div class="divgray"></div>
-                <a href="javascript:void(0)"
+                <a href="javascript:void(0)" (click)="getFollowUpList('Assigned')"
                   ><span class="colorspan">Assigned</span></a
                 >
               </li>
@@ -312,7 +312,10 @@
               </thead>
               <tbody>
                 <tr
-                  *ngFor="let item of followUpList; let i = index;"
+                  *ngFor="let item of followUpList | paginate: {itemsPerPage: itemsPerPage,
+                      currentPage: p,
+                      totalItems: total
+                    };let i = index;"
                   [ngClass]="{
                     today: item.DueStatus === 'Todays',
                     overdue: item.DueStatus === 'Overdue',
@@ -423,7 +426,15 @@
     </div>
   </div>
 </main>
+<app-pagination
+  #paging_comp
+  (lastValueEmitter)="lastItemIndex = $event"
+  (pageNoEmitter)="p = $event; getFollowUpList()"
+  (pageSizeEmitter)="itemsPerPage = $event; getFollowUpList()"
+></app-pagination>
+
 <ng-container #addLeadContainerRef></ng-container>
 <ng-container #leadInfoContainerRef></ng-container>
 <ng-container #followUpCountInfoContainerRef></ng-container>
 <ng-container #assignToContainerRef></ng-container>
+

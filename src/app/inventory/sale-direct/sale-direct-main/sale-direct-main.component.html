@@ -80,7 +80,7 @@
         </div>
 
     </header>
-    <div class=" header1">
+    <div class=" header1" style="background: #333; color: #fff;">
         <h4
             style="text-align:center; margin:0;padding:0; letter-spacing:3px; text-transform: uppercase;font-size: 16px; font-weight: 700;">
             {{BillName}}</h4>
@@ -148,9 +148,9 @@
         </div>
 
         <div id="details" class="clearfix">
-            <div class="row1">
-                <div class="col1">
-                    <div class=" header1">
+            <div class="row1" >
+                <div class="col1" >
+                    <div class=" header1" style="background: #333; color: #fff;">
                         <h4 style="text-align:center; margin:0;padding:0;">Bill To</h4>
                     </div>
                     <table>
@@ -194,7 +194,7 @@
                     </table>
                 </div>
                 <div class="col1">
-                    <div class=" header1">
+                    <div class=" header1" style="background: #333; color: #fff;">
                         <h4 style="text-align:center; margin:0;padding:0;">Ship To</h4>
                     </div>
                     <table>
@@ -235,6 +235,7 @@
                             <th *ngIf="industryId === 12" class="desc">IMEI No.</th>
 
                             <th *ngIf="industryId === 2 && attributelength>0" class="desc">Item Description</th>
+                            <th  class="desc">Remark</th>
                             <th class="desc" style="width:12%;">HSN/SAC</th>
                             <th *ngIf="industryId === 3 " class="desc">Length x Height x Width</th>
                             <ng-container *ngIf="industryId === 5 ">
@@ -257,7 +258,7 @@
                         <tr *ngFor="let item of ItemTransactionactions; let i=index">
                             <td>{{1+i}}</td>
                             <td *ngIf="categoryShowOnPrint">{{ item.CategoryName}}</td>
-                            <td>{{ item.ItemName}}<br> {{item.Remark}}
+                            <td>{{ item.ItemName}}
                             </td>
                             <td  style="width:25%;"  *ngIf="industryId === 12">
                                     <ng-container *ngFor="let number of  item.IMEi; let isLast=last">
@@ -274,7 +275,7 @@
                                     </span>
                                 </td>
                             </ng-container>
-
+                            <td>{{ item.Remark}}</td>
                             <td>{{ item.HsnNo}}</td>
                             <td *ngIf="industryId === 3 ">{{ item.Length}}x{{ item.Height}}x{{ item.Width}}</td>
                             <ng-container *ngIf="industryId === 5 ">
@@ -377,9 +378,14 @@
                     <div class="" style="width: 20%;">Total Amount In Words :</div>
                     <div class="" style="text-align:left; width: 80%;"><strong>
                             {{inWordBillAmount}}
-                            <!--  {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }} -->
                         </strong></div>
                 </div>
+                <div class="row1 total_word">
+                    <div class="" style="width: 32%; text-align:left;  font-size: 16px; color: 2ab0f5 ;font-weight: 400;" >Total Outstanding up to invoice date :  </div>
+                    <div class="" style="text-align:left; width: 30%; font-size: 16px; color: 2ab0f5 ;"><strong>&nbsp;
+                        {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}  &nbsp;  {{totalOutstandingAmt.toFixed(dicimalDigitFormat)}} <!-- {{Crdr===0 ? ' Dr' : ' Cr'}} -->
+                      </strong></div>
+                  </div>
             </div>
         </div>
         <ng-container *ngIf="paymentFlag">
@@ -1187,6 +1193,12 @@
                                         </strong></div>
                                 </div>
                             </div>
+                            <div class="row1 total_word">
+                                <div class="" style="text-align:left;text-align:left; width: 32%; font-size: 16px; color: 2ab0f5 ;">Total Outstanding up to invoice date :  </div>
+                                <div class="" style="text-align:left;text-align:left; width: 30%; font-size: 16px; color: 2ab0f5 ; width: 30%;"><strong>
+                                    &nbsp; {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }}&nbsp; {{totalOutstandingAmt.toFixed(dicimalDigitFormat)}} 
+                                  </strong></div>
+                              </div>
                             <div class=" table_summery2 invoice border-top border-bottom">
                                 <div style="clear:both"></div>
                                 <h4 class="text-center" style="margin:3px;"> GST TAX SUMMARY</h4>
@@ -1414,3 +1426,333 @@
 
 
 </body>
+<body *ngIf='PrintFormateType ===6' class="modal" id="saleService_Print">
+    <div *ngIf="setUpPaidUnPaid" style="position:absolute;top:290;bottom:0;left:0;right:0;text-align: center;">
+        <p style=" color:#97919126;;
+      font-size:100px;
+      transform:rotate(325deg);
+      -webkit-transform:rotate(325deg);">{{paidFlag}}</p>
+    </div>
+    <header class="clearfix">
+      <div id="logo">
+        <img src="{{orgImageData}}">
+      </div>
+      <div id="company">
+        <h2 class="name"> {{ClientInfos && ClientInfos[0]?.OfficeName }}</h2>
+        <div>
+          {{orgAddress && orgAddress[0]?.AddressValue}}
+        </div>
+        <div>
+          {{orgAddress && orgAddress[0]?.AreaName}}
+          {{orgAddress && orgAddress[0]?.CityName}}
+          {{orgAddress && orgAddress[0]?.StateName}}
+          {{orgAddress && orgAddress[0]?.CountryName }}</div>
+        <div>{{EmailsOrg && EmailsOrg[0]?.EmailAddress }} </div>
+        <div>{{ContactOrgInfo && ContactOrgInfo[0]?.ContactNo }} </div>
+        <div><label>PAN NO. : </label>{{ClientInfos && ClientInfos[0]?.PanNo }}</div>
+        <div><label>GSTIN : </label>{{ClientInfos && ClientInfos[0]?.GstinNo }}</div>
+        <div><a> {{website && website[0]?.Name}}</a></div>
+      </div>
+  
+    </header>
+    <div class=" header1">
+      <h4
+        style="text-align:center; margin:0;padding:0; letter-spacing:3px; text-transform: uppercase;font-size: 16px; font-weight: 700;">
+        {{BillName}}</h4>
+    </div>
+    <main>
+      <div id="details" class="clearfix">
+        <div class="row1">
+          <div class="col1">
+            <table>
+              <tbody>
+                <tr>
+                  <td style="width:25%; ">Invoice No. </td>
+                  <td><strong>: {{InventoryTransactionSales && InventoryTransactionSales[0]?.BillNo }}</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="width:25%;">Invoice Date</td>
+                  <td><strong>:
+                      {{InventoryTransactionSales && InventoryTransactionSales[0]?.BillDate | dateFormat :clientDateFormat}}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col1">
+            <table>
+              <tbody>
+                <ng-container *ngIf='CustomerTypes && CustomerTypes.length === 0'>
+                  <tr>
+                    <td style="width:25%;"></td>
+                    <td><strong></strong>
+                    </td>
+                  </tr>
+                </ng-container>
+  
+              </tbody>
+            </table>
+          </div>
+        </div>
+  
+      </div>
+  
+      <div id="details" class="clearfix">
+        <div class=" header1">
+          <h4 style="text-align:center; margin:0;padding:0;">Bill To</h4>
+        </div>
+        <div class="row1">
+          <div class="col1">
+  
+            <table>
+              <tbody>
+                <tr>
+                  <td style="width:25%;">Name </td>
+                  <td *ngIf='CustomerTypes && CustomerTypes.length === 0'>
+                    <strong>: {{InventoryTransactionSales && InventoryTransactionSales[0]?.LedgerName}}</strong>
+                  </td>
+                  <td *ngIf='CustomerTypes && CustomerTypes.length > 0'>
+                    <strong>: {{CustomerTypes && CustomerTypes[0]?.Name}}</strong></td>
+                </tr>
+                <tr>
+                  <td style="width:25%;">Address </td>
+                  <td><strong>:
+                      {{CustomerTypes && CustomerTypes[0]?.Address}}{{customerAddress && customerAddress[0]?.AddressValue}}
+                      {{customerAddress && customerAddress[0]?.AreaName}}
+                      {{customerAddress && customerAddress[0]?.CityName}} </strong></td>
+                </tr>
+                <tr>
+                  <td style="width:25%;">State</td>
+                  <td><strong>: {{customerAddress && customerAddress[0]?.StateName}}
+                      {{customerAddress && customerAddress[0]?.CountryName }}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col1">
+  
+            <table>
+              <tbody>
+                <tr>
+                  <td style="width:25%;">GSTIN</td>
+                  <td><strong>: {{InventoryTransactionSales && InventoryTransactionSales[0]?.PartyGstinNo }}</strong></td>
+                </tr>
+                <tr>
+                  <td style="width:25%;">State Code </td>
+                  <td><strong>:
+                      {{InventoryTransactionSales && InventoryTransactionSales[0]?.StateCode}}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="invoice">
+  
+        </div>
+      </div>
+      <div class="table_summery">
+        <div class="tbl_fix_height">
+          <table border="0" class="table1" cellspacing="0" cellpadding="0">
+            <thead>
+              <tr>
+                <th style="width:5%;">S.No.</th>
+                <th class="desc" style="width:38%;">Item Name</th>
+                <th class="desc" style="width:10%;">HSN/SAC</th>
+                <th class="total">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of ItemTransactionactions; let i=index">
+                <td>{{1+i}}</td>
+                <td>{{ item.ItemName}}<br> {{item.Remark}}</td>
+                <td>{{ item.HsnNo}}</td>
+                <td style="text-align:right">{{(item.SubTotalAmount).toFixed(dicimalDigitFormat)}}</td>
+  
+  
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="clearfix">
+  
+          <div class="row1">
+  
+            <div class="col1 bank_detail">
+              <table>
+                <tr>
+                  <td style="width:40%;">Account Holder Name</td>
+                  <td><strong>: {{ClientInfos && ClientInfos[0]?.AccountHolderName}}</strong></td>
+                </tr>
+                <tr>
+                  <td style="width:25%;">Bank Name</td>
+                  <td><strong>: {{ClientInfos && ClientInfos[0]?.BankName}}</strong></td>
+                </tr>
+                <tr>
+                  <td style="width:25%;">Bank A/c No</td>
+                  <td><strong>: {{ClientInfos && ClientInfos[0]?.AcNo}}</strong></td>
+                </tr>
+                <tr>
+                  <td style="width:25%;">IFSC Code</td>
+                  <td><strong>: {{ClientInfos && ClientInfos[0]?.IfscCode}}</strong></td>
+                </tr>
+                <tr>
+                  <td style="width:25%;">Branch</td>
+                  <td><strong>: {{ClientInfos && ClientInfos[0]?.Branch}}</strong></td>
+                </tr>
+              </table>
+            </div>
+            <div class="col1">
+              <table class="tbl_footer">
+                <tr>
+                  <td>Sub Total Amount :</td>
+                  <td><strong>{{subTotalAmount}} </strong></td>
+                </tr>
+                <tr>
+                  <td>Discount :</td>
+                  <td><strong>{{totalDiscountAmt}} </strong></td>
+                </tr>
+  
+                <tr *ngFor="let charge of getAddtionalCharge; let i=index">
+                  <td>{{charge.LedgerName}}</td>
+                  <td><strong>{{(charge.TotalAmountCharge).toFixed(dicimalDigitFormat) }} </strong></td>
+                </tr>
+                <tr>
+                  <td>Total Tax :</td>
+                  <td><strong>{{InventoryTransactionSales && (InventoryTransactionSales[0]?.TaxAmount).toFixed(dicimalDigitFormat) }}
+                    </strong></td>
+                </tr>
+                <tr>
+                  <td>Round Off :</td>
+                  <td><strong>
+                      {{InventoryTransactionSales && (InventoryTransactionSales[0]?.RoundOff).toFixed(dicimalDigitFormat) }}</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Bill Amount :</td>
+                  <td><strong>{{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }} {{billAmount}}
+                    </strong>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="row1 total_word">
+            <div class="" style="width: 20%;">Total Amount In Words :</div>
+            <div class="" style="text-align:left; width: 80%;"><strong>
+                {{inWordBillAmount}}
+  
+              </strong></div>
+          </div>
+          <div class="row1 total_word">
+            <div class="" style="width: 32%; text-align:left; font-size: 16px; color: 2ab0f5 ;">Total Outstanding up to invoice date :  </div>
+            <div class="" style="text-align:left;text-align:left; width: 30%; font-size: 16px; color: 2ab0f5 ; width: 30%;"><strong>&nbsp;
+                {{InventoryTransactionSales && InventoryTransactionSales[0]?.Currency }} &nbsp; {{totalOutstandingAmt.toFixed(dicimalDigitFormat)}} 
+              </strong></div>
+          </div>
+        </div>
+      </div>
+      <ng-container *ngIf="paymentFlag">
+        <div class="table_summery" *ngIf="PaymentDetailsFlag">
+          <table border="0" class="table1" cellspacing="0" cellpadding="0">
+            <thead>
+              <tr>
+                <th colspan="6">
+                  <h4 style=" margin:0;padding:0;"> Payment Details</h4>
+                </th>
+              </tr>
+              <tr>
+                <th>S.no</th>
+                <th>Paymode</th>
+                <th>Pay Through </th>
+                <th>Cheque/DD No.</th>
+                <th>Date</th>
+                <th style="text-align:right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of paymentModeData; let i =index">
+                <td>{{i+1}}</td>
+                <td>{{item.Paymode}}</td>
+                <td>{{item.BankLedgerName}}</td>
+                <td>{{item.ChequeNo}}</td>
+                <td>{{item.PayDate | dateFormat:clientDateFormat}}</td>
+                <td style="text-align:right">{{(item.Amount).toFixed(dicimalDigitFormat)}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
+  
+      <div *ngIf="GstTypeId ===1" class=" table_summery invoice border-top border-bottom">
+        <div style="clear:both"></div>
+        <h4 style=" padding-left:358px"> GST TAX SUMMARY</h4>
+        <table border="0" class="table1" cellspacing="0" cellpadding="0">
+  
+          <thead>
+  
+            <tr>
+              <th style="width:10%; text-align: left;">HSN</th>
+              <th style="width:12%; text-align: right;">Taxable Value</th>
+              <th style="width:8%; text-align: right;">Rate</th>
+              <th style="text-align:right;" *ngFor="let label of HedShow;">{{label.Name}}</th>
+              <th style="text-align:right;">Total</th>
+  
+            </tr>
+          </thead>
+  
+          <tbody id="main-con">
+            <tr *ngFor="let item of mainData; let i =index">
+              <td>{{item.HsnNo}}</td>
+              <td style="text-align:right;">{{(item.TaxableAmount).toFixed(dicimalDigitFormat)}}</td>
+              <td style="text-align:right;">{{item.totalTaxRate}}</td>
+              <ng-container *ngFor="let value1 of mainData[i].TaxType;">
+                <td style="text-align:right;">
+  
+                  {{value1}}
+  
+                </td>
+              </ng-container>
+              <td style="text-align:right;">{{(item.TotalAmount).toFixed(dicimalDigitFormat)}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="clear:both"></div>
+      </div>
+  
+  
+    </main>
+    <div class="terms_section">
+      <div class="row">
+        <div style="font-size: 16px;"><strong> Terms & Conditions :- </strong></div>
+      </div>
+      <ul style="margin:0;">
+        <li *ngFor="let term of TermsConditions; let i= index">{{term.Terms}}</li>
+      </ul>
+    </div>
+  
+    <footer>
+  
+  
+      <div class="row1">
+        <div class="col1">
+          <div class="row">
+  
+          </div>
+  
+        </div>
+        <div style="text-align: right; " class="col1">
+          <h3 style="text-align: right; font-size: 16px" class="name-footer">For :
+            {{ClientInfos && ClientInfos[0]?.OfficeName }}</h3> 
+           
+            <span *ngIf='SignatorySetup===1'>
+                    <img src="{{imageForSignature}}" height="30" />
+            </span> <br><br>
+          Authorised Signatory
+        </div>
+  
+      </div>
+    </footer>
+  
+  </body>

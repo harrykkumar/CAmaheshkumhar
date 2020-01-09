@@ -1,3 +1,4 @@
+import { AddFollowupDetailComponent } from './../add-followup-detail/add-followup-detail.component';
 import { ChangeUserNameComponent } from 'src/app/shared/components/change-user-name/change-user-name.component';
 import { NgForm, NgSelectOption } from '@angular/forms';
 import { UIConstant } from 'src/app/shared/constants/ui-constant';
@@ -28,12 +29,14 @@ import { of } from 'rxjs';
 })
 export class AddLeadComponent implements OnInit, AfterViewInit {
   @ViewChild('addLeadForm') addLeadForm: NgForm;
+  @ViewChild('addfollowUpDetailRef') addfollowUpDetailRefControl: AddFollowupDetailComponent;
   @ViewChild('addLeadDetailContainerRef', { read: ViewContainerRef }) addLeadDetailContainerRef: ViewContainerRef;
   @ViewChild('addCommonMasterContainerRef', { read: ViewContainerRef }) addCommonMasterContainerRef: ViewContainerRef;
   @ViewChild('addMobileNoContainerRef', { read: ViewContainerRef }) addMobileNoContainerRef: ViewContainerRef;
   @ViewChild('addEmailContainerRef', { read: ViewContainerRef }) addEmailContainerRef: ViewContainerRef;
   @ViewChild('addItemDetailsContainerRef', { read: ViewContainerRef }) addItemDetailsContainerRef: ViewContainerRef;
   @ViewChild('changeUserNameContainerRef', { read: ViewContainerRef }) changeUserNameContainerRef: ViewContainerRef;
+
   changeUserNameRef: any;
   @Output() closeModal = new EventEmitter();
   addLeadDetailRef: any;
@@ -57,7 +60,10 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
   isClosedRemark: number;
   isAllowDynamicField: boolean;
   dynamicLabelFields: Array<any> = []
-
+  isItemMandatoryForConverted: any;
+  isItemMandatoryForTentative: any;
+  backDate: any;
+  currentItem: any = {}
   constructor(
     public commonService: CommonService,
     private resolver: ComponentFactoryResolver,
@@ -72,6 +78,7 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
     this.model.mobileNoList = []
     this.model.emailList = []
     this.model.itemDetailList = []
+    this.backDate = this.gs.utcToClientDateFormat(new Date(), this._settings.dateFormat);
     const setUpSettingArray = JSON.parse(localStorage.getItem('moduleSettings'))
     if (!_.isEmpty(setUpSettingArray && setUpSettingArray.settings)) {
       const data = _.find(setUpSettingArray.settings, { id: 84 });
@@ -85,6 +92,14 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
       const data2 = _.find(setUpSettingArray.settings, { id: 91 });
       if (!_.isEmpty(data2)) {
         this.isAllowDynamicField = data2.val
+      }
+      const data3 = _.find(setUpSettingArray.settings, { id: 102 });
+      if (!_.isEmpty(data3)) {
+        this.isItemMandatoryForConverted = data3.val
+      }
+      const data4 = _.find(setUpSettingArray.settings, { id: 103 });
+      if (!_.isEmpty(data4)) {
+        this.isItemMandatoryForTentative = data4.val
       }
     }
     this.getFormUtilityData();
@@ -196,7 +211,8 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
     if (type) {
       this.formType = type;
     }
-    if (!_.isEmpty(item)) {
+    if (typeof item === "object" && !_.isEmpty(item)) {
+      this.currentItem = {...item}
       this.editLeadId = Number(item.Id)
       if (item.EnquiryID) {
         this.enquiryId = Number(item.EnquiryID)
@@ -211,26 +227,55 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
     this.closeModal.emit(type);
   }
 
-  addLeadDetail() {
-    const item = {
-      editLeadId: this.editLeadId,
-      enquiryId: this.enquiryId
-    }
-    const dataToPass = {
-      // isKeyPersonChanged: this.model.keyPersonId ? false : true,
-      formtype: this.formType,
-      data: {
-        // keyPersonName: this.model.keyPerson,
-        companyName: this.model.company,
-        businessTypeId: this.model.selectedBusinessTypeId
-      }
-    }
-    this.commonService.loadModalDynamically(this, 'addLeadDetailContainerRef', 'addLeadDetailRef', AddLeadDetailComponent,
-      (res) => {
-        if (res) {
-          this.followUpDetail = { ...res }
+  // addDetail() {
+  //   if (this.formType) {
+  //     this.addFollowUpDetail()
+  //   } else {
+  //     this.addLeadDetail();
+  //   }
+  // }
+
+  // addLeadDetail() {
+  //   const item = {
+  //     editLeadId: this.editLeadId,
+  //     enquiryId: this.enquiryId
+  //   }
+  //   const dataToPass = {
+  //     formtype: this.formType,
+  //     data: {
+  //       companyName: this.model.company,
+  //       businessTypeId: this.model.selectedBusinessTypeId
+  //     }
+  //   }
+  //   this.commonService.loadModalDynamically(this, 'addLeadDetailContainerRef', 'addLeadDetailRef', AddLeadDetailComponent,
+  //     (res) => {
+  //       if (res) {
+  //         this.followUpDetail = { ...res }
+  //         this.assignFormData(this.currentItem);
+  //       }
+  //     }, item, dataToPass);
+  // }
+
+  addFollowUpDetail(){
+    this.addfollowUpDetailRefControl.openModal()
+    this.addfollowUpDetailRefControl.leadEditId = this.editLeadId
+    this.addfollowUpDetailRefControl.enquiryId = this.enquiryId
+    this.addfollowUpDetailRefControl.formtype = this.formType
+    this.addfollowUpDetailRefControl.model.companyName = this.model.company
+    this.addfollowUpDetailRefControl.model.selectedBusinessTypeId = this.model.selectedBusinessTypeId
+    this.addfollowUpDetailRefControl.closeModal.subscribe((res) => {
+      const currentContactPerson = _.find(this.addfollowUpDetailRefControl.model.contactPersonList, (item, index) => {
+        if (index === this.addfollowUpDetailRefControl.model.defaultCheckedIndex) {
+          return true
         }
-      }, item, dataToPass);
+      })
+      if (!_.isEmpty(currentContactPerson)) {
+        this.model.keyPerson = currentContactPerson.name
+        this.model.leadKeyPerson = currentContactPerson.name
+        this.model.selectedDesignationId = currentContactPerson.designationId
+        this.model.keyPersonId = currentContactPerson.id
+      }
+    })
   }
 
   addMobileNo(item?, index?) {
@@ -272,9 +317,9 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
       (res) => {
         if (res) {
           if (!_.isEmpty(item)) {
-            this.model.itemDetailList[index] = { ...res };
+            this.model.itemDetailList[index] = { ...res[0] };
           } else {
-            this.model.itemDetailList.push({ ...res });
+            this.model.itemDetailList = [...this.model.itemDetailList, ...res];
           }
         }
       }, item, this.model.selectedEnquiryStatusId);
@@ -363,35 +408,37 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
   }
 
   preparePayloadForFollowUp() {
-    return {
+    console.log(this)
+    console.log(this.addfollowUpDetailRefControl)
+    const data =  {
       "Id": (this.formType === UIConstant.FORMTYPE_FOLLOWUP_EDIT) ? this.editLeadId : 0,
-      "EnquiryId": this.formType === UIConstant.FORMTYPE_FOLLOWUP ? this.editLeadId : (this.enquiryId ? this.enquiryId : 0),
-      "CustomerId": this.model.selectedCustomerId ? this.model.selectedCustomerId : 0,
-      "SourceId": this.model.selectedSourceId ? this.model.selectedSourceId : 0,
-      "BusinessTypeId": this.model.selectedBusinessTypeId ? this.model.selectedBusinessTypeId : 0,
-      "MeetingWithId": this.model.selectedDesignationId ? this.model.selectedDesignationId : 0,
-      "MeetingWithSaleId": this.model.selectedMeetingWithSaleId ? this.model.selectedMeetingWithSaleId : 0,
-      "EnquiryTypeId": this.model.selectedEnquiryTypeId ? this.model.selectedEnquiryTypeId : 0,
+      "EnquiryId": this.formType === UIConstant.FORMTYPE_FOLLOWUP ?
+      this.editLeadId : (!this.commonService.isEmpty(this.enquiryId) ? this.enquiryId : 0),
+      "CustomerId": !this.commonService.isEmpty(this.model.selectedCustomerId) ? this.model.selectedCustomerId : 0,
+      "SourceId": !this.commonService.isEmpty(this.model.selectedSourceId) ? this.model.selectedSourceId : 0,
+      "BusinessTypeId": !this.commonService.isEmpty(this.model.selectedBusinessTypeId) ? this.model.selectedBusinessTypeId : 0,
+      "MeetingWithId": !this.commonService.isEmpty(this.model.selectedDesignationId) ? this.model.selectedDesignationId : 0,
+      "MeetingWithSaleId": !this.commonService.isEmpty(this.model.selectedMeetingWithSaleId) ? this.model.selectedMeetingWithSaleId : 0,
+      "EnquiryTypeId": !this.commonService.isEmpty(this.model.selectedEnquiryTypeId) ? this.model.selectedEnquiryTypeId : 0,
       "NextFollowUpDate": this.gs.clientToSqlDateFormat(this.model.followUpDate, this._settings.dateFormat),
-      "NextFollowUpTime": this.model.followUpTime ? this.model.followUpTime : "",
-      // "JobTitle": !this.commonService.isEmpty(this.followUpDetail) ? this.followUpDetail.model.jobTitle : '',
-      "Department": !this.commonService.isEmpty(this.followUpDetail) ? this.followUpDetail.model.department : '',
-      "FollowAction": this.model.selectedFollowUpTypeId,
-      "Status": this.model.selectedEnquiryStatusId,
-      "Remark": this.model.remark ? this.model.remark : '',
-      "Company": this.model.company,
-      "CountryCode": this.model.countryCodeId ? this.model.countryCodeId : 0,
-      "ContactNo": this.model.mobileNo,
-      "Email": this.model.email,
-      "KeyPersonId": this.model.keyPersonId ? this.model.keyPersonId : 0,
-      "KeyPersonName": this.model.keyPerson ? this.model.keyPerson : "",
-      "NoOfEmployee": !this.commonService.isEmpty(this.followUpDetail) ? this.followUpDetail.model.selectedNoOfEmployeeId : 0,
-      "Revenue": !this.commonService.isEmpty(this.followUpDetail) ? this.followUpDetail.model.companyRevenue : 0,
-      "WebSite": !this.commonService.isEmpty(this.followUpDetail) ? this.followUpDetail.model.companyWebsite : '',
-      "ComapanyName": this.model.company ? this.model.company : '',
-      "CustBusinessTypeId": this.model.selectedBusinessTypeId ? this.model.selectedBusinessTypeId : 0,
-      "CustIndustryId": !this.commonService.isEmpty(this.followUpDetail) ? this.followUpDetail.model.selectedIndustryTypeId : 0,
-      "ListLeadProductDetails": _.map(this.model.itemDetailList, (item) => {
+      "NextFollowUpTime": !this.commonService.isEmpty(this.model.followUpTime) ? this.model.followUpTime : "",
+      "Department": "",
+      "FollowAction": !this.commonService.isEmpty(this.model.selectedFollowUpTypeId) ? this.model.selectedFollowUpTypeId : 0,
+      "Status": !this.commonService.isEmpty(this.model.selectedEnquiryStatusId) ?  this.model.selectedEnquiryStatusId : 0,
+      "Remark": !this.commonService.isEmpty(this.model.remark) ? this.model.remark : '',
+      "Company": !this.commonService.isEmpty(this.model.company) ? this.model.company : '',
+      "CountryCode": !this.commonService.isEmpty(this.model.countryCodeId) ? this.model.countryCodeId : 0,
+      "ContactNo": !this.commonService.isEmpty(this.model.mobileNo) ? this.model.mobileNo : '',
+      "Email": !this.commonService.isEmpty(this.model.email) ? this.model.email : '',
+      "KeyPersonId": !this.commonService.isEmpty(this.model.keyPersonId) ? this.model.keyPersonId : 0,
+      "KeyPersonName": !this.commonService.isEmpty(this.model.keyPerson) ? this.model.keyPerson : "",
+      "NoOfEmployee": !this.commonService.isEmpty(this.addfollowUpDetailRefControl.model.selectedNoOfEmployeeId) ?  this.addfollowUpDetailRefControl.model.selectedNoOfEmployeeId : 0,
+      "Revenue": !this.commonService.isEmpty(this.addfollowUpDetailRefControl.model.companyRevenue) ? this.addfollowUpDetailRefControl.model.companyRevenue : 0,
+      "WebSite": !this.commonService.isEmpty(this.addfollowUpDetailRefControl.model.companyWebsite) ?  this.addfollowUpDetailRefControl.model.companyWebsite : '',
+      "ComapanyName": !this.commonService.isEmpty(this.model.company) ? this.model.company : '',
+      "CustBusinessTypeId": !this.commonService.isEmpty(this.model.selectedBusinessTypeId) ? this.model.selectedBusinessTypeId : 0,
+      "CustIndustryId": !this.commonService.isEmpty(this.addfollowUpDetailRefControl.model.selectedIndustryTypeId) ? this.addfollowUpDetailRefControl.model.selectedIndustryTypeId : 0,
+      "ListLeadProductDetails": this.commonService.isEmpty(this.model.itemDetailList) ? [] : _.map(this.model.itemDetailList, (item) => {
         return {
           "ItemID": item.id,
           "Quantity": item.quantity,
@@ -402,51 +449,57 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
           "AMCDurationID": item.amcDurationId
         }
       }),
-      "ListEmailDetails": this.commonService.isEmpty(this.followUpDetail) ? [] : _.map(this.followUpDetail.model.companyEmailList, (item) => {
+      "ListEmailDetails": this.commonService.isEmpty(this.addfollowUpDetailRefControl.model.companyEmailList) ? [] : _.map(this.addfollowUpDetailRefControl.model.companyEmailList, (item) => {
         return {
+          "Id": item.editEmailId ? item.editEmailId : 0,
           "EmailAddress": item.email,
           "EmailType": item.id
         }
       }),
-      "ListContactinfo": this.commonService.isEmpty(this.followUpDetail) ? [] : _.map(this.followUpDetail.model.companyMobileNoList, (item) => {
+      "ListContactinfo": this.commonService.isEmpty(this.addfollowUpDetailRefControl.model.companyMobileNoList) ? [] : _.map(this.addfollowUpDetailRefControl.model.companyMobileNoList, (item) => {
         return {
+          "Id": item.editId ? item.editId : 0,
           "ContactNo": item.mobileNo,
           "CountryCode": item.id,
           "ContactType": "1"
         }
       }),
-      "ListLeadAddress": this.commonService.isEmpty(this.followUpDetail) ? [] : _.map(this.followUpDetail.model.companyAddressList, (item) => {
-        return {
-          "CountryId": item.countryId,
-          "StateId": item.stateId,
-          "CityId": item.cityId,
-          "AreaId": item.areaId,
-          "AddressValue": item.address,
-          "AddressType": item.addressTypeId
+      "ListLeadAddress": [
+        {
+          "Id": this.addfollowUpDetailRefControl.addressEditId ? this.addfollowUpDetailRefControl.addressEditId : 0,
+          "CountryId": this.addfollowUpDetailRefControl.countryId,
+          "StateId": this.addfollowUpDetailRefControl.stateId,
+          "CityId": this.addfollowUpDetailRefControl.cityId,
+          "AreaId": this.addfollowUpDetailRefControl.areaId,
+          "AddressValue": this.addfollowUpDetailRefControl.address,
+          "AddressType": this.addfollowUpDetailRefControl.addressTypeId
         }
-      }),
+      ],
       "ListCPEmailDetails": [],
       "ListCPContactinfo": [],
-      "ListLeadContactPerson": this.commonService.isEmpty(this.followUpDetail) ? [] : _.map(this.followUpDetail.model.contactPersonList, (item, index) => {
+      "ListLeadContactPerson": this.commonService.isEmpty(this.addfollowUpDetailRefControl.model.contactPersonList) ? [] : _.map(this.addfollowUpDetailRefControl.model.contactPersonList, (item, index) => {
         return {
           "Id": item.id,
           "Name": item.name,
           "Department": item.departMentName,
           "TypeId": item.designationId,
-          "IsDefault": this.followUpDetail.model.defaultCheckedIndex === index ? 1 : 0,
+          "IsDefault": this.addfollowUpDetailRefControl.model.defaultCheckedIndex === index ? 1 : 0,
           "CountryCode": item.countryCode,
           "ContactNo": item.mobileNo,
           "EmailType":item.emailType,
           "EmailAddress":item.email,
         }
       }),
-      "ListSocialProfile": this.commonService.isEmpty(this.followUpDetail) ? [] : _.map(this.followUpDetail.model.socialProfileList, (item) => {
+      "ListSocialProfile": this.commonService.isEmpty(this.addfollowUpDetailRefControl.model.socialProfileList) ? [] : _.map(this.addfollowUpDetailRefControl.model.socialProfileList, (item) => {
         return {
+          "Id": item.editId ? item.editId : 0,
           "Name": item.url,
           "Type": item.id
         }
       })
     }
+    console.log(data)
+    return data;
   }
 
   submit() {
@@ -455,7 +508,7 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
     const data = this.formType ? this.preparePayloadForFollowUp() : this.preparePayload()
     this.baseService.postRequest(url, data)
       .pipe(
-        timeout(2000),
+        timeout(3000),
         catchError((error) => {
           this.spinner.hide()
           return of({
@@ -586,6 +639,7 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
           }, 1000);
         } else {
           this.model.lastFollowUpDate = this.gs.utcToClientDateFormat(new Date(data.NextFollowUpDate), this._settings.dateFormat)
+          this.backDate = this.model.lastFollowUpDate;
         }
       }
     }
@@ -623,6 +677,7 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
         }
       })
     }
+    this.addfollowUpDetailRefControl.assignFollowUpDetailData(res)
   }
 
   assignLeadData(res) {
@@ -644,10 +699,6 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
       this.model.selectedMeetingWithSaleId = data.MeetingWithSaleId
       this.model.selectedEnquiryStatusId = data.Status
       this.model.remark = data.Remark
-      if (!this.commonService.isEmpty(data.NextFollowUpDate)) {
-        this.model.followUpDate = this.gs.utcToClientDateFormat(new Date(data.NextFollowUpDate), this._settings.dateFormat)
-        this.model.followUpTime = data.NextFollowUpTime
-      }
     }
     if (!_.isEmpty(res.Data.LeadContactPerson)) {
       const currentContactPerson = _.find(res.Data.LeadContactPerson, { IsDefault: 1 })
@@ -683,12 +734,18 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
         }
       })
     }
+    this.addfollowUpDetailRefControl.assignLeadDetailData(res)
   }
 
   validate() {
     if (this.formType && (this.model.selectedEnquiryStatusId !== 5 && this.model.selectedEnquiryStatusId !== 6)
       && this.commonService.isEmpty(this.model.followUpDate)) {
       return false;
+    } else if(((this.model.selectedEnquiryStatusId === 5 && this.isItemMandatoryForConverted)
+    || (this.model.selectedEnquiryStatusId === 6 && this.isItemMandatoryForTentative)) && this.model.itemDetailList.length === 0) {
+      this.toastrService.showError('Please Add atleast 1 Item', '')
+      this.addItemDetails()
+      return false
     } else {
       return true
     }

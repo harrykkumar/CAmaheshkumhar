@@ -10,7 +10,6 @@ import { FormGroup, FormBuilder } from '@angular/forms'
 import { map, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { PagingComponent } from '../../shared/pagination/pagination.component'
 declare var $: any
-
 @Component({
   selector: 'app-item-master',
   templateUrl: './item-master.component.html',
@@ -36,7 +35,7 @@ export class ItemMasterComponent implements OnInit, OnDestroy {
     private _formBuilder: FormBuilder,
     private _loginService: LoginService
     ) {
-    this.menuData = this._loginService.getMenuDetails(8, 1);
+    this.menuData = this._loginService.getMenuDetails(8, 131);
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {
         if (obj.id && obj.type && obj.type === 'itemMaster') {

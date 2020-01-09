@@ -122,7 +122,7 @@ export class DashboardComponent {
           asstLibData.forEach(element => {
             if(element.HeadId===1){
               this.assetsAmountData.push(
-                element.Amount1
+                element.Amount1.toFixed(this.noOfDecimal)
               )
               this.assetsLabelData.push(
                 element.GlName
@@ -130,7 +130,7 @@ export class DashboardComponent {
             }
             if(element.HeadId===2){
               this.LiabilitieschartData.push(
-                element.Amount1
+                element.Amount1.toFixed(this.noOfDecimal)
               )
               this.LiabilitieschartLabels.push(
                 element.GlName
@@ -210,15 +210,15 @@ export class DashboardComponent {
 
         let fincialLable = []
         resp.Data.CashFlow.forEach(element => {
-          this.CashIn.push(element.CashIn)
-          this.CashOut.push(element.CashOut)
+          this.CashIn.push((element.CashIn).toFixed(this.noOfDecimal))
+          this.CashOut.push((element.CashOut).toFixed(this.noOfDecimal))
           this.ChartflowLabelData.push(element.Status)
         });
         this.chartLoaderFinacial = false
 
         resp.Data.Finance.forEach(element => {
           if (element.GlId === 18 || element.GlId === 17 || element.GlId === -999) {
-            this.fincialdata.push( element.Amount1)
+            this.fincialdata.push( element.Amount1.toFixed(this.noOfDecimal))
             fincialLable.push( (element.GlName))
           }
         });

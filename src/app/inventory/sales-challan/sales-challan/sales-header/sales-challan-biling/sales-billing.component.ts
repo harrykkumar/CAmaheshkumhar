@@ -1703,7 +1703,7 @@ export class SalesChallanBillingComponent {
   notItemAddedOutOfStock: boolean = true
 
   withoutAttributeData() {
-    debugger
+    
     this.attributesData.forEach((element, index) => {
       let Sno = 0
       if (this.Items.length === 0) {
@@ -1724,7 +1724,21 @@ export class SalesChallanBillingComponent {
       }
     });
   }
+  resetItemList (){
+    this.TaxSlabId =0
+    this.UnitId=0
+    this.unitSelect2.setElementValue(0)
+    if(this.taxSlabSelect2){
+      this.taxSlabSelect2.setElementValue(0)
+    }
+    this.SaleRate =0
+    this.PurchaseRate=0
+    this.MrpRate=0
+    this.TotalRate=0
+
+  }
   getItemRateByLedgerData(BillDate, Barcode, ItemId, CustomerId) {
+    this.resetItemList()
     this.commonService.barcodeAPI(BillDate, Barcode, ItemId, CustomerId).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
         if (Data.Data && Data.Data.ItemCustomRateWithItemDetails.length > 0) {
@@ -1770,6 +1784,7 @@ export class SalesChallanBillingComponent {
             this.toastrService.showError('', 'Can\'t add item due to Negative Stock ')
           }
         }
+        this.changeRunTimeSaleRate()
         if (Data.Data && Data.Data.SubUnitDetails && Data.Data.SubUnitDetails.length > 0) {
           this.filterUnitForItem(Data.Data.SubUnitDetails)
           this.unitSelect2.setElementValue( this.UnitId )
@@ -2215,27 +2230,67 @@ export class SalesChallanBillingComponent {
       )
     }
   }
+  changeRunTimeSaleRate = () => {
+    if (+this.Quantity > 0 && +this.SaleRate > 0) {
+      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      this.TotalRate = +(lwh * +this.SaleRate).toFixed(this.noOfDecimalPoint)
+    } else {
+      this.TotalRate = 0
+    }
+  }
+  changeRunTimeQuantity = () => {
+    if (+this.SaleRate > 0 && +this.Quantity > 0) {
+      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      this.TotalRate = +(lwh* +this.SaleRate).toFixed(this.noOfDecimalPoint)
+    } else {
+    this.TotalRate = 0
+    }
+    if (+this.TotalRate > 0 && +this.Quantity > 0) {
+      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      this.SaleRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
+    } else {
+     // this.SaleRate = 0
+    }
+  }
+  
 
+  getSaleBillingRate = () => {
+    if (+this.Quantity > 0 && +this.TotalRate > 0) {
+      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+        * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+        * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      this.SaleRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
+    }
+    if (this.TotalRate === 0 || '' + this.TotalRate === '') {
+      this.SaleRate = 0
+    }
+  }
   appliedTaxRatesItem: any = []
   appliedTaxRatesCharge: any = []
   calculate() {
-    let total = +(isNaN(+this.SaleRate) ? 0 : +this.SaleRate)
-      * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
-      * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
-      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
-      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
-    this.TotalRate = +total.toFixed(this.noOfDecimalPoint)
+    // let total = +(isNaN(+this.SaleRate) ? 0 : +this.SaleRate)
+    //   * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
+    //   * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+    //   * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+    //   * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+    // this.TotalRate = +total.toFixed(this.noOfDecimalPoint)
     if (this.validDiscount) {
       if ('' + this.DiscountType === '0') {
         if (+this.Discount <= 100 && +this.Discount >= 0) {
-          this.DiscountAmt = +((+this.Discount / 100) * (total)).toFixed(this.noOfDecimalPoint)
+          this.DiscountAmt = +((+this.Discount / 100) * (this.TotalRate)).toFixed(this.noOfDecimalPoint)
         } else {
           this.DiscountAmt = 0
         }
       } else {
         this.DiscountAmt = isNaN(+this.Discount) ? 0 : +this.Discount
       }
-      if (total > 0) {
+      if (this.TotalRate > 0) {
         if (this.editItemIndex > -1) {
           this.Items[this.editItemIndex].SaleRate = this.SaleRate
           this.Items[this.editItemIndex].Quantity = this.Quantity
@@ -2244,16 +2299,16 @@ export class SalesChallanBillingComponent {
           this.Items[this.editItemIndex].Height = this.Height
         }
         let discountedAmount = 0
-        if (this.DiscountAmt === total) {
+        if (this.DiscountAmt === this.TotalRate) {
           if (this.DiscountFor100Perct) {
-            discountedAmount = total
+            discountedAmount = this.TotalRate
             this.AmountItem = discountedAmount
             if (this.editItemIndex > -1) {
               this.Items[this.editItemIndex].AmountItem = discountedAmount
             }
           }
           else {
-            discountedAmount = total
+            discountedAmount = this.TotalRate
             this.AmountItem = 0
             this.taxRates = []
             if (this.editItemIndex > -1) {
@@ -2265,7 +2320,7 @@ export class SalesChallanBillingComponent {
           }
 
         } else {
-          discountedAmount = total - this.DiscountAmt
+          discountedAmount = this.TotalRate - this.DiscountAmt
           this.AmountItem = discountedAmount
           if (this.editItemIndex > -1) {
             this.Items[this.editItemIndex].AmountItem = this.AmountItem
@@ -2292,6 +2347,7 @@ export class SalesChallanBillingComponent {
               discountedAmount,
               this.isOtherState)).toFixed(4)
             this.AmountItem = AmountItem
+
             if (this.editItemIndex > -1) {
               this.Items[this.editItemIndex].AmountItem = this.AmountItem
             }
@@ -2305,13 +2361,10 @@ export class SalesChallanBillingComponent {
               this.Items[this.editItemIndex].TaxAmount = this.TaxAmount
               this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
             }
-
-
-
           } else {
             let AmountItem = +(this._saleDirectService.calcTaxableAmountType2(this.taxRates,
               this.taxSlabType,
-              total,
+              this.TotalRate,
               this.isOtherState)).toFixed(4)
             if ('' + this.DiscountType === '0') {
               if (+this.Discount < 100 && +this.Discount > 0) {
@@ -2337,10 +2390,9 @@ export class SalesChallanBillingComponent {
             if (this.editItemIndex > -1) {
               this.Items[this.editItemIndex].TaxAmount = this.TaxAmount
               this.Items[this.editItemIndex].itemTaxTrans = returnTax.appliedTaxRates
-
             }
 
-          }
+          } 
         }
       } else {
         if (this.editItemId === -1) {
@@ -2887,6 +2939,7 @@ export class SalesChallanBillingComponent {
 
   isValidAmount = true
   checkValidationForAmount() {
+    
     let paymentTotal = this.getPaymentTotal()
     paymentTotal = (isNaN(+paymentTotal)) ? 0 : +paymentTotal
     this.BillAmount = (isNaN(+this.BillAmount)) ? 0 : +this.BillAmount
@@ -2952,7 +3005,14 @@ export class SalesChallanBillingComponent {
       }
     }
   }
-
+  checkpaymentLedgerId() {
+    if (this.PaymentDetail.length > 0) {
+      let dvalue= this.PaymentDetail.filter(
+        d=>d.LedgerId===this.LedgerId)
+        if(dvalue.length>0){ return false  }
+        else{ return true }  }
+        else { return true }
+  }
   addTransaction() {
     let index = 0
     if (this.PaymentDetail.length === 0) {
@@ -2972,18 +3032,23 @@ export class SalesChallanBillingComponent {
         }
       })
     }
-    this.PaymentDetail.push({
-      Id: 0,
-      Sno: index,
-      Paymode: this.Paymode,
-      PayModeId: this.PayModeId,
-      LedgerId: this.LedgerId,
-      BankLedgerName: this.BankLedgerName,
-      Amount: this.Amount,
-      PayDate: this.PayDate,
-      ChequeNo: this.ChequeNo,
-      isEditable: this.EditabledPay
-    })
+    if(this.checkpaymentLedgerId()){
+      this.PaymentDetail.push({
+        Id: 0,
+        Sno: index,
+        Paymode: this.Paymode,
+        PayModeId: this.PayModeId,
+        LedgerId: this.LedgerId,
+        BankLedgerName: this.BankLedgerName,
+        Amount: this.Amount,
+        PayDate: this.PayDate,
+        ChequeNo: this.ChequeNo,
+        isEditable: this.EditabledPay
+      })
+    }
+    else {
+      this.toastrService.showErrorLong('', 'Trasaction not allow with Same Transactional Ledger')
+    }
     setTimeout(() => {
       this.commonService.fixTableHFL('trans-table')
     }, 1)
@@ -3655,7 +3720,7 @@ export class SalesChallanBillingComponent {
     )
   }
   getNewCurrentDate() {
-    debugger
+    
     this._saleDirectService.getCurrentDate().subscribe(
       data => {
         if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
@@ -4019,6 +4084,8 @@ export class SalesChallanBillingComponent {
           }
         })
       }
+      this.DisabledSaveBtn = false
+
       return !!isValid
     }
   }
@@ -4152,6 +4219,7 @@ export class SalesChallanBillingComponent {
   SaveName: string = 'Save'
   DisabledSaveBtn: any = false
   saveSaleChallanBilling() {
+    this.DisabledSaveBtn = true
     let _self = this
     this.submitSave = true
     let dataToSend = this.saleDirectParams()
@@ -4435,6 +4503,16 @@ export class SalesChallanBillingComponent {
     this.calculate()
   }
 
+  getLedgerTax(id) {
+    this._saleDirectService.getLedgerTax(id).subscribe((data) => {
+      console.log(data)
+      this.taxSlabChargeValue = data.LedgerDetails[0].TaxSlabId
+    },
+    (error) => {
+      this.toastrService.showError(error, '')
+    })
+  }
+
   onTaxSlabChargeSelect(evt) {
     if (+evt.value === -1) {
       this.commonService.openTax('')
@@ -4696,19 +4774,6 @@ export class SalesChallanBillingComponent {
     }, 10)
   }
 
-  getSaleBillingRate() {
-
-    if (+this.Quantity > 0 && +this.TotalRate > 0) {
-      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
-        * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
-        * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
-      this.SaleRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
-    }
-    if (this.TotalRate === 0 || '' + this.TotalRate === '') {
-      this.SaleRate = 0
-    }
-    this.calculate()
-  }
 
   billDateChange(evt) {
     this.BillDate = evt

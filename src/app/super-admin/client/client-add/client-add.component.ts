@@ -44,11 +44,13 @@ export class ClientAddComponent implements OnDestroy {
   @ViewChild('industry_select2') industrySelect2: Select2Component
   dummyCustomerAgentId: any;
   customerAgentId: any;
+  clientDateFormat = ''
   constructor(private clientService: ClientService,
     private toastrService: ToastrCustomService,
     private gs: GlobalService, private settings: Settings,
     private resolver: ComponentFactoryResolver,
     private baseService: BaseServices) {
+    this.clientDateFormat = this.settings.dateFormat
     this.onDestroy$ = this.clientService.clientModalOpenStatus$.subscribe(
       (status: AddCust) => {
         if (status.open) {
@@ -168,7 +170,7 @@ export class ClientAddComponent implements OnDestroy {
       })
     }
     let clientAdd = JSON.parse(JSON.stringify(this.clientAdd))
-    clientAdd.registrationDate = this.gs.convertToSqlFormat(clientAdd.RegistrationDate)
+    clientAdd.registrationDate = this.gs.clientToSqlDateFormat(clientAdd.RegistrationDate, this.clientDateFormat)
     clientAdd.IsMultiOrganization = +clientAdd.IsMultiOrganization
     clientAdd.IsMultiBranch = +(!clientAdd.IsMultiOrganization)
     clientAdd.CustomerAgentId = +(this.customerAgentId)

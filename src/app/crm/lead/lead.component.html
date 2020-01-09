@@ -13,8 +13,14 @@
               <div class="mr-2">
                 <div id="custom-search-input" class="btn_header1">
                   <div class="input-group col-md-12">
-                    <input type="text" class="form-control input-lg" placeholder="Search"
-                      (input)="getLeadList('search')" name="searchText" [(ngModel)]="searchText" />
+                    <input
+                      type="text"
+                      class="form-control input-lg"
+                      placeholder="Search"
+                      (input)="getLeadList('search')"
+                      name="searchText"
+                      [(ngModel)]="searchText"
+                    />
                     <span class="input-group-btn">
                       <a>
                         <i class="fas fa-search"></i>
@@ -24,12 +30,20 @@
                 </div>
               </div>
               <div class="btn_header">
-                <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal"
-                  (click)="addLead()">
+                <button
+                  type="button"
+                  class="btn btn-primary waves-effect waves-light"
+                  data-toggle="modal"
+                  (click)="addLead()"
+                >
                   Add New
                 </button>
-                <a href="#lead_search_form" class="btn btn-info waves-effect waves-light" data-toggle="collapse"><i
-                    class="fas fa-search"></i>Search</a>
+                <a
+                  href="#lead_search_form"
+                  class="btn btn-info waves-effect waves-light"
+                  data-toggle="collapse"
+                  ><i class="fas fa-search"></i>Search</a
+                >
               </div>
             </div>
           </div>
@@ -38,44 +52,81 @@
     </div>
     <div id="lead_search_form" class="card collapse mb-2">
       <div class="px-3 pt-2">
-        <form #leadSearchFormControl="ngForm" (ngSubmit)="leadSearchFormControl.form.valid && getLeadList()" novalidate>
+        <form
+          #leadSearchFormControl="ngForm"
+          (ngSubmit)="leadSearchFormControl.form.valid && getLeadList()"
+          novalidate
+        >
           <div class="form row">
             <div class="form-group col-md-3 ">
               <label>Lead Status</label>
-              <ng-select name="statusName" [items]="crmService.leadUtilityData.EnquiryStatus" bindLabel="commondesc"
-                bindValue="id" placeholder="Select Status" [(ngModel)]="leadStatusId">
+              <ng-select
+                name="statusName"
+                [items]="crmService.leadUtilityData.EnquiryStatus"
+                bindLabel="commondesc"
+                bindValue="id"
+                placeholder="Select Status"
+                [(ngModel)]="leadStatusId"
+              >
               </ng-select>
             </div>
             <div class="form-group col-md-3">
               <label>Business Type</label>
-              <ng-select id="businessTypeId" name="businessTypeName" [items]="crmService.leadUtilityData.BusinessType"
-                bindLabel="commondesc" bindValue="id" placeholder="Select Business Type" [(ngModel)]="businessTypeId">
+              <ng-select
+                id="businessTypeId"
+                name="businessTypeName"
+                [items]="crmService.leadUtilityData.BusinessType"
+                bindLabel="commondesc"
+                bindValue="id"
+                placeholder="Select Business Type"
+                [(ngModel)]="businessTypeId"
+              >
               </ng-select>
             </div>
             <div class="form-group col-md-3">
               <label>Source</label>
-              <ng-select id="sourceId" name="sourceName" [items]="crmService.leadUtilityData.EnquirySource"
-                bindLabel="commondesc" bindValue="id" placeholder="Select Source" [(ngModel)]="sourceId">
+              <ng-select
+                id="sourceId"
+                name="sourceName"
+                [items]="crmService.leadUtilityData.EnquirySource"
+                bindLabel="commondesc"
+                bindValue="id"
+                placeholder="Select Source"
+                [(ngModel)]="sourceId"
+              >
               </ng-select>
             </div>
             <div class="form-group col-md-3 ">
               <label class="fw-500">From</label>
               <div class="timepicker-input input-icon form-group">
-                <datepicker-popup [toSetDate]="fromDateValue" (dateInFormat)="fromDateValue = $event">
+                <datepicker-popup
+                  [toSetDate]="fromDateValue"
+                  (dateInFormat)="fromDateValue = $event"
+                >
                 </datepicker-popup>
               </div>
             </div>
             <div class="form-group col-md-3">
               <label class="fw-500">To</label>
               <div class="timepicker-input input-icon form-group">
-                <datepicker-popup [toSetDate]="toDateValue" (dateInFormat)="toDateValue = $event"></datepicker-popup>
+                <datepicker-popup
+                  [toSetDate]="toDateValue"
+                  (dateInFormat)="toDateValue = $event"
+                ></datepicker-popup>
               </div>
             </div>
             <div class="form-group col-md-3 pt-3">
-              <button type="submit" class="btn btn-primary waves-effect waves-light">
+              <button
+                type="submit"
+                class="btn btn-primary waves-effect waves-light"
+              >
                 Search
               </button>
-              <button type="button" (click)="leadSearchFormControl.resetForm()" class="btn btn_close waves-effect">
+              <button
+                type="button"
+                (click)="resetSearchForm()"
+                class="btn btn_close waves-effect"
+              >
                 Reset
               </button>
             </div>
@@ -87,142 +138,223 @@
       <div class="col-md-12">
         <div class="bgc-white bdrs-3 pb-3 mB-20">
           <div class="sidebar-offcanvas top_action_saniiro">
-            <ul class="filter-cat">
+            <ul class="filter-cat ml-2">
               <li>
                 <div class="divgray"></div>
-                <a href="javascript:void(0)"><span class="colorspan">Assigned</span></a>
+                <a href="javascript:void(0)" (click)="getLeadList('Assigned')"
+                  ><span class="colorspan">Assigned</span></a
+                >
               </li>
               <li>
                 <div class="divgreen"></div>
-                <a href="javascript:void(0)" (click)="leadStatusId = 6; getLeadList()">
-                  <span class="colorspan">Converted</span></a>
+                <a
+                  href="javascript:void(0)"
+                  (click)="leadStatusId = 6; getLeadList()"
+                >
+                  <span class="colorspan">Converted</span></a
+                >
               </li>
               <li>
                 <div class="divetentative"></div>
-                <a href="javascript:void(0)" (click)="leadStatusId = 5; getLeadList()">
+                <a
+                  href="javascript:void(0)"
+                  (click)="leadStatusId = 5; getLeadList()"
+                >
                   <span class="colorspan">Tentative</span>
                 </a>
               </li>
               <li style="background:#4285f4;">
-                <a href="javascript:void(0)"
-                 class="font-weight-bold text-decoration-none text-white"
-                  (click)="transferLead()">
+                <a
+                  href="javascript:void(0)"
+                  class="font-weight-bold text-decoration-none text-white"
+                  (click)="transferLead()"
+                >
                   Transfer Lead
                 </a>
               </li>
+              <li style="float: right; border: none;">
+                <a
+                  href="#"
+                  class="btn btn_default_bg waves-effect m-0"
+                  data-target="#manage_colmun"
+                  data-toggle="modal"
+                  >Manage Column</a
+                >
+              </li>
             </ul>
           </div>
-          <div class="table-responsive table_height">
+          <div class="table-responsive table_height1">
             <table class="table cat-table table-hover">
               <thead class="saniiro_tbl_header">
-                <tr class="default_row">
+                <tr class="default_row pl-2">
                   <th>
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="alleadSelectorId"
-                         name="alleadSelectorName"
+                    <div class="custom-control custom-checkbox">
+                      <input
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="alleadSelectorId"
+                        name="alleadSelectorName"
                         [checked]="isAllLeadSelected"
-                         (change)="isAllLeadSelected = $event.target.checked; checkAllLead();">
-                        <label class="custom-control-label" for="alleadSelectorId"></label>
-                      </div>
+                        (change)="
+                          isAllLeadSelected = $event.target.checked;
+                          checkAllLead()
+                        "
+                      />
+                      <label
+                        class="custom-control-label"
+                        for="alleadSelectorId"
+                      ></label>
+                    </div>
                   </th>
-                  <th>
+                  <th *ngIf="totalColumns[0]?.isShow"  width="200">
                     Org/Customer Detail
                     <span class="pl-2">
-                      <a href="javascript:void(0)" (click)="
+                      <a
+                        href="javascript:void(0)"
+                        (click)="
                           isAsc[0] = !isAsc[0]; sortByKey(isAsc[0], 'Customer')
-                        ">
-                        <i class="fas" style="color:#4285f4;" [ngClass]="{
+                        "
+                      >
+                        <i
+                          class="fas"
+                          style="color:#4285f4;"
+                          [ngClass]="{
                             'fa-chevron-down': isAsc[0],
                             'fa-chevron-up': !isAsc[0]
-                          }"></i>
+                          }"
+                        ></i>
                       </a>
                     </span>
                   </th>
-                  <!-- <th>Lead Score</th> -->
-                  <th>
+                  <th *ngIf="totalColumns[1]?.isShow">
                     Lead Score/Status
                     <span class="pl-2">
-                      <a href="javascript:void(0)" (click)="
+                      <a
+                        href="javascript:void(0)"
+                        (click)="
                           isAsc[1] = !isAsc[1]; sortByKey(isAsc[1], 'Status')
-                        ">
-                        <i class="fas" style="color:#4285f4;" [ngClass]="{
+                        "
+                      >
+                        <i
+                          class="fas"
+                          style="color:#4285f4;"
+                          [ngClass]="{
                             'fa-chevron-down': isAsc[1],
                             'fa-chevron-up': !isAsc[1]
-                          }"></i>
+                          }"
+                        ></i>
                       </a>
                     </span>
                   </th>
-                  <th>Lead Source</th>
-                  <th>Last Connected Time</th>
-                  <th>
+                  <th *ngIf="totalColumns[2]?.isShow">Lead Source</th>
+                  <th *ngIf="totalColumns[3]?.isShow">Last Connected Time</th>
+                  <th *ngIf="totalColumns[4]?.isShow">
                     Contact Person
                     <span class="pl-2">
-                      <a href="javascript:void(0)" (click)="
+                      <a
+                        href="javascript:void(0)"
+                        (click)="
                           isAsc[4] = !isAsc[4];
                           sortByKey(isAsc[4], 'ContactPerson')
-                        ">
-                        <i class="fas" style="color:#4285f4;" [ngClass]="{
+                        "
+                      >
+                        <i
+                          class="fas"
+                          style="color:#4285f4;"
+                          [ngClass]="{
                             'fa-chevron-down': isAsc[4],
                             'fa-chevron-up': !isAsc[4]
-                          }"></i>
+                          }"
+                        ></i>
                       </a>
                     </span>
                   </th>
-                  <!-- <th>Contact Person</th> -->
-                  <th width="200">Remark</th>
+                  <!-- <th>Customer Contact</th>
+                  <th>Customer Email</th> -->
+                  <th *ngIf="totalColumns[5]?.isShow">Contact Person Contact</th>
+                  <th *ngIf="totalColumns[6]?.isShow">Contact Person Email</th>
+                  <th *ngIf="totalColumns[7]?.isShow" width="200">Remark</th>
                   <th>Action</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let item of leadData; let i = index;">
+                <tr class="pl-2"
+                  *ngFor="
+                    let item of leadData
+                      | paginate
+                        : {
+                            itemsPerPage: itemsPerPage,
+                            currentPage: p,
+                            totalItems: total
+                          };
+                    let i = index
+                  "
+                >
                   <td>
                     <div class="custom-control custom-checkbox">
-                      <input type="checkbox" class="custom-control-input"
-                      id="customCheck{{i}}" name="example1"
-                      [checked]="item.selected"
-                       (change)="item.selected = $event.target.checked" >
-                      <label class="custom-control-label" for="customCheck{{i}}"></label>
+                      <input
+                        type="checkbox"
+                        class="custom-control-input"
+                        id="customCheck{{ i }}"
+                        name="example1"
+                        [checked]="item.selected"
+                        (change)="item.selected = $event.target.checked"
+                      />
+                      <label
+                        class="custom-control-label"
+                        for="customCheck{{ i }}"
+                      ></label>
                     </div>
                   </td>
-                  <td class="align-middle">
-                    <div class="dropdown arrow_down d-inline-block mr-1 profile_pict">
+                  <td *ngIf="totalColumns[0]?.isShow" class="align-middle">
+                    <div
+                      class="dropdown arrow_down d-inline-block mr-1 profile_pict"
+                    >
                       <a class="dropdown-toggle" data-toggle="dropdown">
-                        <img src="../assets/static/images/img.jpg" alt="..." class="img-circle profile_image" />
+                        <img
+                          src="../assets/static/images/img.jpg"
+                          alt="..."
+                          class="img-circle profile_image"
+                        />
                       </a>
                     </div>
                     <div class="section-edit detail_width_dropdown ">
-                      <a (click)="openLeadReport(item)" class="strong text-ellipsis ember-view">{{ item?.Customer }}
+                      <a
+                        (click)="openLeadReport(item)"
+                        class="strong text-ellipsis ember-view"
+                        >{{ item?.Customer }}
                       </a>
                       <address>{{ item.AddressValue }}</address>
                       <div class="edit-hover dropdown enquiry-tag arrow_down">
                         <div class="dropdown-menu name_leads">
                           <div class="header_dropdown">
-                            <i class="far fa-check-circle fa-1x mr-2"></i><i class="far fa-times-circle fa-1x"></i>
+                            <i class="far fa-check-circle fa-1x mr-2"></i
+                            ><i class="far fa-times-circle fa-1x"></i>
                           </div>
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td class="align-middle text-center">
+                  <td *ngIf="totalColumns[1]?.isShow" class="align-middle text-center">
                     <span>NIL</span>
                     <div class="assign">
                       {{ item?.Status }}
                     </div>
                   </td>
-                  <td class="align-middle">
+                  <td *ngIf="totalColumns[2]?.isShow" class="align-middle">
                     <div class="section-edit">
                       <div>
                         <strong>{{ item?.Source }}</strong>
                       </div>
                     </div>
                   </td>
-                  <td class="align-middle">
+                  <td *ngIf="totalColumns[3]?.isShow" class="align-middle">
                     <div>
                       {{ item?.CreatedOn | date: "short" }}
                     </div>
                   </td>
-                  <td class="align-middle text-center">
+                  <td *ngIf="totalColumns[4]?.isShow" class="align-middle text-center">
                     <div class="section-edit">
                       <div>{{ item?.ContactPerson }}</div>
                       <div class="bold">
@@ -230,26 +362,39 @@
                       </div>
                     </div>
                   </td>
-                  <td class="align-middle" style=" word-wrap: break-word;">
+                  <td *ngIf="totalColumns[5]?.isShow">{{item?.ContactNo}}</td>
+                  <td *ngIf="totalColumns[6]?.isShow">{{item?.Email}}</td>
+                  <td *ngIf="totalColumns[7]?.isShow" class="align-middle" style=" word-wrap: break-word;">
                     {{ item?.Remark }}
                   </td>
-                  <td class="text-center">
-                    <a href="javascript:void(0)" (click)="addLead(item, 'follow-up')">
-                      <i class="fas fa-clipboard-check follow_icon"></i></a>
+                  <!-- <td>{{}}</td>
+                  <td>{{}}</td> -->
+                  <td class="text-center align-middle">
+                    <a
+                      href="javascript:void(0)"
+                      (click)="addLead(item, 'follow-up')"
+                    >
+                   <img src="assets/img/follower.svg" width="20" height="20">
+                    </a>
                   </td>
                   <td class="align-middle">
                     <div class="dropdown enquiry-tag">
-                      <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog mR-3 cH-blue fa-1x"></i><b
-                          class="caret"></b></a>
-
+                      <a class="dropdown-toggle" data-toggle="dropdown"
+                        ><i class="fa fa-cog mR-3 cH-blue fa-1x"></i
+                        ><b class="caret"></b
+                      ></a>
                       <ul class="dropdown-menu fsz-sm">
                         <li>
-                          <a (click)="addLead(item)" class="d-b td-n p-1"><i
-                              class="far fa-edit mR-10 cH-blue"></i><span>Edit</span></a>
+                          <a (click)="addLead(item)" class="d-b td-n p-1"
+                            ><i class="far fa-edit mR-10 cH-blue"></i
+                            ><span>Edit</span></a
+                          >
                         </li>
                         <li>
-                          <a (click)="assignTo(item)" class="d-b td-n p-1"><i
-                              class="fas fa-location-arrow mR-10 cH-blue"></i><span>Assign To</span></a>
+                          <a (click)="assignTo(item)" class="d-b td-n p-1"
+                            ><i class="fas fa-location-arrow mR-10 cH-blue"></i
+                            ><span>Assign To</span></a
+                          >
                         </li>
                       </ul>
                     </div>
@@ -264,6 +409,79 @@
   </div>
 </main>
 
+<app-pagination
+  #paging_comp
+  (lastValueEmitter)="lastItemIndex = $event"
+  (pageNoEmitter)="p = $event; getLeadList()"
+  (pageSizeEmitter)="itemsPerPage = $event; getLeadList()"
+></app-pagination>
+
 <ng-container #addLeadContainerRef></ng-container>
 <ng-container #leadInfoContainerRef></ng-container>
 <ng-container #assignToContainerRef></ng-container>
+
+<div
+  class="modal fade"
+  id="manage_colmun"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="sample_approval"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Manage Colmun</h4>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div
+          class="form-row justify-content-center"
+          (drop)="drop($event)"
+          (dragover)="allowDrop($event)"
+        >
+          <ng-container *ngFor="let item of totalColumns; let i = index;">
+            <div
+              class="col-md-12"
+              draggable="true"
+              (dragstart)="onDragStart($event)"
+            >
+              <div class="card_drag">
+                <div class="custom-control custom-checkbox mr-sm-2">
+                  <input
+                    type="checkbox"
+                    class="custom-control-input"
+                    id="customControlAutosizing-{{ i }}"
+                    [disabled]="item.name === 'Action'"
+                    [checked]="item.isShow"
+                    (change)="item.isShow = $event.target.checked"
+                  />
+                  <label
+                    class="custom-control-label"
+                    for="customControlAutosizing-{{ i }}"
+                    >{{ item.name }}</label
+                  >
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+      <!-- <div class="modal-footer">
+        <a
+          href="javascript:void(0)"
+          data-dismiss="modal"
+          class="btn btn-primary waves-effect"
+          >Save</a
+        >
+        <button type="button" class="btn btn_close waves-effect">Close</button>
+      </div> -->
+    </div>
+  </div>
+</div>

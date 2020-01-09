@@ -809,7 +809,7 @@ svg {
   border-bottom: solid 1px #e4e4e4;
   position: relative;
   top: 5px;
-  width: 100%;
+  width: auto;
   margin-right: 10px;
   background-color: #fff;
 }
@@ -1013,7 +1013,11 @@ span#inputGroupFileAddon01 {
 }
 
 .assign {
-  background-color: #e8e8e6;
+  background: #2a58ad45;
+  color: #2a58ad;
+  border-radius: 50px;
+  font-weight: 500;
+  text-align: center;
 }
 
 .complete {
@@ -1043,10 +1047,12 @@ span#inputGroupFileAddon01 {
 .filter-cat {
   width: 100%;
   float: left;
+  align-items: center;
+  display: flex;
+  align-self: center;
   margin: 0 0;
   padding: 5px 0px;
 }
-
 .filter-cat li {
   list-style: none;
   display: inline-flex;
@@ -4082,7 +4088,6 @@ table#mytable {
 }
 
 .sidebar-submenu {
-  max-height: 164px;
   position: relative;
   overflow: auto;
   border-radius: 3px;
@@ -5063,6 +5068,10 @@ input[type="number"]::-webkit-outer-spin-button {
   max-width: 120px !important;
   min-width: 120px !important;
 }
+.cust_width_100 {
+  max-width: 100px !important;
+  min-width: 100px !important;
+}
 .cust_width_150 {
   max-width: 150px !important;
   min-width: 150px !important;
@@ -5327,7 +5336,7 @@ table.table1 th {
 }
 .highlight_box2 {
   /* box-shadow: inset 1px 0px 2px 0px #ccc; */
-  padding: 10px;
+  padding: 10px !important;
   border: 1px solid #e5e6e6;
   margin-bottom: 15px;
   background: #ffffff !important;
@@ -5343,7 +5352,7 @@ table.table1 th {
   color: #777;
 }
 .grid_left {
-  padding: 12px;
+
   text-align: center;
 }
 .grid_left i {
@@ -5686,7 +5695,7 @@ table.table1 th {
 .editLabel:hover a {
   display: block !important;
 }
-.overlay {
+.userImgoverlay {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -5700,10 +5709,24 @@ table.table1 th {
   transition: .3s ease;
   background-color: #333;
 }
-.userImage:hover .overlay {
+.userImage:hover .userImgoverlay {
   opacity: 1;
   z-index: 9999;
 }
 .error-class {
   border-bottom: 1px solid #ec1818 !important;
+}
+.small-txt {
+  font-size: .8rem;
+}
+.filter-cat li a {
+  color: #333;
+}
+
+agm-map {
+  height: 100%;
+}
+
+.group-action li.active {
+  background: #33b5e5;
 }

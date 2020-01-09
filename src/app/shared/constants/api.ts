@@ -540,4 +540,29 @@ export class ApiConstant {
   public static get LEAD_TRANSFER(): string { return this.BASE_URL + '/api/v1/CRM/leadtransfer' }
 
   public static get CHECK_FOR_CREDENTIALS(): string { return this.BASE_URL + '/api/v1/SendSMSForgotPassword' }
+
+  public static get CRM_LEAD_CUSTOMER(): string { return this.BASE_URL + '/api/v1/CRM/leadcustomer' }
+
+  public static get CRM_ORDER_REQUEST_REPORT(): string { return this.BASE_URL + '/api/v1/CRM/OrderRequest' }
+
+  public static get CRM_ORDER_REQUEST_DETAILS_REPORT(): string { return this.BASE_URL + '/api/v1/CRM/OrderPrintRequestDetails' }
+
+  public static get CURRENT_LOCATION(): string { return this.BASE_URL + '/api/v1/CRM/getusercurrentlocation' }
+
+  public static get DEALER_REGISTRATION(): string { return this.BASE_URL + '/api/v1/crm/dealerregistration' }
+
+  public static get DEALER_EDIT_DETAILS(): string { return this.BASE_URL + '/api/v1/crm/dealerdetails' }
+
+  public static get DEALER_USER_LINK(): string { return this.BASE_URL + '/api/v1/crm/dealeruserlink' }
+
+  public static get CUSTOMER_VISIT(): string { return this.BASE_URL + '/api/v1/CRM/leadstartendmeeting' }
+
+  public static get USER_LIST(): string { return this.BASE_URL + '/api/v1/auth/userlist' }
+
+  public static get GET_DAILY_ACTIVITY_REPORT(): string { return this.BASE_URL + '/api/v1/CRM/GetDailyActivityCustomer' }
+
+  public static get GET_USER_DEALER(): string { return this.BASE_URL + '/api/v1/crm/userdealer' }
+
+  public static get CRM_ACTION_REPORT(): string { return this.BASE_URL + '/api/v1/CRM/GetCRMActionReport' }
+
 }

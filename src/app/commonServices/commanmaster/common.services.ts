@@ -94,7 +94,11 @@ export class CommonService {
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
   panRegx = `[A-Z]{5}[0-9]{4}[A-Z]{1}$`
-  gstInRegx = `^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$`
+  // this regular GST is used for  pattern string
+  gstInRegx = `^([0][1-9]|[1-2][0-9]|[3][0-7])([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$`
+   //this regulsar GST is used  for direct  fuction
+  regxGST = /^([0][1-9]|[1-2][0-9]|[3][0-7])([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$/;
+  regxEMAIL= /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
   constructor(private router: Router, private baseService: BaseServices,
     @Inject(DOCUMENT) private _document: HTMLDocument,
@@ -126,14 +130,14 @@ export class CommonService {
       (isConnected) => {
         if (isConnected) {
           this.isInternet = true;
-          setTimeout(() => {
-            this.navigateToPreviousUrl()
-          }, 5000)
+          // setTimeout(() => {
+          //   this.navigateToPreviousUrl()
+          // }, 5000)
         }
         else {
           this.isInternet = false;
           this.toaster.showError('', 'Network Connection Failed Please Try Again');
-          this.router.navigate(['noconnection'])
+          // this.router.navigate(['noconnection'])
         }
       })
   }
@@ -993,8 +997,8 @@ export class CommonService {
     return this.baseService.deleteRequest(ApiConstant.LEDGER_GROUP_API + id)
   }
   gstNumberRegxValidation(gstNumber) {
-    let regxGST = /^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$/
-    return regxGST.test(gstNumber)
+   let regxGST = /^([0][1-9]|[1-2][0-9]|[3][0-7])([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$/;
+  return regxGST.test(gstNumber)
   }
 
   panNumberRegxValidation(panNumber) {
@@ -1298,6 +1302,9 @@ export class CommonService {
   cancelSale(id) {
     return this.baseService.deleteRequest(ApiConstant.SALE_DIRECT_BILLING_API + '?id=' + id)
   }
+  cancelSaleChallan(id) {
+    return this.baseService.deleteRequest(ApiConstant.GET_ALL_DETAILS_SALE_CHALLAN_URL + '?id=' + id)
+  }
   cancelPurchase(id) {
     return this.baseService.deleteRequest(ApiConstant.PURCHASE_LIST + '?id=' + id)
   }
@@ -1435,7 +1442,12 @@ export class CommonService {
     const queryParam = this.getQueryStringFromObject(query);
     return this.baseService.getRequest(`${ApiConstant.GSTR_REPORT}?${queryParam}`);
   }
+  getGstrSummaryNewFormateList(data) {
+    //  const queryParam = this.getQueryStringFromObject(query);
+      const url = `${ApiConstant.GSTR_REPORT}?ReportFor=${data.ReportFor}&FromDate=${data.FromDate}&ToDate=${data.ToDate}&Type=${data.Type}`;
 
+      return this.baseService.getRequest(url);
+    }
   getGstrAnxDetails(data) {
     const queryParam = this.getQueryStringFromObject(data);
     return this.baseService.getRequest(`${ApiConstant.GSTR_AN_X_DETAILS}?${queryParam}`);
@@ -1692,5 +1704,9 @@ export class CommonService {
         return item[key]
       }
     }), [orderType]);
+  }
+
+  convertToTitleCase(value){
+    return _.startCase(value);
   }
 }

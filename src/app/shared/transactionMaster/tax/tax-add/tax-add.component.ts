@@ -186,11 +186,12 @@ export class TaxAddComponent {
               }
             this.taxTypeList.push({
               Name: element.Name,
+              TitleName: element.TitleName,
               TaxTitleId: element.TaxTitleId,
               Id: element.Id,
               DisabledBox: this.IGSTDisabledBox,
               ApplyMethod: element.ApplyMethod,
-              taxrate: 0,
+              taxrate: null,
               isForOtherState: element.IsForOtherState,
               ValueType: element.ValueType,
               IsOptional: element.IsOptional,
@@ -253,11 +254,12 @@ export class TaxAddComponent {
           }
         }
       }
-      else {
-        this.taxTypeList[index].taxrate = 0
+      else if (this.taxTypeList[index].taxrate === null || this.taxTypeList[index].taxrate !== '') {
+        // this.taxTypeList[index].taxrate = null
+        this.toastrCustomService.showError('Please Fill All the Tax Rate', '')
+        isValid = 0
       }
     })
-
     return !!isValid
   }
 
@@ -324,6 +326,7 @@ export class TaxAddComponent {
               }
             this.taxTypeList.push({
               Name: Data.Data.TaxRates[i].Name,
+              TitleName: Data.Data.TaxRates[i].TitleName,
               TaxTitleId: Data.Data.TaxRates[i].TaxTitleId,
               Id: Data.Data.TaxRates[i].Id,
               DisabledBox: this.IGSTDisabledBox,
@@ -517,7 +520,7 @@ export class TaxAddComponent {
       this.taxrates.push({
         Id: element.Id,
         Rate: element.taxrate,
-        Name: element.Name,
+        Name: element.TitleName,
         TaxTitleId: element.TaxTitleId,
         ValueType: this.CurrencyId,
         IsotherState: element.isForOtherState

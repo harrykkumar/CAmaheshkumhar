@@ -55,7 +55,7 @@
                             <tr *ngFor ="let Debtors of Debitors" (click)="onLedgerStatement(Debtors)"> 
                               <td>{{Debtors.Name}}</td>
                               
-                              <td (click)="ledgerStatement(Debtors.LedgerId)" class="text-right">{{Debtors.Amount.toFixed(noOfDecimal)}}</td>
+                              <td width="25%" (click)="ledgerStatement(Debtors.LedgerId)" class="text-right">{{Debtors.Amount.toFixed(noOfDecimal)}}</td>
                             </tr> 
                           </tbody>
                         </table>
@@ -82,7 +82,7 @@
                           <tbody>
                             <tr *ngFor ="let Creators of Creditor" (click)="onLedgerStatement(Creators)">  
                               <td>{{Creators.Name}}</td>
-                              <td class="text-right">{{(Creators.Amount).toFixed(noOfDecimal)}}</td>
+                              <td width="25%" class="text-right">{{(Creators.Amount).toFixed(noOfDecimal)}}</td>
                             </tr> 
                           </tbody>
                         </table> 
@@ -110,7 +110,7 @@
                             <tr *ngFor ="let item of InventoryGrowths"> 
                               <td>{{item.LedgerName}}</td>
                               <!-- <td>{{ item.BillDate | dateFormat : DateFormate}}</td> -->
-                              <td class="text-right">{{item.Quantity}}</td>
+                              <td class="text-right">{{(item.Quantity).toFixed(noOfDecimal)}}</td>
                             </tr> 
                           </tbody>
                         </table>

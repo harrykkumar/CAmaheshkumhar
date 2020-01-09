@@ -170,23 +170,40 @@ export class TrailBalanceReportComponent implements OnInit {
 
   }
 
-
+  // if (head1.length > 0) {
+  //   head1.forEach(element => {
+  //     if (element.LevelNo === 1 || (element.LevelNo === 2 && element.IsWithDetails===0)
+  //     || (element.LevelNo === 3 && element.IsWithDetails === 0)
+  //     ) {
+  //       this.headI1dData.push(element)
+  //     }
+  //   });
+  // }
+  //   if (head1.length > 0) {
+  //   head2.forEach(element => {
+  //     if (element.LevelNo === 1 || (element.LevelNo === 2 && element.IsWithDetails===0)
+  //     || (element.LevelNo === 3 && element.IsWithDetails === 0)
+  //     ) {
+  //       this.headI2dData.push(element)
+  //     }
+  //   });
+  // }
   SummaryData(head1) {
     this.headI1dData = [];
     this.headI2dData = []
     if (head1.length > 0) {
       head1.forEach(element => {
-        if (element.LevelNo === 1) {
+        // if (element.LevelNo === 1)
+        if (element.LevelNo === 1 || (element.LevelNo === 2 && element.IsWithDetails===0)
+      || (element.LevelNo === 3 && element.IsWithDetails === 0)
+      )
+         {
           this.mainData.push(element)
         }
       });
     }
     if (head1.length > 0) {
-      // head2.forEach(element => {
-      //   if (element.LevelNo === 1 || element.LevelNo === 2) {
-      //     this.headI2dData.push(element)
-      //   }
-      // });
+     
     }
 
   }

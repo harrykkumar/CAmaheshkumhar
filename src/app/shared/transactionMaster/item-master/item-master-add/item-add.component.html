@@ -7,12 +7,15 @@
         <div class="container-fluid">
           <div class="row">
             <div class="col-md-3 left_side_head">
-              <p class="heading_lead"><i class="far fa-building"></i>Item Master</p>
+              <p class="heading_lead"><i class="far fa-building"></i>Item / Service Master </p>
             </div>
             <div class="col-md-9">
               <div class="btn_header">
-                <button type="button" *ngIf="toShowOpeningStock" class="btn btn_close waves-effect" (click)="openItemStockAttributeModel()">open
-                  item attribute opening stock</button>
+                <div  *ngIf='forServiceFlag'>
+                  <button type="button" *ngIf="toShowOpeningStock" class="btn btn_close waves-effect" (click)="openItemStockAttributeModel()">open
+                    item attribute opening stock</button>
+                </div>
+              
                 <button type="button" class="btn btn_close waves-effect"
                   (click)="modeOfForm='reset';addNewItemMaster('reset')">Reset</button>
                 <button class="btn btn-default waves-effect" (click)="addNewItemMaster('save')">Save</button>
@@ -38,7 +41,15 @@
             <div class="form-row">
               <div class="col-md-10">
                 <div class="form-row">
-                  <div class="form-group col-md-6">
+                  <div class="form-group col-md-3">
+                    <label for="bill_no">Inventory Type</label>
+                    <div class="input-group adw_select">
+                      <select2 [data]="selectItemTpye" #itemtype_select2 class="control_select"
+                        (valueChanged)="selectedItemType($event)" autocomplete="true" [options]="itemTpyePlaceHolder"
+                        [value]="itemDetailValue"></select2>
+                    </div>
+                  </div>
+                  <div class="form-group col-md-3">
                     <label for="bill_no">Category</label>
                     <div class="input-group adw_select">
                       <div class="input-group adw_select">
@@ -52,7 +63,7 @@
                   </div>
                   <!--(keyup)="searchForItemName($event.target.value)"-->
                   <div class="form-group col-md-6">
-                    <label>Item Name </label>
+                    <label>Item / Service Name </label>
                     <div class="input-group">
                       <input type="text" #itemname class="form-control" placeholder="Enter Item Name" name="name"
                         [(ngModel)]="Name"
@@ -66,12 +77,13 @@
                   </div>
                   <div class="form-group col-md-3">
                     <label for="p_code">HSN/SAC Code</label>
-                    <input #hsnNoRef type="text" class="form-control" id="p_code" placeholder="Enter HSN/SAC Code" name="HsnNo"
-                      [(ngModel)]="HsnNo" [ngClass]="{'errorSelecto': submitClick && invalidObj.HsnNo }"
+                    <input #hsnNoRef type="text" class="form-control" id="p_code"
+                      placeholder="Enter HSN/SAC Code" name="HsnNo" [(ngModel)]="HsnNo"
+                      [ngClass]="{'errorSelecto': submitClick && isHSNMandatory&& invalidObj.HsnNo }"
                       (input)="checkForValidation()">
                   </div>
                   <!--(keyup)="searchForBarCode($event.target.value)" [disabled]="isBarCode" -->
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-3" *ngIf='forServiceFlag'>
                     <label for="barcode">Bar Code</label>
                     <div class="input-group">
                       <input #barCodeRef type="text" class="form-control" #barcode id="barcode" placeholder="Enter Bar Code"
@@ -84,22 +96,15 @@
                       </span>
                     </div>
                   </div>
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-3"  *ngIf='forServiceFlag' >
                     <label for="p_code">Item Code</label>
                     <input #itemCodeRef type="text" [disabled]="isItemCode" class="form-control" id="p_code"
                       placeholder="Enter Item Code" name="ItemCode" [(ngModel)]="ItemCode"
                       [ngClass]="{'errorSelecto': submitClick && invalidObj.ItemCode }" (input)="checkForValidation()">
                   </div>
                   <div class="col-md-3"></div>
-                  <div class="form-group col-md-3">
-                    <label for="bill_no">Inventory Maintain</label>
-                    <div class="input-group adw_select">
-                      <select2 [data]="selectItemTpye" #itemtype_select2 class="control_select"
-                        (valueChanged)="selectedItemType($event)" autocomplete="true" [options]="itemTpyePlaceHolder"
-                        [value]="itemDetailValue"></select2>
-                    </div>
-                  </div>
-                  <div class="form-group col-md-3">
+         
+                  <div class="form-group col-md-3"  *ngIf='forServiceFlag' >
                     <label for="bill_no">Packing Type</label>
                     <div class="input-group adw_select">
                       <select2 [data]="selectPackingType" #packingtype_select2 class="control_select"
@@ -126,8 +131,16 @@
                         [value]="taxValue" [ngClass]="{'errorSelecto': submitClick && invalidObj.TaxId }"></select2>
                     </div>
                   </div>
+                  <div class="form-group col-md-3" >
+                  <div class="custom-control custom-checkbox my-1 mr-sm-2">
+                    <input type="checkbox" name="taxValueTaxation" (keydown.enter)="onPressEnter(1)"
+                      class="custom-control-input" id="taxvaluTaxation" [(ngModel)]="taxValueTaxation">
+                    <label class="custom-control-label pt-1" for="taxvaluTaxation">
+                      Value Base Taxation</label>
+                  </div>
+                  </div>
                   <!--[disabled]="OpeningStock && isStkValue"-->
-                  <div class="form-group col-md-3 ">
+                  <div class="form-group col-md-3 "  *ngIf='forServiceFlag'>
                     <label>Opening Stock</label>
                     <div class="align-item-center d-flex">
                       <input type="text" appIncludeDecimal class="form-control" placeholder="Enter Opening Stock"
@@ -136,17 +149,17 @@
                           <a (click)="createMobilepopup(OpeningStock)" class="info_tooltip">
                               <i class="fas fa-plus"></i></a>
                       </span>
-                     
+
                     </div>
-                   
+
                   </div>
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-3"  *ngIf='forServiceFlag'>
                     <label>Opening Stock Value</label>
                     <input #OpeningStockValueRef type="text" appIncludeDecimal class="form-control" placeholder="Enter Opening Stock Value"
                       name="OpeningStockvalue" (input)="onOpeningStockValueChange()" [disabled]="OpeningStock <= 0"
                       [(ngModel)]="OpeningStockValue">
                   </div>
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-3"  *ngIf='forServiceFlag'>
                     <label>Average Rate</label>
                     <input type="text" appIncludeDecimal class="form-control" placeholder="Enter Purchase"
                       name="PurchaseRate" (input)="onPurchaseRateChange()" [(ngModel)]="PurchaseRate">
@@ -158,12 +171,12 @@
                       [(ngModel)]="MrpRate">
                   </div>
                   <div class="form-group col-md-3">
-                    <label>Sale Rate</label>
+                    <label>Sale Price</label>
                     <input type="text" appIncludeDecimal class="form-control" placeholder="Enter Sale Rate"
                       name="SaleRate" [(ngModel)]="SaleRate">
                   </div>
                   <div class="form-group col-md-3">
-                    <label>Our Price</label>
+                    <label>Our Price (Discounted Price)</label>
                     <input type="text" appIncludeDecimal class="form-control" placeholder="Enter Our Price"
                       name="OurPrice" [(ngModel)]="OurPrice">
                   </div>
@@ -173,27 +186,27 @@
                                         class="form-control" placeholder="Enter Net Refer Value"
                                             autocomplete="true" [(ngModel)]="Nrv" name="Nrv" >
                                     </div> -->
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-3"  *ngIf='forServiceFlag'>
                     <label for="bill_no">Min. Stock Level</label>
                     <input type="text" appIncludeDecimal class="form-control" id="name" name="MinStock"
                       placeholder="Enter Minimum Stock" autocomplete="true" [(ngModel)]="MinStock" step="0.01">
                   </div>
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-3"  *ngIf='forServiceFlag'>
                     <label>Max. Stock Level</label>
                     <input type="text" appIncludeDecimal class="form-control" name="MaxStock"
                       placeholder="Enter Maximum Stock" [(ngModel)]="MaxStock">
                   </div>
-                  <div class="form-group col-md-3">
+                  <div class="form-group col-md-3"  *ngIf='forServiceFlag'>
                     <label>Re Order Qty Level</label>
                     <input type="text" appIncludeDecimal class="form-control" name="ReOrderQty"
                       placeholder="Enter Re Order Qty" [(ngModel)]="ReOrderQty">
                   </div>
-                  <div class="form-group col-md-6">
+                  <div class="form-group col-md-6"  *ngIf='forServiceFlag'>
                     <label for="bill_no">Brand Master</label>
                     <select2 [data]="selectBrand" #brand_select2 [options]="options" [width]="300"
                       [value]="selectedBrands" (valueChanged)="onBrandSelect($event)"></select2>
                   </div>
-                  <div class="form-group col-md-9 pt-4">
+                  <div class="form-row d-inline-flex pt-4 d align-items-center">
                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
                       <input type="checkbox" name="IsNotDiscountable" (keydown.enter)="onPressEnter(1)"
                         class="custom-control-input" id="customControlInline1" [(ngModel)]="IsNotDiscountable">
@@ -212,7 +225,33 @@
                         name="IsVolumeDiscountApply">
                       <label class="custom-control-label pt-1" for="volumediscount3">Volume Discount</label>
                     </div>
+                    <div class="custom-control custom-checkbox my-1 mr-sm-2" *ngIf="isSubscriptionAllow">
+                      <input type="checkbox" class="custom-control-input"
+                         id="itemMasterAmcSubscription"
+                         [(ngModel)]="IsAmcSubscription"
+                        name="IsAmcSubscriptionName">
+                      <label class="custom-control-label pt-1" for="itemMasterAmcSubscription">Amc/Subscription</label>
+                    </div>
+                    <div class="form-group" *ngIf="IsAmcSubscription">
+                      <label>Subscription Type</label>
+                      <ng-select
+                        name="subscriptionTypeName"
+                        [items]="subscriptionTypeList"
+                        bindLabel="Name"
+                        bindValue="UId"
+                        (change)="checkForValidation()"
+                        placeholder="Select Subscription Type"
+                        [(ngModel)]="subscriptionTypeId"
+                        required
+                        [ngClass]="{'errorSelecto': (submitClick && invalidObj.SubscriptionType)}"
+                      >
+                      </ng-select>
+                    </div>
+                    <div *ngIf="IsAmcSubscription" class="custom-control my-1 mr-sm-2">
+                      <a href="javascript:void(0)" (click)="addItemSubscription()">Item Rate Subscription</a>
+                    </div>
                   </div>
+
                 </div>
               </div>
               <div class="col-md-2">
@@ -272,7 +311,7 @@
           type="button"
           class="btn waves-effect btn-default def-ault-btn"
           (click)="closeItemMaster()"
-          
+
         >
           Close
         </button>
@@ -319,7 +358,7 @@
               </div>
               <div class="modal-body">
                   <div class="form row" *ngFor="let item of ItemPropertyTrans; let i=index">
-                     
+
                     <div class="form-group col-1 align-self-center">
                       <span class="">{{i+1}}</span>
                     </div>
@@ -329,12 +368,12 @@
                       </div>
                       <div class="form-group col px-1">
                           <input #propertRef1 (input)="getIMEIName($event);" type="text" class="form-control"
-                          name="FieldValue2{{i}}" placeholder="Enter Value" 
+                          name="FieldValue2{{i}}" placeholder="Enter Value"
                           [(ngModel)]="item.FieldValue2">
                       </div>
                       <div class="form-group col px-1">
                           <input #propertRef2 (input)="getIMEIName($event);" type="text" class="form-control"
-                          name="FieldValue3{{i}}" placeholder="Enter Value" 
+                          name="FieldValue3{{i}}" placeholder="Enter Value"
                           [(ngModel)]="item.FieldValue3">
                       </div>
                       <div class="form-group col px-1">
@@ -353,3 +392,5 @@
       </div>
   </form>
 </div>
+
+<ng-container #itemAddSubscriptionContainerRef></ng-container>

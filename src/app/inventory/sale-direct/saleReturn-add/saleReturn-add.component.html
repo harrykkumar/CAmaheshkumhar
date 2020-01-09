@@ -7,7 +7,7 @@
           <div class="row">
             <div class="col-md-3 left_side_head">
               <p class="heading_lead">
-                <i class="fas fa-shopping-cart" aria-hidden="true"></i>Sale Return</p>
+                <i class="fas fa-shopping-cart" aria-hidden="true"></i>Sale Return <span class="small-txt">{{orgnizationName}}</span> </p>
             </div>
             <div class="col-md-9">
               <div class="btn_header">
@@ -49,13 +49,13 @@
                         </select>
                       </div>
               </div> -->
-            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+            <!-- <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label>Organisation Name</label>
               <div class="input-group adw_select">
                   <input [disabled]='true'  type="text" class="form-control" id="e-way" placeholder="Organization Name"   class="form-control" name="orgnizationName" [(ngModel)]="orgnizationName">
 
               </div>
-            </div>
+            </div> -->
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label class="fw-500">Return Date</label>
               <datepicker-popup 
@@ -84,7 +84,7 @@
               [(ngModel)]="BillNo">
                 </div>
         
-            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+            <div class="form-group col-md-3 col-lg-2 col-xl-2" *ngIf="showGodown" >
               <label>Godown</label>
               <div class="input-group adw_select">
                 <select2 #godown_select2 id="godown"
@@ -347,7 +347,7 @@
             <div class="col-md-12 card p-2">
               <div class="form-row">
                 <div class="parent" id="parent">
-                  <h5 class="summery_text" >Payment Details</h5>
+                  <h5 class="summery_text">Payment Details</h5>
                   <table class="table editable_tbl trans-table" id="fixTable">
                     <thead>
                       <tr>
@@ -360,47 +360,91 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr class="default_row" *ngFor="let transaction of PaymentDetail; index as i" >
-                        <td class="profile-pic1" >
+                      <tr class="default_row" *ngFor="let transaction of PaymentDetail; index as i"
+                        (click)="editItem(i+1, transaction.Id, 'trans',transaction.Sno)">
+                        <td class="profile-pic1">
                           <div class="edit1">
-                            <a (click)="deleteItem(i, 'trans', transaction.Sno)" *ngIf="PaymentDetail.length > 0" >
-                              <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
-                            </a>
-                          <a (click)="editItem(i+1, transaction.Id, 'trans')" 
-                            *ngIf="PaymentDetail.length > 0" ><i class="fas fa-pen fa-1x"></i>
-                          </a>
-                        </div>
-                      </td>
-                      <!-- <td>{{transaction.Sno}}</td> -->
-                      <td style="min-width:180px;">
-                        <div class="input-group adw_select">
+                            <ng-container *ngIf="transaction.isEditable">
+                              <a (click)="deleteItem(i, 'trans', transaction.Sno)" *ngIf="PaymentDetail.length > 0">
+                                <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
+                              </a>
+                            </ng-container>
+                            <ng-container *ngIf="transaction.isEditable">
+                              <a (click)="editItem(i+1, transaction.Id, 'trans',transaction.Sno)"
+                                *ngIf="PaymentDetail.length > 0"><i class="fas fa-pen fa-1x"></i>
+                              </a>
+                            </ng-container>
+                            <ng-container *ngIf="!transaction.isEditable">
+                              <a *ngIf="PaymentDetail.length > 0" (click)="addTransactions()"><i
+                                  class="fas fa-plus fa-1x"></i>
+                              </a>
+                            </ng-container>
+                          </div>
+                        </td>
+                        <td *ngIf="transaction.isEditable" class="align-middle" style="min-width:180px;">
+
                           {{transaction.Paymode}}
-                        </div>
-                      </td>
-                      <td>
-                        <div class="input-group adw_select">
+
+                        </td>
+                        <td *ngIf="!transaction.isEditable" style="min-width:180px;">
+                          <div class="input-group adw_select">
+                            <select2 name="Paymode" #payment_select2 [data]="paymentModesData" id="PayModeId"
+                              class="control_select" (valueChanged)="onPaymentModeSelect($event)" autocomplete="true"
+                              [options]="{placeholder: 'Select Payment Mode'}"
+                              [ngClass]="{'errorSelecto': invalidObj?.PayModeId && (submitSave || !clickTrans)  }"
+                              [value]="paymode"></select2>
+                          </div>
+                        </td>
+                        <td *ngIf="transaction.isEditable" class="align-middle">
+
                           {{transaction.BankLedgerName}}
-                        </div>
-                      </td>
-                      <td>
-                        <div class="input-group adw_select">
+
+                        </td>
+                        <td *ngIf="!transaction.isEditable">
+                          <div class="input-group adw_select">
+                            <select2 name="LedgerId" #ledger_select2 [data]="paymentLedgerselect2" id="LedgerId"
+                              class="control_select" (valueChanged)="onPaymentLedgerSelect($event)" autocomplete="true"
+                              [options]="{placeholder: 'Select Ledger'}"
+                              [ngClass]="{'errorSelecto': invalidObj?.LedgerId && (submitSave || !clickTrans)  }"
+                              [value]="ledger"></select2>
+                          </div>
+                        </td>
+                        <td *ngIf="transaction.isEditable" class="align-middle">
+
                           {{transaction.Amount}}
-                        </div>
-                      </td>
-                      <td>
-                        <div class="input-group adw_select">
+
+                        </td>
+                        <td *ngIf="!transaction.isEditable">
+                          <input type="text" appIncludeDecimal name="Amount" class="form-control"
+                            [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans)}"
+                            (input)="validateTransaction()" id="Amount" [(ngModel)]="Amount" placeholder="Enter Amount">
+                        </td>
+                        <td *ngIf="transaction.isEditable" class="align-middle">
+
                           {{transaction.PayDate}}
-                        </div>
-                      </td>
-                      <td>
-                        <div class="input-group adw_select">
+
+                        </td>
+                        <td *ngIf="!transaction.isEditable">
+                          <datepicker-popup [toSetDate]="PayDate" [isBackDate]="backDateEntry"
+                            (dateInFormat)="PayDate = $event;validateTransaction();" [applyFinYear]="'true'"
+                            [class]="invalidObj?.PayDate && (submitSave || !clickTrans)"></datepicker-popup>
+                        </td>
+
+                        <td *ngIf="transaction.isEditable" class="align-middle">
+
                           {{transaction.ChequeNo}}
-                        </div>
-                      </td>
-                    </tr>
+
+                        </td>
+                        <td *ngIf="!transaction.isEditable">
+                          <input type="text" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo"
+                            (input)="validateTransaction()" (keyup.enter)="enterPressTrans($event)"
+                            [ngClass]="{'errorSelecto': invalidObj?.ChequeNo && (submitSave || !clickTrans)}"
+                            placeholder="Enter Reference No.">
+                        </td>
+                      </tr>
                     </tbody>
                     <tfoot>
-                      <tr class="selected_row active" >
+                      <tr *ngIf="showHidePayment" class="selected_row active">
                         <td>
                           <div class="action_btn">
                             <button (click)="validateTransaction();addTransactions()" type="submit"
@@ -411,40 +455,36 @@
                         <td style="min-width:180px;">
                           <div class="input-group adw_select">
                             <select2 name="Paymode" #payment_select2 [data]="paymentModesData" id="PayModeId"
-                              class="control_select"
-                              (valueChanged)="onPaymentModeSelect($event)"
-                              autocomplete="true" [options]="{placeholder: 'Select Payment Mode'}"
+                              class="control_select" (valueChanged)="onPaymentModeSelect($event)" autocomplete="true"
+                              [options]="{placeholder: 'Select Payment Mode'}"
                               [ngClass]="{'errorSelecto': invalidObj?.PayModeId && (submitSave || !clickTrans)  }"
-                              [value]="paymode" ></select2>
+                              [value]="paymode"></select2>
                           </div>
                         </td>
                         <td>
                           <div class="input-group adw_select">
                             <select2 name="LedgerId" #ledger_select2 [data]="paymentLedgerselect2" id="LedgerId"
-                              class="control_select" (valueChanged)="onPaymentLedgerSelect($event)"
-                            autocomplete="true" [options]="{placeholder: 'Select Ledger'}"
-                            [ngClass]="{'errorSelecto': invalidObj?.LedgerId && (submitSave || !clickTrans)  }" 
-                            [value]="ledger" ></select2>
+                              class="control_select" (valueChanged)="onPaymentLedgerSelect($event)" autocomplete="true"
+                              [options]="{placeholder: 'Select Ledger'}"
+                              [ngClass]="{'errorSelecto': invalidObj?.LedgerId && (submitSave || !clickTrans)  }"
+                              [value]="ledger"></select2>
                           </div>
                         </td>
                         <td>
                           <input type="text" appIncludeDecimal name="Amount" class="form-control"
-                          [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans)}"
-                          (input)="validateTransaction()"
-                          id="Amount" [(ngModel)]="Amount" placeholder="Enter Amount">
+                            [ngClass]="{'errorSelecto': invalidObj?.Amount && (submitSave || !clickTrans)}"
+                            (input)="validateTransaction()" id="Amount" [(ngModel)]="Amount" placeholder="Enter Amount">
                         </td>
                         <td>
                           <!-- <ngbd-datepicker-popup [toSetDate]="payDate" [isBackDate]="backDateEntry" (dateInFormat)="PayDate = $event" [class]="invalidObj?.PayDate && (submitSave || !clickTrans)" ></ngbd-datepicker-popup> -->
-                          <datepicker-popup [toSetDate]="PayDate"
-                          (dateInFormat)="PayDate = $event;validateTransaction();"
-                           [class]="invalidObj?.PayDate && (submitSave || !clickTrans)" ></datepicker-popup>
+                          <datepicker-popup [toSetDate]="PayDate" [isBackDate]="backDateEntry"
+                            (dateInFormat)="PayDate = $event;validateTransaction();" [applyFinYear]="'true'"
+                            [class]="invalidObj?.PayDate && (submitSave || !clickTrans)"></datepicker-popup>
                         </td>
-                        <td><input type="text" id="ChequeNo" class="form-control" name="ChequeNo"
-                          [(ngModel)]="ChequeNo"
-                          (input)="validateTransaction()"
-                          (keyup.enter)="enterPressTrans($event)"
-                          [ngClass]="{'errorSelecto': invalidObj?.ChequeNo && (submitSave || !clickTrans)}"
-                          placeholder="Enter Reference No.">
+                        <td><input type="text" id="ChequeNo" class="form-control" name="ChequeNo" [(ngModel)]="ChequeNo"
+                            (input)="validateTransaction()" (keyup.enter)="enterPressTrans($event)"
+                            [ngClass]="{'errorSelecto': invalidObj?.ChequeNo && (submitSave || !clickTrans)}"
+                            placeholder="Enter Reference No.">
                         </td>
                       </tr>
                     </tfoot>

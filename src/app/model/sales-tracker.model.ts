@@ -63,6 +63,8 @@ export interface UnitModel {
   Id: number
   IsPrimaryUnit: boolean
   UnitName: string
+  UnitCode?: any
+  MeasurementId?:any
   IsBaseUnit: boolean
   secondaryUnitQty: any
   PrimaryUnitQty: any

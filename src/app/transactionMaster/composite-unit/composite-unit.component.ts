@@ -35,7 +35,7 @@ export class CompositeUnitComponent implements OnInit, OnDestroy {
     private _formBuilder: FormBuilder,
     private _loginService: LoginService
     ) {
-    this.menuData = this._loginService.getMenuDetails(4, 1);
+    this.menuData = this._loginService.getMenuDetails(4, 131);
     this.formSearch()
     this.deleteSub = this.commonService.getDeleteStatus().subscribe(
       (obj) => {

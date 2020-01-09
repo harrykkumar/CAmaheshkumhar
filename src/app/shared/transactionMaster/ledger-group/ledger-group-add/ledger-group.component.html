@@ -6,11 +6,11 @@
                 <h4 class="modal-title w-100 c-grey-900">Group Add</h4>
                 <button type="button" class="close" (click)="clearCategoryvalidation()" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
-            <div *ngIf="loading" class="modal-content" >
+            <!-- <div *ngIf="loading" class="modal-content" >
                 <div class="modal-body" style="height:inherit;" >
                   <img src="assets/img/spinner-blue-circle.gif" alt="loading screen" class="center-loader" />
                 </div>
-            </div>
+            </div> -->
             <div class="modal-body"  >
                 <div class="card-body">
                     <div>
@@ -23,7 +23,7 @@
                                     #GLname class="form-control" 
                                     placeholder="Group Name"
                                     formControlName="LedgerGroupName" 
-                                    [ngClass]="{ 'errorTextBoxBorder is-invalid':submitClick && f.LedgerGroupName.errors?.required}" >
+                                    [ngClass]="{ 'errorSelecto':submitClick && f.LedgerGroupName.errors?.required}" >
                                 </div>
 
                                 <div class="form-group col-md-12">

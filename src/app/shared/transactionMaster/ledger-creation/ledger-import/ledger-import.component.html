@@ -109,7 +109,7 @@
                       <label>Search For Ledgers</label>
                       <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="values.searchText" name="searchtext" >
                   </div>
-                  <div class="form-group col-md-1" *ngIf="selectedItems?.length > 0 && values?.GlId?.value > 0" >
+                  <div class="form-group col-md-1" *ngIf="selectedItems?.length > 0 && (values?.GlId?.value > 0 || isvalidGROUPLEDGER)" >
                     <label></label>
                     <a class="btn btn-primary" (click)="addToQueue()" >Add to Queue </a>
                   </div>
@@ -144,7 +144,7 @@
                             <tr *ngFor="let item of masterData | searchByName : values.searchText; let i = index;" id="tuple{{i}}" [ngClass]="{'strikeout': item.DUPLICATE}">
                               <td class="align-middle">
                                 <div class="custom-control custom-checkbox" *ngIf="duplicateTuples.length === 0" >
-                                  <input type="checkbox" id="{{item.SNO}}" class="custom-control-input ledger-container" (change)="onItemToggle(i,item.SNO,$event)" />
+                                  <input type="checkbox" [attr.data-id]="i" id="{{item.SNO}}" class="custom-control-input ledger-container" (change)="onItemToggle(i,item.SNO,$event)" />
                                   <label class="custom-control-label" for="{{item.SNO}}"></label>
                                 </div>
                                 <div  *ngIf="item.DUPLICATE">

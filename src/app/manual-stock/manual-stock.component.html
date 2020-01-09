@@ -49,13 +49,13 @@
                       <tr *ngFor="let item of items; let i = index;let last = last">
                         <td>{{ i + 1 }}</td>
                         <td>
-                          <datepicker-popup [toSetDate]="item?.VerifiedOn"
+                          <datepicker-popup [toSetDate]="item?.VerifiedOn" [disableInput]="item?.IsDateDisabled"
                             (dateInFormat)="item.VerifiedOn = $event;" [applyFinYear]="'true'"
                             [class]="stockItemForm.submitted && (!item?.VerifiedOn || item?.matched)" >
                           </datepicker-popup>
                         </td>
                         <td>
-                          <input type="text" class="form-control" appIncludeDecimal
+                          <input type="text" class="form-control" appIncludeDecimal [disabled]="item?.IsStockDisabled"
                             placeholder="OpeningStock" name="OpeningStock-{{ i }}" id="OpeningStock-{{ i }}"
                             [(ngModel)]="item['OpeningStock']" (keyup.enter)="validate() && submitForm(stockItemForm) && addItems()" 
                             [ngClass]="{'errorSelecto': stockItemForm.submitted && +item['OpeningStock'] <= 0}"

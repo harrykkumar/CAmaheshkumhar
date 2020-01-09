@@ -83,7 +83,7 @@ export class SaleDirectSearchComponent {
     ]
     this.dataStatus = [
       { id: '0', text: 'Running' },
-      { id: '1', text: 'Canceled' },
+      { id: '1', text: 'Cancelled' },
     ]
     this.createForm()
     this.getSuplier()
@@ -300,12 +300,42 @@ export class SaleDirectSearchComponent {
     this._saleDirectService.setSearchQueryParamsStr(queryStr)
   }
 
-  setToDate(evt) {
-    console.log(evt)
+  setToDate (evt) {
     this.searchForm.controls.ToDate.setValue(evt)
+    if (this.searchForm.value.FromDate && this.searchForm.value.ToDate) {
+      if (!this.gs.compareDate(this.searchForm.value.ToDate, this.searchForm.value.FromDate)) {
+        this.searchForm.controls.ToDate.setValue('')
+        // console.log(this.searchForm.value.ToDate)
+        //this.searchForm.value.FromDate
+      }
+    }
   }
 
-  setFromDate(evt) {
+  setFromDate (evt) {
     this.searchForm.controls.FromDate.setValue(evt)
+    if (this.searchForm.value.FromDate && this.searchForm.value.ToDate) {
+      if (!this.gs.compareDate(this.searchForm.value.ToDate, this.searchForm.value.FromDate)) {
+        this.searchForm.controls.ToDate.setValue(evt)
+      }
+    } else {
+      this.searchForm.controls.ToDate.setValue(evt)
+    }
+  }
+
+  checkForValidAmount() {
+    if (+this.searchForm.value.FromAmount > 0 && +this.searchForm.value.ToAmount > 0) {
+      if (+this.searchForm.value.FromAmount > +this.searchForm.value.ToAmount) {
+        this.searchForm.controls.ToAmount.setValue(+this.searchForm.value.FromAmount)
+      }
+    } else {
+      if (+this.searchForm.value.FromAmount > 0) {
+        this.searchForm.controls.ToAmount.setValue(+this.searchForm.value.FromAmount)
+      } else if (+this.searchForm.value.ToAmount > 0) {
+        // this.searchForm.controls.FromAmount.setValue(+this.searchForm.value.ToAmount)
+      } else {
+        this.searchForm.controls.ToAmount.setValue(0)
+        this.searchForm.controls.FromAmount.setValue(0)
+      }
+    }
   }
 }

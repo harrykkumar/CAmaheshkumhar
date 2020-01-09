@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { LoginService } from 'src/app/commonServices/login/login.services';
 /* File created by Dolly Garg */
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
+import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription'
 import { Settings } from '../../../shared/constants/settings.constant'
 import { PurchaseService } from '../purchase.service'
@@ -39,7 +39,7 @@ export class PurchaseListComponent implements OnInit {
   isSearching: boolean = true
   @ViewChild('custom_table', { read: ElementRef }) customTable: ElementRef
   @ViewChild('paging_comp') pagingComp: PagingComponent
-  private unSubscribe$ = new Subject<void>()
+  private onDestroy$: Subscription[] = []
 
   onTextEnteredSub: Subscription
   searchKey: string = ''
@@ -56,48 +56,45 @@ export class PurchaseListComponent implements OnInit {
     ) {
     this.menuData = this._loginService.getMenuDetails(15, 9);
     this.getPurchaseList()
-    this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
+    this.onDestroy$.push(this.commonService.getNewPurchaseAddedStatus().subscribe(
       () => {
         this.getPurchaseList()
       }
-    )
-    this.onTextEnteredSub = this.purchaseService.search$.subscribe(
+    ))
+    this.onDestroy$.push(this.purchaseService.search$.subscribe(
       (text: string) => {
-        // if (text.length > 0) {
         this.searchKey = text
         this.searchForStr(text)
-        // }
       }
-    )
-    this.deleteSub = this.commonService.getDeleteStatus().subscribe(
+    ))
+    this.onDestroy$.push(this.commonService.getDeleteStatus().subscribe(
       (obj) => {
         if (obj.id && obj.type && obj.type === 'purchase') {
           this.deleteItem(obj.id)
         }
       }
-    )
-    this.redirectData = this.commonService.reDirectViewListOfPurchaeStatus().subscribe(
+    ))
+    this.onDestroy$.push(this.commonService.reDirectViewListOfPurchaeStatus().subscribe(
       (action: any) => {
         this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
         this.getPurchaseList()
       }
-    )
-    this.queryStr$ = this.purchaseService.queryStr$.subscribe(
+    ))
+    this.onDestroy$.push(this.purchaseService.queryStr$.subscribe(
       (str) => {
         console.log(str)
         this.queryStr = str
         this.p = 1
         this.getPurchaseList()
       }
-    )
+    ))
     this.clientDateFormat = this.settings.dateFormat
     this.noOfDecimalPoint = this.settings.noOfDecimal
-
   }
   noOfDecimalPoint: any = 0
   searchForStr(text) {
     this.isSearching = true
-    this.searchGetCall(text).subscribe((data) => {
+    this.onDestroy$.push(this.searchGetCall(text).subscribe((data) => {
       setTimeout(() => {
         this.isSearching = false
       }, 100)
@@ -109,11 +106,11 @@ export class PurchaseListComponent implements OnInit {
       }, 100)
       console.log('error', err)
     },
-      () => {
-        setTimeout(() => {
-          this.isSearching = false
-        }, 100)
-      })
+    () => {
+      setTimeout(() => {
+        this.isSearching = false
+      }, 100)
+    }))
   }
 
 
@@ -147,7 +144,9 @@ export class PurchaseListComponent implements OnInit {
       this.searchKey = ''
     }
     this.isSearching = true
-    this.purchaseService.getPurchaseList('?StrSearch=' + this.searchKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
+    this.onDestroy$.push(this.purchaseService.
+        getPurchaseList('?StrSearch=' + this.searchKey + '&Page=' + this.p + '&Size=' + 
+        this.itemsPerPage + this.queryStr)
       .pipe(
         filter(data => {
           if (data.Code === UIConstant.THOUSAND) {
@@ -173,7 +172,7 @@ export class PurchaseListComponent implements OnInit {
       }, (error) => {
         this.isSearching = false
         this.toastrService.showError(error, '')
-      })
+      }))
   }
   notRecordFound: any
   createTableData(data, summary) {
@@ -234,12 +233,17 @@ export class PurchaseListComponent implements OnInit {
     }, 100)
   }
 
+  OnDestroy() {
+    if (this.onDestroy$ && this.onDestroy$.length > 0) {
+      this.onDestroy$.forEach((element) => {
+        element.unsubscribe()
+      })
+    }
+  }
 
   deleteItem(id) {
     if (id) {
-      this.commonService.cancelPurchase(id).pipe(
-        takeUntil(this.unSubscribe$)
-      ).subscribe((Data: any) => {
+      this.onDestroy$.push(this.commonService.cancelPurchase(id).subscribe((Data: any) => {
         if (Data.Code === UIConstant.DELETESUCCESS) {
           this.toastrService.showSuccess('', UIConstant.DELETED_SUCCESSFULLY)
           this.commonService.closeDelete('')
@@ -249,7 +253,7 @@ export class PurchaseListComponent implements OnInit {
           this.toastrService.showInfo('', Data.Description)
           this.commonService.closeDelete('')
         }
-      })
+      }))
     }
   }
 }

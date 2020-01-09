@@ -15,6 +15,9 @@ import { Select2OptionData, Select2Component } from 'ng2-select2'
 declare const $: any
 import { AddNewCityComponent } from '../../../../shared/components/add-new-city/add-new-city.component';
 import * as _ from 'lodash'
+import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
+import { Settings } from '../../../../shared/constants/settings.constant'
+
 @Component({
   selector: 'app-bank-add',
   templateUrl: './bank-add.component.html',
@@ -42,7 +45,8 @@ export class BankAddComponent {
     private _customerServices: VendorServices,
     private _commonGaterSeterServices: CommonSetGraterServices,
     private commonService: CommonService,
-    private toastrService: ToastrCustomService) {
+    private toastrService: ToastrCustomService,
+    private _settings: Settings) {
     this.modalSub = this.commonService.getLedgerStatus().subscribe(
       (data: AddCust) => {
         if (data.open) {
@@ -66,41 +70,66 @@ export class BankAddComponent {
   stateValue: any
   stateId: any
   countryError: any
+  StateName:any
   GSTStateCode: any = 0
   selectStatelist(event) {
-    if (this.stateValue !== null) {
-      if (+event.id > 0) {
-        this.stateId = +event.id
+    console.log(event)
+    this.stateValue = event.id
+    if (this.stateValue > 0) {
+      this.stateValue = event.id
+      if(this.countryValue===123){
         this.GSTStateCode = event.stateCode
-        this.stateValue = +event.id
-        this.matchStateCodeWithGSTNumber()
-        if (this.stateId > 0) {
-          this.getCitylist(this.stateId, 0)
-        }
       }
-      else {
-        this.stateId = 0
+      else{
+        this.GSTStateCode='00'
+      }
+      this.StateName = event.text
+      if (this.stateValue > 0) {
+        this.getCitylist(this.stateValue, 0)
       }
     }
-
+    if (event.id === 0) {
+      this.stateValue = null
+    }
   }
+  // selectStatelist(event) {
+  //   if (this.stateValue !== null) {
+  //     if (+event.id > 0) {
+  //       this.stateId = +event.id
+  //       this.GSTStateCode = event.stateCode
+  //       this.stateValue = +event.id
+      
+  //       if (this.stateId > 0) {
+  //         this.getCitylist(this.stateId, 0)
+  //       }
+  //     }
+  //     else {
+  //       this.stateId = 0
+  //     }
+  //   }
+
+  // }
 
   cityValue: any
   getCitylist(id, value) {
+    this.cityValue = null
+    this.cityList =[]
     this.subscribe = this._customerServices.getCityList(id).subscribe(Data => {
-      this.cityList =  [{id:'-1',text:'+Add New'}]
-      Data.Data.forEach(element => {
-        this.cityList.push({
-          id: element.Id,
-          text: element.CommonDesc2
+    let dataNew= [{ id: '-1', text: '+Add New' }]
+      if(Data.Code===1000){
+        Data.Data.forEach(element => {
+          dataNew.push({
+            id: element.Id,
+            text: element.CommonDesc2
+          })
         })
-      })
+      }
+      this.cityList = dataNew
+    
     })
   }
   cityId: any
   CityName: any
-
-
   getStaeList(id, value) {
     this.subscribe = this._customerServices.gatStateList(id).subscribe(Data => {
       this.stateListplaceHolder = { placeholder: 'Select State' }
@@ -114,6 +143,8 @@ export class BankAddComponent {
       })
     })
   }
+
+ 
   //submitClick && validGSTNumber) || invalidObj?.requiredGST
   getListCountryLabelList(id){
     this.commonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
@@ -125,11 +156,11 @@ export class BankAddComponent {
         this.CinNoValue=resp.Data[0].CinNo
         this.FssiNoValue=resp.Data[0].FssiNo 
         if(id!==123){
-          this.validGSTNumber= true
+          // this.validGSTNumber= true
           this.requiredGST=false
         }
         else{
-          this.validGSTNumber= false
+          // this.validGSTNumber= false
           this.requiredGST=false
         }
       }
@@ -143,18 +174,13 @@ export class BankAddComponent {
   selectCountryListId(event) {
     if (this.countryValue !== null) {
       if (+event.id > 0) {
-        this.countrId = +event.id
-        this.countryError = false
-        if (this.countrId > 0) {
-          this.getListCountryLabelList(event.id)
-          this.getStaeList(this.countrId, 0)
-        }
+        this.countryValue =+ event.id
+          this.getStaeList(this.countryValue, 0)
       }
       else {
-        this.countrId = 0
+        this.countryValue=0
       }
     }
-
   }
   ngOnDestroy() {
     this.modalSub.unsubscribe()
@@ -162,8 +188,9 @@ export class BankAddComponent {
   CRDRType: any
   @ViewChild('bankname1') banknameFocus: ElementRef;
   openModal() {
-    this.getListCountryLabelList(0)
+    this.getSetUpModules((JSON.parse(this._settings.moduleSettings).settings))
     this.submitClick = true
+    this.mandatoryField()
     this.onloading()
     this.disabledGSTfor_UnRegi = false
 
@@ -173,40 +200,60 @@ export class BankAddComponent {
     }, 200);
     this.select2CrDrValue(1)
     this.getCountry(0)
-    this.select2VendorValue(0)
-    if (!this.editData) {
-      this.getOrgnizationAddress()
-    }
+    this.select2VendorValue()
+    this.coustmoreRegistraionId=0
+    this.getOrgnizationAddress()
+
     if (this.editData) {
       this.edibankDetails(this.Id)
-
-    } else {
-      this.onloading()
-
     }
+    
   }
   getOrgnizationAddress() {
     let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
-    if (Address !== null) {
+    if (Address !== null && this.addressByDefaultForLedger) {
       this.loadAddressDetails(Address)
     }
+    if (Address !== null  && !this.addressByDefaultForLedger) {
+      this.getCountryCodeForMobile(Address)
+    }
   }
+  addressByDefaultForLedger:boolean = false
+  getSetUpModules(settings) {
+    settings.forEach(element => {
+      if (element.id === SetUpIds.addressByDefaultForLedger) {
+        this.addressByDefaultForLedger = element.val
+      }
 
+    })
+
+  }
+  getCountryCodeForMobile (Address){
+    this.getListCountryLabelList(0)
+    this.GSTStateCode='00'
+    
+  }
   loadAddressDetails(Address) {
+    console.log(Address)
     this.countryValue = Address.CountryId
-    this.cityValue = Address.CityId
     this.stateValue = Address.StateId
-
+    this.cityValue = Address.CityId
+    if(this.countryValue===123){
+      this.GSTStateCode = Address.StateCode
+     }else{
+      this.GSTStateCode='00' 
+     }
     let country = {
       id: Address.CountryId,
       text: Address.CountryName
     }
     this.selectCountryListId(country)
+    
     this.getListCountryLabelList(Address.CountryId)
-
     let state = {
       id: Address.StateId,
-      text: Address.Statename
+      text: Address.Statename,
+      stateCode:this.GSTStateCode
     }
     let city = {
       id: Address.CityId,
@@ -219,6 +266,33 @@ export class BankAddComponent {
       this.selectedCityId(city)
     }, 200);
   }
+  // loadAddressDetails(Address) {
+  //   this.countryValue = Address.CountryId
+  //   this.cityValue = Address.CityId
+  //   this.stateValue = Address.StateId
+
+  //   let country = {
+  //     id: Address.CountryId,
+  //     text: Address.CountryName
+  //   }
+  //   this.selectCountryListId(country)
+  //   this.getListCountryLabelList(Address.CountryId)
+
+  //   let state = {
+  //     id: Address.StateId,
+  //     text: Address.Statename
+  //   }
+  //   let city = {
+  //     id: Address.CityId,
+  //     text: Address.CityName
+  //   }
+  //   setTimeout(() => {
+  //     this.selectStatelist(state)
+  //   }, 100);
+  //   setTimeout(() => {
+  //     this.selectedCityId(city)
+  //   }, 200);
+  // }
   edibankDetails(id) {
     if (id > 0) {
       this.subscribe = this.commonService.getEditbankDetails(id).subscribe(data => {
@@ -235,6 +309,7 @@ export class BankAddComponent {
             this.disabledGSTfor_UnRegi = data.Data.BankDetails[0].TaxTypeId === 4 ? true : false
             this.coustomerValue =JSON.stringify(data.Data.BankDetails[0].TaxTypeId)
             this.coustmoreRegistraionId = JSON.stringify(data.Data.BankDetails[0].TaxTypeId)
+            this.registerTypeSelect2.setElementValue(this.coustmoreRegistraionId)
             this.valueCRDR = data.Data.BankDetails[0].Crdr
             this.CrDrRateType = data.Data.BankDetails[0].Crdr
             this.requiredGST = data.Data.BankDetails[0].TaxTypeId === 1 ? true : false
@@ -247,10 +322,7 @@ export class BankAddComponent {
             this.accountErr = false
             this.BrancNameErr = false
           }
-          else {
-            this.registerTypeSelect2.setElementValue(1)
-            this.requiredGST = true
-          }
+          
           if (data.Data.AddressDetails.length > 0) {
             this.addressId = data.Data.AddressDetails[0].Id
             this.address = data.Data.AddressDetails[0].AddressValue
@@ -261,6 +333,8 @@ export class BankAddComponent {
             this.gstin = data.Data.Statutories[0].GstinNo
             this.satuariesId = data.Data.Statutories[0].Id
           }
+          this.mandatoryField()
+
         }
       })
     }
@@ -272,7 +346,6 @@ export class BankAddComponent {
     this.coustomerValue =2
     this.cityValue = null
     this.submitClick = false
-    this.select2VendorValue(0)
   }
   @ViewChild('select_regiType') registerTypeSelect2: Select2Component
   @ViewChild('crdr_selecto2') crDrSelect2: Select2Component
@@ -338,90 +411,73 @@ export class BankAddComponent {
   
   
   dynamicFocus() {
-    if (this.bankName && this.bankName.trim()) {
+    let isValid = 1
+    if ( !_.isEmpty(this.bankName) && this.bankName.trim()) {
       this.invalidObj['bankName'] = false
     } else  {
       this.invalidObj['bankName'] = true
       this.banknameFocus.nativeElement.focus()
-
+      isValid = 0
     }
-    if (this.AccountHolderName && this.AccountHolderName.trim()) {
+    if ( !_.isEmpty(this.AccountHolderName) && this.AccountHolderName !==' ' && this.AccountHolderName.trim()) {
       this.invalidObj['AccountHolderName'] = false
     } else if (!this.invalidObj.bankName ) {
       this.invalidObj['AccountHolderName'] = true
       this.accoundHolderNameRef.nativeElement.focus()
+      isValid = 0
     }
-    if (this.accountNo && this.accountNo.trim()) {
+    if ( !_.isEmpty(this.accountNo) && this.accountNo!=='' && this.accountNo.trim()) {
       this.invalidObj['accountNo'] = false
     } else if (!this.invalidObj.bankName && !this.invalidObj.AccountHolderName) {
       this.invalidObj['accountNo'] = true
       this.accountNoRef.nativeElement.focus()
+      isValid = 0
     }
-    // if (this.ifscCode && this.ifscCode.trim()) {
-    //   this.invalidObj['ifscCode'] = false
-    // } else if (!this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
-    //   this.invalidObj['ifscCode'] = true
-    //   this.ifscCodeRef.nativeElement.focus()
-    // }
-    if (this.branch && this.branch.trim()) {
+    if ( !_.isEmpty(this.branch) && this.branch !=='' && this.branch.trim()) {
       this.invalidObj['branch'] = false
     } else if (!this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
       this.invalidObj['branch'] = true
       this.branchRef.nativeElement.focus()
+      isValid = 0
     }
-    if (this.coustmoreRegistraionId === '1' && this.countrId===123 && !this.invalidObj.branch  && !this.invalidObj.bankName && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo) {
-      this.invalidObj['requiredGST'] = true
+     if (!this.chekGSTvalidation() && !this.invalidObj.bankName  && !this.invalidObj.AccountHolderName && !this.invalidObj.accountNo && !this.invalidObj.branch) {
+      this.invalidObj['gst_required'] = true
       this.GStRequireRef.nativeElement.focus()
-    } else if (!this.invalidObj.parentId && !this.invalidObj.ledgerName) {
-      this.invalidObj['requiredGST'] = false
-     
-
+      isValid = 0
+    } else {
+      this.invalidObj['gst_required'] = false
     }
+    return  isValid 
   }
-  checkForValidation(): boolean {
-    let isValid = 1
-    if (this.bankName && this.bankName.trim()) {
-      this.invalidObj['bankName'] = false
-    } else  {
+
+  mandatoryField() {
+    this.invalidObj['bankName'] = false
+    this.invalidObj['AccountHolderName'] = false
+    this.invalidObj['accountNo'] = false
+    this.invalidObj['branch'] = false
+    if ( _.isEmpty(this.bankName) && this.bankName === '') {
       this.invalidObj['bankName'] = true
-      isValid = 0
+    } else {
+      this.invalidObj['bankName'] = false
     }
-    if (this.AccountHolderName && this.AccountHolderName.trim()) {
-      this.invalidObj['AccountHolderName'] = false
-    } else  {
+    if ( _.isEmpty(this.AccountHolderName) && this.AccountHolderName === '') {
       this.invalidObj['AccountHolderName'] = true
-      isValid = 0
+    } else {
+      this.invalidObj['AccountHolderName'] = false
     }
-    if (this.accountNo && this.accountNo.trim()) {
-      this.invalidObj['accountNo'] = false
-    } else  {
+    if ( _.isEmpty(this.accountNo) && this.accountNo === '') {
       this.invalidObj['accountNo'] = true
-      isValid = 0
-    }
-    // if (this.ifscCode && this.ifscCode.trim()) {
-    //   this.invalidObj['ifscCode'] = false
-    // } else  {
-    //   this.invalidObj['ifscCode'] = true
-    //   isValid = 0
-    // }
-    if (this.branch && this.branch.trim()) {
-      this.invalidObj['branch'] = false
     } else {
+      this.invalidObj['accountNo'] = false
+    }
+    if ( _.isEmpty(this.branch) && this.branch === '') {
       this.invalidObj['branch'] = true
-      isValid = 0
-    }
-    if (this.coustmoreRegistraionId === '1' && this.countrId===123) {
-      this.invalidObj['requiredGST'] = true
-      isValid = 0
     } else {
-      this.invalidObj['requiredGST'] = false
-     
+      this.invalidObj['branch'] = false
     }
-    return !!isValid
+   
   }
-
-
-
+ 
 
   valueCRDR: any
   select2CrDrValue(value) {
@@ -433,52 +489,82 @@ export class BankAddComponent {
 
   }
 
+  returnsplitGSTcode() {
+    if (!_.isEmpty(this.gstin) && this.gstin !== '') {
+      let str = this.gstin
+      let val = str.trim();
+      this.GstinNoCode = val.substr(0, 2);
+      if (this.GstinNoCode !== '') {
+        return this.GstinNoCode
+      }
+    }
+  }
+  matchStateCodeWithGSTNumber() {
+    if (!_.isEmpty(this.returnsplitGSTcode()) && this.GstinNoCode !== '') {
+      if(this.countryValue===123){
+        if (this.GSTStateCode === this.GstinNoCode) {
+          return true
+        }
+        else {
+          return false
+        }
+      }
+      else{
+        return true
+      }
+    } else {
+      return true
+    }
+  }
   addbank(type) {
     let _self = this
     this.submitClick = true
-    this.checkGSTNumberValid()
-    this.dynamicFocus()
-    if (this.checkForValidation() && !this.requiredGST  && this.bankName !== '' && this.AccountHolderName!==''  && this.ifscCode !== null && this.branch !== null && this.bankName !== null && this.accountNo !== null && this.ifscCode !== '' && this.branch !== '' && this.bankName !== '' && this.accountNo !== '') {
+    if (this.dynamicFocus()) {
       if (this.matchStateCodeWithGSTNumber()) {
-        this.subscribe = this._bankServices.saveBank(this.bankParams()).subscribe(data => {
-          console.log(data)
-          if (data.Code === UIConstant.THOUSAND) {
-            let toSend = { name: _self.bankName, id: data.Data }
-            let saveNameFlag = this.editID === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
-            _self.toastrService.showSuccess('', saveNameFlag)
-            if (type === 'save') {
-              this.closeModal()
-              this.disabledStateCountry = false
-              this.commonService.AddedItem()
-              _self.commonService.closeLedger(false, toSend)
-              this.clearbank()
-            } else {
-              this.getCountry(0)
-              this.disabledStateCountry = false
-
-              this.commonService.AddedItem()
-              _self.commonService.closeLedger(true, toSend)
-              this.clearbank()
+        if(this.chekGSTvalidation()){
+          this.subscribe = this._bankServices.saveBank(this.bankParams()).subscribe(data => {
+            console.log(data)
+            if (data.Code === UIConstant.THOUSAND) {
+              let toSend = { name: _self.bankName, id: data.Data }
+              let saveNameFlag = this.editID === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+              _self.toastrService.showSuccess('', saveNameFlag)
+              if (type === 'save') {
+                this.closeModal()
+                this.disabledStateCountry = false
+                this.commonService.AddedItem()
+                _self.commonService.closeLedger(false, toSend)
+                this.clearbank()
+              } else {
+                this.getCountry(0)
+                this.disabledStateCountry = false
+  
+                this.commonService.AddedItem()
+                _self.commonService.closeLedger(true, toSend)
+                this.clearbank()
+              }
             }
-          }
-          if (data.Code === UIConstant.THOUSANDONE) {
-            _self.toastrService.showInfo('', data.Message)
-          }
-          if (data.Code === UIConstant.SERVERERROR) {
-            _self.toastrService.showError('', data.Message)
-          }
-        })
+            if (data.Code === UIConstant.THOUSANDONE) {
+              _self.toastrService.showInfo('', data.Message)
+            }
+            if (data.Code === UIConstant.SERVERERROR) {
+              _self.toastrService.showError('', data.Message)
+            }
+          })
+        }
+        else{
+          this.GStRequireRef.nativeElement.focus()
+        }
       }
-      // else{
-      //   this.toastrService.showError('','Invalid GSTIN Number According to Selected State ')
-      // }
+      else{
+        this.toastrService.showError('','Invalid GSTIN Number According to Selected State ')
+      }
     }
   }
   CrDrRateType: any
   Ledgerid: any
   addressId: any
   satuariesId: any
-  private bankParams(): Banks {
+  private bankParams() {
 
     const bankElement = {
       bankObj: {
@@ -508,7 +594,7 @@ export class BankAddComponent {
           CityId: this.cityId === undefined ? 0 : this.cityId,
           AddressValue: this.address,
         }],
-      } as unknown as Banks
+      }
     }
     console.log(JSON.stringify(bankElement.bankObj), 'request-bank')
     return bankElement.bankObj
@@ -538,14 +624,13 @@ export class BankAddComponent {
   coustomerValue: any
   coustmoreRegistraionId: any
   selectyCoustmoreRegistration: any
-  select2VendorValue(value) {
+  select2VendorValue() {
     this.selectyCoustmoreRegistration = []
-    this.selectCoustomerplaceHolder = { placeholder: 'Select Customer' }
-    this.selectyCoustmoreRegistration = [{ id: UIConstant.BLANK, text: 'Select Customer' }, { id: '1', text: 'Regular' }
+    this.selectCoustomerplaceHolder = { placeholder: 'Select Register Type' }
+    this.selectyCoustmoreRegistration = [{ id: '0', text: 'Select Register Type' }, { id: '1', text: 'Regular' }
       , { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' }
       , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
-    this.coustmoreRegistraionId = this.selectyCoustmoreRegistration[1].id
-    this.coustomerValue = this.coustmoreRegistraionId
+
   }
   validGSTNumber: boolean = false
   requiredGST: boolean
@@ -580,106 +665,103 @@ export class BankAddComponent {
         }
       })
   }
-  checkGSTNumber(event) {
-    this.gstin = event.target.value;
-    let str = this.gstin
-    let val = str.trim();
-    this.GstinNoCode = val.substr(0, 2);
-    if (this.GstinNoCode !== '') {
-      this.getStateCode(this.GstinNoCode)
-    }
-    else {
-      this.disabledStateCountry = false
 
-    }
-    this.matchStateCodeWithGSTNumber()
-    this.checkGSTNumberValid()
-  }
 
   GSTNumber: any
   showHideFlag: boolean
-  matchStateCodeWithGSTNumber() {
-    if (this.GSTStateCode > 0 && this.GstinNoCode !== '') {
-      if (this.GSTStateCode === this.GstinNoCode) {
-        return true
-      }
-      else {
-        return false
-      }
-    } else {
-      return true
-    }
+ 
 
-  }
-  checkGSTNumberValid() {
-    if (this.gstin !== '' && this.gstin !== null) {
+  chekGSTvalidation() {
+    if (!_.isEmpty(this.gstin) && this.gstin !== '') {
       this.GSTNumber = (this.gstin).toUpperCase()
-      if (this.coustmoreRegistraionId === '1') {
-        if (this.commonService.gstNumberRegxValidation(this.GSTNumber)) {
-          this.validGSTNumber = false
-          this.requiredGST = false
-
+      if(this.countryValue===123 ){
+        if (  this.commonService.regxGST.test(this.gstin)) {
+          return true
         } else {
-          this.validGSTNumber = true
-          this.requiredGST = true
+          return false
         }
       }
+      else{
+        return true
 
-    } else {
-      this.validGSTNumber = false
+      }
+      
     }
-
-  }
-  validError: boolean
-  customerRegistraionError: any
-  disabledGSTfor_UnRegi: boolean
-
-  selectCoustmoreId(event) {
-    if (this.coustomerValue!==null ) {
-      if (+event.id > 0) {
-        this.coustmoreRegistraionId = event.id
-        this.validError = false
-        if (this.coustmoreRegistraionId === '1') {
-          this.requiredGST = true
-          this.disabledGSTfor_UnRegi = false
-        }
-        else if (event.id === '4') {
-          this.disabledGSTfor_UnRegi = true
-          this.gstin = ''
-          this.requiredGST = false
-
-        }
-        else {
-          this.requiredGST = false
-          this.disabledGSTfor_UnRegi = false
-
-        }
-      }
-      else {
-        this.validError = true
-      }
-
+    else if((this.coustmoreRegistraionId === '1' || this.coustmoreRegistraionId === '2') &&  this.countryValue===123 ) {
+      return false
     }
+    else{
+      return true
 
-  }
-  @ViewChild('addNewCityRef') addNewCityRefModel: AddNewCityComponent
-  selectedCityId(event) {
-    if (this.cityValue !== null) {
-      this.cityId = event.id
-      if (this.cityId > 0) {
-      //  this.getAreaId(this.cityId)
-      }
-       if(event.id === '-1'){
-        const data = {
-          countryList: !_.isEmpty(this.countryList) ? [...this.countryList] : [],
-          countryId: this.countryValue===null ? 0 : this.countryValue,
-          stateId: this.stateValue===null ? 0 :  this.stateValue
-        }
-        this.addNewCityRefModel.openModal(data);
-      }
     }
   }
   
+  validError: boolean
+  customerRegistraionError: any
+  disabledGSTfor_UnRegi: boolean
+  
+  splitGSTNumber(){
+    let  parts = this.gstin.trim()
+     this.GSTStateCode = parts.substring(0, 2);
+    this.commonService.getStateByGStCode(this.GSTStateCode).subscribe(d=>{
+      if(d.Code===1000 &&d.Data.length>0){
+        console.log(d)
+        if(this.countryValue===123){
+          this.GSTStateCode = d.Data[0].ShortName1
+        }
+        else{
+          this.GSTStateCode='00'
+        }
+       let state = {
+        id: d.Data[0].Id,
+        text: d.Data[0].CommonDesc1,
+        stateCode: this.GSTStateCode
+      }
+      this.selectStatelist(state)
+      }
+    })
+}
+
+
+selectCoustmoreId(event) {
+  if (event.data.length > 0) {
+    if (+event.value > 0) {
+      this.coustmoreRegistraionId = event.value
+      if (event.value === '4') {
+        this.disabledGSTfor_UnRegi = true
+        this.gstin = ''
+      }
+      else {
+        this.disabledGSTfor_UnRegi = false
+      }
+    }
+
+  }
+
+}
+  @ViewChild('addNewCityRef') addNewCityRefModel: AddNewCityComponent
+
+  selectedCityId(event) {
+    this.cityValue= event.id
+    if (this.cityValue !== null) {
+      this.cityValue = event.id
+      if (event.id> 0) {
+        this.cityValue = event.id
+      }
+    }
+    if (+event.id === -1) {
+      const data = {
+        countryList: !_.isEmpty(this.countryList) ? [...this.countryList] : [],
+        countryId: !this.countryValue ? 0 : this.countryValue,
+        stateId: !this.stateValue ? 0 : this.stateValue
+      }
+      //this.
+      this.addNewCityRefModel.openModal(data);
+    }
+    else  if (event.id===0) { 
+      this.stateValue = null
+    }
+  }
   addCityClosed(selectedIds?) {
     if (selectedIds !==undefined) {
       if (this.countryValue !==null && Number(this.countryValue) !== (selectedIds && selectedIds.countryId)) {

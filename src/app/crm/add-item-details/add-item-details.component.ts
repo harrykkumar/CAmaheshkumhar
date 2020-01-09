@@ -1,7 +1,8 @@
 import { CrmService } from './../crm.service';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import * as _ from 'lodash';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-add-item-details',
@@ -9,6 +10,7 @@ import * as _ from 'lodash';
   styleUrls: ['./add-item-details.component.css']
 })
 export class AddItemDetailsComponent implements OnInit {
+  @ViewChild('addItemDetailsForm') addItemDetailsForm: NgForm
   selectedItemId: number;
   quantity: number;
   itemValue: number;
@@ -18,11 +20,23 @@ export class AddItemDetailsComponent implements OnInit {
   selectedEnquiryStatusId: number;
   subscriptionDuration: number;
   subscriptionAmount: number;
+  addedItemsList: Array<any> = []
+  editMode: boolean = false;
+  isSubscriptionAllow: boolean = false;
+  addNew: boolean = false;
   constructor(
     private _commonService: CommonService,
     public crmService: CrmService
   ) {
     this.quantity = 1
+    this.addedItemsList = []
+    const setUpSettingArray = JSON.parse(localStorage.getItem('moduleSettings'))
+    if (!_.isEmpty(setUpSettingArray && setUpSettingArray.settings)) {
+      const data4 = _.find(setUpSettingArray.settings, { id: 104 });
+      if (!_.isEmpty(data4)) {
+        this.isSubscriptionAllow = data4.val
+      }
+    }
   }
 
   ngOnInit() {
@@ -34,6 +48,7 @@ export class AddItemDetailsComponent implements OnInit {
     this.selectedEnquiryStatusId = statusId;
     this.productList = [...this.crmService.leadUtilityData.LeadProducts];
     if (!_.isEmpty(item)) {
+      this.editMode = true
       this.selectedItemId = item.id
       this.quantity = item.quantity
       this.itemValue = item.itemValue
@@ -41,6 +56,9 @@ export class AddItemDetailsComponent implements OnInit {
       this.subscriptionDuration = item.amcDurationId
       this.subscriptionAmount = item.amcAmount
     }
+    setTimeout(() => {
+      $(`#itemId input`).focus()
+    }, 500);
   }
 
   closePopUp(data?) {
@@ -59,6 +77,16 @@ export class AddItemDetailsComponent implements OnInit {
       amcAmount: this.subscriptionAmount ? this.subscriptionAmount : 0,
       amcDurationId: this.subscriptionDuration ? this.subscriptionDuration : 0
     }
-    this.closePopUp(data);
+    this.addedItemsList.push({ ...data })
+    if (this.addNew) {
+      this.addItemDetailsForm.resetForm()
+      this.isAmcSubscription = false;
+    } else {
+      this.closePopUp(this.addedItemsList);
+    }
+  }
+
+  setValue(value){
+    this.addNew = value;
   }
 }

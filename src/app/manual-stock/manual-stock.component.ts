@@ -48,7 +48,9 @@ export class ManualStockComponent {
         this.items.push({
           Id: element.Id,
           VerifiedOn: this._gs.utcToClientDateFormat(element.VerifiedOn, this.clientDateFormat),
-          OpeningStock: element.OpeningStock
+          OpeningStock: element.OpeningStock,
+          IsStockDisabled: element.IsStockDisabled,
+          IsDateDisabled: element.IsDisabled
         })
       })
     }
@@ -102,18 +104,32 @@ export class ManualStockComponent {
   }
 
   validateAll() {
+    
     let valid = 1
     this.items.forEach(element => {
-      if (!(+element.OpeningStock > 0 && element.VerifiedOn && !element.matched)) {
-        valid = 0
+      if (!(+element.OpeningStock >=0 && element.VerifiedOn && !element.matched)) {
+        if(element.VerifiedOn!==null && element.OpeningStock >=0 ){
+          valid = 0
+           //this._ts.showError('','Fill Date')
+        }
+        if(element.VerifiedOn===null && element.OpeningStock >=0 ){
+          valid = 1
+           //this._ts.showError('','Fill Date')
+        }
+       
+       
       }
     });
     return !!valid
   }
 
   preparePayload() {
+    let RequestManualStockInHands = JSON.parse(JSON.stringify(this.items))
+    RequestManualStockInHands.forEach((element) => {
+      element.VerifiedOn = this._gs.clientToSqlDateFormat(element.VerifiedOn, this.clientDateFormat)
+    })
     return {
-      RequestManualStockInHands: this.items
+      RequestManualStockInHands: RequestManualStockInHands
     }
   }
 

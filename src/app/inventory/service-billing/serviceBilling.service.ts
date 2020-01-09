@@ -9,6 +9,7 @@ import { UIConstant } from 'src/app/shared/constants/ui-constant'
 import { ResponseSale } from 'src/app/model/sales-tracker.model'
 import { ToastrCustomService } from '../../commonServices/toastr.service';
 import { SetUpIds } from '../../shared/constants/setupIds.constant';
+import { GlobalService } from '../../commonServices/global.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -52,7 +53,8 @@ export class serviceBillingService {
   private queryStrSub = new Subject<string>()
   public queryStr$ = this.queryStrSub.asObservable()
 
-  constructor (private baseService: BaseServices, private toastrService: ToastrCustomService) {}
+  constructor (private baseService: BaseServices, private toastrService: ToastrCustomService,
+    private _gs: GlobalService) {}
   getServiceBillingList (queryParams) {
     return this.baseService.getRequest(ApiConstant.SERVICE_BILLING_API + queryParams)
   }
@@ -574,6 +576,10 @@ export class serviceBillingService {
 
   getCurrentDate (): Observable<ResponseSale> {
     return this.baseService.getRequest(ApiConstant.GET_CURRENT_DATE)
+  }
+
+  getLedgerTax(id) {
+    return this._gs.manipulateResponse(this.baseService.getRequest(ApiConstant.GET_ADDRESS_OF_VENDOR + id))
   }
 
 }

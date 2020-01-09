@@ -1,0 +1,104 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0">
+              <i class="fas fa-balance-scale"></i>Customer Visit
+            </p>
+          </div>
+          <div class="col-md-8 p-0">
+            <div class="right_saerch_side">
+              <div class="mr-2">
+                <div id="custom-search-input" class="btn_header1">
+                  <div class="input-group col-md-12">
+                    <input
+                      type="text"
+                      class="form-control input-lg"
+                      placeholder="Search"
+                      (input)="getCustomerVisitList()"
+                      name="searchText"
+                      [(ngModel)]="searchText"
+                    />
+                    <span class="input-group-btn">
+                      <a>
+                        <i class="fas fa-search"></i>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="btn_header">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="bgc-white bdrs-3 pb-3 mB-20">
+          <div class="table-responsive table_height">
+            <table class="table cat-table table-hover">
+              <thead>
+                <tr>
+                  <th width="7%">S. No.</th>
+                  <th >Customer</th>
+                  <th >Start Location</th>
+                  <th >End Location</th>
+                  <th >Start Time</th>
+                  <th >End Time</th>
+                  <th >Remark</th>
+                  <th width="8%">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let item of customerVisitList
+                      | paginate
+                        : {
+                            itemsPerPage: itemsPerPage,
+                            currentPage: p,
+                            totalItems: total
+                          };
+                    let i = index;
+                  "
+                >
+                  <td>{{ lastItemIndex + i + 1 }}</td>
+                  <td>{{ item.Customer }}</td>
+                  <td>{{item?.StartLocaton}}</td>
+                  <td>{{item?.EndLocaton}}</td>
+                  <td>{{item?.StartDate}}</td>
+                  <td>{{item?.EndDate}}</td>
+                  <td><p>{{item?.Remark}}</p></td>
+                  <td class="text-center">
+                    <a
+                      class="actionBtn"
+                      data-toggle="tooltip"
+                      data-placement="top"
+                      title="View Map"
+                      (click)="getCustomerVisitList(item)"
+                    >
+                    <i class="fas fa-map-marker-alt fa-1x cH-blue"></i>
+                     </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<app-pagination
+  #paging_comp
+  (lastValueEmitter)="lastItemIndex = $event"
+  (pageNoEmitter)="p = $event; getCustomerVisitList()"
+  (pageSizeEmitter)="itemsPerPage = $event; getCustomerVisitList()"
+></app-pagination>
+
+
+<ng-container #viewMapContainerRef></ng-container>

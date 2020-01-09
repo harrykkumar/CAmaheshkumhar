@@ -1,0 +1,102 @@
+
+<div
+  class="modal fade right"
+  id="dealerLink"
+  role="dialog"
+  aria-labelledby="dealerLink"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-full-height modal-right" role="document">
+    <div class="modal-content bgcH-grey-100">
+      <form
+        #addDealerUserLinkForm="ngForm"
+        novalidate
+        (ngSubmit)="
+          focusOnMandatoryField() &&
+            addDealerUserLinkForm.form.valid &&
+            submit()
+        "
+      >
+        <div class="modal-header close_popup align-items-center">
+          <h4 class="modal-title w-100 c-grey-900 col-9">
+            Add User Dealer Link
+          </h4>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+            (click)="closePopUp()"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label>User</label>
+              <ng-select
+                id="userElementId"
+                name="userName"
+                [items]="userData"
+                bindLabel="Name"
+                bindValue="Id"
+                placeholder="Select User"
+                [(ngModel)]="userId"
+                required
+                [ngClass]="{
+                  'ng-select-invalid':
+                    addDealerUserLinkForm?.submitted && !userId
+                }"
+              >
+              </ng-select>
+            </div>
+            <div class="form-group col-md-12">
+              <label>Dealer Type</label>
+              <ng-select
+                id="dealerTypeElementId"
+                name="dealerElementName"
+                [items]="dealerTypeData"
+                bindLabel="Name"
+                bindValue="UId"
+                placeholder="Select Dealer Type"
+                [(ngModel)]="dealerTypeId"
+                required
+                [ngClass]="{
+                  'ng-select-invalid':
+                    addDealerUserLinkForm?.submitted && !dealerTypeId
+                }"
+              >
+              </ng-select>
+            </div>
+            <div class="form-group col-md-12" *ngIf="dealerTypeId && dealerTypeId !== 1">
+              <label>Dealer</label>
+              <ng-select
+                id="dealerElementId"
+                name="dealerElementName"
+                [items]="dealerData"
+                bindLabel="Name"
+                bindValue="Id"
+                [multiple]="true"
+                placeholder="Select Dealer"
+                [(ngModel)]="dealerIds"
+                required
+                [ngClass]="{
+                  'ng-select-invalid':
+                    addDealerUserLinkForm?.submitted && dealerIds?.length === 0
+                }"
+              >
+              </ng-select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary waves-effect">
+              Save
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

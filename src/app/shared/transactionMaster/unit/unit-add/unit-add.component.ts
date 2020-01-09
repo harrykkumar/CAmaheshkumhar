@@ -1,3 +1,4 @@
+import { ApiConstant } from 'src/app/shared/constants/api';
 import { Component, ViewChild, Renderer2, ElementRef } from '@angular/core'
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms'
 import { UnitModel, AddCust, ResponseUnit } from '../../../../model/sales-tracker.model'
@@ -23,12 +24,16 @@ export class UnitAddComponent {
   editMode: boolean = false
   keepOpen: boolean = false
   editID:any
+  unitCodeData: Array<any> = []
+  measurementData: Array<any> = []
   constructor (public toastrCustomService: ToastrCustomService,
     private _unitmasterServices: UnitMasterServices,
     private _formBuilder: FormBuilder,
     private commonService: CommonService,
     private renderer: Renderer2
     ) {
+    this.getSelectData(205)
+    this.getSelectData(207)
     this.modalSub = this.commonService.getUnitStatus().subscribe(
       (data: AddCust) => {
         if (data.open) {
@@ -59,7 +64,12 @@ export class UnitAddComponent {
   getEditUnit (id) {
     this._unitmasterServices.getUnit(id).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
-        this.unitForm.controls.UnitName.setValue(data.Data[0].Name)
+        // this.unitForm.controls.UnitName.setValue(data.Data[0].Name)
+        this.unitForm.patchValue({
+          UnitName : data.Data[0].Name,
+          MeasurementId : data.Data[0].MeasurementId,
+          UnitCode: data.Data[0].UnitCode,
+        })
         //this.unitForm.controls.IsBaseUnit.setValue(data.Data[0].IsBaseUnit)
         this.unitForm.controls.UnitName.markAsDirty()
       }
@@ -77,11 +87,12 @@ export class UnitAddComponent {
     this.unitFormDetail()
     $('#unit_master').modal(UIConstant.MODEL_SHOW)
     setTimeout(() => {
-      if (this.first) {
-        const element = this.renderer.selectRootElement(this.first.nativeElement, true)
-        element.focus({ preventScroll: false })
-      }
-    }, 500)
+      // if (this.first) {
+      //   const element = this.renderer.selectRootElement(this.first.nativeElement, true)
+      //   element.focus({ preventScroll: false })
+      // }
+      $('#unitCodeElementId').focus()
+    }, 300)
   }
 
   closeModal () {
@@ -98,7 +109,9 @@ export class UnitAddComponent {
   private unitFormDetail () {
     this.UnitName = new FormControl('', Validators.compose([Validators.required, Validators.minLength(2)]))
     this.unitForm = this._formBuilder.group({
-      UnitName: this.UnitName
+      UnitName: this.UnitName,
+      MeasurementId: [null, Validators.required],
+      UnitCode:['', Validators.required]
     })
   }
 
@@ -107,6 +120,8 @@ export class UnitAddComponent {
       unitObj: {
         IsBaseUnit: this.unitForm.value.IsBaseUnit,
         UnitName: this.unitForm.value.UnitName.trim(),
+        UnitCode: this.unitForm.value.UnitCode.trim(),
+        MeasurementId: this.unitForm.value.MeasurementId,
         Id: this.id ? this.id : 0
       } as UnitModel
     }
@@ -127,7 +142,11 @@ export class UnitAddComponent {
             this.commonService.newUnitAdded()
             let saveName = this.editID===0 ?UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
             this.toastrCustomService.showSuccess('',saveName)
-            const datatoSend = { id: data.Data, name: this.unitForm.value.UnitName }
+            const datatoSend = {
+              id: data.Data, name: this.unitForm.value.UnitName,
+              measurementId: this.unitForm.value.MeasurementId,
+              unitCode: this.unitForm.value.UnitCode
+            }
             this.commonService.closeUnit(datatoSend)
           }
         } else {
@@ -138,17 +157,33 @@ export class UnitAddComponent {
   }
 
   initialiseExtras () {
+    this.submitClick = false
     this.unitForm.controls.UnitName.setValue('')
+    this.unitForm.controls.UnitCode.setValue('')
+    this.unitForm.controls.MeasurementId.setValue(null)
     setTimeout(() => {
-      if (this.first) {
-        const element = this.renderer.selectRootElement(this.first.nativeElement, true)
-        element.focus({ preventScroll: false })
-      }
+      // if (this.first) {
+      //   const element = this.renderer.selectRootElement(this.first.nativeElement, true)
+      //   element.focus({ preventScroll: false })
+      // }
+      $('#unitCodeElementId').focus()
     }, 10)
   }
 
   closeButton () {
     this.unitForm.reset()
+  }
+
+  getSelectData(code){
+    this.commonService.getRequest(`${ApiConstant.COUNTRY_LIST_URL}${code}`).subscribe((res) => {
+      if(res.Code === 1000 && !this.commonService.isEmpty(res.Data)){
+        if(code === 205) {
+          this.measurementData = [...res.Data]
+        } else if(code === 207) {
+          this.unitCodeData = [...res.Data]
+        }
+      }
+    })
   }
 
 }

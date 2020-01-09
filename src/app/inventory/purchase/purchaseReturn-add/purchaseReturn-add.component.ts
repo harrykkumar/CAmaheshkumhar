@@ -13,8 +13,6 @@ import { AdditionalCharges, ItemTaxTrans } from '../../../model/sales-tracker.mo
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
 import { takeUntil, catchError, filter, map } from 'rxjs/operators';
 import { NgxSpinnerService } from 'ngx-spinner';
-
-
 declare const $: any
 declare const _: any
 @Component({
@@ -679,17 +677,20 @@ export class PurchaseReturnComponent {
       - (isNaN(+this.DiscountAmt) ? 0 : +this.DiscountAmt)
     return totalAmount
   }
-
+  EditabledPay: boolean = true
   createTransaction(paymentDetails) {
     if (paymentDetails.length > 0) {
+     
       paymentDetails.forEach(element => {
         this.Paymode = element.Paymode
         this.PayModeId = element.PayModeId
         this.LedgerId = element.LedgerId
+        this.EditabledPay= true
         this.BankLedgerName = element.BankLedgerName
         this.Amount = element.Amount
         this.PayDate = this.gs.utcToClientDateFormat(element.PayDate, this.clientDateFormat)
         this.ChequeNo = element.ChequeNo
+        this.totalAmount(paymentDetails)
         this.addTransactions()
         if (this.PaymentDetail[this.PaymentDetail.length - 1]) {
           this.PaymentDetail[this.PaymentDetail.length - 1].Id = element.Id
@@ -791,6 +792,7 @@ export class PurchaseReturnComponent {
   backDateEntry: boolean = false
   isBillNoManuall: boolean = false
   taxCalInclusiveType: number = 2
+  showGodown: boolean
   getSetUpModules(settings) {
     console.log('settings : ', settings)
     settings.forEach(element => {
@@ -812,10 +814,12 @@ export class PurchaseReturnComponent {
       }
       if (element.id === SetUpIds.isManualBillNoEntryForsale) {
         this.isBillNoManuall = !!(+element.val)
-        // console.log('isBillNoManuall : ', this.isBillNoManuall)
       }
       if (element.id === SetUpIds.taxCalInclusive) {
         this.taxCalInclusiveType = +element.val
+      }
+      if (element.id === SetUpIds.godamWiseStockManagement) {
+        this.showGodown = element.val
       }
     })
     this.createModels(this.catLevel)
@@ -972,7 +976,7 @@ export class PurchaseReturnComponent {
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
     this.getFormDependency()
-
+    this.showHidePayment = true
     this.BillNo=''
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.billSummary =[]
@@ -1047,6 +1051,7 @@ export class PurchaseReturnComponent {
     if ($('#Purchase_Return_model').length > 0) {
       $('#Purchase_Return_model').modal(UIConstant.MODEL_HIDE)
     }
+    this.showHidePayment = true
   }
 
   setBillNo(setups) {
@@ -1958,10 +1963,10 @@ export class PurchaseReturnComponent {
     }
   }
 
-  setpaymentLedgerSelect2(i,paymentID) {
+  setpaymentLedgerSelect2(i, paymentId) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this.commonService.getPaymentLedgerDetail(paymentID).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+    this.commonService.getPaymentLedgerDetail(paymentId).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
       // console.log('PaymentModeData : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
@@ -1986,7 +1991,7 @@ export class PurchaseReturnComponent {
           this.ChequeNo = this.PaymentDetail[i].ChequeNo
           this.paymentSelect2.setElementValue(this.PayModeId)
           this.ledgerSelect2.setElementValue(this.LedgerId)
-          this.deleteItem(i, 'trans')
+          
         }
       })
   }
@@ -2005,7 +2010,16 @@ export class PurchaseReturnComponent {
     }
     this.validateTransaction()
   }
-
+  getCasePayment: any = 0
+  totalAmount(PaymentDetail) {
+    this.getCasePayment = 0
+    if (PaymentDetail.length > 0) {
+      PaymentDetail.forEach(element => {
+        this.getCasePayment = this.getCasePayment + +element.Amount
+      }
+      )
+    }
+  }
   getPaymentTotal(): number {
     let paymentTotal = 0
     for (let i = 0; i <= this.PaymentDetail.length - 1; i++) {
@@ -2016,6 +2030,16 @@ export class PurchaseReturnComponent {
         paymentTotal += +this.Amount
       }
     }
+    if (this.editMode && +this.Amount > 0 && +this.PayModeId > 0 && +this.LedgerId > 0) {
+      if (this.PaymentDetail.length === 1) {
+        paymentTotal = +this.Amount
+      }
+      else {
+        paymentTotal = +this.getCasePayment
+
+      }
+    }
+
     return paymentTotal
   }
   isValidAmount = true
@@ -2054,88 +2078,55 @@ export class PurchaseReturnComponent {
       this.ledgerSelect2.setElementValue('')
     }
   }
-
   addTransactions() {
-    //  && this.PayDate
-   if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
+    if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
       if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
-        if (this.checkValidationForAmount()) {
-          this.addTransaction()
-          this.clickTrans = true
-          this.initialiseTransaction()
-          // console.log('transactions : ', this.PaymentDetail)
-          // this.setPayDate()
-          this.calculatePaymentAmount()
+        this.addTransaction()
+        if (this.editTransId > 0) {
+          this.showHidePayment = true
         }
+        this.PaymentDetail.forEach((element, i) => {
+          if (element.Id === 0) {
+            this.showHidePayment = true
+          }
+        })
+        this.clickTrans = true
+        this.initialiseTransaction()
+        this.calculatePaymentAmount()
       } else {
         this.clickTrans = false
-        // if (+this.PayModeId === 3) {
-        //   if (this.ChequeNo) {
-        //     this.invalidObj['ChequeNo'] = false
-        //   } else {
-        //     this.invalidObj['ChequeNo'] = true
-        //   }
-        // } else {
-        //   this.invalidObj['ChequeNo'] = false
-        // }
       }
-   }
+    }
   }
-// addTransaction() {
-  //   let index = 0
-  //   if (this.PaymentDetail.length === 0) {
-  //     index = 1
-  //   } else {
-  //     index = +this.PaymentDetail[this.PaymentDetail.length - 1].Sno + 1
-  //     this.PaymentDetail.forEach((element,i) => {
-  //       if(this.editTransId>0){
-  //         if(element.Id === this.editTransId){
-  //           this.PaymentDetail.splice(i,1)
-  //         }
-  //       }
-  //       if(element.Sno === this.editTransSno){
-  //         this.PaymentDetail.splice(i,1)
-  //       }
-        
-  //     })
-  //   }
-  //   this.PaymentDetail.push({
-  //     Id: 0,
-  //     Sno: index,
-  //     Paymode: this.Paymode,
-  //     PayModeId: this.PayModeId,
-  //     LedgerId: this.LedgerId,
-  //     BankLedgerName: this.BankLedgerName,
-  //     Amount: this.Amount,
-  //     PayDate: this.PayDate,
-  //     ChequeNo: this.ChequeNo,
-  //     isEditable:this.EditabledPay
-  //   })
-    
-  //   setTimeout(() => {
-  //     this.commonService.fixTableHFL('trans-table')
-  //   }, 1)
-  //   if (this.editTransId !== -1) {
-  //     this.PaymentDetail[this.PaymentDetail.length - 1].Id = this.editTransId
-  //   }
-   
-  // }
+ 
+  checkpaymentLedgerId() {
+    if (this.PaymentDetail.length > 0) {
+      let dvalue= this.PaymentDetail.filter(
+        d=>d.LedgerId===this.LedgerId)
+        if(dvalue.length>0){ return false  }
+        else{ return true }  }
+        else { return true }
+  }
   addTransaction() {
+    let index = 0
     if (this.PaymentDetail.length === 0) {
-      this.PaymentDetail.push({
-        Id: 0,
-        Sno: 1,
-        Paymode: this.Paymode,
-        PayModeId: this.PayModeId,
-        LedgerId: this.LedgerId,
-        BankLedgerName: this.BankLedgerName,
-        Amount: +this.Amount,
-        PayDate: this.PayDate,
-        ChequeNo: this.ChequeNo,
-        isEditable:true
-      })
+      index = 1
     } else {
-      let index = +this.PaymentDetail[this.PaymentDetail.length - 1].Sno + 1
+      index = +this.PaymentDetail[this.PaymentDetail.length - 1].Sno + 1
+      this.PaymentDetail.forEach((element, i) => {
+        if (this.editTransId > 0) {
+          if (element.Id === this.editTransId) {
+            this.PaymentDetail.splice(i, 1)
+          }
+        }
+        if (element.Sno === this.editTransSno) {
+          this.PaymentDetail.splice(i, 1)
+        }
+
+      })
+    }
+
+    if (this.checkpaymentLedgerId()) {
       this.PaymentDetail.push({
         Id: 0,
         Sno: index,
@@ -2146,17 +2137,21 @@ export class PurchaseReturnComponent {
         Amount: this.Amount,
         PayDate: this.PayDate,
         ChequeNo: this.ChequeNo,
-        isEditable:true
+        isEditable: this.EditabledPay
       })
+    } else {
+      this.toastrService.showErrorLong('', 'Trasaction not allow with Same Transactional Ledger')
     }
+
+
     setTimeout(() => {
       this.commonService.fixTableHFL('trans-table')
     }, 1)
     if (this.editTransId !== -1) {
       this.PaymentDetail[this.PaymentDetail.length - 1].Id = this.editTransId
     }
-  }
 
+  }
   addItems() {
     if (this.validDiscount && +this.ItemId > 0  && +this.UnitId > 0 && this.PurchaseRate > 0) {
         this.addItem()
@@ -2257,6 +2252,7 @@ export class PurchaseReturnComponent {
      this.Items[this.Items.length - 1].Id = 0
     }
   }
+  showHidePayment: any = true
 
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
@@ -2288,12 +2284,17 @@ export class PurchaseReturnComponent {
       }, 100)
     }
    
-    if (type === 'trans') {
+    if (type === 'trans' && this.editTransId === -1) {
       this.editTransId = editId
+      i = i - 1
+      this.editTransSno = sno
+      this.showHidePayment = false
+      this.PaymentDetail[i].isEditable = false
+      this.EditabledPay = true
       if (+this.PaymentDetail[i].PayModeId !== 1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
-        this.setpaymentLedgerSelect2(i,+this.PaymentDetail[i].PayModeId)
+        this.setpaymentLedgerSelect2(i, +this.PaymentDetail[i].PayModeId)
       } else if (+this.PaymentDetail[i].PayModeId === 1) {
         this.paymentLedgerselect2 = [{ id: '1', text: 'Cash' }]
         this.Paymode = this.PaymentDetail[i].Paymode
@@ -2305,7 +2306,7 @@ export class PurchaseReturnComponent {
         this.ChequeNo = this.PaymentDetail[i].ChequeNo
         this.paymentSelect2.setElementValue(this.PayModeId)
         this.ledgerSelect2.setElementValue(this.LedgerId)
-        this.deleteItem(i, type)
+        
       }
     }
 
@@ -2361,6 +2362,9 @@ export class PurchaseReturnComponent {
   deleteItem(i, forArr) {
     if (forArr === 'trans') {
       this.PaymentDetail.splice(i, 1)
+      if (this.PaymentDetail.length === 0) {
+        this.getCasePayment = 0
+      }
       this.checkValidationForAmount()
     }
     if (forArr === 'items') {
@@ -2498,8 +2502,10 @@ export class PurchaseReturnComponent {
     this.taxTypeChargeName = 'Exclusive'
   }
 
+  editTransSno: number = 0
 
   initTransaction() {
+    this.editTransSno = 0
     this.Paymode = ''
     this.PayModeId = 0
     this.LedgerId = 0
@@ -2823,6 +2829,7 @@ export class PurchaseReturnComponent {
         this.invalidObj['GodownId'] = true
         isValid = 0
       }
+    this.DisabledSaveBtn = false
      
       return !!isValid
     }
@@ -2875,6 +2882,7 @@ export class PurchaseReturnComponent {
   }
   DisabledSaveBtn :boolean = false
   savePurchaseReturn() {
+    this.DisabledSaveBtn = true
     let _self = this
     this.submitSave = true
     let dataToSend = this.purchaseReturnAddParams()
@@ -3115,10 +3123,21 @@ export class PurchaseReturnComponent {
       this.LedgerChargeId = +evt.value
       if (evt.value > 0) {
         this.LedgerName = evt.data[0].text
+        this.getLedgerTax(+evt.value)
       }
     }
     this.validateCharge()
     this.calculate()
+  }
+
+  getLedgerTax(id) {
+    this._saleDirectReturnService.getLedgerTax(id).subscribe((data) => {
+      console.log(data)
+      this.taxSlabChargeValue = data.LedgerDetails[0].TaxSlabId
+    },
+    (error) => {
+      this.toastrService.showError(error, '')
+    })
   }
 
   onTaxSlabChargeSelect(evt) {

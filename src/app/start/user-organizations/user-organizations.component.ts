@@ -54,14 +54,13 @@ export class UserOrganizationsComponent implements OnInit {
       (data) => {
         this.companyComponentRef.destroy();
         if (!_.isEmpty(data)) {
-          this.initOrganizationList();
+          this._loginService.getUserOrganization();
         }
       });
   }
 
   ngOnInit() {
     this.initOrganizationList()
-    
   }
 
   ngOnDestroy(): void {

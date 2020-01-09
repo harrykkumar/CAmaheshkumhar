@@ -1,21 +1,22 @@
-import { Component, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { Subscription } from 'rxjs/Subscription'
 import { Ledger, AddCust, AddLedger } from '../../../../model/sales-tracker.model'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
-import { FormGroup, FormBuilder, Validators } from '@angular/forms'
 import { VendorServices } from '../../../../commonServices/TransactionMaster/vendoer-master.services'
 import { CategoryServices } from '../../../../commonServices/TransactionMaster/category.services'
 import { ErrorConstant } from '../../../constants/error-constants'
-import { UIConstant } from '../../../constants/ui-constant'
+import { UIConstant } from '../../../constants/ui-constant';
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { CommonService } from '../../../../commonServices/commanmaster/common.services'
 import { GlobalService } from '../../../../commonServices/global.service'
 import { Settings } from '../../../../shared/constants/settings.constant'
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { Subject } from 'rxjs';
-import { takeUntil, timeout } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash'
-import { AddNewCityComponent } from '../../../../shared/components/add-new-city/add-new-city.component';
+import { NgSelectComponent } from '@ng-select/ng-select'
+import { AddNewCityComponent } from '../../../components/add-new-city/add-new-city.component';
+import { IfStmt } from '@angular/compiler'
 
 declare const $: any
 declare const flatpickr: any
@@ -27,8 +28,8 @@ declare const flatpickr: any
 export class CustomerAddComponent implements OnDestroy {
   modalSub: Subscription
   confirmSUB: Subscription
-  coustomerDetails: Ledger[]
   subscribe: Subscription
+  coustomerDetails: Ledger[]
   id: any
   AreaName: any = 'Select Area'
   CityName: any = 'Select City'
@@ -41,20 +42,18 @@ export class CustomerAddComponent implements OnDestroy {
   private unSubscribe$ = new Subject<void>()
   public selectCrDr: Array<Select2OptionData>
   public countryList: Array<Select2OptionData>
-  public stateList: Array<Select2OptionData>
+  public stateList: any
   public cityList: Array<Select2OptionData>
   public areaList: Array<Select2OptionData>
   public customerType: Array<Select2OptionData>
   public addressType: Array<Select2OptionData>
-  public selectyCoustmoreRegistration: Array<Select2OptionData>
+  public selectyCoustmoreRegistration: any
   public addressTypePlaceHolder: Select2Options
   public coustmoerTypePlaceholder: Select2Options
   public areaListPlaceHolder: Select2Options
   public stateListplaceHolder: Select2Options
   public countryListPlaceHolder: Select2Options
-  addressTabDiv: boolean
-  customerTabDiv: boolean
-  @ViewChild('state_select2') stateselecto: Select2Component
+
   areaForm: any
   emailArray: any
   addressForm: any
@@ -67,30 +66,24 @@ export class CustomerAddComponent implements OnDestroy {
   isDiscountValue: boolean
   customerRegistraionError: boolean
   customCustomer: boolean
-  countryError: boolean
-  stateId: any
-  cityId: any
   EMAIL: any = 'email'
   MOBILE: any = 'mobile'
   YES: any = 'yes'
   NO: any = 'no'
-
   addresTypeId: any
   contactId: number = 0
   mobileNoId: number = 0
-  areaID: any
   storeAddress: any
   addressError: boolean
   clientDateFormat: any
   isAddNew: boolean = false
   editId: any
   noOfDecimal: any = 0
-  constructor(public _globalService: GlobalService, public _settings: Settings, private _CommonService: CommonService,
-    private _formBuilder: FormBuilder,
-    private _coustomerServices: VendorServices, public _categoryservices: CategoryServices, public _toastrcustomservice: ToastrCustomService) {
-    //this.createCustomerForm()
-    // this.addTyperessForm()
-    //   this.addArea()
+  constructor(public _globalService: GlobalService,
+    public _settings: Settings, public _CommonService: CommonService,
+    private _coustomerServices: VendorServices, public _categoryservices: CategoryServices,
+    public _toastrcustomservice: ToastrCustomService) {
+    this.searchCountryCodeForMobile(' ')
     this.noOfDecimal = this._settings.noOfDecimal
     this.modalSub = this._CommonService.getCustStatus().subscribe(
       (data: AddCust) => {
@@ -99,130 +92,112 @@ export class CustomerAddComponent implements OnDestroy {
           if (data.editId === '') {
             this.editMode = false
             this.editId = 0
+            this.id = 0
             this.enableContactFlag = true
           } else {
             this.editId = data.editId
             this.id = data.editId
             this.editMode = true
           }
-
           this.openModal()
         } else {
           this.closeModal()
         }
       }
     )
-    this.confirmSUB = this._CommonService.getConfirmationStatus().subscribe(
-      (data: AddCust) => {
-
-        if (data) {
-          if (data.type === this.YES && data.name === this.MOBILE) {
-            setTimeout(() => {
-              this.select_Mobile.selector.nativeElement.focus()
-            }, 10)
-          }
-          else if (data.type === this.YES && data.name === this.EMAIL) {
-            setTimeout(() => {
-              this.select_email.selector.nativeElement.focus()
-            }, 10)
-          }
-          else if (data.type === this.NO && data.name === this.MOBILE) {
-
-            setTimeout(() => {
-              this.select_email.selector.nativeElement.focus()
-            }, 10)
-          }
-          else if (data.type === this.NO && data.name === this.EMAIL) {
-            this.activaTab('customer2')
-            this.adressTab()
-            setTimeout(() => {
-              this.select_Mobile.selector.nativeElement.focus()
-            }, 10)
-          }
-
-        }
-      }
-    )
   }
-  ngOnInit() {
-    this.collectionOfAddress = []
-    this.errormassage = ErrorConstant.REQUIRED
-    this.adressType(1)
 
-  }
 
   closeModal() {
-    if ($('#customer_form').length > 0) {
-      this.id = UIConstant.ZERO
-      this.editMode = false
-      $('#customer_form').modal(UIConstant.MODEL_HIDE)
-    }
+    $('#customer_form').modal(UIConstant.MODEL_HIDE)
   }
+  @ViewChild('country_selecto') countryselecto: NgSelectComponent
+  @ViewChild('state_select2') stateselecto: NgSelectComponent
+  @ViewChild('city_select2') cityselecto: NgSelectComponent
 
 
-  @ViewChild('country_selecto') countryselecto: Select2Component
-  adressTab() {
-    setTimeout(() => {
-      //this.countryselecto.selector.nativeElement.focus()
-    }, 1000)
-
-  }
-  activaTab(tab) {
-    $('.tabs-cyan a[href="#' + tab + '"]').tab('show');
-  };
-  vendorDiv: boolean
-  customerTab() {
-    setTimeout(() => {
-      this.ledgerName.nativeElement.focus()
-    }, 1000)
-
-  }
-  bankDiv: boolean
 
   stateValue: any = null
   getStaeList(id, value) {
+    this.stateValue = null
+    this.stateList = []
     this.subscribe = this._coustomerServices.gatStateList(id).subscribe(Data => {
-      this.stateListplaceHolder = { placeholder: 'Select State' }
-      this.stateList = [{ id: UIConstant.BLANK, text: 'Select State' }]
-      Data.Data.forEach(element => {
-        this.stateList.push({
-          id: element.Id,
-          text: element.CommonDesc1
+      let newlist = [{ id: '0', text: 'Select State', stateCode: 0 }]
+      if (Data.Code === 1000) {
+        Data.Data.forEach(element => {
+          newlist.push({
+            id: element.Id,
+            text: element.CommonDesc1,
+            stateCode: element.ShortName1
+          })
         })
-      })
+        this.stateList = newlist
+      }
     })
   }
 
   selectStatelist(event) {
-    if (this.selectStatelist !== null) {
-      this.stateId = event.id
-      this.stateError = false
-      if (this.stateId > UIConstant.ZERO) {
-        this.getCitylist(this.stateId, 0)
+    console.log(event)
+    this.stateValue = event.id
+    if (this.stateValue > 0) {
+      this.stateValue = event.id
+      if(this.countryValue===123){
+        this.GSTStateCode = event.stateCode
+      }
+      else{
+        this.GSTStateCode='00'
+      }
+      this.stateName = event.text
+      if (this.stateValue > 0) {
+        this.getCitylist(this.stateValue, 0)
       }
     }
-
+    if (event.id === 0) {
+      this.stateValue = null
+    }
+  }
+  selectedCityId(event) {
+    this.cityValue = event.id
+    if (this.cityValue > 0) {
+      this.cityName = event.text
+      this.getAreaId(this.cityValue)
+    }
+    if (+event.id === -1) {
+      const data = {
+        countryList: !_.isEmpty(this.countryList) ? [...this.countryList] : [],
+        countryId: !this.countryValue ? 0 : this.countryValue,
+        stateId: !this.stateValue ? 0 : this.stateValue
+      }
+      this.addNewCityRefModel.openModal(data);
+    }
+    else if (event.id === 0) {
+      this.stateValue = null
+    }
   }
   @ViewChild('customer_register_type') CustomerRegisterTypeSelect2: Select2Component
 
   cityValue: any = null
   getCitylist(id, value) {
+    this.cityValue = null
+    this.cityList = []
     this.subscribe = this._coustomerServices.getCityList(id).subscribe(Data => {
-      this.cityList = [{id:'-1',text:'+Add New'}]
+      let newData = [{ id: '0', text: 'Select City' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
       Data.Data.forEach(element => {
-        this.cityList.push({
+        newData.push({
           id: element.Id,
           text: element.CommonDesc2
         })
       })
+      this.cityList = newData
     })
   }
 
- 
-  private getAreaId(id) {
+
+  getAreaId(id) {
+    this.areNameId = null
+    this.areaList = []
     this.subscribe = this._coustomerServices.getAreaList(id).subscribe(Data => {
-      this.areaListPlaceHolder = { placeholder: 'Select Area' }
-      this.areaList = [{ id: UIConstant.BLANK, text: 'Select Area' }, { id: '0', text: '+Add New' }]
+      this.areaList = [{ id: '0', text: 'Select Area' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
       Data.Data.forEach(element => {
         this.areaList.push({
           id: element.Id,
@@ -233,6 +208,7 @@ export class CustomerAddComponent implements OnDestroy {
   }
 
   @ViewChild('areaNameRef') areaNameRef: ElementRef
+
   openAreaModel() {
     setTimeout(() => {
       this.areaNameRef.nativeElement.focus()
@@ -245,9 +221,7 @@ export class CustomerAddComponent implements OnDestroy {
   areaName: any
   addAreaClick: boolean
   areNameId: any = null
-  onloadingArea() {
-    this.areaName = ''
-  }
+
 
   areaAdd() {
     this.addAreaClick = true
@@ -256,28 +230,25 @@ export class CustomerAddComponent implements OnDestroy {
       CommonDesc3: this.areaName,
       ShortName3: this.areaName,
       CommonCode: 104,
-      CommonId2: this.cityId
+      CommonId2: this.cityValue
     }
-    if (this.areaName !== '' && this.cityId > 0) {
+    if (!_.isEmpty(this.areaName) && this.areaName !== '' && this.cityValue > 0) {
       this.subscribe = this._CommonService.addAreaNameUnderCity(addValue).subscribe(data => {
         if (data.Code === 1000 && data.Data.length > 0) {
           let newData = Object.assign([], this.areaList)
           newData.push({ id: data.Data, text: this.areaName })
           this.areaList = newData
           this.areNameId = data.Data
-          this.areaID = data.Data
           this.Areaname = this.areaName
           this._toastrcustomservice.showSuccess('', 'Area Added !')
-          this.onloadingArea()
           this.closeAreaModel()
           setTimeout(() => {
-          //  this.areaSelect2.selector.nativeElement.focus()
+            //  this.areaSelect2.selector.nativeElement.focus()
           }, 500)
         }
         if (data.Code === 5000) {
           this._toastrcustomservice.showError('', data.Description)
           this.closeAreaModel()
-
         }
       })
     }
@@ -285,64 +256,39 @@ export class CustomerAddComponent implements OnDestroy {
   }
   Areaname: any
   selectedArea(event) {
-    if (this.areNameId !== null) {
-      if (event.id !== '0') {
-        this.areaID = event.id
-        this.Areaname = event.text
-      } else {
-        //this.areaSelect2.selector.nativeElement.value = ''
-        this.openAreaModel()
-      }
+    this.areNameId = +event.id
+    if (+event.id === -1) {
+      this.Areaname = ''
+      this.openAreaModel()
+    } else if (+event.id > 0) {
+      this.areNameId = +event.id
+      this.Areaname = event.text
+    } else if(event.id===0) {
+      this.Areaname = ''
+      this.areNameId =0
     }
   }
   addressValue: any
   addTypeName: any
   adressType(value) {
-    this.addressError = false
-    this.addressTypePlaceHolder = { placeholder: 'Select Address Type' }
     this.addressType = [{ id: '1', text: 'Personal' }, { id: '2', text: 'Work' }, { id: '3', text: 'Postal' }, { id: '4', text: 'Other' }]
     this.addresTypeId = this.addressType[0].id
     this.addTypeName = this.addressType[0].text
-
   }
 
   selectedAddressTypeId(event) {
-    if (event && event.data.length > 0) {
+    if (event.value > 0 && event.data.length > 0) {
       this.addTypeName = event.data[0].text
       this.addresTypeId = event.value
-    } else {
-      this.addresTypeId = event.value
-      this.addTypeName = event.data[0].text
-
     }
-    this.addressError = false
-    // this.addressDetailsValidation()
-  }
-  @ViewChild('state_select2') cityselecto: Select2Component
 
- 
-  onloading(){
-    this.initModel()
-    this.onloadingArea()
-    this.getContactType()
-    this.emailTypeDataType()
-    this.collectionOfAddress = []
-    this.closeAreaModel()
-    this.select_Mobile.setElementValue(1)
-    this.select_email.setElementValue(1)
-    this.countryList = []
-    this.stateList = []
-    this.cityList = []
-    this.areaList = []
-    this.select2VendorValue(UIConstant.ZERO)
-    this.select2CrDrValue(1)
-    this.crdrSelect2.setElementValue(1)
-    this.customerTypeSelect2.setElementValue(0)
-     this.closeModal()
   }
+  
+
+
+
   clearValidation() {
     this.closeConfirmation()
-
   }
 
 
@@ -357,130 +303,127 @@ export class CustomerAddComponent implements OnDestroy {
   setDOBDate() {
     this.DateOfBirth = ''
     this.futureDateAn = this._globalService.getDefaultDate(this.clientDateFormat)
-
   }
   setDOADate() {
     this.DateOfAnniry = ''
     this.futureDateB = this._globalService.getDefaultDate(this.clientDateFormat)
-
   }
   validMobileFlag: boolean
   editFlg: boolean
   EmailId: number
-  requiredGSTNumber: boolean 
-  initModel() {
-    this.validmobileLength=0
-    this.customerError = true
-    this.persnalError = true
-    this.mobileNo = ''
-    this.openingblance = ''
+  requiredGSTNumber: boolean = false
+
+  onloadingCustomerForm() {
+    this.disabledGSTfor_UnRegi = false
+    this.collectionOfAddress = []
+    this.addressIndex = null
+   // this.countryValue = null
+    this.setDOBDate()
+    this.setDOADate()
+    this.contactPerson = ''
+    this.customerName = ''
     this.gstin = ''
     this.openingblance = 0
     this.panNo = ''
-    this.customerName = ''
     this.creditDays = 0
-    this.doa = ''
-    this.dob = ''
     this.creditlimit = 0
-    this.countryValue= null
-    this.stateValue= null
-    this.cityValue= null
-  }
-  onloadingInit() {
-    this.contactPerson=''
-    this.EmailAddress=''
-    this.contactId = 0
-    this.customerName=''
+    this.coustmoreRegistraionId = 0
+    this.select2CrDrValue(0)
+    this.crdrSelect2.setElementValue(1)
+    this.customerTypeSelect2.setElementValue(0)
+    this.CustomerRegisterTypeSelect2.setElementValue(0)
     this.satuariesId = 0
-    this.disabledGSTfor_UnRegi = false
-    this.disabledStateCountry = false
-    this.requiredGSTNumber = true
-    this.getEmailvalid = true
-    this.mobileArray = []
-    this.emailArray = []
     this.enableContactFlag = true
     this.editEmailFlg = true
     this.editFlg = true
     this.validMobileFlag = false
-    this.mobileNoId = 0
-    this.EmailId = 0
-    this.searchCountryCodeForMobile(' ')
-    this.addressRequiredForLedger = false
     this.customerCustomRateFlag = false
-    this.mobileRequirdForSetting = false
-    this.emailRequirdForSetting = false
     this.addressClick = false
-    this.initModel()
+    this.customerRegistrationType()
+    this.onLoadMobile()
+    this.onLaodEmail()
+
+  }
+
+  onLoadMobile() {
+    this.mobileArray = []
+    this.mobileNo = ''
+    this.getContactType()
+    this.select_Mobile.setElementValue(1)
+    this.mobileNoId = 0
+
+  }
+  onLaodEmail() {
+    this.emailArray = []
+    this.EmailAddress = ''
+    this.emailTypeDataType()
+    this.select_email.setElementValue(1)
+    this.EmailId = 0
+  }
+  onloadingAddress() {
+    this.adressType(0)
+    this.addressid = 0
+    this.stateValue = null
+    this.cityValue = null
+    this.areNameId = null
+    this.addresTypeId = 0
+    this.addTypeName = ''
+    this.postcode = ''
+    this.Areaname = ''
+    this.country = ''
+    this.stateName = ''
+    this.cityName = ''
+    this.adresss = ''
+    this.addressValue = 1
   }
   openModal() {
-    this.getListCountryLabelList(0)
-    this.onloadingInit()
+    this.validmobileLength = 0
+    this.invalidObj = {}
+    this.onloadingCustomerForm()
     this.onloadingAddress()
-    this.getContactType()
-    this.emailTypeDataType()
-    this.setDOBDate()
-    this.setDOADate()
-    if (this.editMode) {
-      this.enableContactFlag = false
-      this.select2VendorValue(UIConstant.ZERO)
-      this.getCustomerEditData(this.id)
-      this.adressType(0)
-    } else {
-      this.select2VendorValue(UIConstant.ZERO)
-      this.getModuleSettingValue = JSON.parse(this._settings.moduleSettings)
-      this.getModuleSettingData()
-      this.id = UIConstant.ZERO
-      $('#customer_form').modal(UIConstant.MODEL_SHOW)
-      setTimeout(() => {
-        this.ledgerName.nativeElement.focus()
-      }, 500)
-      this.collectionOfAddress = []
-      this.customerTabDiv = false
-      this.addressTabDiv = true
-      this.id = UIConstant.ZERO
-      this.satuariesId = UIConstant.ZERO
-      this.submitClick = true
-      this.addressid = UIConstant.ZERO
-      this.select2CrDrValue(1)
-      this.getCountry(0)
-      this.adressType(0)
-      this.getCustomoerType(0)
-      if (!this.editMode) {
+    this.getSetUpModules((JSON.parse(this._settings.moduleSettings).settings))
+    this.getCountry(0)
+    this.getCustomoerType()
+    $('#customer_form').modal(UIConstant.MODEL_SHOW)
+    this.satuariesId = 0
+    this.submitClick = true
+    this.istradeDiscountValue = false
+    this.isVolumeDiscountValue = false
+    this.isDiscountValue = false
+    this.CustomerRegisterTypeSelect2.setElementValue(0)
+    $('#tradediscount').prop('checked', false)
+    $('#cashdiscount').prop('checked', false)
+    $('#volumediscount1').prop('checked', false)
+    setTimeout(() => {
+      this.ledgerName.nativeElement.focus()
+    }, 500)
         this.getOrgnizationAddress()
-
-      }
-      this.select_Mobile.setElementValue(1)
-      this.select_email.setElementValue(1)
-      this.istradeDiscountValue = false
-      this.isVolumeDiscountValue = false
-      this.isDiscountValue = false
-      this.CustomerRegisterTypeSelect2.setElementValue(1)
-      this.VendorValidation()
-      $('#tradediscount').prop('checked', false)
-      $('#cashdiscount').prop('checked', false)
-      $('#volumediscount1').prop('checked', false)
-      /* ............................completed..................... */
+    if (this.editMode) {
+      this.getCustomerEditData(this.id)
     }
+    this.redMarkLabel()
   }
+
   getModuleSettingValue: any
   @ViewChild('select_mobiletype') select_Mobile: Select2Component
   @ViewChild('select_emailtype') select_email: Select2Component
-
   @ViewChild('ledgerName') ledgerName: ElementRef
   @ViewChild('conatctPerRef') conatctPerRef: ElementRef
 
   customerValue: any
-  getCustomoerType(value) {
+  getCustomoerType() {
+    this.customerType=[]
     this.subscribe = this._coustomerServices.getCommonValues('116').subscribe(Data => {
-      //  this.coustmoerTypePlaceholder = { placeholder: 'Select CustomerType' }
-      this.customerType = [{ id: '0', text: 'Customer Type' }]
-      Data.Data.forEach(element => {
-        this.customerType.push({
-          id: element.Id,
-          text: element.CommonDesc
+      let newdata = [{ id: '0', text: 'Customer Type' }]
+      if (Data.Code === 1000 && Data.Data.length > 0) {
+        Data.Data.forEach(element => {
+          newdata.push({
+            id: element.Id,
+            text: element.CommonDesc
+          })
         })
-      })
-      this.customerValue = value
+      }
+      this.customerType = newdata
     })
   }
 
@@ -496,10 +439,8 @@ export class CustomerAddComponent implements OnDestroy {
     if (event === true) {
       this.isDiscountValue = true
     } else {
-
       this.isDiscountValue = false
     }
-
   }
 
   istradeDiscount(event) {
@@ -512,54 +453,45 @@ export class CustomerAddComponent implements OnDestroy {
   selectCRDRId(event) {
     this.crDrId = event.value
   }
-  disabledGSTfor_UnRegi: boolean = false
+  disabledGSTfor_UnRegi: any = false
   selectCoustmoreId(event) {
-    this.coustmoreRegistraionId = +event.value
-    if (+event.value === 1) {
-      this.requiredGSTNumber = true
-      this.disabledGSTfor_UnRegi = false
-    }
-    else if (+event.value === 4) {
-      this.disabledGSTfor_UnRegi = true
-      this.gstin = ''
-      this.requiredGSTNumber = false
-
-    }
-    else {
-      this.requiredGSTNumber = false
-      this.disabledGSTfor_UnRegi = false
-    }
-
-
-  }
-
-  countrId: any = 0
-  selectCountryListId(event) {
-    if (this.countryValue !== null) {
-      this.countrId = event.id
-      this.countryError = false
-      if (this.countrId > 0) {
-        this.getListCountryLabelList(event.id)
-        this.getStaeList(this.countrId, 0)
+    if (event.value > 0 && event.data.length > 0) {
+      this.coustmoreRegistraionId = event.value
+      if (event.value === '4') {
+        this.disabledGSTfor_UnRegi = true
+        this.gstin = ''
+      }
+      else {
+        this.disabledGSTfor_UnRegi = false
       }
     }
+    if (+event.value === 0) {
+      this.disabledGSTfor_UnRegi = false
+      this.gstin = ''
+    }
+  }
 
+  selectCountryListId(event) {
+    this.countryValue = +event.id
+    this.CountryName = event.text
+    if (this.countryValue > 0) {
+      this.getListCountryLabelList(event.id)
+      this.getStaeList(this.countryValue, 0)
+
+    }
+    else if (event.id === 0) {
+      this.countryValue = null
+    }
   }
 
   customerTypeId: number = 0
   selectCustomerType(event) {
     if (event.value > 0) {
       this.customerTypeId = event.value
-      this.customCustomer = false
-      this.customerCustomRateFlag = false
     }
     else {
       this.customerTypeId = 0
-      //    this.customerCustomRateFlag = false
-
-      //this.customCustomer = false
     }
-
   }
   countryValue: any = null
   getCountry(value) {
@@ -572,7 +504,6 @@ export class CustomerAddComponent implements OnDestroy {
           text: element.CommonDesc
         })
       })
-      //  this.countryValue = value
     })
   }
   deleteArrayMobileType(i, type) {
@@ -586,7 +517,6 @@ export class CustomerAddComponent implements OnDestroy {
         this.emailArray.splice(i, 1)
       }
     }
-
   }
 
   ParentTypeId: 5
@@ -601,17 +531,13 @@ export class CustomerAddComponent implements OnDestroy {
         this.contactTypeName = this.mobileArray[i].ContactTypeName
         this.mobileNo = this.mobileArray[i].ContactNo
         this.CountryCode = this.mobileArray[i].CountryCode
-        this.countryCodeFlag =this.mobileArray[i].CountryCode
-      //  this.phoneCodeselect2.setElementValue(this.mobileArray[i].CodeId)
+        this.countryCodeFlag = this.mobileArray[i].CountryCode
         this.CodeId = this.mobileArray[i].CodeId
         this.validMobileFlag = false
         this.deleteArrayMobileType(i, 'contact')
       }
-
-
       else {
         this._toastrcustomservice.showWarning('', 'Save Editable Contact')
-
       }
     }
     if (type === 'email') {
@@ -626,10 +552,7 @@ export class CustomerAddComponent implements OnDestroy {
       }
       else {
         this._toastrcustomservice.showWarning('', 'Save Editable Email')
-
       }
-
-
     }
   }
 
@@ -642,38 +565,24 @@ export class CustomerAddComponent implements OnDestroy {
   invalidMobilelength: boolean = false
   checkNumberByCountry(e) {
     this.mobileNo = e.target.value
-    // if (this.checkSelectCode) {
-    if (this.validmobileLength === this.mobileNo.length) {
+    if (this.validmobileLength === this.mobileNo.toString().length) {
       this.validMobileFlag = false
     } else {
       this.validMobileFlag = true
     }
-    // }
-
   }
 
 
   mobileNo: any
   mobileErrMsg: any
   code: any
-
   selectCoustomerplaceHolder: Select2Options
-  coustomerValue: any
-  coustmoreRegistraionId: number
-  select2VendorValue(value) {
+  coustmoreRegistraionId: any = 0
+  customerRegistrationType() {
     this.selectyCoustmoreRegistration = []
-    this.selectCoustomerplaceHolder = { placeholder: 'Select Customer Registration' }
-    this.selectyCoustmoreRegistration = [{ id: '1', text: 'Regular' }
-      , { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' }
-      , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
-    this.coustomerValue = this.selectyCoustmoreRegistration[0].id
-    this.coustmoreRegistraionId = +this.selectyCoustmoreRegistration[0].id
-
-    // if(!this.editMode){
-    //   this.coustmoreRegistraionId = +this.selectyCoustmoreRegistration[0].id
-    // }
-
-    // this.CustomerRegisterTypeSelect2.setElementValue(1)
+    this.selectyCoustmoreRegistration = [{ id: 0, text: 'Select Registration Type' }, { id: 1, text: 'Regular' }
+      , { id: 2, text: 'Composition' }, { id: 3, text: 'Exempted' }
+      , { id: 4, text: 'UnRegistered' }, { id: 5, text: '	E-Commerce Operator ' }]
 
   }
 
@@ -681,198 +590,392 @@ export class CustomerAddComponent implements OnDestroy {
   valueCRDR: any
   crDrId: number
   @ViewChild('crdrSelect2') crdrSelect2: Select2Component
-
   select2CrDrValue(value) {
     this.selectCrDr = []
     this.select2CrDrPlaceHolder = { placeholder: 'Select CR/DR' }
     this.selectCrDr = [{ id: '1', text: 'CR' }, { id: '0', text: 'DR' }]
     this.valueCRDR = value
     this.crDrId = value
-
   }
 
-  addnewCoustomer() {
-    $('#customer_form').modal(UIConstant.MODEL_SHOW)
-    jQuery(function ($) {
-      flatpickr('.customer-add', {
-        maxDate: 'today',
-        dateFormat: 'd M y'
-      })
-    })
-    this.customerTabDiv = false
-    this.addressTabDiv = true
-    this.id = UIConstant.ZERO
-    this.satuariesId = UIConstant.ZERO
-    this.submitClick = false
-    this.addressid = UIConstant.ZERO
-    this.select2VendorValue(UIConstant.ZERO)
-    this.select2CrDrValue(1)
-    this.getCountry(0)
-    this.adressType(0)
-    this.getCustomoerType(0)
-    this.istradeDiscountValue = false
-    this.isVolumeDiscountValue = false
-    this.isDiscountValue = false
-    $('#tradediscount').prop('checked', false)
-    $('#cashdiscount').prop('checked', false)
-    $('#volumediscount1').prop('checked', false)
-  }
-
-  checkValidationName() {
-    if (this.customerName !== "") {
-      this.customerError = false
-    } else {
-      this.customerError = true
-    }
-  }
-  checkValidationPerson() {
-    if (this.contactPerson !== "") {
-      this.persnalError = false
-    } else {
-      this.persnalError = true
-    }
-  }
-  dynamicFocus() {
-    if (this.customerError) {
-      this.ledgerName.nativeElement.focus()
-    }
-    
-    
-  }
-  persnalError: any = true
-  customerError: any = true
   requiredValid: boolean
   customername: any
+  redMarkLabel() {
+    this.invalidObj['EmailAddress'] = false
+    this.invalidObj['mobileNo'] = false
+    this.invalidObj['address'] = false
+    this.invalidObj['cityValue'] = false
+    this.invalidObj['stateValue'] = false
+    this.invalidObj['countryValue'] = false
+
+    if (_.isEmpty(this.customerName) && this.customerName === '') {
+      this.invalidObj['customerName'] = true
+    } else {
+      this.invalidObj['customerName'] = false
+    }
+    if (this.mobile_email_setting_required === 1) {
+      //mobile
+      if (!_.isEmpty(this.mobileNo) && this.mobileNo !== '' && this.checkValidMobile() && this.mobileArray.length === 0) {
+        this.invalidObj['mobileNo'] = false
+      } else if (this.mobileArray.length === 0) {
+        this.invalidObj['mobileNo'] = true
+      }
+
+    }
+
+    if (this.mobile_email_setting_required === 2) {
+      // mobile and email
+      if (!_.isEmpty(this.mobileNo) && this.mobileNo !== '' && this.checkValidMobile() && this.mobileArray.length === 0) {
+        this.invalidObj['mobileNo'] = false
+      } else if (this.mobileArray.length === 0) {
+        this.invalidObj['mobileNo'] = true
+      }
+      if (!_.isEmpty(this.EmailAddress) && this.EmailAddress !== '' && this.checkvalidationEmail() && this.emailArray.length === 0) {
+        this.invalidObj['EmailAddress'] = false
+      } else if (this.emailArray.length === 0) {
+        this.invalidObj['EmailAddress'] = true
+      }
+    }
+    if (this.mobile_email_setting_required === 3) {
+      //email
+      if (!_.isEmpty(this.EmailAddress) && this.EmailAddress !== '' && this.checkvalidationEmail() && this.emailArray.length === 0) {
+        this.invalidObj['EmailAddress'] = false
+      } else if (this.emailArray.length === 0) {
+        this.invalidObj['EmailAddress'] = true
+      }
+    }
+
+    if (this.address_setting_required) {
+      if (this.countryValue === null && this.collectionOfAddress.length===0) {
+        this.invalidObj['countryValue'] = true
+      }
+      else {
+        this.invalidObj['countryValue'] = false
+      }
+
+      if (this.stateValue === null && this.collectionOfAddress.length===0) {
+        this.invalidObj['stateValue'] = true
+      }
+      else {
+        this.invalidObj['stateValue'] = false
+      }
+      if (this.cityValue === null && this.collectionOfAddress.length===0) {
+        this.invalidObj['cityValue'] = true
+      }
+      else {
+        this.invalidObj['cityValue'] = false
+      }
+      if (_.isEmpty(this.adresss) && this.adresss === '' && this.collectionOfAddress.length===0) {
+        this.invalidObj['address'] = true
+      }
+      else {
+        this.invalidObj['address'] = false
+      }
+
+    }
+
+    if ((this.coustmoreRegistraionId === '1' || this.coustmoreRegistraionId === '2') && (this.countryValue === 123 || this.countryValue === '123')) {
+      this.invalidObj['gst_required'] = true
+    }
+    else {
+      this.invalidObj['gst_required'] = false
+
+    }
+
+  }
+  dynamicFocusValidation = () => {
+    let valid = true
+    if (!_.isEmpty(this.customerName) && this.customerName !== '') {
+      this.invalidObj['customerName'] = false
+    } else {
+      this.invalidObj['customerName'] = true
+      valid = false
+      this.ledgerName.nativeElement.focus();
+    }
+    if (this.mobile_email_setting_required === 1) {
+      // mobile  validation
+
+      if (!_.isEmpty(this.mobileNo) && this.mobileNo !== '' && this.checkValidMobile() && this.mobileArray.length === 0) {
+        this.invalidObj['mobileNo'] = false
+      } else if (!this.invalidObj.customerName && this.mobileArray.length === 0) {
+        this.invalidObj['mobileNo'] = true
+        valid = false
+        this.mobileRef.nativeElement.focus();
+      }
+    }
+    if (this.mobile_email_setting_required === 3) {
+      //eamil validation
+      if (!_.isEmpty(this.EmailAddress) && this.EmailAddress !== '' && this.checkvalidationEmail() && this.emailArray.length === 0) {
+        this.invalidObj['EmailAddress'] = false
+      } else if (!this.invalidObj.customerName && this.emailArray.length === 0) {
+
+        this.invalidObj['EmailAddress'] = true
+        valid = false
+        this.emailRef.nativeElement.focus();
+      }
+    }
+    if (this.mobile_email_setting_required === 2) {
+      // both email and mobile no
+      if (!_.isEmpty(this.mobileNo) && this.mobileNo !== '' && this.checkValidMobile() && this.mobileArray.length === 0) {
+        this.invalidObj['mobileNo'] = false
+      } else if (!this.invalidObj.customerName && this.mobileArray.length === 0) {
+        this.invalidObj['mobileNo'] = true
+        valid = false
+        this.mobileRef.nativeElement.focus();
+      }
+      if (!_.isEmpty(this.EmailAddress) && this.EmailAddress !== '' && this.checkvalidationEmail() && this.emailArray.length === 0) {
+        this.invalidObj['EmailAddress'] = false
+      } else if (!this.invalidObj.customerName && !this.invalidObj.mobileNo && this.emailArray.length === 0) {
+
+        this.invalidObj['EmailAddress'] = true
+        valid = false
+        this.emailRef.nativeElement.focus();
+      }
+
+
+    }
+    if (this.address_setting_required) {
+      if (this.countryValue > 0 && this.countryValue !== null && this.collectionOfAddress.length === 0) {
+        this.invalidObj['countryValue'] = false
+      }
+      else if (!this.invalidObj.customerName && this.collectionOfAddress.length === 0 && !this.invalidObj.EmailAddress && !this.invalidObj.mobileNo) {
+        this.invalidObj['countryValue'] = true
+        this.countryselecto.focus()
+        valid = false
+      }
+      if (this.stateValue > 0 && this.stateValue !== null && this.collectionOfAddress.length === 0) {
+        this.invalidObj['stateValue'] = false
+      }
+      else if (!this.invalidObj.customerName && !this.invalidObj.EmailAddress && !this.invalidObj.mobileNo && !this.invalidObj.countryValue && this.collectionOfAddress.length === 0) {
+        this.invalidObj['stateValue'] = true
+        this.stateselecto.focus()
+        valid = false
+      }
+      if (this.cityValue > 0 && this.cityValue !== null && this.collectionOfAddress.length === 0) {
+        this.invalidObj['cityValue'] = false
+      }
+      else if (!this.invalidObj.customerName && !this.invalidObj.EmailAddress && !this.invalidObj.mobileNo && !this.invalidObj.countryValue && !this.invalidObj.stateValue && this.collectionOfAddress.length === 0) {
+        this.invalidObj['cityValue'] = true
+        this.cityselecto.focus()
+        valid = false
+      }
+      if (!_.isEmpty(this.adresss) && this.adresss !== '' && this.collectionOfAddress.length === 0) {
+        this.invalidObj['address'] = false
+      }
+      else if (!this.invalidObj.customerName && !this.invalidObj.EmailAddress && !this.invalidObj.mobileNo && !this.invalidObj.countryValue && !this.invalidObj.stateValue && !this.invalidObj.cityValue && this.collectionOfAddress.length === 0) {
+        if (this.mobile_email_setting_required === 1 || this.mobile_email_setting_required === 2) {
+          if (this.mobileArray.length > 0) {
+            this.invalidObj['address'] = true
+            this.addressRef.nativeElement.focus()
+            valid = false
+          }
+        }
+        else if (this.mobile_email_setting_required === 3) {
+          if (this.emailArray.length > 0) {
+            this.invalidObj['address'] = true
+            this.addressRef.nativeElement.focus()
+            valid = false
+          }
+        }
+        else if (this.mobile_email_setting_required === 0) {
+          this.invalidObj['address'] = true
+          this.addressRef.nativeElement.focus()
+          valid = false
+
+        }
+
+      }
+        if (!this.chekGSTvalidation() && !this.invalidObj.EmailAddress && !this.invalidObj.mobileNo && !this.invalidObj.customerName && !this.invalidObj.countryValue && !this.invalidObj.stateValue && !this.invalidObj.cityValue) {
+          this.invalidObj['gst_required'] = true
+          this.gstRef.nativeElement.focus()
+          valid = false
+        } else {
+          this.invalidObj['gst_required'] = false
+        }
+      
+        if (!this.chekGSTvalidation() && !this.invalidObj.EmailAddress && !this.invalidObj.mobileNo && !this.invalidObj.customerName && !this.invalidObj.countryValue && !this.invalidObj.stateValue && !this.invalidObj.cityValue) {
+          this.invalidObj['gst_required'] = true
+          this.gstRef.nativeElement.focus()
+          valid = false
+        } else {
+          this.invalidObj['gst_required'] = false
+        }
+     
+        if (!this.checkPANNumberValid() && !this.invalidObj.customerName && !this.invalidObj.countryValue && !this.invalidObj.stateValue && !this.invalidObj.cityValue) {
+          this.panRef.nativeElement.focus()
+          valid = false
+        } else {
+          this.invalidObj['panRef'] = false
+        }
+    
+    }
+
+    return valid
+  }
+  splitGSTNumber() {
+    let parts = this.gstin.trim()
+    this.GSTStateCode = parts.substring(0, 2);
+    this._CommonService.getStateByGStCode(this.GSTStateCode).subscribe(d => {
+      if (d.Code === 1000 && d.Data.length > 0) {
+        this.stateValue = d.Data[0].Id
+        if(this.countryValue===123){
+          this.GSTStateCode = d.Data[0].ShortName1
+        }
+        else{
+          this.GSTStateCode='00'
+        }
+        let state = {
+          id: d.Data[0].Id,
+          text: d.Data[0].CommonDesc1,
+          stateCode: d.Data[0].ShortName1
+        }
+        this.selectStatelist(state)
+      }
+    })
+  }
+  onPasteGST(e) {
+    this._CommonService.allowOnlyNumericValueToPaste(e, (res) => {
+      this.gstin = res
+    })
+  };
+  onPastePAN(e) {
+    this._CommonService.allowOnlyNumericValueToPaste(e, (res) => {
+      this.panNo = res
+    })
+  };
+  chekGSTvalidation() {
+    if (!_.isEmpty(this.gstin) && this.gstin !== '') {
+      this.GSTNumber = (this.gstin).toUpperCase()
+      if(this.multipleCountry()){
+        if (this._CommonService.regxGST.test(this.GSTNumber)) {
+          return true
+        } else {
+          return false
+        }
+      }
+      else{
+        return true
+      }  
+    }
+    else if ((this.coustmoreRegistraionId === '1' || this.coustmoreRegistraionId === '2') && this.multipleCountry()) {
+      return false
+    }
+    else {
+      return true
+
+    }
+  }
+
+  multipleCountry() {
+    if (this.collectionOfAddress.length > 0) {
+      let dvalue = this.collectionOfAddress.filter(
+        d => (d.CountryId===123))
+      if (dvalue.length > 0) { return true }
+      else { return false }
+    }
+    else { return true }
+  }
+  checkPANNumberValid() {
+    if (!_.isEmpty(this.panNo) && this.panNo !== '') {
+      this.PANNumber = (this.panNo).toUpperCase()
+      if(this.multipleCountry()){
+        if (this._CommonService.panNumberRegxValidation(this.PANNumber)) {
+          return true
+        } else {
+          return false
+        }
+      }
+      else{
+        return true
+      }
+    }
+    else {
+      return true
+    }
+  }
   saveCustomer(value) {
     this.submitClick = true
-    this.checkGSTNumberValid()
-    this.VendorValidation()
-    this.emailAddingArray()
-    this.addConatctDetails()
-    this.addNewAdress()
-    this.dynamicFocus()
     if (value === 'reset') {
-      this.resetForNew()
-      this.activaTab('customer1')
-      this.getCountry(0)
-      this.select2CrDrValue(1)
-      this.onloadingInit()
-      this.crdrSelect2.setElementValue(1)
-    } else {
-     
-      if (this.customerName !== '' && !this.validMobileFlag && this.getEmailvalid  && this.coustmoreRegistraionId > 0 && !this.customerCustomRateFlag) {
-      
-        if (!this.requiredGSTNumber) {
-          if (!this.mobileRequirdForSetting) {
-            if (!this.emailRequirdForSetting) {
-              if (!this.validGSTNumber) {
-                if (!this.validPANFlag) {
-                  if (!this.addressRequiredForLedger) {
-                    this.subscribe = this._coustomerServices.addVendore(this.customerParams()).subscribe(Data => {
-
-                      if (Data.Code === UIConstant.THOUSAND) {
-                        if (value === 'save') {
-                          const dataToSend = { id: Data.Data, name: this.customerName }
-                          this._CommonService.AddedItem()
-                          this._CommonService.closeCust({ ...dataToSend })
-                          $('#customer_form').modal(UIConstant.MODEL_HIDE)
-                          let saveFlag = this.editId === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
-                          this._toastrcustomservice.showSuccess('', saveFlag)
-                          this.select2CrDrValue(1)
-                          this.crdrSelect2.setElementValue(1)
-                        } else if (value === 'new') {
-                          this.activaTab('customer1')
-                          setTimeout(() => {
-                            this.ledgerName.nativeElement.focus()
-                          }, 500)
-                          this.getCountry(0)
-                          this._CommonService.AddedItem()
-                          this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
-                          this.id = 0
-                          this.satuariesId = 0
-                          this.contactId = 0
-                          this.addressid = 0
-                          this.select2CrDrValue(1)
-                          this.crdrSelect2.setElementValue(1)
-
-                        }
-                        this.disabledStateCountry = false
-                        this.resetForNew()
-                        this.resetAddress()
-                      }
-                      if (Data.Code === UIConstant.THOUSANDONE) {
-                        this._toastrcustomservice.showInfo('', Data.Description)
-                      }
-                      if (Data.Code === 5001) {
-                        this._toastrcustomservice.showError('', Data.Description)
-
-                      }
-                      if (Data.Code === UIConstant.REQUIRED_5020) {
-                        this._toastrcustomservice.showError('', Data.Data)
-
-                      }
-                    }, () => {
-                      //   console.log(error)
-                    })
-                  } else {
-                    this.activaTab('customer2')
-                    this.adressTab()
-                    this._toastrcustomservice.showError('', ' Enter Address ')
-                    
+      this.onloadingCustomerForm()
+      this.onloadingAddress()
+    }
+    this.addConatctDetails()
+    this.addEmailDetail()
+    this.addNewAdress()
+    if (this.dynamicFocusValidation()) {
+      if (this.matchStateCodeWithGSTNumber()) {
+        if (this.checkvalidationEmail()) {
+          if (this.checkValidMobile()) {
+            if (this.chekGSTvalidation()) {
+              if (this.checkPANNumberValid()) {
+                this.subscribe = this._coustomerServices.addVendore(this.customerParams()).subscribe(Data => {
+                  if (Data.Code === UIConstant.THOUSAND) {
+                    if (value === 'save') {
+                      const dataToSend = { id: Data.Data, name: this.customerName }
+                      this._CommonService.AddedItem()
+                      this._CommonService.closeCust({ ...dataToSend })
+                      let saveFlag = this.editId === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+                      this._toastrcustomservice.showSuccess('', saveFlag)
+                      this.select2CrDrValue(0)
+                      this.crdrSelect2.setElementValue(1)
+                    }
+                    if (value === 'new') {
+                      setTimeout(() => {
+                        this.ledgerName.nativeElement.focus()
+                      }, 200)
+                      this.onloadingCustomerForm()
+                      this.id = 0
+                      //this.countryValue = null
+                      this._CommonService.AddedItem()
+                      this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
+                    }
 
                   }
-                } else {
-                  this._toastrcustomservice.showError('', 'invalid PAN No.')
-                this.panRef.nativeElement.focus()
+                  if (Data.Code === UIConstant.THOUSANDONE) {
+                    this._toastrcustomservice.showInfo('', Data.Description)
+                  }
+                  if (Data.Code === 5004) {
+                    this._toastrcustomservice.showInfo('', Data.Description)
+                  }
 
-                }
-              } else {
-                this._toastrcustomservice.showError('', 'invalid GST No.')
-                this.gstRef.nativeElement.focus()
-
+                  if (Data.Code === 5001) {
+                    this._toastrcustomservice.showError('', Data.Description)
+                  }
+                  if (Data.Code === UIConstant.REQUIRED_5020) {
+                    this._toastrcustomservice.showError('', Data.Data)
+                  }
+                })
               }
-
-            } else {
-              this.select_email.selector.nativeElement.focus()
-              this._toastrcustomservice.showError('', ' Enter Email')
-                this.emailRef.nativeElement.focus()
-
+              else {
+                this.panRef.nativeElement.focus()
+              }
             }
-          } else {
-            this.select_Mobile.selector.nativeElement.focus()
-            this._toastrcustomservice.showError('', '  Enter Contact Details')
+            else {
+              this.gstRef.nativeElement.focus()
+            }
+          }
+          else {
             this.mobileRef.nativeElement.focus()
           }
         } else {
-          this.validGSTNumber = true
-          this._toastrcustomservice.showError('', 'Enter GSTIN No.')
-          this.gstRef.nativeElement.focus()
+          this.emailRef.nativeElement.focus()
         }
+
+      }
+      else {
+        this.gstRef.nativeElement.focus()
+        this._toastrcustomservice.showError('', 'Invalid GSTIN Number According to Selected State ')
       }
     }
+
   }
-@ViewChild('gstRef') gstRef :ElementRef
-@ViewChild('mobileRef') mobileRef :ElementRef
-@ViewChild('emailRef') emailRef :ElementRef
-@ViewChild('panRef') panRef :ElementRef
 
 
-  resetForNew() {
+  @ViewChild('gstRef') gstRef: ElementRef
+  @ViewChild('mobileRef') mobileRef: ElementRef
+  @ViewChild('emailRef') emailRef: ElementRef
+  @ViewChild('panRef') panRef: ElementRef
 
-    this.submitClick = false
-    //this.coustomerForm.reset()
-    // this.createCustomerForm()
-    //this.select2VendorValue(0)
-    this.getCustomoerType(0)
-    this.mobileArray = []
-    this.emailArray = []
-    this.collectionOfAddress = []
-    //this.createCustomerForm()
-    this.countryList = []
-    this.stateList = []
-    this.cityList = []
-    this.areaList = []
-  }
   errormassage: string
   stateError: boolean
   cityError: boolean
@@ -881,185 +984,65 @@ export class CustomerAddComponent implements OnDestroy {
   mobileErrormass: string
   emailErrormass: string
   reqEmailMobile: boolean
-  VendorValidation() {
-    if (this.coustmoreRegistraionId > 0) {
-      this.customerRegistraionError = false
-    } else {
-      this.customerRegistraionError = true
 
-    }
-
-    if (this.customerCustomRateFlag) {
-      if (this.customerTypeId === 0) {
-        this.customCustomer = true
-        // this.customerCustomRateFlag = false
-      } else {
-        this.customCustomer = false
-        //this.customerCustomRateFlag = true
-      }
-    }
-
-    if (!this.mobileRequirdForSetting) {
-      this.mobileError = false
-      this.reqEmailMobile = false
-
-    } else {
-      this.mobileError = true
-      this.mobileErrormass = ErrorConstant.ATLEAST_ADD_SINGLE_RECORD
-      this.reqEmailMobile = false
-
-    }
-    if (!this.emailRequirdForSetting) {
-      this.emailError = false
-      this.reqEmailMobile = false
-
-    } else {
-      this.emailError = true
-      this.emailErrormass = ErrorConstant.ATLEAST_ADD_SINGLE_RECORD
-      this.reqEmailMobile = false
-
-    }
-  }
 
   @ViewChild('area_selecto2') areaSelect2: Select2Component
-  addressDetailsValidation() {
-    if (this.countrId > 0) {
-      this.countryError = false
-    } else {
-      this.countryError = true
-    }
-    if (this.stateId > 0) {
-      this.stateError = false
-    } else {
-      this.stateError = true
-    }
+  @ViewChild('address_value') addressRef: ElementRef
 
-    if (this.cityId > 0) {
-      this.cityError = false
-    } else {
-      this.cityError = true
-    }
-    if (this.addresTypeId > 0) {
-      this.addressError = false
-    } else {
-      this.addressError = true
-    }
 
-  }
-  gstNumberRegxValidation(gstNumber) {
-    //  /^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$ // working
-    //  /^([0-9]{2}[a-zA-Z]{4}([a-zA-Z]{1}|[0-9]{1})[0-9]{4}[a-zA-Z]{1}([a-zA-Z]|[0-9]){3}){0,15}$/
-    let regxGST = /^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$/
-    return regxGST.test(gstNumber)
-  }
-  panNumberRegxValidation(panNumber) {
-    let regxPAN = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/
-    return regxPAN.test(panNumber)
-  }
-  validPANFlag: boolean = false
+
   GSTNumber: any
   PANNumber: any
-  onInputCheckPANNumber(event) {
-    this.PANNumber = (event.target.value).toUpperCase()
-    if (this.PANNumber !== '' && this.PANNumber !== null) {
-      if (this.panNumberRegxValidation(this.PANNumber)) {
-        this.validPANFlag = false
-      } else {
-        this.validPANFlag = true
-      }
-    } else {
-      this.validPANFlag = false
-    }
-  }
-  disabledStateCountry: any
-  validGSTNumber: boolean = false
-
-
-  getStateCode = async (stateCode) => {
-    this._CommonService.getStateByGStCode(stateCode).
-      pipe(
-        takeUntil(this.unSubscribe$)
-      ).
-      subscribe((response: any) => {
-        if (response.Code === UIConstant.THOUSAND && response.Data.length) {
-          this.countrId = response.Data[0].CommonId
-          this.stateId = response.Data[0].Id
-          this.countryValue = response.Data[0].CommonId
-          // this.countryselecto.setElementValue(response.Data[0].CommonId)
-          this.getOneState(response)
-          this.stateValue = response.Data[0].Id
-          // this.stateselecto.setElementValue(response.Data[0].Id)
-
-        }
-      })
-  }
-
-
-  getOneState(rsp) {
-    let newdata = []
-    newdata.push({
-      id: rsp.Data[0].Id,
-      text: rsp.Data[0].CommonDesc1
-    })
-    this.disabledStateCountry = true
-    this.stateList = newdata
-    this.getCitylist(rsp.Data[0].Id, 0)
-  }
-  checkGSTNumber(event) {
-    this.gstin = event.target.value;
-    let str = this.gstin
-    let val = str.trim();
-    this.GstinNoCode = val.substr(0, 2);
-    if (this.GstinNoCode !== '') {
-      this.getStateCode(this.GstinNoCode)
-    }
-    else {
-      this.disabledStateCountry = false
-
-    }
-
-    this.matchStateCodeWithGSTNumber()
-    this.checkGSTNumberValid()
-  }
   GSTStateCode: any = 0
   GstinNoCode: any
-  matchStateCodeWithGSTNumber() {
-    if (this.GSTStateCode > 0 && this.GstinNoCode !== '') {
-      if (this.GSTStateCode === this.GstinNoCode) {
-        return true
+
+  returnsplitGSTcode() {
+    if (!_.isEmpty(this.gstin) && this.gstin !== '') {
+      let str = this.gstin
+      let val = str.trim();
+      this.GstinNoCode = val.substr(0, 2);
+      if (this.GstinNoCode !== '') {
+        return this.GstinNoCode
       }
-      else {
-        return false
+    } else {
+      return ''
+    }
+  }
+
+
+  multipleGSTmatch() {
+    if (this.collectionOfAddress.length > 0) {
+      let dvalue = this.collectionOfAddress.filter(
+        d => (d.StateCode === this.GstinNoCode))
+      if (dvalue.length > 0) { return true }
+      else { return false }
+    }
+    else { return true }
+  }
+
+  matchStateCodeWithGSTNumber() {
+    if ((!_.isEmpty(this.returnsplitGSTcode()))  && this.GstinNoCode !== '') {
+      if(this.multipleCountry()){
+        if(this.multipleGSTmatch()){
+          return true
+        }
+        else{
+          return false
+        }
+      }else{
+        return true
       }
     } else {
       return true
     }
 
   }
-  checkGSTNumberValid() {
-    if (this.gstin !== '') {
-      if (this.coustmoreRegistraionId === 1) {
-        if (this._CommonService.gstNumberRegxValidation((this.gstin).toUpperCase())) {
-          this.validGSTNumber = false
-          this.requiredGSTNumber = false
 
-        } else {
-          this.validGSTNumber = true
-          this.requiredGSTNumber = true
-        }
-      }
-
-    } else {
-      this.validGSTNumber = false
-    }
-
-  }
 
 
   private customerParams(): AddLedger {
     let DOA;
     let DOB;
-    // DateOfAnniry:any
     if (this.DateOfAnniry !== '') {
       DOA = this._globalService.clientToSqlDateFormat(this.DateOfAnniry, this.clientDateFormat)
     }
@@ -1136,129 +1119,190 @@ export class CustomerAddComponent implements OnDestroy {
   country: string
   stateName: string
   cityName: string
+
+  dynamicFocusAddress() {
+    let isvalid = true
+    if (this.countryValue !== 0 && this.countryValue !== null) {
+      this.invalidObj['countryValue'] = false
+    }
+    else {
+      this.invalidObj['countryValue'] = true
+      this.countryselecto.focus()
+      isvalid = false
+    }
+    if (this.stateValue !== 0 && this.stateValue !== null) {
+      this.invalidObj['stateValue'] = false
+    }
+    else if (this.collectionOfAddress.length === 0) {
+      this.invalidObj['stateValue'] = true
+      this.stateselecto.focus()
+
+      isvalid = false
+    }
+    if (this.cityValue !== 0 && this.cityValue !== null) {
+      this.invalidObj['cityValue'] = false
+    }
+    else {
+      this.invalidObj['cityValue'] = true
+      this.cityselecto.focus()
+
+      isvalid = false
+    }
+    if (this.adresss !== '' && (!_.isEmpty(this.adresss))) {
+      this.invalidObj['adresss'] = false
+    }
+    else {
+      this.invalidObj['adresss'] = true
+      this.addressRef.nativeElement.focus()
+      isvalid = false
+    }
+    return isvalid
+  }
+
   addNewAdress() {
-    
-    this.addressClick = true
-    this.addressDetailsValidation()
-    if (this.stateId > 0 && this.cityId > 0 && this.countrId > 0 && this.adresss !== '' && this.adresss !==null) {
-      this.addressRequiredForLedger = false
-      this.countryList.forEach(element => {
-        if (element.id === JSON.parse(this.countrId)) {
-
-          this.country = element.text
-        }
-      })
-      this.stateList.forEach(element => {
-        if (element.id === JSON.parse(this.stateId)) {
-          this.stateName = element.text
-        }
-      })
-
-      this.cityList.forEach(element => {
-        if (element.id === JSON.parse(this.cityId)) {
-          this.cityName = element.text
-        }
-      })
-      if (this.addressIndex !== undefined) {
-
+    // if (this.dynamicFocusAddress()) {
+    if (this.countryValue !== 0 && this.countryValue !== null && this.stateValue !== 0 && this.stateValue !== null && this.cityValue !== 0 && this.cityValue !== null && (!_.isEmpty(this.adresss)) && this.adresss !== '') {
+      if (this.addressIndex !== null) {
         if (this.collectionOfAddress.length > 0) {
-
           let newArray = {
             Id: this.collectionOfAddress[this.addressIndex].Id !== 0 ? this.collectionOfAddress[this.addressIndex].Id : 0,
             ParentTypeId: 5,
-            CountryId: this.countrId,
-            StateId: this.stateId,
-            CityId: this.cityId,
+            CountryId: this.countryValue,
+            StateId: this.stateValue,
+            CityId: this.cityValue,
+            StateCode: this.GSTStateCode,
             AddressType: this.addresTypeId,
             AddressTypeName: this.addTypeName,
             PostCode: this.postcode,
-            AreaId: this.areaID,
-            AreaName: this.Areaname,
+            AreaId: this.areNameId===null ? 0 : this.areNameId,
+            AreaName: this.areNameId===null ? '' : this.areaName,
             AddressValue: this.adresss,
-            CountryName: this.country,
+            CountryName: this.CountryName,
             Statename: this.stateName,
             CityName: this.cityName
           }
-
           this.collectionOfAddress.splice(this.addressIndex, 1, newArray)
-
         }
-
-        this.addressIndex = undefined
-
+        this.addressIndex = null
       } else {
         this.collectionOfAddress.push({
           Id: 0,
           ParentTypeId: 5,
-          CountryId: this.countrId,
-          StateId: this.stateId,
-          CityId: this.cityId,
+          CountryId: this.countryValue,
+          StateId: this.stateValue,
+          CityId: this.cityValue,
           AddressType: this.addresTypeId,
           AddressTypeName: this.addTypeName,
+          StateCode: this.GSTStateCode,
           PostCode: this.postcode,
-          AreaId: this.areaID,
-          AreaName: this.Areaname,
+          AreaId: this.areNameId===null ? 0 : this.areNameId,
+          AreaName: this.areNameId===null ? '' : this.areaName,
           AddressValue: this.adresss,
-          CountryName: this.country,
+          CountryName: this.CountryName,
           Statename: this.stateName,
           CityName: this.cityName
         })
       }
       this.addressClick = false
-      this.onloadingAddress()
+      this.adresss = ''
     }
-  
-    this.adressType(0)
-    setTimeout(() => {
-      // this.countryselecto.selector.nativeElement.focus()
-    }, 1000)
   }
-  resetAddress() {
-    this.getCountry(0)
-    this.countryList = []
-    this.stateList = []
-    this.cityList = []
-    this.areaList = []
-  }
-  addressIndex: any
-  getEditAddress(address, index) {
-    console.log(address)
-    this.addressIndex = index
-    this.postcode = address.PostCode
-    this.adresss = address.AddressValue
-    this.loadAddressDetails(address)
-    this.adressType(address.AddressType)
-
-  }
-  loadAddressDetails(Address) {
-    this.cityId = Address.CityId
-    this.countrId =Address.CountryId
-    this.countryCodeFlag = Address.CountryCode
-    this.validmobileLength =Address.Length
-    this.stateId=Address.StateId
-    this.areaID = Address.AreaId
+  getAddressIdForEdit(Address) {
+    this.countryValue = Address.CountryId
+    this.stateValue = Address.StateId
+    this.cityValue = Address.cityId
+    this.areNameId = Address.AreaId
+    if(this.countryValue===123){
+      this.GSTStateCode = Address.StateCode
+    }
+    else{
+      this.GSTStateCode='00'
+    }
+    this.CountryName = Address.CountryName
+    this.stateName = Address.Statename
+    this.cityName = Address.CityName
     this.adresss = Address.AddressValue
+    this.Areaname = Address.AreaName
+    this.postcode = Address.PostCode
+    this.addTypeName = Address.AddressTypeName
     let country = {
       id: Address.CountryId,
       text: Address.CountryName
     }
-    let phonecode = {
-      id: Address.CountryCode, text: Address.CountryName,
-      PhoneCode: Address.CountryCode,
-      Length: Address.Length
-    }
-    this.onCountryCodeSelectionChange(phonecode)
-   
     this.selectCountryListId(country)
     this.getListCountryLabelList(Address.CountryId)
-
-    this.countryValue = Address.CountryId
-
     let state = {
       id: Address.StateId,
-      text: Address.Statename
+      text: Address.Statename,
+      stateCode: this.GSTStateCode
     }
+    let city = {
+      id: Address.CityId,
+      text: Address.CityName
+    }
+    setTimeout(() => {
+      this.selectStatelist(state)
+    }, 100);
+    setTimeout(() => {
+      this.selectedCityId(city)
+    }, 200);
+    let area = {
+      id: Address.AreaId,
+      text: Address.AreaName
+    }
+    setTimeout(() => {
+      this.selectedArea(area)
+    }, 200);
+  }
+  addressIndex: any = null
+  getEditAddress(address, index) {
+    this.addressIndex = index
+    this.getAddressIdForEdit(address)
+    this.adressType(address.AddressType)
+  }
+  getOrgnizationAddress() {
+    let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
+    if (Address !== null && this.addressByDefaultForLedger) {
+      this.loadAddressDetails(Address)
+    }
+    if (Address !== null  && !this.addressByDefaultForLedger) {
+      this.getCountryCodeForMobile(Address)
+    }
+  }
+  getCountryCodeForMobile (Address){
+    this.validmobileLength = Address.Length
+    this.countryCodeFlag = Address.CountryCode
+    this.CountryCode = Address.CountryCode
+    this.getListCountryLabelList(0)
+    this.GSTStateCode='00'
+    
+  }
+  loadAddressDetails(Address) {
+    this.validmobileLength = Address.Length
+    this.countryValue = Address.CountryId
+    this.stateValue = Address.StateId
+    this.cityValue = Address.CityId
+    this.countryCodeFlag = Address.CountryCode
+    this.CountryCode = Address.CountryCode
+    if(this.countryValue===123){
+      this.GSTStateCode = Address.ShortNameState
+    }
+    else{
+      this.GSTStateCode='00'
+    }
+    this.CountryName = Address.CountryName
+    let country = {
+      id: Address.CountryId,
+      text: Address.CountryName
+    }
+    this.selectCountryListId(country)
 
+    this.getListCountryLabelList(Address.CountryId)
+    let state = {
+      id: Address.StateId,
+      text: Address.Statename,
+      stateCode: this.GSTStateCode
+    }
     let city = {
       id: Address.CityId,
       text: Address.CityName
@@ -1267,60 +1311,31 @@ export class CustomerAddComponent implements OnDestroy {
       id: Address.AreaId,
       text: Address.AreaName
     }
+
+
     setTimeout(() => {
       this.selectStatelist(state)
     }, 100);
-    this.stateValue = Address.StateId
     setTimeout(() => {
       this.selectedCityId(city)
     }, 200);
-    this.cityValue = Address.CityId
     setTimeout(() => {
       this.selectedArea(area)
     }, 200);
-    this.areNameId = Address.AreaId
-
 
   }
-  onloadingAddress() {
-    this.countrId = 0
-    this.countryValue = null
-    this.stateValue = null
-    this.cityValue = null
-    this.areNameId = null
-    this.stateId = 0
-    this.cityId = 0
-    this.addresTypeId = 0
-    this.addTypeName = ''
-    this.postcode = ''
-    this.areaID = 0
-    this.Areaname = ''
-    this.adresss = ''
-    this.country = ''
-    this.stateName = ''
-    this.cityName = ''
-  }
+
 
   postcode: any
-  adresss: any 
-
-
+  adresss: any = ''
   ngOnDestroy() {
-    this.modalSub.unsubscribe()
-    this.confirmSUB.unsubscribe()
+    if (this.modalSub) this.modalSub.unsubscribe()
+    if (this.confirmSUB) this.confirmSUB.unsubscribe()
+    if (this.subscribe) this.subscribe.unsubscribe()
   }
   setupCodeForAddresRequired: any
   removeAdressIndexArray(i) {
     this.collectionOfAddress.splice(i, 1)
-    if (this.collectionOfAddress.length > 0) {
-      this.addressRequiredForLedger = false
-    } else
-      if (this.setupCodeForAddresRequired === 54) {
-        this.addressRequiredForLedger = true
-      } else {
-        this.addressRequiredForLedger = false
-
-      }
   }
   openingblance: any
   gstin: any
@@ -1330,17 +1345,13 @@ export class CustomerAddComponent implements OnDestroy {
   doa: any
   dob: any
   creditlimit: any
-
   getCustomerEditData(id) {
     setTimeout(() => {
       this.ledgerName.nativeElement.focus()
     }, 1000)
-    this.getCountry(0)
+    //this.getCountry(0)
     this.submitClick = true
     $('#customer_form').modal(UIConstant.MODEL_SHOW)
-    this.customerTabDiv = false
-    this.addressTabDiv = true
-
     this.subscribe = this._coustomerServices.editvendor(id).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
         if (Data.Data && Data.Data.Statutories && Data.Data.Statutories.length > 0) {
@@ -1348,70 +1359,50 @@ export class CustomerAddComponent implements OnDestroy {
           this.gstin = Data.Data.Statutories[0].GstinNo
           this.panNo = Data.Data.Statutories[0].PanNo
         }
+
         if (Data.Data && Data.Data.Addresses && Data.Data.Addresses.length > 0) {
-          this.collectionOfAddress = []
           this.collectionOfAddress = Data.Data.Addresses
           this.addressRequiredForLedger = false
 
-        } else {
-          this.collectionOfAddress = []
         }
-
         if (Data.Data && Data.Data.ContactPersons && Data.Data.ContactPersons.length > 0) {
           this.contactId = Data.Data.ContactPersons[0].Id
           this.contactPerson = Data.Data.ContactPersons[0].Name
-          this.customerError= false
           if (Data.Data.ContactPersons[0].DOA !== null) {
             this.DateOfAnniry = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOA, this.clientDateFormat)
-
           }
           else {
             this.doa = ''
           }
           if (Data.Data.ContactPersons[0].DOB !== null) {
             this.DateOfBirth = this._globalService.utcToClientDateFormat(Data.Data.ContactPersons[0].DOB, this.clientDateFormat)
-
           }
           else {
             this.dob = ''
           }
         }
-
         if (Data.Data && Data.Data.LedgerDetails && Data.Data.LedgerDetails.length > 0) {
           this.customerName = Data.Data.LedgerDetails[0].Name
           this.creditDays = Data.Data.LedgerDetails[0].CreditDays
           this.creditlimit = Data.Data.LedgerDetails[0].CreditLimit.toFixed(this.noOfDecimal)
           this.openingblance = Data.Data.LedgerDetails[0].OpeningBalance.toFixed(this.noOfDecimal)
           this.customerTypeId = Data.Data.LedgerDetails[0].CustomerTypeId
-          this.coustmoreRegistraionId = Data.Data.LedgerDetails[0].TaxTypeId
+          this.customerTypeSelect2.setElementValue(Data.Data.LedgerDetails[0].CustomerTypeId)
+          this.coustmoreRegistraionId = Data.Data.LedgerDetails[0].TaxTypeId.toString()
           this.requiredGSTNumber = Data.Data.LedgerDetails[0].TaxTypeId === 1 ? true : false
           this.crDrId = Data.Data.LedgerDetails[0].Crdr
-          this.getCustomoerType(Data.Data.LedgerDetails[0].CustomerTypeId)
+
           this.CustomerRegisterTypeSelect2.setElementValue(Data.Data.LedgerDetails[0].TaxTypeId)
-          // this.select2VendorValue(Data.Data.LedgerDetails[0].TaxTypeId)
           this.disabledGSTfor_UnRegi = Data.Data.LedgerDetails[0].TaxTypeId === 4 ? true : false
-
-
           this.select2CrDrValue(Data.Data.LedgerDetails[0].Crdr)
         }
-
         if (Data.Data.ContactInfo.length > 0) {
-          this.mobileRequirdForSetting = false
-          this.mobileArray = []
           this.mobileArray = Data.Data.ContactInfo
-        } else {
-          this.mobileArray = []
-          //   this.addingArrayinMobleType(0)
+
         }
         if (Data.Data && Data.Data.Emails.length > 0) {
-          this.emailRequirdForSetting = false
-          this.emailArray = []
           this.emailArray = Data.Data.Emails
-        } else {
-          this.emailArray = []
-          //this.emailAddingArray(0)
         }
-
         if (Data.Data.LedgerDetails[0].IsTradeDiscountable === true) {
           this.istradeDiscountValue = true
           $('#tradediscount').prop('checked', true)
@@ -1439,63 +1430,35 @@ export class CustomerAddComponent implements OnDestroy {
         this._toastrcustomservice.showError('', Data.Description)
       }
     })
+    this.redMarkLabel()
   }
 
   @ViewChild('customer_type_select2') customerTypeSelect2: Select2Component
   contactPerson: any
   reapeatName(name: string) {
     this.contactPerson = name
+  }
+  mobile_email_setting_required: any
+  address_setting_required: any
+  addressByDefaultForLedger:boolean = false
+  getSetUpModules(settings) {
+    settings.forEach(element => {
+      if (element.id === SetUpIds.dateFormat) {
+        this.clientDateFormat = element.val[0].Val
+      }
+      if (element.id === SetUpIds.edgerEmailorMobileRequiredorNot) {
+        this.mobile_email_setting_required = element.val
+      }
+      if (element.id === SetUpIds.edgerAddressRequiredorNot) {
+        this.address_setting_required = element.val
+      }
+      if (element.id === SetUpIds.addressByDefaultForLedger) {
+        this.addressByDefaultForLedger = element.val
+      }
+
+    })
 
   }
-
-
-  getModuleSettingData() {
-    if (this.getModuleSettingValue.settings.length > 0) {
-      this.getModuleSettingValue.settings.forEach(ele => {
-        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === 1) {
-          this.emailError = false
-          this.mobileRequirdForSetting = true
-         
-
-        }
-        if (ele.id === SetUpIds.dateFormat) {
-          this.clientDateFormat = ele.val[0].Val
-          console.log(this.clientDateFormat)
-          
-        }
-        if (SetUpIds.edgerEmailorMobileRequiredorNot === ele.id && ele.val === 2) {
-          this.emailRequirdForSetting = true
-          this.mobileRequirdForSetting = true
-         
-          this.mobileError = true
-          this.emailError = true
-        }
-        if (ele.id === SetUpIds.edgerEmailorMobileRequiredorNot && ele.val === 3) {
-          this.emailError = true
-          this.mobileError = false
-          this.emailRequirdForSetting = true
-       
-
-        }
-        if (ele.id === SetUpIds.edgerAddressRequiredorNot && ele.val === 1) {
-          this.setupCodeForAddresRequired = 54
-          this.addressRequiredForLedger = true
-
-        }
-        if (ele.id === SetUpIds.applyCustomRateOnItemForSale && ele.val === 1) {
-          this.customerCustomRateFlag = true
-
-        }
-      })
-    }
-  }
-
-
-
-
-
-
-
 
   contactTypeData: any
   getContactType() {
@@ -1509,7 +1472,6 @@ export class CustomerAddComponent implements OnDestroy {
       { id: '7', text: 'Sip' },
       { id: '8', text: 'Other' }
     ]
-
   }
   selectMobileId: any
   emailTypeData: any
@@ -1520,7 +1482,6 @@ export class CustomerAddComponent implements OnDestroy {
       { id: '3', text: 'Home' },
       { id: '4', text: 'Other' }
     ]
-
   }
   selectEmailId: any
   countryListWithCode: any
@@ -1541,7 +1502,6 @@ export class CustomerAddComponent implements OnDestroy {
         console.log(Data, 'code')
       } else {
         this._toastrcustomservice.showError('', Data.Description)
-
       }
     })
   }
@@ -1550,13 +1510,19 @@ export class CustomerAddComponent implements OnDestroy {
   validmobileLength: any
   enableContactFlag: boolean
   onCountryCodeSelectionChange = (event) => {
+    console.log(event)
     if (this.countryCodeFlag !== null) {
       if (event.id > 0) {
         if (event.id !== '0') {
           this.CountryCode = event.PhoneCode
           this.validmobileLength = event.Length
+          //this.countryValue =
         }
       }
+    }
+    if (event.id === '0') {
+      this.CountryCode = 0
+      this.validmobileLength = 0
     }
   }
 
@@ -1568,7 +1534,6 @@ export class CustomerAddComponent implements OnDestroy {
       this.contactType = event.data[0].id
       this.contactTypeName = event.data[0].text
     }
-
   }
   EmailType: any
   EmailAddress: any
@@ -1578,31 +1543,21 @@ export class CustomerAddComponent implements OnDestroy {
       this.EmailType = event.data[0].id
       this.EmailAddressTypeName = event.data[0].text
     }
+  }
 
-  }
-  validateEmail(email) {
-    let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    return re.test(email)
-  }
   editEmailFlg: boolean = true
-  emailAddingArray() {
-
+  addEmailDetail() {
     this.editEmailFlg = true
-    this.checkvalidationEmail()
-    if (this.EmailType > 0 && this.getEmailvalid && this.EmailAddress !== null && this.EmailAddress !== '') {
-      this.emailRequirdForSetting = false
+    if (this.EmailType > 0 && (!_.isEmpty(this.EmailAddress)) && this.checkvalidationEmail()) {
       this.emailArray.push({
         Id: this.EmailId === 0 ? 0 : this.EmailId,
         EmailType: this.EmailType,
         EmailTypeName: this.EmailAddressTypeName,
         EmailAddress: this.EmailAddress,
         ParentTypeId: 5
-
       })
-
       this.clear('email')
     }
-
   }
   @ViewChild('phoneCode_select2') phoneCodeselect2: Select2Component
 
@@ -1626,9 +1581,7 @@ export class CustomerAddComponent implements OnDestroy {
   addConatctDetails() {
     this.addConctFlag = true
     this.editFlg = true
-    if (this.contactType > 0  && !this.validMobileFlag && this.mobileNo !== '') {
-
-      this.mobileRequirdForSetting = false
+    if (this.contactType > 0 && (!_.isEmpty(this.mobileNo)) && this.checkValidMobile()) {
       this.mobileArray.push({
         Id: this.mobileNoId === 0 ? 0 : this.mobileNoId,
         ContactType: this.contactType,
@@ -1637,65 +1590,58 @@ export class CustomerAddComponent implements OnDestroy {
         CountryCode: this.CountryCode,
         CodeId: this.CountryCodeId,
         ParentTypeId: 5
-
       })
-
       this.enableContactFlag = true
       this.clear('contact')
     }
-
-
   }
   invalidObj: any = {}
   invalidObjCont: any = {}
-
   getEmailvalid: any
+
   checkvalidationEmail() {
-    if (this.EmailAddress === "" ) {
-      this.getEmailvalid = true
+    if (!_.isEmpty(this.EmailAddress) && this.EmailAddress !== '') {
+      if (this._CommonService.regxEMAIL.test(this.EmailAddress)) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return true
     }
-    else {
-      this.getEmailvalid = this.validateEmail(this.EmailAddress)
-      return this.getEmailvalid
+  }
+  customerMobileNo: any = ''
+  checkValidMobile() {
+    if (!_.isEmpty(this.mobileNo) && this.mobileNo !== '') {
+      if (this.validmobileLength === this.mobileNo.toString().length) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return true
     }
-
-
   }
 
-  getListCountryLabelList(id){
-    this._CommonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
-      if(resp.Code===1000 && resp.Data.length>0){
-        this.TinNoValue=resp.Data[0].TinNo
-        this.PanNoValue=resp.Data[0].PanNo
-        this.GstinNoValue=resp.Data[0].GstinNo
-        this.CinNoValue=resp.Data[0].CinNo
-        this.FssiNoValue=resp.Data[0].FssiNo 
-        if(id!==123){
-          this.requiredGSTNumber=false
-          this.validGSTNumber =false
-          //this.validPANFlag = false
-        }
-        else{
-          this.requiredGSTNumber=true
-          this.validGSTNumber =true
-          //this.validPANFlag = true
-        }
+
+  getListCountryLabelList(id) {
+    this._CommonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp => {
+      if (resp.Code === UIConstant.THOUSAND && resp.Data.length > 0) {
+        this.TinNoValue = resp.Data[0].TinNo
+        this.PanNoValue = resp.Data[0].PanNo
+        this.GstinNoValue = resp.Data[0].GstinNo
+        this.CinNoValue = resp.Data[0].CinNo
+        this.FssiNoValue = resp.Data[0].FssiNo
       }
-      
     })
   }
-  TinNoValue:any
-  PanNoValue:any
-  GstinNoValue:any
-  CinNoValue:any
-  FssiNoValue:any
+  TinNoValue: any
+  PanNoValue: any
+  GstinNoValue: any
+  CinNoValue: any
+  FssiNoValue: any
   pressEnterEmailadd(e: KeyboardEvent) {
-    this.emailAddingArray()
-
-    this.activaTab('customer2')
-    this.adressTab()
-    //  this._CommonService.openConfirmation('email', 'Email Details')
-
+    this.addEmailDetail()
   }
 
   pressEnterMobileAdd(e: KeyboardEvent) {
@@ -1703,67 +1649,36 @@ export class CustomerAddComponent implements OnDestroy {
     setTimeout(() => {
       this.select_email.selector.nativeElement.focus()
     }, 10)
-
-
   }
   countryValue1: any = null
   stateValuedata1: any = null
   countryCodeFlag: any = null
-  cityValue1: any = null
-  getOrgnizationAddress() {
-    let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
-    if (Address !== null) {
-      this.validmobileLength = Address.Length
-      this.countryCodeFlag = Address.CountryCode
-      this.CountryCode = Address.CountryCode
-    //  this.phoneCodeselect2.setElementValue(Address.CountryCode)
-    }
-
-  }
 
   @ViewChild('addNewCityRef') addNewCityRefModel: AddNewCityComponent
-  selectedCityId(event) {
-    if (this.cityValue !== null) {
-      this.cityId = event.id
-      this.cityError = false
-      if (this.cityId > 0) {
-        this.getAreaId(this.cityId)
-      }
-       if(event.id === '-1'){
-        const data = {
-          countryList: !_.isEmpty(this.countryList) ? [...this.countryList] : [],
-          countryId: this.countryValue===null ? 0 : this.countryValue,
-          stateId: this.stateValue===null ? 0 :  this.stateValue
-        }
-        this.addNewCityRefModel.openModal(data);
-      }
-    }
-  }
-  
+
+
   addCityClosed(selectedIds?) {
-    if (selectedIds !==undefined) {
-      if (this.countryValue !==null && Number(this.countryValue) !== selectedIds.countryId) {
+    if (selectedIds !== undefined) {
+      if (this.countryValue !== null && Number(this.countryValue) !== selectedIds.countryId) {
         this.countryValue = selectedIds.countryId
         this.stateValue = selectedIds.stateId
         this.cityValue = selectedIds.cityId;
-      } else if (this.stateValue !==null && Number(this.stateValue) !== selectedIds.stateId) {
+      } else if (this.stateValue !== null && Number(this.stateValue) !== selectedIds.stateId) {
         this.stateValue = selectedIds.stateId
         this.cityValue = selectedIds.cityId;
       } else {
         this.cityValue = selectedIds.cityId;
-        this.cityId =selectedIds.cityId
-        this.getCitylist(selectedIds.stateId,0)
+        this.cityValue = selectedIds.cityId
+        this.getCitylist(selectedIds.stateId, 0)
       }
     } else {
-      this.cityValue =null
-      this.cityId =0
+      this.cityValue = null
     }
   }
   yesConfirmationClose() {
     $('#close_confirm_customer').modal(UIConstant.MODEL_HIDE)
-     this.onloading()
-    
-    
+    this.onloadingCustomerForm()
+    this._CommonService.closeCust('')
   }
   closeConfirmation() {
     $('#close_confirm_customer').modal(UIConstant.MODEL_SHOW)

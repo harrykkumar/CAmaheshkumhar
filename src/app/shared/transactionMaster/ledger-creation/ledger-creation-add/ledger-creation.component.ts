@@ -16,6 +16,10 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AddNewCityComponent } from '../../../../shared/components/add-new-city/add-new-city.component';
 import * as _ from 'lodash'
+import { NgSelectComponent } from '@ng-select/ng-select';
+import { IfStmt } from '@angular/compiler'
+import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
+
 @Component({
   selector: 'app-ledger-creation',
   templateUrl: './ledger-creation.component.html',
@@ -66,7 +70,6 @@ export class LedgerCreationAddComponent implements OnDestroy {
   HSNNo: any = ''
   RCMTypeValue: any
   editID: any = 0
-  cityId: any = 0
   clientDateFormat: any
   isAddNew: boolean = false
   renderer: any;
@@ -75,7 +78,7 @@ export class LedgerCreationAddComponent implements OnDestroy {
   constructor(private ledgerService: LedgerCreationService, renderer: Renderer2, public _globalService: GlobalService, public _settings: Settings, private _CommonService: CommonService,
     private _formBuilder: FormBuilder,
     private _coustomerServices: VendorServices, public _categoryservices: CategoryServices, public _toastrcustomservice: ToastrCustomService) {
-    //this.createCustomerForm()
+
 
     this.clientDateFormat = this._settings.dateFormat
     this.noOfDecimal = this._settings.noOfDecimal
@@ -124,7 +127,9 @@ export class LedgerCreationAddComponent implements OnDestroy {
 
     this.modelForLedgerGroup = this._CommonService.getledgerGroupStatus().subscribe(
       (data: AddCust) => {
-        if (data.id && data.name) {
+        if (data.id >0 && data.name) {
+          debugger
+          this.getLedgerGroupList()
           let newData = Object.assign([], this.ledgerGroupData)
           newData.push({ id: data.id, text: data.name })
           this.ledgerGroupData = newData
@@ -134,7 +139,6 @@ export class LedgerCreationAddComponent implements OnDestroy {
           setTimeout(() => {
             this.underGroupSelect2.selector.nativeElement.focus()
           }, 1000)
-          this.getLedgerGroupList()
         }
       }
     )
@@ -151,7 +155,7 @@ export class LedgerCreationAddComponent implements OnDestroy {
   getITCType() {
     this.ledgerService.getItcTypeList().subscribe(response => {
       if (response.Code === UIConstant.THOUSAND) {
-        this.ListITCType = []
+        this.ListITCType = [{ id: 0, text: 'Slect Type' }]
         response.Data.forEach(element => {
           this.ListITCType.push({
             id: element.Id,
@@ -164,7 +168,7 @@ export class LedgerCreationAddComponent implements OnDestroy {
   getRCMType() {
     this.ledgerService.getRcmTypeList().subscribe(response => {
       if (response.Code === UIConstant.THOUSAND) {
-        this.ListRCMType = []
+        this.ListRCMType = [{ id: 0, text: 'Slect Type' }]
         response.Data.forEach(element => {
           this.ListRCMType.push({
             id: element.Id,
@@ -178,34 +182,29 @@ export class LedgerCreationAddComponent implements OnDestroy {
 
   onDestroy$ = new Subject()
   LgroupDetails: any
+
   getLedgerGroupList() {
-    this.ledgergroupPlaceHolder = { placeholder: 'Select Group' }
-    let newData = [{ id: '0', text: 'Select Group', headId: '0', IsTaxed: 0 }, { id: '-1', text: UIConstant.ADD_NEW_OPTION, headId: '0', IsTaxed: 0 }]
-    this._CommonService.getLedgerGroupParentData('').pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+    let newData = [{ id: '0', text: 'Select Group', headId: '0', IsTaxed: 0,IsAddressedGl:0  }, { id: '-1', text: UIConstant.ADD_NEW_OPTION, headId: '0', IsTaxed: 0,IsAddressedGl:0 }]
+    this._CommonService.getLedgerGroupParentData('').subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
-        this.LgroupDetails = data.Data
         data.Data.forEach(element => {
           newData.push({
             id: element.Id,
             text: element.GlName,
             headId: element.HeadId,
-            IsTaxed: element.IsTaxed
+            IsTaxed: element.IsTaxed,
+            IsAddressedGl:element.IsAddressedGl,
           })
         })
+        this.ledgerGroupData = newData
       }
-      if (data.Code === UIConstant.SERVERERROR) {
-        this._toastrcustomservice.showError('Data Fetching Error', '')
-      }
-      this.ledgerGroupData = newData
     }
     )
+
   }
   closeModal() {
-    if ($('#ledger_creation_id').length > 0) {
-      this.id = UIConstant.ZERO
-      this.editMode = false
-      $('#ledger_creation_id').modal(UIConstant.MODEL_HIDE)
-    }
+    $('#ledger_creation_id').modal(UIConstant.MODEL_HIDE)
+
   }
 
 
@@ -224,63 +223,149 @@ export class LedgerCreationAddComponent implements OnDestroy {
       })
     })
   }
-  isSelectParentGrp: boolean
-  ledgerNameEr: boolean
- 
-  dynamicFocus() {
-    
-    if (this.parentId > 0) {
-      this.invalidObj['parentId'] = false
-    } else {
-      this.invalidObj['parentId'] = true
-      this.underGroupSelect2.selector.nativeElement.focus()
-    }
-    if (this.ledgerName && this.ledgerName.trim()) {
-      this.invalidObj['ledgerName'] = false
-    } else if (!this.invalidObj.parentId) {
-      this.invalidObj['ledgerName'] = true
-      this.ledgerNameRef.nativeElement.focus();
 
-    }
-    if (this.coustmoreRegistraionId === '1' && this.countrId===123 && this.requiredGST && !this.invalidObj.parentId && !this.invalidObj.ledgerName) {
-      this.invalidObj['requiredGST'] = true
-      this.GStRequire.nativeElement.focus()
-    } else if (!this.invalidObj.parentId && !this.invalidObj.ledgerName) {
-      this.invalidObj['requiredGST'] = false
-     
 
-    }
-
-  }
 
   invalidObj: any = {}
 
-  checkForValidation(): boolean {
-    
-    let isValid = 1
-    if (!isNaN(+this.parentId) && +this.parentId > 0) {
-      this.invalidObj['parentId'] = false
-    } else {
+  mandatoryField() {
+    this.invalidObj['address'] = false
+    this.invalidObj['cityValue'] = false
+    this.invalidObj['stateValue'] = false
+    this.invalidObj['countryValue'] = false
+
+    if (this.parentId === 0) {
       this.invalidObj['parentId'] = true
-      isValid = 0
-    }
-    if (this.ledgerName && this.ledgerName.trim()) {
-      this.invalidObj['ledgerName'] = false
     } else {
+      this.invalidObj['parentId'] = false
+    }
+    if (_.isEmpty(this.ledgerName) && this.ledgerName === '') {
       this.invalidObj['ledgerName'] = true
-      isValid = 0
-    }
-
-    if (this.coustmoreRegistraionId === '1' && this.requiredGST && this.countrId===123) {
-      this.invalidObj['requiredGST'] = true
-      isValid = 0
     } else {
-      this.invalidObj['requiredGST'] = false
-     
+      this.invalidObj['ledgerName'] = false
     }
 
-    return !!isValid
+    if(this.IsAddressedGlReguiredForHeadGroup){
+
+      if (this.countryValue === null) {
+        this.invalidObj['countryValue'] = true
+      }
+      else {
+        this.invalidObj['countryValue'] = false
+      }
+      if (this.stateValue === null) {
+        this.invalidObj['stateValue'] = true
+      }
+      else {
+        this.invalidObj['stateValue'] = false
+      }
+      if (this.cityValue === null) {
+        this.invalidObj['cityValue'] = true
+      }
+      else {
+        this.invalidObj['cityValue'] = false
+      }
+      if (_.isEmpty(this.address) && this.address === '') {
+        this.invalidObj['address'] = true
+      }
+      else {
+        this.invalidObj['address'] = false
+      }
+    }
+    if ((this.coustmoreRegistraionId === '1' || this.coustmoreRegistraionId === '2') && (this.countryValue === 123 || this.countryValue === '123')) {
+      this.invalidObj['gst_required'] = true
+    }
+    else {
+      this.invalidObj['gst_required'] = false
+
+    }
+  
   }
+
+ @ViewChild('AddressRef') AddressRef : ElementRef
+  dynamicFocusValidation = () => {
+    let valid = true
+    if (this.parentId === 0) {
+      this.invalidObj['parentId'] = true
+      this.underGroupSelect2.selector.nativeElement.focus({ preventScroll: false })
+      valid = false
+    } else {
+      this.invalidObj['parentId'] = false
+    }
+    if (!_.isEmpty(this.ledgerName) && this.ledgerName !== '') {
+      this.invalidObj['ledgerName'] = false
+    } else if (!this.invalidObj.parentId) {
+      this.invalidObj['ledgerName'] = true
+      valid = false
+      this.ledgerNameRef.nativeElement.focus();
+    }
+    if (this.showHideFlag) {
+      if(this.IsAddressedGlReguiredForHeadGroup){
+        if (this.countryValue > 0 && this.countryValue !== null) {
+          this.invalidObj['countryValue'] = false
+        }
+       else if (!this.invalidObj.parentId && !this.invalidObj.ledgerName) {
+          this.invalidObj['countryValue'] = true
+          this.countryselecto.focus()
+          valid = false
+        }
+        if (this.stateValue > 0 && this.stateValue !== null) {
+          this.invalidObj['stateValue'] = false
+        }
+        else if (!this.invalidObj.parentId && !this.invalidObj.ledgerName &&  !this.invalidObj.countryValue) {
+          this.invalidObj['stateValue'] = true
+          this.stateselecto2.focus()
+          valid = false
+        }
+        if (this.cityValue > 0 && this.cityValue !== null) {
+          this.invalidObj['cityValue'] = false
+        }
+        else if (!this.invalidObj.parentId && !this.invalidObj.ledgerName &&  !this.invalidObj.countryValue && !this.invalidObj.stateValue) {
+          this.invalidObj['cityValue'] = true
+          this.cityselecto2.focus()
+          valid = false
+        }
+        if (!_.isEmpty(this.address) && this.address !== '') {
+          this.invalidObj['address'] = false
+        }
+        else if (!this.invalidObj.parentId && !this.invalidObj.ledgerName &&  !this.invalidObj.countryValue && !this.invalidObj.stateValue && !this.invalidObj.cityValue) {
+          this.invalidObj['address'] = true
+          this.AddressRef.nativeElement.focus()
+          valid = false
+        }
+      }
+    
+      if ((this.coustmoreRegistraionId === '1' || this.coustmoreRegistraionId === '2') ) {
+        this.invalidObj['gst_required'] = true
+      if (!this.chekGSTvalidation() && !this.invalidObj.address  && !this.invalidObj.parentId && !this.invalidObj.ledgerName &&  !this.invalidObj.countryValue && !this.invalidObj.stateValue && !this.invalidObj.cityValue) {
+        this.invalidObj['gst_required'] = true
+        this.GStRequire.nativeElement.focus()
+        valid = false
+      } else {
+        this.invalidObj['gst_required'] = false
+      }
+      }
+      else {
+        this.invalidObj['gst_required'] = false
+
+      }
+      
+    }
+    
+   // if (this.countryValue === 123 || this.countryValue === '123'){
+      if (!this.checkPANNumberValid() && !this.invalidObj.gst_required && !this.invalidObj.address  && !this.invalidObj.parentId && !this.invalidObj.ledgerName &&  !this.invalidObj.countryValue && !this.invalidObj.stateValue && !this.invalidObj.cityValue) {
+        this.invalidObj['panNum_Ref'] = true
+        this.panNum_Ref.nativeElement.focus()
+        valid = false
+      } else {
+        this.invalidObj['panNum_Ref'] = false
+      }
+   // }
+    
+  
+    return valid
+  }
+@ViewChild('panNum_Ref') panNum_Ref: ElementRef
 
 
   taxSlabName: any = ''
@@ -299,74 +384,88 @@ export class LedgerCreationAddComponent implements OnDestroy {
   parentId: any
   headId: any
   isTaxedAplly: any = 0
+  IsAddressedGlReguiredForHeadGroup:any=0
   onChnageGroup(event) {
     if (event.value && event.data.length > 0) {
       if (event.data[0].selected) {
         if (event.value !== '-1') {
-          this.disabledInputField = false
-          this.parentId = +event.value
-          this.headId = event.data[0].headId
-          this.isTaxedAplly = event.data[0].IsTaxed
-          this.select2CrDrValue()
-          this.checkForValidation()
-          this.openingStatus()
-          this.openingblance = 0
+          if(this.editMode){
+            this.disabledOpeningBalance = false
+            this.parentId = +event.value
+            this.headId = event.data[0].headId
+            this.isTaxedAplly = event.data[0].IsTaxed
+            this.IsAddressedGlReguiredForHeadGroup = event.data[0].IsAddressedGl 
+            this.openingStatus()
 
+          }
+       else{
+        this.disabledOpeningBalance = false
+        this.parentId = +event.value
+        this.headId = event.data[0].headId
+        this.isTaxedAplly = event.data[0].IsTaxed
+        this.IsAddressedGlReguiredForHeadGroup = event.data[0].IsAddressedGl 
+        this.select2CrDrValue()
+        this.openingStatus()
+        this.openingblance = 0
+          }
         }
-        else {
+        else  {
           this.underGroupSelect2.selector.nativeElement.value = ''
           this._CommonService.openledgerGroup('', '')
         }
-      }
-
-    }
-  }
-
-  GSTStateCode: any
-
-  matchGStno: boolean
-  matchStateCodeWithGSTNumber() {
-    if (this.GSTStateCode > 0 && this.GstinNoCode !== '') {
-      if (this.GSTStateCode === this.GstinNoCode) {
-        return true
-      }
-      else {
-        return false
-      }
-    } else {
-      return true
-    }
-
-  }
-
-  selectStatelist(event) {
-    if (this.stateValue !== null) {
-      if (+event.id > 0) {
-        this.stateId = +event.id
-        this.GSTStateCode = event.stateCode
-        this.stateValue = +event.id
-        this.matchStateCodeWithGSTNumber()
-        this.countryError = false
-        if (this.stateId > 0) {
-          this.getCitylist(this.stateId, 0)
+        if(event.value==='0'){
+          this.disabledOpeningBalance = true
+          this.IsAddressedGlReguiredForHeadGroup =0
+          this.parentId=0
+          this.isTaxedAplly=0
+          this.headId =0
         }
       }
-      else {
-        this.stateId = 0
+    }
+   
+  }
+
+  GSTStateCode: any='00'
+
+  matchGStno: boolean
+  
+
+  selectStatelist(event) {
+    console.log(event)
+    this.stateValue = event.id
+    if (this.stateValue > 0) {
+      this.stateValue = event.id
+      if(this.countryValue===123){
+        this.GSTStateCode = event.stateCode
+      }
+      else{
+        this.GSTStateCode='00'
+      }
+      this.StateName = event.text
+      if (this.stateValue > 0) {
+        this.getCitylist(this.stateValue, 0)
       }
     }
-
+    if (event.id === 0) {
+      this.stateValue = null
+    }
   }
   cityValue: any
   getCitylist(id, value) {
+    this.cityValue = null
+    this.cityList =[]
     this.subscribe = this._coustomerServices.getCityList(id).subscribe(Data => {
-      this.cityList = [{ id: '-1', text: '+Add New' }]
-      Data.Data.forEach(element => {
-        this.cityList.push({
-          id: element.Id,
-          text: element.CommonDesc2
+    let dataNew= [{ id: '-1', text: '+Add New' }]
+      if(Data.Code===1000){
+        Data.Data.forEach(element => {
+          dataNew.push({
+            id: element.Id,
+            text: element.CommonDesc2
+          })
         })
-      })
+      }
+      this.cityList = dataNew
+    
     })
   }
 
@@ -377,56 +476,60 @@ export class LedgerCreationAddComponent implements OnDestroy {
   ledgerGroupData: any = []
   cityCountrysatateReset() {
   }
+closeResetData(){
+  if(this.underGroupSelect2){
+    setTimeout(() => {
+      this.underGroupSelect2.setElementValue(0)
+    }, 100)
+  }
+  if(this.customeRegistTypeSelect2){
+    setTimeout(() => {
+      this.customeRegistTypeSelect2.setElementValue(0)
+    }, 100)
+  } 
+  this.gstin=''
+  this.id=0
+}
+
   yesConfirmationClose() {
     $('#close_confirm7').modal(UIConstant.MODEL_HIDE)
-    this.clearValidation()
-  }
-  closeConfirmation() {
-    $('#close_confirm7').modal(UIConstant.MODEL_SHOW)
-  }
-  closeLedger() {
-    this.closeConfirmation()
-  }
-  clearValidation() {
-    this.onLoading()
-    this.showHideFlag = true
-    this.submitClick = false
-    this.disabledInputField = true
-    this.underGroupSelect2.setElementValue(0)
-    if (this.taxSlabSelect2) {
-      this.taxSlabSelect2.setElementValue(0)
-    }
-    if (this.rcmSelect2) {
-      this.rcmSelect2.setElementValue(0)
-
-    }
-    if (this.itcSlabSelect2) {
-      this.itcSlabSelect2.setElementValue(0)
-    }
-    this.isTaxedAplly = null
-    this.selectyCoustmoreRegistration = []
-    this.select2VendorValue(1)
-    if (this.customeRegistTypeSelect2) {
-      this.customeRegistTypeSelect2.setElementValue(1)
-
-    }
-
     this.closeModal()
+    if(this.underGroupSelect2){
+      setTimeout(() => {
+        this.underGroupSelect2.setElementValue(0)
+      }, 100)
+    }
+    if(this.customeRegistTypeSelect2){
+      setTimeout(() => {
+        this.customeRegistTypeSelect2.setElementValue(0)
+      }, 100)
+    }
+
+  }
+
+
+  closeLedgerModel() {
+    $('#close_confirm7').modal(UIConstant.MODEL_SHOW)
   }
 
   showHideFlag: boolean
   showGSTYesOrNot(type) {
     if (type === 'Yes') {
       this.showHideFlag = true
-      this.requiredGST = true
     }
-    else {
+    else if (type === 'No') {
       this.showHideFlag = false
-      this.requiredGST = false
-      this.coustmoreRegistraionId = 0
       this.TaxSlabId = 0
       this.ITCTypeId = 0
       this.RCMTypeId = 0
+      if(this.customeRegistTypeSelect2){
+        setTimeout(() => {
+          this.customeRegistTypeSelect2.setElementValue(0)
+        }, 100)
+      } 
+      this.coustmoreRegistraionId=0
+      this.gstin =''
+
       this.HSNNo = ''
     }
 
@@ -436,12 +539,12 @@ export class LedgerCreationAddComponent implements OnDestroy {
   mobileRequirdForSetting: boolean
   emailRequirdForSetting: boolean
   customerCustomRateFlag: boolean
-  disabledInputField: boolean = false
+  disabledOpeningBalance: boolean = false
   currencyValues: any
   taxName = 'Select Tax'
   getTax() {
     this._CommonService.getAllTax().subscribe(resp => {
-      this.taxSlabsData = []
+      this.taxSlabsData = [{ id: 0, text: 'Slect Tax' }]
       if (resp.Code === UIConstant.THOUSAND) {
         if (resp.Data && resp.Data.TaxSlabs && resp.Data.TaxSlabs.length > 0) {
           resp.Data.TaxSlabs.forEach(element => {
@@ -454,18 +557,15 @@ export class LedgerCreationAddComponent implements OnDestroy {
       }
     })
   }
-  address: any
+  address: any = ''
   onLoading() {
     this.parentId = 0
     this.ITCTypeId = 0
     this.RCMTypeId = 0
-    this.getITCType()
-    this.getRCMType()
-    this.getTax()
     this.disabledGSTfor_UnRegi = false
     this.matchGStno = true
     this.GstinNoCode = ''
-    this.GSTStateCode = 0
+    this.GSTStateCode = '00'
     this.TaxSlabId = 0
     this.ITCTypeId = 0
     this.RCMTypeId = 0
@@ -474,44 +574,56 @@ export class LedgerCreationAddComponent implements OnDestroy {
     this.panNo = ''
     this.openingblance = 0
     this.ledgerName = ''
+    this.coustmoreRegistraionId=0
     this.address = ''
     this.HSNNo = ''
     this.countryValue = null
     this.stateValue = null
     this.cityValue = null
-  }
-
-  openModal() {
-    this.onLoading()
-    this.getListCountryLabelList(0)
-
-    if (!this.editMode) {
+    this.LedgerGroupValue =0
       this.getOrgnizationAddress()
-    }
 
+  }
+  addressByDefaultForLedger:boolean = false
+  getSetUpModules(settings) {
+    settings.forEach(element => {
+      if (element.id === SetUpIds.dateFormat) {
+        this.clientDateFormat = element.val[0].Val
+      }
+      if (element.id === SetUpIds.addressByDefaultForLedger) {
+        this.addressByDefaultForLedger = element.val
+      }
+
+    })
+
+  }
+  openModal() {
+    this.getSetUpModules((JSON.parse(this._settings.moduleSettings).settings))
     this.getLedgerGroupList()
-    this.disabledInputField = true
+    this.onLoading()
+    this.getITCType()
+    this.getRCMType()
+    this.getTax()
+    this.mandatoryField()
+    this.disabledOpeningBalance = true
     this.headId = 0
     this.openingStatus()
     this.showHideFlag = true
-    this.requiredGST = true
     this.submitClick = true
-    this.isSelectParentGrp = true
-    this.ledgerNameEr = true
     this.satuariesId = UIConstant.ZERO
     this.addressId = 0
     this.currencyValues = [{ id: 1, symbol: 'CR' }, { id: 0, symbol: 'DR' }]
     if (this.editMode) {
       this.editLedgerData(this.id)
     }
-    this.select2VendorValue(1)
+    this.select2VendorValue()
     this.select2CrDrValue()
     this.getCountry(0)
     $('#ledger_creation_id').modal(UIConstant.MODEL_SHOW)
     setTimeout(() => {
       this.underGroupSelect2.selector.nativeElement.focus()
     }, 1000)
-    // this.customeRegistTypeSelect2.setElementValue(1)
+
 
   }
   ledgerName: any = ''
@@ -533,18 +645,11 @@ export class LedgerCreationAddComponent implements OnDestroy {
     if (event.data.length > 0) {
       if (+event.value > 0) {
         this.coustmoreRegistraionId = event.value
-        if (this.coustmoreRegistraionId === '1') {
-          this.requiredGST = true
-          this.disabledGSTfor_UnRegi = false
-        }
-        else if (event.value === '4') {
+        if (event.value === '4') {
           this.disabledGSTfor_UnRegi = true
           this.gstin = ''
-          this.requiredGST = false
-
         }
         else {
-          this.requiredGST = false
           this.disabledGSTfor_UnRegi = false
         }
       }
@@ -553,49 +658,35 @@ export class LedgerCreationAddComponent implements OnDestroy {
 
   }
 
-  getListCountryLabelList(id){
-    this._CommonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
-      if(resp.Code===1000 && resp.Data.length>0){
-        this.TinNoValue=resp.Data[0].TinNo
-        this.PanNoValue=resp.Data[0].PanNo
-        this.countrId= id
-        this.GstinNoValue=resp.Data[0].GstinNo
-        this.CinNoValue=resp.Data[0].CinNo
-        this.FssiNoValue=resp.Data[0].FssiNo 
-        if(id!==123){
-          this.validGSTNumber= false
-         this.requiredGST = false
-          this.validPANFlag = false
-        }
-        else{
-         this.requiredGST = true
-
-        }
-     
+  getListCountryLabelList(id) {
+    this._CommonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp => {
+      if (resp.Code === 1000 && resp.Data.length > 0) {
+        this.TinNoValue = resp.Data[0].TinNo
+        this.PanNoValue = resp.Data[0].PanNo
+        this.countrId = id
+        this.GstinNoValue = resp.Data[0].GstinNo
+        this.CinNoValue = resp.Data[0].CinNo
+        this.FssiNoValue = resp.Data[0].FssiNo
       }
     })
   }
-  TinNoValue:any
-  PanNoValue:any
-  GstinNoValue:any
-  CinNoValue:any
-  FssiNoValue:any
+  TinNoValue: any
+  PanNoValue: any
+  GstinNoValue: any
+  CinNoValue: any
+  FssiNoValue: any
   countrId: any
+
   selectCountryListId(event) {
     if (this.countryValue !== null) {
       if (+event.id > 0) {
-        this.countrId = +event.id
-        this.countryError = false
-        if (this.countrId > 0) {
-          this.getListCountryLabelList(event.id)
-          this.getStaeList(this.countrId, 0)
-        }
+        this.countryValue =+ event.id
+          this.getStaeList(this.countryValue, 0)
       }
       else {
-        this.countrId = 0
+        this.countryValue=0
       }
     }
-
   }
 
   countryValue: any
@@ -611,7 +702,6 @@ export class LedgerCreationAddComponent implements OnDestroy {
           })
         })
       }
-      // this.countryValue = value
     })
   }
 
@@ -620,19 +710,12 @@ export class LedgerCreationAddComponent implements OnDestroy {
 
   validMobileFlag: boolean = false
   invalidMobilelength: boolean = false
-
-
-  selectCoustomerplaceHolder: Select2Options
   coustomerValue: any
   coustmoreRegistraionId: any
-  select2VendorValue(value) {
-    this.selectyCoustmoreRegistration = []
-    this.selectCoustomerplaceHolder = { placeholder: 'Select Customer .' }
-    this.selectyCoustmoreRegistration = [{ id: '1', text: 'Regular' }
+  select2VendorValue() {
+    this.selectyCoustmoreRegistration = [{ id: '0', text: 'Select Type' }, { id: '1', text: 'Regular' }
       , { id: '2', text: 'Composition' }, { id: '3', text: 'Exempted' }
       , { id: '4', text: 'UnRegistered' }, { id: '5', text: '	E-Commerce Operator ' }]
-    this.coustmoreRegistraionId = this.selectyCoustmoreRegistration[0].id
-    this.coustomerValue = this.coustmoreRegistraionId
   }
 
   select2CrDrPlaceHolder: Select2Options
@@ -660,53 +743,61 @@ export class LedgerCreationAddComponent implements OnDestroy {
   /* ...................adding customer........................... */
   saveLedgerCreation(value) {
     this.submitClick = true
-    this.checkGSTNumberValid()
-    this.checkPANNumberValid()
-    this.dynamicFocus()
-    if (this.checkForValidation() && this.ledgerName !== '' && this.parentId > 0 && !this.requiredGST && !this.validPANFlag) {
+    if (this.dynamicFocusValidation()) {
       if (this.matchStateCodeWithGSTNumber()) {
-        this.subscribe = this._coustomerServices.addVendore(this.LedgerParams()).subscribe(Data => {
-          if (Data.Code === UIConstant.THOUSAND) {
-            if (value === 'save') {
-              const dataToSend = { id: Data.Data, name: this.ledgerName }
-              this._CommonService.closeledgerCretion({ ...dataToSend })
-              this._CommonService.AddedItem()
-              this.disabledStateCountry = false
-              $('#ledger_creation_id').modal(UIConstant.MODEL_HIDE)
-              let saveName = this.editID === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
-              this._toastrcustomservice.showSuccess('', saveName)
-              if (this.countrId > 0 && this.stateId) {
-                this.cityCountrysatateReset()
+        if(this.chekGSTvalidation()){
+          if(this.checkPANNumberValid()){
+            this.subscribe = this._coustomerServices.ledgerCreation(this.LedgerParams()).subscribe(Data => {
+              if (Data.Code === UIConstant.THOUSAND) {
+                if (value === 'save') {
+                  const dataToSend = { id: Data.Data, name: this.ledgerName }
+                  this._CommonService.closeledgerCretion({ ...dataToSend })
+                  this._CommonService.AddedItem()
+                  $('#ledger_creation_id').modal(UIConstant.MODEL_HIDE)
+                  let saveName = this.editID === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
+                  this._toastrcustomservice.showSuccess('', saveName)
+                  this.closeResetData()
+                  if (this.countryValue > 0 && this.stateValue) {
+                    this.cityCountrysatateReset()
+                  }
+    
+                } else if (value === 'new') {
+                   this.onLoading()
+                  this.closeResetData()
+                  this.getCountry(0)
+                  this._CommonService.AddedItem()
+                  setTimeout(() => {
+                    this.underGroupSelect2.selector.nativeElement.focus()
+                  }, 1000)
+                  if (this.countryValue > 0 && this.stateValue) {
+                    this.cityCountrysatateReset()
+                  }
+                  this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
+                }
+                   this.disabledGSTfor_UnRegi = false
               }
-
-            } else if (value === 'new') {
-              this.getCountry(0)
-              this.disabledStateCountry = false
-              this._CommonService.AddedItem()
-              setTimeout(() => {
-                this.underGroupSelect2.selector.nativeElement.focus()
-              }, 1000)
-              if (this.countrId > 0 && this.stateId) {
-                this.cityCountrysatateReset()
+              if (Data.Code === UIConstant.THOUSANDONE) {
+                this._toastrcustomservice.showInfo('', Data.Description)
               }
-              this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
-            }
-            this.disabledGSTfor_UnRegi = false
-            this.clearValidation()
+              if (Data.Code === 5004) {
+                this._toastrcustomservice.showInfo('', Data.Description)
+              }
+              if (Data.Code === UIConstant.REQUIRED_5020) {
+                this._toastrcustomservice.showError('', Data.Data)
+              }
+              if (Data.Code === UIConstant.SERVERERROR) {
+                this._toastrcustomservice.showError('', Data.Data)
+              }
+            })
+          }else{
+            this.panNum_Ref.nativeElement.focus()
+          }
 
+        }
+        else{
+          this.GStRequire.nativeElement.focus()
+        }
 
-
-          }
-          if (Data.Code === UIConstant.THOUSANDONE) {
-            this._toastrcustomservice.showInfo('', Data.Description)
-          }
-          if (Data.Code === UIConstant.REQUIRED_5020) {
-            this._toastrcustomservice.showError('', Data.Data)
-          }
-          if (Data.Code === UIConstant.SERVERERROR) {
-            this._toastrcustomservice.showError('', Data.Data)
-          }
-        })
       }
       else {
         this._toastrcustomservice.showError('', 'Invalid GSTIN Number According to Selected State ')
@@ -714,97 +805,117 @@ export class LedgerCreationAddComponent implements OnDestroy {
     }
   }
 
-
-  stateError: any
-  cityError: any
   @ViewChild('under_group_select2') underGroupSelect2: Select2Component
 
-
-  validPANFlag: boolean = false
   GSTNumber: any
   PANNumber: any
   GstinNoCode: any = ''
-  disabledStateCountry: boolean = false
-  checkGSTNumber(event) {
-    this.gstin = event.target.value;
-    let str = this.gstin
-    let val = str.trim();
-    this.GstinNoCode = val.substr(0, 2);
-    if (this.GstinNoCode !== '') {
-      this.getStateCode(this.GstinNoCode)
+  returnsplitGSTcode() {
+    if (!_.isEmpty(this.gstin) && this.gstin !== '') {
+      let str = this.gstin
+      let val = str.trim();
+      this.GstinNoCode = val.substr(0, 2);
+      if (this.GstinNoCode !== '') {
+        return this.GstinNoCode
+      }
+    }
+  }
+  matchStateCodeWithGSTNumber() {
+    if (!_.isEmpty(this.returnsplitGSTcode()) && this.GstinNoCode !== '') {
+      if(this.countryValue===123){
+        if (this.GSTStateCode === this.GstinNoCode) {
+          return true
+        }
+        else {
+          return false
+        }
+      }
+      else{
+        return true
+      }
+    } else {
+      return true
+    }
+  }
+
+  
+  splitGSTNumber(){
+    let  parts = this.gstin.trim()
+     this.GSTStateCode = parts.substring(0, 2);
+    this._CommonService.getStateByGStCode(this.GSTStateCode).subscribe(d=>{
+      if(d.Code===1000 &&d.Data.length>0){
+        console.log(d)
+        if(this.countryValue===123){
+          this.GSTStateCode = d.Data[0].ShortName1
+        }
+        else{
+          this.GSTStateCode='00'
+        }
+       let state = {
+        id: d.Data[0].Id,
+        text: d.Data[0].CommonDesc1,
+        stateCode: this.GSTStateCode
+      }
+      this.selectStatelist(state)
+      }
+    })
+}
+  
+  checkPANNumberValid() {
+    if (!_.isEmpty(this.panNo) && this.panNo !== '') {
+      this.PANNumber = (this.panNo).toUpperCase()
+      if(this.countryValue===123){
+        if ( this._CommonService.panNumberRegxValidation(this.PANNumber)) {
+          return true
+        } else {
+          return false
+        }
+      }
+      else{
+        return true
+      }
     }
     else {
-      this.disabledStateCountry = false
-
+      return true
     }
-    this.matchStateCodeWithGSTNumber()
-
-    //getGStnumber =event.target.value
-    this.checkGSTNumberValid()
   }
-  getOneState(rsp) {
-    let newdata = []
-    newdata.push({
-      id: rsp.Data[0].Id,
-      text: rsp.Data[0].CommonDesc1
+  onPasteGST(e) {
+    this._CommonService.allowOnlyNumericValueToPaste(e, (res) => {
+      this.gstin = res
     })
-    this.disabledStateCountry = true
-    this.stateList = newdata
-    this.getCitylist(rsp.Data[0].Id, 0)
-  }
-  getStateCode = async (stateCode) => {
-    this._CommonService.getStateByGStCode(stateCode).
-      pipe(
-        takeUntil(this.unSubscribe$)
-      ).
-      subscribe((response: any) => {
-        //ShortName1 = statecode
+  };
+  onPastePAN(e) {
+    this._CommonService.allowOnlyNumericValueToPaste(e, (res) => {
+      this.panNo = res
+    })
+  };
 
-        if (response.Code === UIConstant.THOUSAND && response.Data.length > 0) {
-          this.countrId = response.Data[0].CommonId
-          this.stateId = response.Data[0].CommonCode
-          this.countryValue = response.Data[0].CommonId
-          // this.countryselecto.setElementValue()
-          this.getOneState(response)
-          //   this.stateselecto.setElementValue( response.Data[0].CommonCode)
-
-        }
-      })
-  }
-  checkPANNumberValid() {
-    if (this.panNo !== '' && this.panNo !== null) {
-      this.PANNumber = (this.panNo).toUpperCase()
-      if (this._CommonService.panNumberRegxValidation(this.PANNumber)) {
-        this.validPANFlag = false
-
-      } else {
-        this.validPANFlag = true
-      }
-    } else {
-      this.validPANFlag = false
-    }
-  }
-  validGSTNumber: boolean = false
-  requiredGST: boolean
-  checkGSTNumberValid() {
-    if (this.gstin !== '' && this.gstin !== null) {
+  
+  chekGSTvalidation() {
+    if (!_.isEmpty(this.gstin) && this.gstin !== '') {
       this.GSTNumber = (this.gstin).toUpperCase()
-      if (this.showHideFlag && this.coustmoreRegistraionId === '1') {
-        if (this._CommonService.gstNumberRegxValidation(this.GSTNumber)) {
-          this.validGSTNumber = false
-          this.requiredGST = false
-
+      if(this.countryValue===123 ){
+        if (  this._CommonService.regxGST.test(this.gstin)) {
+          return true
         } else {
-          this.validGSTNumber = true
-          this.requiredGST = true
+          return false
         }
       }
+      else{
+        return true
 
-    } else {
-      this.validGSTNumber = false
+      }
+      
     }
+    else if((this.coustmoreRegistraionId === '1' || this.coustmoreRegistraionId === '2') &&  this.countryValue===123 ) {
+      return false
+    }
+    else{
+      return true
 
+    }
   }
+  
   addressId: any
   private LedgerParams(): AddLedger {
     let obj = {
@@ -831,14 +942,13 @@ export class LedgerCreationAddComponent implements OnDestroy {
         Addresses: [{
           Id: this.addressId === 0 ? 0 : this.addressId,
           ParentTypeId: 5,
-          CountryId: this.countrId === undefined ? 0 : this.countrId,
-          StateId: this.stateId === undefined ? 0 : this.stateId,
-          CityId: this.cityId === undefined ? 0 : this.cityId,
+          CountryId: this.countryValue === null ? 0 : this.countryValue,
+          StateId: this.stateValue === null ? 0 : this.stateValue,
+          CityId: this.cityValue === null ? 0 : this.cityValue,
           AddressValue: this.address,
         }],
       } as AddLedger
     }
-    console.log('Ledger-Request', JSON.stringify(obj.Ledger))
     return obj.Ledger
   }
 
@@ -858,35 +968,37 @@ export class LedgerCreationAddComponent implements OnDestroy {
   setupCodeForAddresRequired: any
   @ViewChild('select_regiType') customeRegistTypeSelect2: Select2Component
   @ViewChild('crdr_selecto2') crdrselecto2: Select2Component
-  @ViewChild('state_select2') stateselecto2: Select2Component
-  @ViewChild('city_select2') cityselecto2: Select2Component
-  @ViewChild('country_selecto') countryselecto: Select2Component
+  @ViewChild('country_selecto') countryselecto: NgSelectComponent
+
+  @ViewChild('state_select2') stateselecto2: NgSelectComponent
+  @ViewChild('city_select2') cityselecto2: NgSelectComponent
 
   editLedgerData(id) {
     setTimeout(() => {
       this.underGroupSelect2.selector.nativeElement.focus()
     }, 1000)
     this.submitClick = false
-    this.isSelectParentGrp = false
-    this.ledgerNameEr = false
-    this.subscribe = this._coustomerServices.editvendor(id).subscribe(Data => {
-      console.log('Ledger-Response', JSON.stringify(Data))
+    this.subscribe = this._coustomerServices.editLedgerCreation(id).subscribe(Data => {
       if (Data.Code === UIConstant.THOUSAND) {
+        console.log(Data)
         if (Data.Data && Data.Data.Statutories && Data.Data.Statutories.length > 0) {
           this.satuariesId = Data.Data.Statutories[0].Id
-          this.gstin = Data.Data.Statutories[0].GstinNo
-          this.panNo = Data.Data.Statutories[0].PanNo
+          this.gstin = Data.Data.Statutories[0].GstinNo === null ? '' : Data.Data.Statutories[0].GstinNo
+          this.panNo = Data.Data.Statutories[0].PanNo=== null ? '' : Data.Data.Statutories[0].PanNo
+          if (!_.isEmpty(this.gstin)) {
+            this.GstinNoCode = this.returnsplitGSTcode()
+          }
+          
 
         }
         if (Data.Data && Data.Data.LedgerDetails && Data.Data.LedgerDetails.length > 0) {
-          this.disabledInputField = false
+          this.disabledOpeningBalance = false
           this.headId = Data.Data.LedgerDetails[0].HeadId
           this.isTaxedAplly = Data.Data.LedgerDetails[0].IsTaxed
           this.geteditOpeningbal = Data.Data.LedgerDetails[0].OpeningBalance
           this.openingblance = Data.Data.LedgerDetails[0].OpeningBalance
           this.ShortName = Data.Data.LedgerDetails[0].ShortName
           this.ledgerName = Data.Data.LedgerDetails[0].Name
-
           this.crDrId = Data.Data.LedgerDetails[0].Crdr
           this.parentId = Data.Data.LedgerDetails[0].GlId
           if (Data.Data.LedgerDetails[0].IsTaxed === 1) {
@@ -897,45 +1009,26 @@ export class LedgerCreationAddComponent implements OnDestroy {
             this.taxSlabValue = Data.Data.LedgerDetails[0].TaxSlabId
             this.ITCTypeValue = Data.Data.LedgerDetails[0].ITCType
             this.RCMTypeValue = Data.Data.LedgerDetails[0].RCMType
-            // if(this.itcSlabSelect2){
-            //   this.itcSlabSelect2.setElementValue(Data.Data.LedgerDetails[0].ITCType)
-            // }
             this.TaxSlabId = Data.Data.LedgerDetails[0].TaxSlabId
             this.ITCTypeId = Data.Data.LedgerDetails[0].ITCType
             this.RCMTypeId = Data.Data.LedgerDetails[0].RCMType
-            // if(this.rcmSelect2){
-            //   this.rcmSelect2.setElementValue(Data.Data.LedgerDetails[0].RCMType)
-            // }
           }
           this.underGroupSelect2.setElementValue(Data.Data.LedgerDetails[0].GlId)
           this.disabledGSTfor_UnRegi = Data.Data.LedgerDetails[0].TaxTypeId === 4 ? true : false
           this.customeRegistTypeSelect2.setElementValue(Data.Data.LedgerDetails[0].TaxTypeId)
           this.coustmoreRegistraionId = JSON.stringify(Data.Data.LedgerDetails[0].TaxTypeId)
-          if (this.coustmoreRegistraionId === '0') {
-            this.showHideFlag = false
-            this.requiredGST = false
-          } else {
-            this.requiredGST = this.coustmoreRegistraionId === '1' ? true : false
-          }
-          this.crdrselecto2.setElementValue(Data.Data.LedgerDetails[0].Crdr)
           this.crdrselecto2.setElementValue(Data.Data.LedgerDetails[0].Crdr)
         }
         if (Data.Data && Data.Data.Addresses && Data.Data.Addresses.length > 0) {
+          console.log(Data.Data.Addresses)
           this.addressId = Data.Data.Addresses[0].Id
           this.address = Data.Data.Addresses[0].AddressValue
-
-          // setTimeout(() => {
-          ////   this.countryValue =Data.Data.Addresses[0].CountryId
-          ////    this.getStaeList(Data.Data.Addresses[0].CountryId, Data.Data.Addresses[0].StateId)
-          //  }, 500);
-          //  this.stateValue = Data.Data.Addresses[0].StateId
-          //  this.getCitylist(Data.Data.Addresses[0].StateId, Data.Data.Addresses[0].CityId)
-          //this.cityValue = Data.Data.Addresses[0].CityId
           this.loadAddressDetails(Data.Data.Addresses[0])
 
         }
       }
     })
+    this.mandatoryField()
   }
 
   @ViewChild('country_selecto') countrySelect2: Select2Component
@@ -1014,31 +1107,45 @@ export class LedgerCreationAddComponent implements OnDestroy {
     }
 
   }
-  countryValue1: any = null
+
   stateValuedata1: any = null
   countryCodeFlag: any = null
   cityValue1: any = null
   getOrgnizationAddress() {
     let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
-    if (Address !== null) {
+    if (Address !== null && this.addressByDefaultForLedger) {
       this.loadAddressDetails(Address)
     }
+    if (Address !== null  && !this.addressByDefaultForLedger) {
+      this.getCountryCodeForMobile(Address)
+    }
+  }
+  getCountryCodeForMobile (Address){
+    this.getListCountryLabelList(0)
+    this.GSTStateCode='00'
+    
   }
   loadAddressDetails(Address) {
+    console.log(Address)
     this.countryValue = Address.CountryId
     this.stateValue = Address.StateId
     this.cityValue = Address.CityId
+    if(this.countryValue===123){
+      this.GSTStateCode = Address.StateCode
+     }else{
+      this.GSTStateCode='00' 
+     }
     let country = {
       id: Address.CountryId,
       text: Address.CountryName
     }
     this.selectCountryListId(country)
-    debugger
+    
     this.getListCountryLabelList(Address.CountryId)
-
     let state = {
       id: Address.StateId,
-      text: Address.Statename
+      text: Address.Statename,
+      stateCode:this.GSTStateCode
     }
     let city = {
       id: Address.CityId,
@@ -1053,20 +1160,24 @@ export class LedgerCreationAddComponent implements OnDestroy {
   }
   @ViewChild('addNewCityRef') addNewCityRefModel: AddNewCityComponent
   selectedCityId(event) {
+    this.cityValue= event.id
     if (this.cityValue !== null) {
-      this.cityId = event.id
-      this.cityError = false
-      if (this.cityId > 0) {
-        //  this.getAreaId(this.cityId)
+      this.cityValue = event.id
+      if (event.id> 0) {
+        this.cityValue = event.id
       }
-      if (event.id === '-1') {
-        const data = {
-          countryList: !_.isEmpty(this.countryList) ? [...this.countryList] : [],
-          countryId: this.countryValue === null ? 0 : this.countryValue,
-          stateId: this.stateValue === null ? 0 : this.stateValue
-        }
-        this.addNewCityRefModel.openModal(data);
+    }
+    if (+event.id === -1) {
+      const data = {
+        countryList: !_.isEmpty(this.countryList) ? [...this.countryList] : [],
+        countryId: !this.countryValue ? 0 : this.countryValue,
+        stateId: !this.stateValue ? 0 : this.stateValue
       }
+      //this.
+      this.addNewCityRefModel.openModal(data);
+    }
+    else  if (event.id===0) { 
+      this.stateValue = null
     }
   }
 
@@ -1081,12 +1192,11 @@ export class LedgerCreationAddComponent implements OnDestroy {
         this.cityValue = selectedIds.cityId;
       } else {
         this.cityValue = selectedIds.cityId;
-        this.cityId = selectedIds.cityId
         this.getCitylist(selectedIds.stateId, 0)
       }
     } else {
       this.cityValue = null
-      this.cityId = 0
+    
     }
   }
 }

@@ -65,7 +65,7 @@
                   <td>{{item.ContentCategoryName}}</td>
                   <td>
                     <a data-toggle="tooltip" data-placement="top" title="Edit" class="actionBtn">
-                      <i class="fa fa-edit fa-1x" aria-hidden="true" (click)="edit(item)">
+                      <i class="fa fa-edit fa-1x" aria-hidden="true" (click)="openEditor(item)">
                       </i></a>
                     <a *ngIf="menuData?.delete" data-toggle="tooltip" class="actionBtn" data-placement="bottom"
                       title="Delete"><i class="fa fa-trash fa-1x" aria-hidden="true"></i></a>
@@ -82,3 +82,4 @@
 <!-- <app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
   (pageNoEmitter)="p = $event;getAllTemplates();" (pageSizeEmitter)="itemsPerPage = $event;getAllTemplates();">
 </app-pagination> -->
+<ng-container #emailEditorContainerRef></ng-container>

@@ -26,10 +26,11 @@ export class VendorServices {
   }
 
   addVendore (parmas) {
-
     return this._baseServices.postRequest(ApiConstant.VENDOR_URL, parmas)
   }
-
+  ledgerCreation (parmas) {
+    return this._baseServices.postRequest(ApiConstant.VENDOR_URL+"?Type=Ledger", parmas)
+  }
   getCommonValues (id) {
     return this._baseServices.getRequest(ApiConstant.COUNTRY_LIST_URL + id)
   }
@@ -49,7 +50,9 @@ export class VendorServices {
   editvendor (id) {
     return this._baseServices.getRequest(ApiConstant.EDIT_LEDGER_BY_ID_URL + id)
   }
-
+  editLedgerCreation (id) {
+    return this._baseServices.getRequest(ApiConstant.EDIT_LEDGER_BY_ID_URL + id)
+  }
   deleteLedger (id) {
     return this._baseServices.deleteRequest(ApiConstant.VENDOR_URL + '?id=' + id)
   }

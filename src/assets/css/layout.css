@@ -246,34 +246,34 @@ div.login-rght-image {
   .sidebar-wrapper a {
 	text-decoration: none;
   }
-  
+
   /*----------------sidebar-content----------------*/
-  
+
   .sidebar-content {
 	max-height: calc(100% - 30px);
 	height: calc(100% - 30px);
 	overflow-y: auto;
 	position: relative;
   }
-  
+
   .sidebar-content.desktop {
 	overflow-y: hidden;
   }
-  
-  
+
+
   /*----------------------sidebar-menu-------------------------*/
-  
+
   .sidebar-wrapper .sidebar-menu {
 	padding-bottom: 10px;
   }
-  
+
   .sidebar-wrapper .sidebar-menu .header-menu span {
 	font-weight: bold;
 	font-size: 14px;
 	padding: 15px 20px 5px 20px;
 	display: inline-block;
   }
-  
+
   .sidebar-wrapper .sidebar-menu ul li a {
     display: inline-block;
     width: 100%;
@@ -281,7 +281,7 @@ div.login-rght-image {
     position: relative;
     padding: 8px 9px 8px 2px;
 }
-  
+
   .sidebar-wrapper .sidebar-menu ul li a i {
 	margin-right: 10px;
 	font-size: 14px;
@@ -291,13 +291,13 @@ div.login-rght-image {
 	text-align: center;
 	border-radius: 4px;
   }
-  
+
   .sidebar-wrapper .sidebar-menu ul li a:hover > i::before {
 	display: inline-block;
 	animation: swing ease-in-out 0.5s 1 alternate;
   }
-  
-  .sidebar-wrapper .sidebar-menu .sidebar-dropdown > a:after {
+
+  .sidebar-wrapper .sidebar-menu .sidebar-dropdown > a.isSubMenu:after {
 	font-family: "Font Awesome 5 Free";
 	font-weight: 900;
 	content: "\f105";
@@ -314,16 +314,16 @@ div.login-rght-image {
 	right: 15px;
 	top: 14px;
   }
-  
+
   .sidebar-wrapper .sidebar-menu .sidebar-dropdown .sidebar-submenu ul {
 	padding: 5px 0;
   }
-  
+
   .sidebar-wrapper .sidebar-menu .sidebar-dropdown .sidebar-submenu li {
 	padding-left: 5px;
 	font-size: 13px;
   }
-  
+
   .sidebar-wrapper .sidebar-menu .sidebar-dropdown .sidebar-submenu li a:before {
 	content: "\f111";
 	font-family: "Font Awesome 5 Free";
@@ -337,29 +337,28 @@ div.login-rght-image {
 	margin-right: 10px;
 	font-size: 8px;
   }
-  
+
   .sidebar-wrapper .sidebar-menu ul li a span.label,
   .sidebar-wrapper .sidebar-menu ul li a span.badge {
 	float: right;
 	margin-top: 8px;
 	margin-left: 5px;
   }
-  
+
   .sidebar-wrapper .sidebar-menu .sidebar-dropdown .sidebar-submenu li a .badge,
   .sidebar-wrapper .sidebar-menu .sidebar-dropdown .sidebar-submenu li a .label {
 	float: right;
 	margin-top: 0px;
   }
-  
+
   .sidebar-wrapper .sidebar-menu .sidebar-submenu {
     display: none;
     background: #103880;
 }
-  
+
   .sidebar-wrapper .sidebar-menu .sidebar-dropdown.active > a:after {
 	transform: rotate(90deg);
 	right: 17px;
   }
-  
-  
-  
+
+

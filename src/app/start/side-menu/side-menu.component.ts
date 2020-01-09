@@ -101,17 +101,15 @@ export class SideMenuComponent {
     }
   }
 
-  initSideMenuData = async () => {
+  initSideMenuData = () => {
     this.spinnerService.show()
     const selectedModule = JSON.parse(localStorage.getItem('SELECTED_MODULE'))
     this.loggedinUserData = { ...this._loginService.userData }
-    console.log('this._loginService.userData.Modules : ', this._loginService.userData.Modules)
-    if (!_.isEmpty(this._loginService.userData) &&
-      !_.isEmpty(this._loginService.userData.Modules)) {
-      if (this._loginService.userData.Modules[selectedModule['index']]) {
-        this.sideMenu = [...this.loggedinUserData.Modules[selectedModule['index']]['sideMenu']]
-        this.initMenuPath()
-      }
+    if (!this.commonService.isEmpty(this._loginService.userData) &&
+      !this.commonService.isEmpty(this._loginService.userData.Modules) &&
+      !this.commonService.isEmpty(this._loginService.userData.Modules[selectedModule['index']])) {
+      this.sideMenu = JSON.parse(JSON.stringify(this.loggedinUserData.Modules[selectedModule['index']]['sideMenu']))
+      this.initMenuPath()
     }
     this.spinnerService.hide()
   }
@@ -123,7 +121,7 @@ export class SideMenuComponent {
         menu['path'] = matchedMenu.path
         menu['icon'] = matchedMenu.icon
       }
-      if (menu && menu.subMenu && menu.subMenu.length > 0) {
+      if (!this.commonService.isEmpty(menu) && !this.commonService.isEmpty(menu.subMenu) && menu.subMenu.length > 0) {
         _.map(menu.subMenu, (subMenu) => {
           console.log(subMenu, subMenu.CommonCode)
           const matchedSubMenu = _.find(SIDE_MENU_MODEL, {Id: subMenu.Id});
@@ -144,6 +142,9 @@ export class SideMenuComponent {
   }
 
   navigateTo = (selectedMenu) => {
+    if (selectedMenu.ParentId === 0 && selectedMenu.IsDirect === 0) {
+      return
+    }
     if (selectedMenu.path === "") {
       this._route.navigate(['dashboard'])
     } else if (selectedMenu.CommonCode > 0) {
@@ -175,5 +176,9 @@ export class SideMenuComponent {
           this.commonService.orgUserName = res
         }
       }, data1);
+  }
+
+  trackById(index){
+    return index;
   }
 }

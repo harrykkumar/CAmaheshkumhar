@@ -8,7 +8,7 @@ import { PurchaseService } from '../purchase.service';
 import { GlobalService } from '../../../commonServices/global.service';
 import { DependencyCheck } from '../../../shared/validators/dependencyCheck';
 import { DatepickerComponent } from '../../../shared/datepicker/datepicker.component';
-declare const $: any
+import { Subscription } from 'rxjs/Subscription';
 @Component({
   selector: 'app-purchase-search',
   templateUrl: './purchase-search.component.html',
@@ -39,6 +39,7 @@ export class PurchaseSearchComponent {
   LedgerId: number = 0
   dataValues: Array<Select2OptionData> = []
   dataForStatus: any = []
+  $onDestroy: Subscription[] = []
   @ViewChild('date_select2') dateSelect2: Select2Component
   @ViewChild('status_select2') statusSelect2: Select2Component
 
@@ -64,7 +65,7 @@ export class PurchaseSearchComponent {
     ]
     this.dataForStatus = [
       { id: '0', text: 'Running' },
-      { id: '1', text: 'Canceled' }
+      { id: '1', text: 'Cancelled' }
     ]
     this.createForm()
     this.getSuplier()
@@ -88,7 +89,7 @@ export class PurchaseSearchComponent {
   getSuplier() {
     this.supplierPlaceHolder = { placeholder: 'Select Supplier' }
     let newData = [{ id: '0', text: 'Select Supplier' }]
-    this._ledgerServices.getVendor(4, '').subscribe(data => {
+    this.$onDestroy.push(this._ledgerServices.getVendor(4, '').subscribe(data => {
       // console.log('supplier data : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
@@ -101,13 +102,13 @@ export class PurchaseSearchComponent {
         }
         this.suplierNameSelect2 = Object.assign([], newData)
       }
-    })
+    }))
   }
 
   getCountryList() {
     this.countryPlaceholder = { placeholder: 'Select Country' }
     let newData = [{ id: '0', text: 'Select Country' }]
-    this._ledgerServices.getCommonValues('101').subscribe(data => {
+    this.$onDestroy.push(this._ledgerServices.getCommonValues('101').subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
           data.Data.forEach(element => {
@@ -119,7 +120,7 @@ export class PurchaseSearchComponent {
         }
         this.countryListSelect2 = Object.assign([], newData)
       }
-    })
+    }))
   }
 
   selectCountry(evt) {
@@ -136,8 +137,8 @@ export class PurchaseSearchComponent {
 
   getStateList(id) {
     this.stateListPlaceHolder = { placeholder: 'Select State' }
-    let newData = [{ id: '0', text: 'select State' }]
-    this._ledgerServices.gatStateList(id).subscribe(data => {
+    let newData = [{ id: '0', text: 'Select State' }]
+    this.$onDestroy.push(this._ledgerServices.gatStateList(id).subscribe(data => {
       console.log('state list : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
@@ -150,7 +151,7 @@ export class PurchaseSearchComponent {
         }
       }
       this.stateListSelect2 = Object.assign([], newData)
-    })
+    }))
   }
 
   selectState(evt) {
@@ -166,7 +167,7 @@ export class PurchaseSearchComponent {
   getCitylist(id) {
     this.cityListPlaceHolder = { placeholder: 'Select City' }
     let newData = [{ id: '0', text: 'select City' }]
-    this._ledgerServices.getCityList(id).subscribe(data => {
+    this.$onDestroy.push(this._ledgerServices.getCityList(id).subscribe(data => {
       console.log('city list : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         if (data.Data.length > 0) {
@@ -179,7 +180,7 @@ export class PurchaseSearchComponent {
         }
         this.cityListSelect2 = Object.assign([], newData)
       }
-    })
+    }))
   }
 
   @ViewChild('countrySelect2') countrySelect2: Select2Component
@@ -280,11 +281,40 @@ export class PurchaseSearchComponent {
     this.purchaseService.setSearchQueryParamsStr(queryStr)
   }
 
-  setToDate(evt) {
+  setToDate (evt) {
     this.searchForm.controls.ToDate.setValue(evt)
+    if (this.searchForm.value.FromDate && this.searchForm.value.ToDate) {
+      if (!this.gs.compareDate(this.searchForm.value.ToDate, this.searchForm.value.FromDate)) {
+        this.searchForm.controls.ToDate.setValue('')
+      }
+    }
   }
 
-  setFromDate(evt) {
+  setFromDate (evt) {
     this.searchForm.controls.FromDate.setValue(evt)
+    if (this.searchForm.value.FromDate && this.searchForm.value.ToDate) {
+      if (!this.gs.compareDate(this.searchForm.value.ToDate, this.searchForm.value.FromDate)) {
+        this.searchForm.controls.ToDate.setValue(evt)
+      }
+    } else {
+      this.searchForm.controls.ToDate.setValue(evt)
+    }
+  }
+
+  checkForValidAmount() {
+    if (+this.searchForm.value.FromAmount > 0 && +this.searchForm.value.ToAmount > 0) {
+      if (+this.searchForm.value.FromAmount > +this.searchForm.value.ToAmount) {
+        this.searchForm.controls.ToAmount.setValue(+this.searchForm.value.FromAmount)
+      }
+    } else {
+      if (+this.searchForm.value.FromAmount > 0) {
+        this.searchForm.controls.ToAmount.setValue(+this.searchForm.value.FromAmount)
+      } else if (+this.searchForm.value.ToAmount > 0) {
+        // this.searchForm.controls.FromAmount.setValue(+this.searchForm.value.ToAmount)
+      } else {
+        this.searchForm.controls.ToAmount.setValue(0)
+        this.searchForm.controls.FromAmount.setValue(0)
+      }
+    }
   }
 }

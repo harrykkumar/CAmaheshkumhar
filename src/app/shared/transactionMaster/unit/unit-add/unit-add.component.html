@@ -1,32 +1,117 @@
-<div class="modal fade right" id="unit_master"  role="dialog" aria-labelledby="unit_master" aria-hidden="true">
-    <div class="modal-dialog modal-full-height modal-right" role="document">
-        <div class="modal-content">
-            <div class="modal-header close_popup">
-                <h4 class="modal-title w-100 c-grey-900">Add Unit</h4>
-                <button type="button" class="close" aria-label="Close" (click)="closeModal()">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<div
+  class="modal fade right"
+  id="unit_master"
+  role="dialog"
+  aria-labelledby="unit_master"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-full-height modal-right" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add Unit</h4>
+        <button
+          type="button"
+          class="close"
+          aria-label="Close"
+          (click)="closeModal()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form
+          [formGroup]="unitForm"
+          (ngSubmit)="onButtonSaveUnit()"
+          *ngIf="unitForm"
+        >
+          <div class="card-body">
+            <div class="form-row">
+              <!-- <div class="form-group col-md-12">
+                <label>Select Unit Code</label>
+                <ng-select
+                  id="selectUnitCodeElementId"
+                  name="selectUnitCodeElementName"
+                  [items]="unitCodeData"
+                  bindLabel="CommonDesc"
+                  bindValue="UId"
+                  placeholder="Select Unit Code"
+                  [(ngModel)]="selectedUnitCode"
+                  (change)="onChangeUnitCode($event)"
+                >
+                </ng-select>
+              </div> -->
+              <div class="form-group col-md-12">
+                <label>Unit Code</label>
+                <input
+                  type="text"
+                  id="unitCodeElementId"
+                  class="form-control"
+                  placeholder="Enter Code"
+                  (keyup.tab)="keepOpen = false"
+                  formControlName="UnitCode"
+                  [ngClass]="{
+                    'errorSelecto':
+                      (submitClick && f.UnitCode.errors?.required)
+                  }"
+                />
+              </div>
+              <div class="form-group col-md-12">
+                <label>Unit Code Name</label>
+                <input
+                type="text"
+                #first
+                class="form-control"
+                placeholder="Enter Atleast 2 Character"
+                (keyup.tab)="keepOpen = false"
+                formControlName="UnitName"
+                [ngClass]="{
+                  'errorSelecto':
+                    (submitClick && f.UnitName.errors?.required) ||
+                    (f.UnitName.dirty && f.UnitName.errors?.minlength)
+                }" />
+              </div>
+              <div class="form-group col-md-12">
+                <label>Measurement</label>
+                <ng-select
+                  id="measurementElementId"
+                  name="measurementElementName"
+                  [items]="measurementData"
+                  bindLabel="CommonDesc"
+                  bindValue="UId"
+                  placeholder="Select Measurement"
+                  formControlName="MeasurementId"
+                  [ngClass]="{
+                    'ng-select-invalid':
+                      (submitClick && f.MeasurementId.errors?.required)
+                  }"
+                >
+                </ng-select>
+              </div>
+              <!-- <div class="form-group col-md-12">
+                <label>Measurement Type</label>
+                <input type="text" class="form-control" />
+              </div> -->
             </div>
-            <div class="modal-body">
-                <form [formGroup]="unitForm" (ngSubmit)="onButtonSaveUnit()" *ngIf="unitForm" >
-                    <div class="card-body"  >
-                        <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <label>Unit Name</label>
-                                <input type="text" #first class="form-control" placeholder="Enter Atleast 2 Character"
-                                (keyup.tab)="keepOpen=false;"
-                                formControlName="UnitName" [ngClass]="{ 'errorTextBoxBorder is-invalid': ((submitClick && f.UnitName.errors?.required) || (f.UnitName.dirty && f.UnitName.errors?.minlength)) }" >
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary waves-effect"
-                (keyup.tab)="keepOpen=true;"
-                (click)="keepOpen=false;onButtonSaveUnit()" >Save</button>
-                <button type="submit" class="btn btn-primary waves-effect" (click)="keepOpen=true;onButtonSaveUnit()" >Save With Add New </button>
-            </div>
-        </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="submit"
+          class="btn btn-primary waves-effect"
+          (keyup.tab)="keepOpen = true"
+          (click)="keepOpen = false; onButtonSaveUnit()"
+        >
+          Save
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary waves-effect"
+          (click)="keepOpen = true; onButtonSaveUnit()"
+        >
+          Save With Add New
+        </button>
+      </div>
     </div>
+  </div>
 </div>

@@ -6,6 +6,7 @@ import { Observable, Subject } from 'rxjs';
 import { ResponseSale } from '../../model/sales-tracker.model';
 import { Select2OptionData } from 'ng2-select2';
 import { UIConstant } from '../../shared/constants/ui-constant';
+import { GlobalService } from '../../commonServices/global.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -29,7 +30,7 @@ export class VoucherEntryServie {
     {type: UIConstant.INCOME_TYPE, voucherNoManual: false, ReportFor: 'sale', voucherType: 102},
   ]
   constructor(@Inject(BaseServices) private baseService,
-  private commonService: CommonService) {
+  private commonService: CommonService, private _gs: GlobalService) {
   }
   getLedgerSummaryData (queryStr): Observable<ResponseSale> {
     return this.baseService.getRequest(`${ApiConstant.LEDGER_SUMMARY}` + queryStr)
@@ -86,20 +87,20 @@ export class VoucherEntryServie {
   }
 
   getVoucherList (ReportFor, type, LedgerId, OrgId) {
-    return this.baseService.getRequest(`${ApiConstant.GET_VOUCHER_LIST}?ReportFor=${ReportFor}&Type=${type}&LedgerId=${LedgerId}&OrgId=${OrgId}`)
+    return this._gs.manipulateResponse(this.baseService.getRequest(`${ApiConstant.GET_VOUCHER_LIST}?ReportFor=${ReportFor}&Type=${type}&LedgerId=${LedgerId}&OrgId=${OrgId}`))
   }
 
   getVoucherEntryListForParty(query) {
     const queryString = this.commonService.getQueryStringFromObject(query);
-    return this.baseService.getRequest(`${ApiConstant.GET_VOUCHER_LIST}?${queryString}`)
+    return this._gs.manipulateResponse(this.baseService.getRequest(`${ApiConstant.GET_VOUCHER_LIST}?${queryString}`))
   }
 
   postVoucher (data) {
-    return this.baseService.postRequest(`${ApiConstant.POST_VOUCHER}`, data)
+    return this._gs.manipulateResponse(this.baseService.postRequest(`${ApiConstant.POST_VOUCHER}`, data))
   }
 
   postVoucherContraJournal (data) {
-    return this.baseService.postRequest(ApiConstant.POST_VOUCHER_CONTRA_JOURNAL, data)
+    return this._gs.manipulateResponse(this.baseService.postRequest(ApiConstant.POST_VOUCHER_CONTRA_JOURNAL, data))
   }
 
   getVoucherTypeList (): Observable<ResponseSale> {
@@ -138,11 +139,10 @@ export class VoucherEntryServie {
 
   getBillNoForAdvancePayment(type) {
     const url = `${ApiConstant.TRANSACTIONNO_VOUCHER}?TransactionType=${type}`
-    return this.baseService.getRequest(url)
+    return this._gs.manipulateResponse(this.baseService.getRequest(url))
   }
 
   getVoucherEntryDetails(Id) {
-    const url = `${ApiConstant.VOUCHER_ENTRY_DETAILS}?VoucherId=${Id}`
-    return this.baseService.getRequest(url)
+    return this._gs.manipulateResponse(this.baseService.getRequest(`${ApiConstant.VOUCHER_ENTRY_DETAILS}?VoucherId=${Id}`))
   }
 }

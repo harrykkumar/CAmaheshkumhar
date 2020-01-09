@@ -22,57 +22,51 @@ declare const _: any
 })
 export class PurchaseMainComponent {
   title: string
-  sub: Subscription
   keepOpen: boolean = true
   toShowSearch: boolean = false
-  data$: Subscription
   orgImage: string
   clientDateFormat: string
   printData1: any = []
   industryId: number
   queryStr:string =''
-  queryStr$: Subscription
+  onDestroy$: Subscription[] = []
   loading = true
   menuData: any;
   constructor (public excelService:ExcelService,
     public gs: GlobalService,
     private route: ActivatedRoute,
-     private commonService: CommonService,
-      private purchaseService: PurchaseService,
-      private settings: Settings,
-      private toastrService: ToastrCustomService,
-      private _formBuilder: FormBuilder,
-      private _loginService: LoginService
+    private commonService: CommonService,
+    private purchaseService: PurchaseService,
+    private settings: Settings,
+    private toastrService: ToastrCustomService,
+    private _formBuilder: FormBuilder,
+    private _loginService: LoginService
     ) {
     this.menuData = this._loginService.getMenuDetails(15, 9);
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
-
-      //  this.loading = true
-        this.getSPUtilityData()
-    this.data$ = this.commonService.getActionClickedStatus().subscribe(
+      this.getSPUtilityData()
+      this.onDestroy$.push(this.commonService.getActionClickedStatus().subscribe(
       (action: any) => {
         if (action.type === FormConstants.Edit && action.formname === FormConstants.Purchase) {
           this.commonService.openPurchase(+action.id)
         } if (action.type === FormConstants.ViewPrint && action.formname === FormConstants.Purchase) {
           this.onPrintButton(action.id, action.printId,action.isViewPrint)
         }
-
         if (action.type === FormConstants.Print && action.formname === FormConstants.Purchase) {
           this.onPrintButton(action.id, action.printId,action.isViewPrint)
         }
       }
-    )
-    this.queryStr$ = this.purchaseService.queryStr$.subscribe(
+    ))
+    this.onDestroy$.push(this.purchaseService.queryStr$.subscribe(
       (str) => {
         this.queryStr = str
        this.expoertExceldata()
       }
-    )
+    ))
     this.formSearch()
     this.industryId = +this.settings.industryId
     this.clientDateFormat = this.settings.dateFormat
     this.noOfDecimal = this.settings.noOfDecimal
-
   }
   noOfDecimal :any
   ngAfterContentInit() {
@@ -88,12 +82,12 @@ export class PurchaseMainComponent {
   }
   ngOnInit () {
     this.getOrgDetails()
-    this.sub = this.route.data.subscribe(data => {
+    this.onDestroy$.push(this.route.data.subscribe(data => {
       this.title = data.title
-    })
+    }))
 
     this.commonService.fixTableHF('cat-table')
-    fromEvent(this.searchData.nativeElement, 'keyup').pipe(
+    this.onDestroy$.push(fromEvent(this.searchData.nativeElement, 'keyup').pipe(
       map((event: any) => {
         return event.target.value
       }),
@@ -102,13 +96,13 @@ export class PurchaseMainComponent {
       distinctUntilChanged()
       ).subscribe((text: string) => {
         this.purchaseService.onTextEntered(text)
-      })
+      }))
       this.expoertExceldata()
   }
   @ViewChild('purchase_add') purchaseAdd: PurchaseAddComponent
   getSPUtilityData () {
     let _self = this
-    this.commonService.getSPUtilityData(UIConstant.PURCHASE_TYPE)
+    this.onDestroy$.push(this.commonService.getSPUtilityData(UIConstant.PURCHASE_TYPE)
     .pipe(
       filter(data => {
         if (data.Code === UIConstant.THOUSAND) {
@@ -161,12 +155,13 @@ export class PurchaseMainComponent {
          // this.loading = false
         }, 1)
       }
-    )
+    ))
   }
 
   ngOnDestroy () {
-    this.sub.unsubscribe()
-    this.data$.unsubscribe()
+    if (this.onDestroy$ && this.onDestroy$.length > 0) {
+      this.onDestroy$.forEach((element) => element.unsubscribe())
+    }
   }
 
   toggleSearch () {
@@ -216,15 +211,15 @@ export class PurchaseMainComponent {
       }
     })
   }
-Heading:any =[]
+  Heading:any =[]
   headerKeys: any = []
   hsnToSHow: any = []
   HedShow:any =[]
   getDistinctTaxName (hsnData, hsnTransaction, currency) {
-let rate=0
-this.hsnToSHow =[]
-this.HedShow=[]
-let valueshow=[]
+    let rate=0
+    this.hsnToSHow =[]
+    this.HedShow=[]
+    let valueshow=[]
      hsnTransaction.forEach(element => {
       this.HedShow = hsnData.filter( d=>d.HsnNo ===element.HsnNo  && d.TaxSlabId === element.TaxSlabId)
       if(this.HedShow.length>0){

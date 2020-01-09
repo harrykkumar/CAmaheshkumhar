@@ -1,0 +1,176 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0">
+              <i class="fas fa-balance-scale"></i>Order Request
+            </p>
+          </div>
+          <div class="col-md-8 p-0">
+            <div class="right_saerch_side">
+              <div class="mr-2">
+                <div id="custom-search-input" class="btn_header1">
+                  <div class="input-group col-md-12">
+                    <input type="text" class="form-control input-lg" placeholder="Search"
+                      (input)="getOrderRequestList()" name="searchText" [(ngModel)]="searchText" />
+                    <span class="input-group-btn">
+                      <a>
+                        <i class="fas fa-search"></i>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="btn_header">
+                <a
+                  href="#order_search_form"
+                  class="btn btn-info waves-effect waves-light"
+                  data-toggle="collapse"
+                  ><i class="fas fa-search"></i>Search</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="order_search_form" class="card collapse mb-2">
+      <div class="px-3 pt-2">
+        <form
+          #orderRequestSearchFormControl="ngForm"
+          (ngSubmit)="orderRequestSearchFormControl.form.valid && getOrderRequestList()"
+          novalidate
+        >
+          <div class="form row">
+            <div class="form-group col-md-3">
+              <label>Dealer</label>
+              <ng-select
+                id="dealerId"
+                name="dealerName"
+                [items]="dealerData"
+                bindLabel="Name"
+                bindValue="Id"
+                placeholder="Select Dealer"
+                [(ngModel)]="selectedDealerId"
+              >
+              </ng-select>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Customer</label>
+              <ng-select
+                id="customerId"
+                name="customerName"
+                [items]="customerData"
+                bindLabel="CustomerName"
+                bindValue="Id"
+                placeholder="Select Customer"
+                [(ngModel)]="selectedCustomerId"
+              >
+              </ng-select>
+            </div>
+            <div class="form-group col-md-3 ">
+              <label class="fw-500">From</label>
+              <div class="timepicker-input input-icon form-group">
+                <datepicker-popup
+                  [toSetDate]="fromDateValue"
+                  (dateInFormat)="fromDateValue = $event"
+                >
+                </datepicker-popup>
+              </div>
+            </div>
+            <div class="form-group col-md-3">
+              <label class="fw-500">To</label>
+              <div class="timepicker-input input-icon form-group">
+                <datepicker-popup
+                  [toSetDate]="toDateValue"
+                  (dateInFormat)="toDateValue = $event"
+                ></datepicker-popup>
+              </div>
+            </div>
+            <div class="form-group col-md-3 pt-3">
+              <button
+                type="submit"
+                class="btn btn-primary waves-effect waves-light"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                (click)="resetSearchForm()"
+                class="btn btn_close waves-effect"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 pr-0">
+        <div class="bgc-white bdrs-3 pb-3 mB-20">
+          <div class="table-responsive table_height">
+            <table class="table cat-table table-hover">
+              <thead>
+                <tr>
+                  <th >Sr No.</th>
+                  <th >Order</th>
+                  <th >Customer</th>
+                  <th >Created Name</th>
+                  <!-- <th>Picture</th> -->
+                  <th >Dealer</th>
+                  <th >Order Date</th>
+                  <th >Amount</th>
+                  <th >Ordered By</th>
+                  <th >Status</th>
+                  <!-- <th>Remark</th> -->
+                  <th >Action</th>
+                </tr>
+              </thead>
+              <!-- <tbody *ngIf="isSearching" style="height:100px;">
+                <img
+                  src="assets/img/spinner-blue-circle.gif"
+                  alt="loading screen"
+                  style="width: 20px;height: 20px;position: absolute;left: 46%;top:46%;"
+                />
+              </tbody> -->
+              <tbody>
+                <tr
+                  *ngFor="let item of orderRequestList | paginate: { itemsPerPage: itemsPerPage, currentPage: p, totalItems: total } ; let i = index;
+                    let i = index;">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.BillNo }}</td>
+                  <td ><a href="javascript:void(0)"
+                    (click)="showDetails(item)">{{item?.CustomerName}}</a></td>
+                  <td>{{item?.CreatedName}}</td>
+                  <!-- <td><img style="height: 50px; width: 50px;" [src]="item.FilePath"></td> -->
+                  <td>{{item?.DealerName}}</td>
+                  <td >{{item?.BillDate | date: "shortDate"}}</td>
+                  <td >{{item?.BillAmount}}</td>
+                  <td >{{item?.CreatedName}}</td>
+                  <td >{{item?.Status}}</td>
+                  <!-- <td>{{item?.Remark}}</td> -->
+                  <td class="text-center">
+                    <a
+                      href="javascript:void(0)"
+                      (click)="gotoFollowUp(item)"
+                      title="Add Follow Up"
+                    >
+                      <i class="fas fa-clipboard-check cH-blue follow_icon"></i
+                    ></a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<app-pagination #paging_comp (lastValueEmitter)="lastItemIndex = $event;"
+(pageNoEmitter)="p = $event;getOrderRequestList();"
+(pageSizeEmitter)="itemsPerPage = $event;getOrderRequestList();" ></app-pagination>

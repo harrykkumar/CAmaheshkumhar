@@ -7,7 +7,7 @@
           <div class="row">
             <div class="col-md-3 left_side_head">
               <p class="heading_lead">
-                <i class="fas fa-chart-line" aria-hidden="true"></i>Sale Return </p>
+                <i class="fas fa-chart-line" aria-hidden="true"></i>Sale Return <span class="small-txt">{{orgnizationName}}</span> </p>
             </div>
             <div class="col-md-9">
               <div class="btn_header">
@@ -52,14 +52,12 @@
                 </select2>
               </div>
             </div>
-
-        
-            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+            <!-- <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label for="orgnizationName">Organization Name</label>
-              <input readonly='true' type="text" class="form-control" id="orgnizationName"
+              <input [disabled]='true' type="text" class="form-control" id="orgnizationName"
                 placeholder="Orgnization Name" class="form-control" name="orgnizationName"
                 [(ngModel)]="orgnizationName">
-            </div>
+            </div> -->
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
               <label class="fw-500">Return  Date</label>
               <datepicker-popup [disableInput]="editMode" [toSetDate]="CurrentDate" [isBackDate]="backDateEntry"
@@ -67,7 +65,7 @@
                 [class]="submitSave && invalidObj?.CurrentDate"></datepicker-popup>
             </div>
             <div class="form-group col-md-3 col-lg-2 col-xl-2">
-              <label>ReturnMemoNo No.</label>
+              <label> R.Voucher No</label>
               <a *ngIf="isBillNoManuall  && !editMode" class="tooltip1 info_tooltip"><i class="fas fa-info"></i>
                 <span class="tooltiptext">Last Bill No. used is - {{previousBillNo}}</span>
               </a>
@@ -88,7 +86,7 @@
                 (dateInFormat)="DueDate = $event">
               </datepicker-popup>
             </div>
-            <div class="form-group col-md-3 col-lg-2 col-xl-2">
+            <div class="form-group col-md-3 col-lg-2 col-xl-2" *ngIf="showGodown" >
               <label>Godam/Location</label>
               <div class="input-group adw_select">
                 <select2 #godown_select2 id="godown" [data]="godownsData" class="control_select"
@@ -287,7 +285,7 @@
                     </td>
                     <td *ngIf="!item.isDisabled" class="highLightRow align-items-center d-flex">
                       <input #quantityRef type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
-                      (blur)='editCreateMobilepopup(item);'  (input)="validateItem();calculate();"
+                      (blur)='editCreateMobilepopup(item);'  (input)="validateItem();changeRunTimeQuantity();calculate();"
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Quantity }"
                         name="quantity" [(ngModel)]="Quantity">
                         <span *ngIf='industryId===12'><a (click)="editCreateMobilepopup(item)" class="info_tooltip"><i
@@ -308,7 +306,7 @@
                       <td *ngIf="item.isDisabled" class="alig-middle">{{(item.Length).toFixed(noOfDecimalPoint)}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
                         <input #lengthRef type="text" class="form-control" placeholder="Length" appIncludeDecimal name="length"
-                          (input)="validateItem();calculate();"
+                          (input)="validateItem();changeRunTimeSaleRate();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Length }"
                           [(ngModel)]="Length">
                       </td>
@@ -316,7 +314,7 @@
                       <td *ngIf="item.isDisabled" class="align-middle">{{(item.Width).toFixed(noOfDecimalPoint)}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
                         <input #widthRef type="text" class="form-control" placeholder="Width"
-                          (input)="validateItem();calculate();"
+                          (input)="validateItem();changeRunTimeSaleRate();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Width }"
                           appIncludeDecimal name="Width" [(ngModel)]="Width">
                       </td>
@@ -324,7 +322,7 @@
                       <td *ngIf="item.isDisabled" class="align-middle">{{(item.Height).toFixed(noOfDecimalPoint)}}</td>
                       <td *ngIf="!item.isDisabled" class="highLightRow">
                         <input #heightRef type="text" class="form-control" placeholder="Height"
-                          (input)="validateItem();calculate();"
+                          (input)="validateItem();changeRunTimeSaleRate();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Height }"
                           appIncludeDecimal name="Height" [(ngModel)]="Height">
                       </td>
@@ -353,7 +351,7 @@
                     <td *ngIf="item.isDisabled" class="align-middle">{{(item.SaleRate).toFixed(noOfDecimalPoint)}}</td>
                     <td *ngIf="!item.isDisabled" class="highLightRow">
                       <input #SaleRateRef type="text" class="form-control" placeholder="Sale Rate" name="SaleRate"
-                        (input)="validateItem();calculate()" appIncludeDecimal
+                        (input)="validateItem();changeRunTimeSaleRate();calculate()" appIncludeDecimal
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.SaleRate }"
                         [(ngModel)]="SaleRate">
                     </td>
@@ -361,7 +359,7 @@
                     <td *ngIf="item.isDisabled" class="align-middle">{{(item.TotalRate).toFixed(noOfDecimalPoint)}}</td>
                     <td *ngIf="!item.isDisabled" class="highLightRow">
                       <input type="text" class="form-control" placeholder="Total Rate" appIncludeDecimal
-                        (input)="getTotalSaleRate()" name="TotalRate" [(ngModel)]="TotalRate">
+                        (input)="getTotalSaleRate();calculate()" name="TotalRate" [(ngModel)]="TotalRate">
                     </td>
                     <td *ngIf="item.isDisabled" class="align-middle">
                       {{item.Discount}}&nbsp;{{item.DiscountType === 0 && item.Discount != 0 ? '%' : defaultCurrency}}
@@ -383,7 +381,7 @@
                     <td *ngIf="item.isDisabled" class="align-middle">{{(item.DiscountAmt).toFixed(noOfDecimalPoint)}}
                     </td>
                     <td *ngIf="!item.isDisabled" class="highLightRow">
-                      <input type="text" readonly="true" class="form-control" placeholder="Discount Amount"
+                      <input type="text" [disabled]="true" class="form-control" placeholder="Discount Amount"
                         appIncludeDecimal tabindex="-1" name="DiscountAmt" [(ngModel)]="DiscountAmt">
                     </td>
                     <td *ngIf="item.isDisabled" class="align-middle">{{item.taxSlabName}}</td>
@@ -406,7 +404,7 @@
                     </td>
                     <td *ngIf="item.isDisabled" class="align-middle">{{(item.TaxAmount).toFixed(noOfDecimalPoint)}}</td>
                     <td *ngIf="!item.isDisabled" class="highLightRow">
-                      <input type="text" readonly="true" class="form-control" placeholder="Tax Amount" tabindex="-1"
+                      <input type="text" [disabled]="true" class="form-control" placeholder="Tax Amount" tabindex="-1"
                         appIncludeDecimal name="TaxAmount" [(ngModel)]="TaxAmount">
                     </td>
                     <td *ngIf="item.isDisabled" class="align-middle">{{item.Remark}}</td>
@@ -417,7 +415,7 @@
                     </td>
                     <td *ngIf="item.isDisabled" class="align-middle">{{(item.SubTotal).toFixed(noOfDecimalPoint)}}</td>
                     <td *ngIf="!item.isDisabled" class="highLightRow">
-                      <input type="text" readonly="true" class="form-control" placeholder="SubTotal" name="SubTotal"
+                      <input type="text" [disabled]="true" class="form-control" placeholder="SubTotal" name="SubTotal"
                         appIncludeDecimal (keydown.enter)="enterPressItem($event)" [(ngModel)]="SubTotal">
                     </td>
                   </tr>
@@ -460,7 +458,7 @@
                     </td>
                     <td class="align-items-center d-flex">
                       <input #quantityRef type="text" class="form-control" appIncludeDecimal placeholder="Quantity"
-                      (blur)='createMobilepopup(item);'  (input)="validateItem();calculate();"
+                      (blur)='createMobilepopup(item);'  (input)="validateItem();changeRunTimeQuantity();calculate();"
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Quantity }"
                         name="quantity" [(ngModel)]="Quantity">
                         <span *ngIf='industryId===12'>
@@ -480,19 +478,19 @@
                     <ng-container *ngIf="industryId === 3">
                       <td>
                         <input #lengthRef type="text" class="form-control" placeholder="Length" appIncludeDecimal name="length"
-                          (input)="validateItem();calculate();"
+                          (input)="validateItem();changeRunTimeSaleRate();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Length }"
                           [(ngModel)]="Length">
                       </td>
                       <td>
                         <input #widthRef type="text" class="form-control" placeholder="Width"
-                          (input)="validateItem();calculate();"
+                          (input)="validateItem();changeRunTimeSaleRate();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Width }"
                           appIncludeDecimal name="Width" [(ngModel)]="Width">
                       </td>
                       <td>
                         <input #heightRef type="text" class="form-control" placeholder="Height"
-                          (input)="validateItem();calculate();"
+                          (input)="validateItem();changeRunTimeSaleRate();calculate();"
                           [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.Height }"
                           appIncludeDecimal name="Height" [(ngModel)]="Height">
                       </td>
@@ -515,13 +513,13 @@
                     </ng-container>
                     <td>
                       <input #SaleRateRef type="text" class="form-control" placeholder="Sale Rate" name="SaleRate"
-                        (input)="validateItem();calculate()" appIncludeDecimal
+                        (input)="validateItem();changeRunTimeSaleRate();calculate()" appIncludeDecimal
                         [ngClass]="{'errorSelecto': (submitSave || !clickItem) && invalidObj?.SaleRate }"
                         [(ngModel)]="SaleRate">
                     </td>
                     <td>
                       <input type="text" class="form-control" placeholder="Total Rate" appIncludeDecimal
-                        (input)="getTotalSaleRate()" name="TotalRate" [(ngModel)]="TotalRate">
+                        (input)="getTotalSaleRate();calculate()" name="TotalRate" [(ngModel)]="TotalRate">
                     </td>
                     <td>
                       <div class="discount">
@@ -536,7 +534,7 @@
                       </div>
                     </td>
                     <td>
-                      <input type="text" readonly="true" class="form-control" placeholder="Discount Amount"
+                      <input type="text" [disabled]="true" class="form-control" placeholder="Discount Amount"
                         appIncludeDecimal tabindex="-1" name="DiscountAmt" [(ngModel)]="DiscountAmt">
                     </td>
                     <td>
@@ -554,7 +552,7 @@
                       </div>
                     </td>
                     <td>
-                      <input type="text" readonly="true" class="form-control" placeholder="Tax Amount" tabindex="-1"
+                      <input type="text" [disabled]="true" class="form-control" placeholder="Tax Amount" tabindex="-1"
                         appIncludeDecimal name="TaxAmount" [(ngModel)]="TaxAmount">
                     </td>
                     <td>
@@ -563,7 +561,7 @@
                         [(ngModel)]="Remark">
                     </td>
                     <td>
-                      <input type="text" readonly="true" class="form-control" placeholder="SubTotal" name="SubTotal"
+                      <input type="text" [disabled]="true" class="form-control" placeholder="SubTotal" name="SubTotal"
                         appIncludeDecimal (keydown.enter)="enterPressItem($event)" [(ngModel)]="SubTotal">
                     </td>
                   </tr>
@@ -575,16 +573,16 @@
                     <td colspan="3" *ngIf="industryId === 5"></td>
                     <td colspan="7"></td>
                     <td>
-                      <input type="text" readonly="true" class="form-control" tabindex="-1" placeholder="Total Discount"
+                      <input type="text" [disabled]="true" class="form-control" tabindex="-1" placeholder="Total Discount"
                         name="TotalDiscount" [(ngModel)]="TotalDiscount">
                     </td>
                     <td colspan="2"></td>
                     <td>
-                      <input type="text" readonly="true" class="form-control" placeholder="Total Tax Amount"
+                      <input type="text" [disabled]="true" class="form-control" placeholder="Total Tax Amount"
                         name="TotalTaxAmount" tabindex="-1" [(ngModel)]="TotalTaxAmount"></td>
                     <td colspan="1"></td>
                     <td>
-                      <input type="text" readonly="true" class="form-control" placeholder="Total Gross Amount"
+                      <input type="text" [disabled]="true" class="form-control" placeholder="Total Gross Amount"
                         name="SubTotalAmount" tabindex="-1" [(ngModel)]="SubTotalAmount">
                     </td>
                   </tr>
@@ -676,7 +674,7 @@
                           {{charge.TaxAmountCharge}}
                         </td>
                         <td *ngIf="!charge.isEditable">
-                          <input type="text" appIncludeDecimal readonly="true" name="TaxAmountCharge"
+                          <input type="text" appIncludeDecimal [disabled]="true" name="TaxAmountCharge"
                           class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.TaxAmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge()" id="TaxAmountCharge" [(ngModel)]="TaxAmountCharge"
@@ -685,7 +683,7 @@
                         <td *ngIf="charge.isEditable" class="align-middle">
                           {{charge.TotalAmountCharge}}
                         </td>
-                        <td *ngIf="!charge.isEditable" ><input type="text" appIncludeDecimal readonly="true" name="TotalAmountCharge"
+                        <td *ngIf="!charge.isEditable" ><input type="text" appIncludeDecimal [disabled]="true" name="TotalAmountCharge"
                           class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.TotalAmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge()" (keyup.enter)="enterPressCharge($event)" id="TotalAmountCharge"
@@ -730,13 +728,13 @@
                           (valueChanged)="onTaxTypeChargeSelect($event)" autocomplete="true"
                           [options]="{ placeholder: 'Select Tax Type' }" [value]="taxTypeChargeValue"></select2>
                       </td>
-                      <td><input type="text" appIncludeDecimal readonly="true" name="TaxAmountCharge"
+                      <td><input type="text" appIncludeDecimal [disabled]="true" name="TaxAmountCharge"
                           class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.TaxAmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge()" id="TaxAmountCharge" [(ngModel)]="TaxAmountCharge"
                           placeholder="Tax Amount">
                       </td>
-                      <td><input type="text" appIncludeDecimal readonly="true" name="TotalAmountCharge"
+                      <td><input type="text" appIncludeDecimal [disabled]="true" name="TotalAmountCharge"
                           class="form-control"
                           [ngClass]="{'errorSelecto': invalidObj?.TotalAmountCharge && (submitSave || !clickCharge)}"
                           (input)="validateCharge()" (keyup.enter)="enterPressCharge($event)" id="TotalAmountCharge"

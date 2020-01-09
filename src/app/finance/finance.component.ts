@@ -354,6 +354,8 @@ export class FinanceComponent implements OnInit {
     this.transactionNumberList = [...this.storedTransactionList];
     _.map(this.transactionNumberList, (element) => {
       element['zeroString'] = element.NumericValue
+      this.checkAll = true;
+      element['Checked'] = true
     })
     this.generateDemoString()
   }
@@ -390,10 +392,12 @@ export class FinanceComponent implements OnInit {
     const filteredData = _.filter(this.transactionNumberList, { Checked: true });
     if (_.isEmpty(filteredData)) {
       this.toastrService.showError('Error', 'Please select atleast 1 row')
+      this.spinnerService.hide();
       return
     }
     const formInvalid = _.some(filteredData, ['inValid', true]);
     if (formInvalid) {
+      this.spinnerService.hide();
       return
     }
     this.preparePayloadForExistencyAtSubmit(filteredData)
@@ -406,14 +410,7 @@ export class FinanceComponent implements OnInit {
     this.commonService.postFinacialYearCreationData(requestData).subscribe((res) => {
       if (res.Code === 1000) {
         this.toastrService.showSuccess('Success', 'Saved Successfully');
-        if (_.includes(this.router.url, 'organization')) {
-          $('#financeModal').modal(UIConstant.MODEL_HIDE)
-          this.router.navigate(['organizations']);
-        } else {
-          this.selectAllTransation({ target: { checked: false } });
-          this.checkAll = false
-          this.getTransactionList();
-        }
+        this.onCloseModal()
       } else {
         this.toastrService.showError('Error', res.Description);
       }
@@ -452,6 +449,7 @@ export class FinanceComponent implements OnInit {
   }
 
   onCloseModal() {
+    $('#financeModal').modal(UIConstant.MODEL_HIDE)
     this.commonService.navigateToPreviousUrl();
   }
 

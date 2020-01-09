@@ -44,10 +44,10 @@ export const MODULES_IMG_SRC = {
   },
   16: {
     src: 'assets/static/images/editor.png'
-  }
-  // 'Fixed Assets Management System': {
-  //   src: 'assets/static/images/fams.png'
-  // },
+  },
+  17 : {
+    src: 'assets/static/images/inventory.png'
+  },
 
   // 'Human Resource Management System': {
   //   src: 'assets/static/images/payroll1.png'

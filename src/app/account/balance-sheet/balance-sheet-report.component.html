@@ -84,23 +84,7 @@
                         <div class="col amount_bs font-weight-bold">Amount </div>
                         <div class="col amount_bs font-weight-bold">Amount </div>
                     </div>
-             <!-- <div *ngFor="let event of events;" class="event-list">
-
-                <section class="event-item" (click)="event.toggle=!event.toggle">
-                    <div class="event-summary">
-                        <h1 class="event-name">{{ event.name }} </h1>
-                    </div>
-                </section>
-            
-               
-                <section class="event-details" *ngIf="event.toggle">
-                    <p>Details</p>
-                    <p>Details</p>
-                    <p>And deets</p>
-                </section>
-                
-            
-            </div> -->
+          
                     <div class="row tbody">
                         <div class="col-md-6 p-0 bdr_gray border-right">
                             <div class="col-md-12">
@@ -193,13 +177,18 @@
                                 <div class="col-md-6">
                                     <div class="name text-center col-md-12 name_size font-weight-bold">
                                         {{orgDetails.OrganizationDetails && orgDetails.OrganizationDetails[0]?.OrgName}}</div>
-                                      <div class="text-center col-md-12">{{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.CityName}}
-                                        {{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.StateName}}
-                                        {{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.CountryName}}
+                                      <div class="text-center col-md-12">
+                                        {{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.AddressValue}} &nbsp;
+                                        {{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.AreaName}} &nbsp;
+                                          {{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.CityName}}&nbsp;
+                                        {{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.StateName}}&nbsp;
+                                        {{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.CountryName}}&nbsp;
+                                        {{orgDetails.AddressDetails && orgDetails.AddressDetails[0]?.PostCode}}
                                       </div>
                                       <div class="name text-center col-md-12 font-weight-bold" style="font-size:18px; letter-spacing:3px;">
                                             Balance Sheet</div>
-                                      <div class="text-center col-md-12" style="font-weight:600;"> As on {{toDateShow | dateFormat:clientDateFormat }}
+                                      <div class="text-center col-md-12" style="font-weight:600;"> As on {{toDateShow }}
+                                        <!-- | dateFormat:clientDateFormat -->
                                         </div>
                                 </div>
                                 <div class="col-md-3"></div>
@@ -283,6 +272,11 @@
                     </div>
                     </div>
                 </div>
+              <span style="float: right;
+              padding-top: 40px;
+              font-size: 14px;">Authorised Signatory</span>  
+
             </div>
+
         </div>
     </body>

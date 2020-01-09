@@ -1,7 +1,7 @@
 import { Component, Renderer2, ViewChild, ViewChildren, QueryList } from '@angular/core'
 import { Subscription, Subject } from 'rxjs'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms'
-import { AddCust, ResponseSale, TravelPayments } from '../../../../../model/sales-tracker.model'
+import { AddCust } from '../../../../../model/sales-tracker.model'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
 import { VendorServices } from '../../../../../commonServices/TransactionMaster/vendoer-master.services'
 import { ToastrCustomService } from '../../../../../commonServices/toastr.service'
@@ -13,15 +13,12 @@ import { GlobalService } from '../../../../../commonServices/global.service'
 import { Settings } from '../../../../../shared/constants/settings.constant'
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
-import { IfStmt } from '@angular/compiler';
-import { timeout } from 'q';
 import { SaleCommonService } from '../../saleCommon.service';
-import { TouchSequence } from 'selenium-webdriver';
 declare const _: any
 declare var $: any
-declare var flatpickr: any
 import { Router } from '@angular/router'
 import { takeUntil } from 'rxjs/operators';
+import { PurchaseService } from '../../../../purchase/purchase.service';
 @Component({
   selector: 'app-sales-direct',
   templateUrl: './sales-direct.component.html',
@@ -176,10 +173,16 @@ export class SalesDirectComponent {
   AdditionalChargeData: any
   IsForOtherState: any;
   isAddNew: boolean
-  constructor(public _saleCommonService: SaleCommonService, public _router: Router, public _setUpIds: SetUpIds, private _coustomerServices: VendorServices, private _formBuilder: FormBuilder, private renderer2: Renderer2, public _globalService: GlobalService, private _itemmasterServices: ItemmasterServices, private _categoryServices: CategoryServices,
+  constructor(public _saleCommonService: SaleCommonService, 
+    public _router: Router, public _setUpIds: SetUpIds, 
+    private _coustomerServices: VendorServices, private _formBuilder: FormBuilder,
+     private renderer2: Renderer2, public _globalService: GlobalService,
+      private _itemmasterServices: ItemmasterServices, 
+      private _categoryServices: CategoryServices,
     private _ledgerServices: VendorServices,
     private toastrService: ToastrCustomService,
     public _commonService: CommonService,
+    private purchaseService: PurchaseService,
     public _settings: Settings) {
     this.ATTRIBUTE_PARENTTYPEID = 6
     this.addCustomerForm()
@@ -767,12 +770,22 @@ export class SalesDirectComponent {
         if (event.value > 0) {
           this.additionChargeId = +event.value
           this.additionaChargeName = event.data[0].text
-
+          this.getLedgerTax(+event.value)
         }
       }
       this.validationCharge()
       this.calculate()
     }
+  }
+
+  getLedgerTax(id) {
+    this.purchaseService.getLedgerTax(id).subscribe((data) => {
+      console.log(data)
+      this.taxChargeId = data.LedgerDetails[0].TaxSlabId
+    },
+    (error) => {
+      this.toastrService.showError(error, '')
+    })
   }
 
   alreadySelectCharge(chargeId, name, enableflag) {
@@ -3599,6 +3612,7 @@ export class SalesDirectComponent {
   decimalDigit: any
   unitSettingType: any = 1
   isInclusiveCaseBeforeDiscount: any
+  showGodown: boolean
   getModuleSettingData() {
     this.applyCustomRateOnItemFlag = false
     this.localItemRate = true
@@ -3638,6 +3652,9 @@ export class SalesDirectComponent {
           this.defaultCurrency = ele.val[0].Val
           this.currencyValues.push({ id: 1, symbol: this.defaultCurrency })
           console.log(this.currencyValues)
+        }
+        if (ele.id === SetUpIds.godamWiseStockManagement) {
+          this.showGodown = ele.val
         }
       })
     }

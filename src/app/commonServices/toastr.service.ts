@@ -30,7 +30,7 @@ export class ToastrCustomService {
 
   showInfo (mess1, mess2) {
     this.toastr.info(mess1, mess2, {
-      timeOut: 1000
+      timeOut: 5000
     })
   }
 

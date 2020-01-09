@@ -125,8 +125,11 @@ export class SaleDirectMainComponent {
 
   onLoadPrint() {
     ;
-    if (this.PrintFormateType === 1) {
+    if (this.PrintFormateType === 1)  {
       return 'saleDirect_PrintType1'
+    }
+    if (this.PrintFormateType === 6)  {
+      return 'saleService_Print'
     }
     if (this.PrintFormateType === 2) {
       return 'saleDirect_PrintType2'
@@ -248,8 +251,9 @@ export class SaleDirectMainComponent {
   attributelength:any =0
   totalBillDiscountAmt: number = 0
   BillDateTime:any=''
+  totalOutstandingAmt:any =0
+  Crdr:any
   onPrintForDirectSale(id, htmlId, isViewForm) {
-    ;
     console.log(id, htmlId, isViewForm)
     let _self = this
     _self.commonService.printDirectSale(id).subscribe(data => {
@@ -261,7 +265,8 @@ export class SaleDirectMainComponent {
           this.totalBillDiscountAmt = data.Data.SaleTransactionses.BillDiscount
           _self.InventoryTransactionSales = data.Data.SaleTransactionses
           _self.BillDateTime = data.Data.SaleTransactionses.BillDate
-
+          this.totalOutstandingAmt = data.Data.SaleTransactionses[0].TotalOutStanding
+          this.Crdr = data.Data.SaleTransactionses[0].CrDr 
 
           this.paidFlag = data.Data.SaleTransactionses[0].OutStanding === 0 ? 'PAID' : 'UNPAID'
           _self.barcode = data.Data.SaleTransactionses[0].BarcodeBill
@@ -339,11 +344,8 @@ export class SaleDirectMainComponent {
             .map(item1 => parseFloat(item1.SubTotalAmount))
             .reduce((sum, current) => sum + current, 0)
           this.subTotalAmount = (subTotalAmount).toFixed(this.dicimalDigitFormat)
-        //  _self.ItemTransactionactions = data.Data.ItemTransactions
-
-              this.attributelength =data.Data.ItemAttributesTrans.length
           data.Data.ItemTransactions.forEach((element,index) => {
-            
+            this.attributelength = data.Data.ItemAttributesTrans.filter(d => (d.ItemTransId === element.Id))
             let attributeValue = data.Data.ItemAttributesTrans.filter(d => (d.ItemTransId === element.Id))
             let IMEInumberValue = data.Data.ItemPropertyTrans.filter(d => (d.ItemTransId === element.Id))
 
@@ -496,6 +498,7 @@ _self.printTypeFormateValue1(htmlId, isViewForm)
   PrintWithSave: any = 0
   PaymentDetailsFlag:any=1
   categoryShowOnPrint:any=1
+  CategoryOnSalePrint:any
   SignatorySetup:any=0
   getSetUpModules(settings) {
     settings.forEach(element => {
@@ -514,8 +517,6 @@ _self.printTypeFormateValue1(htmlId, isViewForm)
       }
       if (element.id === SetUpIds.BillDiscountOnPrint) {
         this.BillDiscountOnPrint = +element.val
-        //  alert( this.BillDiscountOnPrint)
-        //get val 1 then print on save button
       }
       if (element.id === SetUpIds.PaymentDatilsOnPrint_Sale_ServiceSale) {
         this.PaymentDetailsFlag = +element.val
@@ -523,9 +524,11 @@ _self.printTypeFormateValue1(htmlId, isViewForm)
       if (element.id === SetUpIds.categoryShowOnPrint) {
         this.categoryShowOnPrint = +element.val
       }
+      
       if (element.id === SetUpIds.SignatorySetup) {
         this.SignatorySetup = +element.val
       }
+ 
 
     })
 
@@ -744,7 +747,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
     let AppliedCSSForTypeA4_Singal_Half4 = `
    body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,sans-serif!important;position:relative;width:29.7cm;margin:0 auto}.m-auto{margin:auto}div{display:block}.row{display:flex;flex-wrap:wrap;padding-right:5px;padding-left:5px}.col-md-12{flex:0 0 100%;max-width:100%}.col-md-3{flex:0 0 25%;max-width:25%}.col-md-3{flex:0 0 25%;max-width:25%}.col-md-2{flex:0 0 12.666667%;max-width:12.666667%}.col-md-4{flex:0 0 33.333333%;max-width:33.333333%}.col-md-6{flex:0 0 50%;max-width:50%}.col,.col-1,.col-10,.col-11,.col-12,.col-2,.col-3,.col-4,.col-5,.col-6,.col-7,.col-8,.col-9,.col-auto,.col-lg,.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-lg-auto,.col-md,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-auto,.col-sm,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-sm-auto,.col-xl,.col-xl-1,.col-xl-10,.col-xl-11,.col-xl-12,.col-xl-2,.col-xl-3,.col-xl-4,.col-xl-5,.col-xl-6,.col-xl-7,.col-xl-8,.col-xl-9,.col-xl-auto{position:relative;width:100%;min-height:1px}.justify-content-center{justify-content:center!important}.bdr_left{border-left:1px solid #000}.bdr_right{border-right:1px solid #000}.bdr_top{border-top:1px solid #000}.bdr_bottom{border-bottom:1px solid #000}.text-center{text-align:center!important}.text-right{text-align:right!important}.text-left{text-align:left!important}.p-2{padding:.5rem!important}.p-1{padding:.25rem!important}.font-weight-bold{font-weight:700!important}.name_size{font-size:22px}.amount_bs{text-align:right;padding:0 3px}.main-balance .tfoot,.main-balance .thead{font-weight:600;padding:5px 0;font-size:1rem;border-top:1px solid #000;border-bottom:1px solid #000}.col-3{flex:0 0 25%;max-width:25%}.col{flex-basis:0%;flex-grow:1;max-width:100%}.p-0{padding:0!important}.ittelic{font-style:italic}*,::after,::before{box-sizing:border-box}.bdr_right_fix{min-height:25px;border-right:1px solid #000}.bdr_left_fix{min-height:25px;border-left:1px solid #000}.d-block{display:block}table{width:100%;border-collapse:collapse;border-spacing:0;margin-bottom:5px}thead{display:table-header-group;vertical-align:middle;border-color:inherit}table td,table th{padding:3px;text-align:left;word-break:break-word}table th{white-space:nowrap;font-weight:600;border-top:1px dashed #000;border-bottom:1px dashed #000;text-align:center;font-size:.75rem!important}.left_side_print{margin-right:15px}.right_side-print{margin-left:15px}table td{text-align:left;font-size:.70rem!important}.table_summery{min-height:350px}.table_summery2{min-height:110px}footer{color:#000;width:100%;height:30px;position:absolute;bottom:0;padding:8px 0;text-align:center}@page{size:landscape}
     `
-       if (this.PrintFormateType === 1) {
+       if (this.PrintFormateType === 1 || this.PrintFormateType === 6) {
      return AppliyedCSSTypeA4_1
     }
     if (this.PrintFormateType === 2) {

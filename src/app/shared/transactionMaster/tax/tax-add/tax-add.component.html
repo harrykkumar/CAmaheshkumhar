@@ -11,7 +11,7 @@
                 <div class="card-body">
                     <div>
                         <form #taxForm="ngForm">
-                            <div class="form-row">
+                            <div class="form-row align-items-end d-flex">
                                 <div class="form-group col-md-4">
                                     <label for="bill_no">Tax Type</label>
                                     <div class="input-group adw_select">
@@ -23,11 +23,14 @@
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
-                                    <label for="tax_slab1">Tax Slab</label>
+                                    <label for="tax_slab1">Name of Tax</label>
                                     <input  (input)="checkValidation()" type="text"
                                         [ngClass]="{ 'errorSelecto': invalidObjSlab?.slab && submitClick }"
                                         #first class="form-control" id="tax_slab1" name='slab1'
-                                        placeholder="Enter Slab-Name" [(ngModel)]="slab">
+                                        placeholder="Name of Tax" [(ngModel)]="slab">
+                                </div>
+                                <div class="form-group col-md-4">
+                                  <label>Example:- like GST 18%, GST 12%</label>
                                 </div>
                             </div>
                             <div class="form-row " id="tax_rate">
@@ -53,13 +56,13 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                {{item.Name}} - {{item.taxrate}}
+                                                {{item.Name}}
                                             </td>
                                             <td width="15%">
                                                 <div class="discount">
-                                                    <input style="width:158px" 
+                                                    <input style="width:158px"
                                                     [disabled]="(item.DisabledBox)? true:false"
-                                                     [attr.disabled]="item.DisabledBox?'':null" 
+                                                     [attr.disabled]="item.DisabledBox?'':null"
                                                         [ngClass]="{ 'errorSelecto': item.taxrateFlag && saveTaxRate}"
                                                         (input)="TaxRateEntry($event ,item.groupid);" type="number"
                                                         class="form-control  width_70 mr-1" appIncludeDecimal

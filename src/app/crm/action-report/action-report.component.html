@@ -1,0 +1,109 @@
+<main class="main-content bgc-grey">
+  <div id="mainContent">
+    <div class="page-header p-0">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 left_side_head">
+            <p class="heading_lead c-grey-900 mb-0">
+              <i class="fas fa-balance-scale"></i>Action
+            </p>
+          </div>
+          <div class="col-md-8 p-0">
+            <div class="right_saerch_side">
+              <div class="mr-2">
+                <div id="custom-search-input" class="btn_header1">
+                  <div class="input-group col-md-12">
+                    <input
+                      type="text"
+                      class="form-control input-lg"
+                      placeholder="Search"
+                      (input)="getActionData()"
+                      name="searchText"
+                      [(ngModel)]="searchText"
+                    />
+                    <span class="input-group-btn">
+                      <a>
+                        <i class="fas fa-search"></i>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="btn_header">
+                <a
+                  href="#order_search_form"
+                  class="btn btn-info waves-effect waves-light"
+                  data-toggle="collapse"
+                  ><i class="fas fa-search"></i>Search</a
+                >
+              </div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 pr-0">
+        <div class="bgc-white bdrs-3 pb-3 mB-20">
+          <div class="table-responsive table_height">
+            <table class="table cat-table table-hover">
+              <thead>
+                <tr>
+                  <th>Sr No.</th>
+                  <th>Dealer Name</th>
+                  <th>Customer Name</th>
+                  <th>Customer Contact</th>
+                  <th>Customer Address</th>
+                  <th>Demo Date</th>
+                  <th>User By</th>
+                  <th>Description</th>
+                  <th>Remark</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="
+                    let item of actionData
+                      | paginate
+                        : {
+                            itemsPerPage: itemsPerPage,
+                            currentPage: p,
+                            totalItems: total
+                          };
+                    let i = index;
+                    let i = index
+                  "
+                >
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item?.Dealer }}</td>
+                  <td>{{ item?.CustomerName }}</td>
+                  <td>{{ item?.ContactNo }}</td>
+                  <td>
+                    <address>
+                      {{ item.Address }} {{ item?.City }} {{ item?.State }}
+                      {{ item?.Country }}
+                    </address>
+                  </td>
+                  <td>{{ item?.ActionOn | date: "shortDate" }}</td>
+                  <td>
+                    <div>{{ item?.CreatedByName }}</div>
+                    <div>{{ item?.CreatedByContactNo }}</div>
+                  </td>
+                  <td>{{ item?.Description }}</td>
+                  <td>{{ item?.Remark }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<app-pagination
+  #paging_comp
+  (lastValueEmitter)="lastItemIndex = $event"
+  (pageNoEmitter)="p = $event; getActionData()"
+  (pageSizeEmitter)="itemsPerPage = $event; getActionData()"
+></app-pagination>

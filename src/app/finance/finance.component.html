@@ -24,6 +24,13 @@
                   <i class="fas fa-cog"></i>Financial Year
                 </p>
               </div>
+              <div class="col-md-3">
+                <div  class="btn_header">
+                  <button  class="close" data-dismiss="close" type="button"
+                  (click)="onCloseModal()" ><span  aria-hidden="true" class="white-text">×</span>
+                </button>
+              </div>
+            </div>
             </div>
           </div>
         </div>
@@ -199,6 +206,7 @@
                               id="transactionCheck"
                               name="transactionCheck"
                               [(ngModel)]="checkAll"
+                              disabled="true"
                               (change)="selectAllTransation($event)"
                               type="checkbox"
                               class="custom-control-input"
@@ -209,11 +217,11 @@
                             ></label>
                           </div>
                         </th>
-                        <th width="10%">Sr No.</th>
+                        <th width="10%">S. No.</th>
                         <th>Transaction Type</th>
                         <th>Prefix</th>
                         <th>Number</th>
-                        <th>Sufix</th>
+                        <th>Suffix</th>
                         <th>Example String</th>
                       </tr>
                     </thead>
@@ -231,6 +239,7 @@
                               name="{{ i }}-{{ item.Name }}"
                               [(ngModel)]="item.Checked"
                               type="checkbox"
+                              disabled="true"
                               class="custom-control-input"
                             />
                             <label

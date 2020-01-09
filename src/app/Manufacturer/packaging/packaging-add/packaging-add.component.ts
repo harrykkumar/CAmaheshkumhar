@@ -191,7 +191,7 @@ export class PackagingAddComponent {
         this.getComboFor(data.ItemAttributesTransSnos)
       }
     }
-    console.log(this.masterData)
+    console.log(this.masterData.Date)
   }
 
   validateItems () {
@@ -406,6 +406,7 @@ export class PackagingAddComponent {
     this.masterData = {}
     this.editItemMode = false
     this.loading = true
+    // this.packingModelForm.reset()
   }
 
   ngOnDestroy () {

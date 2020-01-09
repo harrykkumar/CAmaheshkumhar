@@ -14,10 +14,9 @@ import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
 import { AdditionalCharges, ItemTaxTrans } from '../../../model/sales-tracker.model';
 import { FormConstants } from 'src/app/shared/constants/forms.constant';
 import { takeUntil, catchError, filter, map } from 'rxjs/operators';
-import { element } from '@angular/core/src/render3';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { ThemeService } from 'ng2-charts';
 import { VendorServices } from '../../../commonServices/TransactionMaster/vendoer-master.services'
+import { SaleDirectService } from '../../sale-direct/saleDirectService.service'
 
 declare const $: any
 declare const _: any
@@ -254,6 +253,7 @@ export class serviceBillingAddComponent {
     private toastrService: ToastrCustomService,
     private settings: Settings,
     private renderer: Renderer2,
+    private _saleDirectService: SaleDirectService,
     private gs: GlobalService) {
     this.commonService.openDiscountMasterStatus().subscribe(
       (data: AddCust) => {
@@ -833,6 +833,7 @@ getTypeOfGST () {
       this.Amount = element.Amount
       this.PayDate = this.gs.utcToClientDateFormat(element.PayDate, this.clientDateFormat)
       this.ChequeNo = element.ChequeNo
+      this.totalAmount(paymentDetails)
       this.addTransactions()
       if (this.PaymentDetail[this.PaymentDetail.length - 1]) {
         this.PaymentDetail[this.PaymentDetail.length - 1].Id = element.Id
@@ -846,7 +847,7 @@ getTypeOfGST () {
 
   other: any = {}
   createOther (others) {
-  
+    
     this.BillNo = others.BillNo
     this.ReferralCommissionTypeId = others.ReferralCommissionTypeId
     this.ReferralCommission = +others.ReferralCommission
@@ -860,7 +861,15 @@ getTypeOfGST () {
     this.TotalDiscount = 0
     this.PartyId = +others.LedgerId
     this.editAllgetAddress(+others.LedgerId)
-
+    let caseId = this.caseSaleArrayId.filter(s => s.id === this.PartyId)
+    if (caseId.length > 0 && caseId[0].id > 0) {
+      this.isCaseSaleFlag = false
+      this.isOtherState = false
+      this.AddressId = 0
+    }
+    else {
+      this.isCaseSaleFlag = true
+    }
     this.ReferralId = others.ReferralId
     this.ReferralTypeId = others.ReferralTypeId
     this.ReverseCharge = 0
@@ -906,13 +915,13 @@ getTypeOfGST () {
 
 
   @ViewChild('convertTo_select2') convertToSelect2: Select2Component
-
+  DiscountFor100Perct: boolean = false
   noOfDecimalPoint: number = 0
   backDateEntry: boolean = false
   isBillNoManuall: boolean = false
+  inclusiveOnSale:boolean
   taxCalInclusiveType: number = 2
   MultipleBillDiscount: number = 1
-
   getSetUpModules (settings) {
     console.log('settings : ', settings)
     settings.forEach(element => {
@@ -942,6 +951,12 @@ getTypeOfGST () {
       if (element.id === SetUpIds.MultipleBillDiscount) {
         this.MultipleBillDiscount = +element.val
       }
+      if (element.id === SetUpIds.DiscountFor100) {
+        this.DiscountFor100Perct = element.val
+      }
+      if (element.id === SetUpIds.inclusiveOnSale) {
+        this.inclusiveOnSale = element.val
+      }
     })
 
   }
@@ -952,7 +967,7 @@ getTypeOfGST () {
         this.BillDiscount = 0
       }
       else {
-        if (Number(e.target.value) > Number(99.999990) &&
+        if (Number(e.target.value) > Number(100.00001) &&
           e.keyCode != 46 // delete
           &&
           e.keyCode != 8 // backspace
@@ -964,6 +979,7 @@ getTypeOfGST () {
         }
       }
     }
+ 
 
   }
   onCustomerSelect(event) {
@@ -1100,6 +1116,7 @@ onLoading(){
   this.editItemIndex = -1
   this.BillDiscountArray = []
   this.BillNo=''
+  this.isCaseSaleFlag = true
   this.editItemFlag= false
   this.caseSaleCustomerDetails =[]
   this.showHideAddItemRow = true
@@ -1114,22 +1131,14 @@ onLoading(){
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal () {
     this.getFormDependency()
-
     this.onLoading()
     this.clearCaseCustomer()
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.getSpUtilitySaleServiceData()
-   
     this.outStandingBalance =0
     this.getListOfChargeData()
     $('#serivce_modal').modal(UIConstant.MODEL_SHOW)
-    
-   
     this.industryId = +this.settings.industryId
-    this.taxTypeData = [
-      { id: '0', text: 'Exclusive' },
-      { id: '1', text: 'Inclusive' }
-    ]
     this.getNewBillNo()
     this.initItem()
     this.initTransaction()
@@ -1139,8 +1148,6 @@ onLoading(){
       if (!this.isBillNoManuall) {
         this.setBillNo(this.TransactionNoSetups)
         this.getNewBillNo()
-
-        
       }
       this.setBillDate()
       this.setPartyBillDate()
@@ -1262,19 +1269,26 @@ onLoading(){
       }
     }
   }
-
+  resetItemList (){
+    this.TaxSlabId =0
+    this.UnitId=0
+    this.unitSelect2.setElementValue(0)
+    if(this.taxSlabSelect2){
+      this.taxSlabSelect2.setElementValue(0)
+    }
+    this.SaleRate =0
+    this.PurchaseRate=0
+    this.MrpRate=0
+    this.TotalRate=0
+  }
   getItemDetail (id) {
+    this.resetItemList()
     this.saleServiceBillingService.getItemDetail(id).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
    //   console.log('item detail : ', data)
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.length > 0) {
-
           this.getBillSummryListFlag =true
-          // console.log('categoryname : ', this.categoryName)
           this.TaxSlabId = data.Data[0].TaxId
-
-
-
           this.taxSlabSelect2.setElementValue(data.Data[0].TaxId)
           this.taxSlabName = data.Data[0].TaxSlab
           this.SaleRate = data.Data[0].SaleRate
@@ -1352,7 +1366,7 @@ onLoading(){
         this.Discount =0
       }
       else{
-        if (Number(e.target.value) > Number(99.99999) &&
+        if (Number(e.target.value) > Number(100.00001) &&
         e.keyCode != 46 
         &&
         e.keyCode != 8 
@@ -1363,6 +1377,23 @@ onLoading(){
         this.Discount = Number(e.target.value);
       }
     }
+}
+if ('' + this.DiscountType === '1') {
+  if (e === '0') {
+    this.Discount = 0
+  }
+  else {
+    if (Number(e.target.value) > Number(this.SaleRate) &&
+      e.keyCode != 46 // delete
+      &&
+      e.keyCode != 8 // backspace
+    ) {
+      e.preventDefault();
+      this.Discount = 0
+    } else {
+      this.Discount = Number(e.target.value);
+    }
+  }
 }
   
 }
@@ -1391,13 +1422,28 @@ onLoading(){
         }
         let discountedAmount = 0
         if (this.DiscountAmt === total) {
-          discountedAmount = total
+          if (!this.DiscountFor100Perct) {
+            discountedAmount = total
+            this.AmountItem = discountedAmount
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].AmountItem = discountedAmount
+            }
+          }
+          else {
+            discountedAmount = total
+            this.AmountItem = 0
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].AmountItem = 0
+            }
+
+          }
         } else {
           discountedAmount = total - this.DiscountAmt
-        }
-        this.AmountItem = discountedAmount
-        if (this.editItemIndex > -1) {
-          this.Items[this.editItemIndex].AmountItem = this.AmountItem
+          this.AmountItem = discountedAmount
+          if (this.editItemIndex > -1) {
+            this.Items[this.editItemIndex].AmountItem = this.AmountItem
+            this.Items[this.editItemIndex].SaleRate = this.SaleRate
+          }
         }
         if (this.TaxType === 0) {
           let returnTax = this.saleServiceBillingService.taxCalculation(this.taxRates,
@@ -1961,8 +2007,18 @@ onLoading(){
     }
     this.validateTransaction()
   }
-
+  getCasePayment: any = 0
+  totalAmount(PaymentDetail) {
+    this.getCasePayment = 0
+    if (PaymentDetail.length > 0) {
+      PaymentDetail.forEach(element => {
+        this.getCasePayment = this.getCasePayment + +element.Amount
+      }
+      )
+    }
+  }
   getPaymentTotal (): number {
+    
     let paymentTotal = 0
     for (let i = 0; i <= this.PaymentDetail.length - 1; i++) {
       paymentTotal = paymentTotal + +this.PaymentDetail[i].Amount
@@ -1972,26 +2028,46 @@ onLoading(){
         paymentTotal += +this.Amount
       }
     }
+    if (this.editMode && +this.Amount > 0 && +this.PayModeId > 0 && +this.LedgerId > 0) {
+      if (this.PaymentDetail.length === 1) {
+        paymentTotal = +this.Amount
+      }
+      else {
+        paymentTotal = +this.getCasePayment
+
+      }
+    }
     return paymentTotal
   }
   isValidAmount = true
   checkValidationForAmount () {
+    
     let paymentTotal = this.getPaymentTotal()
     paymentTotal = (isNaN(+paymentTotal)) ? 0 : +paymentTotal
     this.BillAmount = (isNaN(+this.BillAmount)) ? 0 : +this.BillAmount
     //console.log('this.BillAmount : ', this.BillAmount)
     if (this.BillAmount !== 0) {
       if (paymentTotal > this.BillAmount) {
-        this.toastrService.showError('Error', 'Payment can\'t be more than bill amount')
+        this.toastrService.showErrorLong('Error', 'Payment can\'t be more than bill amount')
         this.isValidAmount = false
+        this.DisabledSaveBtn = false
         return false
-      } else {
+      }
+      else if (!this.isCaseSaleFlag && this.BillAmount > paymentTotal) {
+          this.toastrService.showErrorLong('', 'Please Settle Bill Amount ')
+          this.paymentSelect2.selector.nativeElement.focus({ preventScroll: false })
+          this.DisabledSaveBtn = false
+          this.isValidAmount = false
+          return true
+        }
+       else {
         this.isValidAmount = true
         return true
       }
     } else {
       return true
     }
+
   }
 
   initialiseTransaction () {
@@ -2013,9 +2089,9 @@ onLoading(){
   }
 
   addTransactions () {
+    
     if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
       if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
-        if (this.checkValidationForAmount()) {
           this.addTransaction()
           if(this.editTransId > 0 ){
             this.showHidePayment =true
@@ -2028,14 +2104,20 @@ onLoading(){
           this.clickTrans = true
           this.initialiseTransaction()
           this.calculatePaymentAmount()
-        }
       } else {
         this.clickTrans = false
      
       }
     }
   }
-
+  checkpaymentLedgerId() {
+    if (this.PaymentDetail.length > 0) {
+      let dvalue= this.PaymentDetail.filter(
+        d=>d.LedgerId===this.LedgerId)
+        if(dvalue.length>0){ return false  }
+        else{ return true }  }
+        else { return true }
+  }
  addTransaction() {
     let index = 0
     if (this.PaymentDetail.length === 0) {
@@ -2057,18 +2139,23 @@ onLoading(){
         
       })
     }
-    this.PaymentDetail.push({
-      Id: 0,
-      Sno: index,
-      Paymode: this.Paymode,
-      PayModeId: this.PayModeId,
-      LedgerId: this.LedgerId,
-      BankLedgerName: this.BankLedgerName,
-      Amount: this.Amount,
-      PayDate: this.PayDate,
-      ChequeNo: this.ChequeNo,
-      isEditable:this.EditabledPay
-    })
+    if(this.checkpaymentLedgerId()){
+      this.PaymentDetail.push({
+        Id: 0,
+        Sno: index,
+        Paymode: this.Paymode,
+        PayModeId: this.PayModeId,
+        LedgerId: this.LedgerId,
+        BankLedgerName: this.BankLedgerName,
+        Amount: this.Amount,
+        PayDate: this.PayDate,
+        ChequeNo: this.ChequeNo,
+        isEditable:this.EditabledPay
+      })
+    }
+    else {
+      this.toastrService.showErrorLong('', 'Trasaction not allow with Same Transactional Ledger')
+    }
     
     setTimeout(() => {
       this.commonService.fixTableHFL('trans-table')
@@ -2405,7 +2492,20 @@ onLoading(){
     this.DiscountAmt = 0
     this.TaxSlabId = 0
     this.taxSlabName = ''
-    this.TaxType = 0
+    if(this.inclusiveOnSale){
+      this.taxTypeData = [
+        { id: '1', text: 'Inclusive' }
+      ]
+      this.TaxType=1
+    }
+    else{
+      this.taxTypeData = [
+        { id: '0', text: 'Exclusive' },
+        { id: '1', text: 'Inclusive' }
+      ]
+      this.TaxType=0
+
+    }
     this.TaxAmount = 0
     this.ExpiryDate = this.gs.getDefaultDate(this.clientDateFormat)
     this.MfdDate = this.gs.getDefaultDate(this.clientDateFormat)
@@ -2860,6 +2960,7 @@ this.taxTypeValue=0
       this.invalidObj['PayDate'] = false
       this.invalidObj['ChequeNo'] = false
     }
+    this.DisabledSaveBtn = false
     this.clickTrans = false
   }
 
@@ -2975,6 +3076,7 @@ this.taxTypeValue=0
         }
 
       }
+      this.DisabledSaveBtn = false
       return !!isValid
     }
   }
@@ -3022,11 +3124,14 @@ this.taxTypeValue=0
       this.invalidObj['Discount'] = false
 
     }
+    this.DisabledSaveBtn = false
+
   }
 
 
   DisabledSaveBtn: boolean = false
   saveBilling () {
+    this.DisabledSaveBtn = true
     let _self = this
     this.submitSave = true
     let dataToSend = this.ServiceBillingAddParams()
@@ -3297,10 +3402,21 @@ this.taxTypeValue=0
       this.LedgerChargeId = +evt.value
       if (evt.value > 0) {
         this.LedgerName = evt.data[0].text
+        this.getLedgerTax(+evt.value)
       }
     }
     this.validateCharge()
     this.calculate()
+  }
+
+  getLedgerTax(id) {
+    this.saleServiceBillingService.getLedgerTax(id).subscribe((data) => {
+      console.log(data)
+      this.taxSlabChargeValue = data.LedgerDetails[0].TaxSlabId
+    },
+    (error) => {
+      this.toastrService.showError(error, '')
+    })
   }
 
   onTaxSlabChargeSelect (evt) {
@@ -3467,6 +3583,12 @@ this.taxTypeValue=0
       taxableValue += +element.AmountItem
     });
     if (!this.clickItem && +this.ItemId > 0 && this.editItemIndex === -1 && +this.AmountItem > 0) {
+      taxableValue += +this.AmountItem
+      if (this.appliedTaxRatesItem.length > 0) {
+        ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
+      }
+    }
+    if (!this.clickItem && this.editItemIndex === -1 && +this.ItemId > 0 && this.AmountItem===0 && this.DiscountFor100Perct) {
       taxableValue += +this.AmountItem
       if (this.appliedTaxRatesItem.length > 0) {
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
@@ -3820,11 +3942,7 @@ this.taxTypeValue=0
       Type: 'Transaction',
       isChecked: true
     }
-
     let editDiscountValue = this.BillDiscountApplied.length === 0 ? [] : this.BillDiscountApplied
-
-
-    
     this.commonService.openDiscountMaster('', true, DiscountData, editDiscountValue)
   }
   disbledInputMobileFlag: boolean
@@ -3832,18 +3950,13 @@ this.taxTypeValue=0
   @ViewChild('custName') custName
   openCustomerDetails() {
     this.disbledInputMobileFlag = true
-    
     this.searchCountryCodeForMobile(' ')
- 
     this.customerClick = false
     this.getCountry(0)
     $('#cust_detail_m').modal(UIConstant.MODEL_SHOW)
-    if (this.custName && this.custName.nativeElement) {
-      setTimeout(() => {
-        this.custName.nativeElement.focus()
-      }, 600)
+    if (!this.editMode) {
+      this.getOrgnizationAddress()
     }
-    this.getOrgnizationAddress()
   }
 
   countryValue1:any =null
@@ -3863,7 +3976,7 @@ this.taxTypeValue=0
     }
     }
   }
-  validmobileLength: any
+  validmobileLength: any=0
   CountryCode: any
   countryCodeId: any
   countryListWithCode: any
@@ -3875,37 +3988,78 @@ this.taxTypeValue=0
           this.validmobileLength = event.Length
         }
       }
+      else {
+        this.countryCodeFlag= 0
+        this.CountryCode = 0
+        this.validmobileLength = 0
+      }
     }
   }
-  getOrgnizationAddress (){
-    let Address= JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
-    console.log(Address)
+  searchCashPartyDetails(mobile) {
+    if (this.validmobileLength === mobile.target.value.length) {
+      this._saleDirectService.getCashPartyDetailsByMobile(mobile.target.value, 6).subscribe(res => {
+        if (res.Code === UIConstant.THOUSAND && res.Data.length > 0) {
+          this.customerMobileNo = res.Data[0].MobileNo
+          this.CustomerAddress = res.Data[0].Address
+          this.validmobileLength = res.Data[0].Length
+          this.CustomerEmail = res.Data[0].Email
+          this.PartyGstinNo = res.Data[0].GstinNo===null ? '' : res.Data[0].GstinNo
+          this.caseCustomerName = res.Data[0].Name
+          this.countryValue1 = res.Data[0].CountryId
+          this.stateValuedata1 = res.Data[0].StateId
+          this.checkIsValidMobileNo = true
+          this.loadAddressDetails(res.Data[0])
+        }
+      })
+    }
+
+  }
+  loadAddressDetails(Address) {
+    this.countryValue = Address.CountryId
     this.countryValue1 = Address.CountryId
-    this.stateValuedata1 = Address.StateId
+    this.countryCodeFlag = Address.CountryCode
+    this.validmobileLength = Address.Length
     let phonecode = {
-      id:Address.CountryCode,text:Address.CountryName,
-      PhoneCode:Address.CountryCode,
-      Length:Address.Length
+      id: Address.CountryCode, text: Address.CountryName,
+      PhoneCode: Address.CountryCode,
+      Length: Address.Length
     }
     this.onCountryCodeSelectionChange(phonecode)
-    this.countryCodeFlag =Address.CountryCode
-
-    this.cityValue1 = Address.CityId
-    this.areNameId = Address.AreaId
     let country = {
-      id:Address.CountryId,text:Address.CountryName
+      id: Address.CountryId,
+      text: Address.CountryName
     }
     this.selectCountryListId(country)
     let state = {
-      id:Address.StateId,text:Address.StateName
+      id: Address.StateId,
+      text: Address.Statename
     }
-    this.selectState(state)
     let city = {
-      id:Address.CityId,text:Address.CityName
+      id: Address.CityId,
+      text: Address.CityName
     }
-    this.selectedCityId(city)
-
-
+    let area = {
+      id: Address.AreaId,
+      text: Address.Areaname
+    }
+    this.areNameId = Address.AreaId
+    this.stateValuedata1 = Address.StateId
+    this.cityValue1 = Address.CityId
+    setTimeout(() => {
+      this.selectState(state)
+    }, 100);
+    setTimeout(() => {
+      this.selectedCityId(city)
+    }, 200);
+    setTimeout(() => {
+      this.selectedArea(area)
+    }, 300);
+  }
+  getOrgnizationAddress (){
+    let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
+    if (Address !== null) {
+      this.loadAddressDetails(Address)
+    }
     
    }
   searchCountryCodeForMobile(name) {
@@ -3934,46 +4088,131 @@ this.taxTypeValue=0
     let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     return re.test(email)
   }
+  casepartyNameValidation (){
+    if(!_.isEmpty(this.caseCustomerName) && this.caseCustomerName!==''){
+      return true
+    }
+    else{
+      return false
+    }
+  }
+  chekGSTvalidation(){
+    if(!_.isEmpty(this.PartyGstinNo) && this.PartyGstinNo!==''){
+      if(this.commonService.regxGST.test(this.PartyGstinNo)){
+        if(this.GSTstateCode=== this.stateCode){
+          return true
+        }else{
+          return false
+        }
+      }else{
+        return false
+      }
+     
+      
+    }
+    else{
+      return true
+    }
+  }
+  GSTstateCode:any =0
+  stateCode:any =0
+
+  splitGSTNumber(){
+    let  parts = this.PartyGstinNo.trim()
+     this.GSTstateCode = parts.substring(0, 2);
+    this.commonService.getStateByGStCode(this.GSTstateCode).subscribe(d=>{
+      if(d.Code===1000 &&d.Data.length>0){
+        this.stateValuedata1 =d.Data[0].Id
+        this.stateCode =d.Data[0].ShortName1
+      }
+    })
+}
   CustomerEmail: any = ''
   checkIsValidMobileNo: any
   checkvalidEmail: boolean
   checkValidEmail() {
-    let email = this.CustomerEmail
-    if (email !== '' && email !== null) {
-      if (this.validateEmail(email)) {
-        this.checkvalidEmail = false
+    if (this.CustomerEmail !== '' && this.CustomerEmail !== null) {
+      if (this.validateEmail(this.CustomerEmail)) {
+        return false
       } else {
-        this.checkvalidEmail = true
+        return true
       }
     } else {
-      this.checkvalidEmail = false
+      return false
     }
   }
   customerMobileNo: any = ''
   checkValidMobile() {
-    let mobile = JSON.stringify(this.customerMobileNo)
-
-    if (mobile !== '' && mobile !== null) {
-      if (this.validmobileLength === mobile.length) {
-        this.checkIsValidMobileNo = true
+    if (this.customerMobileNo!=='') {
+      if (this.validmobileLength === this.customerMobileNo.toString().length) {
+        return true
       } else {
-        this.checkIsValidMobileNo = false
+        return false
       }
     } else {
-      this.checkIsValidMobileNo = false
+      return false
     }
   }
+  
+  @ViewChild('caseparty_customerName') caseparty_customerName :ElementRef
+  @ViewChild('caseParty_email') caseParty_email: ElementRef
+  @ViewChild('caseparty_mobile') caseparty_mobile: ElementRef
+  validObj_caseparty :any ={}
+  @ViewChild('mobileCose_select2') mobileCose_select2: Select2Component
+  @ViewChild('gst_input') gst_input :ElementRef
+
+  dynamicCasePartyValidation = () => {
+    let valid = true
+    if (_.isEmpty(this.countryCodeFlag) && this.countryCodeFlag === 0) {
+      this.validObj_caseparty['countryCodeFlag'] = true
+      this.mobileCose_select2.selector.nativeElement.focus({ preventScroll: false })
+      valid = false
+    }else{
+      this.validObj_caseparty['countryCodeFlag'] = false
+    }
+    if (!this.checkValidMobile() &&  !this.validObj_caseparty.countryCodeFlag) {
+      this.validObj_caseparty['caseparty_mobile'] = true
+      this.caseparty_mobile.nativeElement.focus()
+      valid = false
+    }
+    else{
+      this.validObj_caseparty['caseparty_mobile'] = false
+    }
+    if (_.isEmpty(this.caseCustomerName) && this.caseCustomerName === '' &&  !this.validObj_caseparty.countryCodeFlag &&  !this.validObj_caseparty.caseparty_mobile) {
+      this.validObj_caseparty['caseCustomerName'] = true
+      this.caseparty_customerName.nativeElement.focus()
+      valid = false
+    }
+    else{
+      this.validObj_caseparty['caseCustomerName'] = false
+
+    }
+    if (this.checkValidEmail()) {
+      this.validObj_caseparty['caseparty_email'] = true
+      this.caseParty_email.nativeElement.focus()
+      valid = false
+    }else{
+      this.validObj_caseparty['caseparty_email'] = false
+    }
+    if (!this.chekGSTvalidation()) {
+      this.validObj_caseparty['gst_input'] = true
+      this.gst_input.nativeElement.focus()
+      valid = false
+    } else {
+      this.validObj_caseparty['gst_input'] = false
+    }
+    return valid
+  }
+  
   caseSaleCustomerDetails: any = []
   caseCustomerName: any = ''
   CustomerAddress: any = ''
   PartyGstinNo: any = ''
   countrId: any = 0
   addCaseCustomer() {
-    
-    this.checkValidEmail()
-    this.checkValidMobile()
+    this.caseSaleCustomerDetails = []
     this.customerClick = true
-    if (this.caseCustomerName !== '' && this.caseCustomerName !== null && this.customerMobileNo !== null && this.customerMobileNo !== '' && !this.checkvalidEmail && this.checkIsValidMobileNo) {
+    if (this.dynamicCasePartyValidation()) {
       this.caseSaleCustomerDetails = [{
         Id: this.CaseCustId === 0 ? this.CaseCustId : this.CaseCustId,
         Name: this.caseCustomerName,
@@ -3988,8 +4227,8 @@ this.taxTypeValue=0
         CountryCode: this.CountryCode
       }]
       if (!this.editMode) {
-        this.countryCodeFlag = '0'
-        this.getCountry(0)
+       // this.countryCodeFlag = '0'
+      //  this.getCountry(0)
       }
       //this.clearCaseCustomer()
       $('#cust_detail_m').modal(UIConstant.MODEL_HIDE)
@@ -4000,14 +4239,8 @@ this.taxTypeValue=0
     this.caseCustomerName = ''
     this.customerMobileNo = ''
     this.CustomerEmail = ''
-    this.areaID = 0
-    this.cityId = 0
-    this.CountryCode = 0
     this.CustomerAddress = ''
-    this.countrId = 0
     this.PartyGstinNo = ''
-    this.customerStateId = 0
-    this.CaseCustId = 0
   }
   countryValue: any =null
   countryList: any = []
@@ -4046,6 +4279,7 @@ this.taxTypeValue=0
     if(this.stateValuedata1 !==null){
       if (event.id !== '0') {
           this.customerStateId = event.id
+          this.stateCode = event.id
           this.StateName = event.text
           if (this.customerStateId > 0) {
             this.getCitylist(this.customerStateId, 0)
@@ -4113,48 +4347,21 @@ this.taxTypeValue=0
         }
     }
   }
-  checkOnInputMobile(e) {
-    let d = e.target.value
-    if (d.length === this.validmobileLength) {
-      document.getElementById('mobileId').className += ' successTextBoxBorder'
-      document.getElementById('mobileId').classList.remove('errorTextBoxBorder')
-    } else {
-      document.getElementById('mobileId').className += ' errorTextBoxBorder'
-    }
-  }
+  
   createCustomerDetails(data) {
-    
     if (data.length > 0) {
       this.CaseCustId = data[0].Id
       this.customerMobileNo = data[0].MobileNo
       this.CustomerAddress = data[0].Address
       this.CustomerEmail = data[0].Email
+      this.PartyGstinNo = data[0].GstinNo===null ? '' : data[0].GstinNo
       this.caseCustomerName = data[0].Name
-      this.PartyGstinNo = data[0].PartyGstinNo
       this.countryValue1 = data[0].CountryId
-    this.stateValuedata1 = data[0].StateId
-    let phonecode = {
-      id:data[0].CountryCode,text:data[0].CountryName,
-      PhoneCode:data[0].CountryCode,
-      Length:data[0].Length
+      this.stateValuedata1 = data[0].StateId
+      this.loadAddressDetails(data[0])
     }
-    this.onCountryCodeSelectionChange(phonecode)
-    this.countryCodeFlag =data[0].CountryCode
-
-    this.cityValue1 = data[0].CityId
-    this.areNameId = data[0].AreaId
-    let country = {
-      id:data[0].CountryId,text:data[0].CountryName
-    }
-    this.selectCountryListId(country)
-    let state = {
-      id:data[0].StateId,text:data[0].StateName
-    }
-    this.selectState(state)
-    let city = {
-      id:data[0].CityId,text:data[0].CityName
-    }
-    this.selectedCityId(city)
+    else {
+      this.getOrgnizationAddress()
     }
   }
 

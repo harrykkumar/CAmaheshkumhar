@@ -1,0 +1,123 @@
+<div
+  class="modal fade right"
+  id="item_add_subscription"
+  role="dialog"
+  aria-labelledby="item_add_subscription"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-full-height modal-right" role="document">
+    <div class="modal-content">
+      <div class="modal-header close_popup">
+        <h4 class="modal-title w-100 c-grey-900">Add Item Subscription</h4>
+        <button
+          type="button"
+          class="close"
+          aria-label="Close"
+          (click)="closePopUp()"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form
+          #itemAddSubscription="ngForm"
+          novalidate
+          (ngSubmit)="submit()"
+        >
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label>{{itemName}}</label>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Amount For Subscription</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="Please Enter Amount"
+                  name="subscriptionAmount"
+                  required
+                  [(ngModel)]="subscriptionAmount"
+                  [ngClass]="{
+                    errorSelecto:
+                      itemAddSubscription?.submitted && !subscriptionAmount
+                  }"
+                />
+              </div>
+              <div class="form-group col-md-12">
+                <label>Subscription Duration</label>
+                <ng-select
+                  name="subscriptionDurationName"
+                  [items]="crmService.leadUtilityData.AMCDuration"
+                  bindLabel="commondesc"
+                  bindValue="id"
+                  placeholder="Select Duration"
+                  [(ngModel)]="subscriptionDuration"
+                  required
+                  [ngClass]="{
+                    'ng-select-invalid':
+                      itemAddSubscription?.submitted && !subscriptionDuration
+                  }"
+                >
+                </ng-select>
+              </div>
+              <div class="form-group col-md-12">
+                <button
+                type="submit"
+                class="btn btn-primary waves-effect"
+              >
+                Save
+              </button>
+              </div>
+            </div>
+            <div class="form-row" *ngIf="addedItemsList?.length > 0">
+              <table class="table editable_tbl">
+                <thead>
+                  <tr>
+                    <th>Amount</th>
+                    <th>Period</th>
+                    <th>#</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    class="default_row"
+                    *ngFor="let item of addedItemsList; let i = index"
+                  >
+                    <td>{{ item?.price }}</td>
+                    <td>{{ item?.periodLabel }}</td>
+                    <td class="profile-pic1">
+                      <div>
+                        <a
+                          href="javascript:void(0)"
+                          class="p-2"
+                          (click)="edit(item, i)"
+                          ><i class="fas fa-pen fa-1x cH-blue"></i>
+                        </a>
+                        <a href="javascript:void(0)" (click)="delete(i)">
+                          <i
+                            aria-hidden="true"
+                            class="fa fa-trash fa-1x cH-blue"
+                          ></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- <div class="modal-footer">
+        <button
+          type="submit"
+          class="btn btn-primary waves-effect"
+          (click)="itemAddSubscription.ngSubmit.emit()"
+        >
+          Save
+        </button>
+      </div> -->
+    </div>
+  </div>
+</div>

@@ -39,7 +39,7 @@
               <td class="text-right">{{ item.Cr.toFixed(noOfdecimal) }}</td>
               <td class="text-right">{{ item.Dr.toFixed(noOfdecimal) }}</td>
               <td>
-                <div class="dropdown enquiry-tag" *ngIf="notShowActionsFor.indexOf(item.VoucherTypeId) === -1" >
+                <div class="dropdown enquiry-tag" *ngIf="notShowActionsFor.indexOf(item.VoucherTypeId) === -1 && item.IsDirectVoucher === 0" >
                   <a
                     class="dropdown-toggle"
                     data-toggle="dropdown"

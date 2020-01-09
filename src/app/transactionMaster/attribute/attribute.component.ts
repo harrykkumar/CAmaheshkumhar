@@ -39,7 +39,7 @@ export class AttributeComponent implements OnInit {
     private _formBuilder: FormBuilder,
     private _loginService: LoginService
     ) {
-    this.menuData = this._loginService.getMenuDetails(40, 1);
+    this.menuData = this._loginService.getMenuDetails(40, 131);
     this.initDeleteStatus()
     this.initCloseAttributeStatus()
     this.formSearch()

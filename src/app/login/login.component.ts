@@ -59,7 +59,8 @@ export class LoginComponent {
           }
           if (data.Code ===UIConstant.THOUSAND && data.Data != null) {
             this.tokenService.saveToken(data.Data.Token)
-            this._loginService.mapOrganizations();
+            this._loginService.setDetailsForIsdOne(data.Data)
+            // this._loginService.mapOrganizations(data.Data);
           } else {
             this.invalidUser = true
             this.errorMessage = ErrorConstant.INVALID_USER

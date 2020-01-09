@@ -334,6 +334,7 @@ export class PurchaseDirectReturnAddComponent {
             if (this.chargeSelect2) {
               const element = this.renderer.selectRootElement(this.chargeSelect2.selector.nativeElement, true)
               element.focus({ preventScroll: false })
+              // this.getLedgerTax(+data.id)
             }
           }, 2000)
         }
@@ -1095,6 +1096,8 @@ export class PurchaseDirectReturnAddComponent {
   BarCodeEnableFlag: any = 0
   taxCalInclusiveType: number = 2
   MultipleBillDiscountPurchase: number = 1
+  DiscountFor100Perct:boolean =false
+  showGodown: boolean
   getSetUpModules(settings) {
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
@@ -1121,8 +1124,14 @@ export class PurchaseDirectReturnAddComponent {
       if (element.id === SetUpIds.MultipleBillDiscountPurchase) {
         this.MultipleBillDiscountPurchase = +element.val
       }
+      if (element.id === SetUpIds.DiscountFor100) {
+        this.DiscountFor100Perct = element.val
+      }
       if (element.id === SetUpIds.BarCodeEnable) {
         this.BarCodeEnableFlag = +element.val
+      }
+      if (element.id === SetUpIds.godamWiseStockManagement) {
+        this.showGodown = element.val
       }
     })
     this.createModels(this.catLevel)
@@ -1722,9 +1731,21 @@ export class PurchaseDirectReturnAddComponent {
   }
   IsNotDiscountable: boolean = false
   IsItemReturnable:any
+  resetItemList (){
+    this.TaxSlabId =0
+    this.UnitId=0
+    this.unitSelect2.setElementValue(0)
+    if(this.taxSlabSelect2){
+      this.taxSlabSelect2.setElementValue(0)
+    }
+    this.SaleRate =0
+    this.TotalRate=0
+    this.PurchaseRate=0
+    this.MrpRate=0
+  }
   getItemDetail(Billdate, barcode, ItemId, CustomerId) {
+    this.resetItemList()
     this.commonService.barcodeAPIReturn(Billdate, barcode, ItemId, CustomerId,'PurchaseReturn').pipe(takeUntil(this.onDestroy$)).subscribe(data => {
-
       if (data.Code === UIConstant.THOUSAND) {
         if (data.Data.ItemDetails.length > 0) {
           this.categoryName = data.Data.ItemDetails[0].CategoryName
@@ -1748,6 +1769,8 @@ export class PurchaseDirectReturnAddComponent {
           if (data.Data && data.Data.ItemBarCodeDetails && data.Data.ItemBarCodeDetails.length > 0) {
             this.BarcodeWithAttribute(data.Data.ItemBarCodeDetails)
           }
+          this.changeRunTimeSaleRate()
+
           if (data.Data && data.Data.SubUnitDetails && data.Data.SubUnitDetails.length > 0) {
             this.filterUnitForItem(data.Data.SubUnitDetails)
             this.unitSelect2.setElementValue(this.UnitId)
@@ -1950,27 +1973,67 @@ export class PurchaseDirectReturnAddComponent {
       // this.categories = Object.assign([], this.categories)
     }
   }
-
+  changeRunTimeSaleRate = () => {
+    if (+this.Quantity > 0 && +this.PurchaseRate > 0) {
+      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      this.TotalRate = +(lwh * +this.PurchaseRate).toFixed(this.noOfDecimalPoint)
+    } else {
+      this.TotalRate = 0
+    }
+  }
+  changeRunTimeQuantity = () => {
+    if (+this.PurchaseRate > 0 && +this.Quantity > 0) {
+      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      this.TotalRate = +(lwh* +this.PurchaseRate).toFixed(this.noOfDecimalPoint)
+    } else {
+      this.TotalRate = 0
+    }
+    if (+this.TotalRate > 0 && +this.Quantity > 0) {
+      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      this.PurchaseRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
+    } else {
+     // this.PurchaseRate = 0
+    }
+  }
+  getPurchaseRate() {
+    if (+this.Quantity > 0 && +this.TotalRate > 0) {
+      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+        * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+        * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+      this.PurchaseRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
+    }
+    if (this.TotalRate === 0 || '' + this.TotalRate === '') {
+      this.PurchaseRate = 0
+    }
+ 
+  }
+ 
   appliedTaxRatesItem: any = []
   appliedTaxRatesCharge: any = []
   calculate() {
-    let total = +(isNaN(+this.PurchaseRate) ? 0 : +this.PurchaseRate)
-      * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
-      * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
-      * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
-      * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
-    this.TotalRate = +total.toFixed(this.noOfDecimalPoint)
+    // let total = +(isNaN(+this.PurchaseRate) ? 0 : +this.PurchaseRate)
+    //   * (isNaN(+this.Quantity) || +this.Quantity === 0 ? 1 : +this.Quantity)
+    //   * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
+    //   * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
+    //   * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
+    // this.TotalRate = +total.toFixed(this.noOfDecimalPoint)
     if (this.validDiscount) {
       if ('' + this.DiscountType === '0') {
         if (+this.Discount <= 100 && +this.Discount >= 0) {
-          this.DiscountAmt = +((+this.Discount / 100) * (total)).toFixed(this.noOfDecimalPoint)
+          this.DiscountAmt = +((+this.Discount / 100) * (this.TotalRate)).toFixed(this.noOfDecimalPoint)
         } else {
           this.DiscountAmt = 0
         }
       } else {
         this.DiscountAmt = isNaN(+this.Discount) ? 0 : +this.Discount
       }
-      if (total > 0) {
+      if (this.TotalRate > 0) {
         if (this.editItemIndex > -1) {
           this.Items[this.editItemIndex].PurchaseRate = this.PurchaseRate
           this.Items[this.editItemIndex].Quantity = this.Quantity
@@ -1979,16 +2042,26 @@ export class PurchaseDirectReturnAddComponent {
           this.Items[this.editItemIndex].Height = this.Height
         }
         let discountedAmount = 0
-        if (this.DiscountAmt === total) {
-          discountedAmount = total
+        if (this.DiscountAmt === this.TotalRate) {
+          if (this.DiscountFor100Perct) {
+            discountedAmount = this.TotalRate
+            this.AmountItem = discountedAmount
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].AmountItem = discountedAmount
+            }
+          }
+          else {
+            discountedAmount = this.TotalRate
+            this.AmountItem = 0
+            this.taxRates = []
+            if (this.editItemIndex > -1) {
+              this.Items[this.editItemIndex].AmountItem = 0
+              this.Items[this.editItemIndex].taxRates = []
+            }
 
-        } else {
-          discountedAmount = total - this.DiscountAmt
-        }
-        this.AmountItem = discountedAmount
-        if (this.editItemIndex > -1) {
-          this.Items[this.editItemIndex].AmountItem = this.AmountItem
-        }
+          }
+        } 
+       
         if (this.TaxType === 0) {
           let returnTax = this.purchaseService.taxCalculation(this.taxRates,
             this.taxSlabType,
@@ -2023,7 +2096,7 @@ export class PurchaseDirectReturnAddComponent {
           } else {
             let AmountItem = +(this.purchaseService.calcTaxableAmountType2(this.taxRates,
               this.taxSlabType,
-              total,
+              this.TotalRate,
               this.isOtherState)).toFixed(4)
             if ('' + this.DiscountType === '0') {
               if (+this.Discount < 100 && +this.Discount > 0) {
@@ -2594,7 +2667,14 @@ export class PurchaseDirectReturnAddComponent {
       this.ledgerSelect2.setElementValue('')
     }
   }
-
+  checkpaymentLedgerId() {
+    if (this.PaymentDetail.length > 0) {
+      let dvalue= this.PaymentDetail.filter(
+        d=>d.LedgerId===this.LedgerId)
+        if(dvalue.length>0){ return false  }
+        else{ return true }  }
+        else { return true }
+  }
   addTransactions() {
     if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
       if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
@@ -2635,18 +2715,23 @@ export class PurchaseDirectReturnAddComponent {
 
       })
     }
-    this.PaymentDetail.push({
-      Id: 0,
-      Sno: index,
-      Paymode: this.Paymode,
-      PayModeId: this.PayModeId,
-      LedgerId: this.LedgerId,
-      BankLedgerName: this.BankLedgerName,
-      Amount: this.Amount,
-      PayDate: this.PayDate,
-      ChequeNo: this.ChequeNo,
-      isEditable: this.EditabledPay
-    })
+    if(this.checkpaymentLedgerId()){
+      this.PaymentDetail.push({
+        Id: 0,
+        Sno: index,
+        Paymode: this.Paymode,
+        PayModeId: this.PayModeId,
+        LedgerId: this.LedgerId,
+        BankLedgerName: this.BankLedgerName,
+        Amount: this.Amount,
+        PayDate: this.PayDate,
+        ChequeNo: this.ChequeNo,
+        isEditable: this.EditabledPay
+      })
+    }
+   else {
+    this.toastrService.showErrorLong('', 'Trasaction not allow with Same Transactional Ledger')
+  }
 
     setTimeout(() => {
       this.commonService.fixTableHFL('trans-table')
@@ -3651,6 +3736,8 @@ export class PurchaseDirectReturnAddComponent {
         }
 
       }
+      this.DisabledSaveBtn = false
+
       return !!isValid
     }
   }
@@ -3890,6 +3977,7 @@ export class PurchaseDirectReturnAddComponent {
   }
 
   manipulateData() {
+    this.DisabledSaveBtn = true
     let _self = this
     this.submitSave = true
     let dataToSend = this.purchaseAddParams()
@@ -4161,10 +4249,21 @@ export class PurchaseDirectReturnAddComponent {
       this.LedgerChargeId = +evt.value
       if (evt.value > 0) {
         this.LedgerName = evt.data[0].text
+        this.getLedgerTax(+evt.value)
       }
     }
     this.validateCharge()
     this.calculate()
+  }
+
+  getLedgerTax(id) {
+    this.purchaseService.getLedgerTax(id).subscribe((data) => {
+      console.log(data)
+      this.taxSlabChargeValue = data.LedgerDetails[0].TaxSlabId
+    },
+    (error) => {
+      this.toastrService.showError(error, '')
+    })
   }
   PreviousTaxIdCharge:any =0
   onTaxSlabChargeSelect(evt) {
@@ -4335,6 +4434,12 @@ export class PurchaseDirectReturnAddComponent {
         ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
       }
     }
+    if (!this.clickItem && this.editItemIndex === -1 && +this.ItemId > 0 && +this.AmountItem === 0 &&  this.DiscountFor100Perct) {
+      taxableValue += +this.AmountItem
+      if (this.appliedTaxRatesItem.length > 0) {
+        ItemTaxTrans = ItemTaxTrans.concat(this.appliedTaxRatesItem)
+      }
+    }
     this.AdditionalChargesToShow = JSON.parse(JSON.stringify(this.AdditionalCharges))
     this.AdditionalCharges.forEach(element => {
       ItemTaxTrans = ItemTaxTrans.concat(element.itemTaxTrans)
@@ -4434,18 +4539,7 @@ export class PurchaseDirectReturnAddComponent {
     }, 10)
   }
 
-  getPurchaseRate() {
-    if (+this.Quantity > 0 && +this.TotalRate > 0) {
-      let lwh = (+this.Quantity) * (isNaN(+this.Length) || +this.Length === 0 ? 1 : +this.Length)
-        * (isNaN(+this.Width) || +this.Width === 0 ? 1 : +this.Width)
-        * (isNaN(+this.Height) || +this.Height === 0 ? 1 : +this.Height)
-      this.PurchaseRate = +(+this.TotalRate / lwh).toFixed(this.noOfDecimalPoint)
-    }
-    if (this.TotalRate === 0 || '' + this.TotalRate === '') {
-      this.PurchaseRate = 0
-    }
-    this.calculate()
-  }
+  
 
   billDateChange(evt) {
     console.log(evt)
@@ -4461,7 +4555,43 @@ export class PurchaseDirectReturnAddComponent {
     this.onDestroy$.next()
     this.onDestroy$.complete()
   }
+  DiscountValidation(e) {
+    if ('' + this.DiscountType === '0') {
+      if (e === '0') {
+        this.Discount = 0
+      }
+      else {
+        if (Number(e.target.value) > Number(99.999990) &&
+          e.keyCode != 46 // delete
+          &&
+          e.keyCode != 8 // backspace
+        ) {
+          e.preventDefault();
+          this.Discount = 0
+        } else {
+          this.Discount = Number(e.target.value);
+        }
+      }
+    }
+    if ('' + this.DiscountType === '1') {
+      if (e === '0') {
+        this.Discount = 0
+      }
+      else {
+        if (Number(e.target.value) > Number(this.TotalRate) &&
+          e.keyCode != 46 // delete
+          &&
+          e.keyCode != 8 // backspace
+        ) {
+          e.preventDefault();
+          this.Discount = 0
+        } else {
+          this.Discount = Number(e.target.value);
+        }
+      }
+    }
 
+  }
   BillDiscountValidation(e) {
     if ('' + this.BillDiscountType === '0') {
       if (e === '0') {

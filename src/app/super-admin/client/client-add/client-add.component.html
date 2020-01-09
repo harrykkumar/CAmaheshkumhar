@@ -1,274 +1,11 @@
-<!-- <div class="modal fade right" id="client_admin" data-backdrop="static" data-keyboard="false" role="dialog"
+<div class="modal fade right" id="client_admin" data-backdrop="static" data-keyboard="false" role="dialog"
   aria-labelledby="client_admin">
   <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
-    <div class="modal-content bgcH-grey-100">
-      <div class="modal-header close_popup">
-        <h4 class="modal-title w-100 c-grey-900">Client</h4>
-        <button type="button" class="close" (click)="closePopUp()" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">×</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="classic-tabs">
-          <ul class="nav tabs-cyan" role="tablist">
-            <li class="nav-item"><a class="nav-link waves-light active waves-effect waves-light" data-toggle="tab"
-              (click)="tabId = 1;" role="tab">Client Detail</a> </li>
-            <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab"
-              (click)="tabId = 2;getSubMenus();" role="tab" *ngIf="clientAdd?.ClientModulestr && clientAdd?.IndustryIdstr"
-              >Permission</a></li>
-          </ul>
-          <div class="tab-content">
-            <div class="tab-pane" [ngClass]="{active: tabId === 1}" *ngIf="tabId === 1" role="tabpanel">
-              <div class="card">
-                <div class="card-body">
-                  <div>
-                      <div class="form-row">
-                          <div class="form-group col-md-6">
-                            <label class="active">Name</label>
-                            <input type="text" class="form-control" [(ngModel)]="clientAdd.Name" #name="ngModel"
-                              placeholder="Enter Value" required name="name"
-                              >
-                          </div>
-                          <div class="form-group col-md-6">
-                            <label class="active">User Name</label>
-                            <input type="text" class="form-control" [(ngModel)]="clientAdd.UserName" #username="ngModel"
-                              placeholder="Enter Value" required name="username" >
-                          </div>
-                          <div class="form-group col-md-6">
-                            <label class="active">Password</label>
-                            <input type="password" class="form-control" [(ngModel)]="clientAdd.Password" #password="ngModel"
-                              placeholder="Enter Value" required name="password">
-                          </div>
-                          <div class="form-group col-md-6">
-                            <label>Subscription</label>
-                            <select2 #subs_select2 id="vendor" [data]="subsData"
-                              class="control_select" (valueChanged)="clientAdd.SubscriptionTypeId = +$event.value"
-                              autocomplete="true" [options]="{placeholder: 'Select Subscription'}"
-                              [value]="subsValue"></select2>
-                          </div>
-                          <div class="form-group col-md-6">
-                            <label class="fw-500">Date Of Registration</label>
-                            <datepicker-popup (dateInFormat)="clientAdd.RegistrationDate = $event;"
-                             [setMinDate]="" [setMaxDate]="" [class]="!clientAdd.RegistrationDate" >
-                            </datepicker-popup>
-                          </div>
-                          <div class="form-group col-md-6 pt-4">
-                            <label class="pr-3"></label>
-                            <div class="custom-control custom-radio mr-3">
-                              <input type="radio" class="custom-control-input" id="customRadio1"
-                                name="example1-33"
-                                [checked]="clientAdd.IsMultiOrganization === true"
-                                (change)="clientAdd.IsMultiOrganization = $event.target.checked ? true : false;"
-                                value="customEx">
-                              <label class="custom-control-label" for="customRadio1">Multi Org</label>
-                            </div>
-                            <div class="custom-control custom-radio">
-                              <input type="radio" class="custom-control-input" id="customRadio2"
-                                name="example1-33"
-                                [checked]="clientAdd.IsMultiOrganization === false"
-                                (change)="clientAdd.IsMultiOrganization = $event.target.checked ? false : true;"
-                                value="customEx">
-                              <label class="custom-control-label" for="customRadio2">Multi Branch</label>
-                            </div>
-                          </div>
-                          <div class="form-group col" >
-                            <div id="div1" *ngIf="clientAdd.IsMultiOrganization">
-                              <div class="form-row">
-                                <div class="form-group col-md-12">
-                                  <label class="active">No of Organisation</label>
-                                  <input type="text" appIncludeDecimal class="form-control" [(ngModel)]="clientAdd.NoOfOrganization"
-                                    #NoOfOrganization="ngModel" placeholder="Enter Value" [required]="clientAdd.IsMultiOrganization">
-                                </div>
-                              </div>
-                            </div>
-                            <div id="div2" *ngIf="!clientAdd.IsMultiOrganization">
-                              <div class="form-row">
-                                <div class="form-group col-md-12">
-                                  <label class="active">No of Branch</label>
-                                  <input type="text" appIncludeDecimal class="form-control" [(ngModel)]="clientAdd.NoOfBranch"
-                                    #NoOfBranch="ngModel" placeholder="Enter Value" [required]="!clientAdd.IsMultiOrganization">
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="form-group col-md-6">
-                            <label class="active">No of Users</label>
-                            <input type="text" appIncludeDecimal class="form-control" [(ngModel)]="clientAdd.NoOfUser"
-                            #NoOfUser="ngModel" required
-                            placeholder="Enter Value">
-                          </div>
-                          <div class="form-group col-md-6">
-                            <label for="bill_no">Client Module</label>
-                            <div class="input-group adw_select">
-                              <select2 #module_select2 id="vendor" [data]="moduleData"
-                                class="control_select" (valueChanged)="onChange($event, 'mod')"
-                                autocomplete="true" [options]="{multiple: true, placeholder: 'Select Module'}"
-                                [value]="moduleValue"></select2>
-                            </div>
-                          </div>
-                          <div class="form-group col-md-6">
-                            <label for="bill_no">Industry Specification</label>
-                            <div class="input-group adw_select">
-                              <select2 #industry_select2 id="vendor" [data]="industryData"
-                                class="control_select" (valueChanged)="onChange($event, 'ind')"
-                                autocomplete="true" [options]="{multiple: true, placeholder: 'Select Module'}"
-                                [value]="industryValue"></select2>
-                            </div>
-                          </div>
-                        </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="tab-pane" [ngClass]="{active: tabId === 2}" *ngIf="tabId === 2" role="tabpanel">
-              <div class="card">
-                <div class="card-body">
-                  <div class="bgc-white bdrs-3 mB-20">
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>Sr.No.</th>
-                            <th>Menu</th>
-                            <th></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr *ngFor="let menu of subMenus; let i = index;" >
-                            <td>{{i + 1}}</td>
-                            <td>{{menu.Name}}</td>
-                            <td>
-                              <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="row-1{{ i }}"
-                                [(ngModel)]="menu.selected"
-                                name="checkbox-cont-1{{ i }}">
-                                <label class="custom-control-label" for="row-1{{ i }}"></label>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <button type="button" class="btn btn-primary waves-effect" (click)="manipulateData()" >Save</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="tab-pane fade" id="subs_org" role="tabpanel">
-              <div class="card">
-                <div class="card-body">
-                  <div class="form-row">
-                    <div class="form-group col-md-12">
-                      <label for="bill_no">Subscription</label>
-                      <div class="input-group adw_select">
-                        <input type="text" class="form-control" placeholder="">
-                        <div class="input-group-btn">
-                          <div class="btn-group" role="group">
-                            <div class="dropdown dropdown-lg">
-                              <button type="button" class="btn dropdown-toggle waves-effect waves-light"
-                                data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
-                              <ul class="dropdown-menu select_dropdown">
-                                <li class="pX-20 pY-5 ta-c bdT bgc-grey"><a data-toggle="modal"
-                                    data-target="#sub_category_master"><i class="fa fa-plus pR-10"></i><span
-                                      class="fsz-sm fw-600 c-grey-900">Add New</span></a></li>
-                                <li class="pX-20 pY-5 ta-c bdT"><span>Category</span></li>
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-group col-md-5">
-                      <label class="fw-500">From Date</label>
-                      <div class="timepicker-input input-icon form-group">
-                        <div class="input-group">
-                          <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                          <input type="text" class="form-control " placeholder="Enter Reg. Date"
-                            data-provide="datepicker">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-group col-md-5">
-                      <label class="fw-500">To Date</label>
-                      <div class="timepicker-input input-icon form-group">
-                        <div class="input-group">
-                          <div class="input-group-addon bgc-white bd bdwR-0"><i class="fas fa-calendar-alt"></i></div>
-                          <input type="text" class="form-control " placeholder="Enter Reg. Date"
-                            data-provide="datepicker">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-group col-md-2 mt-3">
-                      <button type="button" class="btn btn-primary waves-effect">Post</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card mt-3">
-                <div class="card-body">
-                  <div class="bgc-white bdrs-3 mB-20">
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>Sr.No.</th>
-                            <th>Subscription Type</th>
-                            <th>From Date</th>
-                            <th>To Date</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>1</td>
-                            <td>New Plan Monthly</td>
-                            <td>12-12-2019</td>
-                            <td>12-01-2020</td>
-                            <td><a class="actionBtn" data-placement="top" data-toggle="tooltip" title=""
-                                data-original-title="Edit"><i aria-hidden="true" class="fa fa-edit fa-1x"></i></a><a
-                                class="actionBtn" data-placement="bottom" data-toggle="tooltip" title=""
-                                data-original-title="Delete"><i aria-hidden="true" class="fa fa-trash fa-1x"></i></a>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> -->
-
-<div
-  class="modal fade right"
-  id="client_admin"
-  data-backdrop="static"
-  data-keyboard="false"
-  role="dialog"
-  aria-labelledby="client_admin"
->
-  <div
-    class="modal-dialog modal-full-height modal-right half-right-2"
-    role="document"
-  >
     <div class="modal-content bgcH-grey-100">
       <!--Header-->
       <div class="modal-header close_popup">
         <h4 class="modal-title w-100 c-grey-900">Client</h4>
-        <button
-          type="button"
-          class="close"
-          (click)="closePopUp()"
-          data-dismiss="modal"
-          aria-label="Close"
-        >
+        <button type="button" class="close" (click)="closePopUp()" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
       </div>
@@ -277,195 +14,105 @@
         <div class="classic-tabs">
           <ul class="nav tabs-cyan" role="tablist">
             <li class="nav-item">
-              <a
-                class="nav-link waves-light waves-effect waves-light"
-                [ngClass]="{ active: tabId === 1 }"
-                data-toggle="tab"
-                (click)="tabId = 1"
-                [class.disabled]="tabId === 2"
-                role="tab"
-                >Client Detail</a
-              >
+              <a class="nav-link waves-light waves-effect waves-light" [ngClass]="{ active: tabId === 1 }"
+                data-toggle="tab" (click)="tabId = 1" [class.disabled]="tabId === 2" role="tab">Client Detail</a>
             </li>
             <li class="nav-item">
-              <a
-                class="nav-link waves-light waves-effect waves-light"
-                [ngClass]="{ active: tabId === 2 }"
-                data-toggle="tab"
-                *ngIf="toShow"
-                (click)="tabId = 2"
-                role="tab"
-                >Permission</a
-              >
+              <a class="nav-link waves-light waves-effect waves-light" [ngClass]="{ active: tabId === 2 }"
+                data-toggle="tab" *ngIf="toShow" (click)="tabId = 2" role="tab">Permission</a>
             </li>
             <!-- <li class="nav-item"><a class="nav-link waves-light waves-effect waves-light" data-toggle="tab"
                 href="#subs_org" role="tab">Subscription</a> </li> -->
           </ul>
           <div class="tab-content">
             <!--Panel 1-->
-            <div
-              class="tab-pane"
-              [ngClass]="{ active: tabId === 1 }"
-              *ngIf="tabId === 1"
-              role="tabpanel"
-            >
+            <div class="tab-pane" [ngClass]="{ active: tabId === 1 }" *ngIf="tabId === 1" role="tabpanel">
               <div class="card">
                 <div class="card-body">
                   <div>
                     <!--checkfor(client.form) && -->
-                    <form
-                      novalidate
-                      (ngSubmit)="
+                    <form novalidate (ngSubmit)="
                         client.form.valid &&
                           clientAdd.ClientModulestr &&
                           clientAdd.IndustryIdstr &&
                           !invalidObj.RegistrationDate &&
                           checkForValidation(client)
-                      "
-                      #client="ngForm"
-                    >
+                      " #client="ngForm">
                       <div class="form-row">
-                          <div class="form-group col-md-6">
-                              <label>Customer Agent</label>
-                              <ng-select
-                                name="customerAgentName"
-                                [items]="customerAgentList"
-                                bindLabel="Name"
-                                bindValue="Id"
-                                (change)="onChangeCustomerAgent($event)"
-                                placeholder="Select Customer Agent"
-                                [(ngModel)]="customerAgentId"
-                              >
-                              </ng-select>
-                            </div>
+                        <div class="form-group col-md-6">
+                          <label>Customer Agent</label>
+                          <ng-select name="customerAgentName" [items]="customerAgentList" bindLabel="Name"
+                            bindValue="Id" (change)="onChangeCustomerAgent($event)" placeholder="Select Customer Agent"
+                            [(ngModel)]="customerAgentId">
+                          </ng-select>
+                        </div>
                         <div class="form-group col-md-6">
                           <label class="active">Name</label>
-                          <input
-                            type="text"
-                            (focus)="onFocus(client)"
-                            class="form-control"
-                            [(ngModel)]="clientAdd.Name"
-                            #name="ngModel"
-                            placeholder="Enter Value"
-                            required
-                            name="name"
-                            autofocus
-                            [ngClass]="{
+                          <input type="text" (focus)="onFocus(client)" class="form-control" [(ngModel)]="clientAdd.Name"
+                            #name="ngModel" placeholder="Enter Value" required name="name" autofocus [ngClass]="{
                               errorSelecto:
                                 name.invalid &&
                                 (name.dirty || name.touched) &&
                                 name?.errors?.required
-                            }"
-                          />
+                            }" />
                         </div>
                         <div class="form-group col-md-6">
                           <label class="active">User Name</label>
-                          <input
-                            type="text"
-                            SkipWhiteSpaces
-                            class="form-control"
-                            [(ngModel)]="clientAdd.UserName"
-                            #username="ngModel"
-                            placeholder="Enter Value"
-                            required
-                            name="username"
-                            [ngClass]="{
+                          <input type="text" SkipWhiteSpaces class="form-control" [(ngModel)]="clientAdd.UserName"
+                            #username="ngModel" placeholder="Enter Value" required name="username" [ngClass]="{
                               errorSelecto:
                                 username.invalid &&
                                 (username.dirty || username.touched) &&
                                 username?.errors?.required
-                            }"
-                          />
+                            }" />
                         </div>
                         <div class="form-group col-md-6">
                           <label class="active">Password</label>
-                          <input
-                            type="password"
-                            class="form-control"
-                            [(ngModel)]="clientAdd.Password"
-                            #password="ngModel"
-                            placeholder="Enter Value"
-                            required
-                            name="password"
-                            [ngClass]="{
+                          <input type="password" class="form-control" [(ngModel)]="clientAdd.Password"
+                            #password="ngModel" placeholder="Enter Value" required name="password" [ngClass]="{
                               errorSelecto:
                                 password.invalid &&
                                 (password.dirty || password.touched) &&
                                 password?.errors?.required
-                            }"
-                          />
+                            }" />
                         </div>
                         <div class="form-group col-md-6">
                           <label>Subscription</label>
-                          <select2
-                            #subs_select2
-                            id="vendor"
-                            [data]="subsData"
-                            class="control_select"
-                            (valueChanged)="
+                          <select2 #subs_select2 id="vendor" [data]="subsData" class="control_select" (valueChanged)="
                               clientAdd.SubscriptionTypeId = +$event.value
-                            "
-                            autocomplete="true"
-                            [options]="{ placeholder: 'Select Subscription' }"
-                            [value]="subsValue"
-                          ></select2>
+                            " autocomplete="true" [options]="{ placeholder: 'Select Subscription' }"
+                            [value]="subsValue"></select2>
                         </div>
                         <div class="form-group col-md-6">
                           <label class="fw-500">Date Of Registration</label>
-                          <datepicker-popup
-                            (dateInFormat)="clientAdd.RegistrationDate = $event"
-                            (isError)="invalidObj.RegistrationDate = $event"
-                            [setMinDate]=""
-                            [setMaxDate]=""
-                            [applyFinYear]="false"
-                          >
+                          <datepicker-popup (dateInFormat)="clientAdd.RegistrationDate = $event"
+                            (isError)="invalidObj.RegistrationDate = $event" [setMinDate]="" [setMaxDate]=""
+                            [applyFinYear]="false">
                           </datepicker-popup>
                         </div>
                         <div class="form-group col-md-6 pt-4">
                           <label class="pr-3"></label>
                           <div class="custom-control custom-radio mr-3">
-                            <input
-                              type="radio"
-                              class="custom-control-input"
-                              id="customRadio1"
-                              name="example1-33"
-                              [checked]="clientAdd.IsMultiOrganization === true"
-                              (change)="
+                            <input type="radio" class="custom-control-input" id="customRadio1" name="example1-33"
+                              [checked]="clientAdd.IsMultiOrganization === true" (change)="
                                 clientAdd.IsMultiOrganization = $event.target
                                   .checked
                                   ? true
                                   : false
-                              "
-                              value="customEx"
-                            />
-                            <label
-                              class="custom-control-label"
-                              for="customRadio1"
-                              >Multi Org</label
-                            >
+                              " value="customEx" />
+                            <label class="custom-control-label" for="customRadio1">Multi Org</label>
                           </div>
                           <div class="custom-control custom-radio">
-                            <input
-                              type="radio"
-                              class="custom-control-input"
-                              id="customRadio2"
-                              name="example1-33"
+                            <input type="radio" class="custom-control-input" id="customRadio2" name="example1-33"
                               [checked]="
                                 clientAdd.IsMultiOrganization === false
-                              "
-                              (change)="
+                              " (change)="
                                 clientAdd.IsMultiOrganization = $event.target
                                   .checked
                                   ? false
                                   : true
-                              "
-                              value="customEx"
-                            />
-                            <label
-                              class="custom-control-label"
-                              for="customRadio2"
-                              >Multi Branch</label
-                            >
+                              " value="customEx" />
+                            <label class="custom-control-label" for="customRadio2">Multi Branch</label>
                           </div>
                         </div>
                         <div class="form-group col">
@@ -473,23 +120,15 @@
                             <div class="form-row">
                               <div class="form-group col-md-12">
                                 <label class="active">No of Organisation</label>
-                                <input
-                                  type="text"
-                                  appIncludeDecimal
-                                  class="form-control"
-                                  [(ngModel)]="clientAdd.NoOfOrganization"
-                                  [required]="clientAdd.IsMultiOrganization"
-                                  #NoOfOrganization="ngModel"
-                                  placeholder="Enter Value"
-                                  name="org"
-                                  [ngClass]="{
+                                <input type="text" appIncludeDecimal class="form-control"
+                                  [(ngModel)]="clientAdd.NoOfOrganization" [required]="clientAdd.IsMultiOrganization"
+                                  #NoOfOrganization="ngModel" placeholder="Enter Value" name="org" [ngClass]="{
                                     errorSelecto:
                                       NoOfOrganization.invalid &&
                                       (NoOfOrganization.dirty ||
                                         NoOfOrganization.touched) &&
                                       NoOfOrganization?.errors?.required
-                                  }"
-                                />
+                                  }" />
                               </div>
                             </div>
                           </div>
@@ -497,90 +136,53 @@
                             <div class="form-row">
                               <div class="form-group col-md-12">
                                 <label class="active">No of Branch</label>
-                                <input
-                                  type="text"
-                                  appIncludeDecimal
-                                  class="form-control"
-                                  [(ngModel)]="clientAdd.NoOfBranch"
-                                  [required]="!clientAdd.IsMultiOrganization"
-                                  #NoOfBranch="ngModel"
-                                  placeholder="Enter Value"
-                                  name="branch"
-                                  [ngClass]="{
+                                <input type="text" appIncludeDecimal class="form-control"
+                                  [(ngModel)]="clientAdd.NoOfBranch" [required]="!clientAdd.IsMultiOrganization"
+                                  #NoOfBranch="ngModel" placeholder="Enter Value" name="branch" [ngClass]="{
                                     errorSelecto:
                                       NoOfBranch.invalid &&
                                       (NoOfBranch.dirty ||
                                         NoOfBranch.touched) &&
                                       NoOfBranch?.errors?.required
-                                  }"
-                                />
+                                  }" />
                               </div>
                             </div>
                           </div>
                         </div>
                         <div class="form-group col-md-6">
                           <label class="active">No of Users</label>
-                          <input
-                            type="text"
-                            appIncludeDecimal
-                            class="form-control"
-                            [(ngModel)]="clientAdd.NoOfUser"
-                            #NoOfUser="ngModel"
-                            required
-                            name="users"
-                            [ngClass]="{
+                          <input type="text" appIncludeDecimal class="form-control" [(ngModel)]="clientAdd.NoOfUser"
+                            #NoOfUser="ngModel" required name="users" [ngClass]="{
                               errorSelecto:
                                 NoOfUser.invalid &&
                                 (NoOfUser.dirty || NoOfUser.touched) &&
                                 NoOfUser?.errors?.required
-                            }"
-                            placeholder="Enter Value"
-                          />
+                            }" placeholder="Enter Value" />
                         </div>
                         <div class="form-group col-md-6">
                           <label for="bill_no">Client Module</label>
                           <div class="input-group adw_select">
-                            <select2
-                              #module_select2
-                              id="module"
-                              [data]="moduleData"
-                              class="control_select"
-                              (valueChanged)="onChange($event, 'mod')"
-                              autocomplete="true"
-                              [options]="{
+                            <select2 #module_select2 id="module" [data]="moduleData" class="control_select"
+                              (valueChanged)="onChange($event, 'mod')" autocomplete="true" [options]="{
                                 multiple: true,
                                 placeholder: 'Select Module'
-                              }"
-                              [ngClass]="{ errorSelecto: invalidObj.module }"
-                              [value]="clientAdd.module"
-                            ></select2>
+                              }" [ngClass]="{ errorSelecto: invalidObj.module }" [value]="clientAdd.module"></select2>
                           </div>
                         </div>
                         <div class="form-group col-md-6">
                           <label for="bill_no">Industry Specification</label>
                           <div class="input-group adw_select">
-                            <select2
-                              #industry_select2
-                              id="industry"
-                              [data]="industryData"
-                              class="control_select"
-                              (valueChanged)="onChange($event, 'ind')"
-                              autocomplete="true"
-                              [options]="{
+                            <select2 #industry_select2 id="industry" [data]="industryData" class="control_select"
+                              (valueChanged)="onChange($event, 'ind')" autocomplete="true" [options]="{
                                 multiple: true,
                                 placeholder: 'Select Industry'
-                              }"
-                              [ngClass]="{ errorSelecto: invalidObj.industry }"
-                              [value]="clientAdd.industry"
-                            ></select2>
+                              }" [ngClass]="{ errorSelecto: invalidObj.industry }" [value]="clientAdd.industry">
+                            </select2>
                           </div>
                         </div>
                       </div>
                       <div class="form-row">
-                        <button
-                          type="submit"
-                          class="btn btn-primary waves-effect"
-                        >
+                        <button type="submit" class="btn btn-primary waves-effect">
                           Next
                         </button>
                       </div>
@@ -590,12 +192,7 @@
               </div>
             </div>
             <!--Panel 1-->
-            <div
-              class="tab-pane"
-              [ngClass]="{ active: tabId === 2 }"
-              *ngIf="tabId === 2"
-              role="tabpanel"
-            >
+            <div class="tab-pane" [ngClass]="{ active: tabId === 2 }" *ngIf="tabId === 2" role="tabpanel">
               <div class="card">
                 <div class="card-body">
                   <div class="bgc-white bdrs-3 mB-20">
@@ -609,27 +206,17 @@
                           </tr>
                         </thead> -->
                         <tbody>
-                          <ng-container
-                            *ngFor="let menu of subMenus; let i = index"
-                          >
+                          <ng-container *ngFor="let menu of subMenus; let i = index">
                             <tr>
                               <ng-container *ngIf="menu.ParentId === 0">
                                 <th>#</th>
                                 <th>{{ menu.Name }}</th>
                                 <th>
                                   <div class="custom-control custom-checkbox">
-                                    <input
-                                      type="checkbox"
-                                      class="custom-control-input"
-                                      id="row-master{{ i }}"
-                                      [(ngModel)]="menu.selected"
-                                      (change)="toggle($event, menu.Id)"
-                                      name="checkbox-cont-master{{ i }}"
-                                    />
-                                    <label
-                                      class="custom-control-label"
-                                      for="row-master{{ i }}"
-                                    ></label>
+                                    <input type="checkbox" class="custom-control-input" id="row-master{{ i }}"
+                                      [(ngModel)]="menu.selected" (change)="toggle($event, menu.Id)"
+                                      name="checkbox-cont-master{{ i }}" />
+                                    <label class="custom-control-label" for="row-master{{ i }}"></label>
                                   </div>
                                 </th>
                               </ng-container>
@@ -638,20 +225,11 @@
                                 <td>{{ menu.Name }}</td>
                                 <td>
                                   <div class="custom-control custom-checkbox">
-                                    <input
-                                      type="checkbox"
-                                      class="custom-control-input"
-                                      id="row-1{{ i }}"
-                                      [(ngModel)]="menu.selected"
-                                      (change)="
+                                    <input type="checkbox" class="custom-control-input" id="row-1{{ i }}"
+                                      [(ngModel)]="menu.selected" (change)="
                                         toggleInd($event, menu.ParentId)
-                                      "
-                                      name="checkbox-cont-1{{ i }}"
-                                    />
-                                    <label
-                                      class="custom-control-label"
-                                      for="row-1{{ i }}"
-                                    ></label>
+                                      " name="checkbox-cont-1{{ i }}" />
+                                    <label class="custom-control-label" for="row-1{{ i }}"></label>
                                   </div>
                                 </td>
                               </ng-container>
@@ -662,11 +240,7 @@
                     </div>
                   </div>
                   <div class="form-row">
-                    <button
-                      type="button"
-                      class="btn btn-primary waves-effect"
-                      (click)="manipulateData()"
-                    >
+                    <button type="button" class="btn btn-primary waves-effect" (click)="manipulateData()">
                       Save
                     </button>
                   </div>
@@ -680,32 +254,19 @@
                     <div class="form-group col-md-12">
                       <label for="bill_no">Subscription</label>
                       <div class="input-group adw_select">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder=""
-                        />
+                        <input type="text" class="form-control" placeholder="" />
                         <div class="input-group-btn">
                           <div class="btn-group" role="group">
                             <div class="dropdown dropdown-lg">
-                              <button
-                                type="button"
-                                class="btn dropdown-toggle waves-effect waves-light"
-                                data-toggle="dropdown"
-                                aria-expanded="false"
-                              >
+                              <button type="button" class="btn dropdown-toggle waves-effect waves-light"
+                                data-toggle="dropdown" aria-expanded="false">
                                 <span class="caret"></span>
                               </button>
                               <ul class="dropdown-menu select_dropdown">
                                 <li class="pX-20 pY-5 ta-c bdT bgc-grey">
-                                  <a
-                                    data-toggle="modal"
-                                    data-target="#sub_category_master"
-                                    ><i class="fa fa-plus pR-10"></i
-                                    ><span class="fsz-sm fw-600 c-grey-900"
-                                      >Add New</span
-                                    ></a
-                                  >
+                                  <a data-toggle="modal" data-target="#sub_category_master"><i
+                                      class="fa fa-plus pR-10"></i><span class="fsz-sm fw-600 c-grey-900">Add
+                                      New</span></a>
                                 </li>
                                 <li class="pX-20 pY-5 ta-c bdT">
                                   <span>Category</span>
@@ -723,12 +284,8 @@
                           <div class="input-group-addon bgc-white bd bdwR-0">
                             <i class="fas fa-calendar-alt"></i>
                           </div>
-                          <input
-                            type="text"
-                            class="form-control "
-                            placeholder="Enter Reg. Date"
-                            data-provide="datepicker"
-                          />
+                          <input type="text" class="form-control " placeholder="Enter Reg. Date"
+                            data-provide="datepicker" />
                         </div>
                       </div>
                     </div>
@@ -739,20 +296,13 @@
                           <div class="input-group-addon bgc-white bd bdwR-0">
                             <i class="fas fa-calendar-alt"></i>
                           </div>
-                          <input
-                            type="text"
-                            class="form-control "
-                            placeholder="Enter Reg. Date"
-                            data-provide="datepicker"
-                          />
+                          <input type="text" class="form-control " placeholder="Enter Reg. Date"
+                            data-provide="datepicker" />
                         </div>
                       </div>
                     </div>
                     <div class="form-group col-md-2 mt-3">
-                      <button
-                        type="button"
-                        class="btn btn-primary waves-effect"
-                      >
+                      <button type="button" class="btn btn-primary waves-effect">
                         Post
                       </button>
                     </div>
@@ -780,27 +330,10 @@
                             <td>12-12-2019</td>
                             <td>12-01-2020</td>
                             <td>
-                              <a
-                                class="actionBtn"
-                                data-placement="top"
-                                data-toggle="tooltip"
-                                title=""
-                                data-original-title="Edit"
-                                ><i
-                                  aria-hidden="true"
-                                  class="fa fa-edit fa-1x"
-                                ></i></a
-                              ><a
-                                class="actionBtn"
-                                data-placement="bottom"
-                                data-toggle="tooltip"
-                                title=""
-                                data-original-title="Delete"
-                                ><i
-                                  aria-hidden="true"
-                                  class="fa fa-trash fa-1x"
-                                ></i
-                              ></a>
+                              <a class="actionBtn" data-placement="top" data-toggle="tooltip" title=""
+                                data-original-title="Edit"><i aria-hidden="true" class="fa fa-edit fa-1x"></i></a><a
+                                class="actionBtn" data-placement="bottom" data-toggle="tooltip" title=""
+                                data-original-title="Delete"><i aria-hidden="true" class="fa fa-trash fa-1x"></i></a>
                             </td>
                           </tr>
                         </tbody>

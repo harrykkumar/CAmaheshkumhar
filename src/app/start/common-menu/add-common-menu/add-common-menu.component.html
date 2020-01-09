@@ -21,7 +21,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-     
+
       <form #commonMenuForm="ngForm" novalidate>
         <div class="modal-body">
           <div class="card-body">
@@ -30,7 +30,6 @@
                 <div class="form-group col-md-12">
                   <label for="commonMenuName">{{ formData?.CommonName }}</label>
                   <input
-                    #commonMenuNameModal
                     id="commonMenuName"
                     name="name"
                     [(ngModel)]="commonMenu.Name"

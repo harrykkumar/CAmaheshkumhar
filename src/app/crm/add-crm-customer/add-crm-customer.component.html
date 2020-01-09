@@ -1,0 +1,170 @@
+<div
+  class="modal fade right"
+  id="add_crm_customer"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="add_crm_customer"
+>
+  <div
+    class="modal-dialog modal-full-height modal-right half-right-1"
+    role="document"
+  >
+    <div class="modal-content">
+      <form
+        #addCrmCustomerForm="ngForm"
+        novalidate
+        (ngSubmit)="
+          focusOnMandatoryField() &&
+            addCrmCustomerForm.form.valid &&
+            submit()
+        "
+      >
+        <div class="modal-header close_popup align-items-center">
+          <h4 class="modal-title w-100 c-grey-900 col-9">
+            Add Customer
+          </h4>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+            (click)="closePopUp()"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-row">
+            <!-- <div class="card-body"> -->
+              <div class="form-group col-md-6">
+                <label>Name</label>
+                <input
+                  id="customerNameId"
+                  type="text"
+                  class="form-control"
+                  placeholder="Please Enter Name"
+                  name="custName"
+                  required
+                  [(ngModel)]="customerName"
+                  [ngClass]="{
+                    'errorSelecto':addCrmCustomerForm?.submitted && !customerName
+                  }"
+                />
+              </div>
+              <div class="form-group col-md-2">
+                <label >Country Code</label>
+                <ng-select
+                  name="countryCodeName"
+                  [items]="mobileCountryCodeList"
+                  bindLabel="text"
+                  bindValue="id"
+                  placeholder="Select Country Code"
+                  [(ngModel)]="countryCodeId"
+                  (change)="setCurrentMobileNoLength()"
+                >
+                </ng-select>
+              </div>
+              <div class="form-group col-md-4">
+                <label>Mobile No</label>
+                <input
+                  type="text"
+                  id="mobileId"
+                  class="form-control"
+                  #mobileNoModel="ngModel"
+                  placeholder="Enter Mobile No"
+                  (keypress)="commonService.isNumber($event, true, mobileNo)"
+                  [disabled]="!countryCodeId"
+                  maxlength="{{ currentContactLength }}"
+                  minlength="{{ currentContactLength }}"
+                  name="mobileNoName"
+                  [(ngModel)]="mobileNo"
+                  required
+                  [ngClass]="{
+                    errorSelecto:
+                      (mobileNoModel?.dirty &&
+                        mobileNoModel?.errors?.maxlength) ||
+                      (mobileNoModel?.dirty &&
+                        mobileNoModel?.errors?.minlength) ||
+                      (addCrmCustomerForm?.submitted && mobileNoModel?.invalid)
+                  }"
+                />
+              </div>
+              <div class="form-group col-md-6">
+                  <label>Email</label>
+                  <input
+                    type="text"
+                    id="emailId"
+                    class="form-control"
+                    #emailModel="ngModel"
+                    placeholder="Enter Email"
+                    name="emailName"
+                    [(ngModel)]="email"
+                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+                    required
+                    [ngClass]="{
+                      'errorSelecto': (emailModel.dirty && emailModel?.errors?.pattern) || (addCrmCustomerForm.submitted && !email)
+                    }"
+                  />
+                </div>
+              <div class="form-group col-md-6">
+                <label>Business Type</label>
+                <ng-select
+                  id="businessTypeId"
+                  name="businessTypeName"
+                  [items]="crmService.leadUtilityData.BusinessType" bindLabel="commondesc" bindValue="id"
+                  placeholder="Select Business Type" [(ngModel)]="selectedBusinessTypeId"
+                  required
+                  [ngClass]="{'ng-select-invalid': addCrmCustomerForm?.submitted && !selectedBusinessTypeId}"
+                  >
+                </ng-select
+                >
+              </div>
+              <div class="form-group col-md-6">
+                <label>Country</label>
+                <ng-select
+                id="countryElementId" name="countryName" [items]="countryList" bindLabel="CommonDesc" bindValue="Id"
+                  placeholder="Select Country" [(ngModel)]="countryId" (change)="getStateList(countryId)">
+                </ng-select
+                >
+              </div>
+              <div class="form-group col-md-6">
+                <label>State</label>
+                <ng-select
+                id="stateElementId" name="stateName" [items]="stateList" bindLabel="CommonDesc1" bindValue="Id"
+                  placeholder="Select State" [(ngModel)]="stateId" (change)="getCityList(stateId)">
+                </ng-select
+                >
+              </div>
+              <div class="form-group col-md-6">
+                <label>City</label>
+                <ng-select
+                id="cityElementId" name="cityName" [items]="cityList" bindLabel="CommonDesc2" bindValue="Id"
+                  placeholder="Select City" [(ngModel)]="cityId">
+                </ng-select>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Address</label>
+                <textarea name="addressName" cols="30" rows="2" [(ngModel)]="address" class="form-control"
+                  placeholder="Enter Address">
+                </textarea>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Remark</label>
+                <textarea name="remarkName" cols="30" rows="2" [(ngModel)]="remark" class="form-control"
+                  placeholder="Enter Remark">
+                </textarea>
+              </div>
+            <!-- </div> -->
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary waves-effect">
+              Save
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

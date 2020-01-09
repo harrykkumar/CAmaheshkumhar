@@ -197,5 +197,16 @@ export class SetUpIds {
   public static get HideTax_Details (): number {
     return 95
   }
-
+  public static get HSN_MANDATORY (): number {
+    return 101
+  }
+  public static get inclusiveOnSale(): number{
+    return 21
+  }
+  public static get roundOffForSale(): number{
+    return 17
+  }
+  public static get addressByDefaultForLedger (): number {
+    return 106
+  }
 }

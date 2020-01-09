@@ -149,7 +149,7 @@ export class BuyerOrderListComponent implements OnInit, OnDestroy, AfterViewInit
     }
     const queryStr = this.queryStr ? this.queryStr : ''
     this.destroy$.push(this.buyerOrderService.getBuyerListOnSearch('?Strsearch=' + this.searchForm.value.searckKey + '&Page=' + this.p + '&Size=' + this.itemsPerPage + queryStr).subscribe(data => {
-      console.log('item master : ', data)
+      // console.log('item master : ', data)
       this.buyerOrderList = data.BuyerOrderInfos
       this.total = this.buyerOrderList[0] ? this.buyerOrderList[0].TotalRows : 0
       this.buyerOrderSummary = data.BuyerOrderSummaryData[0]

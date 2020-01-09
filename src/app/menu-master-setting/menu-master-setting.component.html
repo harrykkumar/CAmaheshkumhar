@@ -1,19 +1,31 @@
 <!--File created by dolly garg-->
 
-<main class="main-content bgc-grey">
+<main class="main-content2 bgc-grey">
   <div id="mainContent">
     <div id="mainContent">
       <div class="modal-header page-header p-0">
         <div class="container-fluid">
           <div class="row">
-            <div class="col-md-5 left_side_head">
-              <p class="heading_lead c-grey-900"><i class="fas fa-chart-line" aria-hidden="true"></i>
+            <div class="col-md-4 left_side_head">
+              <p class="heading_lead c-grey-900 mb-0"><i class="fas fa-cog" aria-hidden="true"></i>
                 {{menuName}}
               </p>
             </div>
-            <div class="col-md-7">
+            <div class="col-md-8 right_saerch_side p-0">
+              <div class="mr-2">
+              <div id="custom-search-input"  class="btn_header1">
+                <div class="input-group col-md-12">
+                  <input type="text" class="form-control input-lg" (input)="search = $event.target.value"
+                   placeholder="Search" />
+                  <span class="input-group-btn">
+                    <a><i class="fas fa-search"></i></a>
+                  </span>
+                </div>
+              </div>
+            </div>
               <div class="btn_header">
-                <button type="button" class="btn btn-primary waves-effect waves-light" (click)="postFormValue()" >
+                <button type="button" class="btn btn-primary waves-effect waves-light" 
+                  (click)="validate() && postFormValue()" >
                   Save
                 </button>
               </div>
@@ -28,19 +40,19 @@
               <table class="table cat-table table-hover">
                 <thead>
                   <tr>
-                    <th *ngIf="!isNewSetting" style="width:10%;" >#</th>
-                    <th style="width:10%;" >Sno.</th>
+                    <th *ngIf="!isNewSetting && +menuId > 0" style="width:5%;" >#</th>
+                    <th style="width:5%;" >SNo.</th>
                     <th style="width:30%;" >Setup Name</th>
                     <th style="width: 50%;" >Value</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let setting of settings;let i = index;" >
-                    <td *ngIf="!isNewSetting">
+                  <tr *ngFor="let setting of settings | searchOnName: search;let i = index;" >
+                    <td *ngIf="!isNewSetting && +menuId > 0">
                       <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="customCheck{{i}}" name="example1"
                         [checked]="setting.selected" 
-                         (change)="setting.selected = $event.target.checked" >
+                        (change)="setting.selected = $event.target.checked" >
                         <label class="custom-control-label" for="customCheck{{i}}"></label>
                       </div>
                     </td>
@@ -68,13 +80,19 @@
                     </td>
                     <td *ngIf="setting.Type === 2" >
                       <input type="text" class="form-control" *ngIf="setting.BaseType === 2"
-                       [value]="setting.DefaultValue" (input)="setting.Value = $event.target.value; setting.selected = true;" >
+                      [value]="setting.DefaultValue" [ngClass]="{'errorSelecto': menuId === 0 && !setting.Value}"
+                      (input)="setting.Value = $event.target.value; setting.selected = true;" >
                       <input type="text" class="form-control" 
                       appDigitsOnlyDirective *ngIf="setting.BaseType === 1" 
+                      [ngClass]="{'errorSelecto': menuId === 0 && !setting.Value}"
                       [value]="setting.DefaultValue" (input)="setting.Value = $event.target.value; setting.selected = true;" >
                     </td>
+                    <!--&& setting.selected === true-->
                     <td *ngIf="setting.Type === 3 || setting.Type === 5" >
-                      <select (change)="setting.Value = ( $event.target.value );setting.selected = true;" class="form-control" >
+                      <select [ngClass]="{'errorSelecto': (setting.mandatory ||
+                        menuId === 0) && +setting.Value === -1 }" 
+                        (change)="setting.Value = ( $event.target.value );setting.selected = true;" 
+                        class="form-control" >
                         <option value="-1" >Select {{setting.name}}</option>
                         <option *ngFor="let opt of setting.data"
                          [value]="opt.Id" [selected]="( +setting.DefaultValue === +opt.Id )">
@@ -82,16 +100,30 @@
                         </option>
                       </select>
                     </td>
+                    <!--&& setting.selected === true-->
                     <td *ngIf="setting.Type === 4" >
                       <div class="input-group adw_select">
-                        <select2
-                          [data]="setting.data" class="control_select"
-                          [options]="options"
-                          (valueChanged)="setting.Value = $event.value;setting.selected = true;"
-                          autocomplete="true"
-                          [options]="{placeholder: 'Select'}"
-                          [value]="setting.Value">
-                        </select2>
+                        <div class="row" style="width: -webkit-fill-available;">
+                          <div class="col-8">
+                            <select2 #error
+                              [data]="setting.data" class="control_select"
+                              [options]="options"
+                              (valueChanged)="setting.Value = $event.value;setting.selected = true;seechanges(error)"
+                              autocomplete="true"
+                              [options]="{placeholder: 'Select'}"
+                              [ngClass]="{'errorSelecto': (setting.mandatory
+                              || menuId === 0) && setting.Value.length === 0 }" 
+                              [value]="setting.Value">
+                            </select2>
+                          </div>
+                          <div class="col-4" style="display: flex;justify-content: center;flex-direction: column;">
+                            <!-- <div class="font-weight-bold">Default {{setting.name}}</div> -->
+                            <select class="form-control" >
+                              <option value="-1" >Select Default {{setting.name}}</option>
+                              <option value="2" *ngFor="let opt of error.value;let i = index" [selected]="i==0">{{opt}}</option>
+                            </select>
+                          </div>
+                        </div>
                       </div>
                     </td>
                   </tr>

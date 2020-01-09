@@ -38,6 +38,7 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
           this.initAttributeNameList(0)
           this.isParent = response.data.isParent
           if (response.data.editId || response.data.attrNameId) {
+
             this.setEditData(response)
           }
           if (response.data.addNewId>0) {
@@ -106,22 +107,9 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   disabledAddNewFlag: boolean
   AttributeNameNewAdd: any
 
-
-  // setEditData = (response) => {
-  //   this.attrEditId = response.data.editId
-  //   this.selectedAttribute = response.data.attrNameId
-  //   if (response.data.isParent) {
-  //     this.attribute.name = response.data.attrValue
-  //   } else {
-  //     this.attribute.value = response.data.attrValue
-  //   }
-  // }
   @ViewChild('selectAttributeSelect2') selectAttributeSelect2 :Select2Component
   addNewAttributeDynamic = (response) => {
-    
     this.attrEditId = 0
-    //this.selectAttributeSelect2.setElementValue(response.data.attrValue)
-  //  this.selectedAttribute = response.data.attrValue
     this.disabledAddNewFlag = response.data.disabledAddButton
     this.attribute.value = ''
 
@@ -130,27 +118,10 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
   /* Resetting form data by default */
   resetFormData = () => {
     this.attribute = {}
-   // this.selectedAttribute = null
     this.attrEditId = null
     this.formModel.submitted = false
-    //  console.log(this.formModel)
   }
 
-  /* Initialising function to get the attribute name dropdown list */
-
-    // initAttributeNameList = (newAddId) => {
-    //    this.attributeService.getAttributeName().subscribe(data => {
-    //      if(data.Code ===UIConstant.THOUSAND){
-    //       data.Data.forEach(element => {
-    //         if(element.Id === newAddId){
-    //           this.attribute.name = element.Name
-    //         }
-    //        });
-         
-    //      }
-
-    //    })
-    // }
 
   initAttributeNameList = (newAddId) => {
     this.attributeService.getAttributeName().pipe(
@@ -176,8 +147,6 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
 
   /* Function to add the new attribute name */
   AddAttributeName = () => {
-    this.selectedAttribute =null
-    debugger
     const payload = {
       Id: this.selectedAttribute ? this.selectedAttribute : 0,
       Name: this.attribute.name
@@ -185,9 +154,9 @@ export class AttributeAddComponent implements OnInit, OnDestroy {
     this.attributeService.postAttribute(payload).pipe((
       takeUntil(this.unSubscribe$)
     )).subscribe((response) => {
-      if (response.Code === UIConstant.THOUSANDONE && response.Data) {
-        this.toastrService.showError('', response.Description)
-      } else if (response.Code === UIConstant.THOUSAND && response.Data) {
+      if (response.Code !== UIConstant.THOUSAND ) {
+        this.toastrService.showError(response.Code,response.Message)
+      } else if (response.Code === UIConstant.THOUSAND  ) {
         const data = _.find(this.attributeList, (item) => {
           return item.text === this.attribute.name
         })

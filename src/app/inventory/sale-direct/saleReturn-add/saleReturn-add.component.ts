@@ -694,21 +694,32 @@ export class SaleDirectReturnComponent {
     return totalAmount
   }
 
+  totalAmount(PaymentDetail) {
+    this.getCasePayment = 0
+    if (PaymentDetail.length > 0) {
+      PaymentDetail.forEach(element => {
+        this.getCasePayment = this.getCasePayment + +element.Amount
+      }
+      )
+    }
+  }
   createTransaction(paymentDetails) {
     if (paymentDetails.length > 0) {
       paymentDetails.forEach(element => {
         this.Paymode = element.Paymode
         this.PayModeId = element.PayModeId
         this.LedgerId = element.LedgerId
+        this.EditabledPay = true
         this.BankLedgerName = element.BankLedgerName
         this.Amount = element.Amount
         this.PayDate = this.gs.utcToClientDateFormat(element.PayDate, this.clientDateFormat)
         this.ChequeNo = element.ChequeNo
+        this.totalAmount(paymentDetails)
         this.addTransactions()
         if (this.PaymentDetail[this.PaymentDetail.length - 1]) {
           this.PaymentDetail[this.PaymentDetail.length - 1].Id = element.Id
         } else {
-          this.toastrService.showError('Not getting enough data for edit', '')
+          this.toastrService.showError('Not getting enough data for payment edit', '')
         }
       })
     }
@@ -800,6 +811,7 @@ export class SaleDirectReturnComponent {
   backDateEntry: boolean = false
   isBillNoManuall: boolean = false
   taxCalInclusiveType: number = 2
+  showGodown: boolean
   getSetUpModules(settings) {
     settings.forEach(element => {
       if (element.id === SetUpIds.catLevel) {
@@ -823,6 +835,9 @@ export class SaleDirectReturnComponent {
       }
       if (element.id === SetUpIds.taxCalInclusive) {
         this.taxCalInclusiveType = +element.val
+      }
+      if (element.id === SetUpIds.godamWiseStockManagement) {
+        this.showGodown = element.val
       }
     })
     this.createModels(this.catLevel)
@@ -994,11 +1009,12 @@ export class SaleDirectReturnComponent {
     }
   }
   ReturnQuantity: number = 0
-
+  showHidePayment: any = true
+  editTransSno: number = 0
   @ViewChild('currency_select2') currencySelect2: Select2Component
   openModal() {
     this.getFormDependency()
-
+    this.showHidePayment = true
     this.BillNo = ''
     this.getSetUpModules((JSON.parse(this.settings.moduleSettings).settings))
     this.getSPUtilitySaleReturnData()
@@ -1057,6 +1073,8 @@ export class SaleDirectReturnComponent {
     if ($('#sale_return_model').length > 0) {
       $('#sale_return_model').modal(UIConstant.MODEL_HIDE)
     }
+    this.showHidePayment = true
+
   }
 
   setBillNo(setups) {
@@ -1914,8 +1932,32 @@ export class SaleDirectReturnComponent {
         this.paymentSelect2.setElementValue(this.LedgerId)
       }
     }
+    if (event.value === 0) {
+      this.PayModeId = 0
+      this.LedgerId = 0
+      this.Paymode = ''
+      this.BankLedgerName = ''
+
+    }
     this.validateTransaction()
   }
+  // onPaymentModeSelect(event) {
+  //   if (+event.value > 0 && event.data[0] && event.data[0].text) {
+  //     this.Paymode = event.data[0].text
+  //     this.PayModeId = +event.value
+  //     if (+event.value !== 1) {
+  //       this.BankLedgerName = ''
+  //       this.LedgerId = 0
+  //       this.setpaymentLedgerSelect2(0, +event.value)
+  //     } else if (+event.value === 1) {
+  //       this.paymentLedgerselect2 = Object.assign([], [{ id: '1', text: 'Cash' }])
+  //       this.BankLedgerName = 'Cash'
+  //       this.LedgerId = 1
+  //       this.paymentSelect2.setElementValue(this.LedgerId)
+  //     }
+  //   }
+  //   this.validateTransaction()
+  // }
 
   enterPressItem(e: KeyboardEvent) {
     this.addItems()
@@ -1941,10 +1983,11 @@ export class SaleDirectReturnComponent {
     }
   }
 
-  setpaymentLedgerSelect2(i, paymentID) {
+  setpaymentLedgerSelect2(i, paymentId) {
     let _self = this
     let newData = [{ id: '0', text: 'Select Ledger' }, { id: '-1', text: UIConstant.ADD_NEW_OPTION }]
-    this.commonService.getPaymentLedgerDetail(paymentID).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+    this.commonService.getPaymentLedgerDetail(paymentId).pipe(takeUntil(this.onDestroy$)).subscribe(data => {
+      // console.log('PaymentModeData : ', data)
       if (data.Code === UIConstant.THOUSAND && data.Data) {
         data.Data.forEach(element => {
           newData.push({
@@ -1968,7 +2011,7 @@ export class SaleDirectReturnComponent {
           this.ChequeNo = this.PaymentDetail[i].ChequeNo
           this.paymentSelect2.setElementValue(this.PayModeId)
           this.ledgerSelect2.setElementValue(this.LedgerId)
-          this.deleteItem(i, 'trans')
+          
         }
       })
   }
@@ -1986,7 +2029,7 @@ export class SaleDirectReturnComponent {
     }
     this.validateTransaction()
   }
-
+  getCasePayment: any = 0
   getPaymentTotal(): number {
     let paymentTotal = 0
     for (let i = 0; i <= this.PaymentDetail.length - 1; i++) {
@@ -1997,6 +2040,16 @@ export class SaleDirectReturnComponent {
         paymentTotal += +this.Amount
       }
     }
+    if (this.editMode && +this.Amount > 0 && +this.PayModeId > 0 && +this.LedgerId > 0) {
+      if (this.PaymentDetail.length === 1) {
+        paymentTotal = +this.Amount
+      }
+      else {
+        paymentTotal = +this.getCasePayment
+
+      }
+    }
+
     return paymentTotal
   }
   isValidAmount = true
@@ -2036,48 +2089,55 @@ export class SaleDirectReturnComponent {
   }
 
   addTransactions() {
-    //  && this.PayDate
     if (this.Paymode && this.PayModeId && this.LedgerId && this.BankLedgerName && this.Amount) {
       if ((+this.PayModeId !== 1) || (+this.PayModeId === 1)) {
-        if (this.checkValidationForAmount()) {
-          this.addTransaction()
-          this.clickTrans = true
-          this.initialiseTransaction()
-          // this.setPayDate()
-          this.calculatePaymentAmount()
+        this.addTransaction()
+        if (this.editTransId > 0) {
+          this.showHidePayment = true
         }
+        this.PaymentDetail.forEach((element, i) => {
+          if (element.Id === 0) {
+            this.showHidePayment = true
+          }
+        })
+        this.clickTrans = true
+        this.initialiseTransaction()
+        this.calculatePaymentAmount()
       } else {
         this.clickTrans = false
-        // if (+this.PayModeId === 3) {
-        //   if (this.ChequeNo) {
-        //     this.invalidObj['ChequeNo'] = false
-        //   } else {
-        //     this.invalidObj['ChequeNo'] = true
-        //   }
-        // } else {
-        //   this.invalidObj['ChequeNo'] = false
-        // }
       }
     }
   }
 
+  checkpaymentLedgerId() {
+    if (this.PaymentDetail.length > 0) {
+      let dvalue= this.PaymentDetail.filter(
+        d=>d.LedgerId===this.LedgerId)
+        if(dvalue.length>0){ return false  }
+        else{ return true }  }
+        else { return true }
+  }
+
   addTransaction() {
+    let index = 0
     if (this.PaymentDetail.length === 0) {
-      this.PaymentDetail.push({
-        Id: 0,
-        Sno: 1,
-        Paymode: this.Paymode,
-        PayModeId: this.PayModeId,
-        LedgerId: this.LedgerId,
-        BankLedgerName: this.BankLedgerName,
-        Amount: +this.Amount,
-        PayDate: this.PayDate,
-        ChequeNo: this.ChequeNo,
-        isEditable: true
+      index = 1
+    } else {
+      index = +this.PaymentDetail[this.PaymentDetail.length - 1].Sno + 1
+      this.PaymentDetail.forEach((element, i) => {
+        if (this.editTransId > 0) {
+          if (element.Id === this.editTransId) {
+            this.PaymentDetail.splice(i, 1)
+          }
+        }
+        if (element.Sno === this.editTransSno) {
+          this.PaymentDetail.splice(i, 1)
+        }
 
       })
-    } else {
-      let index = +this.PaymentDetail[this.PaymentDetail.length - 1].Sno + 1
+    }
+
+    if (this.checkpaymentLedgerId()) {
       this.PaymentDetail.push({
         Id: 0,
         Sno: index,
@@ -2088,15 +2148,20 @@ export class SaleDirectReturnComponent {
         Amount: this.Amount,
         PayDate: this.PayDate,
         ChequeNo: this.ChequeNo,
-        isEditable: true
+        isEditable: this.EditabledPay
       })
+    } else {
+      this.toastrService.showErrorLong('', 'Trasaction not allow with Same Transactional Ledger')
     }
+
+
     setTimeout(() => {
       this.commonService.fixTableHFL('trans-table')
     }, 1)
     if (this.editTransId !== -1) {
       this.PaymentDetail[this.PaymentDetail.length - 1].Id = this.editTransId
     }
+
   }
 
   addItems() {
@@ -2188,6 +2253,8 @@ export class SaleDirectReturnComponent {
       this.Items[this.Items.length - 1].Id = 0
     }
   }
+  EditabledPay: boolean = true
+
   DisabledRow: boolean = true
   @ViewChildren('attr_select2') attrSelect2: QueryList<Select2Component>
   editItem(i, editId, type, sno) {
@@ -2217,9 +2284,14 @@ export class SaleDirectReturnComponent {
         this.validateCharge()
       }, 100)
     }
-   
-    if (type === 'trans') {
+
+    if (type === 'trans' && this.editTransId === -1) {
       this.editTransId = editId
+      i = i - 1
+      this.editTransSno = sno
+      this.showHidePayment = false
+      this.PaymentDetail[i].isEditable = false
+      this.EditabledPay = true
       if (+this.PaymentDetail[i].PayModeId !== 1) {
         this.paymentSelect2.setElementValue('')
         this.ledgerSelect2.setElementValue('')
@@ -2235,7 +2307,7 @@ export class SaleDirectReturnComponent {
         this.ChequeNo = this.PaymentDetail[i].ChequeNo
         this.paymentSelect2.setElementValue(this.PayModeId)
         this.ledgerSelect2.setElementValue(this.LedgerId)
-        this.deleteItem(i, type)
+        
       }
     }
     if (type === 'items' && editId > 0) {
@@ -2288,6 +2360,9 @@ export class SaleDirectReturnComponent {
   deleteItem(i, forArr) {
     if (forArr === 'trans') {
       this.PaymentDetail.splice(i, 1)
+      if (this.PaymentDetail.length === 0) {
+        this.getCasePayment = 0
+      }
       this.checkValidationForAmount()
     }
     if (forArr === 'items') {
@@ -2300,6 +2375,7 @@ export class SaleDirectReturnComponent {
   }
   closePurchase() {
     this.closeConfirmation()
+    
   }
   yesConfirmationClose() {
     $('#close_confirm3').modal(UIConstant.MODEL_HIDE)
@@ -2308,6 +2384,7 @@ export class SaleDirectReturnComponent {
   }
   closeConfirmation() {
     $('#close_confirm3').modal(UIConstant.MODEL_SHOW)
+
   }
 
   initItem() {
@@ -2802,6 +2879,7 @@ export class SaleDirectReturnComponent {
       //   }
       // })
       //}
+      this.DisabledSaveBtn=false
       return !!isValid
     }
   }
@@ -2974,6 +3052,8 @@ export class SaleDirectReturnComponent {
   }
   DisabledSaveBtn: boolean = false
   SaveSaleReturn() {
+    this.DisabledSaveBtn=true
+ 
     let _self = this
     this.submitSave = true
     let dataToSend = this.saleReturnAddParams()
@@ -2984,6 +3064,7 @@ export class SaleDirectReturnComponent {
           if (data.Code === UIConstant.THOUSAND && data.Data) {
             data.Data.forEach(element => {
               if (+element.Status === 1) {
+                this.DisabledSaveBtn = false
                 this.invalidObj[element.FormKeyName] = true
                 valid = 0
               }
@@ -3217,10 +3298,21 @@ export class SaleDirectReturnComponent {
       this.LedgerChargeId = +evt.value
       if (evt.value > 0) {
         this.LedgerName = evt.data[0].text
+        this.getLedgerTax(+evt.value)
       }
     }
     this.validateCharge()
     this.calculate()
+  }
+
+  getLedgerTax(id) {
+    this._saleDirectReturnService.getLedgerTax(id).subscribe((data) => {
+      console.log(data)
+      this.taxSlabChargeValue = data.LedgerDetails[0].TaxSlabId
+    },
+    (error) => {
+      this.toastrService.showError(error, '')
+    })
   }
 
   onTaxSlabChargeSelect(evt) {

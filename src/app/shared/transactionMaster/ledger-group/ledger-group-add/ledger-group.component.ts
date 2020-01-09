@@ -32,7 +32,7 @@ export class LedgerGroupAddComponent {
   toEmitName: string = ''
   catLevel: number = 1
   LgroupDetails: any = []
-  loading: boolean = true
+  //loading: boolean = true
   editID: any
   catOrSubCatSub: Subscription
   public ledgerGroupData: Array<Select2OptionData>
@@ -103,7 +103,7 @@ export class LedgerGroupAddComponent {
       console.log(error)
     },
     () => {
-      this.loading = false
+      //this.loading = false
     })
   }
 

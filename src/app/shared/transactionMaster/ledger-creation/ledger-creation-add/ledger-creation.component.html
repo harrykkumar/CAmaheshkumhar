@@ -1,12 +1,11 @@
-
-    <div class="modal right fade" id="ledger_creation_id" role="dialog" data-backdrop="static" data-keyboard="false">
+<div class="modal right fade" id="ledger_creation_id" role="dialog" data-backdrop="static" data-keyboard="false">
     <form #heroForm="ngForm">
         <div class="modal-dialog modal-full-height modal-right half-right-2" role="document">
             <div class="modal-content">
                 <div class="modal-header close_popup">
                     <h4 class="modal-title w-100 c-grey-900">Ledger </h4>
-                    <button type="button" (click)="clearValidation()" class="close"
-                        aria-label="Close"><span aria-hidden="true">×</span> </button>
+                    <button type="button" (click)="closeLedgerModel()" class="close" aria-label="Close"><span
+                            aria-hidden="true">×</span> </button>
                 </div>
                 <div class="modal-body">
                     <div class="card-body">
@@ -18,10 +17,11 @@
                                     <div class="input-group adw_select">
                                         <div class="input-group adw_select">
                                             <select2 autofocus [data]="ledgerGroupData" #under_group_select2
-                                                class="control_select" (valueChanged)="onChnageGroup($event)"
+                                                class="control_select"
+                                                (valueChanged)="onChnageGroup($event);mandatoryField()"
                                                 autocomplete="true" [options]="{placeholder: 'Select Under Group'}"
                                                 [value]="LedgerGroupValue"
-                                                [ngClass]="{'errorTextBoxBorder1': submitClick && invalidObj?.parentId }">
+                                                [ngClass]="{'errorTextBoxBorder1': invalidObj?.parentId  }">
                                             </select2>
                                         </div>
                                     </div>
@@ -29,8 +29,8 @@
                                 <div class="form-group col-md-6">
                                     <label class="active">Ledger Name</label>
                                     <input #ledgerNameRef type="text" name='ledgerName' [(ngModel)]="ledgerName"
-                                        class="form-control" placeholder="Ledger Name" (input)="checkForValidation()"
-                                        [ngClass]="{'errorTextBoxBorder1': submitClick && invalidObj?.ledgerName }" required>
+                                        class="form-control" placeholder="Ledger Name" (input)="mandatoryField()"
+                                        [ngClass]="{'errorTextBoxBorder1':  invalidObj?.ledgerName }" required>
 
 
                                 </div>
@@ -43,7 +43,7 @@
                                     <label>Opening Balance</label>
                                     <div class="opening_stcock">
                                         <div class="discount">
-                                            <input [attr.disabled]="disabledInputField? '':null" style="width:158px"
+                                            <input [attr.disabled]="disabledOpeningBalance? '':null" style="width:158px"
                                                 (input)="calculate();" type="number" class="form-control  width_70 mr-1"
                                                 appIncludeDecimal name="openingblance" placeholder="Opening Balance "
                                                 name='openingblance' [(ngModel)]="openingblance">
@@ -75,104 +75,115 @@
                             </div>
                             <div *ngIf='showHideFlag' class="hide" id="div1">
                                 <div class="form-row">
+                                    <ng-container >
+                                        <div class="form-group col-md-4">
+                                            <label for="bill_no">Country</label>
+                                            <ng-select #country_selecto name="CountryName" [items]="countryList"
+                                                bindLabel="text" bindValue="id" placeholder="Select Country"
+                                                [ngClass]="{'errorTextBoxBorder1': invalidObj?.countryValue}"
+                                                (change)="selectCountryListId($event);mandatoryField()"
+                                                [(ngModel)]="countryValue">
+                                            </ng-select>
+
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="bill_no">State</label>
+                                            <ng-select #state_select2 name="StateName" [items]="stateList"
+                                                bindLabel="text" bindValue="id" placeholder="Select State"
+                                                (change)="selectStatelist($event);mandatoryField()"
+                                                [ngClass]="{'errorTextBoxBorder1': invalidObj?.stateValue}"
+                                                [(ngModel)]="stateValue">
+                                            </ng-select>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="bill_no">City</label>
+                                            <ng-select #city_select2 name="CityName" [items]="cityList" bindLabel="text"
+                                                bindValue="id" placeholder="Select City"
+                                                [ngClass]="{'errorTextBoxBorder1': invalidObj?.cityValue}"
+                                                (change)="selectedCityId($event);mandatoryField()" [(ngModel)]="cityValue">
+                                            </ng-select>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="">Address</label>
+                                            <textarea #AddressRef class="form-control" (input)="mandatoryField()"
+                                                [ngClass]="{'errorTextBoxBorder1': invalidObj?.address  }"
+                                                placeholder='Address' name='address' [(ngModel)]="address"></textarea>
+                                        </div>
+                                    </ng-container>
 
                                     <div class="form-group col-md-4">
-                                        <label for="bill_no">Country</label>
-                                        <ng-select #country_selecto name="CountryName" [items]="countryList"
-                                            bindLabel="text" bindValue="id" placeholder="Select Country"
-                                            (change)="selectCountryListId($event)" [(ngModel)]="countryValue">
-                                        </ng-select>
-
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="bill_no">State</label>
-                                        <ng-select #state_select2 name="StateName" [items]="stateList" bindLabel="text"
-                                            bindValue="id" placeholder="Select State" (change)="selectStatelist($event)"
-                                            [(ngModel)]="stateValue">
-                                        </ng-select>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="bill_no">City</label>
-                                        <ng-select #city_select2 name="CityName" [items]="cityList" bindLabel="text"
-                                            bindValue="id" placeholder="Select City" (change)="selectedCityId($event)"
-                                            [(ngModel)]="cityId">
-                                        </ng-select>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label class="">Address</label>
-                                        <textarea class="form-control" placeholder='Address' name='address'
-                                            [(ngModel)]="address"></textarea>
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                            <label for="bill_no">Registration Type</label>
+                                        <label for="bill_no">Registration Type</label>
+                                        <div class="input-group adw_select">
                                             <div class="input-group adw_select">
-                                                <div class="input-group adw_select">
-                                                    <select2 #select_regiType [data]="selectyCoustmoreRegistration"
-                                                        class="control_select" (valueChanged)="selectCoustmoreId($event)"
-                                                        autocomplete="true" [options]="{placeholder:'Select Type'}"
-                                                        [value]="coustomerValue"></select2>
-                                                </div>
-    
+                                                <select2 #select_regiType [data]="selectyCoustmoreRegistration"
+                                                    class="control_select"
+                                                    (valueChanged)="selectCoustmoreId($event);mandatoryField()"
+                                                    autocomplete="true" [options]="{placeholder:'Select Type'}"
+                                                    [value]="coustmoreRegistraionId"></select2>
                                             </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="active">{{GstinNoValue}}</label>
+                                        <input #GStRequire [attr.disabled]="disabledGSTfor_UnRegi?'':null"
+                                            style="text-transform:uppercase" type="text" class="form-control"
+                                            id="org_code" placeholder={{GstinNoValue}}
+                                            name='gstin' [(ngModel)]="gstin"
+                                            (input)="chekGSTvalidation($event);splitGSTNumber()"
+                                            [ngClass]="{'errorTextBoxBorder1': !chekGSTvalidation() }">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="active">{{PanNoValue}}</label> <input
+                                            style="text-transform:uppercase" type="text" class="form-control"
+                                            #panNum_Ref 
+                                            [ngClass]="{'errorTextBoxBorder1': !checkPANNumberValid() }" id="org_code"
+                                            placeholder=" {{PanNoValue}}" name='panno' [(ngModel)]="panNo">
+                                    </div>
+                                    <ng-container *ngIf="isTaxedAplly===1">
+                                        <div class="form-group col-md-4">
+                                            <label>Tax Slab</label>
+                                            <ng-select name="taxName" [items]="taxSlabsData" bindLabel="text"
+                                                bindValue="id" placeholder="Select Tax Slab"
+                                                (change)="TaxSlabId = $event.id" [(ngModel)]="taxSlabValue">
+                                            </ng-select>
                                         </div>
                                         <div class="form-group col-md-4">
-                                            <label class="active">{{GstinNoValue}}</label>
-                                            <input #GStRequire [attr.disabled]="disabledGSTfor_UnRegi?'':null"
-                                                style="text-transform:uppercase" type="text" class="form-control"
-                                                id="org_code" placeholder=" Enter Number" name='gstin' [(ngModel)]="gstin"
-                                                (input)="checkGSTNumber($event)"
-                                                [ngClass]="{ 'errorTextBoxBorder1 ': (submitClick && validGSTNumber) || (submitClick && invalidObj?.requiredGST ) }">
+                                            <label>ITC Type</label>
+                                            <ng-select name="ITCName" [items]="ListITCType" bindLabel="text"
+                                                bindValue="id" placeholder="Select ITC Type"
+                                                (change)="ITCTypeId = $event.id" [(ngModel)]="ITCTypeValue">
+                                            </ng-select>
+
                                         </div>
                                         <div class="form-group col-md-4">
-                                            <label class="active">{{PanNoValue}}</label> <input style="text-transform:uppercase"
-                                                type="text" class="form-control"
-                                                 id="org_code" placeholder=" Enter Number"
-                                                name='panno' [(ngModel)]="panNo">
+                                            <label>RCM Type</label>
+                                            <ng-select name="RCMName" [items]="ListRCMType" bindLabel="text"
+                                                bindValue="id" placeholder="Select RCM Type"
+                                                (change)="RCMTypeId = $event.id" [(ngModel)]="RCMTypeValue">
+                                            </ng-select>
                                         </div>
-                                        <ng-container *ngIf="isTaxedAplly===1">
-                                            <div class="form-group col-md-4">
-                                                <label>Tax Slab</label>
-                                                <ng-select name="taxName" [items]="taxSlabsData" bindLabel="text"
-                                                    bindValue="id" placeholder="Select Tax Slab"
-                                                    (change)="TaxSlabId = $event.id" [(ngModel)]="taxSlabValue">
-                                                </ng-select>
-                                            </div>
-                                            <div class="form-group col-md-4">
-                                                <label>ITC Type</label>
-                                                <ng-select name="ITCName" [items]="ListITCType" bindLabel="text"
-                                                    bindValue="id" placeholder="Select ITC Type"
-                                                    (change)="ITCTypeId = $event.id" [(ngModel)]="ITCTypeValue">
-                                                </ng-select>
-    
-                                            </div>
-                                            <div class="form-group col-md-4">
-                                                <label>RCM Type</label>
-                                                <ng-select name="RCMName" [items]="ListRCMType" bindLabel="text"
-                                                    bindValue="id" placeholder="Select RCM Type"
-                                                    (change)="RCMTypeId = $event.id" [(ngModel)]="RCMTypeValue">
-                                                </ng-select>
-                                            </div>
-                                            <div class="form-group col-md-4">
-                                                <label class="active">HSN</label> <input type="text" class="form-control"
-                                                    id="HSN" placeholder=" HSN" name='HSN' [(ngModel)]="HSNNo">
-                                            </div>
-                                        </ng-container>
+                                        <div class="form-group col-md-4">
+                                            <label class="active">HSN</label> <input type="text" class="form-control"
+                                                id="HSN" placeholder=" HSN" name='HSN' [(ngModel)]="HSNNo">
+                                        </div>
+                                    </ng-container>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label class="active">Assets</label>
-                                    <input readonly type="text" class="form-control" name='Assets' [(ngModel)]="Assets"
-                                        placeholder="Assets">
+                                    <input [disabled]='true' type="text" class="form-control" name='Assets'
+                                        [(ngModel)]="Assets" placeholder="Assets">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="active">Liabilities</label>
-                                    <input readonly type="text" class="form-control" name='Liabilities'
+                                    <input [disabled]='true' type="text" class="form-control" name='Liabilities'
                                         [(ngModel)]="Liabilities" placeholder="Liabilities">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="active">Difference</label>
-                                    <input readonly type="text" class="form-control" name="Difference"
+                                    <input [disabled]='true' type="text" class="form-control" name="Difference"
                                         [(ngModel)]="Difference" placeholder="Difference">
                                 </div>
                             </div>
@@ -192,26 +203,27 @@
             </div>
         </div>
     </form>
-<app-add-new-city #addNewCityRef (addCityClosed)="addCityClosed($event)"></app-add-new-city>
+    <app-add-new-city #addNewCityRef (addCityClosed)="addCityClosed($event)"></app-add-new-city>
 
 </div>
 
-<div class="modal fade" id="close_confirm7" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="close_confirm7" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure want to close this page?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" (click)="yesConfirmationClose()">yes</button>
+            </div>
         </div>
-        <div class="modal-body">
-        Are you sure want to close this page?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-          <button type="button" class="btn btn-primary" (click)="yesConfirmationClose()">yes</button>
-        </div>
-      </div>
     </div>
-  </div>
+</div>

@@ -28,6 +28,7 @@ export class LoginService {
   userData: any = {}
   organizationList: Array<any> = []
   loginUserDetails: any = {}
+  selectedValues: any;
   constructor(private _basesService: BaseServices,
     private router: Router,
     private gs: GlobalService,
@@ -62,7 +63,7 @@ export class LoginService {
       this._basesService.getRequest(`${ApiConstant.USER_PROFILE}?Id=${OrgId}`).subscribe(
         async (data) => {
           if (data.Code === UIConstant.THOUSAND) {
-            this.userData = data.Data
+            this.userData = JSON.parse(JSON.stringify(data.Data))
             await this.mapSideMenus()
             await this.mapSubMenus()
             await this.mapPermissions()
@@ -87,12 +88,11 @@ export class LoginService {
   mapSideMenus = async () => {
     return new Promise((resolve, reject) => {
       _.forEach(this.userData.Modules, (module, i) => {
-        // debugger
         if (this.userData.Modules[i] && MODULES_IMG_SRC[`${module.Id}`]) {
           this.userData.Modules[i]['src'] = MODULES_IMG_SRC[`${module.Id}`]['src']
         }
         const data = _.filter(this.userData.Menus, (menu) => {
-          if (menu.ParentId === 0) {
+          if (this.userData.Modules[i].Id === menu.ModuleId && menu.ParentId === 0) {
             return true
           }
         })
@@ -189,7 +189,7 @@ export class LoginService {
         if (res.Code === UIConstant.THOUSAND) {
           this.organizationList = [...res.Data['OrganizationDetails']];
           this.loginUserDetails = { ...res.Data['LoginUserDetails'][0] }
-
+           this.getModuleIdForAccount()
           localStorage.setItem('LOGIN_USER', JSON.stringify(this.loginUserDetails));
           resolve(this.organizationList);
         } else if (res.Code === 5018) {
@@ -201,7 +201,20 @@ export class LoginService {
         });
     })
   }
+getModuleIdForAccount(){
+  if( typeof this.loginUserDetails ==='object'){
+    if(this.loginUserDetails.ModuleId===17) {
+      return true
+    }else{
+     return false
+    }
+  }
+  else{
+    return false
 
+  }
+
+}
   extendJwtToken(data) {
     return this._basesService.postRequest(ApiConstant.EXTENDJWT, data).
       pipe(map((res) => {
@@ -211,85 +224,158 @@ export class LoginService {
       })).toPromise();
   }
 
-  mapOrganizations = async () => {
+
+  mapOrganizations = async (data?) => {
     await this.getUserOrganization();
-    if (this.organizationList.length === 0) {
-      this.router.navigate(['no-organization'])
-    } else if (this.organizationList.length === 1) {
-      this.selectedOrganization = { ...this.organizationList[0] }
-      const token = await this.extendJwtToken({ OrgId: this.selectedOrganization.Id })
-      this.tokenService.saveToken(token)
-      await this.companyProfileService.getOrgDetails()
-      localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this.selectedOrganization))
-      this.mapBranch(this.selectedOrganization);
+    if(!_.isEmpty(this.organizationList) && !_.isEmpty(data) && data.ISD === 1){
+      this.selectedOrganization = _.find(this.organizationList, {Id: this.selectedValues.OrgId})
+      this.setOrganization(data)
     } else {
-      this.router.navigate(['organizations']);
-    }
-  }
-
-  mapBranch = async (selectedOrganization) => {
-    await this.getUserBranchsList(Number(selectedOrganization.Id));
-    if (this.branchList.length === 1) {
-      this.selectedBranch = { ...this.branchList[0] }
-      const token = await this.extendJwtToken(
-        {
-          OrgId: selectedOrganization.Id,
-          BranchId: this.selectedBranch.BranchId,
-          OfficeId: this.selectedBranch.OfficeId
-        });
-      if (token) {
+      if (this.organizationList.length === 0) {
+        this.router.navigate(['no-organization'])
+      } else if (this.organizationList.length === 1) {
+        this.selectedOrganization = { ...this.organizationList[0] }
+        const token = await this.extendJwtToken({ OrgId: this.selectedOrganization.Id })
         this.tokenService.saveToken(token)
-        localStorage.setItem('SELECTED_BRANCH', JSON.stringify(this.selectedBranch))
-        const finYear = JSON.parse(localStorage.getItem('SELECTED_FIN_YEAR'));
-        if (!_.isEmpty(finYear) && selectedOrganization.Id === finYear.OrgId) {
-          this.mapModules(selectedOrganization);
-        } else {
-          localStorage.removeItem('SELECTED_FIN_YEAR');
-          this.mapFinYear(selectedOrganization);
-        }
+        // await this.companyProfileService.getOrgDetails()
+        // localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this.selectedOrganization))
+        // this.mapBranch(this.selectedOrganization);
+        this.setOrganization()
+      } else {
+        this.router.navigate(['organizations']);
       }
-    } else {
-      this.router.navigate([`org-branches`]);
     }
   }
 
-  mapFinYear = async (selectedOrganization) => {
+  async setOrganization(data?){
+    await this.companyProfileService.getOrgDetails()
+    localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this.selectedOrganization))
+    this.mapBranch(this.selectedOrganization, data);
+  }
+
+  setDetailsForIsdOne(data){
+    if(!_.isEmpty(data) && data.ISD === 1){
+      this._basesService.getRequest(`${ApiConstant.USER_PROFILE}`).subscribe((res) => {
+        if(res.Code === 1000 && !_.isEmpty(res.Data) && !_.isEmpty(res.Data.CommonUserOrgInfos)){
+          this.selectedValues = {...res.Data.CommonUserOrgInfos[0]}
+          this.mapOrganizations(data)
+        }
+      })
+    } else {
+      this.mapOrganizations();
+    }
+  }
+
+  mapBranch = async (selectedOrganization, data?) => {
+    await this.getUserBranchsList(Number(selectedOrganization.Id));
+    if(!_.isEmpty(this.branchList) && !_.isEmpty(data) && data.ISD === 1){
+      this.selectedBranch = _.find(this.branchList, {Id: this.selectedValues.BranchId})
+      this.setBranch(selectedOrganization, data)
+    } else {
+      if (this.branchList.length === 1) {
+        this.selectedBranch = { ...this.branchList[0] }
+        const token = await this.extendJwtToken(
+          {
+            OrgId: selectedOrganization.Id,
+            BranchId: this.selectedBranch.BranchId,
+            OfficeId: this.selectedBranch.OfficeId
+          });
+        if (token) {
+          this.tokenService.saveToken(token)
+          this.setBranch(selectedOrganization)
+          // localStorage.setItem('SELECTED_BRANCH', JSON.stringify(this.selectedBranch))
+          // const finYear = JSON.parse(localStorage.getItem('SELECTED_FIN_YEAR'));
+          // if (!_.isEmpty(finYear) && selectedOrganization.Id === finYear.OrgId) {
+          //   this.mapModules(selectedOrganization);
+          // } else {
+          //   localStorage.removeItem('SELECTED_FIN_YEAR');
+          //   this.mapFinYear(selectedOrganization);
+          // }
+        }
+      } else {
+        this.router.navigate([`org-branches`]);
+      }
+    }
+  }
+
+  setBranch(selectedOrganization, data?){
+    localStorage.setItem('SELECTED_BRANCH', JSON.stringify(this.selectedBranch))
+    const finYear = JSON.parse(localStorage.getItem('SELECTED_FIN_YEAR'));
+    if (!_.isEmpty(finYear) && selectedOrganization.Id === finYear.OrgId) {
+      this.mapModules(selectedOrganization, data);
+    } else {
+      localStorage.removeItem('SELECTED_FIN_YEAR');
+      this.mapFinYear(selectedOrganization, data);
+    }
+  }
+
+  mapFinYear = async (selectedOrganization, tokenData?) => {
     const data = {
       OrgId: selectedOrganization.Id
     };
     await this.getFinancialYearList(data)
-    if (!_.isEmpty(this.finYearList)) {
-      this.selectedFinYear = { ...this.finYearList[this.finYearList.length - 1] }
-      const token = await this.extendJwtToken(
-        {
-          OrgId: this.selectedOrganization.Id,
-          Financialyear: this.selectedFinYear.Id
-        });
-      if (token) {
-        this.tokenService.saveToken(token)
-        this.settings.finFromDate = this.selectedFinYear.FromDate
-        this.settings.finToDate = this.selectedFinYear.ToDate
-        localStorage.setItem('SELECTED_FIN_YEAR', JSON.stringify(this.selectedFinYear))
-        this.mapModules(selectedOrganization);
+    if(!_.isEmpty(this.finYearList) && !_.isEmpty(tokenData) && tokenData.ISD === 1){
+      this.selectedFinYear = _.find(this.finYearList, {Id: this.selectedValues.FinYearId})
+      this.setFinYear(selectedOrganization, data)
+    } else {
+      if (!_.isEmpty(this.finYearList)) {
+        this.selectedFinYear = { ...this.finYearList[this.finYearList.length - 1] }
+        const token = await this.extendJwtToken(
+          {
+            OrgId: this.selectedOrganization.Id,
+            Financialyear: this.selectedFinYear.Id
+          });
+        if (token) {
+          this.tokenService.saveToken(token)
+          this.setFinYear(selectedOrganization)
+          // this.settings.finFromDate = this.selectedFinYear.FromDate
+          // this.settings.finToDate = this.selectedFinYear.ToDate
+          // localStorage.setItem('SELECTED_FIN_YEAR', JSON.stringify(this.selectedFinYear))
+          // this.mapModules(selectedOrganization);
+        }
       }
     }
   }
 
-  mapModules = async (selectedOrganization) => {
+  setFinYear(selectedOrganization, data?){
+    this.settings.finFromDate = this.selectedFinYear.FromDate
+    this.settings.finToDate = this.selectedFinYear.ToDate
+    localStorage.setItem('SELECTED_FIN_YEAR', JSON.stringify(this.selectedFinYear))
+    this.mapModules(selectedOrganization, data);
+  }
+
+  mapModules = async (selectedOrganization, data?) => {
     await this.getUserDetails(selectedOrganization.Id)
-    if (this.userData.Modules.length === 1) {
-      this.selectedUserModule = { ...this.userData.Modules[0] }
-      await this.getAllSettings(this.userData.Modules[0].Id)
-      this.selectedUserModule['index'] = 0
-      localStorage.setItem('SELECTED_MODULE', JSON.stringify(this.selectedUserModule))
-      if (this.selectedUserModule.Id === 4) {
-        this.router.navigate(['crm/dashboard']);
-      } else {
-        this.router.navigate(['dashboard'])
-      }
+    if(!_.isEmpty(this.userData.Modules) && !_.isEmpty(data) && data.ISD === 1){
+      this.selectedUserModule = _.find(this.userData.Modules, {Id: this.selectedValues.ModuleId})
+      this.setModule(data)
     } else {
-      this.router.navigate(['modules'])
+      if (this.userData.Modules.length === 1) {
+        this.selectedUserModule = { ...this.userData.Modules[0] }
+        // await this.getAllSettings(this.userData.Modules[0].Id)
+        // this.selectedUserModule['index'] = 0
+        // localStorage.setItem('SELECTED_MODULE', JSON.stringify(this.selectedUserModule))
+        // if (this.selectedUserModule.Id === 4) {
+        //   this.router.navigate(['crm/dashboard']);
+        // } else {
+        //   this.router.navigate(['dashboard'])
+        // }
+        this.setModule()
+      } else {
+        this.router.navigate(['modules'])
+      }
     }
+  }
+
+ async setModule(data?){
+    await this.getAllSettings(this.selectedUserModule.Id)
+        this.selectedUserModule['index'] = 0
+        localStorage.setItem('SELECTED_MODULE', JSON.stringify(this.selectedUserModule))
+        if (this.selectedUserModule.Id === 4) {
+          this.router.navigate(['crm/dashboard']);
+        } else {
+          this.router.navigate(['dashboard'])
+        }
   }
 
   getFinancialYearList(data) {
@@ -327,6 +413,7 @@ export class LoginService {
     return new Promise((resolve, reject) => {
       this.getModuleSetting(id).subscribe(async (data) => {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
+          console.log('module id : ', id)
           await this.gs.getAllSettings(data.Data, id)
           resolve('')
         } else {

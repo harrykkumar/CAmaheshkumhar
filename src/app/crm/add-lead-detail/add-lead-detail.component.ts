@@ -40,7 +40,7 @@ export class AddLeadDetailComponent implements OnInit {
   leadStageList: Array<any> = []
   selectedSocialMediaId: boolean;
   socialMediaUrl: any;
-  editSocialProfileIndex: any;
+  editSocialProfileIndex: any = null;
   leadEditId: number;
   isKeyPersonChanged: any;
   formtype: any;
@@ -65,6 +65,7 @@ export class AddLeadDetailComponent implements OnInit {
   emailTypeList: any;
   emailTypeId: number;
   orgCountryCode: any;
+  addressEditId: any;
   constructor(
     public commonService: CommonService,
     private resolver: ComponentFactoryResolver,
@@ -126,10 +127,8 @@ export class AddLeadDetailComponent implements OnInit {
       if (!this.commonService.isEmpty(data.formtype)) {
         this.formtype = data.formtype
       }
-      // this.model.firstName = data.data.keyPersonName
       this.model.companyName = data.data.companyName
       this.model.selectedBusinessTypeId = data.data.businessTypeId
-      // this.isKeyPersonChanged = data.isKeyPersonChanged
     }
     if (!_.isEmpty(item) && item.editLeadId) {
       this.leadEditId = Number(item.editLeadId)
@@ -164,7 +163,7 @@ export class AddLeadDetailComponent implements OnInit {
     if (!_.isEmpty(res.Data.FollowUpCustomer)) {
       const data = { ...res.Data.FollowUpCustomer[0] };
       this.model.selectedIndustryTypeId = Number(data.IndustryId) ? Number(data.IndustryId) : null
-      this.model.selectedNoOfEmployeeId = Number(data.NoOfEmployee) ? Number(data.NoOfEmployee): null
+      this.model.selectedNoOfEmployeeId = Number(data.NoOfEmployeeID) ? Number(data.NoOfEmployeeID): null
       this.model.companyRevenue = Number(data.Revenue) ? Number(data.Revenue) : 0
       this.model.companyWebsite = data.WebSite ? data.WebSite : ''
     }
@@ -191,28 +190,11 @@ export class AddLeadDetailComponent implements OnInit {
 
     if (!_.isEmpty(res.Data.FollowUpAddress)) {
       const data = { ...res.Data.FollowUpAddress[0] }
-      res.Data.FollowUpAddress.shift();
+      this.addressEditId = data.Id;
       this.countryId = data.CountryId
       this.getStateList(this.countryId, data)
       this.addressTypeId = data.AddressType
       this.address = data.AddressValue
-      this.model.companyAddressList = _.map(res.Data.FollowUpAddress, (item) => {
-        return {
-          editAddressId: item.Id,
-          countryId: item.CountryId,
-          countryName: item.Country,
-          stateId: item.StateId,
-          stateName: item.State,
-          cityId: item.CityId,
-          cityName: item.City,
-          areaId: item.AreaId,
-          areaName: item.Area,
-          addressTypeId: item.AddressType,
-          addressTypeName: item.AddressTypeName,
-          address: item.AddressValue,
-          displayLabel: `${item.AddressValue}`
-        }
-      })
     }
 
     if (!_.isEmpty(res.Data.FollowUpContactPerson)) {
@@ -237,6 +219,7 @@ export class AddLeadDetailComponent implements OnInit {
     if (!_.isEmpty(res.Data.CPSocialProfile)) {
       this.model.socialProfileList = _.map(res.Data.CPSocialProfile, (item) => {
         return {
+          editId: item.Id,
           id: item.Type,
           name: item.TypeName,
           url: item.Name
@@ -275,7 +258,7 @@ export class AddLeadDetailComponent implements OnInit {
     }
     if (!_.isEmpty(res.Data.LeadAddress)) {
       const data = { ...res.Data.LeadAddress[0] }
-      // res.Data.LeadAddress.shift();
+      this.addressEditId = data.Id;
       this.countryId = data.CountryId
       this.getStateList(this.countryId, data)
       this.addressTypeId = data.AddressType
@@ -303,6 +286,7 @@ export class AddLeadDetailComponent implements OnInit {
     if (!_.isEmpty(res.Data.CPSocialProfile)) {
       this.model.socialProfileList = _.map(res.Data.CPSocialProfile, (item) => {
         return {
+          editId: item.Id,
           id: item.Type,
           name: item.TypeName,
           url: item.Name
@@ -313,9 +297,6 @@ export class AddLeadDetailComponent implements OnInit {
 
   addKeyPerson() {
     const designationIndex = _.findIndex(this.crmService.leadUtilityData.MeetingWith, { id: this.model.selectedDesignationId })
-    console.log(this.model.countryCodeId)
-    console.log(this.model.defaultCheckedIndex)
-    console.log(this.editKeyPersonIndex)
     const data = {
       id: this.editKeyPersonIndex !== null ? this.model.contactPersonList[this.editKeyPersonIndex].id : 0,
       designationId: this.model.selectedDesignationId ? this.model.selectedDesignationId : 0,
@@ -329,8 +310,8 @@ export class AddLeadDetailComponent implements OnInit {
     }
     if (this.editKeyPersonIndex !== null) {
       this.model.contactPersonList[this.editKeyPersonIndex] = {...data}
-      this.editKeyPersonIndex = null;
       this.model.defaultCheckedIndex = this.editKeyPersonIndex
+      this.editKeyPersonIndex = null;
     } else {
       this.model.contactPersonList.push({ ...data })
       this.model.defaultCheckedIndex = this.model.contactPersonList.length - 1
@@ -446,6 +427,7 @@ export class AddLeadDetailComponent implements OnInit {
   addSocialProfile() {
     const socialMediaIndex = _.findIndex(this.socialMediaList, { UId: this.selectedSocialMediaId })
     const data = {
+      editId: this.editSocialProfileIndex !== null ? this.model.socialProfileList[this.editSocialProfileIndex].editId : 0,
       id: this.selectedSocialMediaId,
       name: socialMediaIndex !== -1 ? this.socialMediaList[socialMediaIndex].CommonDesc : '',
       url: this.socialMediaUrl
@@ -547,6 +529,7 @@ export class AddLeadDetailComponent implements OnInit {
 
   preparePayload() {
     const addr = {
+      editId: this.addressEditId ? this.addressEditId : 0,
       countryId: this.countryId ? this.countryId : 0,
       stateId: this.stateId ? this.stateId : 0,
       cityId: this.cityId ? this.cityId : 0,
@@ -572,12 +555,14 @@ export class AddLeadDetailComponent implements OnInit {
       "CustIndustryId": this.model.selectedIndustryTypeId ? this.model.selectedIndustryTypeId : 0,
       "ListLeadEmailDetails": _.map(this.model.companyEmailList, (item) => {
         return {
+          "Id": item.editEmailId ? item.editEmailId : 0,
           "EmailAddress": item.email,
           "EmailType": item.id
         }
       }),
       "ListLeadContactinfo": _.map(this.model.companyMobileNoList, (item) => {
         return {
+          "Id": item.editId ? item.editId : 0,
           "ContactNo": item.mobileNo,
           "CountryCode": item.id,
           "ContactType": "1"
@@ -585,6 +570,7 @@ export class AddLeadDetailComponent implements OnInit {
       }),
       "ListLeadAddress": _.map(this.model.companyAddressList, (item) => {
         return {
+          "Id": item.editId ? item.editId : 0,
           "CountryId": item.countryId,
           "StateId": item.stateId,
           "CityId": item.cityId,
@@ -597,13 +583,14 @@ export class AddLeadDetailComponent implements OnInit {
       "ListCPContactinfo": [],
       "ListCPSocialProfile": _.map(this.model.socialProfileList, (item) => {
         return {
+          "Id": item.editId ? item.editId : 0,
           "Name": item.url,
           "Type": item.id
         }
       }),
       "ListLeadContactPerson": _.map(this.model.contactPersonList, (item, index) => {
         return {
-          "Id": item.id,
+          "Id": item.id ? item.id : 0,
           "Name": item.name,
           "Department": item.departMentName,
           "TypeId": item.designationId,

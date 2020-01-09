@@ -5,14 +5,10 @@ import { UIConstant } from 'src/app/shared/constants/ui-constant';
 import { ToastrCustomService } from './../../commonServices/toastr.service';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services';
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { map, takeUntil } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import * as _ from 'lodash'
-import { Subject } from 'rxjs';
-declare var $: any
-declare var flatpickr: any
-
+import { Subscription } from 'rxjs';
 import { ExcelService } from '../../commonServices/excel.service';
-
 @Component({
   selector: 'app-daybook',
   templateUrl: './daybook.component.html',
@@ -27,9 +23,8 @@ export class DayBookComponent implements OnInit, AfterViewInit {
   pageSize: number = 20
   pageNo: number = 1
   totalItemSize: number = 0
+  onDestroy$: Subscription[] = []
   @ViewChild('ledger_paging') ledgerPagingModel: PagingComponent
-  private unSubscribe$ = new Subject<void>()
-
   constructor(public excelService: ExcelService,
     public _globalService: GlobalService,
     public _settings: Settings,
@@ -45,8 +40,7 @@ export class DayBookComponent implements OnInit, AfterViewInit {
     this.viewFlag = true
     this.isViewPrint = false
     this._commonService.fixTableHF('cat-table')
-
-    this.DayBookData();
+    // this.DayBookData();
   }
 
   ngAfterViewInit() {
@@ -66,8 +60,7 @@ export class DayBookComponent implements OnInit, AfterViewInit {
   }
 
   getLedgerItemList = () => {
-    this._commonService.getLedgerItemList().pipe(
-      takeUntil(this.unSubscribe$),
+    this.onDestroy$.push(this._commonService.getLedgerItemList().pipe(
       map((data: any) => {
         return _.map(data.Data, (element) => {
           return {
@@ -76,16 +69,17 @@ export class DayBookComponent implements OnInit, AfterViewInit {
           }
         })
       })
-    )
-      .subscribe((response: any) => {
-        this.ledgerItemList = [{ id: UIConstant.ZERO, text: 'Select Ledger' }, ...response];
-      })
+    ).subscribe((response: any) => {
+      this.ledgerItemList = [{ id: UIConstant.ZERO, text: 'Select Ledger' }, ...response];
+    }))
   }
   getValueFalg: boolean = true
   mainDataExcel: any = []
   ExcelHeaders: any = []
+  DayBookListData:any =[]
   DayBookData = () => {
     let fromDate, toDate
+  //  this.DayBookListData=[]
     if (this.model.fromDatevalue) {
       fromDate = this._globalService.clientToSqlDateFormat(this.model.fromDatevalue, this.clientDateFormat)
     }
@@ -100,12 +94,29 @@ export class DayBookComponent implements OnInit, AfterViewInit {
       Size: this.pageSize,
       type: 'Daily'
     }
-    this._commonService.getDayBook(data).pipe(
-      takeUntil(this.unSubscribe$)
-    ).subscribe((response: any) => {
+    this.onDestroy$.push(this._commonService.getDayBook(data).subscribe((response: any) => {
       if (response.Code === UIConstant.THOUSAND && response.Data && response.Data.CashBook.length > 0) {
-        this.DayBook = response.Data;
-        this.ExcelHeaders = ["SNo", "Date", "Voucher Type Name", "Voucher No", "Debit Head", "Debit Amount", "Credit Head", "Credit Amount", "Narration"]
+        this.DayBook =response.Data
+        response.Data.CashBook.forEach(element => {
+          let DebitAmount = element.DebitAmount===0 ? '' : element.DebitAmount
+          let CreditAmount = element.CreditAmount===0 ? '' : element.CreditAmount
+         this.DayBookListData.push({
+          OddEven:element.OddEven,
+          OpeningFlag:element.OpeningFlag,
+          CurrentDate:element.CurrentDate,
+          VoucherTypeName:element.VoucherTypeName,
+          VoucherNo:element.VoucherNo,
+          DebitHead:element.DebitHead,
+          DebitAmount:DebitAmount,
+          CreditAmount:CreditAmount,
+          Narration:element.Narration,
+         })
+
+      });
+//console.log(this.DayBookListData)
+
+        this.ExcelHeaders = [ "Date", "Voucher Type Name", "Voucher No", "Debit Head",
+         "Debit Amount", "Credit Amount", "Narration"]
         this.mainDataExcel = []
         response.Data.CashBook.forEach((element, index) => {
           let date = ''
@@ -115,15 +126,16 @@ export class DayBookComponent implements OnInit, AfterViewInit {
           else {
             date = ''
           }
+          let DebitAmount = element.DebitAmount===0 ? '' : element.DebitAmount.toFixed(this.noOfDecimal)
+          let CreditAmount = element.CreditAmount===0 ? '' : element.CreditAmount.toFixed(this.noOfDecimal)
           this.mainDataExcel.push([
-            index + 1,
+           // index + 1,
             date,
             element.VoucherTypeName,
             element.VoucherNo,
             element.DebitHead,
-            (element.DebitAmount).toFixed(this.noOfDecimal),
-            element.CreditHead,
-            (element.CreditAmount).toFixed(this.noOfDecimal),
+            DebitAmount,
+            CreditAmount,
             element.Narration
           ])
         });
@@ -148,10 +160,9 @@ export class DayBookComponent implements OnInit, AfterViewInit {
       } else {
         this._toastService.showError("Error in Data Fetching", '');
       }
-
     }, (error) => {
       console.log(error);
-    });
+    }));
   }
 
   onPageNoChange = (event) => {
@@ -171,10 +182,13 @@ export class DayBookComponent implements OnInit, AfterViewInit {
   onLastValueChange = (event) => {
     this.lastItemIndex = event
   }
-
+  
   ngOnDestroy(): void {
-    this.unSubscribe$.next()
-    this.unSubscribe$.complete()
+    if (this.onDestroy$ && this.onDestroy$.length > 0) {
+      this.onDestroy$.forEach((element) => {
+        element.unsubscribe()
+      })
+    }
   }
   searchResetButton() {
     this.viewFlag = true
@@ -182,7 +196,6 @@ export class DayBookComponent implements OnInit, AfterViewInit {
     this.model.toDateValue = ''
     this.model.fromDatevalue = ''
     this.DayBookData()
-
   }
   isViewPrint: boolean = false
   htmlLoadid: any = 0
@@ -227,6 +240,26 @@ export class DayBookComponent implements OnInit, AfterViewInit {
   exportExcel() {
     if (this.mainDataExcel.length > 0) {
       this.excelService.generateExcel(this.DayBook.OrganizationDetails[0].OrgName, this.DayBook.AddressDetails[0].CityName + ' ' + this.DayBook.AddressDetails[0].StateName + ' ' + this.DayBook.AddressDetails[0].CountryName, this.ExcelHeaders, this.mainDataExcel, 'Day Book', this.model.fromDatevalue, this.model.toDateValue,[])
+    }
+  }
+
+  setToDate (evt) {
+    this.model.toDateValue = evt
+    if (this.model.fromDatevalue && this.model.toDateValue) {
+      if (!this._globalService.compareDate(this.model.toDateValue, this.model.fromDatevalue)) {
+        this.model.toDateValue = ''
+      }
+    }
+  }
+  
+  setFromDate (evt) {
+    this.model.fromDatevalue = evt
+    if (this.model.fromDatevalue && this.model.toDateValue) {
+      if (!this._globalService.compareDate(this.model.toDateValue, this.model.fromDatevalue)) {
+        this.model.toDateValue = evt
+      }
+    } else {
+      this.model.toDateValue = evt
     }
   }
 }

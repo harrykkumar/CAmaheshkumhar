@@ -1,3 +1,7 @@
+import { EmailEditorCustomComponent } from './transactionMaster/email-editor/email-editor.component';
+import { AddUserDealerLinkComponent } from './../crm/add-user-dealer-link/add-user-dealer-link.component';
+import { AddCrmCustomerComponent } from './../crm/add-crm-customer/add-crm-customer.component';
+import { AddFollowupDetailComponent } from './../crm/add-followup-detail/add-followup-detail.component';
 import { UserFormComponent } from './../user/user-form/user-form.component';
 import { LeadInfoComponent } from './../crm/lead-info/lead-info.component';
 import { ImageModalModule } from './transactionMaster/images-modal/image-modal.module';
@@ -46,6 +50,11 @@ import { AddLeadDetailComponent } from '../crm/add-lead-detail/add-lead-detail.c
 import { ChangeUserNameComponent } from './components/change-user-name/change-user-name.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { AssignToComponent } from './components/assign-to/assign-to.component';
+import { AgmCoreModule } from '@agm/core';
+import { ViewMapComponent } from '../crm/view-map/view-map.component';
+import { AgmDirectionModule} from 'agm-direction';
+import { EmailEditorModule } from 'angular-email-editor';
+const YOUR_GOOGLE_MAPS_API_KEY = ''
 @NgModule({
   imports: [
     FormsModule,
@@ -66,7 +75,13 @@ import { AssignToComponent } from './components/assign-to/assign-to.component';
     NgxSpinnerModule,
     NgSelectModule,
     ChartsModule,
-    ImageCropperModule
+    ImageCropperModule,
+    AgmCoreModule,
+    AgmCoreModule.forRoot({
+      apiKey: YOUR_GOOGLE_MAPS_API_KEY
+    }),
+    AgmDirectionModule,
+    EmailEditorModule
   ],
   exports: [
     CommonModule,
@@ -114,7 +129,15 @@ import { AssignToComponent } from './components/assign-to/assign-to.component';
     AddLeadDetailComponent,
     LeadInfoComponent,
     ConfirmDialogComponent,
-    AssignToComponent
+    AssignToComponent,
+    AddFollowupDetailComponent,
+    AgmCoreModule,
+    ViewMapComponent,
+    AgmDirectionModule,
+    AddCrmCustomerComponent,
+    AddUserDealerLinkComponent,
+    EmailEditorModule,
+    EmailEditorCustomComponent
   ],
   declarations: [
     ControlMessageComponent,
@@ -145,7 +168,12 @@ import { AssignToComponent } from './components/assign-to/assign-to.component';
     LeadInfoComponent,
     ChangeUserNameComponent,
     ConfirmDialogComponent,
-    AssignToComponent
+    AssignToComponent,
+    AddFollowupDetailComponent,
+    ViewMapComponent,
+    AddCrmCustomerComponent,
+    AddUserDealerLinkComponent,
+    EmailEditorCustomComponent
   ],
   entryComponents: [
     CompanyProfileComponent,
@@ -159,7 +187,11 @@ import { AssignToComponent } from './components/assign-to/assign-to.component';
     LeadInfoComponent,
     UserFormComponent,
     ChangeUserNameComponent,
-    AssignToComponent
+    AssignToComponent,
+    ViewMapComponent,
+    AddCrmCustomerComponent,
+    AddUserDealerLinkComponent,
+    EmailEditorCustomComponent
   ]
 })
 export class SharedModule {
