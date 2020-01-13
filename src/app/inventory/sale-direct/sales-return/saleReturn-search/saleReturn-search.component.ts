@@ -8,6 +8,7 @@ import { SaleDirectReturnService } from '../saleReturn.service';
 import { GlobalService } from '../../../../commonServices/global.service';
 import { DependencyCheck } from '../../../../shared/validators/dependencyCheck';
 import { DatepickerComponent } from '../../../../shared/datepicker/datepicker.component';
+import { CommonService} from '../../../../commonServices/commanmaster/common.services'
 declare const $: any
 @Component({
   selector: 'app-saleReturn-search',
@@ -50,8 +51,15 @@ export class SaleReturnDirectSearchComponent {
   @Input() toShow: boolean = false
   searchForm: FormGroup
 
-  constructor (private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
-    private settings: Settings, private _saleDirectReturnService: SaleDirectReturnService, private gs: GlobalService) {}
+  constructor (public _commonService:CommonService,private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
+    private settings: Settings, private _saleDirectReturnService: SaleDirectReturnService, private gs: GlobalService) {
+  this._commonService.reDirectViewListOfSaleReturnStatus().subscribe(
+        (action: any) => {
+         this.searchForm.controls.FromDate.setValue(action.fromDate)
+         this.searchForm.controls.ToDate.setValue(action.toDate)
+        }
+      )
+    }
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
   ngOnInit () {
     this.dataValues = [
@@ -185,7 +193,7 @@ export class SaleReturnDirectSearchComponent {
   }
 
   search () {
-    if (this.searchForm.valid) {
+   if (this.searchForm.valid) {
       let fromDate = ''
       let toDate = ''
       if (!this.CountryId) {
@@ -224,7 +232,7 @@ export class SaleReturnDirectSearchComponent {
        '&LedgerId=' + this.LedgerId + 
        '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
       this._saleDirectReturnService.setSearchQueryParamsStr(queryStr)
-    }
+   }
   }
 
   resetSearch () {

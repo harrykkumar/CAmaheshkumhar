@@ -293,17 +293,7 @@ export class SaleReturnDirectAddComponent {
         }
       }
     )
-    // this.commonService.getSaleReturnDirectActionClickedStatus().subscribe(
-    //   (action: any) => {
-    //     if (action.type === FormConstants.Edit && action.formname === FormConstants.saleDirectReturn) {
-    //       this.creatingForm = true
-    //       this.editMode = true
-    //       this.Id = +action.id
-    //       this.ItemEdtMode = true
-    //       this.openModal()
-    //     }
-    //   }
-    // )
+  
     this.commonService.getAttributeStatus().pipe(takeUntil(this.onDestroy$)).subscribe(
       data => {
         if (data.id && data.name && data.AttributeId) {
@@ -681,6 +671,11 @@ export class SaleReturnDirectAddComponent {
           if (data.AttributeValueResponses.length > 0) {
             this._saleDirectService.generateAttributes(data)
           }
+          this.getBankList(data.Banks)
+          _self._saleDirectService.createSubUnits(data.SubUnits)
+          _self._saleDirectService.createTaxSlabs(data.TaxSlabs)
+          _self._saleDirectService.createCurrencies(data.Currencies)
+          _self._saleDirectService.createCharges(data.LedgerCharges)
           _self.clientStateId = data.ClientAddresses[0].StateId
           _self.TransactionNoSetups = data.TransactionNoSetups
           if (!this.editMode) {
@@ -701,11 +696,7 @@ export class SaleReturnDirectAddComponent {
           _self._saleDirectService.createGodowns(data.Godowns)
           this.SputilityIMEIData = data.ItemProperties
           this.ImeiNamelabel=data.ItemProperties[0].Name
-          _self._saleDirectService.createSubUnits(data.SubUnits)
-          _self._saleDirectService.createTaxSlabs(data.TaxSlabs)
-          _self._saleDirectService.createCurrencies(data.Currencies)
-          _self._saleDirectService.createCharges(data.LedgerCharges)
-          this.getBankList(data.Banks)
+          
 
         },
         (error) => {
@@ -1503,6 +1494,8 @@ export class SaleReturnDirectAddComponent {
   editItemFlag: boolean
   getBillSummryListFlag: boolean
   onLoading() {
+    this.initComp()
+    this.DisabledSaveBtn =false
     this.getFormDependency()
     this.BillDiscountApplied = []
     this.addressBillingValue = null
@@ -3962,6 +3955,7 @@ this.resetItemList()
     if (this.currencySelect2) {
       this.currencySelect2.setElementValue(0)
     }
+
   }
 
   initialiseExtras() {
@@ -4630,15 +4624,13 @@ this.resetItemList()
                     this.DisabledSaveBtn = false
                     this.itemFirstPosition()
                     this.commonService.closeSaleDirectReturn()
-                    this.commonService.AddedItem()
                     this.addressBillingValue = null
                     this.addressShippingValue = null
                     this.BillDiscountApplied = []
-                    _self.commonService.newPurchaseAdd()
+                    _self.commonService.newSaleDirecReturntAdd()
                     if (!this.keepOpen) {
                       this.closeModal()
                       this.commonService.closeSaleDirectReturn()
-                      // this.commonService.AfterSaveShowPrint(data)
                     } else {
                       _self.initItem()
                       _self.initTransaction()
@@ -4709,13 +4701,11 @@ this.resetItemList()
                 this.addressBillingValue = null
                 this.addressShippingValue = null
                 this.commonService.closeSaleDirectReturn()
-                this.commonService.AddedItem()
+                _self.commonService.newSaleDirecReturntAdd()
                 this.BillDiscountApplied = []
                 if (!this.keepOpen) {
                   this.closeModal()
                   this.commonService.closeSaleDirectReturn()
-
-                  // _self.commonService.AfterSaveShowPrint(data)
                 } else {
                   _self.initItem()
                   _self.initTransaction()

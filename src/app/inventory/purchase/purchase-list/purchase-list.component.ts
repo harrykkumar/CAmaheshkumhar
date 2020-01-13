@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { LoginService } from 'src/app/commonServices/login/login.services';
 /* File created by Dolly Garg */
-import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, DoCheck,OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription'
 import { Settings } from '../../../shared/constants/settings.constant'
 import { PurchaseService } from '../purchase.service'
@@ -46,6 +46,8 @@ export class PurchaseListComponent implements OnInit {
   queryStr: string = ''
   queryStr$: Subscription
   menuData: any
+  redirectviewFlag:boolean
+  redirectView:any = false
   constructor(private purchaseService: PurchaseService,
     private commonService: CommonService,
     private settings: Settings,
@@ -54,8 +56,10 @@ export class PurchaseListComponent implements OnInit {
     private _loginService: LoginService,
     private router: Router
     ) {
+
+  
     this.menuData = this._loginService.getMenuDetails(15, 9);
-    this.getPurchaseList()
+ 
     this.onDestroy$.push(this.commonService.getNewPurchaseAddedStatus().subscribe(
       () => {
         this.getPurchaseList()
@@ -74,12 +78,7 @@ export class PurchaseListComponent implements OnInit {
         }
       }
     ))
-    this.onDestroy$.push(this.commonService.reDirectViewListOfPurchaeStatus().subscribe(
-      (action: any) => {
-        this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
-        this.getPurchaseList()
-      }
-    ))
+  
     this.onDestroy$.push(this.purchaseService.queryStr$.subscribe(
       (str) => {
         console.log(str)
@@ -88,9 +87,19 @@ export class PurchaseListComponent implements OnInit {
         this.getPurchaseList()
       }
     ))
+    this.commonService.reDirectViewListOfPurchaeStatus().subscribe(
+      (action: any) => {
+        let fromDate = JSON.parse(JSON.stringify(this.gs.clientToSqlDateFormat(action.fromDate, this.settings.dateFormat)))
+        let toDate = JSON.parse(JSON.stringify(this.gs.clientToSqlDateFormat(action.toDate, this.settings.dateFormat)))
+        this.queryStr = '&DateType=0&fromDate=' + fromDate + '&toDate=' + toDate
+        this.redirectView = action.viewflag
+        this.getPurchaseList()
+      }
+    )
     this.clientDateFormat = this.settings.dateFormat
     this.noOfDecimalPoint = this.settings.noOfDecimal
   }
+ 
   noOfDecimalPoint: any = 0
   searchForStr(text) {
     this.isSearching = true
@@ -115,14 +124,14 @@ export class PurchaseListComponent implements OnInit {
 
 
   searchGetCall(term: string) {
-    if (!term) {
-      term = ''
-    }
     this.pagingComp.setPage(1)
     return this.purchaseService.getPurchaseList('?StrSearch=' + term + '&Page=' + this.p +
     '&Size=' + this.itemsPerPage + this.queryStr)
   }
-
+  ngAfterViewInit (){
+      this.getPurchaseList()
+  }
+  
   ngOnInit() {
     setTimeout(() => {
       this.commonService.fixTableHF('cat-table')
@@ -183,6 +192,8 @@ export class PurchaseListComponent implements OnInit {
       element.BillAmount = element.BillAmount.toFixed(this.noOfDecimalPoint)
       element.Discount = element.Discount.toFixed(this.noOfDecimalPoint)
       element.TaxAmount = element.TaxAmount.toFixed(this.noOfDecimalPoint)
+      element.TotalTaxableAmount = element.TotalTaxableAmount.toFixed(this.noOfDecimalPoint)
+
     })
     this.customContent = customContent
     this.customHeader = [
@@ -194,6 +205,7 @@ export class PurchaseListComponent implements OnInit {
       { text: 'Party Bill Date', isRightAligned: false },
       { text: 'Quantity', isRightAligned: true },
       { text: 'Discount', isRightAligned: true },
+      { text: 'Taxable Amt', isRightAligned: true },
       { text: 'TaxAmount', isRightAligned: true },
       { text: 'Bill Amount', isRightAligned: true },
       { text: 'Action', isRightAligned: true }
@@ -206,6 +218,7 @@ export class PurchaseListComponent implements OnInit {
       { text: 'PartyBillDate', isRightAligned: false },
       { text: 'TotalQty', isRightAligned: true },
       { text: 'Discount', isRightAligned: true },
+      { text: 'TotalTaxableAmount', isRightAligned: true },
       { text: 'TaxAmount', isRightAligned: true },
       { text: 'BillAmount', isRightAligned: true }]
     this.actionList = [
@@ -219,18 +232,18 @@ export class PurchaseListComponent implements OnInit {
     ]
     this.customFooter = [{
       colspan: 6, data: [
-        +summary[0].TotalQty.toFixed(2),
-        +summary[0].Discount.toFixed(2),
-        +summary[0].TaxAmount.toFixed(2),
-        +summary[0].BillAmount.toFixed(2)
+        +summary[0].TotalQty.toFixed(this.noOfDecimalPoint),
+        +summary[0].Discount.toFixed(this.noOfDecimalPoint),
+        +summary[0].TotalTaxableAmount.toFixed(this.noOfDecimalPoint),
+        +summary[0].TaxAmount.toFixed(this.noOfDecimalPoint),
+        +summary[0].BillAmount.toFixed(this.noOfDecimalPoint)
       ]
     }]
-    // console.log('footer : ', this.customFooter)
     this.formName = FormConstants.Purchase
     this.total = data[0] ? data[0].TotalRows : 0
     setTimeout(() => {
       this.isSearching = false
-    }, 100)
+    }, 10)
   }
 
   OnDestroy() {

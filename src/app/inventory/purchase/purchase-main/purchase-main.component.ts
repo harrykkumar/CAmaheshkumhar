@@ -97,7 +97,6 @@ export class PurchaseMainComponent {
       ).subscribe((text: string) => {
         this.purchaseService.onTextEntered(text)
       }))
-      this.expoertExceldata()
   }
   @ViewChild('purchase_add') purchaseAdd: PurchaseAddComponent
   getSPUtilityData () {
@@ -428,6 +427,7 @@ export class PurchaseMainComponent {
   mainDataExcel:any =[]
   getOrgDetailsData:any ={}
   exportExcel () {
+    this.expoertExceldata()
     if(this.mainDataExcel.length>0){
       this.excelService.generateExcel(this.getOrgDetailsData.OrganizationDetails[0].OrgName , this.getOrgDetailsData.AddressDetails[0].CityName+ ' ' +this.getOrgDetailsData.AddressDetails[0].StateName + ' ' + this.getOrgDetailsData.AddressDetails[0].CountryName,this.ExcelHeaders,this.mainDataExcel,'Purchase',"", "",this.ExcelSummary)
 

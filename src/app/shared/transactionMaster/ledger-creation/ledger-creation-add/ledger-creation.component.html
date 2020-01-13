@@ -20,7 +20,7 @@
                                                 class="control_select"
                                                 (valueChanged)="onChnageGroup($event);mandatoryField()"
                                                 autocomplete="true" [options]="{placeholder: 'Select Under Group'}"
-                                                [value]="LedgerGroupValue"
+                                                [value]="parentId"
                                                 [ngClass]="{'errorTextBoxBorder1': invalidObj?.parentId  }">
                                             </select2>
                                         </div>

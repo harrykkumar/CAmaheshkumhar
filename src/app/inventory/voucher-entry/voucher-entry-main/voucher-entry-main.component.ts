@@ -147,27 +147,14 @@ export class VoucherEntryMainComponent implements OnInit {
   orgimage:any=[]
   orgAddress:any =[]
   onPrintButton = (id, htmlID) => {
-    this.voucherService.printReceiptPayment({ id: id })
-      .pipe(
-        filter(data => {
-          if (data.Code === UIConstant.THOUSAND) {
-            return true
-          } else {
-            throw new Error(data.Description)
-          }
-        }),
-        catchError(error => {
-          return throwError(error)
-        }),
-        map(data => data.Data)
-      ).subscribe(
-        data => {
+    this.voucherService.printReceiptPayment({ id: id }).subscribe(data=>{
+        if(data.Code===1000){
           this.totalAmount = 0
-          this.printDataList = JSON.parse(JSON.stringify(data.PaymentDetails));
-          this.printHeaderData = JSON.parse(JSON.stringify(data.LedgerVoucherMsts[0]))
-          this.printOrgnizationDataList = data.ClientInfos
-          this.orgAddress = data.AddressDetails
-          this.orgimage =data.ImageContents
+          this.printDataList = JSON.parse(JSON.stringify(data.Data.PaymentDetails));
+          this.printHeaderData = JSON.parse(JSON.stringify(data.Data.LedgerVoucherMsts[0]))
+          this.printOrgnizationDataList = data.Data.ClientInfos
+          this.orgAddress = data.Data.AddressDetails
+          this.orgimage =data.Data.ImageContents
           _.forEach(this.printDataList, (item) => {
             if (item.Amount) {
               this.totalAmount = this.totalAmount + Number(item.Amount)
@@ -179,12 +166,8 @@ export class VoucherEntryMainComponent implements OnInit {
           setTimeout(() => {
             this.printComponent(htmlID)
           }, 1000)
-        },
-        (error) => {
-          console.log(error)
-          this.toastrService.showError(error, '')
         }
-      )
+    })
   }
 
   printComponent(cmpName) {

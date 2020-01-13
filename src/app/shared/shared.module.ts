@@ -54,6 +54,8 @@ import { AgmCoreModule } from '@agm/core';
 import { ViewMapComponent } from '../crm/view-map/view-map.component';
 import { AgmDirectionModule} from 'agm-direction';
 import { EmailEditorModule } from 'angular-email-editor';
+import {NgxDnDModule} from '@swimlane/ngx-dnd';
+import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 const YOUR_GOOGLE_MAPS_API_KEY = ''
 @NgModule({
   imports: [
@@ -81,7 +83,9 @@ const YOUR_GOOGLE_MAPS_API_KEY = ''
       apiKey: YOUR_GOOGLE_MAPS_API_KEY
     }),
     AgmDirectionModule,
-    EmailEditorModule
+    EmailEditorModule,
+    NgxDnDModule,
+    AutocompleteLibModule
   ],
   exports: [
     CommonModule,
@@ -137,7 +141,9 @@ const YOUR_GOOGLE_MAPS_API_KEY = ''
     AddCrmCustomerComponent,
     AddUserDealerLinkComponent,
     EmailEditorModule,
-    EmailEditorCustomComponent
+    EmailEditorCustomComponent,
+    NgxDnDModule,
+    AutocompleteLibModule
   ],
   declarations: [
     ControlMessageComponent,

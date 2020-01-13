@@ -55,8 +55,7 @@ export class SaleReturnDirectListComponent implements OnInit {
     private _loginService: LoginService
     ) {
     this.menuData = this._loginService.getMenuDetails(42, 9);
-   this.getSaleReturnList()
-    this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
+    this.newPurchaseSub = this.commonService.getNewSaleDirectReturnAddedStatus().subscribe(
       () => {
         this.getSaleReturnList()
       }
@@ -84,9 +83,12 @@ export class SaleReturnDirectListComponent implements OnInit {
         this.getSaleReturnList()
       }
     )
-    this.redirectData = this.commonService.reDirectViewListOfSaleStatus().subscribe(
+    this.commonService.reDirectViewListOfSaleReturnStatus().subscribe(
       (action: any) => {
-        this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
+        let fromDate = JSON.parse(JSON.stringify(this.gs.clientToSqlDateFormat(action.fromDate, this.settings.dateFormat)))
+        let toDate = JSON.parse(JSON.stringify(this.gs.clientToSqlDateFormat(action.toDate, this.settings.dateFormat)))
+        this.queryStr = '&fromDate=' + fromDate + '&toDate=' + toDate
+        //this.redirectView = action.viewflag
         this.getSaleReturnList()
       }
     )
@@ -128,6 +130,7 @@ export class SaleReturnDirectListComponent implements OnInit {
   }
 
   ngOnInit () {
+    this.getSaleReturnList()
     this._loaderService.hide()
     setTimeout(() => {
       this.commonService.fixTableHF('cat-table')

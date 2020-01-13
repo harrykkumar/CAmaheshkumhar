@@ -48,7 +48,7 @@
                             <label>Ledger Name</label>
                             <input #ledgerName type="text" class="form-control" (input)="
                               reapeatName($event.target.value);redMarkLabel();
-                             " placeholder="Enter Ledger Name" name="customername" 
+                             " placeholder="Enter Ledger Name" name="customername"
                               [(ngModel)]="customerName"
                               [ngClass]="{errorSelecto: invalidObj?.customerName}" />
                           </div>
@@ -140,7 +140,7 @@
                                   <tr class="default_row" *ngFor="let item of mobileArray; let i = index">
                                     <td class="profile-pic1">
                                       <div class="edit1">
-                                        <a (click)="deleteArrayMobileType(i, 'contact')" 
+                                        <a (click)="deleteArrayMobileType(i, 'contact')"
                                           *ngIf="mobileArray.length > 0">
                                           <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
                                         </a>
@@ -208,11 +208,11 @@
                                   <tr class="default_row" *ngFor="let item of emailArray; let i = index">
                                     <td class="profile-pic1">
                                       <div class="edit1">
-                                        <a (click)="deleteArrayMobileType(i, 'email')" 
+                                        <a (click)="deleteArrayMobileType(i, 'email')"
                                           *ngIf="emailArray.length > 0">
                                           <i class="fa fa-trash fa-1x" aria-hidden="true"></i>
                                         </a>
-                                        <a (click)="editRowItem(i, 'email', item.Id)" 
+                                        <a (click)="editRowItem(i, 'email', item.Id)"
                                           *ngIf="emailArray.length > 0"><i
                                             class="fas fa-pen fa-1x"></i>
                                         </a>
@@ -236,7 +236,7 @@
                                       </button>
                                     </td>
                                     <td>
-                                      <select2 #select_emailtype [data]="emailTypeData" 
+                                      <select2 #select_emailtype [data]="emailTypeData"
                                         style="width:120px !important;"
                                         class="control_select " (valueChanged)="onChangeEmailType($event)"
                                         autocomplete="true">
@@ -244,7 +244,7 @@
                                     </td>
 
                                     <td>
-                                      <input #emailRef (keydown.enter)="pressEnterEmailadd($event)" 
+                                      <input #emailRef (keydown.enter)="pressEnterEmailadd($event)"
                                         name="EmailAddress" (input)="redMarkLabel()"
                                         type="email" class="form-control" [(ngModel)]="EmailAddress"
                                         [ngClass]="{ errorSelecto: !checkvalidationEmail() || invalidObj?.EmailAddress }" />
@@ -378,21 +378,21 @@
                               </div>
                             </div>
                             <div class="form-group col-md-4">
-                              <label for="org_code88">{{GstinNoValue}}</label>
+                              <label for="orgElementId">{{GstinNoValue}}</label>
                               <input #gstRef
                                [disabled]='disabledGSTfor_UnRegi'
-                              (input)="chekGSTvalidation();splitGSTNumber();redMarkLabel()" style="text-transform:uppercase" 
+                              (input)="chekGSTvalidation();splitGSTNumber();redMarkLabel()" style="text-transform:uppercase"
                                 [ngClass]="{'errorSelecto': !chekGSTvalidation() }" type="text"
-                                class="form-control" placeholder="{{GstinNoValue}}" id="org_code88" name="gstin"
+                                class="form-control" placeholder="{{GstinNoValue}}" id="orgElementId" name="orgElementName"
                                 [(ngModel)]="gstin" />
                             </div>
                             <div class="form-group col-md-4">
-                              <label for="org_code99">{{PanNoValue}}</label>
-                              <input #panRef 
-                             
+                              <label for="panElementId">{{PanNoValue}}</label>
+                              <input #panRef
+
                                 style="text-transform:uppercase"
                                 [ngClass]="{'errorSelecto': !checkPANNumberValid() }" type="text" placeholder="{{PanNoValue}}"
-                                class="form-control" id="org_code99" name="panno" [(ngModel)]="panNo" />
+                                class="form-control" id="panElementId" name="panno" [(ngModel)]="panNo" />
                             </div>
                           </div>
                         </div>

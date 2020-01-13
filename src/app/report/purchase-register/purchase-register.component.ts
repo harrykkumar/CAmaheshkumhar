@@ -148,7 +148,6 @@ export class PurchaseRegisterComponent implements OnInit, AfterViewInit {
     this.pageNo = event
     this.getPurchaseRegisterData()
   }
-
   onPageSizeChange = (event) => {
     this.pageSize = event
     this.isViewPrint = false
@@ -159,19 +158,20 @@ export class PurchaseRegisterComponent implements OnInit, AfterViewInit {
     this.lastItemIndex = event
   }
   redirectToSaleInvoice (item,type) {
-    let fromDate =  this._globalService.utcToClientDateFormat(item.StartDate, 'm/d/Y')
-    let toDate =  this._globalService.utcToClientDateFormat(item.Todate, 'm/d/Y')
+    let fromDate =  this._globalService.utcToClientDateFormat(item.StartDate, this.clientDateFormat)
+    let toDate =  this._globalService.utcToClientDateFormat(item.Todate, this.clientDateFormat)
     let obj={
       fromDate :fromDate,
-      toDate :toDate
+      toDate :toDate,
+      viewFlag:false
     }
     if(type==='Purchase'){
-      this._commonService.reDirectViewListOfPurchase(obj)
       this._router.navigate(['ims/purchase'])
+      this._commonService.reDirectViewListOfPurchase(obj)
     }
     if(type==='PurchaseReturn'){
-      this._commonService.reDirectViewListOfPurchase(obj)
       this._router.navigate(['ims/purchase-return'])
+      this._commonService.reDirectViewListOfPurchaseReturn(obj)
     }
 
   }

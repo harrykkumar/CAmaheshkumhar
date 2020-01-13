@@ -5730,3 +5730,11 @@ agm-map {
 .group-action li.active {
   background: #33b5e5;
 }
+
+.ng-autocomplete {
+  width: inherit !important
+}
+
+.autocomplete-invalid .input-container input {
+  border-left: 2px solid red !important;
+}

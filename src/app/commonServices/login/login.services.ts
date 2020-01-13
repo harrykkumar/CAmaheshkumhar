@@ -75,6 +75,7 @@ export class LoginService {
           }
         },
         (error) => {
+          this.spinner.hide()
         }
       )
     })
@@ -237,9 +238,6 @@ getModuleIdForAccount(){
         this.selectedOrganization = { ...this.organizationList[0] }
         const token = await this.extendJwtToken({ OrgId: this.selectedOrganization.Id })
         this.tokenService.saveToken(token)
-        // await this.companyProfileService.getOrgDetails()
-        // localStorage.setItem('SELECTED_ORGANIZATION', JSON.stringify(this.selectedOrganization))
-        // this.mapBranch(this.selectedOrganization);
         this.setOrganization()
       } else {
         this.router.navigate(['organizations']);
@@ -283,14 +281,6 @@ getModuleIdForAccount(){
         if (token) {
           this.tokenService.saveToken(token)
           this.setBranch(selectedOrganization)
-          // localStorage.setItem('SELECTED_BRANCH', JSON.stringify(this.selectedBranch))
-          // const finYear = JSON.parse(localStorage.getItem('SELECTED_FIN_YEAR'));
-          // if (!_.isEmpty(finYear) && selectedOrganization.Id === finYear.OrgId) {
-          //   this.mapModules(selectedOrganization);
-          // } else {
-          //   localStorage.removeItem('SELECTED_FIN_YEAR');
-          //   this.mapFinYear(selectedOrganization);
-          // }
         }
       } else {
         this.router.navigate([`org-branches`]);
@@ -328,10 +318,6 @@ getModuleIdForAccount(){
         if (token) {
           this.tokenService.saveToken(token)
           this.setFinYear(selectedOrganization)
-          // this.settings.finFromDate = this.selectedFinYear.FromDate
-          // this.settings.finToDate = this.selectedFinYear.ToDate
-          // localStorage.setItem('SELECTED_FIN_YEAR', JSON.stringify(this.selectedFinYear))
-          // this.mapModules(selectedOrganization);
         }
       }
     }
@@ -352,14 +338,6 @@ getModuleIdForAccount(){
     } else {
       if (this.userData.Modules.length === 1) {
         this.selectedUserModule = { ...this.userData.Modules[0] }
-        // await this.getAllSettings(this.userData.Modules[0].Id)
-        // this.selectedUserModule['index'] = 0
-        // localStorage.setItem('SELECTED_MODULE', JSON.stringify(this.selectedUserModule))
-        // if (this.selectedUserModule.Id === 4) {
-        //   this.router.navigate(['crm/dashboard']);
-        // } else {
-        //   this.router.navigate(['dashboard'])
-        // }
         this.setModule()
       } else {
         this.router.navigate(['modules'])
@@ -367,15 +345,15 @@ getModuleIdForAccount(){
     }
   }
 
- async setModule(data?){
+  async setModule(data?) {
+    this.selectedUserModule['index'] = 0
+    localStorage.setItem('SELECTED_MODULE', JSON.stringify(this.selectedUserModule))
     await this.getAllSettings(this.selectedUserModule.Id)
-        this.selectedUserModule['index'] = 0
-        localStorage.setItem('SELECTED_MODULE', JSON.stringify(this.selectedUserModule))
-        if (this.selectedUserModule.Id === 4) {
-          this.router.navigate(['crm/dashboard']);
-        } else {
-          this.router.navigate(['dashboard'])
-        }
+    if (this.selectedUserModule.Id === 4) {
+      this.router.navigate(['crm/dashboard']);
+    } else {
+      this.router.navigate(['dashboard'])
+    }
   }
 
   getFinancialYearList(data) {
@@ -411,9 +389,9 @@ getModuleIdForAccount(){
 
   getAllSettings(id): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.getModuleSetting(id).subscribe(async (data) => {
+      this.getModuleSetting(id).subscribe(
+        async (data) => {
         if (data.Code === UIConstant.THOUSAND && data.Data) {
-          console.log('module id : ', id)
           await this.gs.getAllSettings(data.Data, id)
           resolve('')
         } else {

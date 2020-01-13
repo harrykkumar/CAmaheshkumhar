@@ -26,34 +26,29 @@
         >
           <div class="card-body">
             <div class="form-row">
-              <!-- <div class="form-group col-md-12">
-                <label>Select Unit Code</label>
-                <ng-select
-                  id="selectUnitCodeElementId"
-                  name="selectUnitCodeElementName"
-                  [items]="unitCodeData"
-                  bindLabel="CommonDesc"
-                  bindValue="UId"
-                  placeholder="Select Unit Code"
-                  [(ngModel)]="selectedUnitCode"
-                  (change)="onChangeUnitCode($event)"
-                >
-                </ng-select>
-              </div> -->
               <div class="form-group col-md-12">
                 <label>Unit Code</label>
-                <input
-                  type="text"
-                  id="unitCodeElementId"
-                  class="form-control"
-                  placeholder="Enter Code"
-                  (keyup.tab)="keepOpen = false"
-                  formControlName="UnitCode"
-                  [ngClass]="{
-                    'errorSelecto':
-                      (submitClick && f.UnitCode.errors?.required)
-                  }"
-                />
+                <div class="ng-autocomplete">
+                  <ng-autocomplete #auto
+                    [data]="unitCodeData"
+                    [searchKeyword]="'CommonDesc'"
+                    formControlName="UnitCode"
+                    placeHolder="Select Unit Code"
+                    [itemTemplate]="itemTemplate"
+                    [notFoundTemplate]="notFoundTemplate"
+                    [ngClass]="{
+                      'autocomplete-invalid':
+                        (submitClick && f.UnitCode.errors?.required)
+                    }"
+                    >
+                  </ng-autocomplete>
+                  <ng-template #itemTemplate let-item>
+                    <a [innerHTML]="item.CommonDesc"></a>
+                  </ng-template>
+                  <ng-template #notFoundTemplate let-notFound>
+                    <div [innerHTML]="notFound"></div>
+                  </ng-template>
+                </div>
               </div>
               <div class="form-group col-md-12">
                 <label>Unit Code Name</label>
@@ -87,10 +82,6 @@
                 >
                 </ng-select>
               </div>
-              <!-- <div class="form-group col-md-12">
-                <label>Measurement Type</label>
-                <input type="text" class="form-control" />
-              </div> -->
             </div>
           </div>
         </form>

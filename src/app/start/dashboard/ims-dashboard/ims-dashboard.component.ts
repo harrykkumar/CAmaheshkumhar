@@ -18,7 +18,7 @@ import { ChartOptions, Chart, ChartType, ChartDataSets } from 'chart.js';
 })
 export class DashboardComponent {
   DateFormate: any
-  
+
   @ViewChild('AssetsId') AssetsId: ElementRef;
   @ViewChild('FincialPNL') FincialPNL: ElementRef;
   @ViewChild('LiabilitiesId') LiabilitiesId: ElementRef;
@@ -109,7 +109,7 @@ export class DashboardComponent {
     this.fromDate = this.gs.convertToSqlFormat(this._settings.finFromDate)
 
   }
-  chartLoader:boolean 
+  chartLoader:boolean
   getAssetLiblity() {
     this._commonService.getDashBoardAssestsLiabilities(this.fromDate, this.todate).subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND) {
@@ -136,7 +136,7 @@ export class DashboardComponent {
                 element.GlName
               )
             }
-            
+
           });
         }
         else{
@@ -145,8 +145,7 @@ export class DashboardComponent {
           this.LiabilitieschartData = [100]
           this.LiabilitieschartLabels = ['']
         }
-        console.log( this.assetsLabelData)
-    
+
         this.chartLoader = false
         let assets = (<HTMLCanvasElement>this.AssetsId.nativeElement).getContext('2d');
 
@@ -155,10 +154,10 @@ export class DashboardComponent {
           data: {
             labels: this.assetsLabelData,
             datasets: [{
-              data: this.assetsAmountData, 
+              data: this.assetsAmountData,
 
-              borderColor: ['#ffffff'], 
-              backgroundColor: ['#3333cc', '#0066ff', '#ff8080', '#ace600', '#ff9933', '#00ace6', '#99994d'], 
+              borderColor: ['#ffffff'],
+              backgroundColor: ['#3333cc', '#0066ff', '#ff8080', '#ace600', '#ff9933', '#00ace6', '#99994d'],
               fill: false
             }]
           },
@@ -166,7 +165,7 @@ export class DashboardComponent {
             legend: {
                 display: false,
                 fullWidth:true,
-                
+
             }
         }
         }
@@ -179,7 +178,7 @@ export class DashboardComponent {
             datasets: [{
               data: this.LiabilitieschartData, // Specify the data values array
 
-              borderColor: ['#ffffff'], // Add custom color border 
+              borderColor: ['#ffffff'], // Add custom color border
               backgroundColor: ['#809fff', '#3fb5a3', '#00cc99', '#3fb5a5', '#b53f51', '#3fb5a3', '#3f8cb5'], // Add custom color background (Points and Fill)
               borderWidth: 1 // Specify bar border width
             }]
@@ -187,7 +186,7 @@ export class DashboardComponent {
           options: {
             legend: {
                 display: false,
-               
+
             }
         }
         });
@@ -204,7 +203,6 @@ export class DashboardComponent {
   getCashInCashOut() {
     this._commonService.getDashBoardCashInCashOut(this.fromDate, this.todate).subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND) {
-        console.log(resp, 'getCashInCashOut')
         this.CashIn = []
         this.CashOut = []
 
@@ -228,7 +226,7 @@ export class DashboardComponent {
             labels: fincialLable,
             datasets: [{
               data: this.fincialdata,
-              backgroundColor: ['#99c2ff'], // Add custom color background (Points and Fill) 
+              backgroundColor: ['#99c2ff'], // Add custom color background (Points and Fill)
 
             }]
           },
@@ -239,7 +237,6 @@ export class DashboardComponent {
             tooltips: {
               callbacks: {
                 label: function(tooltipItem) {
-                console.log(tooltipItem)
                   return tooltipItem.yLabel;
                 }
               }
@@ -249,7 +246,7 @@ export class DashboardComponent {
         let ctx = (<HTMLCanvasElement>this.FincialPNL.nativeElement).getContext('2d');
 
         new Chart(ctx, config);
-  
+
         let cashConfig = {
           type: 'bar',
           data: {
@@ -267,9 +264,9 @@ export class DashboardComponent {
             ,
               labels:  this.ChartflowLabelData
           },
-         
+
       }
-        
+
       let cashFlow = (<HTMLCanvasElement>this.cashFlowId.nativeElement).getContext('2d');
 
       new Chart(cashFlow, cashConfig);
@@ -285,7 +282,6 @@ export class DashboardComponent {
     this._commonService.getDashboardInventory(this.fromDate, this.todate,'active').subscribe(resp => {
       if (resp.Code === UIConstant.THOUSAND) {
         this.InventoryGrowths = resp.Data
-        console.log(resp, 'getInventory')
       }
     })
   }
@@ -303,7 +299,6 @@ export class DashboardComponent {
       if (resp.Code === UIConstant.THOUSAND) {
         this.salePurchaseOverDue = resp.Data
         this.changeType('sale')
-        console.log(resp, 'getOverDues')
       }
     })
   }
@@ -314,7 +309,7 @@ export class DashboardComponent {
         if(resp.Data.length>0){
           this.Creditor = resp.Data
         }
-        
+
       }
     })
     this._commonService.getDashboardCreditorDebitors(this.fromDate, this.todate, 'Debtors').subscribe(resp => {
@@ -325,10 +320,8 @@ export class DashboardComponent {
   }
 
   public chartHovered({ event, active }: { event: MouseEvent, active: {}[] }): void {
-    console.log(event, active);
   }
   public chartClicked({ event, active }: { event: MouseEvent, active: {}[] }): void {
-    console.log(event, active);
   }
 
   clientDateFormat: any = ''
@@ -383,7 +376,7 @@ export class DashboardComponent {
     }
 }
 chartLoaderFinacial:boolean
- 
+
   public barChartOptions: ChartOptions = {
     responsive: true,
     scales: { xAxes: [{}], yAxes: [{}] },
@@ -417,7 +410,7 @@ chartLoaderFinacial:boolean
   }
   gstrReport (){
       this.router.navigate(['/report/gstr-summary'])
-    
+
   }
-  
+
 }

@@ -1,5 +1,5 @@
 import { ApiConstant } from 'src/app/shared/constants/api';
-import { Component, ViewChild, Renderer2, ElementRef } from '@angular/core'
+import { Component, ViewChild, Renderer2, ElementRef, AfterViewInit } from '@angular/core'
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms'
 import { UnitModel, AddCust, ResponseUnit } from '../../../../model/sales-tracker.model'
 import { Subscription } from 'rxjs/Subscription'
@@ -7,6 +7,7 @@ import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { UnitMasterServices } from '../../../../commonServices/TransactionMaster/unit-mater.services'
 import { UIConstant } from '../../../constants/ui-constant'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
+import { AutocompleteComponent } from 'angular-ng-autocomplete';
 
 declare const $: any
 @Component({
@@ -15,6 +16,7 @@ declare const $: any
   styleUrls: ['./unit-add.component.css']
 })
 export class UnitAddComponent {
+  @ViewChild('auto') auto : AutocompleteComponent;
   id: any
   unitForm: FormGroup
   UnitName: FormControl
@@ -32,11 +34,11 @@ export class UnitAddComponent {
     private commonService: CommonService,
     private renderer: Renderer2
     ) {
-    this.getSelectData(205)
-    this.getSelectData(207)
     this.modalSub = this.commonService.getUnitStatus().subscribe(
       (data: AddCust) => {
         if (data.open) {
+          this.getSelectData(205)
+          this.getSelectData(207)
           if (data.editId !== '') {
             this.editMode = true
             this.id = data.editId
@@ -64,13 +66,11 @@ export class UnitAddComponent {
   getEditUnit (id) {
     this._unitmasterServices.getUnit(id).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND && data.Data.length > 0) {
-        // this.unitForm.controls.UnitName.setValue(data.Data[0].Name)
         this.unitForm.patchValue({
           UnitName : data.Data[0].Name,
           MeasurementId : data.Data[0].MeasurementId,
           UnitCode: data.Data[0].UnitCode,
         })
-        //this.unitForm.controls.IsBaseUnit.setValue(data.Data[0].IsBaseUnit)
         this.unitForm.controls.UnitName.markAsDirty()
       }
     })
@@ -87,10 +87,6 @@ export class UnitAddComponent {
     this.unitFormDetail()
     $('#unit_master').modal(UIConstant.MODEL_SHOW)
     setTimeout(() => {
-      // if (this.first) {
-      //   const element = this.renderer.selectRootElement(this.first.nativeElement, true)
-      //   element.focus({ preventScroll: false })
-      // }
       $('#unitCodeElementId').focus()
     }, 300)
   }
@@ -120,7 +116,7 @@ export class UnitAddComponent {
       unitObj: {
         IsBaseUnit: this.unitForm.value.IsBaseUnit,
         UnitName: this.unitForm.value.UnitName.trim(),
-        UnitCode: this.unitForm.value.UnitCode.trim(),
+        UnitCode: (typeof this.unitForm.value.UnitCode === "object") ? this.unitForm.value.UnitCode.CommonDesc : this.unitForm.value.UnitCode.trim(),
         MeasurementId: this.unitForm.value.MeasurementId,
         Id: this.id ? this.id : 0
       } as UnitModel
@@ -162,10 +158,6 @@ export class UnitAddComponent {
     this.unitForm.controls.UnitCode.setValue('')
     this.unitForm.controls.MeasurementId.setValue(null)
     setTimeout(() => {
-      // if (this.first) {
-      //   const element = this.renderer.selectRootElement(this.first.nativeElement, true)
-      //   element.focus({ preventScroll: false })
-      // }
       $('#unitCodeElementId').focus()
     }, 10)
   }
@@ -182,6 +174,9 @@ export class UnitAddComponent {
         } else if(code === 207) {
           this.unitCodeData = [...res.Data]
         }
+      } else {
+        this.measurementData = []
+        this.unitCodeData = []
       }
     })
   }

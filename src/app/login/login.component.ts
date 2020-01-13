@@ -52,7 +52,7 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       this.spinnerService.show();
       this._loginService.login(this.LoginParms()).subscribe(
-        data => {
+        (data) => {
           if (data.Code === 5003) {
             this._toastrCustomService.showError('', data.Message)
             this.spinnerService.hide();
@@ -60,7 +60,6 @@ export class LoginComponent {
           if (data.Code ===UIConstant.THOUSAND && data.Data != null) {
             this.tokenService.saveToken(data.Data.Token)
             this._loginService.setDetailsForIsdOne(data.Data)
-            // this._loginService.mapOrganizations(data.Data);
           } else {
             this.invalidUser = true
             this.errorMessage = ErrorConstant.INVALID_USER
@@ -68,6 +67,10 @@ export class LoginComponent {
             this.submitClick = false
             this.spinnerService.hide();
           }
+        },
+        (error) => {
+          console.log(error)
+          this.spinnerService.hide()
         }
       )
     }
@@ -78,7 +81,8 @@ export class LoginComponent {
       loginObj: {
         username: this.loginForm.value.username,
         customerId: this.loginForm.value.customerId,
-        password: this.loginForm.value.password
+        password: this.loginForm.value.password,
+        Type: 'Web'
       } as LoginModel
     }
     return loginElement.loginObj

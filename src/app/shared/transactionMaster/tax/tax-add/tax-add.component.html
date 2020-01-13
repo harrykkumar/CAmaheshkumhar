@@ -23,10 +23,10 @@
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
-                                    <label for="tax_slab1">Name of Tax</label>
+                                    <label for="taxElementId">Name of Tax</label>
                                     <input  (input)="checkValidation()" type="text"
                                         [ngClass]="{ 'errorSelecto': invalidObjSlab?.slab && submitClick }"
-                                        #first class="form-control" id="tax_slab1" name='slab1'
+                                        #first class="form-control" id="taxElementId" name='slab1'
                                         placeholder="Name of Tax" [(ngModel)]="slab">
                                 </div>
                                 <div class="form-group col-md-4">

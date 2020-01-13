@@ -4024,7 +4024,7 @@ export class PurchaseDirectReturnAddComponent {
                     this.DisabledSaveBtn = false
                     this.itemFirstPosition()
                     this.BillDiscountApplied = []
-                    _self.commonService.newPurchaseAdd()
+                    _self.commonService.newPurchaseDirecReturntAdd()
                     if (!this.keepOpen) {
                       _self.commonService.closePurchaseDirectReturn()
                     } else {
@@ -4089,7 +4089,7 @@ export class PurchaseDirectReturnAddComponent {
                 this.DisabledSaveBtn = false
                 this.itemFirstPosition()
                 this.BillDiscountApplied = []
-                _self.commonService.newPurchaseAdd()
+                _self.commonService.newPurchaseDirecReturntAdd()
                 if (!this.keepOpen) {
                   _self.commonService.closePurchaseDirectReturn()
                 } else {

@@ -1042,6 +1042,7 @@ export class PurchaseAddComponent {
     else {
       this.isCaseSaleFlag = true
     }
+    this.RemarkPurchase= others.Remark
     this.ReferralId = others.ReferralId
     this.ReferralTypeId = others.ReferralTypeId
     this.ReverseCharge = 0
@@ -1309,7 +1310,9 @@ export class PurchaseAddComponent {
     this.CaseCustId = 0
   }
   caseSaleArrayId: any = []
+  RemarkPurchase:any
   onLoading() {
+    this.RemarkPurchase =''
     this.caseSaleCustomerDetails = []
     this.caseSaleArrayId = [{ id: 6 }, { id: 5 }]
     this.preQty = 0
@@ -3550,6 +3553,7 @@ export class PurchaseAddComponent {
     })
     const purchaseAddParams = {
       obj: {
+        Remark :this.RemarkPurchase,
         Id: this.Id ? this.Id : UIConstant.ZERO,
         ReferralCommissionTypeId: +this.ReferralCommissionTypeId,
         ReferralCommission: +this.ReferralCommission,

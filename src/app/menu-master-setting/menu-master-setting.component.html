@@ -118,9 +118,15 @@
                           </div>
                           <div class="col-4" style="display: flex;justify-content: center;flex-direction: column;">
                             <!-- <div class="font-weight-bold">Default {{setting.name}}</div> -->
-                            <select class="form-control" >
+                            <select class="form-control" (change)="setting.DefaultValue = $event.target.value">
                               <option value="-1" >Select Default {{setting.name}}</option>
-                              <option value="2" *ngFor="let opt of error.value;let i = index" [selected]="i==0">{{opt}}</option>
+                              <option [value]="opt" *ngFor="let opt of error.value;let i = index" [selected]="setting.DefaultValue == opt">
+                                <div *ngFor="let data of error.data">
+                                  <div *ngIf="data.id == opt">
+                                    {{data.text}}
+                                  </div>
+                                </div>
+                              </option>
                             </select>
                           </div>
                         </div>

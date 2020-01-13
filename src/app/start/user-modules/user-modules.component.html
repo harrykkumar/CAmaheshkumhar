@@ -9,19 +9,6 @@
       <li style="padding-top: 10px;" class="text-right">
         <div>
           <b>{{ loggedinUserData?.Name }}</b>
-          <!-- <span
-            ><b
-              >({{
-                loggedinUserData?.fromDate | dateFormat: clientDateFormat
-              }}</b
-            >
-            -
-          </span>
-          <span
-            ><b
-              >{{ loggedinUserData?.toDate | dateFormat: clientDateFormat }})</b
-            ></span
-          > -->
         </div>
         <div>
           <span class="fsz-xsm c-grey-900">
@@ -105,9 +92,8 @@
     <div class="row">
       <div class="col-md-8">
         <div class="row head_sub">
-         
+
           <div class="col-md-12">
-            <!-- <p>This is process where can add multiple organization</p> -->
           </div>
         </div>
         <div class="row justify-content-md-center align-self-center">
@@ -120,7 +106,7 @@
       <div class="col-md-4">
         <div
           class="highlight_box2"
-          *ngFor="let module of _loginService?.userData?.Modules; let i = index"
+          *ngFor="let module of _loginService?.userData?.Modules; let i = index;"
         >
           <a (click)="navigateTo('dashboard', module, i)">
             <div class="row">

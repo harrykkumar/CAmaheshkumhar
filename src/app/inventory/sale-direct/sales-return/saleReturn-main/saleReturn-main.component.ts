@@ -105,7 +105,7 @@ export class SaleReturnDirectMainComponent {
     ).subscribe((text: string) => {
       this._saleDirectReturnService.onTextEntered(text)
     })
-    this.expoertExceldata()
+   
   }
   @ViewChild('saleReturn_add') purchaseAdd: SaleDirectReturnComponent
   @ViewChild('saleDirectReturn_add') saleDirectReturnAdd: SaleReturnDirectAddComponent
@@ -491,6 +491,7 @@ export class SaleReturnDirectMainComponent {
     })
   }
   exportExcel() {
+    this.expoertExceldata()
     if (this.mainDataExcel.length > 0) {
       this.excelService.generateExcel(this.getOrgDetails.OrganizationDetails[0].OrgName, this.getOrgDetails.AddressDetails[0].CityName + ' ' + this.getOrgDetails.AddressDetails[0].StateName + ' ' + this.getOrgDetails.AddressDetails[0].CountryName, this.ExcelHeaders, this.mainDataExcel, 'Sale Return', "", "", this.ExcelSummary)
     }

@@ -10,6 +10,7 @@ import { DependencyCheck } from '../../../shared/validators/dependencyCheck';
 import { DatepickerComponent } from '../../../shared/datepicker/datepicker.component';
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 import { Subscription, fromEvent, throwError } from 'rxjs';
+import { Router } from '@angular/router';
 
 declare const $: any
 @Component({
@@ -53,29 +54,19 @@ export class SaleDirectSearchComponent {
   searchForm: FormGroup
   dataStatus: any = []
   queryStr:any=''
-  constructor(public _commonService:CommonService,private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
+  queryStr$: Subscription
+
+  constructor(public _router: Router,public _commonService:CommonService,private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
     private settings: Settings, private _saleDirectService: SaleDirectService, private gs: GlobalService) { 
 
-      // this.redirectData = this._commonService.reDirectPrintSaleStatus().subscribe(
-      //   (action: any) => {
-      //     alert(8888)
-      //   //   this.searchForm.controls.FromDate.setValue(action.fromDate)
-      //   //  this.searchForm.controls.ToDate.setValue(action.toDate)
-      //   //   this.search()
-          
-      //   }
-      // )
-      // this.redirectData = this._commonService.reDirectViewListOfSaleStatus().subscribe(
-      //   (action: any) => {
-      //     alert(5)
-      //     this.searchForm.value.FromDate = action.fromDate
-      //     this.searchForm.value.ToDate= action.toDate
-      //     //this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
-      //     this.search()
-      //   }
-      // )
-
-    }
+      this._commonService.reDirectViewListOfSaleStatus().subscribe(
+        (action: any) => {
+         this.searchForm.controls.FromDate.setValue(action.fromDate)
+         this.searchForm.controls.ToDate.setValue(action.toDate)
+        }
+      )
+      }
+    
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
   ngOnInit() {
     this.dataValues = [
@@ -90,7 +81,7 @@ export class SaleDirectSearchComponent {
     this.getCountryList()
   }
   ngOnDestroy() {
-    //this.redirectData.unsubscribe()
+    //this.queryStr.unsubscribe()
 
   }
   createForm() {
@@ -216,9 +207,31 @@ export class SaleDirectSearchComponent {
   }
   getValue (evt){
   }
+searchbyDate(){
+  let fromDate = ''
+  let toDate = ''
+  if (!this.searchForm.value.FromDate) {
+    fromDate = ''
+  } else {
+    fromDate = JSON.parse(JSON.stringify(this.gs.clientToSqlDateFormat(this.searchForm.value.FromDate, this.settings.dateFormat)))
+  }
+  if (!this.searchForm.value.ToDate) {
+    toDate = ''
+  } else {
+    toDate = JSON.parse(JSON.stringify(this.gs.clientToSqlDateFormat(this.searchForm.value.ToDate, this.settings.dateFormat)))
+  }
 
+  const queryStr =  '&Status=' + 0 + '&DateType=' + this.DateType +
+  '&FromDate=' + fromDate +
+  '&ToDate=' + toDate +
+  '&FromAmount=' + +this.searchForm.value.FromAmount +
+  '&ToAmount=' + +this.searchForm.value.ToAmount +
+  '&LedgerId=' + this.LedgerId +
+  '&CountryId=' + 0 + '&StateId=' + 0 + '&CityId=' + 0
+
+}
   search() {
-    if (this.searchForm.valid) {
+   // if (this.searchForm.valid) {
       let fromDate = ''
       let toDate = ''
       if (!this.CountryId) {
@@ -257,7 +270,7 @@ export class SaleDirectSearchComponent {
         '&LedgerId=' + this.LedgerId +
         '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
       this._saleDirectService.setSearchQueryParamsStr(queryStr)
-    }
+   //}
   }
   StausValue :any
   resetSearch() {
@@ -305,8 +318,6 @@ export class SaleDirectSearchComponent {
     if (this.searchForm.value.FromDate && this.searchForm.value.ToDate) {
       if (!this.gs.compareDate(this.searchForm.value.ToDate, this.searchForm.value.FromDate)) {
         this.searchForm.controls.ToDate.setValue('')
-        // console.log(this.searchForm.value.ToDate)
-        //this.searchForm.value.FromDate
       }
     }
   }

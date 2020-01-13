@@ -13,6 +13,7 @@ import { select2Return } from '../../../../super-admin/super-admin.model';
 import { map } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { AddCust } from '../../../../model/sales-tracker.model';
+import { NgxSpinnerService } from 'ngx-spinner';
 /**
  * Component created by dolly garg
  */
@@ -50,7 +51,8 @@ export class LedgerImportComponent {
   constructor (private commonService: CommonService,
      private gs: GlobalService, private toastrService: ToastrCustomService,
      private ledgerService: LedgerCreationService,
-     private _itemmasterServices: ItemmasterServices
+     private _itemmasterServices: ItemmasterServices,
+     private spinner:NgxSpinnerService
      ) {
     this.toShow = {'IsMsmed': false, 'IsRcm': false, 'TaxSlabId': false, 'ITCType': false, 'RCMType': false, 'HsnNo': false}
     this.modalOpen = this.ledgerService.openLedgerImport$.subscribe(
@@ -96,6 +98,7 @@ export class LedgerImportComponent {
   }
 
   checkForGlid () {
+    console.log('this.values',this.values);
     if (!_.isEmpty(this.values['GlId'])) {
       if (+this.values['GlId']['value'] > 0) {
         if (+this.values['GlId']['value'] === 4) {
@@ -128,12 +131,16 @@ export class LedgerImportComponent {
 
   toggleSelect (evt) {
     const all = $('.ledger-container')
+    console.log(all)
     for (let i = 0;i <= all.length - 1;i++) {
       $('.ledger-container')[i].checked = evt.target.checked
-      if (evt.target.checked) {
-        this.selectedItems.push(+$('.ledger-container')[i].id)
+        this.masterData[i].checked = evt.target.checked;
+        if (evt.target.checked) {
+        this.selectedItems.push(+$('.ledger-container')[i].id);
+        this.checkValidAddToQueue();
       } else {
         let index = this.selectedItems.indexOf(+$('.ledger-container')[i].id)
+        this.checkValidAddToQueue();
         if (index > -1) {
           this.selectedItems.splice(index,1)
         }
@@ -141,71 +148,39 @@ export class LedgerImportComponent {
     }
   }
 
-  onItemToggle (index, SNO, evt) {
-    console.log('index : ', this.data['parentGroupData'])
-    console.log('evt : ',evt)
-    // console.log(this.masterData[evt.target.id-1].GROUPLEDGER,this.data['parentGroupData'][i].text)
-    if (index > -1) {
-      if (evt.target.checked) {
-        this.selectedItems.push(SNO);
-        console.log(evt.target.dataset.id)
-        this.isvalidGROUPLEDGER = null;
-        this.masterData[evt.target.dataset.id].checked = true;
-        console.log(this.masterData)
-        for(let i=0;i<this.masterData.length;i++){
-          console.log(this.masterData[i]);
-          if(this.masterData[i].checked){
-            if(this.masterData[i].GROUPLEDGER){
-              for(let j=0;j<this.data['parentGroupData'].length;j++){
-                if(this.masterData[i].GROUPLEDGER == this.data['parentGroupData'][j].text){
-                  console.log('hi');
-                  this.isvalidGROUPLEDGER = true;
-                  break;
-                }else if(j == this.data['parentGroupData'].length-1){
-                  this.isvalidGROUPLEDGER = false;
-                  break;
-                }
-              }
-            }else{
+  checkValidAddToQueue(){
+    for(let i=0;i<this.masterData.length;i++){
+      if(this.masterData[i].checked){
+        if(this.masterData[i].GROUPLEDGER){
+          for(let j=0;j<this.data['parentGroupData'].length;j++){
+            if(this.masterData[i].GROUPLEDGER == this.data['parentGroupData'][j].text){
+              this.isvalidGROUPLEDGER = true;
+              break;
+            }else if(j == this.data['parentGroupData'].length-1){
               this.isvalidGROUPLEDGER = false;
               break;
             }
           }
+        }else{
+          this.isvalidGROUPLEDGER = false;
+          break;
         }
-        // if(this.masterData[evt.target.dataset.id].GROUPLEDGER && this.isvalidGROUPLEDGER != false){
-        //   for(let i=0;i<this.data['parentGroupData'].length;i++){
-        //     if(this.masterData[evt.target.dataset.id].GROUPLEDGER == this.data['parentGroupData'][i].text){
-        //       console.log('hi');
-        //       this.isvalidGROUPLEDGER = true;
-        //     }
-        //   }
-        // }else{
-        //   this.isvalidGROUPLEDGER = false;
-        // }
+      }
+    }
+  }
+
+  onItemToggle (index, SNO, evt) {
+    if (index > -1) {
+      console.log(evt.target.checked)
+      if (evt.target.checked) {
+        this.selectedItems.push(SNO);
+        this.isvalidGROUPLEDGER = null;
+        this.masterData[evt.target.dataset.id].checked = true;
+        this.checkValidAddToQueue();
       } else {
         this.isvalidGROUPLEDGER = null;
         this.masterData[evt.target.dataset.id].checked = false;
-        console.log(this.masterData)
-        for(let i=0;i<this.masterData.length;i++){
-          console.log(this.masterData[i]);
-          if(this.masterData[i].checked){
-            if(this.masterData[i].GROUPLEDGER){
-              for(let j=0;i<this.data['parentGroupData'].length;j++){
-                if(this.masterData[i].GROUPLEDGER == this.data['parentGroupData'][j].text){
-                  console.log('hi');
-                  this.isvalidGROUPLEDGER = true;
-                  break;
-                }else{
-                  this.isvalidGROUPLEDGER = false;
-                  break;
-                }
-              }
-            }else{
-              this.isvalidGROUPLEDGER = false;
-              break;
-            }
-          }
-        }
+        this.checkValidAddToQueue();
         let i = this.selectedItems.indexOf(SNO)
         if (i > -1) {
           this.selectedItems.splice(i,1)
@@ -252,7 +227,9 @@ export class LedgerImportComponent {
     this.selectedItems = []
     this.ledgerData = this.ledgerData.concat(ledgerData)
     this.values['searchText'] = ''
-    console.log('ledger data : ', this.ledgerData)
+    console.log('ledger data : ', this.ledgerData);
+    this.values = {};
+    this.groupSelect2.setElementValue(0);
   }
 
   checkForDuplicates () {
@@ -388,7 +365,9 @@ export class LedgerImportComponent {
   }
 
   saveImport (value) {
+    this.spinner.show();
     this.gs.manipulateResponse(this.ledgerService.postLedgerImport(this.importParams())).subscribe(data => {
+      this.spinner.hide();
       console.log('ledger import : ', data)
       this.toastrService.showSuccess('Success', 'File Saved')
       if (value === 'new') {
@@ -419,6 +398,7 @@ export class LedgerImportComponent {
       this.selectedItems = []
       this.ledgerData = []
       this.ledgerKeys = []
+      this.values = {};
       if (event.target && event.target.files.length > 0) {
         this.isDataLoading = true
         this.file = event.target.files[0]

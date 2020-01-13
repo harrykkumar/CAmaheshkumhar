@@ -270,7 +270,6 @@ export class SaleDirectAddComponent {
           this.BillDiscountApplied = []
           this.BillDiscount = 0
           this.BillDiscountArray = []
-          // this.BillDiscountApplied = this.editMode ===true ? [] : data.data
           this.BillDiscountApplied = data.data
 
           this.MultipleDiscountCalculate(data.data)
@@ -291,7 +290,7 @@ export class SaleDirectAddComponent {
           this.Id = UIConstant.ZERO
           this.editMode = false
           this.creatingForm = false
-          this.ItemEdtMode = true
+          this.negativeStockValueMsgRemove = true
           this.openModal()
         } else {
           this.closeModal()
@@ -304,9 +303,8 @@ export class SaleDirectAddComponent {
           this.creatingForm = true
           this.editMode = true
           this.Id = +action.id
-          this.ItemEdtMode = true
+          this.negativeStockValueMsgRemove = true
           this.openModal()
-          //this.openModal(action.id, action.printId, action.viewPrint)
         }
       }
     )
@@ -469,8 +467,8 @@ export class SaleDirectAddComponent {
           if (this.currencyData.length >= 1) {
             this.CurrencyId = +this.currencyData[0].id
             this.currencyValue = +this.currencyData[0].id
-            this.ConvertToCurrencyId = +this.convertToCurrencyData[0].id
             this.convertToCurrencyValue = +this.convertToCurrencyData[0].id
+            this.ConvertToCurrencyId = +this.convertToCurrencyData[0].id
           }
         }
       }
@@ -686,9 +684,11 @@ export class SaleDirectAddComponent {
           if (data.AttributeValueResponses.length > 0) {
             this._saleDirectService.generateAttributes(data)
           }
-
-          
           _self.getBankList(data.Banks)
+          _self._saleDirectService.createSubUnits(data.SubUnits)
+          _self._saleDirectService.createTaxSlabs(data.TaxSlabs)
+          _self._saleDirectService.createCurrencies(data.Currencies)
+          _self._saleDirectService.createCharges(data.LedgerCharges)
           _self.TransactionNoSetups = data.TransactionNoSetups
           if (!this.editMode) {
             if (!this.isBillNoManuall) {
@@ -705,10 +705,7 @@ export class SaleDirectAddComponent {
           _self._saleDirectService.createGodowns(data.Godowns)
           this.SputilityIMEIData = data.ItemProperties
           this.ImeiNamelabel = data.ItemProperties[0].Name
-          _self._saleDirectService.createSubUnits(data.SubUnits)
-          _self._saleDirectService.createTaxSlabs(data.TaxSlabs)
-          _self._saleDirectService.createCurrencies(data.Currencies)
-          _self._saleDirectService.createCharges(data.LedgerCharges)
+
          
 
         },
@@ -727,7 +724,7 @@ export class SaleDirectAddComponent {
   allbankList: any
   selectedBankvalue: any
   getBankList(lsit) {
-  debugger
+  
     if (lsit.length > 0) {
       let newdata = []
       lsit.forEach(element => {
@@ -736,7 +733,7 @@ export class SaleDirectAddComponent {
           text: element.Name
         })
       });
-      debugger
+      
       this.allbankList = newdata
       if (this.PaymentDetail.length === 0) {
         this.selectedBankvalue = newdata[0].id
@@ -1010,6 +1007,7 @@ export class SaleDirectAddComponent {
     }
 
   }
+  negativeStockValueMsgRemove:any
   createItems(ItemTransactions) {
     ItemTransactions.forEach(element => {
       let taxRates = this.taxRatesForEdit.filter(taxRate => taxRate.LedgerId === FormConstants.SaleForm && taxRate.SlabId === element.TaxSlabId)
@@ -1049,7 +1047,8 @@ export class SaleDirectAddComponent {
       } else {
         this.taxTypeName = 'Inclusive'
       }
-      //this.ItemTypeId =element.TransType
+      this.negativeStockValueMsgRemove = false
+      this.ItemTypeId =element.ItemType
       this.TransType = element.TransType
       this.TransId = element.TransId
       this.ChallanId = element.ChallanId
@@ -1086,8 +1085,6 @@ export class SaleDirectAddComponent {
       this.taxRates = this.OrgGStType === 1 ? taxRates : []
       this.editItemId = element.Id
       this.ItemPropertyTrans = mobileSeriesNumber
-
-
       this.AmountItem = (+element.TaxType === 0) ? this.calcTotal() : +this.SubTotal - this.TaxAmount
       if (+element.TaxType === 1 && this.taxCalInclusiveType === 2) {
         if ('' + this.DiscountType === '0') {
@@ -1181,6 +1178,7 @@ export class SaleDirectAddComponent {
     else {
       this.isCaseSaleFlag = true
     }
+    this.RemarkSale= others.Remark
     this.vendorSelect2.setElementValue(this.PartyId)
     this.ReferralId = others.ReferralId
     this.ReferralTypeId = others.ReferralTypeId
@@ -1510,10 +1508,9 @@ export class SaleDirectAddComponent {
     this.getListOfChargeData()
     $('#saleDirect_modal').modal(UIConstant.MODEL_SHOW)
     this.industryId = +this.settings.industryId
-
-
     this.initialiseExtras()
     this.initItem()
+    this.Quantity=1
     this.initTransaction()
     this.initCharge()
     if (!this.editMode) {
@@ -1568,9 +1565,11 @@ export class SaleDirectAddComponent {
     )
   }
   editItemFlag: boolean
+  RemarkSale:any
   getBillSummryListFlag: boolean
   onLoading() {
     this.initComp()
+    this.RemarkSale=''
     this.notItemAddedOutOfStock = true
     this.ItemPropertyTrans = []
     this.addedMobileIMEINumber = []
@@ -1773,7 +1772,6 @@ export class SaleDirectAddComponent {
         this.categoryId = 0
         this.commonService.openItemMaster('', this.categoryId)
         this.itemselect2.selector.nativeElement.value = ''
-
         this.validateItem()
       } else {
         if (evt.value > 0 && evt.data[0] && evt.data[0].text) {
@@ -1928,7 +1926,7 @@ export class SaleDirectAddComponent {
       if (Data.Code === UIConstant.THOUSAND) {
         this.getBillSummryListFlag = true
         this.setIniData()
-        this.ItemEdtMode = false
+        this.negativeStockValueMsgRemove = true
         this.getListMobile = []
         if (Data.Data && Data.Data.ItemPropertyTrans && Data.Data.ItemPropertyTrans.length > 0) {
           this.getListMobile = []
@@ -2002,16 +2000,9 @@ export class SaleDirectAddComponent {
           }
           this.unitSelect2.setElementValue(Data.Data.ItemDetails[0].UnitId)
           this.ItemTypeId = Data.Data.ItemDetails[0].ItemType
+          this.itemInStock = Data.Data.ItemDetails[0].MainStockValue
           if(Data.Data.ItemDetails[0].ItemType!==3){
-            this.itemInStock = Data.Data.ItemDetails[0].MainStockValue
             Data.Data.ItemDetails[0].MainStockValue > 0 ? this.toastrService.showInfo('', 'Item Current Stock Value ' + this.itemInStock) : this.toastrService.showError('', 'Item Current Stock Value ' + this.itemInStock)
-            this.notItemAddedOutOfStock = true
-            if (0 >= this.itemInStock && !this.itemInStockFlag) {
-              this.notItemAddedOutOfStock = false
-            }
-          }
-          else{
-            this.notItemAddedOutOfStock = true
           }
           this.ItemId = Data.Data.ItemDetails[0].Id
           this.itemselect2.setElementValue(Data.Data.ItemDetails[0].Id)
@@ -2143,11 +2134,7 @@ export class SaleDirectAddComponent {
         this.toastrService.showError(error, '')
       })
   }
-  // SpItemUtilities:[{
-  //   "ItemId":number,
-  //   "Sno":number,
-  //   "IsNonDiscountItem":"0 or 1"
-  //   }]
+
   isDiscountedItem: any = []
 
   withoutAttributeData() {
@@ -3259,7 +3246,7 @@ export class SaleDirectAddComponent {
 
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
   onPaymentLedgerSelect(event) {
-    debugger
+    
     if (+event.value === -1) {
       this.commonService.openLedger('')
       this.ledgerSelect2.selector.nativeElement.value = ''
@@ -3443,32 +3430,20 @@ export class SaleDirectAddComponent {
   }
 
   checkItemQuantityForStock() {
-    debugger
-//alert(this.itemInStockFlag)
-// if (!this.itemInStockFlag && this.ItemTypeId!==3) {
-    if (!this.itemInStockFlag) {
-      if (this.Quantity > this.itemInStock) {
-        this.notItemAddedOutOfStock = false
+    if(this.negativeStockValueMsgRemove){
+      if(this.ItemTypeId!==3){
+        if (!this.itemInStockFlag) {
+          if (this.Quantity > this.itemInStock) {
+            return false  }  else {   return true
+          } }  else {   return true
+        }  } else{  return true } }  else{  return true }
       }
-      else {
-        this.notItemAddedOutOfStock = true
-      }
-    }
-    else {
-      this.notItemAddedOutOfStock = true
 
-    }
-
-  }
-
-  ItemEdtMode: boolean
+  
   addItems() {
-    debugger
+    
     if (this.validDiscount && +this.UnitId > 0 && this.Quantity > 0 && this.SaleRate > 0) {
-      if (!this.ItemEdtMode) {
-        this.checkItemQuantityForStock()
-      }
-      if (this.notItemAddedOutOfStock ) {
+      if (this.checkItemQuantityForStock() ) {
         this.addItem()
         this.clickItem = true
         this.applyCustomeRate = false
@@ -3625,11 +3600,8 @@ export class SaleDirectAddComponent {
       perItemDiscount: this.perItemDiscount,
       customRate: this.customRate,
       SpItemUtilities: this.isDiscountedItem,
-      ItemPropertyTrans: this.ItemPropertyTrans
-
-
-
-
+      ItemPropertyTrans: this.ItemPropertyTrans,
+      ItemTypeId: this.ItemTypeId
     })
     console.log(this.Items)
     this.addItemDisbaled = false
@@ -3728,7 +3700,7 @@ export class SaleDirectAddComponent {
         this.isDiscountApplyed = true
       }
       this.editItemIndex = i
-      this.ItemEdtMode = false
+      this.negativeStockValueMsgRemove = true
       this.Items[i].isDisabled = false
       this.DisabledRow = true
       this.TransType = 0
@@ -3815,6 +3787,7 @@ export class SaleDirectAddComponent {
       this.showHideAddItemRow = true
       this.Items.splice(i, 1)
       this.initItem()
+      //this.checkItemQuantityForStock()
       this.ItemAttributeTrans = []
       this.ItemPropertyTrans = []
       this.Items.forEach(item => {
@@ -3878,6 +3851,7 @@ export class SaleDirectAddComponent {
   }
   initItem() {
     this.preQty = 0
+    this.itemInStock=0
     this.getBillSummryListFlag = false
     this.editItemFlag = false
     this.editItemIndex = -1
@@ -3900,7 +3874,6 @@ export class SaleDirectAddComponent {
     this.MrpRate = 0
     this.PurchaseRate = 0
     this.DiscountType = 0
-    // this.BillDiscountType = this.editMode === true ? 1 : 0
     this.BillDiscount = 0
     this.Discount = 0
     this.DiscountAmt = 0
@@ -4144,8 +4117,8 @@ export class SaleDirectAddComponent {
       }
     }
     if (this.convertToCurrencyData && this.convertToCurrencyData.length >= 1) {
-      this.ConvertToCurrencyId = +this.convertToCurrencyData[0].id
       this.convertToCurrencyValue = +this.convertToCurrencyData[0].id
+      this.ConvertToCurrencyId = +this.convertToCurrencyData[0].id
       if (this.convertToSelect2) {
         this.convertToSelect2.setElementValue(this.ConvertToCurrencyId)
       }
@@ -4236,6 +4209,7 @@ export class SaleDirectAddComponent {
     })
     const saleDirectParams = {
       obj: {
+        Remark : this.RemarkSale,
         Id: this.Id ? this.Id : UIConstant.ZERO,
         ReferralCommissionTypeId: 0,
         ReferralCommission: 0,
@@ -4470,7 +4444,12 @@ export class SaleDirectAddComponent {
         this.invalidObj['PartyId'] = true
         isValid = 0
       }
-
+      // if(!this.checkItemQuantityForStock()){
+      //   isValid = 0
+      // }
+      // else{
+      //   isValid = 1
+      // }
       if (this.CurrentDate) {
         this.invalidObj['CurrentDate'] = false
       } else {
@@ -4568,6 +4547,7 @@ export class SaleDirectAddComponent {
             this.invalidObj['Width'] = true
           }
         }
+        
       }
       this.DisabledSaveBtn = false
 
@@ -4798,12 +4778,10 @@ export class SaleDirectAddComponent {
                       this.RevugainDetails()
                     }
                     this.itemFirstPosition()
-                    this.SaveName
-                    this.commonService.AddedItem()
                     this.addressBillingValue = null
                     this.addressShippingValue = null
                     this.BillDiscountApplied = []
-                    _self.commonService.newPurchaseAdd()
+                    _self.commonService.newSaleDirectAdd()
                     if (!this.keepOpen) {
                       this.closeModal()
 
@@ -4880,8 +4858,9 @@ export class SaleDirectAddComponent {
                 }
                 this.addressBillingValue = null
                 this.addressShippingValue = null
-                this.commonService.AddedItem()
                 this.BillDiscountApplied = []
+                _self.commonService.newSaleDirectAdd()
+
                 if (!this.keepOpen) {
                   this.closeModal()
                   _self.commonService.AfterSaveShowPrint(data)

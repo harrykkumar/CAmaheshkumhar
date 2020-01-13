@@ -12,40 +12,40 @@
                         <form #formModel="ngForm" novalidate>
                             <div class="form-row">
                                 <div class="form-group col-md-10">
-                                    <label for="attrName">Attribute Name</label>
-                                    <input [disabled]='disabledAddNewFlag' #attrname id="attrName" name="attributeName"
+                                    <label for="attrElementId">Attribute Name</label>
+                                    <input [disabled]='disabledAddNewFlag' #attrname id="attrElementId" name="attributeElementName"
                                     #attrNameModel="ngModel" type="text" class="form-control"
                                     placeholder="Enter Attribute Name" [(ngModel)]="attribute.name">
                                 </div>
                                 <div class="col-md-2 p-3">
                                     <button [disabled]='disabledAddNewFlag' type="button"
-                                     *ngIf="!isParent" class="btn btn-primary waves-effect" 
+                                     *ngIf="!isParent" class="btn btn-primary waves-effect"
                                      (click)="attribute.name && AddAttributeName()">Add</button>
-                                    <button [disabled]='disabledAddNewFlag' type="button" 
-                                    *ngIf="isParent" class="btn btn-primary waves-effect" 
+                                    <button [disabled]='disabledAddNewFlag' type="button"
+                                    *ngIf="isParent" class="btn btn-primary waves-effect"
                                     (click)="attribute.name && AddAttributeName()">Save</button>
                                 </div>
                                 <hr/>
                                 <ng-container *ngIf="!isParent" >
                                     <div class="form-group col-md-12" >
                                         <label for="attrSelectName">Selected Attribute </label>
-                                 <ng-select 
+                                 <ng-select
                                         [disabled]='disabledAddNewFlag'
-                                        name="formTypeName" 
-                                        [items]="attributeList" 
-                                        bindLabel="text" 
+                                        name="formTypeName"
+                                        [items]="attributeList"
+                                        bindLabel="text"
                                         bindValue="id"
-                                        placeholder="Select Attribute" 
-                                        (change)="onAttrValueChange($event)" 
+                                        placeholder="Select Attribute"
+                                        (change)="onAttrValueChange($event)"
                                         [(ngModel)]="selectedAttribute"
                                         [ngClass]="{'is-invalid': formModel?.submitted && !selectedAttribute}" >
                                  </ng-select>
-                                    
+
                                     </div>
-                                
+
                                     <div class="form-group col-md-12">
                                         <label for="attrValue">Attribute Value</label>
-                                        <input #AttributeValue id="attrValue" name="attributeValue" #attrValueModel="ngModel" type="text" class="form-control" 
+                                        <input #AttributeValue id="attrValue" name="attributeValue" #attrValueModel="ngModel" type="text" class="form-control"
                                         placeholder="Enter Attribute Value" [(ngModel)]="attribute.value"
                                         [ngClass]="{ 'is-invalid': formModel?.submitted && attrValueModel?.invalid }"
                                             required>
@@ -57,7 +57,7 @@
                                 <button type="button" (click)="saveAndUpdateAttribute('New')" class="btn btn-primary waves-effect"> Add New & Save </button>
 
                             </div>
-                           
+
                         </form>
                     </div>
                 </div>

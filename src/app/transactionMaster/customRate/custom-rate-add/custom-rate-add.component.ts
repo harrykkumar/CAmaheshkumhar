@@ -76,10 +76,12 @@ export class CustomRateAddComponent implements OnInit {
     }
     this.commonService.fixTableHF('custom-rate-table')
     this.commonService.fixTableHF('non-dis-table')
+    console.log(this.isDiscountSystem)
   }
 
   addToQueue () {
     this.masterData['selectedItems'].forEach((item) => {
+      item['Discount'] = +this.masterData['Discount']
       item['CustomerTypeId'] = this.masterData['CustomerTypeId']
     })
     let diff = -1
@@ -128,10 +130,16 @@ export class CustomRateAddComponent implements OnInit {
     console.log(JSON.stringify(obj))
     return obj
   }
-  manipulateData (data) {
+  manipulateData (data,select) {
+    console.log(select)
     const toPost = this.getPostParams(data)
     if (toPost.ItemCustomRates.length > 0) {
       this.customRateService.postCustomRate(toPost).subscribe((data) => {
+        if(select){
+          select.setElementValue(0);
+        }
+        this.masterData['Discount'] = null;
+        this.masterData['selectedItems'] = []
         console.log('data : ', data)
         this.getList()
         if (data) {
@@ -164,13 +172,18 @@ export class CustomRateAddComponent implements OnInit {
         const selected = this.masterData['listCopy'].filter((item) => +item['CategoryId'] === +categoryId)
         this.masterData['list'] = selected
       }
-      this.setDis()
+      // this.setDis()
     }
   }
 
-  setDis () {
+  setDis (e) {
+    console.log(e.target.value);
+    if(e.target.value+e.key > 100){
+      e.preventDefault();
+    }
+    console.log(this.masterData);
     this.masterData['list'].forEach((item) => {
-      item['Discount'] = +this.masterData['Discount']
+      // item['Discount'] = +this.masterData['Discount']
     })
   }
 
@@ -180,6 +193,7 @@ export class CustomRateAddComponent implements OnInit {
     } else {
       this.masterData['selectedItems'].splice(i, 1)
     }
+    console.log(this.masterData);
   }
 
   ngOnInit () {

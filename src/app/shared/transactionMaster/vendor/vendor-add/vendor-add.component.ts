@@ -829,9 +829,12 @@ export class VendorAddComponent implements OnDestroy {
                       }, 200)
                       this.onloadingCustomerForm()
                       this.id = 0
-                     // this.countryValue = null
                       this._CommonService.AddedItem()
                       this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
+                      if(!this.addressByDefaultForLedger){
+                        this.addressReset()
+                      }
+                      this.redMarkLabel()
                     }
         
                   }
@@ -874,7 +877,14 @@ export class VendorAddComponent implements OnDestroy {
 
   }
 
-
+  addressReset(){
+    this.countryValue= null
+    this.stateValue=null
+    this.cityValue=null
+    this.areNameId=null
+    this.adresss=''
+    this.postcode=''
+  }
   onPasteGST(e) {
     this._CommonService.allowOnlyNumericValueToPaste(e, (res) => {
       this.gstin = res

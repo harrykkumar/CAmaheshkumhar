@@ -58,7 +58,6 @@ export class CommonService {
   private openAddledgerCreationSub = new BehaviorSubject<AddCust>({ 'open': false })
   private sendDataForSearchSub = new BehaviorSubject<AddCust>({ 'open': false })
   private newRefreshSub = new Subject()
-  private redirectSub = new Subject()
   private ledgerSummarySub = new BehaviorSubject<AddCust>({ 'open': false })
   private openSaleDirectReturnSubject = new BehaviorSubject<AddCust>({ 'open': false })
   private onsaleDirectActionClicked$ = new Subject()
@@ -84,12 +83,22 @@ export class CommonService {
   setupChange$ = this.setpupsChange.asObservable()
   private openAddActiveInventorySub = new BehaviorSubject<AddCust>({ 'open': false })
   private openAddTaxProcessSub= new BehaviorSubject<AddCust>({ 'open': false })
+  private newSaleDirectAdded = new Subject()
+  private newSaleDirectReturnAdded = new Subject()
+  private newPurchaaseReturnAdded = new Subject()
+  private redirectSub = new Subject()
+  private observalRedirectViewFromRegisterToSaleList = new Subject()
+  private redirectPurhaseReturnSub= new Subject()
+  private redirectPurchaseSub= new Subject()
+  private redirectPrintSub = new Subject()
+  private redirectSaleReturnSub = new Subject()
+
   domainLogo: string = 'assets/img/logo.png';
   workdomain: string = 'Saniiro Technologies Pvt Ltd';
   isInternet: boolean = true;
   orgUserName: string
   sideMenuProfileImg: string;
-
+  
   //  validation reg ex
   companyNameRegx = `^[ A-Za-z0-9_@./#&+-]*$`
   alphaNumericRegx = `^[A-Za-z0-9]+$`
@@ -464,7 +473,29 @@ export class CommonService {
   getNewPurchaseAddedStatus() {
     return this.newPurchaseAdded.asObservable()
   }
+  newSaleDirectAdd() {
+    this.newSaleDirectAdded.next()
+  }
 
+  getNewSaleDirectAddedStatus() {
+    return this.newSaleDirectAdded.asObservable()
+  }
+  
+  newSaleDirecReturntAdd() {
+    this.newSaleDirectReturnAdded.next()
+  }
+
+  getNewSaleDirectReturnAddedStatus() {
+    return this.newSaleDirectReturnAdded.asObservable()
+  }
+  newPurchaseDirecReturntAdd() {
+    this.newPurchaaseReturnAdded.next()
+  }
+
+  getNewPurchaseDirectReturnAddedStatus() {
+    return this.newPurchaaseReturnAdded.asObservable()
+  }
+  
   getSettingById(id) {
     return this.baseService.getRequest(ApiConstant.GET_SETTING_BY_ID + id)
   }
@@ -1549,28 +1580,37 @@ export class CommonService {
   }
 
   reDirectPrintSale(action) {
-    this.redirectSub.next(action)
+    this.redirectPrintSub.next(action)
   }
 
   reDirectPrintSaleStatus() {
-    return this.redirectSub.asObservable()
+    return this.redirectPrintSub.asObservable()
   }
 
-
   reDirectViewListOfSale(action) {
-    this.redirectSub.next(action)
+    this.observalRedirectViewFromRegisterToSaleList.next(action)
   }
 
   reDirectViewListOfSaleStatus() {
-    return this.redirectSub.asObservable()
+    return this.observalRedirectViewFromRegisterToSaleList.asObservable()
+  }
+  reDirectViewListOfSaleReturn(action) {
+    this.redirectSaleReturnSub.next(action)
+  }
+
+  reDirectViewListOfSaleReturnStatus() {
+    return this.redirectSaleReturnSub.asObservable()
   }
   reDirectViewListOfPurchase(action) {
-    this.redirectSub.next(action)
+    this.redirectPurchaseSub.next(action)
   }
 
   reDirectViewListOfPurchaeStatus() {
-    return this.redirectSub.asObservable()
+    return this.redirectPurchaseSub.asObservable()
   }
+
+
+
   getDashBoardData(type) {
     return this.baseService.getRequest(ApiConstant.INIT_DASHBOARD + type)
   }
@@ -1708,5 +1748,14 @@ export class CommonService {
 
   convertToTitleCase(value){
     return _.startCase(value);
+  }
+
+
+  reDirectViewListOfPurchaseReturn(action) {
+    this.redirectPurhaseReturnSub.next(action)
+  }
+
+  reDirectViewListOfPurchaeReturnStatus() {
+    return this.redirectPurhaseReturnSub.asObservable()
   }
 }

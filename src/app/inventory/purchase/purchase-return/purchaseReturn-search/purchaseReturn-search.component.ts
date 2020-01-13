@@ -9,6 +9,8 @@ import { GlobalService } from '../../../../commonServices/global.service';
 import { DependencyCheck } from '../../../../shared/validators/dependencyCheck';
 import { DatepickerComponent } from '../../../../shared/datepicker/datepicker.component';
 declare const $: any
+import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
+
 @Component({
   selector: 'app-purchaseReturn-search',
   templateUrl: './purchaseReturn-search.component.html',
@@ -50,8 +52,16 @@ export class PurchaseReturnSearchComponent {
   @Input() toShow: boolean = false
   searchForm: FormGroup
 
-  constructor (private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
-    private settings: Settings, private _saleDirectReturnService: PurchaseService, private gs: GlobalService) {}
+  constructor (private commonService: CommonService,private formBuilder: FormBuilder, private _ledgerServices: VendorServices,
+    private settings: Settings, private _saleDirectReturnService: PurchaseService, private gs: GlobalService) {
+      this.commonService.reDirectViewListOfPurchaeStatus().subscribe(
+        (action: any) => {
+        this.searchForm.controls.FromDate.setValue(action.fromDate)
+        this.searchForm.controls.ToDate.setValue(action.toDate)
+        }
+      )
+      
+    }
   @ViewChild('ledger_select2') ledgerSelect2: Select2Component
   ngOnInit () {
     this.dataValues = [
@@ -225,7 +235,7 @@ export class PurchaseReturnSearchComponent {
        '&LedgerId=' + this.LedgerId + 
        '&CountryId=' + this.CountryId + '&StateId=' + this.StateId + '&CityId=' + this.CityId
       this._saleDirectReturnService.setSearchQueryParamsStr(queryStr)
-    }
+   }
   }
 
   resetSearch () {

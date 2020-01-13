@@ -3,6 +3,7 @@ export interface LoginModel {
   customerId: any
   username: any
   password: any
+  Type?: any
 }
 export interface OtpModel {
   ParentId: number

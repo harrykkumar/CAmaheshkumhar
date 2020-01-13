@@ -1,5 +1,4 @@
 import { LoginService } from './../../../commonServices/login/login.services';
-
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
 import { Subscription, fromEvent ,Subject} from 'rxjs'
 import { map, filter, takeUntil,debounceTime, distinctUntilChanged } from 'rxjs/operators'
@@ -13,6 +12,8 @@ import { PagingComponent } from '../../../shared/pagination/pagination.component
 import { FormGroup, FormBuilder } from '@angular/forms'
 import { Settings } from '../../../shared/constants/settings.constant'
 import * as _ from 'lodash'
+import { GlobalService } from '../../../commonServices/global.service'
+
 @Component({
   selector: 'app-sales-challan',
   templateUrl: './sales-challan.component.html',
@@ -94,7 +95,7 @@ export class SalesChallanComponent implements OnInit {
   industryId: any
   StausValue:any=0
   menuData: any;
-  constructor(public _settings: Settings, private _formBuilder: FormBuilder, private _coustomerServices: VendorServices,
+  constructor(public gs: GlobalService,public _settings: Settings, private _formBuilder: FormBuilder, private _coustomerServices: VendorServices,
      public _commonService: CommonService,
      public _toastrCustomService: ToastrCustomService,
      private _loginService: LoginService) {
@@ -106,6 +107,18 @@ export class SalesChallanComponent implements OnInit {
       { id: '0', text: 'Running' },
       { id: '1', text: 'Cancelled' },
     ]
+
+    this._commonService.reDirectViewListOfSaleStatus().subscribe(
+      (action: any) => {
+        this.fromDatevalue = action.fromDate
+        this.toDateValue= action.toDate
+
+     //  this.searchForm.controls.FromDate.setValue(action.fromDate)
+      // this.searchForm.controls.ToDate.setValue(action.toDate)
+      this.searchButton()
+      }
+    )
+
     this.itemIdCollection = []
     this.generateBillFlagEnable = true
     this.clientDateFormat = this._settings.dateFormat
@@ -177,21 +190,18 @@ export class SalesChallanComponent implements OnInit {
    selectedStatusId:number=0
    statusId:number =null
    LedgerName: any = ''
-   fromDatevalue:any=''
-   toDateValue:any=''
+   fromDatevalue:any
+   toDateValue:any
    statusChange (event){
     if (event.id > 0) {
       this.selectedStatusId = +event.id
     }
    }
    onLedgerItemChange = (event) => {
-   // if (this.ledgerItemId !== null) {
-
       if (event.id > 0) {
         this.selectedLedgerId = +event.id
         this.LedgerName = event.text
       }
-    //}
   }
   StausType:any=0
   formTypeNmae2:any ='Status'
@@ -228,10 +238,8 @@ export class SalesChallanComponent implements OnInit {
     if (!this.searchForm.value.searckKey) {
       this.searchForm.value.searckKey = ''
     }
-  let ToDate =  this.toDateValue
-  let FromDate =  this.fromDatevalue
-
-
+    let ToDate =  this.toDateValue==='' ? '' : this.gs.clientToSqlDateFormat( this.toDateValue, this.clientDateFormat)
+    let FromDate =  this.fromDatevalue==='' ? '' : this.gs.clientToSqlDateFormat( this.fromDatevalue, this.clientDateFormat)
     this._commonService.getAllDataOfSaleChallan('?Strsearch=' + this.searchForm.value.searckKey+'&Status='+this.StausType+'&ToDate='+ToDate+'&FromDate='+FromDate +'&LedgerId='+this.selectedLedgerId+ '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr).subscribe(data => {
       if (data.Code === UIConstant.THOUSAND) {
         console.log('sales data: ', data)
@@ -241,7 +249,6 @@ export class SalesChallanComponent implements OnInit {
         }
         else {
           this.notRecordFound = true
-
         }
         this.saleTravelDetails = data.Data
         this.total = this.saleTravelDetails[0] ? this.saleTravelDetails[0].TotalRows : 0
@@ -296,11 +303,7 @@ export class SalesChallanComponent implements OnInit {
     this.pagingComp.setPage(1)
     return this._commonService.getAllDataOfSaleChallan('?Strsearch=' + term + '&Page=' + this.p + '&Size=' + this.itemsPerPage + this.queryStr)
   }
-  // deleteItem(i, forArr) {
-  //   if (forArr === 'trans') {
-  //     this.transactions.splice(i, 1)
-  //   }
-  // }
+
   private unSubscribe$ = new Subject<void>()
   CancelSaleChallan (id) {
     this._commonService.openDelete(id, 'SaleChallan', 'SaleChallan')
@@ -322,7 +325,6 @@ export class SalesChallanComponent implements OnInit {
       })
     }
   }
-  // generate bar code
   InventoryTransactionSales: any
   barcode: any
   ItemAttributesTransactions: any
@@ -334,8 +336,7 @@ export class SalesChallanComponent implements OnInit {
   ContactCustInfo: any
   ContactOrgInfo: any
   onPrintButtonSaleChallan(id, htmlId) {
-    // this.orgImage = 'http://app.saniiro.com/uploads/2/2/2/Images/Organization/ologorg.png'
-    //alert(id)
+
     let _self = this
     _self._commonService.printAndEditSaleChallan(id).subscribe(data => {
       console.log(JSON.stringify(data), 'salechallan')
@@ -377,7 +378,6 @@ export class SalesChallanComponent implements OnInit {
         if (data.Data.ItemTransactionactions.length > 0) {
           _self.ItemTransactionactions = []
           _self.itemAttbute = []
-          //  _self.ItemTransactionactions = data.Data.ItemTransactionactions
           data.Data.ItemTransactionactions.forEach((element, index) => {
             let attributeValue = data.Data.ItemAttributesTransactions.filter(d => (d.ItemTransId === element.Id))
             if (attributeValue.length > 0) {
@@ -385,20 +385,7 @@ export class SalesChallanComponent implements OnInit {
             }
           });
           _self.ItemTransactionactions = data.Data.ItemTransactionactions
-          // for(let i=0; i < data.Data.ItemTransactionactions.length; i++) {
-          //    for(let j=0; j < data.Data.ItemAttributesTransactions.length; j++) {
-          //   if(data.Data.ItemTransactionactions[i].Id === data.Data.ItemAttributesTransactions[j].ItemTransId){
-          //      this.itemAttbute.push({
-          //        attr:data.Data.ItemAttributesTransactions[j].AttributeName,
-          //        ItemId:data.Data.ItemAttributesTransactions[j].ItemId,
-          //        rowId :data.Data.ItemAttributesTransactions[j].ItemTransId,
-          //        Id:data.Data.ItemAttributesTransactions[j].Id
-          //      })
-          //      console.log(this.itemAttbute ,"colorr")
-          //   }
-          //    }
-
-          // }
+       
         } else {
           _self.ItemTransactionactions = []
 

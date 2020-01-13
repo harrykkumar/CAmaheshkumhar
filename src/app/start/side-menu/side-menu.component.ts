@@ -123,7 +123,6 @@ export class SideMenuComponent {
       }
       if (!this.commonService.isEmpty(menu) && !this.commonService.isEmpty(menu.subMenu) && menu.subMenu.length > 0) {
         _.map(menu.subMenu, (subMenu) => {
-          console.log(subMenu, subMenu.CommonCode)
           const matchedSubMenu = _.find(SIDE_MENU_MODEL, {Id: subMenu.Id});
           if (!_.isEmpty(matchedSubMenu)) {
             subMenu['path'] = matchedSubMenu.path
@@ -138,7 +137,6 @@ export class SideMenuComponent {
         })
       }
     })
-    console.log('side menu to check', this.sideMenu)
   }
 
   navigateTo = (selectedMenu) => {

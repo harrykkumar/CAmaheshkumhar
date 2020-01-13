@@ -175,7 +175,7 @@ export class SaleDirectMainComponent {
     ).subscribe((text: string) => {
       this._saleDirectService.onTextEntered(text)
     })
-    this.expoertExceldata()
+   // this.expoertExceldata()
   }
   @ViewChild('saleDirect_add') saledirectAdd: SaleDirectAddComponent
   SPUtilityData() {
@@ -861,6 +861,7 @@ body{font-size:.7rem;color:#000!important;overflow-x:hidden;font-family:Calibri,
     })
   }
   exportExcel() {
+    this.expoertExceldata()
     if (this.mainDataExcel.length > 0) {
       this.excelService.generateExcel(this.getOrgDetails.OrganizationDetails[0].OrgName, this.getOrgDetails.AddressDetails[0].CityName + ' ' + this.getOrgDetails.AddressDetails[0].StateName + ' ' + this.getOrgDetails.AddressDetails[0].CountryName, this.ExcelHeaders, this.mainDataExcel, 'Sale Invoice', "", "", this.ExcelSummary)
 

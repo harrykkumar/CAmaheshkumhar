@@ -18,11 +18,9 @@ export class EmailEditorCustomComponent implements OnInit{
   @Output() closeModal = new EventEmitter();
   editMode: boolean;
   editId: number = 0;
-  categoryTypes: any = []
-  options = {
-  };
+  templateTypeData: any = []
+  categoryData: Array<any> = []
   designModal: any = {}
-  destroy$: Subscription[] = []
   @ViewChild(EmailEditorComponent)
   private emailEditor: EmailEditorComponent;
   constructor(
@@ -32,57 +30,57 @@ export class EmailEditorCustomComponent implements OnInit{
     private commonService: CommonService,
     private bs: BaseServices) {
     this.designModal.RawData = {}
+    this.getTemplateType()
   }
 
   ngOnInit() {
-    this.getCategories()
   }
 
-  getCategories() {
-    this.destroy$.push(this._es.getContentCategories().subscribe(
-      (data) => {
-        let newData = [];
-        data.forEach((element) => {
-          newData.push({
-            id: element.Id,
-            text: element.Name
-          })
-        })
-        this.categoryTypes = newData
+  getTemplateType() {
+    this._es.getContentCategories().subscribe(
+      (res) => {
+        if (!this.commonService.isEmpty(res)) {
+          this.templateTypeData = [...res]
+        } else {
+          this.templateTypeData = []
+        }
       }
-    ))
+    )
   }
 
   openModal(item?) {
-    this.commonService.openModal('email_editor');
+    this.commonService.openModal('save_file');
     if(!this.commonService.isEmpty(item)){
       this.assignFormData(item);
     }
   }
 
-  closePopUp(data?) {
-    this.commonService.closeModal('email_editor')
-    this.closeModal.emit(data);
+  closePopUp(data) {
+    this.commonService.closeModal(data);
+    this.closeModal.emit();
+  }
+
+  onEmailTypeSave(){
+    this.commonService.closeModal('save_file');
+    this.commonService.openModal('email_editor');
   }
 
   exportHtml() {
     this.emailEditor.exportHtml((data: any) => {
       this.designModal.RawData = JSON.stringify(data.design)
-      this.designModal.HtmlRawData = JSON.stringify(data.html)
-      // const blob = new Blob([`${data.html}`], {type: "text/html;charset=utf-8"});
-      // saveAs(blob, "template.html");
-      $('#save_file').modal(UIConstant.MODEL_SHOW)
+      this.designModal.HtmlRawData = data.html
+      this.postDesign()
     });
   }
 
   preparePayload(){
     return {
       "Name": this.designModal.Name,
-      "Type": 5,
+      "Type": this.designModal.ContentCategoryId ? this.designModal.ContentCategoryId : 0,
       "RawData": this.designModal.RawData ? this.designModal.RawData : '',
       "HtmlRawData": this.designModal.HtmlRawData ? this.designModal.HtmlRawData : '',
-      "ContentCategoryId": this.designModal.ContentCategoryId ? this.designModal.ContentCategoryId : 0,
-      "categoryValue": this.designModal.ContentCategoryId ? this.designModal.ContentCategoryId : 0,
+      "ContentCategoryId": this.designModal.categoryId ? this.designModal.categoryId : 0,
+      // "categoryValue": this.designModal.ContentCategoryId ? this.designModal.ContentCategoryId : 0,
       "Id": this.designModal.Id ? this.designModal.Id : 0
     }
   }
@@ -99,30 +97,18 @@ export class EmailEditorCustomComponent implements OnInit{
     this.bs.postRequest(ApiConstant.EMAIL_EDITOR, this.preparePayload()).subscribe((res) => {
       if (res.Code === 1000) {
         this._ts.showSuccess('Saved Successfully', '')
-        this.closePopUp()
+        const blob = new Blob([`${this.designModal.HtmlRawData}`], {type: "text/html;charset=utf-8"});
+        saveAs(blob, `${this.designModal.Name}.html`);
+        this.closePopUp('email_editor')
       } else {
         this._ts.showErrorLong(res.Message, '')
       }
     })
   }
 
-  closeFile() {
-    $('#save_file').modal(UIConstant.MODEL_HIDE)
-  }
-
   editorLoaded(e) {
     if (!this.commonService.isEmpty(this.designModal.RawData)) {
       this.emailEditor.loadDesign(this.designModal.RawData)
     }
-  }
-
-  validate() {
-    let valid = 1
-    if (!this.designModal.Name) valid = 0
-    if (+this.designModal.ContentCategoryId <= 0) valid = 0
-    return !!valid
-  }
-
-  ngOnDestroy() {
   }
 }

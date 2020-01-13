@@ -954,7 +954,6 @@ export class GlobalService {
       let setting = []
       let setupMasters = settings.SetupMasters
       let setupClient = settings.SetupClients
-      // console.log(setupClient, setupMasters)
       await  setupMasters.forEach(
        async (element) => {
         let val: string | Array<any> | boolean | number
@@ -977,7 +976,6 @@ export class GlobalService {
         }
         if (+element.Type === SetUpIds.multiple) {
           let setupclient = setupClient.filter(setup => setup.SetupId === element.Id)
-          // console.log(setupclient) /*setupclient[0].Val.split(',') */
           val = setupclient
         }
         if (+element.Type === SetUpIds.getBoolean) {
@@ -999,11 +997,11 @@ export class GlobalService {
           if (+element.id === +SetUpIds.dateFormat) {
             this.clientDateFormat = element.val[0].Val
             this.settings.dateFormat = element.val[0].Val
-            return
+            // return
           }
           if (+element.id === +SetUpIds.noOfDecimalPoint) {
               this.settings.noOfDecimal = element.val
-            return 
+            // return
           }
         });
       }

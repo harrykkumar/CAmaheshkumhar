@@ -102,7 +102,7 @@ export class PurchaseReturnMainComponent {
       ).subscribe((text: string) => {
         this._saleDirectReturnService.onTextEntered(text)
       })
-      this.expoertExceldata()
+     
   }
   itemAttbute:any=[]
 
@@ -469,6 +469,7 @@ Heading:any =[]
   mainDataExcel:any =[]
   getOrgDetailsData:any ={}
   exportExcel () {
+    this.expoertExceldata()
     if(this.mainDataExcel.length>0){
         this.excelService.generateExcel(this.getOrgDetailsData.OrganizationDetails[0].OrgName , this.getOrgDetailsData.AddressDetails[0].CityName+ ' ' +this.getOrgDetailsData.AddressDetails[0].StateName + ' ' + this.getOrgDetailsData.AddressDetails[0].CountryName,this.ExcelHeaders,this.mainDataExcel,'Purchase',"", "",this.ExcelSummary)
     }

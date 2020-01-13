@@ -2,13 +2,12 @@ import { Component, Output, ElementRef, EventEmitter, ViewChild } from '@angular
 import { FormGroup, FormBuilder, Validators } from '@angular/forms'
 import { Subscription } from 'rxjs'
 import { BankPopUpServices } from '../../../../commonServices/bank-popup-services'
-import { SaniiroCommonService } from '../../../../commonServices/SaniiroCommonService'
 import { CommonSetGraterServices } from '../../../../commonServices/setgatter.services'
 import { UIConstant } from '../../../constants/ui-constant'
 import { VendorServices } from '../../../../commonServices/TransactionMaster/vendoer-master.services'
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Banks, AddCust } from '../../../../model/sales-tracker.model'
+import {AddCust } from '../../../../model/sales-tracker.model'
 import { ToastrCustomService } from '../../../../commonServices/toastr.service'
 import { CommonService } from 'src/app/commonServices/commanmaster/common.services'
 import { Select2OptionData, Select2Component } from 'ng2-select2'
@@ -92,23 +91,7 @@ export class BankAddComponent {
       this.stateValue = null
     }
   }
-  // selectStatelist(event) {
-  //   if (this.stateValue !== null) {
-  //     if (+event.id > 0) {
-  //       this.stateId = +event.id
-  //       this.GSTStateCode = event.stateCode
-  //       this.stateValue = +event.id
-      
-  //       if (this.stateId > 0) {
-  //         this.getCitylist(this.stateId, 0)
-  //       }
-  //     }
-  //     else {
-  //       this.stateId = 0
-  //     }
-  //   }
 
-  // }
 
   cityValue: any
   getCitylist(id, value) {
@@ -131,6 +114,7 @@ export class BankAddComponent {
   cityId: any
   CityName: any
   getStaeList(id, value) {
+    this.stateValue= null
     this.subscribe = this._customerServices.gatStateList(id).subscribe(Data => {
       this.stateListplaceHolder = { placeholder: 'Select State' }
       this.stateList = [{ id: '0', text: 'Select State' }]
@@ -145,7 +129,6 @@ export class BankAddComponent {
   }
 
  
-  //submitClick && validGSTNumber) || invalidObj?.requiredGST
   getListCountryLabelList(id){
     this.commonService.COUNTRY_LABEL_CHANGE(id).subscribe(resp=>{
       if(resp.Code===1000 && resp.Data.length>0){
@@ -155,14 +138,6 @@ export class BankAddComponent {
         this.GstinNoValue=resp.Data[0].GstinNo
         this.CinNoValue=resp.Data[0].CinNo
         this.FssiNoValue=resp.Data[0].FssiNo 
-        if(id!==123){
-          // this.validGSTNumber= true
-          this.requiredGST=false
-        }
-        else{
-          // this.validGSTNumber= false
-          this.requiredGST=false
-        }
       }
     })
   }
@@ -190,10 +165,9 @@ export class BankAddComponent {
   openModal() {
     this.getSetUpModules((JSON.parse(this._settings.moduleSettings).settings))
     this.submitClick = true
-    this.mandatoryField()
     this.onloading()
+    this.addressReset()
     this.disabledGSTfor_UnRegi = false
-
     $('#bankPopup').modal(UIConstant.MODEL_SHOW)
     setTimeout(() => {
       this.banknameFocus.nativeElement.focus()
@@ -203,10 +177,10 @@ export class BankAddComponent {
     this.select2VendorValue()
     this.coustmoreRegistraionId=0
     this.getOrgnizationAddress()
-
     if (this.editData) {
       this.edibankDetails(this.Id)
     }
+    this.mandatoryField()
     
   }
   getOrgnizationAddress() {
@@ -214,9 +188,7 @@ export class BankAddComponent {
     if (Address !== null && this.addressByDefaultForLedger) {
       this.loadAddressDetails(Address)
     }
-    if (Address !== null  && !this.addressByDefaultForLedger) {
-      this.getCountryCodeForMobile(Address)
-    }
+    
   }
   addressByDefaultForLedger:boolean = false
   getSetUpModules(settings) {
@@ -228,11 +200,7 @@ export class BankAddComponent {
     })
 
   }
-  getCountryCodeForMobile (Address){
-    this.getListCountryLabelList(0)
-    this.GSTStateCode='00'
-    
-  }
+ 
   loadAddressDetails(Address) {
     console.log(Address)
     this.countryValue = Address.CountryId
@@ -248,7 +216,6 @@ export class BankAddComponent {
       text: Address.CountryName
     }
     this.selectCountryListId(country)
-    
     this.getListCountryLabelList(Address.CountryId)
     let state = {
       id: Address.StateId,
@@ -266,33 +233,7 @@ export class BankAddComponent {
       this.selectedCityId(city)
     }, 200);
   }
-  // loadAddressDetails(Address) {
-  //   this.countryValue = Address.CountryId
-  //   this.cityValue = Address.CityId
-  //   this.stateValue = Address.StateId
 
-  //   let country = {
-  //     id: Address.CountryId,
-  //     text: Address.CountryName
-  //   }
-  //   this.selectCountryListId(country)
-  //   this.getListCountryLabelList(Address.CountryId)
-
-  //   let state = {
-  //     id: Address.StateId,
-  //     text: Address.Statename
-  //   }
-  //   let city = {
-  //     id: Address.CityId,
-  //     text: Address.CityName
-  //   }
-  //   setTimeout(() => {
-  //     this.selectStatelist(state)
-  //   }, 100);
-  //   setTimeout(() => {
-  //     this.selectedCityId(city)
-  //   }, 200);
-  // }
   edibankDetails(id) {
     if (id > 0) {
       this.subscribe = this.commonService.getEditbankDetails(id).subscribe(data => {
@@ -312,15 +253,8 @@ export class BankAddComponent {
             this.registerTypeSelect2.setElementValue(this.coustmoreRegistraionId)
             this.valueCRDR = data.Data.BankDetails[0].Crdr
             this.CrDrRateType = data.Data.BankDetails[0].Crdr
-            this.requiredGST = data.Data.BankDetails[0].TaxTypeId === 1 ? true : false
             this.Ledgerid = data.Data.BankDetails[0].Ledgerid
-            this.bankNameErr = false
-            this.IFSCCodeErr = false
-            this.AccountHolderNameErr=false
-            
-            this.bankNameErr = false
-            this.accountErr = false
-            this.BrancNameErr = false
+           
           }
           
           if (data.Data.AddressDetails.length > 0) {
@@ -331,6 +265,9 @@ export class BankAddComponent {
           }
           if (data.Data.Statutories.length > 0) {
             this.gstin = data.Data.Statutories[0].GstinNo
+            if (!_.isEmpty(this.gstin)) {
+              this.GstinNoCode = this.returnsplitGSTcode()
+            }
             this.satuariesId = data.Data.Statutories[0].Id
           }
           this.mandatoryField()
@@ -341,10 +278,7 @@ export class BankAddComponent {
   }
   clearbank() {
     this.onloading()
-    this.countryValue = null
-    this.stateValue = null
     this.coustomerValue =2
-    this.cityValue = null
     this.submitClick = false
   }
   @ViewChild('select_regiType') registerTypeSelect2: Select2Component
@@ -383,22 +317,9 @@ export class BankAddComponent {
     this.micr = ''
     this.address = ''
     this.gstin = ''
-    this.requiredGST = true
-    this.AccountHolderNameErr=true
-    this.IFSCCodeErr = true
-    this.bankNameErr = true
-    this.accountErr = true
-    this.BrancNameErr = true
-    this.countryValue= null
-    this.stateValue= null
-    this.cityValue= null
   }
-  bankNameErr: any
-  BrancNameErr: any
-  IFSCCodeErr: any
+
   AccountHolderName:any
-  AccountHolderNameErr:any
-  accountErr: any
 
   invalidObj: any ={}
   
@@ -529,18 +450,18 @@ export class BankAddComponent {
               let saveNameFlag = this.editID === 0 ? UIConstant.SAVED_SUCCESSFULLY : UIConstant.UPDATE_SUCCESSFULLY
               _self.toastrService.showSuccess('', saveNameFlag)
               if (type === 'save') {
-                this.closeModal()
-                this.disabledStateCountry = false
-                this.commonService.AddedItem()
+                 this.closeModal()
+                 this.commonService.AddedItem()
                 _self.commonService.closeLedger(false, toSend)
-                this.clearbank()
-              } else {
-                this.getCountry(0)
-                this.disabledStateCountry = false
-  
+              } else if(type === 'new') {
+                this.mandatoryField()
                 this.commonService.AddedItem()
+                this.Id=0
                 _self.commonService.closeLedger(true, toSend)
-                this.clearbank()
+                this.onloading()
+                if(!this.addressByDefaultForLedger){
+                  this.addressReset()
+                }
               }
             }
             if (data.Code === UIConstant.THOUSANDONE) {
@@ -559,6 +480,14 @@ export class BankAddComponent {
         this.toastrService.showError('','Invalid GSTIN Number According to Selected State ')
       }
     }
+  }
+
+  addressReset(){
+    this.countryValue= null
+    this.stateValue=null
+    this.cityValue=null
+    this.address=''
+  
   }
   CrDrRateType: any
   Ledgerid: any
@@ -589,9 +518,9 @@ export class BankAddComponent {
         Addresses: [{
           Id: this.addressId === 0 ? 0 : this.addressId,
           ParentTypeId: 5,
-          CountryId: this.countrId === undefined ? 0 : this.countrId,
-          StateId: this.stateId === undefined ? 0 : this.stateId,
-          CityId: this.cityId === undefined ? 0 : this.cityId,
+          CountryId: this.countryValue === null ? 0 : this.countryValue,
+          StateId: this.stateValue === null ? 0 : this.stateValue,
+          CityId: this.cityValue === null ? 0 : this.cityValue,
           AddressValue: this.address,
         }],
       }
@@ -635,7 +564,6 @@ export class BankAddComponent {
   validGSTNumber: boolean = false
   requiredGST: boolean
   GstinNoCode: any
-  disabledStateCountry: boolean = false
   @ViewChild('country_selecto') countryselecto: Select2Component
   @ViewChild('state_select2') stateselecto: Select2Component
 
@@ -645,7 +573,6 @@ export class BankAddComponent {
       id: rsp.Data[0].Id,
       text: rsp.Data[0].CommonDesc1
     })
-    this.disabledStateCountry = true
     this.stateList = newdata
     this.getCitylist(rsp.Data[0].Id, 0)
   }

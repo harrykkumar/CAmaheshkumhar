@@ -2927,7 +2927,7 @@ export class PurchaseReturnComponent {
                       _self.toastrService.showSuccess('Saved Successfully', '')
             this.DisabledSaveBtn= false
 
-                      _self.commonService.newPurchaseAdd()
+                      _self.commonService.newPurchaseDirecReturntAdd()
                       if (!this.keepOpen) {
                         _self.commonService.closePurchaseReturn()
                         this.closeModal()
@@ -2987,7 +2987,7 @@ export class PurchaseReturnComponent {
                 if (data.Code === UIConstant.THOUSAND && data.Data) {
                   _self.toastrService.showSuccess('Saved Successfully', '')
                 this.DisabledSaveBtn= false
-                  _self.commonService.newPurchaseAdd()
+                  _self.commonService.newPurchaseDirecReturntAdd()
                   if (!this.keepOpen) {
                     _self.commonService.closePurchaseReturn()
                     this.closeModal()

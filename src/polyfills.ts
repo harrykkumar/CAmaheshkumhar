@@ -84,3 +84,15 @@ import 'zone.js/dist/zone'  // Included with Angular CLI.
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
+
+declare interface MyWindow extends Window {
+  global: any;
+}
+// const extendedWindow = window as MyExtendedWindow;
+// declare global  {
+//   interface Window { global: any; }
+// }
+if (typeof window['global'] === 'undefined') {
+  // window['global'] = window;
+  (window as MyWindow).global = window;
+}

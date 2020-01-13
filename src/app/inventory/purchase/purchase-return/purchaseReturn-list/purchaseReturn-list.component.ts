@@ -56,7 +56,7 @@ export class PurchaseReturnListComponent implements OnInit {
     ) {
     this.menuData = this._loginService.getMenuDetails(43, 9);
    this.getPurchaseReturnList()
-    this.newPurchaseSub = this.commonService.getNewPurchaseAddedStatus().subscribe(
+    this.newPurchaseSub = this.commonService.getNewPurchaseDirectReturnAddedStatus().subscribe(
       () => {
         this.getPurchaseReturnList()
       }
@@ -84,9 +84,12 @@ export class PurchaseReturnListComponent implements OnInit {
         this.getPurchaseReturnList()
       }
     )
-    this.redirectData = this.commonService.reDirectViewListOfPurchaeStatus().subscribe(
+
+    this.commonService.reDirectViewListOfPurchaeReturnStatus().subscribe(
       (action: any) => {
-        this.queryStr =  "&FromDate="+ action.fromDate+"&ToDate="+action.toDate
+        let fromDate = JSON.parse(JSON.stringify(this.gs.clientToSqlDateFormat(action.fromDate, this.settings.dateFormat)))
+        let toDate = JSON.parse(JSON.stringify(this.gs.clientToSqlDateFormat(action.toDate, this.settings.dateFormat)))
+        this.queryStr = '&fromDate=' + fromDate + '&toDate=' + toDate
         this.getPurchaseReturnList()
       }
     )

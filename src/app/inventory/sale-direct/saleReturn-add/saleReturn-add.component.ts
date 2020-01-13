@@ -3096,8 +3096,7 @@ export class SaleDirectReturnComponent {
                   data => {
                     if (data.Code === UIConstant.THOUSAND && data.Data) {
                       _self.toastrService.showSuccess('Saved Successfully', '')
-                      _self.commonService.newPurchaseAdd()
-                      this.commonService.AddedItem()
+                      _self.commonService.getNewSaleDirectReturnAddedStatus()
                       if (!this.keepOpen) {
                         _self.commonService.closeSaleDirectReturn()
                       } else {
@@ -3160,9 +3159,7 @@ export class SaleDirectReturnComponent {
                   _self.toastrService.showSuccess('Saved Successfully', '')
                   this.DisabledSaveBtn = true
 
-                  _self.commonService.newPurchaseAdd()
-                  this.commonService.AddedItem()
-
+                  _self.commonService.getNewSaleDirectReturnAddedStatus()
                   if (!this.keepOpen) {
                     _self.commonService.closeSaleDirectReturn()
                   } else {

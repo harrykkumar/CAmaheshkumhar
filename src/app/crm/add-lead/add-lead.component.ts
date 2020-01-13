@@ -161,6 +161,7 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
         dropdown: true,
         scrollbar: true,
         zindex: 99999,
+        minTime: new Date,
         change: (event) => {
           this.model.followUpTime = $('#timePickerId').timepicker().format(event);
           console.log(this.model.followUpTime)
@@ -390,7 +391,7 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
       "Remark": this.model.remark ? this.model.remark : '',
       "Company": this.model.company,
       "CountryCode": this.model.countryCodeId ? this.model.countryCodeId : 0,
-      "ContactNo": this.model.mobileNo,
+      "ContactNo": this.model.mobileNo ?  this.model.mobileNo.toString().replace(/\s/g,'') : null,
       "Email": this.model.email,
       "ContactPerson": this.model.keyPerson,
       "ListLeadProductDetails": _.map(this.model.itemDetailList, (item) => {
@@ -408,8 +409,6 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
   }
 
   preparePayloadForFollowUp() {
-    console.log(this)
-    console.log(this.addfollowUpDetailRefControl)
     const data =  {
       "Id": (this.formType === UIConstant.FORMTYPE_FOLLOWUP_EDIT) ? this.editLeadId : 0,
       "EnquiryId": this.formType === UIConstant.FORMTYPE_FOLLOWUP ?
@@ -428,7 +427,7 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
       "Remark": !this.commonService.isEmpty(this.model.remark) ? this.model.remark : '',
       "Company": !this.commonService.isEmpty(this.model.company) ? this.model.company : '',
       "CountryCode": !this.commonService.isEmpty(this.model.countryCodeId) ? this.model.countryCodeId : 0,
-      "ContactNo": !this.commonService.isEmpty(this.model.mobileNo) ? this.model.mobileNo : '',
+      "ContactNo": !this.commonService.isEmpty(this.model.mobileNo) ? this.model.mobileNo.toString().replace(/\s/g,'') : null,
       "Email": !this.commonService.isEmpty(this.model.email) ? this.model.email : '',
       "KeyPersonId": !this.commonService.isEmpty(this.model.keyPersonId) ? this.model.keyPersonId : 0,
       "KeyPersonName": !this.commonService.isEmpty(this.model.keyPerson) ? this.model.keyPerson : "",
@@ -498,7 +497,6 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
         }
       })
     }
-    console.log(data)
     return data;
   }
 
@@ -639,7 +637,7 @@ export class AddLeadComponent implements OnInit, AfterViewInit {
           }, 1000);
         } else {
           this.model.lastFollowUpDate = this.gs.utcToClientDateFormat(new Date(data.NextFollowUpDate), this._settings.dateFormat)
-          this.backDate = this.model.lastFollowUpDate;
+          // this.backDate = this.model.lastFollowUpDate;
         }
       }
     }

@@ -13,6 +13,8 @@ declare var flatpickr: any
 import { ExcelService } from '../../commonServices/excel.service';
 import { Router } from '@angular/router';
 import {SaleDirectSearchComponent} from 'src/app/inventory/sale-direct/sale-direct-search/sale-direct-search.component'
+import { SaleDirectService } from '../../inventory/sale-direct/saleDirectService.service';
+
 @Component({
   providers:[SaleDirectSearchComponent],
   selector: 'app-sale-register',
@@ -39,6 +41,7 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
     public _settings: Settings,
     public _commonService: CommonService,
     private _toastService: ToastrCustomService,
+    private _saleDirectService: SaleDirectService,
   ) {
     this.clientDateFormat = this._settings.dateFormat
     this.noOfDecimal = this._settings.noOfDecimal
@@ -70,21 +73,20 @@ export class SaleRegisterComponent implements OnInit, AfterViewInit {
     this.model.selectedLedgerItem = event.data[0]
   }
   redirectToSaleInvoice (item,type) {
-    let fromDate =  this._globalService.utcToClientDateFormat(item.StartDate, 'm/d/Y')
-    let toDate =  this._globalService.utcToClientDateFormat(item.Todate, 'm/d/Y')
+    let fromDate =  this._globalService.utcToClientDateFormat(item.StartDate, this.clientDateFormat)
+    let toDate =  this._globalService.utcToClientDateFormat(item.Todate, this.clientDateFormat)
+   
     let obj={
       fromDate :fromDate,
       toDate :toDate,
-      viewflag:true
+      viewflag:false
     }
     if(type==='sale'){
-      
-    //  this._saleDirectSearchComponent.search()
       this._router.navigate(['ims/sale'])
       this._commonService.reDirectViewListOfSale(obj)
     }
     if(type==='saleReturn'){
-      this._commonService.reDirectViewListOfSale(obj)
+      this._commonService.reDirectViewListOfSaleReturn(obj)
       this._router.navigate(['ims/sale-return'])
     }
 

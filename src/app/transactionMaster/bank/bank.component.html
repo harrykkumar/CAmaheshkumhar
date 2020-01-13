@@ -49,12 +49,13 @@
                             <thead>
                                 <tr>
                                     <th width="7%">S.No.</th>
-                                    <th width="20%">Bank Name</th>
-                                    <th width="15%">Account NO</th>
+                                    <th width="10%">Bank Name</th>
+                                    <th width="20%">Account HolderName</th>
+                                    <th width="12%">Account NO</th>
                                     <th width="10%">IFSC Code</th>
                                     <th width="10%">MICR code</th>
                                     <th width="15%">Branch</th>
-                                    <th width="15%">Opening Balance</th>
+                                    <th width="13%">Opening Balance</th>
 
                                     <th width="8%">Action</th>
                                 </tr>
@@ -64,6 +65,7 @@
                                     [attr.data-itemDetail]="i">
                                     <td>{{lastItemIndex + i + 1}}</td>
                                     <td>{{item.Name}}</td>
+                                    <td>{{item.AccountHolderName}}</td>
                                     <td>{{item.AcNo}}</td>
                                     <td>{{item.IfscCode}}</td>
                                     <td>{{item.MicrNo}}</td>

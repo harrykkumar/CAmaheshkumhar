@@ -19,6 +19,7 @@ import * as _ from 'lodash'
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { IfStmt } from '@angular/compiler'
 import { SetUpIds } from 'src/app/shared/constants/setupIds.constant'
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast'
 
 @Component({
   selector: 'app-ledger-creation',
@@ -122,18 +123,18 @@ export class LedgerCreationAddComponent implements OnDestroy {
         } else {
           this.closeModal()
         }
+        this.getLedgerGroupList()
       }
     )
 
     this.modelForLedgerGroup = this._CommonService.getledgerGroupStatus().subscribe(
       (data: AddCust) => {
         if (data.id >0 && data.name) {
-          debugger
           this.getLedgerGroupList()
           let newData = Object.assign([], this.ledgerGroupData)
           newData.push({ id: data.id, text: data.name })
           this.ledgerGroupData = newData
-          this.LedgerGroupValue = data.id
+          //this.LedgerGroupValue = data.id
           this.parentId = data.id
           this.headId = data.headId
           setTimeout(() => {
@@ -178,7 +179,7 @@ export class LedgerCreationAddComponent implements OnDestroy {
       }
     })
   }
-  LedgerGroupValue: any
+  // LedgerGroupValue: any
 
   onDestroy$ = new Subject()
   LgroupDetails: any
@@ -513,15 +514,22 @@ closeResetData(){
   }
 
   showHideFlag: boolean
+  IsGstApply:any= 1
   showGSTYesOrNot(type) {
     if (type === 'Yes') {
       this.showHideFlag = true
+      this.IsGstApply=1
     }
     else if (type === 'No') {
       this.showHideFlag = false
+      this.IsGstApply=0
       this.TaxSlabId = 0
       this.ITCTypeId = 0
       this.RCMTypeId = 0
+      this.countryValue=null
+      this.stateValue=null
+      this.cityValue=null
+      this.address=''
       if(this.customeRegistTypeSelect2){
         setTimeout(() => {
           this.customeRegistTypeSelect2.setElementValue(0)
@@ -529,7 +537,7 @@ closeResetData(){
       } 
       this.coustmoreRegistraionId=0
       this.gstin =''
-
+       this.panNo=''
       this.HSNNo = ''
     }
 
@@ -559,6 +567,7 @@ closeResetData(){
   }
   address: any = ''
   onLoading() {
+    this.IsGstApply =1
     this.parentId = 0
     this.ITCTypeId = 0
     this.RCMTypeId = 0
@@ -580,7 +589,7 @@ closeResetData(){
     this.countryValue = null
     this.stateValue = null
     this.cityValue = null
-    this.LedgerGroupValue =0
+ //this.LedgerGroupValue =0
       this.getOrgnizationAddress()
 
   }
@@ -599,7 +608,6 @@ closeResetData(){
   }
   openModal() {
     this.getSetUpModules((JSON.parse(this._settings.moduleSettings).settings))
-    this.getLedgerGroupList()
     this.onLoading()
     this.getITCType()
     this.getRCMType()
@@ -773,6 +781,10 @@ closeResetData(){
                     this.cityCountrysatateReset()
                   }
                   this._toastrcustomservice.showSuccess('', UIConstant.SAVED_SUCCESSFULLY)
+                  if(!this.addressByDefaultForLedger){
+                    this.addressReset()
+                  }
+                  this.mandatoryField()
                 }
                    this.disabledGSTfor_UnRegi = false
               }
@@ -806,7 +818,13 @@ closeResetData(){
   }
 
   @ViewChild('under_group_select2') underGroupSelect2: Select2Component
-
+  addressReset(){
+    this.countryValue= null
+    this.stateValue=null
+    this.cityValue=null
+    this.address=''
+  
+  }
   GSTNumber: any
   PANNumber: any
   GstinNoCode: any = ''
@@ -917,7 +935,7 @@ closeResetData(){
   }
   
   addressId: any
-  private LedgerParams(): AddLedger {
+  private LedgerParams() {
     let obj = {
       Ledger: {
         Id: this.id === 0 ? 0 : this.id,
@@ -929,7 +947,7 @@ closeResetData(){
         ITCType: this.ITCTypeId,
         TaxSlabId: this.TaxSlabId,
         HsnNo: this.HSNNo,
-
+        IsGstApply: this.IsGstApply,
         ShortName: this.ShortName,
         OpeningAmount: this.getopeinAmountValue(),
         IsChargeLedger: this.isChangeOtherFlagValue,
@@ -947,7 +965,7 @@ closeResetData(){
           CityId: this.cityValue === null ? 0 : this.cityValue,
           AddressValue: this.address,
         }],
-      } as AddLedger
+      }
     }
     return obj.Ledger
   }
@@ -988,10 +1006,9 @@ closeResetData(){
           if (!_.isEmpty(this.gstin)) {
             this.GstinNoCode = this.returnsplitGSTcode()
           }
-          
-
         }
         if (Data.Data && Data.Data.LedgerDetails && Data.Data.LedgerDetails.length > 0) {
+          this.showHideFlag =Data.Data.LedgerDetails[0].IsGstApply ===0 ? false : true
           this.disabledOpeningBalance = false
           this.headId = Data.Data.LedgerDetails[0].HeadId
           this.isTaxedAplly = Data.Data.LedgerDetails[0].IsTaxed
@@ -1026,9 +1043,9 @@ closeResetData(){
           this.loadAddressDetails(Data.Data.Addresses[0])
 
         }
+        this.mandatoryField()
       }
     })
-    this.mandatoryField()
   }
 
   @ViewChild('country_selecto') countrySelect2: Select2Component
@@ -1110,7 +1127,6 @@ closeResetData(){
 
   stateValuedata1: any = null
   countryCodeFlag: any = null
-  cityValue1: any = null
   getOrgnizationAddress() {
     let Address = JSON.parse(localStorage.getItem('ORGNIZATIONADDRESS'));
     if (Address !== null && this.addressByDefaultForLedger) {

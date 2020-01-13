@@ -26,7 +26,7 @@ export class ApiConstant {
 
   public static get GET_PACKING_DETAIL(): string { return this.BASE_URL + '/api/v1/Setting/CommonMaster?CommonCode=150' }
 
-  public static get LOGIN_URL(): string { return this.BASE_URL + '/api/v1/authentication/login?Type=Web' }
+  public static get LOGIN_URL(): string { return this.BASE_URL + '/api/v1/authentication/login' }
 
   public static get GET__SUB_UNIT_DETAIL(): string { return this.BASE_URL + '/api/v1/Subunit' }
 
@@ -565,4 +565,5 @@ export class ApiConstant {
 
   public static get CRM_ACTION_REPORT(): string { return this.BASE_URL + '/api/v1/CRM/GetCRMActionReport' }
 
+  public static get DYNAMIC_COLUMN_SETTING(): string { return this.BASE_URL + '/api/v1/CRM/DynamicReportMasterSetting' }
 }

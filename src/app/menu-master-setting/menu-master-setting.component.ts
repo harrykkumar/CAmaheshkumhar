@@ -282,6 +282,7 @@ export class MenuMasterSettingComponent {
       isValid = false
     }
     if (isValid) {
+      console.log(newSettings)
       let obj = {'SetupClients': newSettings}
       console.log('obj: ', JSON.stringify(obj))
       this.destroy$.push(this.settingsService.postFormValues(obj).subscribe(

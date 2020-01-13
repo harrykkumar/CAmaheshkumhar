@@ -24,7 +24,7 @@
                   [(ngModel)]="selectedid">
                 </ng-select>
               </div>
-              <div class="col-lg-12">
+              <div class="col-lg-12" *ngIf="selectedid">
                 <div class="card">
                   <table class="table" style="width: 100%">
                     <thead>

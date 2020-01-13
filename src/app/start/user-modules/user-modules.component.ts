@@ -46,20 +46,20 @@ export class UserModulesComponent implements OnInit {
 
   navigateTo = async (path, selectedModule, index) => {
     this.spinnerService.show();
+    selectedModule['index'] = index
+    localStorage.setItem('SELECTED_MODULE', JSON.stringify(selectedModule))
     if (selectedModule.Id) {
       await this._loginService.getAllSettings(selectedModule.Id)
     }
-    selectedModule['index'] = index
-    localStorage.setItem('SELECTED_MODULE', JSON.stringify(selectedModule))
     if (selectedModule.Id === 4) {
       this.router.navigate(['crm/dashboard']);
     } else {
       this.router.navigate([path])
     }
+    this.spinnerService.hide();
   }
 
   initModulesData = async () => {
-    // debugger
     this.spinnerService.show()
     const organization = JSON.parse(localStorage.getItem('SELECTED_ORGANIZATION'))
     if (_.isEmpty(this._loginService.userData) || (!_.isEmpty(this._loginService.userData) && _.isEmpty(this._loginService.userData.Modules))) {
