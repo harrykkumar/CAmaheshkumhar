@@ -49,7 +49,7 @@
     "ngx-toastr": "^9.1.2",
     "rxjs": "^6.3.0",
     "rxjs-compat": "^6.4.0",
-    "select2": "^4.0.6-rc.1",
+    "select2": "^4.0.6",
     "ts-xlsx": "0.0.11",
     "zone.js": "~0.8.26"
   },
